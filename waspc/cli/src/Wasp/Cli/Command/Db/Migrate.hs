@@ -7,10 +7,7 @@ where
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common
-  ( findWaspProjectRootDirFromCwd,
-  )
+import Wasp.Cli.Command (Command, CommandError (..), WaspRootRequirement (WaspRootRequirement), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Cli.Common
 import Wasp.Generator.Common (ProjectRootDir)
@@ -24,7 +21,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
 migrateDev :: [String] -> Command ()
 migrateDev optionalMigrateArgs = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  WaspRootRequirement waspProjectDir <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
   let projectRootDir =
         waspProjectDir

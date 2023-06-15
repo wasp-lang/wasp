@@ -6,14 +6,13 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text.IO as T.IO
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command (Command, CommandError (..), WaspRootRequirement (WaspRootRequirement), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Project (compileAndRenderDockerfile)
 
 printDockerfile :: Command ()
 printDockerfile = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  WaspRootRequirement waspProjectDir <- require
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions waspProjectDir)
   either
     (throwError . CommandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)

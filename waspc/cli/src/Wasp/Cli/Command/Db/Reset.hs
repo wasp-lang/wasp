@@ -5,8 +5,7 @@ where
 
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
-import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command (Command, WaspRootRequirement (WaspRootRequirement), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Generator.DbGenerator.Operations (dbReset)
@@ -14,7 +13,7 @@ import qualified Wasp.Message as Msg
 
 reset :: Command ()
 reset = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  WaspRootRequirement waspProjectDir <- require
   let genProjectDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 

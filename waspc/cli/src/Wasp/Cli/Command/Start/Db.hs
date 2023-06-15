@@ -17,8 +17,8 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, throwIfExeIsNotAvailable)
+import Wasp.Cli.Command (Command, CommandError (CommandError), WaspRootRequirement (WaspRootRequirement), require)
+import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Common (WaspProjectDir)
@@ -36,7 +36,7 @@ import qualified Wasp.Util.Network.Socket as Socket
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: Command ()
 start = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  WaspRootRequirement waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec

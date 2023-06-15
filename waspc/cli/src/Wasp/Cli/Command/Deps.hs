@@ -7,8 +7,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command (Command, CommandError (..), WaspRootRequirement (WaspRootRequirement), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -19,7 +18,7 @@ import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
 deps = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  WaspRootRequirement waspProjectDir <- require
   appSpecOrAnalyzerErrors <- liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either

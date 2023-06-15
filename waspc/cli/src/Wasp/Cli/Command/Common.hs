@@ -1,55 +1,19 @@
 module Wasp.Cli.Command.Common
-  ( findWaspProjectRootDirFromCwd,
-    findWaspProjectRoot,
-    readWaspCompileInfo,
+  ( readWaspCompileInfo,
     throwIfExeIsNotAvailable,
-    require,
-    CommandRequirement (..),
   )
 where
 
 import Control.Monad.Except
 import qualified Control.Monad.Except as E
-import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, Path')
-import qualified StrongPath as SP
 import StrongPath.Operations
-import System.Directory (doesFileExist, doesPathExist, findExecutable, getCurrentDirectory)
-import qualified System.FilePath as FP
+import System.Directory (findExecutable)
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Requires (CommandRequirement (..), checkRequirement)
-import Wasp.Cli.Common (dotWaspRootFileInWaspProjectDir)
 import qualified Wasp.Cli.Common as Cli.Common
-import Wasp.Generator.DbGenerator.Operations (isDbRunning)
 import Wasp.Project (WaspProjectDir)
-import Wasp.Util (ifM, unlessM)
+import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
-
-findWaspProjectRoot :: Path' Abs (Dir ()) -> Command (Path' Abs (Dir WaspProjectDir))
-findWaspProjectRoot currentDir = do
-  let absCurrentDirFp = SP.fromAbsDir currentDir
-  doesCurrentDirExist <- liftIO $ doesPathExist absCurrentDirFp
-  unless doesCurrentDirExist (throwError notFoundError)
-  let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.fromRelFile dotWaspRootFileInWaspProjectDir
-  isCurrentDirRoot <- liftIO $ doesFileExist dotWaspRootFilePath
-  if isCurrentDirRoot
-    then return $ SP.castDir currentDir
-    else do
-      let parentDir = SP.parent currentDir
-      when (parentDir == currentDir) (throwError notFoundError)
-      findWaspProjectRoot parentDir
-  where
-    notFoundError =
-      CommandError
-        "Wasp command failed"
-        ( "Couldn't find wasp project root - make sure"
-            ++ " you are running this command from a Wasp project."
-        )
-
-findWaspProjectRootDirFromCwd :: Command (Path' Abs (Dir WaspProjectDir))
-findWaspProjectRootDirFromCwd = do
-  absCurrentDir <- liftIO getCurrentDirectory
-  findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)
 
 readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> IO String
 readWaspCompileInfo waspDir =
@@ -70,30 +34,3 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Nothing ->
       E.throwError $
         CommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
-
--- | @require requirement@ checks whether the specified requirement is
--- met, throwing an error if it is not.
---
--- See 'CommandRequirement' for what each requirement is and what it checks
--- for.
---
--- NOTE: it would be better if this function was in 'Wasp.Cli.Command.Requires',
--- but that creates a dependency loop (since this function depends on Common, which
--- depends on Command, which depends on Requires).
-require :: CommandRequirement -> Command ()
-require requirement = case requirement of
-  DbConnection ->
-    throwIfRequirementNotMet
-      ( do
-          waspRoot <- findWaspProjectRootDirFromCwd
-          let outDir = waspRoot </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
-          liftIO $ isDbRunning outDir
-      )
-      ( CommandError
-          "Can not connect to database"
-          "The database needs to be running in order to execute this command. You can easily start a managed dev database with `wasp start db`."
-      )
-  where
-    throwIfRequirementNotMet isRequirementMet err = do
-      unlessM (checkRequirement requirement isRequirementMet) $
-        throwError err
