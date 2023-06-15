@@ -156,6 +156,11 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
       usernameValidationErrors
         | not $ null usernameTypeValidationErrors = usernameTypeValidationErrors
         | otherwise = usernameAttributeValidationErrors
+      passwordValidationErrors =
+        validateEntityHasField
+          userEntityName
+          userEntityFields
+          ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
       usernameTypeValidationErrors =
         validateEntityHasField
           userEntityName
@@ -163,12 +168,10 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
           ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
       usernameAttributeValidationErrors
         | doesFieldHaveAttribute "username" "unique" userEntity == Just True = []
-        | otherwise = [GenericValidationError $ "The field 'username' on Entity referenced by " ++ userEntityName ++ " must have the '@unique' attribute."]
-      passwordValidationErrors =
-        validateEntityHasField
-          userEntityName
-          userEntityFields
-          ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
+        | otherwise =
+          [ GenericValidationError $
+              "The field 'username' on Entity referenced by " ++ userEntityName ++ " must have the '@unique' attribute."
+          ]
       userEntityFields = Entity.getFields userEntity
       userEntityName = "app.auth.userEntity"
       userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
