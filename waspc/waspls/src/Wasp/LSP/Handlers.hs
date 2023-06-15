@@ -30,7 +30,7 @@ import Wasp.Analyzer (analyze)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
-import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
+import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagonstic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
 import Wasp.LSP.ExtImport (refreshExportsForFile)
 import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
 import Wasp.LSP.ServerM (ServerM, handler, modify, runRLspM)
@@ -143,9 +143,11 @@ diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
   analyzeWaspFile uri
   currentDiagnostics <- handler $ asks (^. latestDiagnostics)
+  srcString <- handler $ asks (^. currentWaspSource)
+  let lspDiagnostics = map (waspDiagnosticToLspDiagnostic srcString) currentDiagnostics
   LSP.sendNotification
     LSP.STextDocumentPublishDiagnostics
-    $ LSP.PublishDiagnosticsParams uri Nothing (LSP.List currentDiagnostics)
+    $ LSP.PublishDiagnosticsParams uri Nothing (LSP.List lspDiagnostics)
 
 analyzeWaspFile :: LSP.Uri -> ServerM ()
 analyzeWaspFile uri = do
@@ -167,8 +169,7 @@ analyzeWaspFile uri = do
     readSourceString = fmap T.unpack <$> readVFSFile uri
 
     storeCSTErrors concreteErrorMessages = do
-      srcString <- handler $ asks (^. currentWaspSource)
-      newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) concreteErrorMessages
+      let newDiagnostics = map ParseDiagnostic concreteErrorMessages
       modify (latestDiagnostics .~ newDiagnostics)
 
     runWaspAnalyzer srcString = do
@@ -178,7 +179,7 @@ analyzeWaspFile uri = do
           modify (latestDiagnostics .~ [])
         Left err -> do
           let newDiagnostics =
-                [ waspErrorToDiagnostic err
+                [ AnalyzerDiagonstic err
                 ]
           modify (latestDiagnostics .~ newDiagnostics)
 

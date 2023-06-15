@@ -1,38 +1,74 @@
 module Wasp.LSP.Diagnostic
-  ( waspErrorToDiagnostic,
-    concreteParseErrorToDiagnostic,
+  ( WaspDiagnostic (..),
+    waspDiagnosticToLspDiagnostic,
   )
 where
 
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
+import qualified StrongPath as SP
 import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CPE
 import Wasp.Analyzer.Parser.Ctx (getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
+import Wasp.Analyzer.Parser.SourceRegion (sourceSpanToRegion)
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
-import Wasp.LSP.ServerM (ServerM, logM)
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
-concreteParseErrorToDiagnostic :: String -> CPE.ParseError -> ServerM LSP.Diagnostic
+data WaspDiagnostic
+  = ParseDiagnostic !CPE.ParseError
+  | AnalyzerDiagonstic !W.AnalyzeError
+  | MissingImportDiagnostic !SourceSpan !MissingImportReason !(SP.Path' SP.Abs SP.File')
+  deriving (Eq, Show)
+
+data MissingImportReason = NoDefaultExport | NoNamedExport !String | NoFile
+  deriving (Eq, Show)
+
+showMissingImportReason :: MissingImportReason -> SP.Path' SP.Abs SP.File' -> Text
+showMissingImportReason NoDefaultExport tsFile =
+  "No default export in " <> Text.pack (SP.fromAbsFile tsFile)
+showMissingImportReason (NoNamedExport name) tsFile =
+  "`" <> Text.pack name <> "` is not exported from " <> Text.pack (SP.fromAbsFile tsFile)
+showMissingImportReason NoFile tsFile =
+  Text.pack (SP.fromAbsFile tsFile) <> " does not exist"
+
+missingImportSeverity :: MissingImportReason -> LSP.DiagnosticSeverity
+missingImportSeverity _ = LSP.DsError
+
+waspDiagnosticToLspDiagnostic :: String -> WaspDiagnostic -> LSP.Diagnostic
+waspDiagnosticToLspDiagnostic src (ParseDiagnostic err) = concreteParseErrorToDiagnostic src err
+waspDiagnosticToLspDiagnostic _ (AnalyzerDiagonstic analyzeError) = waspErrorToDiagnostic analyzeError
+waspDiagnosticToLspDiagnostic src (MissingImportDiagnostic sourceSpan reason tsFile) =
+  let message = showMissingImportReason reason tsFile
+      severity = missingImportSeverity reason
+      region = sourceSpanToRegion src sourceSpan
+      range = waspSourceRegionToLspRange region
+   in LSP.Diagnostic
+        { _range = range,
+          _severity = Just severity,
+          _code = Nothing,
+          _source = Just "ts",
+          _message = message,
+          _tags = Nothing,
+          _relatedInformation = Nothing
+        }
+
+concreteParseErrorToDiagnostic :: String -> CPE.ParseError -> LSP.Diagnostic
 concreteParseErrorToDiagnostic src err =
   let message = Text.pack $ showConcreteParseError src err
       source = "parse"
       range = concreteErrorRange err
-   in logM ("[concreteParseErroToDiagnostic] _range=" ++ show range)
-        >> return
-          ( LSP.Diagnostic
-              { _range = range,
-                _severity = Nothing,
-                _code = Nothing,
-                _source = Just source,
-                _message = message,
-                _tags = Nothing,
-                _relatedInformation = Nothing
-              }
-          )
+   in LSP.Diagnostic
+        { _range = range,
+          _severity = Just LSP.DsError,
+          _code = Nothing,
+          _source = Just source,
+          _message = message,
+          _tags = Nothing,
+          _relatedInformation = Nothing
+        }
   where
     concreteErrorRange e = case CPE.errorSpan e of
       SourceSpan startOffset endOffset ->
@@ -53,7 +89,7 @@ waspErrorToDiagnostic err =
       range = waspErrorRange err
    in LSP.Diagnostic
         { _range = range,
-          _severity = Nothing,
+          _severity = Just LSP.DsError,
           _code = Nothing,
           _source = Just source,
           _message = message,
