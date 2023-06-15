@@ -15,6 +15,7 @@ import type {
 import type {
   Prisma,
 } from "@prisma/client";
+import { Payload } from "../_types/serialization.js";
 import type {
   {= crud.entityUpper =},
 } from "../entities";
@@ -52,7 +53,7 @@ const entities = {
 // 1. We define the type for the operation using "queryType" template variable which is either
 //    AuthenticatedQuery or Query (it depends on whether auth is enabled or not).
 =}
-export type GetAllQuery<Input, Output> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+export type GetAllQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
 {=!
 // 2. Then, we either use the default implementation of the operation...
 =}
@@ -96,7 +97,7 @@ export async function getAllFn(args, context) {
 
 {=# crud.operations.Get =}
 // Get query
-export type GetQuery<Input, Output> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+export type GetQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Get.isDefined =}
 type GetInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
@@ -122,7 +123,7 @@ export async function getFn(args, context) {
 
 {=# crud.operations.Create =}
 // Create action
-export type CreateAction<Input, Output>= {= actionType =}<[_WaspEntityTagged], Input, Output>
+export type CreateAction<Input extends Payload, Output extends Payload>= {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Create.isDefined =}
 type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
 type CreateOutput = _WaspEntity
@@ -149,7 +150,7 @@ export async function createFn(args, context) {
 
 {=# crud.operations.Update =}
 // Update action
-export type UpdateAction<Input, Output> = {= actionType =}<[_WaspEntityTagged], Input, Output>
+export type UpdateAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Update.isDefined =}
 type UpdateInput = Prisma.{= crud.entityUpper =}UpdateInput & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type UpdateOutput = _WaspEntity
@@ -180,7 +181,7 @@ export async function updateFn(args, context) {
 
 {=# crud.operations.Delete =}
 // Delete action
-export type DeleteAction<Input, Output> = {= actionType =}<[_WaspEntityTagged], Input, Output>
+export type DeleteAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Delete.isDefined =}
 type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
