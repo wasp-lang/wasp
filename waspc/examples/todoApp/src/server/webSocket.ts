@@ -1,16 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocketDefinition } from '@wasp/webSocket'
 
-export interface ServerToClientEvents {
-  chatMessage: (msg: { id: string; username: string; text: string }) => void
-}
-
-export interface ClientToServerEvents {
-  chatMessage: (msg: string) => void
-}
-
-export interface InterServerEvents {}
-
 export const webSocketFn: WebSocketDefinition<
   ClientToServerEvents,
   ServerToClientEvents,
@@ -27,3 +17,11 @@ export const webSocketFn: WebSocketDefinition<
     })
   })
 }
+
+interface ServerToClientEvents {
+  chatMessage: (msg: { id: string; username: string; text: string }) => void
+}
+interface ClientToServerEvents {
+  chatMessage: (msg: string) => void
+}
+interface InterServerEvents {}
