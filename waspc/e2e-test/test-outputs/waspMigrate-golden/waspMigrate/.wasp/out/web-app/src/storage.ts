@@ -7,15 +7,19 @@ export type DataStore = {
 };
 
 function createLocalStorageDataStore(prefix: string): DataStore {
+    function getPrefixedKey(key: string): string {
+        return `${prefix}:${key}`;
+    }
+
     return {
-        getPrefixedKey(key) { return `${prefix}:${key}`; },
+        getPrefixedKey,
         set(key, value) {
             ensureLocalStorageIsAvailable();
-            localStorage.setItem(`${prefix}:${key}`, JSON.stringify(value));
+            localStorage.setItem(getPrefixedKey(key), JSON.stringify(value));
         },
         get(key) {
             ensureLocalStorageIsAvailable();
-            const value = localStorage.getItem(`${prefix}:${key}`);
+            const value = localStorage.getItem(getPrefixedKey(key));
             try {
                 return value ? JSON.parse(value) : undefined;
             } catch (e: any) {
@@ -24,7 +28,7 @@ function createLocalStorageDataStore(prefix: string): DataStore {
         },
         remove(key) {
             ensureLocalStorageIsAvailable();
-            localStorage.removeItem(`${prefix}:${key}`);
+            localStorage.removeItem(getPrefixedKey(key));
         },
         clear() {
             ensureLocalStorageIsAvailable();
