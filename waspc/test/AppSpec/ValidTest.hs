@@ -255,15 +255,15 @@ spec_AppSpecValid = do
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'String'."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'username' of type 'String'."
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity2)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'password' of type 'String'."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'password' of type 'String'."
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity3)
             `shouldBe` [ ASV.GenericValidationError
-                           "The field 'username' on Entity referenced by app.auth.userEntity must have the '@unique' attribute."
+                           "The field 'username' on entity 'User' (referenced by app.auth.userEntity) must be marked with a '@unique' attribute."
                        ]
   where
     makeBasicPslField name typ = makePslField name typ False

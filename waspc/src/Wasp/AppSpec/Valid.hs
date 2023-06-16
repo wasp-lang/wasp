@@ -159,22 +159,28 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
       passwordValidationErrors =
         validateEntityHasField
           userEntityName
+          authUserEntityPath
           userEntityFields
           ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
       usernameTypeValidationErrors =
         validateEntityHasField
           userEntityName
+          authUserEntityPath
           userEntityFields
           ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
       usernameAttributeValidationErrors
         | isFieldUnique "username" userEntity == Just True = []
         | otherwise =
           [ GenericValidationError $
-              "The field 'username' on Entity referenced by " ++ userEntityName ++ " must have the '@unique' attribute."
+              "The field 'username' on entity '"
+                ++ userEntityName
+                ++ "' (referenced by "
+                ++ authUserEntityPath
+                ++ ") must be marked with a '@unique' attribute."
           ]
       userEntityFields = Entity.getFields userEntity
-      userEntityName = "app.auth.userEntity"
-      userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+      authUserEntityPath = "app.auth.userEntity"
+      (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
 
 validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
@@ -183,10 +189,10 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (sn
     if not $ Auth.isEmailAuthEnabled auth
       then []
       else
-        let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+        let (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
             userEntityFields = Entity.getFields userEntity
          in concatMap
-              (validateEntityHasField "app.auth.userEntity" userEntityFields)
+              (validateEntityHasField userEntityName "app.auth.userEntity" userEntityFields)
               [ ("email", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
                 ("password", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
                 ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
@@ -221,7 +227,7 @@ validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.a
               externalAuthEntityFields = Entity.getFields externalAuthEntity
               externalAuthEntityValidationErrors =
                 concatMap
-                  (validateEntityHasField "app.auth.externalAuthEntity" externalAuthEntityFields)
+                  (validateEntityHasField externalAuthEntityName "app.auth.externalAuthEntity" externalAuthEntityFields)
                   [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                     ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                     ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
@@ -229,20 +235,23 @@ validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.a
                   ]
               userEntityValidationErrors =
                 concatMap
-                  (validateEntityHasField "app.auth.userEntity" userEntityFields)
-                  [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthEntityName, externalAuthEntityName ++ "[]")
+                  (validateEntityHasField userEntityName "app.auth.userEntity" userEntityFields)
+                  [ ( "externalAuthAssociations",
+                      Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthEntityName,
+                      externalAuthEntityName ++ "[]"
+                    )
                   ]
            in externalAuthEntityValidationErrors ++ userEntityValidationErrors
 
-validateEntityHasField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
-validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeName) =
+validateEntityHasField :: String -> String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
+validateEntityHasField entityName authEntityPath entityFields (fieldName, fieldType, fieldTypeName) =
   let maybeField = findFieldByName fieldName entityFields
    in case maybeField of
         Just providerField
           | Entity.Field.fieldType providerField == fieldType -> []
         _ ->
           [ GenericValidationError $
-              "Expected an Entity referenced by " ++ entityName ++ " to have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
+              "Entity '" ++ entityName ++ "' (referenced by " ++ authEntityPath ++ ") must have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
           ]
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
@@ -294,12 +303,26 @@ validateCrudOperations spec =
     checkIfSimpleIdFieldIsDefinedForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
     checkIfSimpleIdFieldIsDefinedForEntity (crudName, crud) = case (maybeIdField, maybeIdBlockAttribute) of
       (Just _, Nothing) -> []
-      (Nothing, Just _) -> [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute) and not a composite ID (defined with @@id attribute)."]
-      _missingIdFieldWithoutBlockIdAttributeDefined -> [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute)."]
+      (Nothing, Just _) ->
+        [ GenericValidationError $
+            "Entity '"
+              ++ entityName
+              ++ "' (referenced by CRUD declaration '"
+              ++ crudName
+              ++ "') must have an ID field (specified with the '@id' attribute) and not a composite ID (specified with the '@@id' attribute)."
+        ]
+      _missingIdFieldWithoutBlockIdAttributeDefined ->
+        [ GenericValidationError $
+            "Entity '"
+              ++ entityName
+              ++ "' (referenced by CRUD declaration '"
+              ++ crudName
+              ++ "') must have an ID field (specified with the '@id' attribute)."
+        ]
       where
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
-        (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+        (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
