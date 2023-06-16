@@ -27,7 +27,7 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.AppSpec.Entity (doesFieldHaveAttribute)
+import Wasp.AppSpec.Entity (isFieldUnique)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
@@ -167,7 +167,7 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
           userEntityFields
           ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
       usernameAttributeValidationErrors
-        | doesFieldHaveAttribute "username" "unique" userEntity == Just True = []
+        | isFieldUnique "username" userEntity == Just True = []
         | otherwise =
           [ GenericValidationError $
               "The field 'username' on Entity referenced by " ++ userEntityName ++ " must have the '@unique' attribute."

@@ -7,6 +7,8 @@ module Wasp.AppSpec.Entity
     getPslModelBody,
     getIdField,
     getIdBlockAttribute,
+    isFieldUnique,
+    -- only for testing:
     doesFieldHaveAttribute,
   )
 where
@@ -46,6 +48,9 @@ getPslModelBody = pslModelBody
 
 getIdField :: Entity -> Maybe PslModel.Field
 getIdField = findIdField . getPslModelBody
+
+isFieldUnique :: String -> Entity -> Maybe Bool
+isFieldUnique fieldName = doesFieldHaveAttribute fieldName "unique"
 
 doesFieldHaveAttribute :: String -> String -> Entity -> Maybe Bool
 doesFieldHaveAttribute fieldName attrName entity =
