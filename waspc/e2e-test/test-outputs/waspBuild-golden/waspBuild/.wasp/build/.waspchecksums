@@ -53,7 +53,7 @@
             "file",
             "server/package.json"
         ],
-        "3ee2f26051cce23fcb845666a82e10cabea870366d1b6ff97a6e33f809fc7a41"
+        "bc09642f90f43c75f083e06fe580fee34b73b7fcb17e5cdec9f7fd17bdc67b08"
     ],
     [
         [
@@ -74,7 +74,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "ab483e1b9552d943a44baa1bbfc2d0b31f231a0fc5c945e12e9b3aa6980b6f8d"
+        "9a8b137a7bcfcf994927032964cf3ea31327352b7fc711dcfa6b9eecea721fe5"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
     ],
     [
         [
@@ -88,7 +95,7 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "2b2dba0828a9283901ed7132f5c51c119acef4fff739736e50c02b0f09b192db"
+        "a994ed1f89011c04014deb57a2c26d09c216491caac9269380a7c14d1718b313"
     ],
     [
         [
@@ -198,9 +205,16 @@
     [
         [
             "file",
+            "server/src/middleware/operations.ts"
+        ],
+        "864c7492c27f6da1e67645fbc358dc803a168852bfd24f2c4dd13fccf6917b07"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/types.ts"
         ],
-        "c7090ed370d3ae047b4219f5f2ed8ada929cda42229c5a74a5bf578de5f9ceea"
+        "276f022c04936bfe75d593fe8426a0aaf43a0e9c085042ad1b6560ad23041031"
     ],
     [
         [
@@ -298,7 +312,7 @@
             "file",
             "web-app/package.json"
         ],
-        "39a33744eac051bec2aac8172340dd5637002e03bd9617842fd447808d9a4f76"
+        "4b4fb5e2088e6836a5d75f202be82db7a9fae015facac01de8058b9b2578a395"
     ],
     [
         [
@@ -410,7 +424,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "c56d187f68b2d10e56aabf188e394f83b74ac40f09f342f5b5e3e5d85b536c3e"
+        "d10c443130afd9848fcfa631424590784e70dc1c66a8b7a9a8c1dfa9dd7ad5df"
     ],
     [
         [
@@ -557,7 +571,7 @@
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "c40d0614fda5b8a746a1ba2e3be8e2370140c0167851ac77881cd53bb5647cdd"
+        "9e2abb169ea87b7190613a1d4da57ca608463a453bd4231fa3aeee5e308370dd"
     ],
     [
         [

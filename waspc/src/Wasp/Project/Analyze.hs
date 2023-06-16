@@ -51,8 +51,10 @@ constructAppSpec ::
 constructAppSpec waspDir options decls = do
   externalServerCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
-  externalClientCodeFiles <-
-    ExternalCode.readFiles (CompileOptions.externalClientCodeDirPath options)
+
+  let externalClientCodeDirPath = CompileOptions.externalClientCodeDirPath options
+  externalClientCodeFiles <- ExternalCode.readFiles externalClientCodeDirPath
+
   externalSharedCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalSharedCodeDirPath options)
   maybeMigrationsDir <- findMigrationsDir waspDir
@@ -86,5 +88,6 @@ findWaspFile waspDir = do
   return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
-      ".wasp" `isSuffixOf` toFilePath path
+      ".wasp"
+        `isSuffixOf` toFilePath path
         && (length (toFilePath path) > length (".wasp" :: String))

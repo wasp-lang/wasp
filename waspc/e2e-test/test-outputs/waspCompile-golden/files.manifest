@@ -11,6 +11,7 @@ waspCompile/.wasp/out/server/package.json
 waspCompile/.wasp/out/server/scripts/universal/validators.mjs
 waspCompile/.wasp/out/server/scripts/validate-env.mjs
 waspCompile/.wasp/out/server/src/_types/index.ts
+waspCompile/.wasp/out/server/src/_types/serialization.ts
 waspCompile/.wasp/out/server/src/_types/taggedEntities.ts
 waspCompile/.wasp/out/server/src/actions/types.ts
 waspCompile/.wasp/out/server/src/app.js
@@ -28,6 +29,7 @@ waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js
 waspCompile/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspCompile/.wasp/out/server/src/middleware/index.ts
+waspCompile/.wasp/out/server/src/middleware/operations.ts
 waspCompile/.wasp/out/server/src/queries/types.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js

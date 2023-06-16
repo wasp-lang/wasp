@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.10.6
+version:        0.11.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -187,6 +187,7 @@ library
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
     Wasp.AppSpec.ApiNamespace
+    Wasp.AppSpec.Crud
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Auth.PasswordReset
@@ -253,6 +254,8 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
+    Wasp.Generator.Crud
+    Wasp.Generator.Crud.Routes
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -272,6 +275,7 @@ library
     Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
+    Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
@@ -293,6 +297,7 @@ library
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
+    Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
     Wasp.Project
@@ -304,10 +309,12 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
+    Wasp.Project.WebApp
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Util
     Wasp.SemanticVersion
     Wasp.Util
     Wasp.Util.Network.Socket
@@ -315,6 +322,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
+    Wasp.Util.FilePath
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -482,6 +490,7 @@ test-suite waspc-test
     Analyzer.TypeCheckerTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
     Fixtures
@@ -494,6 +503,7 @@ test-suite waspc-test
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
+    Generator.CrudTest
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -503,6 +513,7 @@ test-suite waspc-test
     Util.Control.MonadTest
     UtilTest
     Util.Diff
+    Util.FilePathTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc

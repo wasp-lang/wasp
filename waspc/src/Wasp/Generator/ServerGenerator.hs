@@ -32,7 +32,7 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getApis)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -56,6 +56,7 @@ import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
+import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
@@ -90,6 +91,7 @@ genServer spec =
     <++> genEnvValidationScript
     <++> genExportedTypesDir spec
     <++> genApis spec
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -174,7 +176,7 @@ npmDepsForWasp spec =
             ("prisma", show prismaVersion),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^4.8.4"),
+            ("typescript", "^5.1.0"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
@@ -265,24 +267,30 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  return
-    [ C.mkTmplFdWithDstAndData
-        (C.asTmplFile [relfile|src/routes/index.js|])
-        (C.asServerFile [relfile|src/routes/index.js|])
-        ( Just $
-            object
-              [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
-                "areThereAnyCustomApiRoutes" .= (not . null $ getApis spec)
-              ]
-        )
-    ]
+  sequence [genRoutesIndex spec]
+
+genRoutesIndex :: AppSpec -> Generator FileDraft
+genRoutesIndex spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/index.js|])
+      (C.asServerFile [relfile|src/routes/index.js|])
+      (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+          "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+          "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
+        ]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
 genTypesAndEntitiesDirs spec =
   return
     [ entitiesIndexFileDraft,
       taggedEntitiesFileDraft,
+      serializationFileDraft,
       typesIndexFileDraft
     ]
   where
@@ -296,6 +304,9 @@ genTypesAndEntitiesDirs spec =
         [relfile|src/_types/taggedEntities.ts|]
         [relfile|src/_types/taggedEntities.ts|]
         (Just $ object ["entities" .= allEntities])
+    serializationFileDraft =
+      C.mkSrcTmplFd
+        [relfile|_types/serialization.ts|]
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/_types/index.ts|]
@@ -386,9 +397,10 @@ genExportedTypesDir spec =
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =
-  return
-    [ C.mkTmplFd [relfile|src/middleware/index.ts|],
-      C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData)
+  sequence
+    [ return $ C.mkTmplFd [relfile|src/middleware/index.ts|],
+      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData),
+      genOperationsMiddleware spec
     ]
   where
     tmplData =
@@ -406,3 +418,13 @@ genMiddleware spec =
               "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
               "importAlias" .= globalMiddlewareConfigFnAlias
             ]
+
+genOperationsMiddleware :: AppSpec -> Generator FileDraft
+genOperationsMiddleware spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/middleware/operations.ts|])
+      (C.asServerFile [relfile|src/middleware/operations.ts|])
+      (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

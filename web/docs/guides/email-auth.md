@@ -43,7 +43,7 @@ Let's first set up the email authentication by adding the following to our `main
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.10.0"
+    version: "^0.11.0"
   },
   title: "My App",
   auth: {

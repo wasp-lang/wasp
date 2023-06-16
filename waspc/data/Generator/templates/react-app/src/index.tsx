@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import ReactDOM from 'react-dom'
+import ReactDOM from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 
 import router from './router'
@@ -30,17 +30,18 @@ async function startApp() {
 
 async function render() {
   const queryClient = await queryClientInitialized
-  ReactDOM.render(
-    <QueryClientProvider client={queryClient}>
-      {=# areWebSocketsUsed =}
-      <WebSocketProvider>
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        {=# areWebSocketsUsed =}
+        <WebSocketProvider>
+          {router}
+        </WebSocketProvider>
+        {=/ areWebSocketsUsed =}
+        {=^ areWebSocketsUsed =}
         {router}
-      </WebSocketProvider>
-      {=/ areWebSocketsUsed =}
-      {=^ areWebSocketsUsed =}
-      {router}
-      {=/ areWebSocketsUsed =}
-    </QueryClientProvider>,
-    document.getElementById('root')
+        {=/ areWebSocketsUsed =}
+      </QueryClientProvider>
+    </React.StrictMode>
   )
 }

@@ -36,11 +36,13 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
@@ -54,7 +56,8 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
-genWebApp spec =
+genWebApp spec = do
+  extClientCodeFileDrafts <- genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
@@ -69,13 +72,14 @@ genWebApp spec =
       genGitignore,
       genIndexHtml spec
     ]
-    <++> genPublicDir spec
     <++> genSrcDir spec
-    <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
+    <++> return extClientCodeFileDrafts
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
+    <++> genPublicDir spec extClientCodeFileDrafts
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -123,8 +127,8 @@ npmDepsForWasp spec =
     { N.waspDependencies =
         AS.Dependency.fromList
           [ ("axios", "^0.27.2"),
-            ("react", "^17.0.2"),
-            ("react-dom", "^17.0.2"),
+            ("react", "^18.2.0"),
+            ("react-dom", "^18.2.0"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
             -- The web app only needs @prisma/client (we're using the server's
@@ -141,16 +145,16 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("vite", "^4.1.0"),
-            ("typescript", "^4.9.3"),
-            ("@types/react", "^17.0.53"),
-            ("@types/react-dom", "^17.0.19"),
+            ("vite", "^4.3.9"),
+            ("typescript", "^5.1.0"),
+            ("@types/react", "^18.0.37"),
+            ("@types/react-dom", "^18.0.11"),
             ("@types/react-router-dom", "^5.3.3"),
             ("@vitejs/plugin-react-swc", "^3.0.0"),
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^1.0.1")
+            ("@tsconfig/vite-react", "^2.0.0")
           ]
           ++ depsRequiredForTesting
     }
@@ -178,7 +182,7 @@ depsRequiredForTesting =
     [ ("vitest", "^0.29.3"),
       ("@vitest/ui", "^0.29.3"),
       ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^12.1.5"),
+      ("@testing-library/react", "^14.0.0"),
       ("@testing-library/jest-dom", "^5.16.5"),
       ("msw", "^1.1.0")
     ]
@@ -195,18 +199,25 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
-genPublicDir :: AppSpec -> Generator [FileDraft]
-genPublicDir spec =
-  return
-    [ genFaviconFd,
-      genManifestFd
-    ]
+genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
+genPublicDir spec extCodeFileDrafts =
+  return $
+    ifUserDidntProvideFile genFaviconFd
+      ++ ifUserDidntProvideFile genManifestFd
   where
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genManifestFd =
-      let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          tmplFile = C.asTmplFile [relfile|public/manifest.json|]
-       in C.mkTmplFdWithData tmplFile tmplData
+    genManifestFd = C.mkTmplFdWithData tmplFile tmplData
+      where
+        tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+        tmplFile = C.asTmplFile [relfile|public/manifest.json|]
+
+    ifUserDidntProvideFile fileDraft =
+      if checkIfFileDraftExists fileDraft
+        then []
+        else [fileDraft]
+
+    checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
+    existingDstPaths = map FD.getDstPath extCodeFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =

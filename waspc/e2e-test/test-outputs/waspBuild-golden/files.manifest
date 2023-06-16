@@ -10,6 +10,7 @@ waspBuild/.wasp/build/server/package.json
 waspBuild/.wasp/build/server/scripts/universal/validators.mjs
 waspBuild/.wasp/build/server/scripts/validate-env.mjs
 waspBuild/.wasp/build/server/src/_types/index.ts
+waspBuild/.wasp/build/server/src/_types/serialization.ts
 waspBuild/.wasp/build/server/src/_types/taggedEntities.ts
 waspBuild/.wasp/build/server/src/actions/types.ts
 waspBuild/.wasp/build/server/src/app.js
@@ -27,6 +28,7 @@ waspBuild/.wasp/build/server/src/jobs/core/pgBoss/pgBossJob.js
 waspBuild/.wasp/build/server/src/jobs/core/simpleJob.js
 waspBuild/.wasp/build/server/src/middleware/globalMiddleware.ts
 waspBuild/.wasp/build/server/src/middleware/index.ts
+waspBuild/.wasp/build/server/src/middleware/operations.ts
 waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js

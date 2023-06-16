@@ -6,12 +6,13 @@ module Wasp.AppSpec.Valid
     getApp,
     isAuthEnabled,
     doesUserEntityContainField,
+    getIdFieldFromCrudEntity,
   )
 where
 
 import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (isJust)
+import Data.Maybe (fromJust, isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -25,10 +26,13 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
+import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
+import Wasp.Generator.Crud (crudDeclarationToOperationsList)
+import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -54,7 +58,8 @@ validateAppSpec spec =
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
-          validateApiNamespacePathsAreUnique spec
+          validateApiNamespacePathsAreUnique spec,
+          validateCrudOperations spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -74,7 +79,8 @@ validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
   specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
   unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left $ incompatibleVersionError WV.waspVersion specWaspVersionRange
+    Left $
+      incompatibleVersionError WV.waspVersion specWaspVersionRange
   where
     -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
 
@@ -250,6 +256,33 @@ validateApiNamespacePathsAreUnique spec =
     namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
     duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
 
+validateCrudOperations :: AppSpec -> [ValidationError]
+validateCrudOperations spec =
+  concat
+    [ concatMap checkIfAtLeastOneOperationIsUsedForCrud cruds,
+      concatMap checkIfSimpleIdFieldIsDefinedForEntity cruds
+    ]
+  where
+    cruds = AS.getCruds spec
+
+    checkIfAtLeastOneOperationIsUsedForCrud :: (String, AS.Crud.Crud) -> [ValidationError]
+    checkIfAtLeastOneOperationIsUsedForCrud (crudName, crud) =
+      if not . null $ crudOperations
+        then []
+        else [GenericValidationError $ "CRUD \"" ++ crudName ++ "\" must have at least one operation defined."]
+      where
+        crudOperations = crudDeclarationToOperationsList crud
+
+    checkIfSimpleIdFieldIsDefinedForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
+    checkIfSimpleIdFieldIsDefinedForEntity (crudName, crud) = case (maybeIdField, maybeIdBlockAttribute) of
+      (Just _, Nothing) -> []
+      (Nothing, Just _) -> [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute) and not a composite ID (defined with @@id attribute)."]
+      _missingIdFieldWithoutBlockIdAttributeDefined -> [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute)."]
+      where
+        maybeIdField = Entity.getIdField entity
+        maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
+        (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
@@ -281,3 +314,10 @@ doesUserEntityContainField spec fieldName = do
   let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
   let userEntityFields = Entity.getFields userEntity
   Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- We validated that entity field exists, so we can safely use fromJust here.
+getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
+getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
+  where
+    crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

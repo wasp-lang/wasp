@@ -12,6 +12,7 @@ waspJob/.wasp/out/server/package.json
 waspJob/.wasp/out/server/scripts/universal/validators.mjs
 waspJob/.wasp/out/server/scripts/validate-env.mjs
 waspJob/.wasp/out/server/src/_types/index.ts
+waspJob/.wasp/out/server/src/_types/serialization.ts
 waspJob/.wasp/out/server/src/_types/taggedEntities.ts
 waspJob/.wasp/out/server/src/actions/types.ts
 waspJob/.wasp/out/server/src/app.js
@@ -31,6 +32,7 @@ waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspJob/.wasp/out/server/src/jobs/core/simpleJob.js
 waspJob/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspJob/.wasp/out/server/src/middleware/index.ts
+waspJob/.wasp/out/server/src/middleware/operations.ts
 waspJob/.wasp/out/server/src/queries/types.ts
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
