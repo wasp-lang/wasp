@@ -9,10 +9,11 @@ import StrongPath (Abs, Dir, Path', fromRelFile)
 import StrongPath.Operations ()
 import System.Directory (getFileSize)
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, WaspRootRequirement (WaspRootRequirement), require)
+import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Start.Db (getDbSystem)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Msg
@@ -22,7 +23,7 @@ import qualified Wasp.Util.Terminal as Term
 
 info :: Command ()
 info = do
-  WaspRootRequirement waspDir <- require
+  InWaspProject waspDir <- require
 
   compileInfo <- liftIO $ readWaspCompileInfo waspDir
   projectSize <- liftIO $ readDirectorySizeMB waspDir

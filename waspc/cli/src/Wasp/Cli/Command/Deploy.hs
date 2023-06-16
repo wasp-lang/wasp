@@ -6,12 +6,13 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
-import Wasp.Cli.Command (Command, CommandError (CommandError), WaspRootRequirement (WaspRootRequirement), require)
+import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
-  WaspRootRequirement waspProjectDir <- require
+  InWaspProject waspProjectDir <- require
   deployResult <- liftIO $ do
     -- `getExecutablePath` has some caveats:
     --   https://frasertweedale.github.io/blog-fp/posts/2022-05-10-improved-executable-path-queries.html

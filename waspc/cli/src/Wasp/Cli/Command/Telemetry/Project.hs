@@ -29,8 +29,9 @@ import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
 import qualified System.Info
-import Wasp.Cli.Command (Command, WaspRootRequirement (WaspRootRequirement), require)
+import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Call as Command.Call
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
 import Wasp.Util (ifM)
@@ -100,7 +101,7 @@ newtype ProjectHash = ProjectHash {_projectHashValue :: String} deriving (Show)
 
 getWaspProjectPathHash :: Command ProjectHash
 getWaspProjectPathHash = do
-  WaspRootRequirement waspRoot <- require
+  InWaspProject waspRoot <- require
   return . ProjectHash . take 16 . sha256 . SP.toFilePath $ waspRoot
   where
     sha256 :: String -> String

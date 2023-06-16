@@ -7,27 +7,22 @@ module Wasp.Cli.Command
     CommandError (..),
 
     -- * Requirements
+
+    -- See "Wasp.Cli.Command.Requires" for documentation.
     require,
-    DbConnectionRequirement (DbConnectionRequirement),
-    WaspRootRequirement (WaspRootRequirement),
+    Requirable (checkRequirement),
   )
 where
 
-import Control.Monad.Error.Class (MonadError (throwError))
-import Control.Monad.Except (ExceptT, runExceptT, unless, when)
-import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Error.Class (MonadError)
+import Control.Monad.Except (ExceptT, runExceptT)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
-import Data.Maybe (fromJust, mapMaybe)
-import qualified StrongPath as SP
-import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
+import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
-import qualified System.FilePath as FP
-import qualified Wasp.Cli.Common as Cli.Common
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Generator.DbGenerator.Operations (isDbRunning)
 import qualified Wasp.Message as Msg
-import Wasp.Project (WaspProjectDir)
 
 newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
@@ -55,13 +50,14 @@ class Typeable r => Requirable r where
   -- throw a 'CommandError'.
   checkRequirement :: Command r
 
--- | Require some dependency or information. See instances of 'Requirable'.
--- Pattern match on the result of the function to determine the requirement
--- and possibly get data from the requirement:
+-- | Assert that a requirement is met and receive information about that
+-- requirement, if any is offered.
+--
+-- To use, pattern match on the result, e.g.
 --
 -- @
 -- do
---   DbConnectionRequirement <- require
+--   HasDbConnection <- require
 -- @
 require :: Requirable r => Command r
 require =
@@ -72,59 +68,3 @@ require =
       req <- checkRequirement
       Command $ modify (Requirement req :)
       return req
-
-data DbConnectionRequirement = DbConnectionRequirement deriving (Typeable)
-
-instance Requirable DbConnectionRequirement where
-  checkRequirement = do
-    -- NOTE: 'WaspRootRequirement' does not depend on this requirement, so this
-    -- call to 'require' will not result in an infinite loop.
-    WaspRootRequirement waspRoot <- require
-    let outDir = waspRoot SP.</> Cli.Common.dotWaspDirInWaspProjectDir SP.</> Cli.Common.generatedCodeDirInDotWaspDir
-    dbIsRunning <- liftIO $ isDbRunning outDir
-    if dbIsRunning
-      then return DbConnectionRequirement
-      else throwError noDbError
-    where
-      noDbError =
-        CommandError
-          "Can not connect to database"
-          ( "The database needs to be running in order to execute this command."
-              ++ " You can easily start a managed dev database with `wasp start db`."
-          )
-
--- | Require a Wasp project to exist near the current directory. Get the
--- project directory by pattern matching on the result of 'require':
---
--- @
--- do
---   WaspRootRequirement waspRoot <- require
--- @
-newtype WaspRootRequirement = WaspRootRequirement (SP.Path' SP.Abs (SP.Dir WaspProjectDir)) deriving (Typeable)
-
-instance Requirable WaspRootRequirement where
-  checkRequirement = do
-    -- Recursively searches up from CWD until @.wasproot@ file is found, or
-    -- throw an error if it is never found.
-    currentDir <- fromJust . SP.parseAbsDir <$> liftIO getCurrentDirectory
-    findWaspProjectRoot currentDir
-    where
-      findWaspProjectRoot currentDir = do
-        let absCurrentDirFp = SP.fromAbsDir currentDir
-        doesCurrentDirExist <- liftIO $ doesPathExist absCurrentDirFp
-        unless doesCurrentDirExist (throwError notFoundError)
-        let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.fromRelFile Cli.Common.dotWaspRootFileInWaspProjectDir
-        isCurrentDirRoot <- liftIO $ doesFileExist dotWaspRootFilePath
-        if isCurrentDirRoot
-          then return $ WaspRootRequirement $ SP.castDir currentDir
-          else do
-            let parentDir = SP.parent currentDir
-            when (parentDir == currentDir) (throwError notFoundError)
-            findWaspProjectRoot parentDir
-
-      notFoundError =
-        CommandError
-          "Wasp command failed"
-          ( "Couldn't find wasp project root - make sure"
-              ++ " you are running this command from a Wasp project."
-          )

@@ -9,9 +9,10 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
-import Wasp.Cli.Command (Command, CommandError (..), DbConnectionRequirement (DbConnectionRequirement), WaspRootRequirement (WaspRootRequirement), require)
+import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Generator
@@ -22,10 +23,10 @@ import Wasp.Project (CompileError, CompileWarning)
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  WaspRootRequirement waspRoot <- require
+  InWaspProject waspRoot <- require
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  DbConnectionRequirement <- require
+  DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 

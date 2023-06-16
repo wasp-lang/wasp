@@ -17,8 +17,9 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..), WaspRootRequirement (WaspRootRequirement), require)
+import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
@@ -33,7 +34,7 @@ compile = do
   -- TODO: Consider a way to remove the redundancy of finding the project root
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
-  WaspRootRequirement waspProjectDir <- require
+  InWaspProject waspProjectDir <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
@@ -44,7 +45,7 @@ compile = do
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings.
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
-  WaspRootRequirement waspProjectDir <- require
+  InWaspProject waspProjectDir <- require
   let outDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
