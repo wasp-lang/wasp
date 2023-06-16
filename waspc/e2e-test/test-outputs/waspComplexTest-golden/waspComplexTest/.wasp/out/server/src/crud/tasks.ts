@@ -8,6 +8,7 @@ import type {
 import type {
   Prisma,
 } from "@prisma/client";
+import { Payload } from "../_types/serialization.js";
 import type {
   Task,
 } from "../entities";
@@ -20,7 +21,7 @@ const entities = {
 }
 
 // Get All query
-export type GetAllQuery<Input, Output> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
+export type GetAllQuery<Input extends Payload, Output extends Payload> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
 const _waspGetAllQuery: GetAllQuery<GetAllInput, GetAllOutput> = ((args, context) => {
@@ -38,7 +39,7 @@ export async function getAllFn(args, context) {
 }
 
 // Get query
-export type GetQuery<Input, Output> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
+export type GetQuery<Input extends Payload, Output extends Payload> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
 type GetInput = Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
 const _waspGetQuery: GetQuery<GetInput, GetOutput> = ((args, context) => {
@@ -55,7 +56,7 @@ export async function getFn(args, context) {
 }
 
 // Create action
-export type CreateAction<Input, Output>= AuthenticatedAction<[_WaspEntityTagged], Input, Output>
+export type CreateAction<Input extends Payload, Output extends Payload>= AuthenticatedAction<[_WaspEntityTagged], Input, Output>
 type CreateInput = Prisma.TaskCreateInput
 type CreateOutput = _WaspEntity
 const _waspCreateAction: CreateAction<CreateInput, CreateOutput> = ((args, context) => {

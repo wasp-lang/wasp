@@ -33,7 +33,8 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
@@ -52,6 +53,7 @@ import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
+  extClientCodeFileDrafts <- genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
@@ -66,10 +68,10 @@ genWebApp spec = do
       genGitignore,
       genIndexHtml spec
     ]
-    <++> genPublicDir spec
     <++> genSrcDir spec
-    <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
+    <++> return extClientCodeFileDrafts
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
+    <++> genPublicDir spec extClientCodeFileDrafts
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
@@ -186,18 +188,25 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
-genPublicDir :: AppSpec -> Generator [FileDraft]
-genPublicDir spec = do
-  return
-    [ genFaviconFd,
-      genManifestFd
-    ]
+genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
+genPublicDir spec extCodeFileDrafts =
+  return $
+    ifUserDidntProvideFile genFaviconFd
+      ++ ifUserDidntProvideFile genManifestFd
   where
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genManifestFd =
-      let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          tmplFile = C.asTmplFile [relfile|public/manifest.json|]
-       in C.mkTmplFdWithData tmplFile tmplData
+    genManifestFd = C.mkTmplFdWithData tmplFile tmplData
+      where
+        tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+        tmplFile = C.asTmplFile [relfile|public/manifest.json|]
+
+    ifUserDidntProvideFile fileDraft =
+      if checkIfFileDraftExists fileDraft
+        then []
+        else [fileDraft]
+
+    checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
+    existingDstPaths = map FD.getDstPath extCodeFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
