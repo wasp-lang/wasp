@@ -49,6 +49,8 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
+  -- TODO: Do these files with dots in front cause us problems?
+  -- I know from before they were problematic, we should test it thoroughly!
   Cli/templates/new/.gitignore
   Cli/templates/new/.wasproot
   Cli/templates/new/src/.waspignore

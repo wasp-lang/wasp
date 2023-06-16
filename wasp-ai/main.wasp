@@ -2,10 +2,19 @@ app waspAi {
   wasp: {
     version: "^0.10.6"
   },
-  title: "wasp-ai"
+  title: "wasp-ai",
+  dependencies: [("uuid", "^9.0.0")]
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import Main from "@client/MainPage.jsx"
+}
+
+action startGeneratingNewApp {
+  fn: import { startGeneratingNewApp } from "@server/operations.js"
+}
+
+query getAppGenerationResult {
+  fn: import { getAppGenerationResult } from "@server/operations.js"
 }

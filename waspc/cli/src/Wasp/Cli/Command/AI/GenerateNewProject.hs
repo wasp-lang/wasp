@@ -20,6 +20,7 @@ import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectS
 
 generateNewProject :: NewProjectDetails -> CodeAgent ()
 generateNewProject newProjectDetails = do
+  writeToLog "Generating project skeleton..."
   (waspFilePath, planRules) <- generateAndWriteProjectSkeleton newProjectDetails
   writeToLog "Generated project skeleton."
 

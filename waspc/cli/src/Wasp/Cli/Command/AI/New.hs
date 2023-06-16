@@ -17,6 +17,7 @@ import StrongPath.Operations ()
 import System.Directory (createDirectoryIfMissing, setCurrentDirectory)
 import System.Environment (lookupEnv)
 import System.FilePath (takeDirectory)
+import System.IO (hFlush, stdout)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import qualified Wasp.Cli.Command.AI.CodeAgent as CA
 import qualified Wasp.Cli.Command.AI.GenerateNewProject as GNP
@@ -63,22 +64,24 @@ newForMachine webAppName webAppDescription = do
   let codeAgentConfig =
         CA.CodeAgentConfig
           { CA._openAIApiKey = openAIApiKey,
-            CA._writeFile = \fp c ->
+            CA._writeFile = \fp c -> do
               let fpT = T.pack fp
-               in T.IO.putStrLn . ("\n" <>) $
-                    [trimming|
-                      ==== WASP AI: WRITE FILE ====
-                      ${fpT}
-                      ${c}
-                      ===/ WASP AI: WRITE FILE ====
-                    |],
-            CA._writeLog = \msg ->
+              T.IO.putStrLn . ("\n" <>) $
+                [trimming|
+                  ==== WASP AI: WRITE FILE ====
+                  ${fpT}
+                  ${c}
+                  ===/ WASP AI: WRITE FILE ====
+                |]
+              hFlush stdout,
+            CA._writeLog = \msg -> do
               T.IO.putStrLn . ("\n" <>) $
                 [trimming|
                   ==== WASP AI: LOG ====
                   ${msg}
                   ===/ WASP AI: LOG ====
                 |]
+              hFlush stdout
           }
 
   liftIO $
