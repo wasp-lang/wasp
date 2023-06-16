@@ -316,7 +316,7 @@ genWebSockets spec
 genWebSocketProvider :: AppSpec -> Generator FileDraft
 genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    maybeWebSocket = webSocket $ snd (getApp spec)
+    maybeWebSocket = webSocket $ snd $ getApp spec
     shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
     tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]
