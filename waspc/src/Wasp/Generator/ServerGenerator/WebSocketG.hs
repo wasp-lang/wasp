@@ -41,7 +41,8 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genWebSocketTs spec
+        [ genWebSocketTs spec,
+          genWebSocketServerTs spec
         ]
   | otherwise = return []
 
@@ -54,17 +55,30 @@ genWebSocketTs spec =
       ( Just $
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket,
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|],
               "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
             ]
       )
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-mkWebSocketFnImport :: Maybe WebSocket -> Aeson.Value
-mkWebSocketFnImport maybeWebSocket = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
+genWebSocketServerTs :: AppSpec -> Generator FileDraft
+genWebSocketServerTs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/webSocket/server.ts|])
+      (C.asServerFile [relfile|src/webSocket/server.ts|])
+      ( Just $
+          object
+            [ "isAuthEnabled" .= isAuthEnabled spec,
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
+              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+            ]
+      )
+  where
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+
+mkWebSocketFnImport :: Maybe WebSocket -> Path Posix (Rel importLocation) (Dir C.ServerSrcDir) -> Aeson.Value
+mkWebSocketFnImport maybeWebSocket relPathToServerSrcDir = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
   where
     maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
-
-    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathToServerSrcDir = [reldirP|./|]

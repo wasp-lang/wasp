@@ -15,7 +15,7 @@ import './jobs/core/allJobs.js'
 {=/ isPgBossJobExecutorUsed =}
 
 {=# userWebSocketFn.isDefined =}
-import { init as initWebSocket } from './webSocket.js'
+import { init as initWebSocket } from './webSocket/server.js'
 {=/ userWebSocketFn.isDefined =}
 
 const startServer = async () => {
