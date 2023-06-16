@@ -263,7 +263,7 @@ spec_AppSpecValid = do
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity3)
             `shouldBe` [ ASV.GenericValidationError
-                           "The field 'username' on entity 'User' (referenced by app.auth.userEntity) must be marked with a '@unique' attribute."
+                           "The field 'username' on entity 'User' (referenced by app.auth.userEntity) must be marked with the '@unique' attribute."
                        ]
   where
     makeBasicPslField name typ = makePslField name typ False

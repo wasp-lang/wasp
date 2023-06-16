@@ -176,7 +176,7 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
                 ++ userEntityName
                 ++ "' (referenced by "
                 ++ authUserEntityPath
-                ++ ") must be marked with a '@unique' attribute."
+                ++ ") must be marked with the '@unique' attribute."
           ]
       userEntityFields = Entity.getFields userEntity
       authUserEntityPath = "app.auth.userEntity"
