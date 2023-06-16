@@ -34,7 +34,7 @@ app todoApp {
 Let's define the server with all of the events and handler functions.
 
 :::info Full-stack type safety
-If you are using TypeScript, you can define event names with the matching payload types on the server and have those types exposed automatically on the client. This allows you avoid making mistakes when emitting events or handling them. Read more in the [Typescript guide](/docs/typescript#websocket-full-stack-type-support).
+If you are using TypeScript, you can define event names with the matching payload types on the server and have those types exposed automatically on the client. This helps you avoid mistakes when emitting events or handling them. Read more in the [Typescript guide](/docs/typescript#websocket-full-stack-type-support).
 :::
 
 ### Defining the events handler

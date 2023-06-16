@@ -3,7 +3,7 @@
 import { Server } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
-import prisma from './dbClient.js'
+import prisma from '../dbClient.js'
 
 {=& userWebSocketFn.importStatement =}
 
@@ -32,8 +32,12 @@ export interface WaspSocketData {
   user?: any
 }
 
-type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
 export type ServerType = Parameters<WebSocketFn>[0]
+
+export type ClientToServerEvents = Events[0]
+export type ServerToClientEvents = Events[1]
+
+type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
 type Events = ServerType extends Server<
   infer ClientToServerEvents,
   infer ServerToClientEvents
@@ -41,5 +45,3 @@ type Events = ServerType extends Server<
   ? [ClientToServerEvents, ServerToClientEvents]
   : [DefaultEventsMap, DefaultEventsMap]
 
-export type ClientToServerEvents = Events[0]
-export type ServerToClientEvents = Events[1]

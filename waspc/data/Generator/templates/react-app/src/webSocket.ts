@@ -23,27 +23,12 @@ export function useSocketListener<Event extends keyof ServerToClientEvents>(
 ) {
   const { socket } = useContext(WebSocketContext)
   useEffect(() => {
-    /*
-    TODO(miho): This is a hack for type error we are getting
-    from socket.on when passing in "handler" directly:
-    
-    Argument of type 'ServerToClientEvents[Event]' is not assignable to parameter of type
-      'FallbackToUntypedListener<
-        Event extends "disconnect" | "connect" | "connect_error"
-          ? SocketReservedEvents[Event]
-          : Event extends "chatMessage"
-            ? ServerToClientEvents[Event]
-            : never
-      >'.
-
-    It looks like it should be assignable, but it's not.
-    */
-    const handlerInstance: any = (event: any) => {
-      handler(event)
-    }
-    socket.on(event, handlerInstance)
+    // Casting to `keyof ServerToClientEvents` is necessary because TypeScript
+    // reports the handler function as incompatible with the event type.
+    // See https://github.com/wasp-lang/wasp/pull/1203#discussion_r1232068898
+    socket.on(event as keyof ServerToClientEvents, handler)
     return () => {
-      socket.off(event, handlerInstance)
+      socket.off(event as keyof ServerToClientEvents, handler)
     }
   }, [event, handler])
 }

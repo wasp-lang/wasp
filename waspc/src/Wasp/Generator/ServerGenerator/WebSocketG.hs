@@ -1,7 +1,7 @@
 module Wasp.Generator.ServerGenerator.WebSocketG
   ( depsRequiredByWebSockets,
     genWebSockets,
-    genWebSocketTs,
+    genWebSocketIndex,
     mkWebSocketFnImport,
   )
 where
@@ -41,33 +41,33 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genWebSocketTs spec,
-          genWebSocketServerTs spec
+        [ genWebSocketIndex spec,
+          genWebSocketInitialization spec
         ]
   | otherwise = return []
 
-genWebSocketTs :: AppSpec -> Generator FileDraft
-genWebSocketTs spec =
+genWebSocketIndex :: AppSpec -> Generator FileDraft
+genWebSocketIndex spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/webSocket.ts|])
-      (C.asServerFile [relfile|src/webSocket.ts|])
+      (C.asTmplFile [relfile|src/webSocket/index.ts|])
+      (C.asServerFile [relfile|src/webSocket/index.ts|])
       ( Just $
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|],
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
               "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
             ]
       )
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-genWebSocketServerTs :: AppSpec -> Generator FileDraft
-genWebSocketServerTs spec =
+genWebSocketInitialization :: AppSpec -> Generator FileDraft
+genWebSocketInitialization spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/webSocket/server.ts|])
-      (C.asServerFile [relfile|src/webSocket/server.ts|])
+      (C.asTmplFile [relfile|src/webSocket/initialization.ts|])
+      (C.asServerFile [relfile|src/webSocket/initialization.ts|])
       ( Just $
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,

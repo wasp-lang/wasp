@@ -423,7 +423,7 @@ export const getAllOverride: GetAllQuery<Input, Output> = async (args, context) 
 ## WebSocket full-stack type support
 
 
-Defining event names with the matching payload types on the server makes those types exposed automatically on the client. This allows you avoid making mistakes when emitting events or handling them.
+Defining event names with the matching payload types on the server makes those types exposed automatically on the client. This helps you avoid mistakes when emitting events or handling them.
 
 ### Defining the events handler
 On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function, which contains all entities you defined in your Wasp app. You can type the `webSocketFn` function like this: 
@@ -469,7 +469,7 @@ After you have defined the WebSocket function on the server, you can use it on t
 
 The `useSocketListener` hook will give you a type-safe event handler. The event name and its payload type are defined on the server.
 
-You can additonally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event (it extract the message type from the event handler type).
+You can additonally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
 
 ```tsx title=src/client/ChatPage.tsx
 import React, { useState } from 'react'

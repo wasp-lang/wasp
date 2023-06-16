@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
-import { useSocket, useSocketListener, ServerToClientPayload, ClientToServerPayload } from '@wasp/webSocket'
+import { useSocket, useSocketListener, ServerToClientPayload } from '@wasp/webSocket'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -22,11 +22,7 @@ export const ProfilePage = ({
     fetchCustomRoute()
   }, [])
 
-  useSocketListener('chatMessage', logMessage)
-
-  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
-    setMessages((priorMessages) => [msg, ...priorMessages])
-  }
+  useSocketListener('chatMessage', (msg) => setMessages((priorMessages) => [msg, ...priorMessages]))
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

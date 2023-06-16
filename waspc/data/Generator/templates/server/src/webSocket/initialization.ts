@@ -2,7 +2,7 @@
 
 import http from 'http'
 import { Server, Socket } from 'socket.io'
-import type { ServerType } from '../webSocket.js'
+import type { ServerType } from './index.js'
 
 import config from '../config.js'
 import prisma from '../dbClient.js'
