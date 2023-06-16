@@ -62,9 +62,9 @@ genWebSocketTs spec =
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
 mkWebSocketFnImport :: Maybe WebSocket -> Aeson.Value
-mkWebSocketFnImport maybeWebSocket =
-  let maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
-   in extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
+mkWebSocketFnImport maybeWebSocket = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
   where
+    maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
+
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
