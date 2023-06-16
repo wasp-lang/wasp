@@ -1,13 +1,12 @@
 import { useContext, useEffect } from 'react'
 import { WebSocketContext } from './webSocket/WebSocketProvider';
 
-import type {
-  ClientToServerEvents as _ClientToServerEvents,
-  ServerToClientEvents as _ServerToClientEvents
+export type {
+  ClientToServerEvents,
+  ServerToClientEvents,
 } from '../../server/src/webSocket'
 
-export type ClientToServerEvents = _ClientToServerEvents
-export type ServerToClientEvents = _ServerToClientEvents
+import type { ServerToClientEvents } from '../../server/src/webSocket'
 
 export function useSocket() {
   return useContext(WebSocketContext);
