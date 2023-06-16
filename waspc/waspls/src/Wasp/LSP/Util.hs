@@ -1,6 +1,12 @@
-module Wasp.LSP.Util (waspSourceRegionToLspRange, waspPositionToLspPosition) where
+module Wasp.LSP.Util
+  ( waspSourceRegionToLspRange,
+    waspPositionToLspPosition,
+    hoistMaybe,
+  )
+where
 
 import Control.Lens ((+~))
+import Control.Monad.Trans.Maybe (MaybeT (MaybeT))
 import Data.Function ((&))
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
@@ -20,3 +26,7 @@ waspPositionToLspPosition (W.SourcePosition ln col) =
     { _line = fromIntegral ln - 1,
       _character = fromIntegral col - 1
     }
+
+-- | Lift a 'Maybe' into a 'MaybeT' monad transformer.
+hoistMaybe :: Applicative m => Maybe a -> MaybeT m a
+hoistMaybe = MaybeT . pure

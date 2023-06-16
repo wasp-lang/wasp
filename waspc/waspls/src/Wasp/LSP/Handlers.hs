@@ -15,6 +15,7 @@ import Control.Monad (forM_, when, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader (asks)
+import qualified Data.HashMap.Strict as M
 import Data.List (stripPrefix)
 import Data.Maybe (isJust, mapMaybe)
 import Data.Text (Text)
@@ -131,18 +132,23 @@ diagnoseWaspFile uri = do
   analyzeWaspFile uri
 
   -- Immediately update import diagnostics only when file watching is enabled
-  watchSourceFilesToken <- handler $ asks (^. State.regTokens . State.watchSourceFilesToken)
-  when (isJust watchSourceFilesToken) updateMissingImportDiagnostics
+  sourceWatchingEnabled <- isJust <$> handler (asks (^. State.regTokens . State.watchSourceFilesToken))
+  when sourceWatchingEnabled updateMissingImportDiagnostics
 
   -- Send diagnostics to client
   handler $ publishDiagnostics uri
 
-  -- Update exports and missing import diagnostics asynchronously
+  -- Update exports and missing import diagnostics asynchronously. This is only
+  -- done if file watching is NOT enabled or if the export cache hasn't been
+  -- filled before.
+  --
   -- TODO(before merge): debounce this somehow
-  sendToReactor $ do
-    refreshAllExports
-    updateMissingImportDiagnostics
-    handler $ publishDiagnostics uri
+  exportCacheIsEmpty <- M.null <$> handler (asks (^. State.tsExports))
+  when (not sourceWatchingEnabled || exportCacheIsEmpty) $ do
+    sendToReactor $ do
+      refreshAllExports
+      updateMissingImportDiagnostics
+      handler $ publishDiagnostics uri
 
 publishDiagnostics :: LSP.Uri -> HandlerM ()
 publishDiagnostics uri = do

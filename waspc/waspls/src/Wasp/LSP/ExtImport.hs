@@ -18,12 +18,14 @@ where
 import Control.Applicative ((<|>))
 import Control.Arrow (Arrow (first), (&&&))
 import Control.Lens ((%~), (^.))
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad (void)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
+import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import qualified Data.HashMap.Strict as M
 import Data.List (stripPrefix)
-import Data.Maybe (catMaybes, fromJust, mapMaybe)
+import Data.Maybe (catMaybes, fromJust, fromMaybe, mapMaybe)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
 import qualified StrongPath as SP
@@ -37,6 +39,7 @@ import Wasp.LSP.Diagnostic (MissingImportReason (NoDefaultExport, NoFile, NoName
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (findChild, lexemeAt)
+import Wasp.LSP.Util (hoistMaybe)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.TypeScript as TS
 import Wasp.Util.IO (doesFileExist)
@@ -51,7 +54,7 @@ refreshAllExports = do
     Nothing -> pure ()
     Just (syntax, waspRoot) -> do
       let allExtImports = findAllExtImports src syntax
-      let allTsFiles = mapMaybe (absPathForExtImport waspRoot) allExtImports
+      allTsFiles <- catMaybes <$> mapM (absPathForExtImport waspRoot) allExtImports
       refreshExportsForFiles allTsFiles
 
 -- | Refresh the export cache for the given JS/TS files. This can take a while:
@@ -60,20 +63,17 @@ refreshAllExports = do
 -- responded to.
 refreshExportsForFiles :: [SP.Path' SP.Abs SP.File'] -> ServerM ()
 refreshExportsForFiles files = do
-  logM $ "[refreshExportsForFile] refreshing " ++ show files
+  logM $ "[refreshExportsForFile] refreshing export lists for " ++ show files
   LSP.getRootPath >>= \case
     Nothing -> pure ()
     Just projectDirFilepath -> do
-      logM $ "[refreshExportsForFile] root path is " ++ projectDirFilepath
       -- NOTE: getRootPath always returns a valid absolute path or 'Nothing'.
       let projectDir = fromJust $ SP.parseAbsDir projectDirFilepath
       let exportRequests = mapMaybe (getExportRequestForFile projectDir) files
       liftIO (TS.getExportsOfTsFiles exportRequests) >>= \case
         Left err -> do
           logM $ "[refreshExportsForFile] ERROR getting exports: " ++ show err
-        Right res -> do
-          logM $ "[refreshExportsForFile] Successfully got exports: " ++ show res
-          updateExportsCache res
+        Right res -> updateExportsCache res
   where
     getExportRequestForFile projectDir file =
       ([SP.fromAbsFile file] `TS.TsExportRequest`) . Just . SP.fromAbsFile <$> tryGetTsconfigForFile projectDir file
@@ -96,8 +96,7 @@ tryGetTsconfigForFile waspRoot file = tsconfigPath [SP.reldir|src/client|] <|> t
 updateExportsCache :: TS.TsExportResponse -> ServerM ()
 updateExportsCache (TS.TsExportResponse res) = do
   let newExports = M.fromList $ map (first exportResKeyToPath) $ M.toList res
-  _ <- modify $ State.tsExports %~ (newExports `M.union`)
-  logM "[refreshExportsForFile] finished refreshing"
+  void $ modify $ State.tsExports %~ (newExports `M.union`)
   where
     -- 'TS.getExportsOfTsFiles' should only ever put valid paths in the keys of
     -- its response, so we enforce that here.
@@ -178,19 +177,19 @@ findDiagnosticForExtImport :: ExtImportNode -> HandlerM (Maybe WaspDiagnostic)
 findDiagnosticForExtImport extImport = do
   (>>= SP.parseAbsDir) <$> LSP.getRootPath >>= \case
     Nothing -> return Nothing -- can't find project root
-    Just waspRoot -> case absPathForExtImport waspRoot extImport of
-      Nothing -> do
-        logM $ "[getMissingImportDiagnostics] ignoring extimport with invalid path " ++ show extImportSpan
-        -- Invalid external import path, but this function doesn't report those
-        -- diagnostics.
-        return Nothing
-      Just tsFile ->
-        asks ((M.!? tsFile) . (^. State.tsExports)) >>= \case
-          Nothing -> getDiagnosticForCacheMiss tsFile
-          Just exports -> getDiagnosticForCacheHit tsFile exports
+    Just waspRoot ->
+      absPathForExtImport waspRoot extImport >>= \case
+        Nothing -> do
+          logM $ "[getMissingImportDiagnostics] ignoring extimport with invalid path " ++ show extImportSpan
+          -- Invalid external import path, but this function doesn't report those
+          -- diagnostics.
+          return Nothing
+        Just tsFile ->
+          asks ((M.!? tsFile) . (^. State.tsExports)) >>= \case
+            Nothing -> getDiagnosticForCacheMiss tsFile
+            Just exports -> getDiagnosticForCacheHit tsFile exports
   where
     getDiagnosticForCacheMiss tsFile = do
-      logM $ "[getMissingImportDiagnostics] " ++ show tsFile ++ " is not in the export cache"
       tsFileExists <- liftIO $ doesFileExist tsFile
       if tsFileExists
         then return Nothing -- File not in cache.
@@ -199,7 +198,6 @@ findDiagnosticForExtImport extImport = do
     getDiagnosticForCacheHit tsFile exports = case maybeIsImportedExport of
       Nothing -> return Nothing -- Missing import name in the external import node. This diagnostic is reported elsewhere.
       Just isImportedExport -> do
-        logM $ "[getMissingImportDiagnostics] checking if an import is in the export list at " ++ show extImportSpan
         if any isImportedExport exports
           then return Nothing -- It's a valid export.
           else return $ Just $ diagnosticForExtImport tsFile
@@ -221,8 +219,34 @@ findDiagnosticForExtImport extImport = do
         TS.NamedExport n _ | name == n -> True
         _ -> False
 
-absPathForExtImport :: SP.Path SP.System b (SP.Dir d) -> ExtImportNode -> Maybe (SP.Path SP.System b (SP.File f))
-absPathForExtImport waspRoot extImport = do
-  extImportPath :: FilePath <- einFile extImport >>= readMaybe
-  relPath <- SP.parseRelFile =<< stripPrefix "@" extImportPath
-  return $ waspRoot SP.</> [SP.reldir|src|] SP.</> relPath
+-- | Convert the path inside an external import in a .wasp file to an absolute
+-- path.
+--
+-- To support ESNext module resolution, this may also change the file extension
+-- from @.js@ to @.ts@. This occurs when the @.ts@ file exists on disk.
+absPathForExtImport ::
+  (MonadIO m) =>
+  SP.Path' SP.Abs SP.Dir' ->
+  ExtImportNode ->
+  m (Maybe (SP.Path' SP.Abs SP.File'))
+absPathForExtImport waspRoot extImport = runMaybeT $ do
+  -- Read the string from the syntax tree
+  extImportPath :: FilePath <- hoistMaybe $ einFile extImport >>= readMaybe
+  -- Drop the @ and try to parse to a relative path
+  relPath <- hoistMaybe $ SP.parseRelFile =<< stripPrefix "@" extImportPath
+  -- Prepend the src directory in the project to the relative path
+  let absPath = waspRoot SP.</> [SP.reldir|src|] SP.</> relPath
+  -- Fix the extension, if needed
+  SP.fromPathAbsFile <$> fixExtension (SP.toPathAbsFile absPath)
+  where
+    fixExtension file
+      | fromMaybe "" (P.fileExtension file) == ".js" = useTsExtensionIfFileExists file
+      | otherwise = return file
+
+    -- Replaces extension with @.ts@ if the file with the extension replaced
+    -- exists.
+    useTsExtensionIfFileExists file = do
+      -- @.ts@ is a valid extension so this never throws.
+      let tsFile = fromJust $ P.replaceExtension ".ts" file
+      tsFileExists <- liftIO $ doesFileExist $ SP.fromPathAbsFile tsFile
+      return $ if tsFileExists then tsFile else file
