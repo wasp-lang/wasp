@@ -419,3 +419,99 @@ export const getAllOverride: GetAllQuery<Input, Output> = async (args, context) 
   // ...
 }
 ```
+
+## WebSocket full-stack type support
+
+
+Defining event names with the matching payload types on the server makes those types exposed automatically on the client. This allows you avoid making mistakes when emitting events or handling them.
+
+### Defining the events handler
+On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function, which contains all entities you defined in your Wasp app. You can type the `webSocketFn` function like this: 
+
+```ts title=src/server/webSocket.ts
+import type { WebSocketDefinition, WaspSocketData } from '@wasp/webSocket'
+
+// Using the generic WebSocketDefinition type to define the WebSocket function.
+type WebSocketFn = WebSocketDefinition<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>
+
+interface ServerToClientEvents {
+  // The type for the payload of the "chatMessage" event.
+  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+}
+
+interface ClientToServerEvents {
+  // The type for the payload of the "chatMessage" event.
+  chatMessage: (msg: string) => void;
+}
+
+interface InterServerEvents {}
+
+interface SocketData extends WaspSocketData {}
+
+// Use the WebSocketFn to type the webSocketFn function.
+export const webSocketFn: WebSocketFn = (io, context) => {
+  io.on('connection', (socket) => {
+    socket.on('chatMessage', async (msg) => {
+      io.emit('chatMessage', { ... })
+    })
+  })
+}
+```
+
+### Using the WebSocket on the client
+
+After you have defined the WebSocket function on the server, you can use it on the client. The `useSocket` hook will give you the `socket` instance and the `isConnected` boolean. The `socket` instance is typed with the types you defined on the server.
+
+The `useSocketListener` hook will give you a type-safe event handler. The event name and its payload type are defined on the server.
+
+You can additonally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event (it extract the message type from the event handler type).
+
+```tsx title=src/client/ChatPage.tsx
+import React, { useState } from 'react'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+  ClientToServerPayload,
+} from '@wasp/webSocket'
+
+export const ChatPage = () => {
+  const [messageText, setMessageText] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ClientToServerPayload<'chatMessage'>
+  >('')
+
+  const [messages, setMessages] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ServerToClientPayload<'chatMessage'>[]
+  >([])
+
+  // The "socket" instance is typed with the types you defined on the server.
+  const { socket, isConnected } = useSocket()
+
+  // This is a type-safe event handler: "chatMessage" event and its payload type
+  // are defined on the server.
+  useSocketListener('chatMessage', logMessage)
+
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
+    // ...
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // This is a type-safe event emitter: "chatMessage" event and its payload type
+    // are defined on the server.
+    socket.emit('chatMessage', messageText)
+    setMessageText('')
+  }
+
+  return (
+    ...
+  )
+}
+```

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
-import { useSocket, useSocketListener } from '@wasp/webSocket'
+import { useSocket, useSocketListener, ServerToClientPayload, ClientToServerPayload } from '@wasp/webSocket'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -14,9 +14,7 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
-  const [messages, setMessages] = useState<
-    { id: string; username: string; text: string }[]
-  >([])
+  const [messages, setMessages] = useState<ServerToClientPayload<'chatMessage'>[]>([])
   const { socket, isConnected } = useSocket()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -26,7 +24,7 @@ export const ProfilePage = ({
 
   useSocketListener('chatMessage', logMessage)
 
-  function logMessage(msg: { id: string; username: string; text: string }) {
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
     setMessages((priorMessages) => [msg, ...priorMessages])
   }
 

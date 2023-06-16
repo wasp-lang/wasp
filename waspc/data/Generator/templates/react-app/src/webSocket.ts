@@ -1,22 +1,28 @@
 import { useContext, useEffect } from 'react'
-import { WebSocketContext } from './webSocket/WebSocketProvider';
+import { WebSocketContext } from './webSocket/WebSocketProvider'
 
 export type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from '../../server/src/webSocket'
 
-import type { ServerToClientEvents } from '../../server/src/webSocket'
+import type {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from '../../server/src/webSocket'
+
+export type ServerToClientPayload<Event extends keyof ServerToClientEvents> = Parameters<ServerToClientEvents[Event]>[0]
+export type ClientToServerPayload<Event extends keyof ClientToServerEvents> = Parameters<ClientToServerEvents[Event]>[0]
 
 export function useSocket() {
-  return useContext(WebSocketContext);
+  return useContext(WebSocketContext)
 }
 
 export function useSocketListener<Event extends keyof ServerToClientEvents>(
   event: Event,
   handler: ServerToClientEvents[Event],
 ) {
-  const { socket } = useContext(WebSocketContext);
+  const { socket } = useContext(WebSocketContext)
   useEffect(() => {
     /*
     TODO(miho): This is a hack for type error we are getting
@@ -34,11 +40,11 @@ export function useSocketListener<Event extends keyof ServerToClientEvents>(
     It looks like it should be assignable, but it's not.
     */
     const handlerInstance: any = (event: any) => {
-      handler(event);
-    };
-    socket.on(event, handlerInstance);
+      handler(event)
+    }
+    socket.on(event, handlerInstance)
     return () => {
-      socket.off(event, handlerInstance);
-    };
-  }, [event, handler]);
+      socket.off(event, handlerInstance)
+    }
+  }, [event, handler])
 }

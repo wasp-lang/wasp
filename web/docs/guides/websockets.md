@@ -30,10 +30,12 @@ app todoApp {
 }
 ```
 
-## Define the type-safe WebSocket server
+## Implement the WebSocket server
 Let's define the server with all of the events and handler functions.
 
-If you are using TypeScript, you can define event names with the matching payload types on the server and have those types exposed automatically on the client. This allows you avoid making mistakes when emitting events or handling them.
+:::info Full-stack type safety
+If you are using TypeScript, you can define event names with the matching payload types on the server and have those types exposed automatically on the client. This allows you avoid making mistakes when emitting events or handling them. Read more in the [Typescript guide](/docs/typescript#websocket-full-stack-type-support).
+:::
 
 ### Defining the events handler
 On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function, which contains all entities you defined in your Wasp app. You can use this `io` object to register callbacks for all the regular [Socket.IO events](https://socket.io/docs/v4/server-api/). 
@@ -97,12 +99,19 @@ All components using `useSocket` share the same underlying `socket`.
 
 ```tsx title=src/client/ChatPage.tsx
 import React, { useState } from 'react'
-import { useSocket, useSocketListener } from '@wasp/webSocket'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+} from '@wasp/webSocket'
 
 export const ChatPage = () => {
-  const [messageText, setMessageText] = useState('')
+  const [messageText, setMessageText] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ClientToServerPayload<'chatMessage'>
+  >('')
   const [messages, setMessages] = useState<
-    { id: string; username: string; text: string }[]
+    ServerToClientPayload<'chatMessage'>[]
   >([])
   // The "socket" instance is typed with the types you defined on the server.
   const { socket, isConnected } = useSocket()
@@ -111,7 +120,7 @@ export const ChatPage = () => {
   // are defined on the server.
   useSocketListener('chatMessage', logMessage)
 
-  function logMessage(msg: { id: string; username: string; text: string }) {
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
     setMessages((priorMessages) => [msg, ...priorMessages])
   }
 
@@ -154,3 +163,5 @@ export const ChatPage = () => {
   )
 }
 ```
+
+Read more about the types that are available when using WebSockets with Typescript in the [Typescript guide](/docs/typescript#websocket-full-stack-type-support).
