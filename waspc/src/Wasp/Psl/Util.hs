@@ -26,3 +26,6 @@ findIdBlockAttribute (PslModel.Body elements) = find isIdBlockAttribute attribut
     -- We define the ID block attribute as an attribute with the name @@id.
     idBlockAttributeName :: String
     idBlockAttributeName = "id"
+
+doesPslFieldHaveAttribute :: String -> PslModel.Field -> Bool
+doesPslFieldHaveAttribute name PslModel.Field {_attrs = attrs} = any ((== name) . PslModel._attrName) attrs

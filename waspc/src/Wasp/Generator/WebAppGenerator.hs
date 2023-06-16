@@ -126,10 +126,10 @@ npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("axios", "^0.27.2"),
+          [ ("axios", "^1.4.0"),
             ("react", "^18.2.0"),
             ("react-dom", "^18.2.0"),
-            ("@tanstack/react-query", "^4.13.0"),
+            ("@tanstack/react-query", "^4.29.0"),
             ("react-router-dom", "^5.3.3"),
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
