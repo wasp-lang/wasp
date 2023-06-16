@@ -19,8 +19,21 @@ export function useSocketListener<Event extends keyof ServerToClientEvents>(
 ) {
   const { socket } = useContext(WebSocketContext);
   useEffect(() => {
-    // TODO(miho): This is a hack for type errors we are getting
-    // from socket.on when passing in "handler" directly
+    /*
+    TODO(miho): This is a hack for type error we are getting
+    from socket.on when passing in "handler" directly:
+    
+    Argument of type 'ServerToClientEvents[Event]' is not assignable to parameter of type
+      'FallbackToUntypedListener<
+        Event extends "disconnect" | "connect" | "connect_error"
+          ? SocketReservedEvents[Event]
+          : Event extends "chatMessage"
+            ? ServerToClientEvents[Event]
+            : never
+      >'.
+
+    It looks like it should be assignable, but it's not.
+    */
     const handlerInstance: any = (event: any) => {
       handler(event);
     };

@@ -18,24 +18,32 @@ export type WebSocketDefinition<
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
   InterServerEvents extends EventsMap = DefaultEventsMap,
   SocketData extends WaspSocketData = WaspSocketData
-> =
-  ( io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
-    context: {
-      entities: {
-        {=# allEntities =}
-        {= name =}: typeof prisma.{= prismaIdentifier =},
-        {=/ allEntities =}
-      }
+> = (
+  io: Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData
+  >,
+  context: {
+    entities: {
+      {=# allEntities =}
+      {= name =}: typeof prisma.{= prismaIdentifier =},
+      {=/ allEntities =}
     }
-  ) => Promise<void> | void
+  }
+) => Promise<void> | void
 
 export interface WaspSocketData {
-  user?: any;
+  user?: any
 }
 
 type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
 type ServerType = Parameters<WebSocketFn>[0]
-type Events = ServerType extends Server<infer ClientToServerEvents, infer ServerToClientEvents>
+type Events = ServerType extends Server<
+  infer ClientToServerEvents,
+  infer ServerToClientEvents
+>
   ? [ClientToServerEvents, ServerToClientEvents]
   : [DefaultEventsMap, DefaultEventsMap]
 
@@ -49,7 +57,7 @@ export async function init(server: http.Server): Promise<void> {
   const io: ServerType = new Server(server, {
     cors: {
       origin: config.frontendUrl,
-    }
+    },
   })
 
   {=# isAuthEnabled =}
@@ -61,19 +69,21 @@ export async function init(server: http.Server): Promise<void> {
       {=# allEntities =}
       {= name =}: prisma.{= prismaIdentifier =},
       {=/ allEntities =}
-    }
+    },
   }
 
   await {= userWebSocketFn.importIdentifier =}(io, context)
 }
-
 {=# isAuthEnabled =}
-async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {
+async function addUserToSocketDataIfAuthenticated(
+  socket: Socket,
+  next: (err?: Error) => void
+) {
   const token = socket.handshake.auth.token
   if (token) {
     try {
       socket.data = { ...socket.data, user: await getUserFromToken(token) }
-    } catch (err) { }
+    } catch (err) {}
   }
   next()
 }
