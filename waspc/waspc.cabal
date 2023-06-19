@@ -198,6 +198,7 @@ library
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
+    Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Ref
@@ -273,6 +274,7 @@ library
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.Setup
     Wasp.Generator.Start
@@ -294,6 +296,7 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebSocket
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version

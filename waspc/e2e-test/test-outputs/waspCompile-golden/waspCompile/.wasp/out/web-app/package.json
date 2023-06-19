@@ -15,6 +15,7 @@
     "@prisma/client": "4.12.0",
     "@tanstack/react-query": "^4.29.0",
     "axios": "^1.4.0",
+    "mitt": "3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^5.3.3",

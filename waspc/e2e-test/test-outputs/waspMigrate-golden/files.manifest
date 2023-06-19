@@ -58,6 +58,7 @@ waspMigrate/.wasp/out/web-app/src/actions/core.d.ts
 waspMigrate/.wasp/out/web-app/src/actions/core.js
 waspMigrate/.wasp/out/web-app/src/actions/index.ts
 waspMigrate/.wasp/out/web-app/src/api.ts
+waspMigrate/.wasp/out/web-app/src/api/events.ts
 waspMigrate/.wasp/out/web-app/src/config.js
 waspMigrate/.wasp/out/web-app/src/entities/index.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/Main.css

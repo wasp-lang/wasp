@@ -59,7 +59,7 @@ app todoApp {
 }
 ```
 
-```ts title=src/server/serverSetup.js
+```ts title=src/server/serverSetup.ts
 import cors from 'cors'
 import { MiddlewareConfigFn } from '@wasp/middleware'
 import config from '@wasp/config.js'

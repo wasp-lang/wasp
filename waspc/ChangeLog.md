@@ -12,6 +12,9 @@
 ### Public folder support
 Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
 
+### Type safe WebSocket support
+Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more. What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with the correct types.
+
 ## v0.10.6
 
 ### Bug fixes

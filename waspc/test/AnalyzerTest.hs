@@ -186,7 +186,8 @@ spec_Analyzer = do
                                   { EmailSender.email = "test@test.com",
                                     EmailSender.name = Just "Test"
                                   }
-                          }
+                          },
+                    App.webSocket = Nothing
                   }
               )
             ]

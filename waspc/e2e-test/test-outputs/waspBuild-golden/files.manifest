@@ -51,6 +51,7 @@ waspBuild/.wasp/build/web-app/src/actions/core.d.ts
 waspBuild/.wasp/build/web-app/src/actions/core.js
 waspBuild/.wasp/build/web-app/src/actions/index.ts
 waspBuild/.wasp/build/web-app/src/api.ts
+waspBuild/.wasp/build/web-app/src/api/events.ts
 waspBuild/.wasp/build/web-app/src/config.js
 waspBuild/.wasp/build/web-app/src/entities/index.ts
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css

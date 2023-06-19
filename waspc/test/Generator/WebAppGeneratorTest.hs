@@ -41,7 +41,8 @@ spec_WebAppGenerator = do
                       AS.App.auth = Nothing,
                       AS.App.dependencies = Nothing,
                       AS.App.head = Nothing,
-                      AS.App.emailSender = Nothing
+                      AS.App.emailSender = Nothing,
+                      AS.App.webSocket = Nothing
                     }
               ],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],

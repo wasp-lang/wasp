@@ -64,6 +64,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
@@ -166,7 +167,8 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEmail spec,
+          ++ depsRequiredByEmail spec
+          ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
@@ -178,7 +180,9 @@ npmDepsForWasp spec =
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1")
+            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1"),
+            ("@types/uuid", "^9.0.0"),
+            ("@types/cors", "^2.8.5")
           ]
     }
 
@@ -217,6 +221,7 @@ genSrcDir spec =
     <++> genEmailSender spec
     <++> genDbSeed spec
     <++> genMiddleware spec
+    <++> genWebSockets spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -247,14 +252,16 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
-              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
+              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-relPathToServerSrcDir = [reldirP|./|]
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
