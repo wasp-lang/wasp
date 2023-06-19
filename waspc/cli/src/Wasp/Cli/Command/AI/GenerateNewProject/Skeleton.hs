@@ -4,19 +4,24 @@ module Wasp.Cli.Command.AI.GenerateNewProject.Skeleton
 where
 
 import Control.Arrow (first)
-import Control.Monad.IO.Class (liftIO)
+import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
+import StrongPath (File', Path, Rel)
 import qualified StrongPath as SP
+import StrongPath.Types (System)
 import Wasp.AI.CodeAgent (CodeAgent, writeNewFile)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (PlanRule)
-import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
+import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Version
 
-generateAndWriteProjectSkeleton :: NewProjectDetails -> CodeAgent (FilePath, [PlanRule])
-generateAndWriteProjectSkeleton newProjectDetails = do
-  coreFiles <- liftIO $ map (first SP.fromRelFile) <$> readCoreWaspProjectFiles
+generateAndWriteProjectSkeleton ::
+  NewProjectDetails ->
+  [(Path System (Rel WaspProjectDir) File', Text)] ->
+  CodeAgent (FilePath, [PlanRule])
+generateAndWriteProjectSkeleton newProjectDetails coreWaspProjectFiles = do
+  let coreFiles = first SP.fromRelFile <$> coreWaspProjectFiles
   mapM_ writeNewFile coreFiles
 
   let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails

@@ -22,6 +22,7 @@ import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import qualified Wasp.Cli.Command.AI.GenerateNewProject as GNP
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
+import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
 import qualified Wasp.Cli.Command.CreateNewProject as CNP
 
 newForHuman :: Command ()
@@ -48,9 +49,7 @@ newForHuman = do
             CA._writeLog = forwardLogToStdout
           }
 
-  liftIO $
-    CA.runCodeAgent codeAgentConfig $
-      GNP.generateNewProject $ newProjectDetails webAppName webAppDescription
+  liftIO $ generateNewProject codeAgentConfig webAppName webAppDescription
   where
     writeFileToDisk path content = do
       createDirectoryIfMissing True (takeDirectory path)
@@ -75,9 +74,7 @@ newForMachine webAppName webAppDescription = do
             CA._writeLog = writeLogToStdoutWithDelimiters
           }
 
-  liftIO $
-    CA.runCodeAgent codeAgentConfig $
-      GNP.generateNewProject $ newProjectDetails webAppName webAppDescription
+  liftIO $ generateNewProject codeAgentConfig webAppName webAppDescription
   where
     writeFileToStdoutWithDelimiters path content =
       writeToStdoutWithDelimiters "WRITE FILE" [T.pack path, content]
@@ -86,18 +83,22 @@ newForMachine webAppName webAppDescription = do
       writeToStdoutWithDelimiters "LOG" [msg]
 
     writeToStdoutWithDelimiters delimiterTitle paragraphs = do
-      T.IO.putStrLn . ("\n" <>) $
-        withDelimiter delimiterTitle $
-          T.intercalate "\n" $
-            paragraphs
+      T.IO.putStrLn . ("\n" <>) $ withDelimiter delimiterTitle $ T.intercalate "\n" paragraphs
       hFlush stdout
 
     withDelimiter title content =
-      T.intercalate "\n" $
+      T.intercalate
+        "\n"
         [ "==== WASP AI: " <> title <> " ====",
           content,
           "===/ WASP AI: " <> title <> " ===="
         ]
+
+generateNewProject :: CA.CodeAgentConfig -> String -> String -> IO ()
+generateNewProject codeAgentConfig webAppName webAppDescription = do
+  coreWaspProjectFiles <- readCoreWaspProjectFiles
+  CA.runCodeAgent codeAgentConfig $
+    GNP.generateNewProject (newProjectDetails webAppName webAppDescription) coreWaspProjectFiles
 
 getOpenAIApiKey :: Command OpenAIApiKey
 getOpenAIApiKey =

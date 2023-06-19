@@ -12,6 +12,7 @@ import Control.Monad (forM)
 import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
+import StrongPath (File', Path, Rel, System)
 import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
@@ -20,12 +21,22 @@ import Wasp.Cli.Command.AI.GenerateNewProject.Page (generateAndWritePage)
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
 import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeleton)
+import Wasp.Project (WaspProjectDir)
 
-generateNewProject :: NewProjectDetails -> CodeAgent ()
-generateNewProject newProjectDetails = do
-  writeToLog $ T.pack $ "Generating new wasp project named " <> _projectAppName newProjectDetails <> "!"
+generateNewProject ::
+  NewProjectDetails ->
+  -- | @coreWaspProjectFiles@ are files that every new Wasp project should start with, excluding
+  --   main.wasp file. They are not specific to the app itself, but are neccessary configuration
+  --   "boilerplate" (i.e. .gitignore, tsconfig.json, .wasproot, ...).
+  [(Path System (Rel WaspProjectDir) File', Text)] ->
+  CodeAgent ()
+generateNewProject newProjectDetails coreWaspProjectFiles = do
+  writeToLog . T.pack $
+    "Generating new wasp project named " <> _projectAppName newProjectDetails <> "!"
+
   writeToLog "Generating project skeleton..."
-  (waspFilePath, planRules) <- generateAndWriteProjectSkeleton newProjectDetails
+  (waspFilePath, planRules) <-
+    generateAndWriteProjectSkeleton newProjectDetails coreWaspProjectFiles
   writeToLog "Generated project skeleton."
 
   writeToLog "Generating plan..."
@@ -36,10 +47,14 @@ generateNewProject newProjectDetails = do
   writeToLog "Added entities to wasp file."
 
   writeToLog "Generating actions..."
-  actions <- forM (Plan.actions plan) $ generateAndWriteOperation Action newProjectDetails waspFilePath plan
+  actions <-
+    forM (Plan.actions plan) $
+      generateAndWriteOperation Action newProjectDetails waspFilePath plan
 
   writeToLog "Generating queries..."
-  queries <- forM (Plan.queries plan) $ generateAndWriteOperation Query newProjectDetails waspFilePath plan
+  queries <-
+    forM (Plan.queries plan) $
+      generateAndWriteOperation Query newProjectDetails waspFilePath plan
 
   writeToLog "Generating pages..."
   _pages <-
@@ -51,6 +66,7 @@ generateNewProject newProjectDetails = do
 
   -- TODO: Consider going through all the prompts and trying to reduce their length,
   --   to make sure we are not droping anyting out of context + that we are not wasteful.
+
   writeToLog "Done!"
   where
     summarizePlan plan =
