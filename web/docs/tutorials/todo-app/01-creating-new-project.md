@@ -85,10 +85,10 @@ Let's start with the `main.wasp` file, which introduces 3 new concepts:
 [page](language/features.md#page) and
 [route](language/features.md#route).
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 app TodoApp { // Main declaration, defines a new web app.
   wasp: {
-    version: "^0.10.0"
+    version: "^0.11.0"
   },
   title: "Todo app" // Used as a browser tab title.
 }

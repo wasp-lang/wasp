@@ -8,7 +8,7 @@ Wasp is a declarative, statically typed, domain specific language (DSL).
 
 The central point of Wasp language are **declarations**, and Wasp source is at the end just a bunch of declarations, each of them describing a part of your web app.
 
-```c
+```wasp
 app MyApp {
   title: "My app"
 }
@@ -74,9 +74,11 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **page**
     - **query**
     - **route**
+    - **crud**
   - Enum types
     - **DbSystem**
     - **HttpMethod**
     - **JobExecutor**
+    - **EmailProvider**
 
 For more details about each of the domain types, both regarding their body types and what they mean, check the [Features](/language/features.md) section.

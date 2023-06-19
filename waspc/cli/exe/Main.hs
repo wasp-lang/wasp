@@ -8,6 +8,7 @@ import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
+import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -30,7 +31,10 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
+import qualified Wasp.Message as Message
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
@@ -61,6 +65,16 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
+
+  -- Before calling any command, check that the node requirement is met. Node is
+  -- not needed for every command, but checking for every command was decided
+  -- to be more robust than trying to only check for commands that require it.
+  -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
+  NodeVersion.getAndCheckNodeVersion >>= \case
+    Left errorMsg -> do
+      cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
+      exitFailure
+    Right _ -> pure ()
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
@@ -95,11 +109,11 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors :: E.ErrorCall -> IO ()
     handleInternalErrors e = putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
 
+{- ORMOLU_DISABLE -}
 printUsage :: IO ()
 printUsage =
   putStrLn $
     unlines
-{- ORMOLU_DISABLE -}
       [ title "USAGE",
               "  wasp <command> [command-args]",
               "",
@@ -165,11 +179,11 @@ dbCli args = case args of
   ["studio"] -> runDbCommand Command.Db.Studio.studio
   _ -> printDbUsage
 
+{- ORMOLU_DISABLE -}
 printDbUsage :: IO ()
 printDbUsage =
   putStrLn $
     unlines
-{- ORMOLU_DISABLE -}
       [ title "USAGE",
               "  wasp db <command> [command-args]",
               "",

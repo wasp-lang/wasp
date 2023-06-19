@@ -5,11 +5,17 @@ module Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   )
 where
 
+import Data.Maybe (fromJust)
 import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy (..), GeneratedExternalCodeDir)
+import Wasp.Generator.ExternalCodeGenerator.Common
+  ( ExternalCodeGeneratorStrategy (..),
+    GeneratedExternalCodeDir,
+    castRelPathFromSrcToGenExtCodeDir,
+  )
 import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Util.FilePath (removePathPrefix)
 
 extClientCodeGeneratorStrategy :: ExternalCodeGeneratorStrategy
 extClientCodeGeneratorStrategy = mkExtCodeGeneratorStrategy extClientCodeDirInWebAppSrcDir
@@ -31,8 +37,21 @@ mkExtCodeGeneratorStrategy :: Path' (Rel C.WebAppSrcDir) (Dir GeneratedExternalC
 mkExtCodeGeneratorStrategy extCodeDirInWebAppSrcDir =
   ExternalCodeGeneratorStrategy
     { _resolveJsFileWaspImports = resolveJsFileWaspImportsForExtCodeDir (SP.castRel extCodeDirInWebAppSrcDir),
-      _extCodeDirInProjectRootDir =
-        C.webAppRootDirInProjectRootDir
-          </> C.webAppSrcDirInWebAppRootDir
-          </> extCodeDirInWebAppSrcDir
+      _resolveDstFilePath = resolveDstFilePath
     }
+  where
+    resolveDstFilePath filePath =
+      case maybeFilePathInStaticAssetsDir of
+        Just filePathInStaticAssetsDir ->
+          C.webAppRootDirInProjectRootDir
+            </> C.staticAssetsDirInWebAppDir
+            </> fromJust (SP.parseRelFile filePathInStaticAssetsDir)
+        Nothing ->
+          C.webAppRootDirInProjectRootDir
+            </> C.webAppSrcDirInWebAppRootDir
+            </> extCodeDirInWebAppSrcDir
+            </> castRelPathFromSrcToGenExtCodeDir filePath
+      where
+        maybeFilePathInStaticAssetsDir = removePathPrefix staticAssetsDir (SP.fromRelFile filePath)
+
+    staticAssetsDir = SP.fromRelDir C.staticAssetsDirInWebAppDir

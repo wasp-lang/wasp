@@ -18,6 +18,8 @@ module Wasp.Generator.WebAppGenerator.Common
     WebAppTemplatesDir,
     WebAppTemplatesSrcDir,
     toViteImportPath,
+    staticAssetsDirInWebAppDir,
+    WebAppStaticAssetsDir,
   )
 where
 
@@ -43,6 +45,8 @@ data WebAppTemplatesDir
 
 data WebAppTemplatesSrcDir
 
+data WebAppStaticAssetsDir
+
 instance GeneratedSrcDir WebAppSrcDir
 
 serverRootDirFromWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir ServerRootDir)
@@ -64,6 +68,9 @@ webAppRootDirInProjectRootDir = [reldir|web-app|]
 -- | Path to generated web app src/ directory, relative to the root directory of generated web app.
 webAppSrcDirInWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir WebAppSrcDir)
 webAppSrcDirInWebAppRootDir = [reldir|src|]
+
+staticAssetsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppStaticAssetsDir)
+staticAssetsDirInWebAppDir = [reldir|public|]
 
 -- | Path to generated web app src/ directory, relative to the root directory of the whole generated project.
 webAppSrcDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WebAppSrcDir)

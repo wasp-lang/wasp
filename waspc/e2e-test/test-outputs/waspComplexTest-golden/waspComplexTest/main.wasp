@@ -1,7 +1,7 @@
 app waspComplexTest {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.10.5"
+    version: "^0.11.0"
   },
   auth: {
     userEntity: User,
@@ -89,5 +89,20 @@ api fooBaz {
 apiNamespace fooBarNamespace {
   middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apiNamespaces.js",
   path: "/bar"
+}
+
+entity Task {=psl
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+psl=}
+
+crud tasks {
+  entity: Task,
+  operations: {
+    get: {},
+    getAll: {},
+    create: {},
+  }
 }
 

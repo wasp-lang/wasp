@@ -35,7 +35,7 @@ Our scaffolding already includes TypeScript, so migrating your project to TypeSc
 
 Let's first assume your Wasp file contains the following definitions:
 
-```c title=main.wasp
+```wasp title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -103,7 +103,7 @@ You don't need to change anything inside the `.wasp` file.
 
 Even when you use TypeScript, and your file is called `queries.ts`, you still need to import it using the `.js` extension:
 
-```c
+```wasp
 query getTaskInfo {
   fn: import { getTaskInfo } from "@server/queries.js",
   entities: [Task]
@@ -166,7 +166,7 @@ The mentioned type safety mechanisms also apply here: changing the task entity i
 
 Wasp automatically generates the appropriate types for all Operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
 
-```c title=main.wasp
+```wasp title=main.wasp
 // ...
 
 query GetTaskInfo {
@@ -389,4 +389,33 @@ and use it to type your seed function like this:
 
 ```ts
 export const devSeedSimple: DbSeedFn = async (prismaClient) => { ... }
+```
+
+## CRUD operations on entities
+
+For a specific [Entity](/docs/language/features#entity), you can tell Wasp to automatically instantiate server-side logic ([Queries](/docs/language/features#query) and [Actions](/docs/language/features#action)) for creating, reading, updating and deleting such entities. 
+
+Read more about CRUD operations in Wasp [here](/docs/language/features#crud-operations).
+
+### Using types for CRUD operations overrides
+
+If you writing the override implementation in Typescript, you'll have access to generated types. The overrides are functions that take the following arguments:
+- `args` - The arguments of the operation i.e. the data that's sent from the client.
+- `context` - Context containing the `user` making the request and the `entities` object containing the entity that's being operated on.
+
+You can types for each of the functions you want to override from `@wasp/crud/{crud name}`. The types that are available are:
+- `GetAllQuery`
+- `GetQuery`
+- `CreateAction`
+- `UpdateAction`
+- `DeleteAction`
+
+If you have a CRUD named `Tasks`, you would import the types like this:
+```ts
+import type { GetAllQuery, GetQuery, CreateAction, UpdateAction, DeleteAction } from '@wasp/crud/Tasks'
+
+// Each of the types is a generic type, so you can use it like this:
+export const getAllOverride: GetAllQuery<Input, Output> = async (args, context) => {
+  // ...
+}
 ```

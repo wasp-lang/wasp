@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.10.5
+version:        0.11.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -107,7 +107,7 @@ library
     , exceptions            ^>= 0.10.4
     , split                 ^>= 0.2.3
     , conduit-extra         ^>= 1.3.5
-    , process               ^>= 1.6.13
+    , process               ^>= 1.6.17
     , cryptohash-sha256     ^>= 0.11.102
     , mustache              ^>= 2.3.2
     , parsec                ^>= 3.1.14
@@ -187,6 +187,7 @@ library
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
     Wasp.AppSpec.ApiNamespace
+    Wasp.AppSpec.Crud
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Auth.PasswordReset
@@ -252,7 +253,8 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.Node.Version
+    Wasp.Generator.Crud
+    Wasp.Generator.Crud.Routes
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -271,6 +273,7 @@ library
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
@@ -278,6 +281,7 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
+    Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
     Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
     Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
     Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
@@ -290,7 +294,9 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
+    Wasp.Node.Version
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -300,10 +306,12 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
+    Wasp.Project.WebApp
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Util
     Wasp.SemanticVersion
     Wasp.Util
     Wasp.Util.Network.Socket
@@ -311,6 +319,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
+    Wasp.Util.FilePath
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -321,8 +330,9 @@ library waspls
   import: common-all
   hs-source-dirs: waspls/src
   exposed-modules:
+    Control.Monad.Log
+    Control.Monad.Log.Class
     Wasp.LSP.Server
-  other-modules:
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
@@ -478,6 +488,7 @@ test-suite waspc-test
     Analyzer.TypeCheckerTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
     Fixtures
@@ -490,6 +501,7 @@ test-suite waspc-test
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
+    Generator.CrudTest
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -499,11 +511,37 @@ test-suite waspc-test
     Util.Control.MonadTest
     UtilTest
     Util.Diff
+    Util.FilePathTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest
     JsImportTest
+
+test-suite waspls-test
+  import: common-all, common-exe
+  type: exitcode-stdio-1.0
+  hs-source-dirs: waspls/test
+  main-is: TastyDiscoverDriver.hs
+  build-tool-depends:
+    tasty-discover:tasty-discover
+  build-depends:
+    , base
+    , waspc
+    , waspls
+    , lens                  ^>=5.1
+    , lsp                   ^>=1.4.0.0
+    , lsp-types             ^>=1.4.0.1
+    , mtl
+    , QuickCheck            ^>= 2.14
+    , tasty                 ^>= 1.4.2
+    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
+    , tasty-hspec           >= 1.1 && < 1.1.7
+    , tasty-golden          ^>= 2.3.5
+    , bytestring
+    , filepath
+  other-modules:
+    Wasp.LSP.CompletionTest
 
 test-suite cli-test
   import: common-all, common-exe

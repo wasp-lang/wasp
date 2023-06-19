@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.11.0
+
+### Breaking changes
+- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
+- Wasp now uses React 18: https://react.dev/blog/2022/03/08/react-18-upgrade-guide
+
+### Bug fixes
+- Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
+
+### Public folder support
+Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
+
+## v0.10.6
+
+### Bug fixes
+- `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
+
+### More `wasp deploy fly` options
+`wasp deploy fly` now supports a `--org` option, as well as setting secrets during `launch`.
+
 ## v0.10.5
 
 ### Bug fixes
@@ -21,7 +41,6 @@ We now offer an interactive way to create a new project. You can run `wasp new` 
 ### Bug fixes
 - Adds missing import for HttpError which prevent auth from working properly.
 
-This should make it much easier to work with apis and to customize your Express app in general.
 ## v0.10.3
 
 ### Bug fixes

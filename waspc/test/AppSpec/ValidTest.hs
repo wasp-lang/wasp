@@ -21,6 +21,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
+import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -87,10 +88,22 @@ spec_AppSpecValid = do
 
     describe "auth-related validation" $ do
       let userEntityName = "User"
+      let validUserField =
+            PslModel.Field
+              { PslModel._name = "username",
+                PslModel._type = PslModel.String,
+                PslModel._attrs =
+                  [ PslModel.Attribute
+                      { PslModel._attrName = "unique",
+                        PslModel._attrArgs = []
+                      }
+                  ],
+                PslModel._typeModifiers = []
+              }
       let validUserEntity =
             AS.Entity.makeEntity
               ( PslM.Body
-                  [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
+                  [ PslM.ElementField validUserField,
                     PslM.ElementField $ makeBasicPslField "password" PslM.String
                   ]
               )
@@ -224,7 +237,13 @@ spec_AppSpecValid = do
         let invalidUserEntity2 =
               AS.Entity.makeEntity
                 ( PslM.Body
-                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String
+                    [PslM.ElementField validUserField]
+                )
+        let invalidUserEntity3 =
+              AS.Entity.makeEntity
+                ( PslM.Body
+                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
+                      PslM.ElementField $ makeBasicPslField "password" PslM.String
                     ]
                 )
 
@@ -236,11 +255,15 @@ spec_AppSpecValid = do
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'String'."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'username' of type 'String'."
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity2)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'password' of type 'String'."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'password' of type 'String'."
+                       ]
+          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity3)
+            `shouldBe` [ ASV.GenericValidationError
+                           "The field 'username' on entity 'User' (referenced by app.auth.userEntity) must be marked with the '@unique' attribute."
                        ]
   where
     makeBasicPslField name typ = makePslField name typ False

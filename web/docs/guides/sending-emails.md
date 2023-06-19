@@ -8,7 +8,7 @@ import SendingEmailsInDevelopment from '../_sendingEmailsInDevelopment.md'
 
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
-```js title="main.wasp"
+```wasp title="main.wasp"
 app Example {
   ...
   emailSender: {
@@ -73,7 +73,7 @@ For each provider, you'll need to set up env variables in the `.env.server` file
 
 First, set the provider to `SMTP` in your `main.wasp` file.
 
-```js title="main.wasp"
+```wasp title="main.wasp"
 app Example {
   ...
   emailSender: {
@@ -97,7 +97,7 @@ Many transactional email providers (e.g. Mailgun, SendGrid but also others) can 
 
 Set the provider to `Mailgun` in the `main.wasp` file.
 
-```js title="main.wasp"
+```wasp title="main.wasp"
 app Example {
   ...
   emailSender: {
@@ -125,7 +125,7 @@ MAILGUN_DOMAIN=
 
 Set the provider field to `SendGrid` in your `main.wasp` file.
 
-```js title="main.wasp"
+```wasp title="main.wasp"
 app Example {
   ...
   emailSender: {

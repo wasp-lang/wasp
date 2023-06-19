@@ -18,7 +18,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "ca888a6ed14f8ad3980e4aa1c35d88a7268d8936134f78efc5a19add7abe9fc0"
+        "cbea4d60a2c1bef984008597eefc64540e95048d7a43cb718303f5628d386ae1"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "595657debb7d5a82faf58d10e8039b1071b7ed1723d0f47e776db6b5c18d56ed"
+        "43cf95d250c9baffd30a5f4836608965aa46d0875f4a736ad384a647639e9c30"
     ],
     [
         [
@@ -88,14 +88,21 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "5e5d0d6222c4e8bc3df40f8913bcecb43b8b3cab9f3de39a68b35a934f09f873"
+        "9e8542f1b36712bbf3d633400377fed4da6fd15e69394ae521935c33cbdbbe36"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
     ],
     [
         [
             "file",
             "server/src/_types/taggedEntities.ts"
         ],
-        "ac5570e21d89fbb8418a2fc26cbbec7b189c13b4bfab5f0b006d356411b8f5a2"
+        "1d95c918d216f7cc79f1a861c29eb251794e1f1ea2ce53452a81928429a21430"
     ],
     [
         [
@@ -109,7 +116,7 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "225c35a21bce64ec2081013c7aadef5bb7ebbc3bdad617d08390164e150555aa"
+        "35cf6ae813ff02d73a23b9b9468975d86e4c89ee93079e48fd7f6bf3205f3451"
     ],
     [
         [
@@ -226,6 +233,13 @@
     [
         [
             "file",
+            "server/src/crud/tasks.ts"
+        ],
+        "5c7e55d9eecf8e54822b90662727fcab47c6171c0c49043b25f4e7073ecbe085"
+    ],
+    [
+        [
+            "file",
             "server/src/dbClient.ts"
         ],
         "a749686af4e331a0b982e8c2acbfe00aff043340f34d54e80a34d417c6901e56"
@@ -284,7 +298,7 @@
             "file",
             "server/src/entities/index.ts"
         ],
-        "3dc318116ab03fc779f408442a2608011ea1f3d8f9a28109f27041b7d22ef3d1"
+        "783fbc250d0628073328625ff299f120ac8bef45232c10b7d7b5897d42b788c1"
     ],
     [
         [
@@ -394,6 +408,13 @@
     [
         [
             "file",
+            "server/src/middleware/operations.ts"
+        ],
+        "64eeed927f46f6d6eba143023f25fb9ac4cd81d6b68c9a7067306ad28a3eda92"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/MySpecialQuery.ts"
         ],
         "00fa7ce8dbb7bc3f581ab6f6400a69c54d5520f5cba64598419e471d3a01f7ef"
@@ -403,7 +424,7 @@
             "file",
             "server/src/queries/types.ts"
         ],
-        "ddd91bb1d15b1c3e684726a6ea56d02c4bd103654b8c37373b943f64c12c0e29"
+        "31c22daa41ba232cb457a2c45a4acfae5ce20c34fb32a13821a506ddac62b0f1"
     ],
     [
         [
@@ -429,23 +450,37 @@
     [
         [
             "file",
+            "server/src/routes/crud/index.ts"
+        ],
+        "b66ff949dbdaa892a354f3a60dc59ce229323ef55fad38239f8b335ec1e71b8d"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/crud/tasks.ts"
+        ],
+        "cb5a53c503c946083cc46b2500a4eab49b3bfa867d3bcc1cae50355c0796369c"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/index.js"
         ],
-        "57c6074cfb790ea019efbab199e860e70248a3e758419312939ba63c7a84a42c"
+        "b589a916a4ded52b75af42e299a506cbeb4d56ce2e87bec29f211c3e33865049"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialAction.js"
         ],
-        "19eea333d3f3f559b93b49f34a3a6f474d86b4d8b83c70f4bb456ef44e361eef"
+        "6bda2fb808fcc69fedb8f69aa08ceea94c668abec42643e15f59a3c161854bbb"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialQuery.js"
         ],
-        "f8a7ce6ab0c320f24e76d12c5ba01891d8c408c80f07bbf8a6471fafb29abc91"
+        "af52108997cac2f416819822a9b7d2615121270a1c5886b5df7e03ae5cf1fc09"
     ],
     [
         [
@@ -543,7 +578,7 @@
             "file",
             "web-app/package.json"
         ],
-        "106826ffacc2f21e037bb05f08c3dfb8370d429c1d5226624a1a02e698de3ae0"
+        "aec3fd9668221023b165909ee2321225cff44a36c9a7fcdd7e15bb30111b9900"
     ],
     [
         [
@@ -613,63 +648,63 @@
             "file",
             "web-app/src/auth/forms/Auth.tsx"
         ],
-        "9f8dde92a52f2b89c2ba1d32ac6025f0d010fa5650b858adba0707760e3b4ba6"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/ForgotPassword.tsx"
-        ],
-        "39eda745fc19798d235cbecf7e755ab1050187d99775dfb06304b06804e5c7fc"
+        "9e342bdf8c17d9c36f042b272cf7d5e432bb27adc10ba218b206ca54638f6b4e"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Login.tsx"
         ],
-        "788a896a5717cd6e082db23cd5e1f4f46816253e24d6bbe60b2d64fb5a208d3c"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/ResetPassword.tsx"
-        ],
-        "be24461d42102d53c028713146054029950137e79e27906a166a16cf9dd64add"
+        "17f42b2faa70876fb680de43ef33b5caa6c310c254af07358e21bc710f9214a9"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Signup.tsx"
         ],
-        "bea6a9756a546820ccd240aabfa3db3d14faf655f7681c7b9ca0791677556c3a"
+        "cacd5348e84d42bc142f6c6e00051a8e86f6b17eb037b2772772f073925bf570"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/SocialButton.tsx"
+            "web-app/src/auth/forms/internal/Form.tsx"
         ],
-        "fb14b39e617bf0cb7eec96428fd2882c2fbcda8bebd453ed00866b3203420043"
+        "ce6b409fda73d88e762b27aef7038618961e61e6ef8e5f66912325ab88a8223e"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/SocialIcons.tsx"
+            "web-app/src/auth/forms/internal/Message.tsx"
         ],
-        "18ce4ed1aec9fb0e71d4ce8376d5c42fcec1008d9b16d92dd18d51f34ee189a6"
+        "01f10e2499dfd2b88f6a3a9109153f121fad59614acfc7346f40fc51df96bdaf"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/VerifyEmail.tsx"
+            "web-app/src/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2cb996958b1332f383af1265a9fa7dd30d71aaef371cd2ac471f9feb44158568"
+        "c92bab325f51159c3d1bb285c7e807acbb85069c5b16afc3a35fbd0121c91b6a"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/internal/social/SocialButton.tsx"
+        ],
+        "4ece421ad263727e914e26042f262b7abc3dcc52a9bad83d6476e1eb76c70a67"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/internal/social/SocialIcons.tsx"
+        ],
+        "bd52b9c07dfdd1e061e68c80b7a29ecfce5bd340a8da1b9163edbbf67a649354"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/types.ts"
         ],
-        "601917a95f8218f9db51148bf852a21925ea9806729fe9f8a65a96f84e8ba22f"
+        "c4066fbd39ec20a3d43be9f9d5762d555dbc006057579ac168a67b2678918a13"
     ],
     [
         [
@@ -688,9 +723,9 @@
     [
         [
             "file",
-            "web-app/src/auth/logout.js"
+            "web-app/src/auth/logout.ts"
         ],
-        "51997d8a52c4253e83b5308672c867dbbe9d4e3680fc4e8e5939db28f0a5b70d"
+        "6717411aa38e54aa74a5034628510ee3ca0f2ea9d1692644ee4886c74d8657af"
     ],
     [
         [
@@ -730,9 +765,16 @@
     [
         [
             "file",
+            "web-app/src/crud/tasks.ts"
+        ],
+        "2f4ca60123e3fe999dbe4814182b7d09d0039db120e5c260ccc824806561b5e7"
+    ],
+    [
+        [
+            "file",
             "web-app/src/entities/index.ts"
         ],
-        "642ab14a4d5b92152ba458b210502adea70fa7a6d1d6af35108a71236a33e89b"
+        "cfb9f8237f80aea777840621702d03803172b005b3aaee2fc0be6c9f1b1c8414"
     ],
     [
         [
@@ -781,7 +823,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "bcb8202d7b6c536d1589aa5ec64407e6e856fd4b3866ec8e2111389fee2c751d"
+        "f84afcc81bea674e7e3d88e8279d514d1838c4aecb4357c8c3b1fc8ee9879281"
     ],
     [
         [
@@ -942,7 +984,7 @@
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "c40d0614fda5b8a746a1ba2e3be8e2370140c0167851ac77881cd53bb5647cdd"
+        "9e2abb169ea87b7190613a1d4da57ca608463a453bd4231fa3aeee5e308370dd"
     ],
     [
         [

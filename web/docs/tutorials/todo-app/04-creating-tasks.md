@@ -15,7 +15,7 @@ Creating an action is very similar to creating a query.
 ### Wasp declaration
 
 First, we declare the action in Wasp:
-```c title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 action createTask {

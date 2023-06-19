@@ -1,6 +1,6 @@
 app waspNew {
   wasp: {
-    version: "^0.10.5"
+    version: "^0.11.0"
   },
   title: "waspNew"
 }
