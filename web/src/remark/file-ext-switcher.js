@@ -1,4 +1,5 @@
-// Copied from https://github.com/redwoodjs/redwood/tree/main
+// Copied from
+// https://github.com/redwoodjs/redwood/blob/bd903c5755925ea7174775a2fdaba371b700c910/docs/src/remark/file-ext-switcher.js
 
 const visit = require('unist-util-visit')
 
