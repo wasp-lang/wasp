@@ -1,4 +1,4 @@
-module Wasp.OpenAI
+module Wasp.AI.OpenAI
   ( OpenAIApiKey,
   )
 where

@@ -15,7 +15,8 @@ import qualified Data.Text as T
 import qualified Debug.Trace as Debug
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent)
+import Wasp.AI.CodeAgent (CodeAgent)
+import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
@@ -23,7 +24,6 @@ import Wasp.Cli.Command.AI.GenerateNewProject.Common
   )
 import Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
 -- | Additional rule to follow while generating plan.
 type PlanRule = String

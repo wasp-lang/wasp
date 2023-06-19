@@ -13,7 +13,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
+import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
+import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
@@ -24,7 +25,6 @@ import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompt
 import Wasp.Cli.Command.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
 import Wasp.Cli.Command.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
-import Wasp.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
 generateAndWritePage ::
   NewProjectDetails -> FilePath -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page

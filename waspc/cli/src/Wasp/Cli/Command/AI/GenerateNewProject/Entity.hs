@@ -7,7 +7,7 @@ where
 import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent)
+import Wasp.AI.CodeAgent (CodeAgent)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (writeToWaspFileEnd)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
 

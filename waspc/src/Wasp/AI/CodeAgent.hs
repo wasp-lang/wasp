@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Wasp.Cli.Command.AI.CodeAgent
+module Wasp.AI.CodeAgent
   ( CodeAgent,
     CodeAgentConfig (..),
     runCodeAgent,
@@ -18,9 +18,9 @@ import Control.Monad.Reader (MonadReader, ReaderT (runReaderT), asks)
 import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
-import Wasp.OpenAI (OpenAIApiKey)
-import Wasp.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
-import qualified Wasp.OpenAI.ChatGPT as ChatGPT
+import Wasp.AI.OpenAI (OpenAIApiKey)
+import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
+import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 
 newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT CodeAgentState IO) a}
   deriving (Monad, Applicative, Functor, MonadIO, MonadReader CodeAgentConfig, MonadState CodeAgentState)

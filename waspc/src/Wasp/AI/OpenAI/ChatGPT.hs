@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.OpenAI.ChatGPT
+module Wasp.AI.OpenAI.ChatGPT
   ( queryChatGPT,
     ChatGPTParams (..),
     Model (..),
@@ -19,7 +19,7 @@ import Data.ByteString.UTF8 as BSU
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import qualified Network.HTTP.Simple as HTTP
-import Wasp.OpenAI (OpenAIApiKey)
+import Wasp.AI.OpenAI (OpenAIApiKey)
 
 queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO Text
 queryChatGPT apiKey params requestMessages = do

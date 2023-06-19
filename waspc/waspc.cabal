@@ -132,6 +132,9 @@ library
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
+    Wasp.AI.CodeAgent
+    Wasp.AI.OpenAI
+    Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer
     Wasp.Analyzer.AnalyzeError
     Wasp.Analyzer.ErrorMessage
@@ -287,8 +290,6 @@ library
     Wasp.Generator.WriteFileDrafts
     Wasp.Message
     Wasp.NpmDependency
-    Wasp.OpenAI
-    Wasp.OpenAI.ChatGPT
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -372,7 +373,6 @@ library cli-lib
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
-    Wasp.Cli.Command.AI.CodeAgent
     Wasp.Cli.Command.AI.GenerateNewProject
     Wasp.Cli.Command.AI.GenerateNewProject.Common
     Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts

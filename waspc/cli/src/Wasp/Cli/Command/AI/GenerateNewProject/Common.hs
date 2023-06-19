@@ -13,8 +13,8 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, queryChatGPT, writeToFile)
-import Wasp.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage (..), Model (GPT_3_5_turbo_16k))
+import Wasp.AI.CodeAgent (CodeAgent, queryChatGPT, writeToFile)
+import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage (..), Model (GPT_3_5_turbo_16k))
 import Wasp.Util (naiveTrimJSON, textToLazyBS)
 
 data NewProjectDetails = NewProjectDetails

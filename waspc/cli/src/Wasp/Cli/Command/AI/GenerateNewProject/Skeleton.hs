@@ -8,7 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeNewFile)
+import Wasp.AI.CodeAgent (CodeAgent, writeNewFile)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)

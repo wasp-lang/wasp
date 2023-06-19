@@ -14,7 +14,8 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
+import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
+import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
@@ -26,7 +27,6 @@ import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompt
 import Wasp.Cli.Command.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
-import Wasp.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
 generateAndWriteOperation :: OperationType -> NewProjectDetails -> FilePath -> Plan -> Plan.Operation -> CodeAgent Operation
 generateAndWriteOperation operationType newProjectDetails waspFilePath plan operationPlan = do

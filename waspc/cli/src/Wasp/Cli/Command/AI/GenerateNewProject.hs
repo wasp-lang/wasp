@@ -12,7 +12,7 @@ import Control.Monad (forM)
 import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeToLog)
+import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
 import Wasp.Cli.Command.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation)
