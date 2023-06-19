@@ -10,8 +10,10 @@ export type {
   ServerToClientEvents,
 } from '../../server/src/webSocket'
 
-export type ServerToClientPayload<Event extends keyof ServerToClientEvents> = Parameters<ServerToClientEvents[Event]>[0]
-export type ClientToServerPayload<Event extends keyof ClientToServerEvents> = Parameters<ClientToServerEvents[Event]>[0]
+export type ServerToClientPayload<Event extends keyof ServerToClientEvents> =
+  Parameters<ServerToClientEvents[Event]>[0]
+export type ClientToServerPayload<Event extends keyof ClientToServerEvents> =
+  Parameters<ClientToServerEvents[Event]>[0]
 
 export function useSocket() {
   return useContext(WebSocketContext)
@@ -19,7 +21,7 @@ export function useSocket() {
 
 export function useSocketListener<Event extends keyof ServerToClientEvents>(
   event: Event,
-  handler: ServerToClientEvents[Event],
+  handler: ServerToClientEvents[Event]
 ) {
   const { socket } = useContext(WebSocketContext)
   useEffect(() => {
