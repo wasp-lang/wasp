@@ -39,8 +39,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
-        ["new-ai"] -> Command.Call.NewAIHuman
-        ["new-ai", appName, appDesc] -> Command.Call.NewAIMachine appName appDesc
+        ["new:ai"] -> Command.Call.NewAIHuman
+        ["new:ai", appName, appDesc] -> Command.Call.NewAIMachine appName appDesc
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
