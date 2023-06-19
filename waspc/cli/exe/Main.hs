@@ -9,13 +9,13 @@ import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
-import qualified Wasp.Cli.Command.AI.New as Command.AI.New
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
+import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -64,8 +64,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New projectName -> runCommand $ createNewProject projectName
-    Command.Call.NewAIHuman -> runCommand Command.AI.New.newForHuman
-    Command.Call.NewAIMachine appName appDesc -> runCommand $ Command.AI.New.newForMachine appName appDesc
+    Command.Call.NewAIHuman -> runCommand Command.CreateNewProject.AI.createNewProjectForHuman
+    Command.Call.NewAIMachine appName appDesc ->
+      runCommand $ Command.CreateNewProject.AI.createNewProjectForMachine appName appDesc
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean

@@ -1,9 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module Wasp.Cli.Command.AI.New
-  ( newForHuman,
-    newForMachine,
+module Wasp.Cli.Command.CreateNewProject.AI
+  ( createNewProjectForHuman,
+    createNewProjectForMachine,
   )
 where
 
@@ -25,8 +25,8 @@ import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
 import qualified Wasp.Cli.Command.CreateNewProject as CNP
 
-newForHuman :: Command ()
-newForHuman = do
+createNewProjectForHuman :: Command ()
+createNewProjectForHuman = do
   openAIApiKey <- getOpenAIApiKey
 
   -- TODO: Use new fancy logic we have for interactive stuff like this! We need to merge with main though first.
@@ -61,8 +61,8 @@ newForHuman = do
       putStrLn . T.unpack $ msg
       hFlush stdout
 
-newForMachine :: String -> String -> Command ()
-newForMachine webAppName webAppDescription = do
+createNewProjectForMachine :: String -> String -> Command ()
+createNewProjectForMachine webAppName webAppDescription = do
   openAIApiKey <- getOpenAIApiKey
 
   _projectInfo <- CNP.parseProjectInfo webAppName

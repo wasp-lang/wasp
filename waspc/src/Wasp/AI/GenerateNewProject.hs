@@ -3,11 +3,6 @@ module Wasp.AI.GenerateNewProject
   )
 where
 
--- TODO: Probably move this module out of here into general wasp lib.
---   NOTE: Tricky to move because of "CreateNewProject", which is the only part of CLI that we import in these modules.
---     But maybe we should move that also out of CLI then?
---     Or, we move less of stuff out of here. We can certainly move CodeAgent at least.
-
 import Control.Monad (forM)
 import Data.Text (Text)
 import qualified Data.Text as T

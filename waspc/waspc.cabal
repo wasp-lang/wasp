@@ -381,7 +381,6 @@ library cli-lib
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
-    Wasp.Cli.Command.AI.New
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
@@ -390,6 +389,7 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
+    Wasp.Cli.Command.CreateNewProject.AI
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
