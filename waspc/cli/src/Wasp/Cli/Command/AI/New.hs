@@ -11,7 +11,6 @@ import Control.Arrow ()
 import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import NeatInterpolation (trimming)
 import StrongPath (fromAbsDir)
 import StrongPath.Operations ()
 import System.Directory (createDirectoryIfMissing, setCurrentDirectory)
@@ -29,6 +28,7 @@ newForHuman :: Command ()
 newForHuman = do
   openAIApiKey <- getOpenAIApiKey
 
+  -- TODO: Use new fancy logic we have for interactive stuff like this! We need to merge with main though first.
   (webAppName, webAppDescription) <- liftIO $ do
     putStrLn "App name (e.g. MyFirstApp):"
     appName <- getLine
@@ -44,16 +44,23 @@ newForHuman = do
   let codeAgentConfig =
         CA.CodeAgentConfig
           { CA._openAIApiKey = openAIApiKey,
-            CA._writeFile = \fp c -> do
-              createDirectoryIfMissing True (takeDirectory fp)
-              T.IO.writeFile fp c
-              putStrLn $ "[info] Wrote file at " <> fp,
-            CA._writeLog = putStrLn . T.unpack
+            CA._writeFile = writeFileToDisk,
+            CA._writeLog = forwardLogToStdout
           }
 
   liftIO $
     CA.runCodeAgent codeAgentConfig $
       GNP.generateNewProject $ newProjectDetails webAppName webAppDescription
+  where
+    writeFileToDisk path content = do
+      createDirectoryIfMissing True (takeDirectory path)
+      T.IO.writeFile path content
+      putStrLn $ "[info] Wrote file at " <> path
+      hFlush stdout
+
+    forwardLogToStdout msg = do
+      putStrLn . T.unpack $ msg
+      hFlush stdout
 
 newForMachine :: String -> String -> Command ()
 newForMachine webAppName webAppDescription = do
@@ -64,29 +71,33 @@ newForMachine webAppName webAppDescription = do
   let codeAgentConfig =
         CA.CodeAgentConfig
           { CA._openAIApiKey = openAIApiKey,
-            CA._writeFile = \fp c -> do
-              let fpT = T.pack fp
-              T.IO.putStrLn . ("\n" <>) $
-                [trimming|
-                  ==== WASP AI: WRITE FILE ====
-                  ${fpT}
-                  ${c}
-                  ===/ WASP AI: WRITE FILE ====
-                |]
-              hFlush stdout,
-            CA._writeLog = \msg -> do
-              T.IO.putStrLn . ("\n" <>) $
-                [trimming|
-                  ==== WASP AI: LOG ====
-                  ${msg}
-                  ===/ WASP AI: LOG ====
-                |]
-              hFlush stdout
+            CA._writeFile = writeFileToStdoutWithDelimiters,
+            CA._writeLog = writeLogToStdoutWithDelimiters
           }
 
   liftIO $
     CA.runCodeAgent codeAgentConfig $
       GNP.generateNewProject $ newProjectDetails webAppName webAppDescription
+  where
+    writeFileToStdoutWithDelimiters path content =
+      writeToStdoutWithDelimiters "WRITE FILE" [T.pack path, content]
+
+    writeLogToStdoutWithDelimiters msg =
+      writeToStdoutWithDelimiters "LOG" [msg]
+
+    writeToStdoutWithDelimiters delimiterTitle paragraphs = do
+      T.IO.putStrLn . ("\n" <>) $
+        withDelimiter delimiterTitle $
+          T.intercalate "\n" $
+            paragraphs
+      hFlush stdout
+
+    withDelimiter title content =
+      T.intercalate "\n" $
+        [ "==== WASP AI: " <> title <> " ====",
+          content,
+          "===/ WASP AI: " <> title <> " ===="
+        ]
 
 getOpenAIApiKey :: Command OpenAIApiKey
 getOpenAIApiKey =

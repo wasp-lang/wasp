@@ -4,6 +4,9 @@ module Wasp.Cli.Command.AI.GenerateNewProject
 where
 
 -- TODO: Probably move this module out of here into general wasp lib.
+--   NOTE: Tricky to move because of "CreateNewProject", which is the only part of CLI that we import in these modules.
+--     But maybe we should move that also out of CLI then?
+--     Or, we move less of stuff out of here. We can certainly move CodeAgent at least.
 
 import Control.Monad (forM)
 import Data.Text (Text)
@@ -20,6 +23,7 @@ import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectS
 
 generateNewProject :: NewProjectDetails -> CodeAgent ()
 generateNewProject newProjectDetails = do
+  writeToLog $ T.pack $ "Generating new wasp project named " <> _projectAppName newProjectDetails <> "!"
   writeToLog "Generating project skeleton..."
   (waspFilePath, planRules) <- generateAndWriteProjectSkeleton newProjectDetails
   writeToLog "Generated project skeleton."
