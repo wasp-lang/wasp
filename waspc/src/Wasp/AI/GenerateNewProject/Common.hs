@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.AI.GenerateNewProject.Common
+module Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     File,
     AuthProvider (..),

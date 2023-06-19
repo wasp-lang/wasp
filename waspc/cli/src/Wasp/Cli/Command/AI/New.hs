@@ -18,10 +18,10 @@ import System.Environment (lookupEnv)
 import System.FilePath (takeDirectory)
 import System.IO (hFlush, stdout)
 import qualified Wasp.AI.CodeAgent as CA
+import qualified Wasp.AI.GenerateNewProject as GNP
+import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import qualified Wasp.Cli.Command.AI.GenerateNewProject as GNP
-import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
 import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
 import qualified Wasp.Cli.Command.CreateNewProject as CNP
 

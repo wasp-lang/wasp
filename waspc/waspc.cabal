@@ -133,6 +133,14 @@ library
   exposed-modules:
     FilePath.Extra
     Wasp.AI.CodeAgent
+    Wasp.AI.GenerateNewProject
+    Wasp.AI.GenerateNewProject.Common
+    Wasp.AI.GenerateNewProject.Common.Prompts
+    Wasp.AI.GenerateNewProject.Entity
+    Wasp.AI.GenerateNewProject.Operation
+    Wasp.AI.GenerateNewProject.Page
+    Wasp.AI.GenerateNewProject.Plan
+    Wasp.AI.GenerateNewProject.Skeleton
     Wasp.AI.OpenAI
     Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer
@@ -373,14 +381,6 @@ library cli-lib
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
-    Wasp.Cli.Command.AI.GenerateNewProject
-    Wasp.Cli.Command.AI.GenerateNewProject.Common
-    Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts
-    Wasp.Cli.Command.AI.GenerateNewProject.Entity
-    Wasp.Cli.Command.AI.GenerateNewProject.Operation
-    Wasp.Cli.Command.AI.GenerateNewProject.Page
-    Wasp.Cli.Command.AI.GenerateNewProject.Plan
-    Wasp.Cli.Command.AI.GenerateNewProject.Skeleton
     Wasp.Cli.Command.AI.New
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build

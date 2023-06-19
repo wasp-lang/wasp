@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.AI.GenerateNewProject
+module Wasp.AI.GenerateNewProject
   ( generateNewProject,
   )
 where
@@ -14,13 +14,13 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import StrongPath (File', Path, Rel, System)
 import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
-import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (..))
-import Wasp.Cli.Command.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
-import Wasp.Cli.Command.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation)
-import Wasp.Cli.Command.AI.GenerateNewProject.Page (generateAndWritePage)
-import Wasp.Cli.Command.AI.GenerateNewProject.Plan (generatePlan)
-import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
-import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeleton)
+import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..))
+import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
+import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation)
+import Wasp.AI.GenerateNewProject.Page (generateAndWritePage)
+import Wasp.AI.GenerateNewProject.Plan (generatePlan)
+import qualified Wasp.AI.GenerateNewProject.Plan as Plan
+import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeleton)
 import Wasp.Project (WaspProjectDir)
 
 generateNewProject ::

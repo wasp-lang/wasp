@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.AI.GenerateNewProject.Entity
+module Wasp.AI.GenerateNewProject.Entity
   ( writeEntitiesToWaspFile,
     entityPlanToWaspDecl,
   )
@@ -8,8 +8,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent)
-import Wasp.Cli.Command.AI.GenerateNewProject.Common (writeToWaspFileEnd)
-import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
+import Wasp.AI.GenerateNewProject.Common (writeToWaspFileEnd)
+import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 
 writeEntitiesToWaspFile :: FilePath -> [Plan.Entity] -> CodeAgent ()
 writeEntitiesToWaspFile waspFilePath entityPlans = do

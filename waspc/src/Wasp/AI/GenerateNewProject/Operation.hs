@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Cli.Command.AI.GenerateNewProject.Operation
+module Wasp.AI.GenerateNewProject.Operation
   ( generateAndWriteOperation,
     Operation (..),
     OperationType (..),
@@ -15,18 +15,18 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
-import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
-import Wasp.Cli.Command.AI.GenerateNewProject.Common
+import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
     queryChatGPTForJSON,
     writeToWaspFileEnd,
   )
-import Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
-import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.Cli.Command.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
-import Wasp.Cli.Command.AI.GenerateNewProject.Plan (Plan)
-import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
+import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
+import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
+import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
+import Wasp.AI.GenerateNewProject.Plan (Plan)
+import qualified Wasp.AI.GenerateNewProject.Plan as Plan
+import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
 generateAndWriteOperation :: OperationType -> NewProjectDetails -> FilePath -> Plan -> Plan.Operation -> CodeAgent Operation
 generateAndWriteOperation operationType newProjectDetails waspFilePath plan operationPlan = do

@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Cli.Command.AI.GenerateNewProject.Plan
+module Wasp.AI.GenerateNewProject.Plan
   ( Plan (..),
     Entity (..),
     Operation (..),
@@ -16,19 +16,19 @@ import qualified Debug.Trace as Debug
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent)
-import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
-import Wasp.Cli.Command.AI.GenerateNewProject.Common
+import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
     queryChatGPTForJSON,
   )
-import Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
-import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompts
+import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
+import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
+import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
 -- | Additional rule to follow while generating plan.
 type PlanRule = String
 
-generatePlan :: Wasp.Cli.Command.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
+generatePlan :: Wasp.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   Debug.trace (show $ T.unpack planPrompt) $ return ()
   queryChatGPTForJSON defaultChatGPTParams chatMessages

@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.AI.GenerateNewProject.Skeleton
+module Wasp.AI.GenerateNewProject.Skeleton
   ( generateAndWriteProjectSkeleton,
   )
 where
@@ -11,9 +11,9 @@ import StrongPath (File', Path, Rel)
 import qualified StrongPath as SP
 import StrongPath.Types (System)
 import Wasp.AI.CodeAgent (CodeAgent, writeNewFile)
-import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..))
-import Wasp.Cli.Command.AI.GenerateNewProject.Plan (PlanRule)
-import Wasp.Cli.Common (WaspProjectDir)
+import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..))
+import Wasp.AI.GenerateNewProject.Plan (PlanRule)
+import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Version
 
 generateAndWriteProjectSkeleton ::

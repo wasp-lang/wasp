@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts
+module Wasp.AI.GenerateNewProject.Common.Prompts
   ( waspFileExample,
     basicWaspLangInfo,
     systemPrompt,
@@ -10,7 +10,7 @@ where
 import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (..))
+import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import qualified Wasp.Version
 
 systemPrompt :: Text
