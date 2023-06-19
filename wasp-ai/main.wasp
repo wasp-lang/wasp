@@ -3,12 +3,15 @@ app waspAi {
     version: "^0.10.6"
   },
   title: "wasp-ai",
-  dependencies: [("uuid", "^9.0.0")]
+  dependencies: [("uuid", "^9.0.0"), ("prismjs", "^1.29.0")],
+  client: {
+    rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
+  }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.jsx"
+  component: import Main from "@client/pages/MainPage.jsx"
 }
 
 action startGeneratingNewApp {
