@@ -182,8 +182,10 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
       _context = context
     }
 
--- We don't really want or need to see all the things users
--- pass to the deploy script. Let's only track what we need.
+-- | To preserve user's privacy, we capture only args (from `wasp deploy ...` cmd)
+-- that are from the predefined set of keywords.
+-- NOTE: If you update the list of keywords here, make sure to also update them in the official docs
+--   on our webpage, under Telemetry.
 extractKeyDeployArgs :: [String] -> [String]
 extractKeyDeployArgs = intersect ["fly", "setup", "create-db", "deploy", "cmd"]
 
