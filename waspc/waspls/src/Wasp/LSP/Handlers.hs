@@ -78,15 +78,22 @@ initializedHandler = do
 --
 -- Both of these tasks are ran in the reactor thread so that other requests
 -- can still be answered.
---
--- TODO(before merge): update missing import diagnostics in the same reactor action
---   but how? need URI for wasp file in here. hmmm
 watchSourceFilesHandler :: LSP.Handler ServerM 'LSP.WorkspaceDidChangeWatchedFiles
 watchSourceFilesHandler msg = do
   let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
-  logM $ "[didChangeWatchedFilesHandler] Received file changes: " ++ show uris
+  logM $ "[watchSourceFilesHandler] Received file changes: " ++ show uris
   let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
-  forM_ fileUris $ \file -> sendToReactor (refreshExportsForFiles [file])
+  forM_ fileUris $ \file -> sendToReactor $ do
+    -- Refresh export list for modified file
+    refreshExportsForFiles [file]
+    -- Update diagnostics for the wasp file
+    updateMissingImportDiagnostics
+    handler $
+      asks (^. State.waspFileUri) >>= \case
+        Just uri -> do
+          logM $ "[watchSourceFilesHandler] Updating missing diagnostics for " ++ show uri
+          publishDiagnostics uri
+        Nothing -> pure ()
 
 -- | Sent by the client when the client is going to shutdown the server, this
 -- is where we do any clean up that needs to be done. This cleanup is:
@@ -162,6 +169,8 @@ publishDiagnostics uri = do
 
 analyzeWaspFile :: LSP.Uri -> ServerM ()
 analyzeWaspFile uri = do
+  modify (State.waspFileUri ?~ uri)
+
   -- NOTE: we have to be careful to keep CST and source string in sync at all
   -- times for all threads, so we update them both atomically (via one call to
   -- 'modify').

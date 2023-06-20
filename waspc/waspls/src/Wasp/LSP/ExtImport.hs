@@ -44,6 +44,9 @@ import Wasp.Project (WaspProjectDir)
 import qualified Wasp.TypeScript as TS
 import Wasp.Util.IO (doesFileExist)
 
+-- TODO(before merge): update in cache when file is deleted (maybe by just
+-- clearing cache for a file even when finding export list fails)
+
 -- | Finds all external imports and refreshes the export cache for the relevant
 -- files.
 refreshAllExports :: ServerM ()

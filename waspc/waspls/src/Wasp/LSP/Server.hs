@@ -27,7 +27,7 @@ import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerM, runRLspM)
 import Wasp.LSP.ServerState
   ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
-    ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports),
+    ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports, _waspFileUri),
   )
 
 lspServerHandlers :: IO () -> LSP.Handlers ServerM
@@ -53,7 +53,8 @@ serve maybeLogFile = do
 
   let defaultServerState =
         ServerState
-          { _currentWaspSource = "",
+          { _waspFileUri = Nothing,
+            _currentWaspSource = "",
             _latestDiagnostics = [],
             _cst = Nothing,
             _tsExports = M.empty,
