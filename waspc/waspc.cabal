@@ -342,8 +342,13 @@ library waspls
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
-    Wasp.LSP.Util
+    Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.DictKeyCompletion
+    Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
+    Wasp.LSP.TypeInference
+    Wasp.LSP.Util
   build-depends:
       base
     , aeson
@@ -358,6 +363,7 @@ library waspls
     , text
     , transformers ^>=0.5.6.2
     , utf8-string
+    , unordered-containers
     , waspc
 
 library cli-lib

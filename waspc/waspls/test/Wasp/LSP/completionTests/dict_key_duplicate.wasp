@@ -6,8 +6,9 @@ app todoApp {
   title: "todo!",
 }
 
-route MainRoute { | }
-                  ^
+// we suggest all keys of a dictionary, even when some are already used  
+route MainRoute { path: "/", | }
+                             ^
 page MainPage {
   component: import { MainPage } from "@client/MainPage.jsx",
 }
