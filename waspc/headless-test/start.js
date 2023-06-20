@@ -18,15 +18,14 @@ function spawn(name, cmd, args, done) {
   readline(proc.stderr).on('line', data => {
     console.log(`\x1b[0m\x1b[33m[${name}][err]\x1b[0m ${data}`);
   });
-  proc.on('exit', () => {
-    done();
-  });
+  proc.on('exit', done);
 }
 
-let numDone = 0;
-const cb = () => {
-  if (numDone == 1) process.exit(0);
-  numDone++;
+// Exit if either child fails
+const cb = (code) => {
+  if (code !== 0) {
+    process.exit(code);
+  }
 }
 spawn('app', 'npm', ['run', 'example-app:start-app'], cb);
 spawn('db', 'npm', ['run', 'example-app:start-db'], cb)

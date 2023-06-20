@@ -18,11 +18,10 @@ runDbCommand = runCommand . makeDbCommand
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
-  DbConnectionEstablished <- require
-
   -- Ensure code is generated and npm dependencies are installed.
   InWaspProject waspProjectDir <- require
   _ <- compileWithOptions $ compileOptions waspProjectDir
+  DbConnectionEstablished <- require
   cmd
   where
     compileOptions waspProjectDir =
