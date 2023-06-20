@@ -4,6 +4,9 @@ import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
+import { FileTree } from "../components/FileTree";
+import { Loader } from "../components/Loader";
+import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -28,7 +31,9 @@ const MainPage = () => {
 
   const logs = appGenerationResult?.messages
     .filter((m) => m.type === "log")
-    .map((m) => m.text);
+    .map((m) => m.text)
+    .reverse();
+
   let files = {};
   {
     appGenerationResult?.messages
@@ -67,6 +72,35 @@ const MainPage = () => {
       }
     }
   }, [activeFilePath]);
+
+  const interestingFilePaths = useMemo(() => {
+    if (files) {
+      return Object.keys(files)
+        .filter(
+          (path) =>
+            path !== ".env.server" &&
+            path !== ".env.client" &&
+            path !== "src/client/vite-env.d.ts" &&
+            path !== "src/client/tsconfig.json" &&
+            path !== "src/server/tsconfig.json" &&
+            path !== "src/shared/tsconfig.json" &&
+            path !== ".gitignore" &&
+            path !== "src/.waspignore" &&
+            path !== ".wasproot"
+        )
+        .sort(
+          (a, b) =>
+            (a.endsWith(".wasp") ? 0 : 1) - (b.endsWith(".wasp") ? 0 : 1)
+        );
+    } else {
+      return [];
+    }
+  }, [files]);
+
+  function downloadZip() {
+    const safeAppName = appName.replace(/[^a-zA-Z0-9]/g, "_");
+    createFilesAndDownloadZip(files, safeAppName);
+  }
 
   return (
     <div className="container">
@@ -111,91 +145,110 @@ const MainPage = () => {
             disabled={appId}
           />
         </div>
-        <button className="button" disabled={appId}>
+        <button className="button mr-2" disabled={appId}>
           Generate
         </button>
-        <div className="mt-2">
-          <button
-            type="button"
-            disabled={appId}
-            onClick={() => fillInExampleAppDetails()}
-            className="button gray"
-          >
-            Fill in with example app details
-          </button>
-        </div>
+        <button
+          type="button"
+          disabled={appId}
+          onClick={() => fillInExampleAppDetails()}
+          className="button gray"
+        >
+          Fill in with example app details
+        </button>
       </form>
 
-      {appId && !generationDone && (
-        <div className="mt-8 mb-4 p-4 bg-slate-100 rounded">Generating...</div>
-      )}
-
-      {logs && logs.length > 0 && (
+      {interestingFilePaths.length > 0 && (
         <>
-          <h2
+          <header
             className="
+         mt-8
+         mb-2
+         flex
+         justify-between
+         items-center
+          "
+          >
+            <div
+              className="
+            flex
+            items-center
+            
+          "
+            >
+              <h2
+                className="
           text-xl
           font-bold
           text-gray-800
-          mt-8
-          mb-4
+          mr-2
         "
-          >
-            Logs
-          </h2>
-          <div className="flex flex-col gap-2">
-            {logs.map((log, i) => (
-              <pre key={i} className="p-4 bg-slate-100 rounded">
-                {log}
-              </pre>
-            ))}
-          </div>
-        </>
-      )}
-
-      {files && Object.keys(files).length > 0 && (
-        <>
-          <h2
-            className="
-          text-xl
-          font-bold
-          text-gray-800
-          mt-8
-          mb-4
-        "
-          >
-            Files
-          </h2>
+              >
+                {appName}
+              </h2>
+              {appId && !generationDone && <Loader />}
+            </div>
+            <div>
+              <button
+                className="button"
+                disabled={!generationDone}
+                onClick={downloadZip}
+              >
+                Download ZIP
+              </button>
+            </div>
+          </header>
           <div className="grid gap-4 grid-cols-[300px_minmax(900px,_1fr)_100px]">
-            <aside className="bg-slate-100 p-4 rounded flex flex-col gap-2 sticky top-0">
-              {Object.keys(files).map((path) => (
-                <div
-                  key={path}
-                  className={
-                    "px-4 py-2 bg-slate-200 rounded cursor-pointer " +
-                    (activeFilePath === path ? "bg-yellow-400" : "")
-                  }
-                  onClick={() => setActiveFilePath(path)}
-                >
-                  <div className="font-bold">{path}</div>
-                </div>
-              ))}
+            <aside>
+              <FileTree
+                paths={interestingFilePaths}
+                activeFilePath={activeFilePath}
+                onActivePathSelect={setActiveFilePath}
+              />
             </aside>
 
             {activeFilePath && (
-              <main className="flex flex-col gap-4">
-                <div
-                  key={activeFilePath}
-                  className="px-4 py-2 bg-slate-100 rounded"
-                >
-                  <div className="font-bold">{activeFilePath}:</div>  
+              <main className="flex flex-col gap-2">
+                <div className="font-bold">{activeFilePath}:</div>
+                <div key={activeFilePath} className="py-4 bg-slate-100 rounded">
                   <CodeHighlight language={language}>
-                    {files[activeFilePath]}
+                    {files[activeFilePath].trim()}
                   </CodeHighlight>
                 </div>
               </main>
             )}
+            {!activeFilePath && (
+              <main className="p-8 bg-slate-100 rounded grid place-content-center">
+                <div className="text-center">
+                  <div className="font-bold">Select a file to view</div>
+                  <div className="text-gray-500 text-sm">
+                    (click on a file in the file tree)
+                  </div>
+                </div>
+              </main>
+            )}
           </div>
+
+          {logs && logs.length > 0 && (
+            <div className="flex flex-col gap-1 mt-8">
+              {logs.map((log, i) => (
+                /*
+                If log contains "generated" or "Generated"
+                make it green, otherwise make it gray.
+                */
+                <pre
+                  key={i}
+                  className={`p-3 rounded text-sm ${
+                    log.toLowerCase().includes("generated")
+                      ? "bg-green-100"
+                      : "bg-slate-100"
+                  }`}
+                >
+                  {log}
+                </pre>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

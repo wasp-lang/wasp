@@ -1,0 +1,42 @@
+.directory {
+  @apply p-5 font-mono text-base bg-slate-900 text-white rounded;
+  user-select: none;
+}
+
+.directory .tree,
+.directory .tree-node,
+.directory .tree-node-group {
+  @apply p-0 m-0 list-none;
+}
+
+.directory .tree-branch-wrapper,
+.directory .tree-node__leaf {
+  outline: none;
+  outline: none;
+}
+
+.directory .tree-node {
+  cursor: pointer;
+  @apply py-1;
+}
+
+.directory .tree-node:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.directory .tree .tree-node--focused {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.directory .tree .tree-node--selected {
+  @apply text-white rounded-sm bg-slate-700;
+}
+
+.tree-node__branch, .tree-node__leaf {
+  display: flex;
+  align-items: center;
+}
+
+.directory .icon {
+  @apply w-6 h-6 pr-2;
+}

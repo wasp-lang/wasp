@@ -13,14 +13,14 @@ export function CodeHighlight(props = {}) {
     ...others
   } = props;
   const langCls = language ? `language-${language}` : "";
-  async function highlight() {
+  function highlight() {
     if (codeRef.current) {
       Prism.highlightElement(codeRef.current);
     }
   }
   useEffect(() => {
     highlight();
-  }, [language, source]);
+  });
   return (
     <pre
       className={`${prefixCls} ${className || ""} ${langCls}`}
