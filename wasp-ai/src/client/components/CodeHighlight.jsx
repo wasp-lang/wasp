@@ -13,7 +13,7 @@ export function CodeHighlight(props = {}) {
     ...others
   } = props;
   const langCls = language ? `language-${language}` : "";
-  async function highlight() {
+  function highlight() {
     if (codeRef.current) {
       Prism.highlightElement(codeRef.current);
     }

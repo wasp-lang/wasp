@@ -4,6 +4,7 @@ import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
+import { FileTree } from "../components/FileTree";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -67,6 +68,30 @@ const MainPage = () => {
       }
     }
   }, [activeFilePath]);
+
+  const interestingFilePaths = useMemo(() => {
+    if (files) {
+      return Object.keys(files)
+        .filter(
+          (path) =>
+            path !== ".env.server" &&
+            path !== ".env.client" &&
+            path !== "src/client/vite-env.d.ts" &&
+            path !== "src/client/tsconfig.json" &&
+            path !== "src/server/tsconfig.json" &&
+            path !== "src/shared/tsconfig.json" &&
+            path !== ".gitignore" &&
+            path !== "src/.waspignore" &&
+            path !== ".wasproot"
+        )
+        .sort(
+          (a, b) =>
+            (a.endsWith(".wasp") ? 0 : 1) - (b.endsWith(".wasp") ? 0 : 1)
+        );
+    } else {
+      return [];
+    }
+  }, [files]);
 
   return (
     <div className="container">
@@ -167,19 +192,12 @@ const MainPage = () => {
             Files
           </h2>
           <div className="grid gap-4 grid-cols-[300px_minmax(900px,_1fr)_100px]">
-            <aside className="bg-slate-100 p-4 rounded flex flex-col gap-2 sticky top-0">
-              {Object.keys(files).map((path) => (
-                <div
-                  key={path}
-                  className={
-                    "px-4 py-2 bg-slate-200 rounded cursor-pointer " +
-                    (activeFilePath === path ? "bg-yellow-400" : "")
-                  }
-                  onClick={() => setActiveFilePath(path)}
-                >
-                  <div className="font-bold">{path}</div>
-                </div>
-              ))}
+            <aside className="bg-slate-100 p-4 rounded sticky top-0">
+              <FileTree
+                paths={interestingFilePaths}
+                activeFilePath={activeFilePath}
+                onActivePathSelect={setActiveFilePath}
+              />
             </aside>
 
             {activeFilePath && (
@@ -188,7 +206,7 @@ const MainPage = () => {
                   key={activeFilePath}
                   className="px-4 py-2 bg-slate-100 rounded"
                 >
-                  <div className="font-bold">{activeFilePath}:</div>  
+                  <div className="font-bold">{activeFilePath}:</div>
                   <CodeHighlight language={language}>
                     {files[activeFilePath]}
                   </CodeHighlight>
