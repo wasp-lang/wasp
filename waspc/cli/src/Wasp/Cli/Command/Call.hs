@@ -2,6 +2,7 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New Arguments
+  | NewAiForMachine String String -- projectName, appDescription
   | Start
   | StartDb
   | Clean

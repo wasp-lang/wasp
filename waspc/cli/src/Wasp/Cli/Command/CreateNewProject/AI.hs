@@ -1,6 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes #-}
-
 module Wasp.Cli.Command.CreateNewProject.AI
   ( createNewProjectForHuman,
     createNewProjectForMachine,
@@ -11,9 +8,9 @@ import Control.Arrow ()
 import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import StrongPath (fromAbsDir)
+import StrongPath (Abs, Dir, Path', fromAbsDir)
 import StrongPath.Operations ()
-import System.Directory (createDirectoryIfMissing, setCurrentDirectory)
+import System.Directory (createDirectory, createDirectoryIfMissing, setCurrentDirectory)
 import System.Environment (lookupEnv)
 import System.FilePath (takeDirectory)
 import System.IO (hFlush, stdout)
@@ -22,25 +19,20 @@ import qualified Wasp.AI.GenerateNewProject as GNP
 import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
-import qualified Wasp.Cli.Command.CreateNewProject as CNP
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), parseWaspProjectNameIntoAppName)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readCoreWaspProjectFiles)
+import Wasp.Cli.Common (WaspProjectDir)
+import qualified Wasp.Cli.Interactive as Interactive
 
-createNewProjectForHuman :: Command ()
-createNewProjectForHuman = do
+createNewProjectForHuman :: Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> Command ()
+createNewProjectForHuman waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
 
-  -- TODO: Use new fancy logic we have for interactive stuff like this! We need to merge with main though first.
-  (webAppName, webAppDescription) <- liftIO $ do
-    putStrLn "App name (e.g. MyFirstApp):"
-    appName <- getLine
-    putStrLn "Describe your app in a couple of sentences:"
-    desc <- getLine
-    return (appName, desc)
+  appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences:\n"
 
-  projectInfo <- CNP.parseProjectInfo webAppName
-
-  absWaspProjectDir <- CNP.createEmptyWaspProjectDir projectInfo
-  liftIO $ setCurrentDirectory $ fromAbsDir absWaspProjectDir
+  liftIO $ do
+    createDirectory $ fromAbsDir waspProjectDir
+    setCurrentDirectory $ fromAbsDir waspProjectDir
 
   let codeAgentConfig =
         CA.CodeAgentConfig
@@ -49,7 +41,7 @@ createNewProjectForHuman = do
             CA._writeLog = forwardLogToStdout
           }
 
-  liftIO $ generateNewProject codeAgentConfig webAppName webAppDescription
+  liftIO $ generateNewProject codeAgentConfig appName appDescription
   where
     writeFileToDisk path content = do
       createDirectoryIfMissing True (takeDirectory path)
@@ -62,10 +54,12 @@ createNewProjectForHuman = do
       hFlush stdout
 
 createNewProjectForMachine :: String -> String -> Command ()
-createNewProjectForMachine webAppName webAppDescription = do
+createNewProjectForMachine projectName appDescription = do
   openAIApiKey <- getOpenAIApiKey
 
-  _projectInfo <- CNP.parseProjectInfo webAppName
+  appName <- case parseWaspProjectNameIntoAppName projectName of
+    Right appName -> pure appName
+    Left err -> throwError $ CommandError "Invalid project name" err
 
   let codeAgentConfig =
         CA.CodeAgentConfig
@@ -74,7 +68,7 @@ createNewProjectForMachine webAppName webAppDescription = do
             CA._writeLog = writeLogToStdoutWithDelimiters
           }
 
-  liftIO $ generateNewProject codeAgentConfig webAppName webAppDescription
+  liftIO $ generateNewProject codeAgentConfig appName appDescription
   where
     writeFileToStdoutWithDelimiters path content =
       writeToStdoutWithDelimiters "WRITE FILE" [T.pack path, content]
@@ -94,11 +88,11 @@ createNewProjectForMachine webAppName webAppDescription = do
           "===/ WASP AI: " <> title <> " ===="
         ]
 
-generateNewProject :: CA.CodeAgentConfig -> String -> String -> IO ()
-generateNewProject codeAgentConfig webAppName webAppDescription = do
+generateNewProject :: CA.CodeAgentConfig -> NewProjectAppName -> String -> IO ()
+generateNewProject codeAgentConfig (NewProjectAppName appName) appDescription = do
   coreWaspProjectFiles <- readCoreWaspProjectFiles
   CA.runCodeAgent codeAgentConfig $
-    GNP.generateNewProject (newProjectDetails webAppName webAppDescription) coreWaspProjectFiles
+    GNP.generateNewProject (newProjectDetails appName appDescription) coreWaspProjectFiles
 
 getOpenAIApiKey :: Command OpenAIApiKey
 getOpenAIApiKey =

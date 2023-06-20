@@ -45,6 +45,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
+        -- new-ai-machine is meant to be called and consumed programatically (e.g. by our Wasp AI
+        -- web app).
+        ["new-ai-machine", projectName, appDescription] ->
+          Command.Call.NewAiForMachine projectName appDescription
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -79,6 +83,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
+    Command.Call.NewAiForMachine projectName appDescription -> runCommand $ Command.CreateNewProject.AI.createNewProjectForMachine projectName appDescription
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean

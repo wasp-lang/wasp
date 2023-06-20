@@ -75,7 +75,7 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           wasp: {
             version: "^${waspVersion}"
           },
-          title: ${appTitle},
+          title: "${appTitle}",
           ${appAuth}
         }
 

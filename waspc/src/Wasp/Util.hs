@@ -221,8 +221,7 @@ bytestringToHex :: B.ByteString -> Hex
 bytestringToHex = Hex . concatMap (printf "%02x") . B.unpack
 
 hexFromString :: String -> Hex
-
-hexFromString
+hexFromString = Hex
 
 hexToString :: Hex -> String
 hexToString (Hex s) = s
