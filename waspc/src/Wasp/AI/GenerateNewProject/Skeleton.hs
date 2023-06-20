@@ -1,5 +1,5 @@
 module Wasp.AI.GenerateNewProject.Skeleton
-  ( generateAndWriteProjectSkeleton,
+  ( generateAndWriteProjectSkeletonAndPresetFiles,
   )
 where
 
@@ -16,13 +16,13 @@ import Wasp.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Version
 
-generateAndWriteProjectSkeleton ::
+generateAndWriteProjectSkeletonAndPresetFiles ::
   NewProjectDetails ->
   [(Path System (Rel WaspProjectDir) File', Text)] ->
   CodeAgent (FilePath, [PlanRule])
-generateAndWriteProjectSkeleton newProjectDetails coreWaspProjectFiles = do
-  let coreFiles = first SP.fromRelFile <$> coreWaspProjectFiles
-  mapM_ writeNewFile coreFiles
+generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles = do
+  let skeletonFiles = first SP.fromRelFile <$> waspProjectSkeletonFiles
+  mapM_ writeNewFile skeletonFiles
 
   let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails
   writeNewFile waspFile

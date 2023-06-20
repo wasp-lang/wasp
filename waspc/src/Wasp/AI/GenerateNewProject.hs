@@ -15,23 +15,23 @@ import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWrit
 import Wasp.AI.GenerateNewProject.Page (generateAndWritePage)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
-import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeleton)
+import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
 import Wasp.Project (WaspProjectDir)
 
 generateNewProject ::
   NewProjectDetails ->
-  -- | @coreWaspProjectFiles@ are files that every new Wasp project should start with, excluding
+  -- | @waspProjectSkeletonFiles@ are files that every new Wasp project should start with, excluding
   --   main.wasp file. They are not specific to the app itself, but are neccessary configuration
   --   "boilerplate" (i.e. .gitignore, tsconfig.json, .wasproot, ...).
   [(Path System (Rel WaspProjectDir) File', Text)] ->
   CodeAgent ()
-generateNewProject newProjectDetails coreWaspProjectFiles = do
+generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog . T.pack $
     "Generating new wasp project named " <> _projectAppName newProjectDetails <> "!"
 
   writeToLog "Generating project skeleton..."
   (waspFilePath, planRules) <-
-    generateAndWriteProjectSkeleton newProjectDetails coreWaspProjectFiles
+    generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles
   writeToLog "Generated project skeleton."
 
   writeToLog "Generating plan..."

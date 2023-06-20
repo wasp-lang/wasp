@@ -20,7 +20,7 @@ import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), parseWaspProjectNameIntoAppName)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readCoreWaspProjectFiles)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
 
@@ -90,9 +90,9 @@ createNewProjectForMachine projectName appDescription = do
 
 generateNewProject :: CA.CodeAgentConfig -> NewProjectAppName -> String -> IO ()
 generateNewProject codeAgentConfig (NewProjectAppName appName) appDescription = do
-  coreWaspProjectFiles <- readCoreWaspProjectFiles
+  waspProjectSkeletonFiles <- readWaspProjectSkeletonFiles
   CA.runCodeAgent codeAgentConfig $
-    GNP.generateNewProject (newProjectDetails appName appDescription) coreWaspProjectFiles
+    GNP.generateNewProject (newProjectDetails appName appDescription) waspProjectSkeletonFiles
 
 getOpenAIApiKey :: Command OpenAIApiKey
 getOpenAIApiKey =
