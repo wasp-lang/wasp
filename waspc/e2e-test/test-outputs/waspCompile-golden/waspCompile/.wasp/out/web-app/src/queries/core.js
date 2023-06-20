@@ -1,10 +1,12 @@
-import { callOperation } from '../operations'
+import { callOperation, makeOperationRoute } from '../operations'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
 } from '../operations/resources'
 
-export function createQuery(queryRoute, entitiesUsed) {
+export function createQuery(relativeQueryPath, entitiesUsed) {
+  const queryRoute = makeOperationRoute(relativeQueryPath)
+
   async function query(queryKey, queryArgs) {
     const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryKey).reduce(
@@ -13,8 +15,13 @@ export function createQuery(queryRoute, entitiesUsed) {
     )
   }
 
-  query.queryCacheKey = [queryRoute]
-  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
+  addMetadataToQuery(query, { relativeQueryPath, queryRoute, entitiesUsed })
 
   return query
+}
+
+export function addMetadataToQuery(query, { relativeQueryPath, queryRoute, entitiesUsed }) {
+  query.queryCacheKey = [relativeQueryPath]
+  query.route = queryRoute
+  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 }

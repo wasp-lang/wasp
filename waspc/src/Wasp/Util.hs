@@ -35,6 +35,7 @@ module Wasp.Util
     whenM,
     naiveTrimJSON,
     textToLazyBS,
+    trim,
   )
 where
 
@@ -174,6 +175,9 @@ insertAt theInsert idx host =
   let (before, after) = splitAt idx host
    in before ++ theInsert ++ after
 
+trim :: String -> String
+trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+
 infixr 5 <++>
 
 (<++>) :: Applicative f => f [a] -> f [a] -> f [a]
@@ -217,7 +221,8 @@ bytestringToHex :: B.ByteString -> Hex
 bytestringToHex = Hex . concatMap (printf "%02x") . B.unpack
 
 hexFromString :: String -> Hex
-hexFromString = Hex
+
+hexFromString
 
 hexToString :: Hex -> String
 hexToString (Hex s) = s

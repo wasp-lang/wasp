@@ -56,11 +56,11 @@ async function addProviderProfileToRequest(
 
 function ensureValidConfig(provider: ProviderConfig, config: OAuthConfig): void {
     if (!config.clientID) {
-        throw new Error(`The ${provider.displayName} auth provider requires clientID provided via env varibales.`)
+        throw new Error(`The ${provider.displayName} auth provider requires clientID provided via env variables.`)
     }
 
     if (!config.clientSecret) {
-        throw new Error(`The ${provider.displayName} auth provider requires clientSecret provided via env varibales.`)
+        throw new Error(`The ${provider.displayName} auth provider requires clientSecret provided via env variables.`)
     }
 
     if (!config.scope || !Array.isArray(config.scope)) {

@@ -1,7 +1,12 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Wasp.LSP.ServerM
   ( ServerM,
+    runServerM,
     ServerError (..),
     Severity (..),
+    liftLSP,
+    logM,
     -- | You should usually use lenses for accessing the state.
     --
     -- __Examples:__
@@ -13,15 +18,17 @@ module Wasp.LSP.ServerM
     -- > modify (diagnostics .~ []) -- Clears diagnostics in the state
     StateT.gets,
     StateT.modify,
-    logM,
     lift,
     catchError,
     throwError,
   )
 where
 
-import Control.Monad.Except (ExceptT, catchError, throwError)
-import Control.Monad.State.Strict (StateT)
+import Control.Monad.Error.Class (MonadError (catchError, throwError))
+import Control.Monad.Except (ExceptT, runExceptT)
+import Control.Monad.Log.Class (MonadLog (logM))
+import Control.Monad.State.Class (MonadState)
+import Control.Monad.State.Strict (StateT, runStateT)
 import qualified Control.Monad.State.Strict as StateT
 import Control.Monad.Trans (MonadIO (liftIO), lift)
 import Data.Text (Text)
@@ -30,7 +37,27 @@ import qualified System.Log.Logger as L
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerState (ServerState)
 
-type ServerM = ExceptT ServerError (StateT ServerState (LspT ServerConfig IO))
+newtype ServerM a = ServerM
+  { unServerM :: ExceptT ServerError (StateT ServerState (LspT ServerConfig IO)) a
+  }
+  deriving
+    ( Functor,
+      Applicative,
+      Monad,
+      MonadError ServerError,
+      MonadState ServerState,
+      MonadIO
+    )
+
+runServerM ::
+  ServerState ->
+  ServerM a ->
+  LspT ServerConfig IO (Either ServerError a, ServerState)
+runServerM state m = runStateT (runExceptT $ unServerM m) state
+
+-- | Run a LSP function in the "ServerM" monad.
+liftLSP :: LspT ServerConfig IO a -> ServerM a
+liftLSP m = ServerM $ lift $ lift m
 
 -- | Log a string.
 --
@@ -38,8 +65,8 @@ type ServerM = ExceptT ServerError (StateT ServerState (LspT ServerConfig IO))
 -- logged messages will be displayed in the LSP client (e.g. for VSCode, in the
 -- "Wasp Language Extension" output panel). Otherwise, it may be sent to a file
 -- or not recorded at all.
-logM :: String -> ServerM ()
-logM = liftIO . L.logM "haskell-lsp" L.DEBUG
+instance MonadLog ServerM where
+  logM = liftIO . L.logM "haskell-lsp" L.DEBUG
 
 -- | The type for a language server error. These are separate from diagnostics
 -- and should be reported when the server fails to process a request/notification

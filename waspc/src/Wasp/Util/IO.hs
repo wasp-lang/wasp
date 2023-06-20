@@ -11,6 +11,8 @@ module Wasp.Util.IO
     writeFile,
     removeFile,
     tryReadFile,
+    isDirectoryEmpty,
+    writeFileFromText,
   )
 where
 
@@ -101,6 +103,9 @@ readFileStrict = T.IO.readFile . SP.toFilePath
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile
 
+writeFileFromText :: Path' Abs (File f) -> Text -> IO ()
+writeFileFromText = T.IO.writeFile . SP.fromAbsFile
+
 removeFile :: Path' Abs (File f) -> IO ()
 removeFile = SD.removeFile . SP.fromAbsFile
 
@@ -112,3 +117,8 @@ tryReadFile fp =
                   then return Nothing
                   else throwIO e
             )
+
+isDirectoryEmpty :: Path' Abs (Dir d) -> IO Bool
+isDirectoryEmpty dirPath = do
+  (files, dirs) <- listDirectory dirPath
+  return $ null files && null dirs

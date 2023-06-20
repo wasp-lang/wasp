@@ -9,14 +9,19 @@ import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
+import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
+import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
+import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -83,11 +88,33 @@ spec_AppSpecValid = do
 
     describe "auth-related validation" $ do
       let userEntityName = "User"
+      let validUserField =
+            PslModel.Field
+              { PslModel._name = "username",
+                PslModel._type = PslModel.String,
+                PslModel._attrs =
+                  [ PslModel.Attribute
+                      { PslModel._attrName = "unique",
+                        PslModel._attrArgs = []
+                      }
+                  ],
+                PslModel._typeModifiers = []
+              }
       let validUserEntity =
             AS.Entity.makeEntity
               ( PslM.Body
-                  [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
+                  [ PslM.ElementField validUserField,
                     PslM.ElementField $ makeBasicPslField "password" PslM.String
+                  ]
+              )
+      let validUserEntityForEmailAuth =
+            AS.Entity.makeEntity
+              ( PslM.Body
+                  [ PslM.ElementField $ makePslField "email" PslM.String True,
+                    PslM.ElementField $ makePslField "password" PslM.String True,
+                    PslM.ElementField $ makePslField "isEmailVerified" PslM.Boolean False,
+                    PslM.ElementField $ makePslField "emailVerificationSentAt" PslM.DateTime True,
+                    PslM.ElementField $ makePslField "passwordResetSentAt" PslM.DateTime True
                   ]
               )
       let validAppAuth =
@@ -98,7 +125,8 @@ spec_AppSpecValid = do
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,
                       AS.Auth.google = Nothing,
-                      AS.Auth.gitHub = Nothing
+                      AS.Auth.gitHub = Nothing,
+                      AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
                 AS.Auth.onAuthSucceededRedirectTo = Nothing
@@ -126,6 +154,69 @@ spec_AppSpecValid = do
             `shouldBe` [ ASV.GenericValidationError
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
+        it "contains expected fields" $ do
+          ASV.doesUserEntityContainField (makeSpec Nothing Nothing) "password" `shouldBe` Nothing
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "username" `shouldBe` Just True
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "password" `shouldBe` Just True
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "missing" `shouldBe` Just False
+
+      describe "should validate that UsernameAndPassword and Email auth cannot used at the same time" $ do
+        let makeSpec authMethods userEntity =
+              basicAppSpec
+                { AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $
+                        basicApp
+                          { AS.App.auth =
+                              Just
+                                AS.Auth.Auth
+                                  { AS.Auth.methods = authMethods,
+                                    AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                                    AS.Auth.externalAuthEntity = Nothing,
+                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
+                                  },
+                            AS.App.emailSender =
+                              Just
+                                AS.EmailSender.EmailSender
+                                  { AS.EmailSender.provider = AS.EmailSender.Mailgun,
+                                    AS.EmailSender.defaultFrom = Nothing
+                                  }
+                          },
+                      AS.Decl.makeDecl userEntityName userEntity,
+                      basicPageDecl,
+                      basicRouteDecl
+                    ]
+                }
+        let emailAuthConfig =
+              AS.Auth.EmailAuthConfig
+                { AS.Auth.fromField =
+                    AS.EmailSender.EmailFromField
+                      { AS.EmailSender.email = "dummy@info.com",
+                        AS.EmailSender.name = Nothing
+                      },
+                  AS.Auth.emailVerification =
+                    AS.Auth.EmailVerification.EmailVerificationConfig
+                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
+                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
+                      },
+                  AS.Auth.passwordReset =
+                    AS.Auth.PasswordReset.PasswordResetConfig
+                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
+                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
+                      },
+                  AS.Auth.allowUnverifiedLogin = Nothing
+                }
+
+        it "returns no error if app.auth is not set" $ do
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+
+        it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntityForEmailAuth) `shouldBe` []
+
+        it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity)
+            `shouldContain` [ASV.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
         let makeSpec appAuth userEntity =
@@ -146,7 +237,13 @@ spec_AppSpecValid = do
         let invalidUserEntity2 =
               AS.Entity.makeEntity
                 ( PslM.Body
-                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String
+                    [PslM.ElementField validUserField]
+                )
+        let invalidUserEntity3 =
+              AS.Entity.makeEntity
+                ( PslM.Body
+                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
+                      PslM.ElementField $ makeBasicPslField "password" PslM.String
                     ]
                 )
 
@@ -158,18 +255,26 @@ spec_AppSpecValid = do
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'String'."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'username' of type 'String'."
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity2)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'password' of type 'String'."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'password' of type 'String'."
+                       ]
+          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity3)
+            `shouldBe` [ ASV.GenericValidationError
+                           "The field 'username' on entity 'User' (referenced by app.auth.userEntity) must be marked with the '@unique' attribute."
                        ]
   where
-    makeBasicPslField name typ =
+    makeBasicPslField name typ = makePslField name typ False
+
+    makePslField name typ isOptional =
       PslM.Field
         { PslM._name = name,
           PslM._type = typ,
-          PslM._typeModifiers = [],
+          PslM._typeModifiers =
+            [ PslM.Optional | isOptional
+            ],
           PslM._attrs = []
         }
 
@@ -186,7 +291,8 @@ spec_AppSpecValid = do
           AS.App.auth = Nothing,
           AS.App.dependencies = Nothing,
           AS.App.head = Nothing,
-          AS.App.emailSender = Nothing
+          AS.App.emailSender = Nothing,
+          AS.App.webSocket = Nothing
         }
 
     basicAppDecl = AS.Decl.makeDecl "TestApp" basicApp
@@ -215,3 +321,13 @@ spec_AppSpecValid = do
               (fromJust $ SP.parseRelFileP "pages/Main"),
           AS.Page.authRequired = Nothing
         }
+
+    basicPageName = "TestPage"
+
+    basicPageDecl = AS.Decl.makeDecl basicPageName basicPage
+
+    basicRoute = AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref basicPageName, AS.Route.path = "/test"}
+
+    basicRouteName = "TestRoute"
+
+    basicRouteDecl = AS.Decl.makeDecl basicRouteName basicRoute

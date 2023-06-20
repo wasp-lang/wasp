@@ -4,10 +4,13 @@ import classNames from 'classnames'
 import Head from '@docusaurus/Head'
 import Nav from '../components/Nav/index'
 import Hero from '../components/Hero'
+import Features from '../components/Features'
+import Roadmap from '../components/Roadmap'
 import Benefits from '../components/Benefits'
 import Testimonials from '../components/Testimonials'
 import ExampleWaspApps from '../components/ExampleWaspApps'
 import HowItWorks from '../components/HowItWorks'
+import VideoAndTutorial from '../components/VideoAndTutorial'
 import ShowcaseGallery from '../components/ShowcaseGallery'
 import Newsletter from '../components/Newsletter'
 import Faq from '../components/Faq'
@@ -46,6 +49,8 @@ const Index = () => {
         <meta property='twitter:url' content='https://wasp-lang.dev/' />
         <meta property='twitter:title' content='Develop full-stack web apps without boilerplate.' />
         <meta property='twitter:image' content={waspLogo} />
+
+        <script id="wasp-langdev-2392a8eb" src="https://letsask.ai/widget.js"></script>
       </Head>
       <Nav />
       <div className='min-h-screen'>
@@ -54,13 +59,14 @@ const Index = () => {
           <div>
             {/* container */}
             <Hero />
-            <Benefits />
-            <Testimonials />
-            <ExampleWaspApps />
-            <LightsTwo />
+            <Features />
             <HowItWorks />
+            <ExampleWaspApps />
+            <Testimonials />
+            <LightsTwo />
             <ShowcaseGallery />
             <Newsletter />
+            <Roadmap />
             <Faq />
           </div>
           {/* eof container */}

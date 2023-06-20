@@ -119,9 +119,18 @@ const Footer = () => {
             </p>
 
             <SubscribeForm
-              className='mt-4 sm:flex sm:max-w-md'
+              className='mt-4 sm:max-w-md'
               inputBgColor='bg-transparent'
             />
+
+            <span className='flex items-center mt-6'>
+              <small className='text-neutral-500 text-xs'>Backed by</small>
+              <img
+                className='w-24 ml-2'
+                src='img/lp/yc-logo-rounded.png'
+                alt='YC'
+              />
+            </span>
 
           </div>
         </div>

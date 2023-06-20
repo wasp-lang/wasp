@@ -85,10 +85,10 @@ Let's start with the `main.wasp` file, which introduces 3 new concepts:
 [page](language/features.md#page) and
 [route](language/features.md#route).
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 app TodoApp { // Main declaration, defines a new web app.
   wasp: {
-    version: "^0.7.0"
+    version: "^0.11.0"
   },
   title: "Todo app" // Used as a browser tab title.
 }
@@ -97,10 +97,9 @@ route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/` (
 
 page MainPage {
   // We specify that ReactJS implementation of our page can be found in
-  // `src/client/MainPage.jsx` (the extension is not important) as a default
-  // export (uses standard js import syntax). Use '@client' to reference files
-  // inside the src/client folder.
-  component: import Main from "@client/MainPage"
+  // `src/client/MainPage.jsx` as a default export (uses standard js import syntax).
+  // Use '@client' to reference files inside the src/client folder.
+  component: import Main from "@client/MainPage.jsx"
 }
 ```
 
@@ -132,8 +131,7 @@ and `waspLogo.png` from the `src/client/` folder (`src/shared` and `src/server`
 are already clean). Wasp needs the `tsconfig.json` and `vite-env.d.ts` for
 IDE support, so it's important to keep them.
 
-Now that `src/client` contains only `tsconfig.json`, `vite-env.d.ts`, and
-`MainPage.jsx` let's start by making the `MainPage` component much simpler:
+Next, let's make the `MainPage` component much simpler:
 
 ```jsx title="src/client/MainPage.jsx"
 const MainPage = () => {

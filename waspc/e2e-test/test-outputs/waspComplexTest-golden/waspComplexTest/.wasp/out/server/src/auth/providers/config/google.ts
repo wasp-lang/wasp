@@ -11,7 +11,7 @@ const _waspUserDefinedConfigFn = undefined
 const _waspOAuthConfig: OAuthConfig = {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    scope: ["profile"],
+    scope: ['profile'],
 };
 
 const _waspConfig: ProviderConfig = {

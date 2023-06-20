@@ -1,20 +1,21 @@
 app Thoughts {
   wasp: {
-    version: "^0.9.1"
+    version: "^0.11.0"
   },
   title: "Thoughts",
-  db: { system: PostgreSQL },
+  db: {
+    system: PostgreSQL,
+    seeds: [ import { devSeedBasic } from "@server/seeds.js" ]
+  },
   auth: {
     userEntity: User,
-    methods: {
-      usernameAndPassword: {}
-    },
+    methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login"
   },
   dependencies: [
     ("react-markdown", "6.0.1"),
     ("color-hash", "2.0.1")
-  ]
+  ],
 }
 
 route MainRoute { path: "/", to: MainPage }

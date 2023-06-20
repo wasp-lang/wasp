@@ -1,4 +1,5 @@
 {{={= =}=}}
+import { type Expand } from "../universal/types.js";
 import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
@@ -6,24 +7,28 @@ import prisma from "../dbClient.js"
 import { type {= userEntityName =} } from "../entities"
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
+import { type Payload } from "./serialization";
 
 export * from "./taggedEntities"
+export * from "./serialization"
 
-export type Query<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
+export type Query<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
-export type Action<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
+export type Action<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
 {=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends _Entity[], Input, Output> = 
+export type AuthenticatedQuery<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
-export type AuthenticatedAction<Entities extends _Entity[], Input, Output> = 
+export type AuthenticatedAction<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
-type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
+type AuthenticatedOperation<Entities extends _Entity[], Input extends Payload, Output extends Payload> = (
   args: Input,
   context: ContextWithUser<Entities>,
-) => Promise<Output>
+) => Output | Promise<Output>
 
 export type AuthenticatedApi<
   Entities extends _Entity[],
@@ -42,7 +47,7 @@ export type AuthenticatedApi<
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
   context: Context<Entities>,
-) => Promise<Output>
+) => Output | Promise<Output>
 
 export type Api<
   Entities extends _Entity[],
@@ -72,20 +77,11 @@ type Context<Entities extends _Entity[]> = Expand<{
 }>
 
 {=# isAuthEnabled =}
-type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & UserInContext>
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser}>
 
-export type UserInContext = {
-  // TODO: This type must match the logic in core/auth.js (if we remove the
-  // password field from the object there, we must do the same here). Ideally,
-  // these two things would live in the same place:
-  // https://github.com/wasp-lang/wasp/issues/965
-  user: Omit<{= userEntityName =}, 'password'>
-}
+// TODO: This type must match the logic in core/auth.js (if we remove the
+// password field from the object there, we must do the same here). Ideally,
+// these two things would live in the same place:
+// https://github.com/wasp-lang/wasp/issues/965
+export type SanitizedUser = Omit<{= userEntityName =}, 'password'>
 {=/ isAuthEnabled =}
-
-// This is a helper type used exclusively for DX purposes. It's a No-op for the
-// compiler, but expands the type's representatoin in IDEs (i.e., inlines all
-// type constructors) to make it more readable for the user.
-//
-// Check this SO answer for details: https://stackoverflow.com/a/57683652
-type Expand<T extends object> = T extends infer O ? { [K in keyof O]: O[K] } : never

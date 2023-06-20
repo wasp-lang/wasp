@@ -6,11 +6,15 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.WebAppGenerator.Auth.AuthFormsG (genAuthForms)
+import Wasp.Generator.WebAppGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.WebAppGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.WebAppGenerator.Common as C
@@ -19,22 +23,22 @@ import Wasp.Util ((<++>))
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec =
   case maybeAuth of
+    Nothing -> return []
     Just auth ->
       sequence
-        [ genLogout,
-          genUseAuth,
-          genCreateAuthRequiredPage auth,
-          genUserHelpers
+        [ genFileCopy [relfile|auth/logout.ts|],
+          genFileCopy [relfile|auth/helpers/user.ts|],
+          genFileCopy [relfile|auth/types.ts|],
+          genUseAuth auth,
+          genCreateAuthRequiredPage auth
         ]
+        <++> genAuthForms auth
         <++> genLocalAuth auth
         <++> genOAuthAuth auth
-    Nothing -> return []
+        <++> genEmailAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
--- | Generates file with logout function to be used by Wasp developer.
-genLogout :: Generator FileDraft
-genLogout = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
+    genFileCopy = return . C.mkSrcTmplFd
 
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
@@ -47,8 +51,8 @@ genCreateAuthRequiredPage auth =
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
-genUseAuth :: Generator FileDraft
-genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
-
-genUserHelpers :: Generator FileDraft
-genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])
+genUseAuth :: AS.Auth.Auth -> Generator FileDraft
+genUseAuth auth = return $ C.mkTmplFdWithData [relfile|src/auth/useAuth.ts|] tmplData
+  where
+    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth

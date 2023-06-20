@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "cb5a091956f4a076298187d412aba130beb3a64e29fc4cb6d60a1f6504fbcf96"
+        "33830187439118a2922c175a6556ac8294102e5e120ee3a5a314a4b63ede3490"
     ],
     [
         [
@@ -81,7 +81,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "5c350dafeadffbf1d0543197d35d14bfdb56385adbc556991b45a32976b80d20"
+        "9a8b137a7bcfcf994927032964cf3ea31327352b7fc711dcfa6b9eecea721fe5"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
     ],
     [
         [
@@ -95,14 +102,14 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "2b2dba0828a9283901ed7132f5c51c119acef4fff739736e50c02b0f09b192db"
+        "a994ed1f89011c04014deb57a2c26d09c216491caac9269380a7c14d1718b313"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+        "12291f83f685eeb81a8c082961120d4bddb91985092eb142964e554a21d3384c"
     ],
     [
         [
@@ -128,9 +135,16 @@
     [
         [
             "file",
-            "server/src/dbClient.js"
+            "server/src/dbClient.ts"
         ],
         "20c67ca197da3de2d37528ceaff2e40af910be8177f346c6d5c2b2f983810c43"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbSeed/types.ts"
+        ],
+        "47442c546d286164c2cdb3359deb45b47f115df2ca72bb181b4639bee2059d38"
     ],
     [
         [
@@ -198,16 +212,37 @@
     [
         [
             "file",
+            "server/src/middleware/globalMiddleware.ts"
+        ],
+        "87edaddb661fc516406b20e6b7fd60ce178f64e6a94bc7c1d02a85330fff822a"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/index.ts"
+        ],
+        "e658719309f9375f389c5d8d416fc27f9c247049e61188b3e01df954bcec15a4"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/operations.ts"
+        ],
+        "864c7492c27f6da1e67645fbc358dc803a168852bfd24f2c4dd13fccf6917b07"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/types.ts"
         ],
-        "c7090ed370d3ae047b4219f5f2ed8ada929cda42229c5a74a5bf578de5f9ceea"
+        "276f022c04936bfe75d593fe8426a0aaf43a0e9c085042ad1b6560ad23041031"
     ],
     [
         [
             "file",
             "server/src/routes/index.js"
         ],
-        "7fb59b1d6c05570ca1d42d5dbf5868160844165f04e1c75e4be7c372965063fb"
+        "c34f77a96150414957386f5645c9becb12725c9f231aaaa8db798e3564bd75ce"
     ],
     [
         [
@@ -221,14 +256,21 @@
             "file",
             "server/src/server.ts"
         ],
-        "29faf0c794094c17733a6f09ae2a9c7eddab234d51b36f1518c1fb89cb9bfbb8"
+        "e28a2e72f8a0cedbfba8c6acfbc36b9ae35db9005aa26484d88ef7e7688efa5b"
     ],
     [
         [
             "file",
             "server/src/types/index.ts"
         ],
-        "de81c15d086ed53e3e44fc8e38f6bcd703d77182f8ad693b6905cda679c9e5e6"
+        "1fd50e251e340a5bc8c51369766e8c889cf892cdbe6593b4d58a6ee585b6d2cc"
+    ],
+    [
+        [
+            "file",
+            "server/src/universal/types.ts"
+        ],
+        "8ef378c1447289104856ec1a92931fd1280c0f8d0a8463008674e93bd798b884"
     ],
     [
         [
@@ -242,7 +284,7 @@
             "file",
             "server/src/utils.js"
         ],
-        "9f0afaa88132ee2f05e0acababf1a84d60a83aa6e0ccbd3028b2982500b29459"
+        "300e9bb586b163f2608acb27346b5c94ec3e58cdc25dace5381f3d0c6710a7ec"
     ],
     [
         [
@@ -298,7 +340,7 @@
             "file",
             "web-app/package.json"
         ],
-        "6f13980fb69f631e22c97fa3961f66182327564bc34669a2b86a5607df0eee21"
+        "57da965d01f5d39d74c6ca91f00d84ba5b6c78660ee837266b2622e410e4fd8e"
     ],
     [
         [
@@ -333,28 +375,35 @@
             "file",
             "web-app/src/actions/core.d.ts"
         ],
-        "d649b4823ede60119858b868dac9b122da4a3185391e6b9242ff7f6dc5c25d31"
+        "34b44699906b98ca28050479b66254e64073a403b571a8fd1a227395d27becae"
     ],
     [
         [
             "file",
             "web-app/src/actions/core.js"
         ],
-        "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
+        "f38003d51d9754952bf595a25fdb44580d88af3bcd6658848cf8a339a8240689"
     ],
     [
         [
             "file",
             "web-app/src/actions/index.ts"
         ],
-        "0f294c2f1d50a1473f6d332ef17944e7475c7d83a2180f6e2c9c9aecf25439f4"
+        "3afb54edb61cbc95a9b2133f9b3bdc460ca97580aca700adad988bf0515ab092"
     ],
     [
         [
             "file",
             "web-app/src/api.ts"
         ],
-        "f509fac2e6e742d7df53f9999141644664d9ffc7c82eeb292fd3f060bf9233a3"
+        "93118387834981574ce1773d33275308e68ef8ca87408a35be8931c44a8889bf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/api/events.ts"
+        ],
+        "7220e570cfb823028ad6c076cbcf033d217acfb88537bcac47020f1085757044"
     ],
     [
         [
@@ -403,7 +452,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "7f1ee2834d45d4fe451e0eff699245e5de3a82a9d82a9931538cac75c2210e1f"
+        "d10c443130afd9848fcfa631424590784e70dc1c66a8b7a9a8c1dfa9dd7ad5df"
     ],
     [
         [
@@ -415,16 +464,16 @@
     [
         [
             "file",
-            "web-app/src/operations/index.js"
+            "web-app/src/operations/index.ts"
         ],
-        "0d41d5791489c43814dfcfae09cf98a44418de9c36393cece15a2ff22da7d0b2"
+        "7ec3870a9313ec17d2282f9002da4a5d4da3c096c5fb0927acd008f1bec60bb3"
     ],
     [
         [
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "8bb71b7d7ef3962c28b9db1554500452e7f91b0c9fd898d5cafcdb7229f6db1e"
+        "c08445d84f9931ebc3e4f975017bf88c03b6bee9aa588e945d52fe3aee9c4d70"
     ],
     [
         [
@@ -438,21 +487,21 @@
             "file",
             "web-app/src/queries/core.d.ts"
         ],
-        "f0b289140e92738451be386ca73a2fd1c84e9951eb2f1b9c6c09dfa3079d0c74"
+        "8ac475ed46a373ddc47e37dd557315c9c15abcde527749bb40c08527130e0567"
     ],
     [
         [
             "file",
             "web-app/src/queries/core.js"
         ],
-        "2daf5b414722204281d65e954ce862a6fc586e8907b202800694909d23957c5e"
+        "3ac4a8402a7d6af3eb4a90ec59bcfdd32585f3f2dc6d6bed8a1140cea8fdb7f2"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.d.ts"
         ],
-        "efc70de9916a60e19e0c86aaf955b0be0c999ba5c30139c3b6b98bcc4d382091"
+        "f3a7cf037867cd7f8ce76cbca5e5eb2aacb9ca69933c182bce2f7ff935c4d385"
     ],
     [
         [
@@ -473,14 +522,49 @@
             "file",
             "web-app/src/router.jsx"
         ],
-        "103724de16eb74300d9fab366bf73401ffd6bf9018394044c1d4ade22731868e"
+        "c1188ee948f821f5e3e7e741f54b503afffe4bdb24b8f528c32aee0990cf5457"
     ],
     [
         [
             "file",
             "web-app/src/storage.ts"
         ],
-        "1e35eb73e486c8f926337a8c8ddfc392639de3718bf28fdc3073b0ca97c864f7"
+        "e9e2a4a02d48bea1597fcdc00592e3d975eea7fa6e0545cf087da9429c5f4979"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/test/index.ts"
+        ],
+        "cb2e2dc33df8afc0d4453f4322a4e2af92f3345e9622e0416fa87e34d6acb9d8"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/test/vitest/helpers.tsx"
+        ],
+        "a0576215b0786c6e082b8a83f6418a3acb084bfb673a152baad8e8a7fc46fcae"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/test/vitest/setup.ts"
+        ],
+        "1c08b10e428cec3939e0ab269c9a02694e196de7c5dd9f18372424bdccbc5028"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/types.ts"
+        ],
+        "282f6bdef1e7e8846ad53909bbf88c54cd04a0594b77b1e87cb69266de84cc6d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/universal/types.ts"
+        ],
+        "8ef378c1447289104856ec1a92931fd1280c0f8d0a8463008674e93bd798b884"
     ],
     [
         [
@@ -508,20 +592,20 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "27e39dd3e6155ffccdb1d9cb0cba8db7d9e06e10958bee900340a2d9f17400c8"
+        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
     ],
     [
         [
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "c40d0614fda5b8a746a1ba2e3be8e2370140c0167851ac77881cd53bb5647cdd"
+        "9e2abb169ea87b7190613a1d4da57ca608463a453bd4231fa3aeee5e308370dd"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "0f62618ba1d03ad7fca703b5fadc64e1a4be7c553f121dbefe8e1f7d6efe2a19"
+        "0ab8b3892a5d5d25b85646ef30e8b2487904415021912e68670fab316b2ecf2d"
     ]
 ]

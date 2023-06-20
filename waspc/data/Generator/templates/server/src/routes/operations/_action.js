@@ -1,17 +1,5 @@
 {{={= =}=}}
-import { handleRejection } from '../../utils.js'
+import { createAction } from '../../middleware/operations.js'
+{=& operation.importStatement =}
 
-{=& operationImportStmt =}
-
-export default handleRejection(async (req, res) => {
-  const args = req.body || {}
-
-  const context = {
-    {=# userEntityLower =}
-    user: req.user
-    {=/ userEntityLower =}
-  }
-  const result = await {= operationName =}(args, context)
-  res.json(result)
-})
-
+export default createAction({= operation.importIdentifier =})

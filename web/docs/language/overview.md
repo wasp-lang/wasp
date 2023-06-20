@@ -42,7 +42,7 @@ TodoApp/
       - shared/
 ```
 
-```css title="main.wasp"
+```wasp title="main.wasp"
 app todoApp {
   wasp: {
     version: "^0.6.0"

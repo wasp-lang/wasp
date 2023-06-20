@@ -119,7 +119,7 @@ const Nav = () => {
 
   return (
     <>
-      {/* <Announcement /> */}
+      <Announcement />
       <div className='sticky top-0 z-50'>
         <div className='bg-[#f5f4f0] absolute top-0 h-full w-full opacity-80'></div>
         <nav className='border-b backdrop-blur-sm'>
@@ -206,7 +206,7 @@ const Nav = () => {
                       </span>
                     </span>
                   </Link>
-                  
+
                 </div> {/* EOF left items */}
               </div> {/* EOF left side */}
 
@@ -222,7 +222,7 @@ const Nav = () => {
 
                 <GitHubButton />
 
-                <Link to='/docs'>
+                <Link to='/docs/quick-start'>
                   <button
                     className={`
                       hidden lg:block text-xs
@@ -232,7 +232,7 @@ const Nav = () => {
                       transition ease-out duration-200
                     `}
                   >
-                    Get started
+                    {'wasp new <app>'}
                   </button>
                 </Link>
 

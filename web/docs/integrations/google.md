@@ -7,7 +7,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 # Google
 
 To implement Google Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
-```c title="main.wasp"
+```wasp title="main.wasp"
 app Example {
   wasp: {
     version: "^0.8.0"
@@ -29,8 +29,7 @@ app Example {
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    username    String  @unique
-    password    String
+    // ...
     externalAuthAssociations  SocialLogin[]
 psl=}
 

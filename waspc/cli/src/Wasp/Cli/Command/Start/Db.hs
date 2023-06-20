@@ -60,7 +60,9 @@ throwIfCustomDbAlreadyInUse spec = do
       dbUrl <- liftIO $ lookupEnv databaseUrlEnvVarName
       when (isJust dbUrl) $
         throwCustomDbAlreadyInUseError
-          ( "Wasp has detected existing " <> databaseUrlEnvVarName <> " var in your environment.\n"
+          ( "Wasp has detected existing "
+              <> databaseUrlEnvVarName
+              <> " var in your environment.\n"
               <> "To have Wasp run the dev database for you, make sure you remove that env var first."
           )
 
@@ -104,6 +106,8 @@ startPostgreDevDb waspProjectDir appName = do
           <> " (useful to know if you will want to delete it at some point):",
         "     " <> dockerVolumeName
       ]
+
+  cliSendMessageC $ Msg.Info "..."
 
   -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
   --   only when initializing the database -> if it already exists, they will be ignored.

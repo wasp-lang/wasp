@@ -28,7 +28,7 @@ const faqs = [
       <br/><br/>
       Ruby on Rails and Django both fall in the category of full-stack web frameworks - they allow you to write backend/server code and also generate html/css that gets sent to the client.
       <br/><br/>
-      The main reason whey they are often today not used as a standalone solution, but rather as an API server combined with frontend libraries such as React & Vue, is to add support for the client side manipulation of DOM.
+      The main reason why they are often today not used as a standalone solution, but rather as an API server combined with frontend libraries such as React & Vue, is to add support for the client side manipulation of DOM.
       That’s especially important for web applications with a lot of dynamic content (e.g. dashboards) where you want “smooth” experience of a desktop app.
       Imagine expanding a post on Twitter or moving a Trello card and suddenly the whole site starts reloading - that's why you need React or Vue.
       <br/><br/>

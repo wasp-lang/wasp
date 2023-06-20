@@ -7,18 +7,15 @@ module Wasp.Generator.ServerGenerator.OperationsRoutesG
 where
 
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
@@ -30,41 +27,36 @@ import qualified Wasp.Util as U
 genOperationsRoutes :: AppSpec -> Generator [FileDraft]
 genOperationsRoutes spec =
   sequence . concat $
-    [ map (genActionRoute spec) (AS.getActions spec),
-      map (genQueryRoute spec) (AS.getQueries spec),
+    [ map genActionRoute (AS.getActions spec),
+      map genQueryRoute (AS.getQueries spec),
       [genOperationsRouter spec]
     ]
 
-genActionRoute :: AppSpec -> (String, AS.Action.Action) -> Generator FileDraft
-genActionRoute spec (actionName, action) = genOperationRoute spec op tmplFile
+genActionRoute :: (String, AS.Action.Action) -> Generator FileDraft
+genActionRoute (actionName, action) = genOperationRoute op tmplFile
   where
     op = AS.Operation.ActionOp actionName action
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_action.js|]
 
-genQueryRoute :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
-genQueryRoute spec (queryName, query) = genOperationRoute spec op tmplFile
+genQueryRoute :: (String, AS.Query.Query) -> Generator FileDraft
+genQueryRoute (queryName, query) = genOperationRoute op tmplFile
   where
     op = AS.Operation.QueryOp queryName query
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_query.js|]
 
-genOperationRoute :: AppSpec -> AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> Generator FileDraft
-genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genOperationRoute :: AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> Generator FileDraft
+genOperationRoute operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     dstFile = operationsRoutesDirInServerRootDir </> operationRouteFileInOperationsRoutesDir operation
 
-    baseTmplData =
+    tmplData =
       object
-        [ "operationName" .= (operationImportIdentifier :: String),
-          "operationImportStmt" .= (operationImportStmt :: String)
+        [ "operation"
+            .= object
+              [ "importIdentifier" .= (operationImportIdentifier :: String),
+                "importStatement" .= (operationImportStmt :: String)
+              ]
         ]
-
-    tmplData = case AS.App.auth (snd $ getApp spec) of
-      Nothing -> baseTmplData
-      Just auth ->
-        U.jsonSet
-          "userEntityLower"
-          (Aeson.toJSON (U.toLowerFirst $ AS.refName $ AS.Auth.userEntity auth))
-          baseTmplData
 
     pathToOperationFile =
       relPosixPathFromOperationsRoutesDirToSrcDir
@@ -78,7 +70,9 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
 
     operationName = AS.Operation.getName operation
 
-    (operationImportStmt, operationImportIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport operationImportPath (JsImportModule operationName)
+    (operationImportStmt, operationImportIdentifier) =
+      getJsImportStmtAndIdentifier $
+        makeJsImport operationImportPath (JsImportModule operationName)
 
 data OperationsRoutesDir
 

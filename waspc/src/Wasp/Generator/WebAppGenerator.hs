@@ -7,6 +7,7 @@ module Wasp.Generator.WebAppGenerator
 where
 
 import Data.Aeson (object, (.=))
+import Data.Char (toLower)
 import Data.List (intercalate)
 import StrongPath
   ( Dir,
@@ -15,34 +16,33 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    reldir,
     reldirP,
     relfile,
     (</>),
   )
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.App (App (webSocket))
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
-    nodeVersionRange,
     prismaVersion,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
@@ -50,28 +50,36 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import qualified Wasp.Generator.WebSocket as AS.WS
+import qualified Wasp.Node.Version as NodeVersion
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
+  extClientCodeFileDrafts <- genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|vite.config.ts|],
+      genFileCopy [relfile|src/test/vitest/setup.ts|],
+      genFileCopy [relfile|src/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|src/test/index.ts|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
       genIndexHtml spec
     ]
-    <++> genPublicDir spec
     <++> genSrcDir spec
-    <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
+    <++> return extClientCodeFileDrafts
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
+    <++> genPublicDir spec extClientCodeFileDrafts
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -101,7 +109,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange
+              "nodeVersionRange" .= show NodeVersion.nodeVersionRange
             ]
       )
 
@@ -118,33 +126,44 @@ npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("axios", "^0.27.2"),
-            ("react", "^17.0.2"),
-            ("react-dom", "^17.0.2"),
-            ("@tanstack/react-query", "^4.13.0"),
+          [ ("axios", "^1.4.0"),
+            ("react", "^18.2.0"),
+            ("react-dom", "^18.2.0"),
+            ("@tanstack/react-query", "^4.29.0"),
             ("react-router-dom", "^5.3.3"),
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
-            ("@prisma/client", show prismaVersion)
+            ("@prisma/client", show prismaVersion),
+            ("superjson", "^1.12.2"),
+            ("mitt", "3.0.0")
           ]
-          ++ depsRequiredByTailwind spec,
+          ++ depsRequiredForAuth spec
+          ++ depsRequiredByTailwind spec
+          ++ depsRequiredForWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("vite", "^4.1.0"),
-            ("typescript", "^4.9.3"),
-            ("@types/react", "^17.0.53"),
-            ("@types/react-dom", "^17.0.19"),
+            ("vite", "^4.3.9"),
+            ("typescript", "^5.1.0"),
+            ("@types/react", "^18.0.37"),
+            ("@types/react-dom", "^18.0.11"),
             ("@types/react-router-dom", "^5.3.3"),
             ("@vitejs/plugin-react-swc", "^3.0.0"),
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^1.0.1")
+            ("@tsconfig/vite-react", "^2.0.0")
           ]
+          ++ depsRequiredForTesting
     }
+
+depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth spec =
+  [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
+  where
+    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
@@ -157,6 +176,22 @@ depsRequiredByTailwind spec =
         ]
     else []
 
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^0.29.3"),
+      ("@vitest/ui", "^0.29.3"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^14.0.0"),
+      ("@testing-library/jest-dom", "^5.16.5"),
+      ("msw", "^1.1.0")
+    ]
+
+depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForWebSockets spec
+  | AS.WS.areWebSocketsUsed spec = AS.WS.clientDepsRequiredForWebSockets
+  | otherwise = []
+
 genGitignore :: Generator FileDraft
 genGitignore =
   return $
@@ -164,33 +199,25 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
-genPublicDir :: AppSpec -> Generator [FileDraft]
-genPublicDir spec = do
-  return
-    [ genFaviconFd,
-      genManifestFd
-    ]
-    <++> genSocialLoginIcons maybeAuth
-  where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
-    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genManifestFd =
-      let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          tmplFile = C.asTmplFile [relfile|public/manifest.json|]
-       in C.mkTmplFdWithData tmplFile tmplData
-
-genSocialLoginIcons :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
-genSocialLoginIcons maybeAuth =
+genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
+genPublicDir spec extCodeFileDrafts =
   return $
-    [ C.mkTmplFd (C.asTmplFile fp)
-      | (isEnabled, fp) <- socialIcons,
-        (isEnabled <$> maybeAuth) == Just True
-    ]
+    ifUserDidntProvideFile genFaviconFd
+      ++ ifUserDidntProvideFile genManifestFd
   where
-    socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName googleAuthProvider),
-        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName gitHubAuthProvider)
-      ]
+    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
+    genManifestFd = C.mkTmplFdWithData tmplFile tmplData
+      where
+        tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+        tmplFile = C.asTmplFile [relfile|public/manifest.json|]
+
+    ifUserDidntProvideFile fileDraft =
+      if checkIfFileDraftExists fileDraft
+        then []
+        else [fileDraft]
+
+    checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
+    existingDstPaths = map FD.getDstPath extCodeFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
@@ -213,22 +240,25 @@ genIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|config.js|],
-      copyTmplFile [relfile|queryClient.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|logo.png|],
+      genFileCopy [relfile|config.js|],
+      genFileCopy [relfile|queryClient.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|types.ts|],
+      genFileCopy [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      copyTmplFile [relfile|api.ts|],
-      copyTmplFile [relfile|storage.ts|],
+      genFileCopy [relfile|api.ts|],
+      genFileCopy [relfile|api/events.ts|],
+      genFileCopy [relfile|storage.ts|],
       genRouter spec,
-      genIndexJs spec
+      getIndexTs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
     <++> genAuth spec
+    <++> genWebSockets spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genEntitiesDir :: AppSpec -> Generator [FileDraft]
 genEntitiesDir spec = return [entitiesIndexFileDraft]
@@ -240,15 +270,16 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
         (Just $ object ["entities" .= allEntities])
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
 
-genIndexJs :: AppSpec -> Generator FileDraft
-genIndexJs spec =
+getIndexTs :: AppSpec -> Generator FileDraft
+getIndexTs spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/index.tsx|])
       (C.asWebAppFile [relfile|src/index.tsx|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
+              "areWebSocketsUsed" .= AS.WS.areWebSocketsUsed spec
             ]
       )
   where
@@ -260,7 +291,8 @@ genIndexJs spec =
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
+      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
     ]
 
 genEnvValidationScript :: Generator [FileDraft]
@@ -269,3 +301,22 @@ genEnvValidationScript =
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]
+
+genWebSockets :: AppSpec -> Generator [FileDraft]
+genWebSockets spec
+  | AS.WS.areWebSocketsUsed spec =
+      sequence
+        [ genFileCopy [relfile|webSocket.ts|],
+          genWebSocketProvider spec
+        ]
+  | otherwise = return []
+  where
+    genFileCopy = return . C.mkSrcTmplFd
+
+genWebSocketProvider :: AppSpec -> Generator FileDraft
+genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    maybeWebSocket = webSocket $ snd $ getApp spec
+    shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
+    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]
