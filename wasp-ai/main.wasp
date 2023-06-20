@@ -6,7 +6,8 @@ app waspAi {
   dependencies: [
     ("uuid", "^9.0.0"),
     ("prismjs", "^1.29.0"),
-    ("react-accessible-treeview", "2.6.1")
+    ("react-accessible-treeview", "2.6.1"),
+    ("react-icons", "4.9.0")
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",

@@ -5,6 +5,7 @@ import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
+import { Loader } from "../components/Loader";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -29,7 +30,9 @@ const MainPage = () => {
 
   const logs = appGenerationResult?.messages
     .filter((m) => m.type === "log")
-    .map((m) => m.text);
+    .map((m) => m.text)
+    .reverse();
+
   let files = {};
   {
     appGenerationResult?.messages
@@ -136,63 +139,55 @@ const MainPage = () => {
             disabled={appId}
           />
         </div>
-        <button className="button" disabled={appId}>
+        <button className="button mr-2" disabled={appId}>
           Generate
         </button>
-        <div className="mt-2">
-          <button
-            type="button"
-            disabled={appId}
-            onClick={() => fillInExampleAppDetails()}
-            className="button gray"
-          >
-            Fill in with example app details
-          </button>
-        </div>
+        <button
+          type="button"
+          disabled={appId}
+          onClick={() => fillInExampleAppDetails()}
+          className="button gray"
+        >
+          Fill in with example app details
+        </button>
       </form>
-
-      {appId && !generationDone && (
-        <div className="mt-8 mb-4 p-4 bg-slate-100 rounded">Generating...</div>
-      )}
-
-      {logs && logs.length > 0 && (
-        <>
-          <h2
-            className="
-          text-xl
-          font-bold
-          text-gray-800
-          mt-8
-          mb-4
-        "
-          >
-            Logs
-          </h2>
-          <div className="flex flex-col gap-2">
-            {logs.map((log, i) => (
-              <pre key={i} className="p-4 bg-slate-100 rounded">
-                {log}
-              </pre>
-            ))}
-          </div>
-        </>
-      )}
 
       {files && Object.keys(files).length > 0 && (
         <>
-          <h2
+          <header
             className="
+         mt-8
+         mb-2
+         flex
+         justify-between
+         items-center
+          "
+          >
+            <div
+              className="
+            flex
+            items-center
+            
+          "
+            >
+              <h2
+                className="
           text-xl
           font-bold
           text-gray-800
-          mt-8
-          mb-4
+          mr-2
         "
-          >
-            Files
-          </h2>
+              >
+                {appName}
+              </h2>
+              {appId && !generationDone && <Loader />}
+            </div>
+            <div>
+              <button className="button" disabled={!generationDone}>Download the app</button>
+            </div>
+          </header>
           <div className="grid gap-4 grid-cols-[300px_minmax(900px,_1fr)_100px]">
-            <aside className="bg-slate-100 p-4 rounded sticky top-0">
+            <aside>
               <FileTree
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
@@ -201,19 +196,49 @@ const MainPage = () => {
             </aside>
 
             {activeFilePath && (
-              <main className="flex flex-col gap-4">
-                <div
-                  key={activeFilePath}
-                  className="px-4 py-2 bg-slate-100 rounded"
-                >
-                  <div className="font-bold">{activeFilePath}:</div>
+              <main className="flex flex-col gap-2">
+                <div className="font-bold">{activeFilePath}:</div>
+                <div key={activeFilePath} className="py-4 bg-slate-100 rounded">
                   <CodeHighlight language={language}>
-                    {files[activeFilePath]}
+                    {files[activeFilePath].trim()}
                   </CodeHighlight>
                 </div>
               </main>
             )}
+            {!activeFilePath && (
+              <main className="p-8 bg-slate-100 rounded grid place-content-center">
+                <div className="text-center">
+                  <div className="font-bold">Select a file to view</div>
+                  <div className="text-gray-500 text-sm">
+                    (click on a file in the file tree)
+                  </div>
+                </div>
+              </main>
+            )}
           </div>
+
+          {logs && logs.length > 0 && (
+            <>
+              {/* <h2
+                className="
+          text-xl
+          font-bold
+          text-gray-800
+          mt-8
+          mb-4
+        "
+              >
+                Logs
+              </h2> */}
+              <div className="flex flex-col gap-1 mt-8">
+                {logs.map((log, i) => (
+                  <pre key={i} className="p-3 bg-slate-100 rounded text-sm">
+                    {log}
+                  </pre>
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

@@ -3,14 +3,15 @@
 @tailwind utilities;
 
 .button {
-  @apply bg-yellow-400 text-white font-bold py-2 px-4 rounded;
+  @apply bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded;
 }
 .button.gray {
-  @apply bg-gray-300 text-gray-700;
+  @apply bg-slate-200 text-slate-600;
 }
 .button:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
-input, textarea {
-  @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none;
+input,
+textarea {
+  @apply border border-gray-300 rounded py-2 px-4 bg-slate-50;
 }
