@@ -10,9 +10,9 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Generator
@@ -27,7 +27,7 @@ test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test clie
 
 watchAndTest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do
-  waspRoot <- findWaspProjectRootDirFromCwd
+  InWaspProject waspRoot <- require
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."

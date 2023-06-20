@@ -426,6 +426,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry

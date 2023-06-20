@@ -16,16 +16,16 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  InWaspProject waspProjectDir <- require
   let genProjectDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
