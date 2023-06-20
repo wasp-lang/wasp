@@ -6,6 +6,7 @@ import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
 import { Loader } from "../components/Loader";
+import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -96,6 +97,11 @@ const MainPage = () => {
     }
   }, [files]);
 
+  function downloadZip() {
+    const safeAppName = appName.replace(/[^a-zA-Z0-9]/g, "_");
+    createFilesAndDownloadZip(files, safeAppName);
+  }
+
   return (
     <div className="container">
       <div
@@ -152,7 +158,7 @@ const MainPage = () => {
         </button>
       </form>
 
-      {files && Object.keys(files).length > 0 && (
+      {interestingFilePaths.length > 0 && (
         <>
           <header
             className="
@@ -183,7 +189,13 @@ const MainPage = () => {
               {appId && !generationDone && <Loader />}
             </div>
             <div>
-              <button className="button" disabled={!generationDone}>Download the app</button>
+              <button
+                className="button"
+                disabled={!generationDone}
+                onClick={downloadZip}
+              >
+                Download ZIP
+              </button>
             </div>
           </header>
           <div className="grid gap-4 grid-cols-[300px_minmax(900px,_1fr)_100px]">
@@ -218,26 +230,24 @@ const MainPage = () => {
           </div>
 
           {logs && logs.length > 0 && (
-            <>
-              {/* <h2
-                className="
-          text-xl
-          font-bold
-          text-gray-800
-          mt-8
-          mb-4
-        "
-              >
-                Logs
-              </h2> */}
-              <div className="flex flex-col gap-1 mt-8">
-                {logs.map((log, i) => (
-                  <pre key={i} className="p-3 bg-slate-100 rounded text-sm">
-                    {log}
-                  </pre>
-                ))}
-              </div>
-            </>
+            <div className="flex flex-col gap-1 mt-8">
+              {logs.map((log, i) => (
+                /*
+                If log contains "generated" or "Generated"
+                make it green, otherwise make it gray.
+                */
+                <pre
+                  key={i}
+                  className={`p-3 rounded text-sm ${
+                    log.toLowerCase().includes("generated")
+                      ? "bg-green-100"
+                      : "bg-slate-100"
+                  }`}
+                >
+                  {log}
+                </pre>
+              ))}
+            </div>
           )}
         </>
       )}

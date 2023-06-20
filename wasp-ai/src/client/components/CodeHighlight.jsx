@@ -20,7 +20,7 @@ export function CodeHighlight(props = {}) {
   }
   useEffect(() => {
     highlight();
-  }, [language, source]);
+  });
   return (
     <pre
       className={`${prefixCls} ${className || ""} ${langCls}`}
