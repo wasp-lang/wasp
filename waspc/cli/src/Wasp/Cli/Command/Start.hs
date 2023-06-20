@@ -26,11 +26,11 @@ start = do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  DbConnectionEstablished <- require
-
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   warnings <- compile
+
+  DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
