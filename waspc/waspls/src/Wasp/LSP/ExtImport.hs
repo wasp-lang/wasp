@@ -18,7 +18,7 @@ where
 import Control.Applicative ((<|>))
 import Control.Arrow (Arrow (first), (&&&))
 import Control.Lens ((%~), (^.))
-import Control.Monad (void)
+import Control.Monad (unless, void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
@@ -44,9 +44,6 @@ import Wasp.Project (WaspProjectDir)
 import qualified Wasp.TypeScript as TS
 import Wasp.Util.IO (doesFileExist)
 
--- TODO(before merge): update in cache when file is deleted (maybe by just
--- clearing cache for a file even when finding export list fails)
-
 -- | Finds all external imports and refreshes the export cache for the relevant
 -- files.
 refreshAllExports :: ServerM ()
@@ -67,6 +64,10 @@ refreshAllExports = do
 refreshExportsForFiles :: [SP.Path' SP.Abs SP.File'] -> ServerM ()
 refreshExportsForFiles files = do
   logM $ "[refreshExportsForFile] refreshing export lists for " ++ show files
+
+  -- First, remove any deleted files from the cache
+  mapM_ clearCacheForFileIfMissing files
+
   LSP.getRootPath >>= \case
     Nothing -> pure ()
     Just projectDirFilepath -> do
@@ -80,6 +81,11 @@ refreshExportsForFiles files = do
   where
     getExportRequestForFile projectDir file =
       ([SP.fromAbsFile file] `TS.TsExportRequest`) . Just . SP.fromAbsFile <$> tryGetTsconfigForFile projectDir file
+
+    -- Removes deleted files from cache
+    clearCacheForFileIfMissing file = do
+      fileExists <- liftIO $ doesFileExist file
+      unless fileExists $ modify (State.tsExports %~ M.insert file [])
 
 -- | Look for the tsconfig file for the specified JS/TS file.
 --

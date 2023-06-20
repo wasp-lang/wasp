@@ -7,7 +7,7 @@ module Wasp.LSP.Server
   )
 where
 
-import Control.Concurrent (MVar, forkIO, newEmptyMVar, readMVar, tryPutMVar)
+import Control.Concurrent (MVar, forkFinally, newEmptyMVar, readMVar, tryPutMVar)
 import Control.Concurrent.Async (async, waitAnyCancel)
 import Control.Concurrent.STM (newTChanIO, newTVarIO)
 import Control.Monad (void)
@@ -81,8 +81,12 @@ serve maybeLogFile = do
   -- while that work is being done. An example of this is refreshing JS/TS
   -- exports: see "Wasp.LSP.ExtImport".
   --
-  -- TODO(before merge): what happens if 'reactor' returns an error?
-  _ <- forkIO $ runUntilMVarIsFull reactorLifetime $ reactor reactorIn
+  -- When the reactor crashes, it is immediately started again.
+  let runReactor = void $
+        forkFinally (runUntilMVarIsFull reactorLifetime $ reactor reactorIn) $ \case
+          Left _ -> runReactor -- Restart reactor on crash.
+          Right () -> pure () -- Reactor ended peacefully, don't restart.
+  runReactor
 
   exitCode <-
     LSP.runServer
