@@ -1,10 +1,12 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Wasp.LSP.ServerState
   ( ServerState (..),
     RegistrationTokens (..),
     TsExportCache,
+    DebouncedEvents (..),
     currentWaspSource,
     latestDiagnostics,
     cst,
@@ -12,16 +14,20 @@ module Wasp.LSP.ServerState
     regTokens,
     watchSourceFilesToken,
     reactorIn,
+    debouncer,
   )
 where
 
 import Control.Concurrent.STM (TChan)
 import Control.Lens (makeClassy)
 import qualified Data.HashMap.Strict as M
+import Data.Hashable (Hashable)
+import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified StrongPath as SP
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
+import Wasp.LSP.Debouncer (Debouncer)
 import Wasp.LSP.Diagnostic (WaspDiagnostic)
 import Wasp.LSP.Reactor (ReactorInput)
 import Wasp.TypeScript (TsExport)
@@ -44,7 +50,9 @@ data ServerState = ServerState
     -- | Registration tokens for dynamic capabilities.
     _regTokens :: RegistrationTokens,
     -- | Thread safe channel for sending actions to the LSP reactor thread.
-    _reactorIn :: TChan ReactorInput
+    _reactorIn :: TChan ReactorInput,
+    -- | See "Wasp.LSP.Debouncer".
+    _debouncer :: Debouncer DebouncedEvents
   }
 
 -- | Map from paths to JS/TS files to the list of exports from that file.
@@ -63,6 +71,12 @@ data RegistrationTokens = RegTokens
   { -- | Token for the src/ directory file watcher.
     _watchSourceFilesToken :: Maybe (LSP.RegistrationToken 'LSP.WorkspaceDidChangeWatchedFiles)
   }
+
+data DebouncedEvents
+  = RefreshExports
+  deriving (Eq, Show, Generic)
+
+instance Hashable DebouncedEvents
 
 makeClassy 'ServerState
 

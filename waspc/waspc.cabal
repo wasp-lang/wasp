@@ -334,6 +334,7 @@ library waspls
   exposed-modules:
     Control.Monad.Log
     Control.Monad.Log.Class
+    Wasp.LSP.Debouncer
     Wasp.LSP.Server
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
@@ -356,6 +357,8 @@ library waspls
     , lsp ^>=1.4.0.0
     , lsp-types ^>=1.4.0.1
     , stm ^>=2.5.1.0
+    , stm-containers ^>=1.2
+    , hashable ^>=1.3.5.0
     , unordered-containers
     , strong-path
     , path
@@ -548,6 +551,7 @@ test-suite waspls-test
     , filepath
   other-modules:
     Wasp.LSP.CompletionTest
+    Wasp.LSP.DebouncerTest
 
 test-suite cli-test
   import: common-all, common-exe

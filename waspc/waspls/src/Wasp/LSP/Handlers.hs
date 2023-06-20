@@ -30,6 +30,7 @@ import Wasp.Analyzer (analyze)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
+import Wasp.LSP.Debouncer (debounce)
 import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagonstic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
 import Wasp.LSP.ExtImport (refreshAllExports, refreshExportsForFiles, updateMissingImportDiagnostics)
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
@@ -141,14 +142,14 @@ diagnoseWaspFile uri = do
   -- Update exports and missing import diagnostics asynchronously. This is only
   -- done if file watching is NOT enabled or if the export cache hasn't been
   -- filled before.
-  --
-  -- TODO(before merge): debounce this somehow
   exportCacheIsEmpty <- M.null <$> handler (asks (^. State.tsExports))
-  when (not sourceWatchingEnabled || exportCacheIsEmpty) $ do
-    sendToReactor $ do
-      refreshAllExports
-      updateMissingImportDiagnostics
-      handler $ publishDiagnostics uri
+  debouncer <- handler $ asks (^. State.debouncer)
+  when (not sourceWatchingEnabled || exportCacheIsEmpty) $
+    debounce debouncer 500000 State.RefreshExports $
+      sendToReactor $ do
+        refreshAllExports
+        updateMissingImportDiagnostics
+        handler $ publishDiagnostics uri
 
 publishDiagnostics :: LSP.Uri -> HandlerM ()
 publishDiagnostics uri = do

@@ -20,13 +20,14 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
+import Wasp.LSP.Debouncer (newDebouncerIO)
 import Wasp.LSP.Handlers
 import Wasp.LSP.Reactor (reactor)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerM, runRLspM)
 import Wasp.LSP.ServerState
   ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
-    ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics, _reactorIn, _regTokens, _tsExports),
+    ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports),
   )
 
 lspServerHandlers :: IO () -> LSP.Handlers ServerM
@@ -48,6 +49,8 @@ serve maybeLogFile = do
   let stopReactor = void $ tryPutMVar reactorLifetime ()
   reactorIn <- newTChanIO
 
+  debouncer <- newDebouncerIO
+
   let defaultServerState =
         ServerState
           { _currentWaspSource = "",
@@ -55,7 +58,8 @@ serve maybeLogFile = do
             _cst = Nothing,
             _tsExports = M.empty,
             _regTokens = RegTokens {_watchSourceFilesToken = Nothing},
-            _reactorIn = reactorIn
+            _reactorIn = reactorIn,
+            _debouncer = debouncer
           }
 
   stateTVar <- newTVarIO defaultServerState
