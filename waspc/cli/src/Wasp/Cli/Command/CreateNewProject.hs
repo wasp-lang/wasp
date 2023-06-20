@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
     -- TODO: I just exported whatever I needed, I should think more through how to abstract this really.
-    createWaspProjectDir,
+    createInitialWaspProjectDir,
     parseProjectInfo,
     ProjectInfo (..),
     getAbsoluteWaspProjectDir,
@@ -10,6 +10,7 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
+import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
@@ -38,7 +39,7 @@ data ProjectInfo = ProjectInfo
 createNewProject :: String -> Command ()
 createNewProject projectNameCandidate = do
   projectInfo <- parseProjectInfo projectNameCandidate
-  createWaspProjectDir projectInfo
+  _ <- createInitialWaspProjectDir projectInfo
   liftIO $ printGettingStartedInstructions $ _projectName projectInfo
   where
     printGettingStartedInstructions :: String -> IO ()
@@ -67,24 +68,32 @@ parseProjectInfo name
   where
     appName = kebabToCamelCase name
 
+-- | Given project info, creates a new empty wasp app directory with appropriate name and no content
+-- in it. Throws if such directory already exists. Returns path to the newly created directory.
 createEmptyWaspProjectDir :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
 createEmptyWaspProjectDir projectInfo = do
-  absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
-  dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
-  if dirExists
-    then throwProjectCreationError $ show absWaspProjectDir ++ " is an existing directory"
-    else liftIO $ createDirectory $ fromAbsDir absWaspProjectDir
-  return absWaspProjectDir
+  waspProjectDir <- determineWaspProjectDirAndThrowIfTaken projectInfo
+  liftIO $ createDirectory $ fromAbsDir waspProjectDir
+  return waspProjectDir
 
-createWaspProjectDir :: ProjectInfo -> Command ()
-createWaspProjectDir projectInfo = do
+-- | Given project info, creates a new wasp app directory with appropriate name and initialized with
+-- files needed to get started and running. Throws if such directory already exists. Returns path
+-- to the newly created directory.
+createInitialWaspProjectDir :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
+createInitialWaspProjectDir projectInfo = do
+  waspProjectDir <- determineWaspProjectDirAndThrowIfTaken projectInfo
+  liftIO $ do
+    initializeProjectFromSkeleton waspProjectDir
+    writeMainWaspFile waspProjectDir projectInfo
+  return waspProjectDir
+
+determineWaspProjectDirAndThrowIfTaken :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
+determineWaspProjectDirAndThrowIfTaken projectInfo = do
   absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
   dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
-  if dirExists
-    then throwProjectCreationError $ show absWaspProjectDir ++ " is an existing directory"
-    else liftIO $ do
-      initializeProjectFromSkeleton absWaspProjectDir
-      writeMainWaspFile absWaspProjectDir projectInfo
+  when dirExists $
+    throwProjectCreationError $ show absWaspProjectDir ++ " is an existing directory"
+  return absWaspProjectDir
 
 -- TODO: This module needs cleaning up now, after my changes, because there are multiple ways to do the same thing.
 --   Idea: maybe have two dirs, one called "core", another called "new" that only holds additional files.
@@ -101,6 +110,13 @@ coreWaspProjectFiles =
     [relfile|src/shared/tsconfig.json|]
   ]
 
+-- TODO: Reorganize Cli/templates/new(or basic) into two dirs:
+--   1. templates/core
+--   2. templates/basic
+--   Core would contain only the most neccessary files to get started.
+--   Other templates, like basic, would build on top of it.
+--   So creating new wasp project from local template would first copy files from "core",
+--   then from the actual template (e.g. "basic").
 readCoreWaspProjectFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readCoreWaspProjectFiles = do
   dataDir <- Data.getAbsDataDirPath
