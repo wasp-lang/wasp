@@ -12,7 +12,6 @@ where
 
 import Data.Aeson (FromJSON)
 import qualified Data.Text as T
-import qualified Debug.Trace as Debug
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent)
@@ -30,7 +29,6 @@ type PlanRule = String
 
 generatePlan :: Wasp.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  Debug.trace (show $ T.unpack planPrompt) $ return ()
   queryChatGPTForJSON defaultChatGPTParams chatMessages
   where
     chatMessages =
