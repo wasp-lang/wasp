@@ -1,10 +1,27 @@
-To include node packages with an installation of Wasp, create a directory
-in this folder and add a `build` script to the `package.json`.
+# Testing Packages Locally
 
-On CI runs, `tools/install_packages_to_data_dir.sh` is used to compile these
-projects and copy them into `data/packages`. You can also use that script
-locally.
+Run `tools/install_packages_to_data_dir.sh` to compile the packages and copy
+them into `data/`. Then you can use `cabal run` as normal, or you can
+`cabal install` and then use `wasp-cli`.
 
-To run these packages from inside the `waspc` Haskell project, use `Wasp.Package`.
-Make sure to have a `start` script in the `package.json`: that is what gets
-called by `runPackageAsJob`.
+# Adding a New Package
+
+Create a directory in this folder to contain the new package. It should have a
+`build` script inside `package.json` as well as a `start` script that calls the
+compiled code.
+
+Then, in `data-files` inside `waspc.cabal`, add these files:
+
+```
+packages/<package-name>/package.json
+packages/<package-name>/package-lock.json
+packages/<package-name>/dist/**/*.js
+```
+
+The last line assumes the project is compiled to JavaScript files inside the
+`dist` directory. You should adjust that if needed.
+
+# CI Builds/Release
+
+The CI workflow runs the package install script, and `tools/make_binary_package.sh`
+takes care of copying data files into the release archive.

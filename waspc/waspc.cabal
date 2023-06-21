@@ -53,9 +53,6 @@ data-files:
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
-  -- TODO(before merge): how does this interact with tools/make_binary_package.sh?
-  -- TODO(before merge): document somewhere that you should add this here for
-  -- new packages
   packages/deploy/dist/**/*.js
   packages/deploy/package.json
   packages/deploy/package-lock.json
