@@ -8,7 +8,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 If you want to run Wasp locally and haven't yet set it up, check out [Getting Started](/docs) first for installation instructions, and then continue with the tutorial.
 :::
 
-Let's build together a simple Todo App in Wasp!
+Let's build a simple Todo App in Wasp!
 
 <img alt="How Todo App will work once it is done"
      src={useBaseUrl('img/todo-app-tutorial-intro.gif')}

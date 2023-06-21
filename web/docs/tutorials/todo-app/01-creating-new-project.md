@@ -70,10 +70,11 @@ For this tutorial, we will simply use vanilla Javascript and JSX syntax 🍦
 
 If you'd prefer to follow along using TypeScript:
  1. Start by changing `MainPage.jsx` to `MainPage.tsx`
- 2. For the rest of the tutorial, whenever you want to use TypeScript in a file,
- just make sure to use the appropriate extensions.
+ 2. For the rest of the tutorial, you can write TypeScript whereever you see fit. Just make sure to use the appropriate extensions.
 
 No extra configuration is needed!
+
+We'll provide you with both JavaScript and TypeScript snippets for each feature we cover.
 
 To see how to get the most out of Wasp and TypeScript, take a look at [our
 TypeScript doc](/docs/typescript). It contains a list of all TypeScript features
@@ -84,6 +85,9 @@ Let's start with the `main.wasp` file, which introduces 3 new concepts:
 [app](language/features.md#app),
 [page](language/features.md#page) and
 [route](language/features.md#route).
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```wasp title="main.wasp"
 app TodoApp { // Main declaration, defines a new web app.
@@ -103,7 +107,33 @@ page MainPage {
 }
 ```
 
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app TodoApp { // Main declaration, defines a new web app.
+  wasp: {
+    version: "^0.11.0"
+  },
+  title: "Todo app" // Used as a browser tab title.
+}
+
+route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/` (default url).
+
+page MainPage {
+  // We specify that ReactJS implementation of our page can be found in
+  // `src/client/MainPage.tsx` as a default export (uses standard js import syntax).
+  // Use '@client' to reference files inside the src/client folder.
+  component: import Main from "@client/MainPage.tsx"
+}
+```
+</TabItem>
+</Tabs>
+
 Let's now take a look at that React component we referenced in the `page MainPage { ... }` declaration in `main.wasp`:
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```jsx title="src/client/MainPage.jsx"
 import waspLogo from './waspLogo.png'
 import './Main.css'
@@ -113,6 +143,22 @@ const MainPage = () => {
 }
 export default MainPage
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/client/MainPage.tsx"
+import waspLogo from './waspLogo.png'
+import './Main.css'
+
+const MainPage = () => {
+  ...
+}
+export default MainPage
+```
+
+</TabItem>
+</Tabs>
+
 As we can see, this is simply a functional React component that uses the CSS and Wasp logo files sitting next to it in the `src/client` dir.
 
 This is all the code we need!
@@ -133,6 +179,10 @@ IDE support, so it's important to keep them.
 
 Next, let's make the `MainPage` component much simpler:
 
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```jsx title="src/client/MainPage.jsx"
 const MainPage = () => {
   return <div> Hello world! </div>
@@ -140,6 +190,20 @@ const MainPage = () => {
 
 export default MainPage
 ```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/client/MainPage.tsx"
+const MainPage = () => {
+  return <div> Hello world! </div>
+}
+
+export default MainPage
+```
+
+</TabItem>
+</Tabs>
 
 At this point, you should see something like this:
 
