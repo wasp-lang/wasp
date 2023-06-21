@@ -343,6 +343,7 @@ library waspls
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
+    Wasp.LSP.GotoDefinition
     Wasp.LSP.Reactor
     Wasp.LSP.Util
     Wasp.LSP.Syntax

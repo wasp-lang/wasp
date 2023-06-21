@@ -7,6 +7,7 @@ module Wasp.LSP.Handlers
     didChangeHandler,
     didSaveHandler,
     completionHandler,
+    gotoDefinitionHandler,
   )
 where
 
@@ -33,6 +34,7 @@ import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Debouncer (debounce)
 import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagonstic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
 import Wasp.LSP.ExtImport (refreshAllExports, refreshExportsForFiles, updateMissingImportDiagnostics)
+import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 import qualified Wasp.LSP.ServerState as State
@@ -128,6 +130,12 @@ completionHandler =
   LSP.requestHandler LSP.STextDocumentCompletion $ \request respond -> do
     completions <- handler $ getCompletionsAtPosition $ request ^. LSP.params . LSP.position
     respond $ Right $ LSP.InL $ LSP.List completions
+
+gotoDefinitionHandler :: Handlers ServerM
+gotoDefinitionHandler =
+  LSP.requestHandler LSP.STextDocumentDefinition $ \request respond -> do
+    definitions <- handler $ gotoDefinitionOfSymbolAtPosition $ request ^. LSP.params . LSP.position
+    respond $ Right $ LSP.InR $ LSP.InL definitions
 
 -- | Does not directly handle a notification or event, but should be run when
 -- text document content changes.

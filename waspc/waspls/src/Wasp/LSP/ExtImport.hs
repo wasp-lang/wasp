@@ -10,6 +10,8 @@ module Wasp.LSP.ExtImport
     -- * Diagnostics and Syntax
     ExtImportNode (..),
     findExternalImportAroundLocation,
+    ExtImportLookupResult (..),
+    lookupExternalImport,
     updateMissingImportDiagnostics,
     getMissingImportDiagnostics,
   )
@@ -24,7 +26,7 @@ import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
 import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import qualified Data.HashMap.Strict as M
-import Data.List (stripPrefix)
+import Data.List (find, stripPrefix)
 import Data.Maybe (catMaybes, fromJust, fromMaybe, mapMaybe)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
@@ -177,56 +179,72 @@ findAllExtImports src syntax = go $ T.fromSyntaxForest syntax
       S.ExtImport -> [externalImportAtLocation src t]
       _ -> concatMap go $ T.children t
 
--- | Check a single external import and see if it points to a real exported
--- function in a source file.
---
--- If the file is not in the cache, no diagnostic is reported because that would
--- risk showing incorrect diagnostics.
-findDiagnosticForExtImport :: ExtImportNode -> HandlerM (Maybe WaspDiagnostic)
-findDiagnosticForExtImport extImport = do
-  (>>= SP.parseAbsDir) <$> LSP.getRootPath >>= \case
-    Nothing -> return Nothing -- can't find project root
-    Just waspRoot ->
+data ExtImportLookupResult
+  = ImportSyntaxError
+  | ImportCacheMiss
+  | ImportFileDoesNotExist (SP.Path' SP.Abs SP.File')
+  | Imports (SP.Path' SP.Abs SP.File') TS.TsExport
+  | ImportError (SP.Path' SP.Abs SP.File')
+  deriving (Eq, Show)
+
+lookupExternalImport :: ExtImportNode -> HandlerM ExtImportLookupResult
+lookupExternalImport extImport = do
+  maybeWaspRoot <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
+  case maybeWaspRoot of
+    Nothing -> return ImportSyntaxError
+    Just waspRoot -> do
       absPathForExtImport waspRoot extImport >>= \case
         Nothing -> do
-          logM $ "[getMissingImportDiagnostics] ignoring extimport with invalid path " ++ show extImportSpan
-          -- Invalid external import path, but this function doesn't report those
-          -- diagnostics.
-          return Nothing
+          return ImportSyntaxError
         Just tsFile ->
           asks ((M.!? tsFile) . (^. State.tsExports)) >>= \case
-            Nothing -> getDiagnosticForCacheMiss tsFile
-            Just exports -> getDiagnosticForCacheHit tsFile exports
+            Nothing -> lookupCacheMiss tsFile
+            Just exports -> lookupCacheHit tsFile exports
   where
-    getDiagnosticForCacheMiss tsFile = do
+    lookupCacheMiss tsFile = do
       tsFileExists <- liftIO $ doesFileExist tsFile
       if tsFileExists
-        then return Nothing -- File not in cache.
-        else return $ Just $ MissingImportDiagnostic extImportSpan NoFile tsFile
+        then return ImportCacheMiss
+        else return $ ImportFileDoesNotExist tsFile
 
-    getDiagnosticForCacheHit tsFile exports = case maybeIsImportedExport of
-      Nothing -> return Nothing -- Missing import name in the external import node. This diagnostic is reported elsewhere.
+    lookupCacheHit tsFile exports = case maybeIsImportedExport of
+      Nothing -> return ImportSyntaxError
       Just isImportedExport -> do
-        if any isImportedExport exports
-          then return Nothing -- It's a valid export.
-          else return $ Just $ diagnosticForExtImport tsFile
+        case find isImportedExport exports of
+          Just export -> return $ Imports tsFile export
+          Nothing -> return $ ImportError tsFile
 
-    diagnosticForExtImport tsFile = case einName extImport of
-      Nothing -> error "diagnosticForExtImport called for nameless ext import. This should never happen."
-      Just (ExtImportModule _) -> MissingImportDiagnostic extImportSpan NoDefaultExport tsFile
-      Just (ExtImportField name) -> MissingImportDiagnostic extImportSpan (NoNamedExport name) tsFile
-
-    extImportSpan = T.spanAt $ einLocation extImport
-
-    -- Function to search an export list for the imported export.
     maybeIsImportedExport = case einName extImport of
       Nothing -> Nothing
       Just (ExtImportModule _) -> Just $ \case
         TS.DefaultExport _ -> True
         _ -> False
       Just (ExtImportField name) -> Just $ \case
-        TS.NamedExport n _ | name == n -> True
+        TS.NamedExport n _ | n == name -> True
         _ -> False
+
+-- | Check a single external import and see if it points to a real exported
+-- function in a source file.
+--
+-- If the file is not in the cache, no diagnostic is reported because that would
+-- risk showing incorrect diagnostics.
+findDiagnosticForExtImport :: ExtImportNode -> HandlerM (Maybe WaspDiagnostic)
+findDiagnosticForExtImport extImport =
+  lookupExternalImport extImport >>= \case
+    ImportSyntaxError -> do
+      logM $ "[getMissingImportDiagnostics] ignoring extimport with a syntax error " ++ show extImportSpan
+      return Nothing
+    ImportCacheMiss -> return Nothing
+    ImportFileDoesNotExist tsFile -> return $ Just $ MissingImportDiagnostic extImportSpan NoFile tsFile
+    ImportError tsFile -> return $ Just $ diagnosticForExtImport tsFile
+    Imports _ _ -> return Nothing -- Valid extimport, no diagnostic to report.
+  where
+    diagnosticForExtImport tsFile = case einName extImport of
+      Nothing -> error "diagnosticForExtImport called for nameless ext import. This should never happen."
+      Just (ExtImportModule _) -> MissingImportDiagnostic extImportSpan NoDefaultExport tsFile
+      Just (ExtImportField name) -> MissingImportDiagnostic extImportSpan (NoNamedExport name) tsFile
+
+    extImportSpan = T.spanAt $ einLocation extImport
 
 -- | Convert the path inside an external import in a .wasp file to an absolute
 -- path.

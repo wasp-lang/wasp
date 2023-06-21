@@ -4,8 +4,9 @@
 module Wasp.TypeScript
   ( getExportsOfTsFiles,
     TsExportRequest (..),
-    TsExport (..),
     TsExportResponse (..),
+    TsExport (..),
+    tsExportSourcePos,
   )
 where
 
@@ -16,7 +17,10 @@ import qualified Data.HashMap.Strict as M
 import GHC.Generics (Generic)
 import qualified System.Process as P
 import Wasp.Analyzer (SourcePosition)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Package (Package (TsInspectPackage), getPackageProc)
+
+-- TODO(before merge): add doc comments to this file
 
 getExportsOfTsFiles :: [TsExportRequest] -> IO (Either String TsExportResponse)
 getExportsOfTsFiles requests = do
@@ -43,12 +47,28 @@ data TsExport
   | NamedExport !String !(Maybe SourcePosition)
   deriving (Show, Eq)
 
+tsExportSourcePos :: TsExport -> Maybe SourcePosition
+tsExportSourcePos (DefaultExport sourcePos) = sourcePos
+tsExportSourcePos (NamedExport _ sourcePos) = sourcePos
+
 instance FromJSON TsExport where
+  -- The JSON response gives zero-based source positions. This parser takes care
+  -- of converting to the expected one-based positions for 'SourcePosition'.
   parseJSON = withObject "TsExport" $ \v ->
     (v .: "type") >>= \case
-      "default" -> DefaultExport <$> v .:? "location"
-      "named" -> NamedExport <$> v .: "name" <*> v .:? "location"
+      "default" -> DefaultExport . fmap toSourcePos <$> v .:? "location"
+      "named" -> NamedExport <$> v .: "name" <*> (fmap toSourcePos <$> v .:? "location")
       (_ :: Value) -> fail "invalid type for TsExport"
+
+newtype ZeroBasedSourcePosition = ZeroBasedSourcePosition {toSourcePos :: SourcePosition}
+
+instance FromJSON ZeroBasedSourcePosition where
+  parseJSON = withObject "location" $ \v ->
+    ZeroBasedSourcePosition
+      <$> ( SourcePosition
+              <$> ((+ 1) <$> v .: "line")
+              <*> ((+ 1) <$> v .: "column")
+          )
 
 newtype TsExportResponse = TsExportResponse (M.HashMap FilePath [TsExport])
   deriving (Eq, Show, FromJSON)
