@@ -13,7 +13,7 @@ import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import qualified Wasp.LSP.ExtImport as ExtImport
 import Wasp.LSP.ServerM (HandlerM)
 import qualified Wasp.LSP.ServerState as State
-import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
+import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
 import Wasp.LSP.Util (waspPositionToLspPosition)
 import qualified Wasp.TypeScript as TS
 
@@ -29,7 +29,7 @@ gotoDefinitionOfSymbolAtPosition position = do
     Just syntax -> do
       -- Run each definition provider and concatenate results.
       let offset = lspPositionToOffset src position
-      let location = toOffset offset (fromSyntaxForest syntax)
+      let location = locationAtOffset offset (fromSyntaxForest syntax)
       definitionLocations <- concat <$> mapM (\f -> f src location) definitionProviders
       logM $ "Got definitions at " ++ show position ++ ": " ++ show definitionLocations
       return $ LSP.List definitionLocations

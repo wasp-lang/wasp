@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.11.0
+
+### Breaking changes
+- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
+- Wasp now uses React 18: https://react.dev/blog/2022/03/08/react-18-upgrade-guide
+
+### Bug fixes
+- Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
+
+### Public folder support
+Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
+
+### Type safe WebSocket support
+Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more. What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with the correct types.
+
 ## v0.10.6
 
 ### Bug fixes

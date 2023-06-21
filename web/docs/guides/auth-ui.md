@@ -140,7 +140,7 @@ You customize all of the available forms by passing props to them.
 Props you can pass to all of the forms:
 - `appearance` - appearance of the form, see below (optional)
 - `logo` - path to your logo (optional)
-- `socialLayout` - layout of the social buttons, which can be `vertical`` or `horizontal` (optional)
+- `socialLayout` - layout of the social buttons, which can be `vertical` or `horizontal` (optional)
 
 ### Theme colors override
 

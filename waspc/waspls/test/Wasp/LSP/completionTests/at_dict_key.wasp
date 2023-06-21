@@ -6,8 +6,8 @@ app todoApp {
   title: "todo!",
 }
 
-route MainRoute { path: "/", | }
-                             ^
+route MainRoute { | }
+                  ^
 page MainPage {
   component: import { MainPage } from "@client/MainPage.jsx",
 }

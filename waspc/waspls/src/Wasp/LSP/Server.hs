@@ -28,6 +28,7 @@ import Wasp.LSP.ServerState
   ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
     ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports, _waspFileUri),
   )
+import Wasp.LSP.SignatureHelp (signatureHelpRetriggerCharacters, signatureHelpTriggerCharacters)
 
 lspServerHandlers :: IO () -> LSP.Handlers ServerM
 lspServerHandlers stopReactor =
@@ -38,6 +39,7 @@ lspServerHandlers stopReactor =
       didSaveHandler,
       didChangeHandler,
       completionHandler,
+      signatureHelpHandler,
       gotoDefinitionHandler
     ]
 
@@ -124,7 +126,9 @@ lspServerOptions :: LSP.Options
 lspServerOptions =
   (def :: LSP.Options)
     { LSP.textDocumentSync = Just syncOptions,
-      LSP.completionTriggerCharacters = Just [':']
+      LSP.completionTriggerCharacters = Just [':', ' '],
+      LSP.signatureHelpTriggerCharacters = signatureHelpTriggerCharacters,
+      LSP.signatureHelpRetriggerCharacters = signatureHelpRetriggerCharacters
     }
 
 -- | Options to tell the client how to update the server about the state of text

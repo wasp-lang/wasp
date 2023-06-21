@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.10.6
+version:        0.11.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -193,6 +193,7 @@ library
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
     Wasp.AppSpec.ApiNamespace
+    Wasp.AppSpec.Crud
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Auth.PasswordReset
@@ -203,6 +204,7 @@ library
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
+    Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Ref
@@ -258,6 +260,8 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
+    Wasp.Generator.Crud
+    Wasp.Generator.Crud.Routes
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -276,6 +280,8 @@ library
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.WebSocketG
+    Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
@@ -283,6 +289,7 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
+    Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
     Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
     Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
     Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
@@ -295,6 +302,8 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebSocket
+    Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
     Wasp.Package
@@ -307,10 +316,12 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
+    Wasp.Project.WebApp
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Util
     Wasp.SemanticVersion
     Wasp.TypeScript
     Wasp.Util
@@ -319,6 +330,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
+    Wasp.Util.FilePath
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -342,8 +354,13 @@ library waspls
     Wasp.LSP.Completion
     Wasp.LSP.GotoDefinition
     Wasp.LSP.Reactor
-    Wasp.LSP.Util
+    Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.DictKeyCompletion
+    Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
+    Wasp.LSP.TypeInference
+    Wasp.LSP.Util
   build-depends:
       base
     , aeson
@@ -366,6 +383,7 @@ library waspls
     , text
     , transformers ^>=0.5.6.2
     , utf8-string
+    , unordered-containers
     , waspc
 
 library cli-lib
@@ -428,6 +446,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
@@ -498,6 +517,7 @@ test-suite waspc-test
     Analyzer.TypeCheckerTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
     Fixtures
@@ -510,6 +530,7 @@ test-suite waspc-test
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
+    Generator.CrudTest
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -519,6 +540,7 @@ test-suite waspc-test
     Util.Control.MonadTest
     UtilTest
     Util.Diff
+    Util.FilePathTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc

@@ -31,7 +31,7 @@ import qualified System.Environment as ENV
 import qualified System.Info
 import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Call as Command.Call
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
 import Wasp.Util (ifM)
@@ -100,7 +100,9 @@ checkIfEnvValueIsTruthy (Just v)
 newtype ProjectHash = ProjectHash {_projectHashValue :: String} deriving (Show)
 
 getWaspProjectPathHash :: Command ProjectHash
-getWaspProjectPathHash = ProjectHash . take 16 . sha256 . SP.toFilePath <$> findWaspProjectRootDirFromCwd
+getWaspProjectPathHash = do
+  InWaspProject waspRoot <- require
+  return . ProjectHash . take 16 . sha256 . SP.toFilePath $ waspRoot
   where
     sha256 :: String -> String
     sha256 = show . hashWith SHA256 . ByteStringUTF8.fromString
@@ -182,8 +184,10 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
       _context = context
     }
 
--- We don't really want or need to see all the things users
--- pass to the deploy script. Let's only track what we need.
+-- | To preserve user's privacy, we capture only args (from `wasp deploy ...` cmd)
+-- that are from the predefined set of keywords.
+-- NOTE: If you update the list of keywords here, make sure to also update them in the official docs
+--   on our webpage, under Telemetry.
 extractKeyDeployArgs :: [String] -> [String]
 extractKeyDeployArgs = intersect ["fly", "setup", "create-db", "deploy", "cmd"]
 

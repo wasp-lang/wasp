@@ -18,12 +18,7 @@ export const createTask: CreateTask<Pick<Task, 'description'>> = async (
 
   const Task = context.entities.Task
 
-  console.log(
-    'New task created! Btw, current value of someResource is: ' +
-    getSomeResource()
-  )
-
-  return Task.create({
+  const newTask = await Task.create({
     data: {
       description: task.description,
       user: {
@@ -31,6 +26,13 @@ export const createTask: CreateTask<Pick<Task, 'description'>> = async (
       },
     },
   })
+
+  console.log(
+    'New task created! Btw, current value of someResource is: ' +
+    getSomeResource()
+  )
+
+  return newTask
 }
 
 export const updateTaskIsDone: UpdateTaskIsDone<
@@ -67,13 +69,14 @@ export const deleteCompletedTasks: DeleteCompletedTasks = async (
 }
 
 export const toggleAllTasks: ToggleAllTasks = async (_args, context) => {
-  if (!context.user) {
+  const user = context.user
+  if (!user) {
     throw new HttpError(401)
   }
 
   const whereIsDone = (isDone: boolean) => ({
     isDone,
-    user: { id: context.user.id },
+    user: { id: user.id },
   })
   const Task = context.entities.Task
   const notDoneTasksCount = await Task.count({ where: whereIsDone(false) })

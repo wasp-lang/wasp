@@ -26,3 +26,9 @@ model SocialLogin {
   @@unique([provider, providerId, userId])
 
 }
+model Task {
+  id Int @id @default(autoincrement())
+  description String
+  isDone Boolean @default(false)
+
+}

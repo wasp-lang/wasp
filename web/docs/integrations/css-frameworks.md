@@ -59,7 +59,7 @@ module.exports = {
 ```
 
 #### 3) Update `./src/client/Main.css`
-```css title="./src/client//Main.css" {1-3}
+```css title="./src/client/Main.css" {1-3}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

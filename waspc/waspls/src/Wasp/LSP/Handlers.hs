@@ -7,6 +7,7 @@ module Wasp.LSP.Handlers
     didChangeHandler,
     didSaveHandler,
     completionHandler,
+    signatureHelpHandler,
     gotoDefinitionHandler,
   )
 where
@@ -38,6 +39,7 @@ import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 import qualified Wasp.LSP.ServerState as State
+import Wasp.LSP.SignatureHelp (getSignatureHelpAtPosition)
 
 -- LSP notification and request handlers
 
@@ -136,6 +138,15 @@ gotoDefinitionHandler =
   LSP.requestHandler LSP.STextDocumentDefinition $ \request respond -> do
     definitions <- handler $ gotoDefinitionOfSymbolAtPosition $ request ^. LSP.params . LSP.position
     respond $ Right $ LSP.InR $ LSP.InL definitions
+
+signatureHelpHandler :: Handlers ServerM
+signatureHelpHandler =
+  LSP.requestHandler LSP.STextDocumentSignatureHelp $ \request respond -> do
+    -- NOTE: lsp-types 1.4.0.1 forgot to add lenses for SignatureHelpParams so
+    -- we have to get the position out the painful way.
+    let LSP.SignatureHelpParams {_position = position} = request ^. LSP.params
+    signatureHelp <- handler $ getSignatureHelpAtPosition position
+    respond $ Right signatureHelp
 
 -- | Does not directly handle a notification or event, but should be run when
 -- text document content changes.

@@ -112,12 +112,19 @@ runCompletionTest testInput =
       fmtedCompletionItems = map fmtCompletionItem completionItems
 
       fmtCompletionItem :: LSP.CompletionItem -> String
-      fmtCompletionItem item =
-        unwords
-          [ printf "label={%s}" (show $ item ^. LSP.label),
-            printf "kind={%s}" (show $ item ^. LSP.kind),
-            printf "detail={%s}" (show $ item ^. LSP.detail)
-          ]
+      fmtCompletionItem item = unwords fields
+        where
+          fields =
+            concat
+              [ field "label" LSP.label,
+                optionalField "kind" LSP.kind,
+                optionalField "detail" LSP.detail,
+                optionalField "insertText" LSP.insertText
+              ]
+          field label getter = [printf "%s={%s}" (label :: String) (show $ item ^. getter)]
+          optionalField label getter = case item ^. getter of
+            Nothing -> []
+            Just v -> [printf "%s={%s}" (label :: String) (show v)]
    in "Completion items:\n" ++ unlines (map ("  " <>) fmtedCompletionItems)
 
 -- | Parses a completion test case into a pair of the wasp source code to
