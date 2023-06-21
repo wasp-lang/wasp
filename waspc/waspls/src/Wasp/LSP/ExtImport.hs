@@ -9,9 +9,9 @@ module Wasp.LSP.ExtImport
 
     -- * Diagnostics and Syntax
     ExtImportNode (..),
-    findExternalImportAroundLocation,
+    findExtImportAroundLocation,
     ExtImportLookupResult (..),
-    lookupExternalImport,
+    lookupExtImport,
     updateMissingImportDiagnostics,
     getMissingImportDiagnostics,
   )
@@ -127,8 +127,8 @@ data ExtImportNode = ExtImportNode
 
 -- | Create a 'ExtImportNode' at a location, assuming that the given node is
 -- a 'S.ExtImport'.
-externalImportAtLocation :: String -> Traversal -> ExtImportNode
-externalImportAtLocation src location =
+extImportAtLocation :: String -> Traversal -> ExtImportNode
+extImportAtLocation src location =
   let maybeName =
         (ExtImportModule . lexemeAt src <$> findChild S.ExtImportModule location)
           <|> (ExtImportField . lexemeAt src <$> findChild S.ExtImportField location)
@@ -137,15 +137,15 @@ externalImportAtLocation src location =
 
 -- | Search for an 'S.ExtImport' node at the current node or as one of its
 -- ancestors.
-findExternalImportAroundLocation ::
+findExtImportAroundLocation ::
   -- | Wasp source code.
   String ->
   -- | Location to look for external import at.
   Traversal ->
   Maybe ExtImportNode
-findExternalImportAroundLocation src location = do
+findExtImportAroundLocation src location = do
   extImport <- findExtImportParent location
-  return $ externalImportAtLocation src extImport
+  return $ extImportAtLocation src extImport
   where
     findExtImportParent t
       | T.kindAt t == S.ExtImport = Just t
@@ -176,19 +176,27 @@ findAllExtImports src syntax = go $ T.fromSyntaxForest syntax
     -- Recurse through syntax tree and find all 'S.ExtImport' nodes.
     go :: Traversal -> [ExtImportNode]
     go t = case T.kindAt t of
-      S.ExtImport -> [externalImportAtLocation src t]
+      S.ExtImport -> [extImportAtLocation src t]
       _ -> concatMap go $ T.children t
 
+-- | The result of 'lookupExtImport'.
 data ExtImportLookupResult
-  = ImportSyntaxError
-  | ImportCacheMiss
-  | ImportFileDoesNotExist (SP.Path' SP.Abs SP.File')
-  | Imports (SP.Path' SP.Abs SP.File') TS.TsExport
-  | ImportError (SP.Path' SP.Abs SP.File')
+  = -- | There is a syntax error in the ExtImport.
+    ImportSyntaxError
+  | -- | The imported file exists but is not in cached export list.
+    ImportCacheMiss
+  | -- | The imported file does not exist.
+    ImportedFileDoesNotExist (SP.Path' SP.Abs SP.File')
+  | -- | Imports a symbol that is not exported from the file it imports.
+    ImportedSymbolDoesNotExist (SP.Path' SP.Abs SP.File')
+  | -- | Sucessful lookup: includes the file and exported symbol.
+    ImportsSymbol (SP.Path' SP.Abs SP.File') TS.TsExport
   deriving (Eq, Show)
 
-lookupExternalImport :: ExtImportNode -> HandlerM ExtImportLookupResult
-lookupExternalImport extImport = do
+-- | Search the cached export list for the export that the 'ExtImportNode'
+-- imports, if any exists.
+lookupExtImport :: ExtImportNode -> HandlerM ExtImportLookupResult
+lookupExtImport extImport = do
   maybeWaspRoot <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
   case maybeWaspRoot of
     Nothing -> return ImportSyntaxError
@@ -205,15 +213,17 @@ lookupExternalImport extImport = do
       tsFileExists <- liftIO $ doesFileExist tsFile
       if tsFileExists
         then return ImportCacheMiss
-        else return $ ImportFileDoesNotExist tsFile
+        else return $ ImportedFileDoesNotExist tsFile
 
     lookupCacheHit tsFile exports = case maybeIsImportedExport of
       Nothing -> return ImportSyntaxError
       Just isImportedExport -> do
         case find isImportedExport exports of
-          Just export -> return $ Imports tsFile export
-          Nothing -> return $ ImportError tsFile
+          Just export -> return $ ImportsSymbol tsFile export
+          Nothing -> return $ ImportedSymbolDoesNotExist tsFile
 
+    -- A predicate to check if a TsExport matches the ExtImport, assuming the
+    -- export is from the correct file.
     maybeIsImportedExport = case einName extImport of
       Nothing -> Nothing
       Just (ExtImportModule _) -> Just $ \case
@@ -230,14 +240,14 @@ lookupExternalImport extImport = do
 -- risk showing incorrect diagnostics.
 findDiagnosticForExtImport :: ExtImportNode -> HandlerM (Maybe WaspDiagnostic)
 findDiagnosticForExtImport extImport =
-  lookupExternalImport extImport >>= \case
+  lookupExtImport extImport >>= \case
     ImportSyntaxError -> do
       logM $ "[getMissingImportDiagnostics] ignoring extimport with a syntax error " ++ show extImportSpan
       return Nothing
     ImportCacheMiss -> return Nothing
-    ImportFileDoesNotExist tsFile -> return $ Just $ MissingImportDiagnostic extImportSpan NoFile tsFile
-    ImportError tsFile -> return $ Just $ diagnosticForExtImport tsFile
-    Imports _ _ -> return Nothing -- Valid extimport, no diagnostic to report.
+    ImportedFileDoesNotExist tsFile -> return $ Just $ MissingImportDiagnostic extImportSpan NoFile tsFile
+    ImportedSymbolDoesNotExist tsFile -> return $ Just $ diagnosticForExtImport tsFile
+    ImportsSymbol _ _ -> return Nothing -- Valid extimport, no diagnostic to report.
   where
     diagnosticForExtImport tsFile = case einName extImport of
       Nothing -> error "diagnosticForExtImport called for nameless ext import. This should never happen."

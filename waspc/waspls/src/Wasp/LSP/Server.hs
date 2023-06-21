@@ -7,8 +7,7 @@ module Wasp.LSP.Server
   )
 where
 
-import Control.Concurrent (MVar, forkFinally, newEmptyMVar, readMVar, tryPutMVar)
-import Control.Concurrent.Async (async, waitAnyCancel)
+import Control.Concurrent (newEmptyMVar, tryPutMVar)
 import Control.Concurrent.STM (newTChanIO, newTVarIO)
 import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO (liftIO))
@@ -22,7 +21,7 @@ import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
 import Wasp.LSP.Debouncer (newDebouncerIO)
 import Wasp.LSP.Handlers
-import Wasp.LSP.Reactor (reactor)
+import Wasp.LSP.Reactor (startReactorThread)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerM, runRLspM)
 import Wasp.LSP.ServerState
@@ -46,10 +45,13 @@ serve :: Maybe FilePath -> IO ()
 serve maybeLogFile = do
   setupLspLogger maybeLogFile
 
+  -- Reactor setup
   reactorLifetime <- newEmptyMVar
   let stopReactor = void $ tryPutMVar reactorLifetime ()
   reactorIn <- newTChanIO
+  startReactorThread reactorLifetime reactorIn
 
+  -- Debouncer setup
   debouncer <- newDebouncerIO
 
   let defaultServerState =
@@ -64,6 +66,7 @@ serve maybeLogFile = do
             _debouncer = debouncer
           }
 
+  -- Create the TVar that manages the server state.
   stateTVar <- newTVarIO defaultServerState
 
   let lspServerInterpretHandler env =
@@ -73,21 +76,6 @@ serve maybeLogFile = do
           runHandler handler =
             LSP.runLspT env $ do
               runRLspM stateTVar handler
-
-  -- Spawn the reactor thread and run it until it is signaled to stop via
-  -- 'reactorLifetime'.
-  --
-  -- The reactor thread exists to off load time-intensive work to another thread
-  -- so that the language server can continue to respond to other requests
-  -- while that work is being done. An example of this is refreshing JS/TS
-  -- exports: see "Wasp.LSP.ExtImport".
-  --
-  -- When the reactor crashes, it is immediately started again.
-  let runReactor = void $
-        forkFinally (runUntilMVarIsFull reactorLifetime $ reactor reactorIn) $ \case
-          Left _ -> runReactor -- Restart reactor on crash.
-          Right () -> pure () -- Reactor ended peacefully, don't restart.
-  runReactor
 
   exitCode <-
     LSP.runServer
@@ -156,7 +144,3 @@ syncOptions =
       -- Send save notifications to the server.
       _save = Just (LSP.InR (LSP.SaveOptions (Just True)))
     }
-
-runUntilMVarIsFull :: MVar () -> IO () -> IO ()
-runUntilMVarIsFull lifetime act =
-  void $ waitAnyCancel =<< traverse async [act, readMVar lifetime]

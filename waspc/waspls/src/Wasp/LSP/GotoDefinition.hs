@@ -39,11 +39,11 @@ gotoDefinitionOfSymbolAtPosition position = do
 -- that symbol is defined and the JS/TS file is in the cached export lists.
 extImportDefinitionProvider :: String -> Traversal -> HandlerM [LSP.Location]
 extImportDefinitionProvider src location =
-  case ExtImport.findExternalImportAroundLocation src location of
+  case ExtImport.findExtImportAroundLocation src location of
     Nothing -> return [] -- Not at an external import.
     Just extImport ->
-      ExtImport.lookupExternalImport extImport >>= \case
-        ExtImport.Imports tsFile tsExport -> do
+      ExtImport.lookupExtImport extImport >>= \case
+        ExtImport.ImportsSymbol tsFile tsExport -> do
           case TS.tsExportSourcePos tsExport of
             Nothing -> return [gotoFile tsFile]
             Just sourcePos -> return [gotoPosInFile tsFile sourcePos]

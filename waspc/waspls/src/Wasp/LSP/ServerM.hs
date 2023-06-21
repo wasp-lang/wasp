@@ -1,12 +1,39 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Wasp.LSP.ServerM
-  ( RLspM,
+  ( -- * LSP Server Monads
+
+    -- The state of the LSP server is used in two different ways:
+    -- - Read only.
+    -- - Read and write.
+    --
+    -- Additionally, the state is accessed from multiple threads concurrently.
+    -- See waspls README for the architecture of the LSP server.
+    --
+    -- To facilitate this, there are two variants of the server monad: 'ServerM',
+    -- with write-access to the shared state via a 'TVar', and 'HandlerM' for
+    -- read-only access. In general, 'ServerM' should only be used in handlers
+    -- that are doing analysis on source files, that is, computing syntactic
+    -- and/or semantic information about the code that is needed for handlers to
+    -- respond to LSP requests.
+    --
+    -- For example, processing a @textDocumentDidChange@ notification runs in
+    -- 'ServerM' because it computes a new syntax tree for the wasp file,
+    -- whereas a @textDocumentcompletion@ request handler runs in 'HandlerM',
+    -- because it only needs to read from the latest analysis of the wasp file.
+    --
+    -- Under the hood, both monads are the 'RLspM' monad, distinguished only
+    -- by whether the context type is 'TVar' or not.
+
+    -- * Monads
+    RLspM,
     ServerM,
     HandlerM,
     handler,
-    sendToReactor,
     runRLspM,
+
+    -- * Operations
+    sendToReactor,
     logM,
     modify,
   )
@@ -64,6 +91,7 @@ modify f = do
   stateTVar <- ask
   liftIO $ atomically $ modifyTVar stateTVar f
 
+-- | Send a 'ServerM' action to the reactor thread.
 sendToReactor :: ServerM () -> ServerM ()
 sendToReactor act = do
   stateTVar <- ask
