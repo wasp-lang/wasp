@@ -27,7 +27,7 @@ import Control.Monad.Reader.Class (asks)
 import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import qualified Data.HashMap.Strict as M
 import Data.List (find, stripPrefix)
-import Data.Maybe (catMaybes, fromJust, fromMaybe, mapMaybe)
+import Data.Maybe (catMaybes, fromJust, isNothing, mapMaybe)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
 import qualified StrongPath as SP
@@ -259,8 +259,9 @@ findDiagnosticForExtImport extImport =
 -- | Convert the path inside an external import in a .wasp file to an absolute
 -- path.
 --
--- To support ESNext module resolution, this may also change the file extension
--- from @.js@ to @.ts@. This occurs when the @.ts@ file exists on disk.
+-- To support module resolution, this first tries to find the file with the
+-- exact extension, otherwise it tries to replace @.js@ with @.ts@ or it tries
+-- to append @.js@, @.jsx@, @.ts@, @.tsx@ if the file has no extension.
 absPathForExtImport ::
   (MonadIO m) =>
   SP.Path' SP.Abs SP.Dir' ->
@@ -277,13 +278,24 @@ absPathForExtImport waspRoot extImport = runMaybeT $ do
   SP.fromPathAbsFile <$> fixExtension (SP.toPathAbsFile absPath)
   where
     fixExtension file
-      | fromMaybe "" (P.fileExtension file) == ".js" = useTsExtensionIfFileExists file
+      | isNothing ext = useExtensionsIfExists [".jsx", ".tsx", ".js", ".ts"] file
+      | ext == Just ".js" = useExtensionsIfExists [".ts"] file
       | otherwise = return file
+      where
+        ext = P.fileExtension file
 
-    -- Replaces extension with @.ts@ if the file with the extension replaced
-    -- exists.
-    useTsExtensionIfFileExists file = do
-      -- @.ts@ is a valid extension so this never throws.
-      let tsFile = fromJust $ P.replaceExtension ".ts" file
-      tsFileExists <- liftIO $ doesFileExist $ SP.fromPathAbsFile tsFile
-      return $ if tsFileExists then tsFile else file
+    -- Returns @Nothing@ if @file@ does not exist, otherwise returns @Just file@.
+    ifExists file = do
+      exists <- liftIO $ doesFileExist $ SP.fromPathAbsFile file
+      if exists
+        then return $ Just file
+        else return Nothing
+
+    -- Replaces the extension of @file@ with the left-most extension such that
+    -- the new file path exists. If no such extension is given, returns the
+    -- original file path.
+    useExtensionsIfExists [] file = return file
+    useExtensionsIfExists (ext : exts) file =
+      ifExists (fromJust $ P.replaceExtension ext file) >>= \case
+        Nothing -> useExtensionsIfExists exts file
+        Just file' -> return file'

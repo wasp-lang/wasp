@@ -7,8 +7,6 @@ import Control.Lens ((^.))
 import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Reader.Class (MonadReader, asks)
 import Data.List (sortOn)
-import Data.Maybe (maybeToList)
-import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Wasp.Analyzer.Parser.CST.Traverse (fromSyntaxForest)
