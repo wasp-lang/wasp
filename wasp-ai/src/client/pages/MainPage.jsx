@@ -85,31 +85,33 @@ const MainPage = () => {
           className="button mr-2"
           disabled={currentStatus.status !== "idle"}
         >
-          Engage the AI
+          Generate the app
         </button>
       </form>
       <div className="mt-8">
         <h3 className="text-xl font-semibold mb-4">Some example ideas</h3>
-        {exampleIdeas.map((idea) => (
-          <div
-            key={idea.name}
-            className="bg-slate-50 p-8 rounded-xl mt-2 flex items-center"
-          >
-            <div className="idea">
-              <h4 className="text-lg font-semibold text-slate-700 mb-1">
-                {idea.name}
-              </h4>
-              <p className="text-base leading-relaxed text-slate-500">
-                {idea.description}
-              </p>
+        <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
+          {exampleIdeas.map((idea) => (
+            <div
+              key={idea.name}
+              className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center"
+            >
+              <div className="idea">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-xl font-semibold text-slate-700 mb-1">
+                    {idea.name}
+                  </h4>
+                  <button className="button sm gray" onClick={() => useIdea(idea)}>
+                    Use this idea
+                  </button>
+                </div>
+                <p className="text-base leading-relaxed text-slate-500">
+                  {idea.description}
+                </p>
+              </div>
             </div>
-            <div className="flex-shrink-0 ml-12">
-              <button className="button gray" onClick={() => useIdea(idea)}>
-                Use this idea
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

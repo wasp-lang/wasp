@@ -118,7 +118,10 @@ export const ResultPage = () => {
       </div>
 
       <header className="mt-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-center">
-        <pre>{logs && logs.length > 0 ? logs[0] : "Waiting for logs..."}</pre>
+        <div className="flex-shrink-0 mr-3">
+          <Loader />
+        </div>
+        <pre className="flex-1">{logs && logs.length > 0 ? logs[0] : "Waiting for logs..."}</pre>
         <button onClick={toggleLogs}>
           {logsVisible ? "Hide the logs" : "Expand the logs"}
         </button>
@@ -183,6 +186,7 @@ export const ResultPage = () => {
 
 import React from "react";
 import { Title } from "../components/Title";
+import { Loader } from "../components/Loader";
 
 export default function RunTheAppModal({ disabled, onDownloadZip }) {
   const [showModal, setShowModal] = React.useState(false);

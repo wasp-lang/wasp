@@ -11,6 +11,9 @@
 .button.yellow {
   @apply bg-yellow-400 text-yellow-900
 }
+.button.sm {
+  @apply text-sm py-2 px-4;
+}
 .button:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
