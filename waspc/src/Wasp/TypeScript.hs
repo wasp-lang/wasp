@@ -2,7 +2,16 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Wasp.TypeScript
-  ( getExportsOfTsFiles,
+  ( -- * Getting Information About TypeScript Files
+
+    -- Internally, this module calls out to @packages/ts-inspect@, which uses
+    -- the TypeScript compiler API.
+    --
+    -- Despite all of the names and descriptions referring to just TypeScript,
+    -- this module also supports JavaScript files.
+
+    -- * Export lists
+    getExportsOfTsFiles,
     TsExportRequest (..),
     TsExportResponse (..),
     TsExport (..),
@@ -20,8 +29,10 @@ import Wasp.Analyzer (SourcePosition)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Package (Package (TsInspectPackage), getPackageProc)
 
--- TODO(before merge): add doc comments to this file
-
+-- | Attempt to get list of exported names from TypeScript files.
+--
+-- The 'FilePath's in the response are guaranteed to exactly match the
+-- corresponding 'FilePath' in the request.
 getExportsOfTsFiles :: [TsExportRequest] -> IO (Either String TsExportResponse)
 getExportsOfTsFiles requests = do
   let requestJSON = BS.toString $ encode $ groupExportRequests requests
@@ -33,7 +44,9 @@ getExportsOfTsFiles requests = do
       Just exports -> return $ Right exports
     _ -> return $ Left err
 
--- | Join export requests that have the same tsconfig.
+-- | Join export requests that have the same tsconfig. The @ts-inspect@ package
+-- runs an instance of the TypeScript compiler per request group, so grouping
+-- them this way improves performance.
 groupExportRequests :: [TsExportRequest] -> [TsExportRequest]
 groupExportRequests requests =
   map (uncurry $ flip TsExportRequest) $
@@ -42,11 +55,16 @@ groupExportRequests requests =
     insertRequest (TsExportRequest names maybeTsconfig) grouped =
       M.insertWith (++) maybeTsconfig names grouped
 
+-- | A symbol exported from a TypeScript file.
 data TsExport
-  = DefaultExport !(Maybe SourcePosition)
-  | NamedExport !String !(Maybe SourcePosition)
+  = -- | @export default ...@
+    DefaultExport !(Maybe SourcePosition)
+  | -- | @export const name ...@
+    NamedExport !String !(Maybe SourcePosition)
   deriving (Show, Eq)
 
+-- | Get the position of an export in the TypeScript file, if that information
+-- is available.
 tsExportSourcePos :: TsExport -> Maybe SourcePosition
 tsExportSourcePos (DefaultExport sourcePos) = sourcePos
 tsExportSourcePos (NamedExport _ sourcePos) = sourcePos
@@ -60,6 +78,19 @@ instance FromJSON TsExport where
       "named" -> NamedExport <$> v .: "name" <*> (fmap toSourcePos <$> v .:? "location")
       (_ :: Value) -> fail "invalid type for TsExport"
 
+-- | Map from TypeScript files to the list of exports found in that file.
+newtype TsExportResponse = TsExportResponse (M.HashMap FilePath [TsExport])
+  deriving (Eq, Show, FromJSON)
+
+-- | A list of files associated with an optional tsconfig file that is run
+-- through the TypeScript compiler as a group.
+data TsExportRequest = TsExportRequest {filenames :: ![FilePath], tsconfig :: !(Maybe FilePath)}
+  deriving (Eq, Show, Generic)
+
+instance ToJSON TsExportRequest where
+  toEncoding = genericToEncoding defaultOptions
+
+-- | Wrapper type for parsing SourcePositions from data with 0-based offsets.
 newtype ZeroBasedSourcePosition = ZeroBasedSourcePosition {toSourcePos :: SourcePosition}
 
 instance FromJSON ZeroBasedSourcePosition where
@@ -69,12 +100,3 @@ instance FromJSON ZeroBasedSourcePosition where
               <$> ((+ 1) <$> v .: "line")
               <*> ((+ 1) <$> v .: "column")
           )
-
-newtype TsExportResponse = TsExportResponse (M.HashMap FilePath [TsExport])
-  deriving (Eq, Show, FromJSON)
-
-data TsExportRequest = TsExportRequest {filenames :: ![FilePath], tsconfig :: !(Maybe FilePath)}
-  deriving (Eq, Show, Generic)
-
-instance ToJSON TsExportRequest where
-  toEncoding = genericToEncoding defaultOptions

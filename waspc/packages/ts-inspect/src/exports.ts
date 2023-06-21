@@ -15,6 +15,7 @@ export async function getExportsOfFiles(
 ): Promise<{ [file: string]: Export[] }> {
   let compilerOptions: ts.CompilerOptions = {};
 
+  // If a tsconfig is given, load the configuration.
   if (tsconfigFilename) {
     const configJson = JSON5.parse(await fs.readFile(tsconfigFilename, 'utf8'));
     const basePath = path.dirname(tsconfigFilename)
@@ -30,8 +31,11 @@ export async function getExportsOfFiles(
 
   const exportsMap: { [file: string]: Export[] } = {};
 
+  // Initialize the TS compiler.
   const program = ts.createProgram(filenames, compilerOptions);
   const checker = program.getTypeChecker();
+
+  // Loop through each given file and try to get its exports.
   for (let filename of filenames) {
     const source = program.getSourceFile(filename);
     if (!source) {
@@ -51,8 +55,7 @@ export async function getExportsOfFiles(
       let location = undefined;
       if (exp.valueDeclaration) {
         // NOTE: This isn't a very precise location for the export: it just
-        // goes to the `export` keyword. But getting more accurate seems really
-        // difficult so let's just stick with this for now.
+        // goes to the `export` keyword.
         const position = exp.valueDeclaration.getStart();
         const { line, character } = ts.getLineAndCharacterOfPosition(
           exp.valueDeclaration.getSourceFile(), position
@@ -60,6 +63,7 @@ export async function getExportsOfFiles(
         location = { line, column: character };
       }
 
+      // Convert export into the expected format.
       const exportName = exp.getName();
       if (exportName === 'default') {
         return { type: 'default', location };
