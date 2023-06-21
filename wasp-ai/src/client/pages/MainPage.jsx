@@ -1,131 +1,67 @@
-import waspLogo from "../waspLogo.png";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
-import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
-import { useQuery } from "@wasp/queries";
-import { CodeHighlight } from "../components/CodeHighlight";
-import { FileTree } from "../components/FileTree";
-import { Loader } from "../components/Loader";
-import { createFilesAndDownloadZip } from "../zip/zipHelpers";
+import { StatusPill } from "../components/StatusPill";
+import { useHistory } from "react-router-dom";
+import { Title } from "../components/Title";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
-  const [appId, setAppId] = useState("");
-  const [generationDone, setGenerationDone] = useState(false);
-  const { data: appGenerationResult } = useQuery(
-    getAppGenerationResult,
-    { appId },
-    { enabled: !!appId && !generationDone, refetchInterval: 3000 }
-  );
-  const [activeFilePath, setActiveFilePath] = useState(null);
-
-  if (
-    appGenerationResult?.status === "success" ||
-    appGenerationResult?.status === "failure"
-  ) {
-    if (!generationDone) {
-      setGenerationDone(true);
-    }
-  }
-
-  const logs = appGenerationResult?.messages
-    .filter((m) => m.type === "log")
-    .map((m) => m.text)
-    .reverse();
-
-  let files = {};
-  {
-    appGenerationResult?.messages
-      .filter((m) => m.type === "write-file")
-      .map((m) => m.text.split("\n"))
-      .forEach(([path, ...contentLines]) => {
-        files[path] = contentLines.join("\n");
-      });
-  }
-
-  function fillInExampleAppDetails() {
-    setAppName("TodoApp");
-    setAppDesc(
-      "A simple todo app with one main page that lists all the tasks. I can create new tasks, or toggle existing ones." +
-        "User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database."
-    );
-  }
+  const [currentStatus, setCurrentStatus] = useState({
+    status: "idle",
+    message: "Waiting for instructions",
+  });
+  const history = useHistory();
 
   async function startGenerating(event) {
     event.preventDefault();
     if (!(appName && appDesc)) {
       return alert("Please enter an app name and description.");
     }
-    setAppId(await startGeneratingNewApp({ appName, appDesc }));
+    setCurrentStatus({
+      status: "inProgress",
+      message: "Booting up AI",
+    });
+    const appId = await startGeneratingNewApp({ appName, appDesc });
+    history.push(`/result/${appId}`);
   }
 
-  const language = useMemo(() => {
-    if (activeFilePath) {
-      const ext = activeFilePath.split(".").pop();
-      if (["jsx", "tsx", "js", "ts"].includes(ext)) {
-        return "javascript";
-      } else if (["wasp"].includes(ext)) {
-        return "wasp";
-      } else {
-        return ext;
-      }
-    }
-  }, [activeFilePath]);
+  const exampleIdeas = [
+    {
+      name: "TodoApp",
+      description:
+        "A simple todo app with one main page that lists all the tasks. I can create new tasks, or toggle existing ones." +
+        "User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database.",
+    },
+    {
+      name: "Blog",
+      description:
+        "A blog with posts and comments. Posts can be created, edited and deleted. Comments can be created and deleted. Posts and comments are saved in the database.",
+    },
+    {
+      name: "Flower Shop",
+      description:
+        "A flower shop with a main page that lists all the flowers. I can create new flowers, or toggle existing ones." +
+        "User owns flowers. User can only see and edit their own flowers. Flowers are saved in the database.",
+    },
+  ];
 
-  const interestingFilePaths = useMemo(() => {
-    if (files) {
-      return Object.keys(files)
-        .filter(
-          (path) =>
-            path !== ".env.server" &&
-            path !== ".env.client" &&
-            path !== "src/client/vite-env.d.ts" &&
-            path !== "src/client/tsconfig.json" &&
-            path !== "src/server/tsconfig.json" &&
-            path !== "src/shared/tsconfig.json" &&
-            path !== ".gitignore" &&
-            path !== "src/.waspignore" &&
-            path !== ".wasproot"
-        )
-        .sort(
-          (a, b) =>
-            (a.endsWith(".wasp") ? 0 : 1) - (b.endsWith(".wasp") ? 0 : 1)
-        );
-    } else {
-      return [];
-    }
-  }, [files]);
-
-  function downloadZip() {
-    const safeAppName = appName.replace(/[^a-zA-Z0-9]/g, "_");
-    createFilesAndDownloadZip(files, safeAppName);
+  function useIdea(idea) {
+    setAppName(idea.name);
+    setAppDesc(idea.description);
+    window.scrollTo(0, 0);
   }
 
   return (
     <div className="container">
-      <div
-        className="
-        flex
-        justify-flex-start
-        items-center
-        mb-8
-      "
-      >
-        <img src={waspLogo} alt="wasp" className="w-16" />
-        <h1
-          className="
-        text-3xl
-        font-bold
-        text-gray-800
-        ml-4
-      "
-        >
-          Wasp AI App Generator
-        </h1>
+      <div className="mb-4 bg-slate-50 p-8 rounded-xl flex justify-between items-center">
+        <Title />
+        <StatusPill status={currentStatus.status}>
+          {currentStatus.message}
+        </StatusPill>
       </div>
 
-      <form onSubmit={startGenerating}>
+      <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-4 flex flex-col gap-2">
           <input
             required
@@ -133,7 +69,7 @@ const MainPage = () => {
             placeholder="Your app name"
             value={appName}
             onChange={(e) => setAppName(e.target.value)}
-            disabled={appId}
+            disabled={currentStatus.status !== "idle"}
           />
           <textarea
             required
@@ -142,115 +78,39 @@ const MainPage = () => {
             rows="5"
             cols="50"
             onChange={(e) => setAppDesc(e.target.value)}
-            disabled={appId}
+            disabled={currentStatus.status !== "idle"}
           />
         </div>
-        <button className="button mr-2" disabled={appId}>
-          Generate
-        </button>
         <button
-          type="button"
-          disabled={appId}
-          onClick={() => fillInExampleAppDetails()}
-          className="button gray"
+          className="button mr-2"
+          disabled={currentStatus.status !== "idle"}
         >
-          Fill in with example app details
+          Engage the AI
         </button>
       </form>
-
-      {interestingFilePaths.length > 0 && (
-        <>
-          <header
-            className="
-         mt-8
-         mb-2
-         flex
-         justify-between
-         items-center
-          "
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">Some example ideas</h3>
+        {exampleIdeas.map((idea) => (
+          <div
+            key={idea.name}
+            className="bg-slate-50 p-8 rounded-xl mt-2 flex items-center"
           >
-            <div
-              className="
-            flex
-            items-center
-            
-          "
-            >
-              <h2
-                className="
-          text-xl
-          font-bold
-          text-gray-800
-          mr-2
-        "
-              >
-                {appName}
-              </h2>
-              {appId && !generationDone && <Loader />}
+            <div className="idea">
+              <h4 className="text-lg font-semibold text-slate-700 mb-1">
+                {idea.name}
+              </h4>
+              <p className="text-base leading-relaxed text-slate-500">
+                {idea.description}
+              </p>
             </div>
-            <div>
-              <button
-                className="button"
-                disabled={!generationDone}
-                onClick={downloadZip}
-              >
-                Download ZIP
+            <div className="flex-shrink-0 ml-12">
+              <button className="button gray" onClick={() => useIdea(idea)}>
+                Use this idea
               </button>
             </div>
-          </header>
-          <div className="grid gap-4 grid-cols-[300px_minmax(900px,_1fr)_100px]">
-            <aside>
-              <FileTree
-                paths={interestingFilePaths}
-                activeFilePath={activeFilePath}
-                onActivePathSelect={setActiveFilePath}
-              />
-            </aside>
-
-            {activeFilePath && (
-              <main className="flex flex-col gap-2">
-                <div className="font-bold">{activeFilePath}:</div>
-                <div key={activeFilePath} className="py-4 bg-slate-100 rounded">
-                  <CodeHighlight language={language}>
-                    {files[activeFilePath].trim()}
-                  </CodeHighlight>
-                </div>
-              </main>
-            )}
-            {!activeFilePath && (
-              <main className="p-8 bg-slate-100 rounded grid place-content-center">
-                <div className="text-center">
-                  <div className="font-bold">Select a file to view</div>
-                  <div className="text-gray-500 text-sm">
-                    (click on a file in the file tree)
-                  </div>
-                </div>
-              </main>
-            )}
           </div>
-
-          {logs && logs.length > 0 && (
-            <div className="flex flex-col gap-1 mt-8">
-              {logs.map((log, i) => (
-                /*
-                If log contains "generated" or "Generated"
-                make it green, otherwise make it gray.
-                */
-                <pre
-                  key={i}
-                  className={`p-3 rounded text-sm ${
-                    log.toLowerCase().includes("generated")
-                      ? "bg-green-100"
-                      : "bg-slate-100"
-                  }`}
-                >
-                  {log}
-                </pre>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+        ))}
+      </div>
     </div>
   );
 };

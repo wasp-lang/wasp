@@ -20,6 +20,11 @@ page MainPage {
   component: import Main from "@client/pages/MainPage.jsx"
 }
 
+route ResultRoute { path: "/result/:appId", to: ResultPage }
+page ResultPage {
+  component: import { ResultPage } from "@client/pages/ResultPage.jsx"
+}
+
 action startGeneratingNewApp {
   fn: import { startGeneratingNewApp } from "@server/operations.js"
 }
