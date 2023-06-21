@@ -354,8 +354,13 @@ library waspls
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
-    Wasp.LSP.Util
+    Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.DictKeyCompletion
+    Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
+    Wasp.LSP.TypeInference
+    Wasp.LSP.Util
   build-depends:
       base
     , aeson
@@ -370,6 +375,7 @@ library waspls
     , text
     , transformers ^>=0.5.6.2
     , utf8-string
+    , unordered-containers
     , waspc
 
 library cli-lib
@@ -434,6 +440,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry

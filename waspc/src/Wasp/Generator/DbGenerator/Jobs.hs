@@ -7,6 +7,7 @@ module Wasp.Generator.DbGenerator.Jobs
     runStudio,
     reset,
     seed,
+    dbExecuteTest,
     migrateStatus,
     asPrismaCliArgs,
   )
@@ -112,6 +113,19 @@ seed projectDir seedName =
     [(dbSeedNameEnvVarName, seedName)]
     projectDir
     (const ["db", "seed"])
+
+-- | Checks if the DB is running and connectable by running
+-- `prisma db execute --stdin --schema <path to db schema>`.
+--  Runs the command in the generated server code directory so it has access to the database URL.
+--
+-- Since nothing is passed to stdin, `prisma db execute` just runs an empty
+-- SQL command, which works perfectly for checking if the database is running.
+dbExecuteTest :: Path' Abs (Dir ProjectRootDir) -> J.Job
+dbExecuteTest projectDir =
+  let absSchemaPath = projectDir </> dbSchemaFileInProjectRootDir
+   in runPrismaCommandAsDbJob
+        projectDir
+        (const ["db", "execute", "--stdin", "--schema", SP.fromAbsFile absSchemaPath])
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job

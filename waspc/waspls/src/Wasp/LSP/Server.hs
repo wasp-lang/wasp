@@ -20,6 +20,7 @@ import Wasp.LSP.Handlers
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), runServerM)
 import Wasp.LSP.ServerState (ServerState)
+import Wasp.LSP.SignatureHelp (signatureHelpRetriggerCharacters, signatureHelpTriggerCharacters)
 
 lspServerHandlers :: LSP.Handlers ServerM
 lspServerHandlers =
@@ -28,7 +29,8 @@ lspServerHandlers =
       didOpenHandler,
       didSaveHandler,
       didChangeHandler,
-      completionHandler
+      completionHandler,
+      signatureHelpHandler
     ]
 
 serve :: Maybe FilePath -> IO ()
@@ -100,7 +102,9 @@ lspServerOptions :: LSP.Options
 lspServerOptions =
   (def :: LSP.Options)
     { LSP.textDocumentSync = Just syncOptions,
-      LSP.completionTriggerCharacters = Just [':']
+      LSP.completionTriggerCharacters = Just [':', ' '],
+      LSP.signatureHelpTriggerCharacters = signatureHelpTriggerCharacters,
+      LSP.signatureHelpRetriggerCharacters = signatureHelpRetriggerCharacters
     }
 
 -- | Options to tell the client how to update the server about the state of text
