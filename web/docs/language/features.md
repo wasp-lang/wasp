@@ -1306,7 +1306,7 @@ Password of the user logging in.
 
 #### `import statement`:
 ```js
-import login from '@wasp/auth/login.js'
+import login from '@wasp/auth/login'
 ```
 Login is a regular action and can be used directly from the frontend.
 
@@ -1328,7 +1328,7 @@ If you need to add extra fields to the user entity, we suggest doing it in a sep
 
 #### `import statement`:
 ```js
-import signup from '@wasp/auth/signup.js'
+import signup from '@wasp/auth/signup'
 ```
 Signup is a regular action and can be used directly from the frontend.
 
@@ -1340,12 +1340,12 @@ logout()
 
 #### `import statement`:
 ```js
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 ```
 
 ##### Example of usage:
 ```jsx
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 
 const SignOut = () => {
   return (
@@ -1840,8 +1840,8 @@ import React from 'react'
 
 import { Link } from 'react-router-dom'
 import useAuth from '@wasp/auth/useAuth'
-import logout from '@wasp/auth/logout.js'
-import Todo from '../Todo.js'
+import logout from '@wasp/auth/logout'
+import Todo from '../Todo'
 import '../Main.css'
 
 const Main = () => {

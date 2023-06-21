@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 import SignupForm from '@wasp/auth/forms/Signup'
-import signup from '@wasp/auth/signup.js'
-import login from '@wasp/auth/login.js'
+import signup from '@wasp/auth/signup'
+import login from '@wasp/auth/login'
 
 import EmailAndPassForm from './Auth/EmailAndPassForm'
 import GoogleAuthButton from './Auth/GoogleAuthButton'
