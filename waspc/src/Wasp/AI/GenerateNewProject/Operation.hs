@@ -158,11 +158,11 @@ writeOperationToJsFile operation =
   --   Maybe best to read and pass previous imports (we would have to do that above somewhere).
   --   Or even the whole file? Hmmmmm.
   writeToFile path $
-    ((jsImports <> "\n") <>) . (<> "\n\n" <> jsImpl) . (fromMaybe "")
+    (jsImportsBlock <>) . (<> jsImpl) . maybe "" (<> "\n\n")
   where
     path = resolvePath $ Plan.opFnPath $ opPlan operation
     jsImpl = T.pack $ opJsImpl $ opImpl operation
-    jsImports = T.pack $ opJsImports $ opImpl operation
+    jsImportsBlock = T.pack $ maybe "" (<> "\n") $ opJsImports $ opImpl operation
     pathPrefix = "@server/"
     resolvePath p | pathPrefix `isPrefixOf` p = "src/" <> drop (length ("@" :: String)) p
     resolvePath _ = error "path incorrectly formatted, should start with " <> pathPrefix <> "."
@@ -189,7 +189,7 @@ data Operation = Operation
 data OperationImpl = OperationImpl
   { opWaspDecl :: String,
     opJsImpl :: String,
-    opJsImports :: String
+    opJsImports :: Maybe String
   }
   deriving (Generic, Show)
 
