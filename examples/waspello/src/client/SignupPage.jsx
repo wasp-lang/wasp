@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
-import SignupForm from '@wasp/auth/forms/Signup'
 import signup from '@wasp/auth/signup'
 import login from '@wasp/auth/login'
 
