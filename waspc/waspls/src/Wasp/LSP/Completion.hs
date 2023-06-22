@@ -5,7 +5,7 @@ where
 
 import Control.Lens ((^.))
 import Control.Monad.Log.Class (MonadLog (logM))
-import Control.Monad.State.Class (MonadState, gets)
+import Control.Monad.Reader.Class (MonadReader, asks)
 import Data.List (sortOn)
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
@@ -18,12 +18,12 @@ import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset, showNeighborhood)
 
 -- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition ::
-  (MonadState ServerState m, MonadLog m) =>
+  (MonadReader ServerState m, MonadLog m) =>
   LSP.Position ->
   m [LSP.CompletionItem]
 getCompletionsAtPosition position = do
-  src <- gets (^. currentWaspSource)
-  maybeSyntax <- gets (^. cst)
+  src <- asks (^. currentWaspSource)
+  maybeSyntax <- asks (^. cst)
   case maybeSyntax of
     -- If there is no syntax tree, make no completions
     Nothing -> return []

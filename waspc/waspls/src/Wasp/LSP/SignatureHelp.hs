@@ -9,7 +9,7 @@ import Control.Applicative ((<|>))
 import Control.Lens ((^.))
 import Control.Monad (guard)
 import Control.Monad.Log.Class (MonadLog, logM)
-import Control.Monad.State.Class (MonadState, gets)
+import Control.Monad.Reader.Class (MonadReader, asks)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import qualified Data.HashMap.Strict as M
@@ -58,12 +58,12 @@ signatureHelpRetriggerCharacters = Just "}])"
 -- The parameter field of the signature is used for which part of the container
 -- the position is within, such as a key for a dictionary.
 getSignatureHelpAtPosition ::
-  (MonadState ServerState m, MonadLog m) =>
+  (MonadReader ServerState m, MonadLog m) =>
   LSP.Position ->
   m LSP.SignatureHelp
 getSignatureHelpAtPosition position = do
-  src <- gets (^. currentWaspSource)
-  gets (^. cst) >>= \case
+  src <- asks (^. currentWaspSource)
+  asks (^. cst) >>= \case
     Nothing ->
       -- No CST in the server state, can't create a signature.
       return emptyHelp
