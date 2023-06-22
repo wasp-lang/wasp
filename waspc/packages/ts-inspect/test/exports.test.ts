@@ -30,9 +30,13 @@ describe('exports.ts', () => {
   test('add file has just a default export', async () => {
     const request = { filenames: [testFiles.addFile] };
     expect(await getExportsOfFiles(request)).toEqual({
-      [testFiles.addFile]: [
-        { type: 'default', location: { line: 0, column: 0 } }
-      ]
+      [testFiles.addFile]: [{
+        type: 'default',
+        range: {
+          start: { line: 0, column: 0 },
+          end: { line: 2, column: 1 }
+        }
+      }]
     });
   });
 
@@ -40,9 +44,27 @@ describe('exports.ts', () => {
     const request = { filenames: [testFiles.complexFile] };
     expect(await getExportsOfFiles(request)).toEqual({
       [testFiles.complexFile]: [
-        { type: 'default', location: { line: 0, column: 0 } },
-        { type: 'named', name: 'isEven', location: { line: 4, column: 0 } },
-        { type: 'named', name: 'isOdd', location: { line: 10, column: 0 } }
+        {
+          type: 'default',
+          range: {
+            start: { line: 0, column: 0 },
+            end: { line: 2, column: 1 }
+          }
+        },
+        {
+          type: 'named', name: 'isEven',
+          range: {
+            start: { line: 4, column: 0 },
+            end: { line: 8, column: 1 }
+          }
+        },
+        {
+          type: 'named', name: 'isOdd',
+          range: {
+            start: { line: 10, column: 0 },
+            end: { line: 14, column: 1 }
+          }
+        }
       ]
     });
   });
@@ -67,9 +89,12 @@ describe('exports.ts', () => {
   test('`export const` shows up in export list', async () => {
     const request = { filenames: [testFiles.constExportFile] };
     expect(await getExportsOfFiles(request)).toEqual({
-      [testFiles.constExportFile]: [
-        { type: 'named', name: 'isEven', location: { line: 0, column: 13 } }
-      ]
+      [testFiles.constExportFile]: [{
+        type: 'named', name: 'isEven', range: {
+          start: { line: 0, column: 13 },
+          end: { line: 2, column: 1 }
+        }
+      }]
     });
   })
 });

@@ -15,11 +15,11 @@ module Wasp.TypeScript
     TsExportRequest (..),
     TsExportResponse (..),
     TsExport (..),
-    tsExportSourcePos,
+    tsExportSourceRegion,
   )
 where
 
-import Data.Aeson (FromJSON (parseJSON), ToJSON (toEncoding), Value, decode, defaultOptions, encode, genericToEncoding, withObject, (.:), (.:?))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (toEncoding), Value, decode, defaultOptions, encode, genericToEncoding, withObject, (.:), (.:!))
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Conduit.Process.Typed (ExitCode (ExitSuccess))
 import qualified Data.HashMap.Strict as M
@@ -27,6 +27,7 @@ import GHC.Generics (Generic)
 import qualified System.Process as P
 import Wasp.Analyzer (SourcePosition)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import Wasp.Package (Package (TsInspectPackage), getPackageProc)
 
 -- | Attempt to get list of exported names from TypeScript files.
@@ -58,24 +59,24 @@ groupExportRequests requests =
 -- | A symbol exported from a TypeScript file.
 data TsExport
   = -- | @export default ...@
-    DefaultExport !(Maybe SourcePosition)
+    DefaultExport !(Maybe SourceRegion)
   | -- | @export const name ...@
-    NamedExport !String !(Maybe SourcePosition)
+    NamedExport !String !(Maybe SourceRegion)
   deriving (Show, Eq)
 
 -- | Get the position of an export in the TypeScript file, if that information
 -- is available.
-tsExportSourcePos :: TsExport -> Maybe SourcePosition
-tsExportSourcePos (DefaultExport sourcePos) = sourcePos
-tsExportSourcePos (NamedExport _ sourcePos) = sourcePos
+tsExportSourceRegion :: TsExport -> Maybe SourceRegion
+tsExportSourceRegion (DefaultExport sourceRegion) = sourceRegion
+tsExportSourceRegion (NamedExport _ sourceRegion) = sourceRegion
 
 instance FromJSON TsExport where
   -- The JSON response gives zero-based source positions. This parser takes care
   -- of converting to the expected one-based positions for 'SourcePosition'.
   parseJSON = withObject "TsExport" $ \v ->
     (v .: "type") >>= \case
-      "default" -> DefaultExport . fmap toSourcePos <$> v .:? "location"
-      "named" -> NamedExport <$> v .: "name" <*> (fmap toSourcePos <$> v .:? "location")
+      "default" -> DefaultExport . fmap toSourceRegion <$> v .:! "range"
+      "named" -> NamedExport <$> v .: "name" <*> (fmap toSourceRegion <$> v .:! "range")
       (_ :: Value) -> fail "invalid type for TsExport"
 
 -- | Map from TypeScript files to the list of exports found in that file.
@@ -90,7 +91,18 @@ data TsExportRequest = TsExportRequest {filenames :: ![FilePath], tsconfig :: !(
 instance ToJSON TsExportRequest where
   toEncoding = genericToEncoding defaultOptions
 
--- | Wrapper type for parsing SourcePositions from data with 0-based offsets.
+-- Wrapper types for parsing SourceRegions from data with 0-based offsets.
+
+newtype ZeroBasedSourceRegion = ZeroBasedSourceRegion {toSourceRegion :: SourceRegion}
+
+instance FromJSON ZeroBasedSourceRegion where
+  parseJSON = withObject "range" $ \v ->
+    ZeroBasedSourceRegion
+      <$> ( SourceRegion
+              <$> (toSourcePos <$> v .: "start")
+              <*> (toSourcePos <$> v .: "end")
+          )
+
 newtype ZeroBasedSourcePosition = ZeroBasedSourcePosition {toSourcePos :: SourcePosition}
 
 instance FromJSON ZeroBasedSourcePosition where

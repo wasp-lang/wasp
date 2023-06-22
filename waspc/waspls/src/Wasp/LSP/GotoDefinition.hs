@@ -11,13 +11,12 @@ import qualified Language.LSP.Types.Lens as LSP
 import qualified StrongPath as SP
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal, fromSyntaxForest)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Analyzer.Parser.SourceRegion (sourceSpanToRegion)
 import qualified Wasp.LSP.ExtImport as ExtImport
 import Wasp.LSP.ServerM (HandlerM)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
-import Wasp.LSP.Util (waspPositionToLspPosition, waspSourceRegionToLspRange)
+import Wasp.LSP.Util (waspSourceRegionToLspRange)
 import qualified Wasp.TypeScript as TS
 
 definitionProviders :: [String -> Traversal -> HandlerM [LSP.LocationLink]]
@@ -49,9 +48,9 @@ extImportDefinitionProvider src location =
       let extImportRange = waspSourceRegionToLspRange $ sourceSpanToRegion src extImportSpan
       ExtImport.lookupExtImport extImport >>= \case
         ExtImport.ImportsSymbol tsFile tsExport -> do
-          case TS.tsExportSourcePos tsExport of
+          case TS.tsExportSourceRegion tsExport of
             Nothing -> return [link extImportRange $ gotoFile tsFile]
-            Just sourcePos -> return [link extImportRange $ gotoPosInFile tsFile sourcePos]
+            Just sourceRegion -> return [link extImportRange $ gotoRangeInFile tsFile $ waspSourceRegionToLspRange sourceRegion]
         _ -> return [] -- Location does not point to a valid exported symbol.
 
 -- | @link linkRange location@ creates a @LSP.LocationLink@ to the same place as
@@ -67,14 +66,14 @@ link linkRange gotoLocation =
     }
 
 -- | Create a 'LSP.Location' pointing to the start of a file.
+--
+-- This creates a location which points to an absurdly large range of text (1
+-- million lines) so that the entire file is selected.
 gotoFile :: SP.Path' SP.Abs (SP.File any) -> LSP.Location
-gotoFile file = gotoPosInFile file (SourcePosition 1 1)
+gotoFile file = gotoRangeInFile file (LSP.Range (LSP.Position 0 0) (LSP.Position 1000000 0))
 
 -- | Create a 'LSP.Location' pointing to a specific place in a file.
-gotoPosInFile :: SP.Path' SP.Abs (SP.File any) -> SourcePosition -> LSP.Location
-gotoPosInFile file (SourcePosition line col) =
-  let lspPosition = waspPositionToLspPosition $ SourcePosition line col
-      lspPositionEnd = waspPositionToLspPosition $ SourcePosition line (col + 1)
-      range = LSP.Range lspPosition lspPositionEnd
-      uri = LSP.filePathToUri $ SP.fromAbsFile file
+gotoRangeInFile :: SP.Path' SP.Abs (SP.File any) -> LSP.Range -> LSP.Location
+gotoRangeInFile file range =
+  let uri = LSP.filePathToUri $ SP.fromAbsFile file
    in LSP.Location {_uri = uri, _range = range}

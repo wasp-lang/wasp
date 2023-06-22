@@ -14,10 +14,12 @@ export const ExportRequests = z.array(ExportRequest);
 export type ExportRequest = z.infer<typeof ExportRequest>;
 
 export type Export
-  = { type: 'default' } & Location
-  | { type: 'named', name: string } & Location
+  = { type: 'default' } & Range
+  | { type: 'named', name: string } & Range
 
-export type Location = { location?: { line: number, column: number } }
+export type Range = { range?: { start: Location, end: Location } }
+
+export type Location = { line: number, column: number }
 
 export async function getExportsOfFiles(request: ExportRequest): Promise<{ [file: string]: Export[] }> {
   let compilerOptions: ts.CompilerOptions = {};
@@ -70,23 +72,30 @@ function getExportsForFile(program: ts.Program, checker: ts.TypeChecker, filenam
 }
 
 function getExportForExportSymbol(program: ts.Program, checker: ts.TypeChecker, exp: ts.Symbol): Export {
-  let location = undefined;
+  let range = undefined;
   if (exp.valueDeclaration) {
     // NOTE: This isn't a very robust way of getting the location: it will always
     // point to the line that has `export`, rather than the line where the exported
     // symbol is defined.
-    const position = exp.valueDeclaration.getStart();
-    const { line, character } = ts.getLineAndCharacterOfPosition(
-      exp.valueDeclaration.getSourceFile(), position
+    const startOffset = exp.valueDeclaration.getStart();
+    const startPos = ts.getLineAndCharacterOfPosition(
+      exp.valueDeclaration.getSourceFile(), startOffset
     );
-    location = { line, column: character };
+    const endOffset = exp.valueDeclaration.getEnd();
+    const endPos = ts.getLineAndCharacterOfPosition(
+      exp.valueDeclaration.getSourceFile(), endOffset
+    )
+    range = {
+      start: { line: startPos.line, column: startPos.character },
+      end: { line: endPos.line, column: endPos.character }
+    };
   }
 
   // Convert export to the output format.
   const exportName = exp.getName();
   if (exportName === 'default') {
-    return { type: 'default', location };
+    return { type: 'default', range };
   } else {
-    return { type: 'named', name: exportName, location };
+    return { type: 'named', name: exportName, range };
   }
 }
