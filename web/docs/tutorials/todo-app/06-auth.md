@@ -282,7 +282,7 @@ You will see that each user has their own tasks, just as we specified in our cod
 Last, but not least, let's add the logout functionality:
 ```jsx {2,10} title="src/client/MainPage.jsx"
 // ...
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 //...
 
 const MainPage = () => {

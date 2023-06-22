@@ -50,11 +50,8 @@ module.exports = {
           type: "category",
           label: "Auth Providers",
           collapsed: false,
-          items: [
-            "integrations/github",
-            "integrations/google",
-            "guides/email-auth",
-          ],
+          items: ["integrations/github", "integrations/google",
+            "guides/email-auth", "guides/username-password"],
         },
         "integrations/css-frameworks",
         "deploying",
