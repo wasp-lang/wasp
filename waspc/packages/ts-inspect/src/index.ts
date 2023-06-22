@@ -1,5 +1,4 @@
 import { ExportRequests, getExportsOfFiles } from "./exports.js";
-import { z } from 'zod';
 
 async function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {

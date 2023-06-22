@@ -49,7 +49,6 @@ export async function getExportsOfFiles(request: ExportRequest): Promise<{ [file
     } catch (err) {
       console.error(err);
       exportsMap[filename] = [];
-      continue;
     }
   }
 
