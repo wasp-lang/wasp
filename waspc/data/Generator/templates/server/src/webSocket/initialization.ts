@@ -35,7 +35,7 @@ export async function init(server: http.Server): Promise<void> {
     }
   }
 
-  await {= userWebSocketFn.importIdentifier =}(io, context)
+  await ({= userWebSocketFn.importIdentifier =} as any)(io, context)
 }
 
 {=# isAuthEnabled =}
