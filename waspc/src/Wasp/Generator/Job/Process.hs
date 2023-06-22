@@ -3,7 +3,7 @@
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
-    parseNodeVersion,
+    runNodeCommandAsJobWithExtraEnv,
   )
 where
 
@@ -16,15 +16,13 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
+import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
-import System.IO.Error (catchIOError, isDoesNotExistError)
 import qualified System.Info
 import qualified System.Process as P
-import Text.Read (readMaybe)
-import qualified Text.Regex.TDFA as R
 import UnliftIO.Exception (bracket)
-import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
+import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.SemanticVersion as SV
 
 -- TODO:
@@ -95,20 +93,24 @@ runProcessAsJob process jobType chan =
       return $ ExitFailure 1
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob fromDir command args jobType chan = do
-  errorOrNodeVersion <- getNodeVersion
-  case errorOrNodeVersion of
+runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
+
+runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
+  NodeVersion.getNodeVersion >>= \case
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
-      if SV.isVersionInRange nodeVersion C.nodeVersionRange
+      if SV.isVersionInRange nodeVersion NodeVersion.nodeVersionRange
         then do
-          let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
-          runProcessAsJob process jobType chan
-        else
-          exitWithError
-            (ExitFailure 1)
-            (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
+          envVars <- getAllEnvVars
+          let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+          runProcessAsJob nodeCommandProcess jobType chan
+        else exitWithError (ExitFailure 1) (T.pack $ NodeVersion.makeNodeVersionMismatchMessage nodeVersion)
   where
+    -- Haskell will use the first value for variable name it finds. Since env
+    -- vars in 'extraEnvVars' should override the the inherited env vars, we
+    -- must prepend them.
+    getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
     exitWithError exitCode errorMsg = do
       writeChan chan $
         J.JobMessage
@@ -121,52 +123,3 @@ runNodeCommandAsJob fromDir command args jobType chan = do
             J._jobType = jobType
           }
       return exitCode
-
-getNodeVersion :: IO (Either String SV.Version)
-getNodeVersion = do
-  (exitCode, stdout, stderr) <-
-    P.readProcessWithExitCode "node" ["--version"] ""
-      `catchIOError` ( \e ->
-                         if isDoesNotExistError e
-                           then return (ExitFailure 1, "", "Command 'node' not found.")
-                           else ioError e
-                     )
-  return $ case exitCode of
-    ExitFailure _ ->
-      Left
-        ( "Running 'node --version' failed: " ++ stderr
-            ++ " "
-            ++ waspNodeRequirementMessage
-        )
-    ExitSuccess -> case parseNodeVersion stdout of
-      Nothing ->
-        Left
-          ( "Wasp failed to parse node version."
-              ++ " This is most likely a bug in Wasp, please file an issue."
-          )
-      Just version -> Right version
-
-parseNodeVersion :: String -> Maybe SV.Version
-parseNodeVersion nodeVersionStr =
-  case nodeVersionStr R.=~ ("v([^\\.]+).([^\\.]+).(.+)" :: String) of
-    ((_, _, _, [majorStr, minorStr, patchStr]) :: (String, String, String, [String])) -> do
-      mjr <- readMaybe majorStr
-      mnr <- readMaybe minorStr
-      ptc <- readMaybe patchStr
-      return $ SV.Version mjr mnr ptc
-    _ -> Nothing
-
-makeNodeVersionMismatchMessage :: SV.Version -> String
-makeNodeVersionMismatchMessage nodeVersion =
-  unwords
-    [ "Your node version does not match Wasp's requirements.",
-      "You are running node " ++ show nodeVersion ++ ".",
-      waspNodeRequirementMessage
-    ]
-
-waspNodeRequirementMessage :: String
-waspNodeRequirementMessage =
-  unwords
-    [ "Wasp requires node " ++ show C.nodeVersionRange ++ ".",
-      "Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements."
-    ]

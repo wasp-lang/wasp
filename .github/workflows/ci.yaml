@@ -64,6 +64,13 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v3
 
+      # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
+      # The fix will be propagated in a few days, so we can remove this workaround then.
+      # https://github.com/actions/runner-images/issues/7061
+      - name: Workaround runner image issue
+        if: matrix.os == 'ubuntu-20.04'
+        run: sudo chown -R $USER /usr/local/.ghcup
+
       - name: Set up Haskell
         id: setup-haskell-cabal
         uses: haskell/actions/setup@v2
@@ -100,9 +107,13 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
-      - name: Build external dependencies 
-        run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
-      
+      - name: Compile deploy TS package and move it into the Cabal data dir
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/install_deploy_package_to_data_dir.sh
+
+      - name: Build external dependencies
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+
       - name: Build wasp code
         run: cabal build all
 
@@ -118,12 +129,64 @@ jobs:
       - name: Run tests
         run: cabal test
 
+      - name: Ensure todoApp builds
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/ensure_todoapp_builds.sh
+
+      - name: Headless - Cache Node Modules
+        id: headless-cache-node-modules
+        uses: actions/cache@v3
+        if: matrix.os == 'ubuntu-20.04'
+        with:
+          path: ~/.npm
+          key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}
+
+      - name: Headless - Install Dependencies
+        id: headless-install-dependencies
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          npm ci
+
+      - name: Headless - Store Playwright's Version
+        id: headless-store-playwright-version
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+      - name: Headless - Cache Playwright Browsers for Playwright's Version
+        id: headless-cache-playwright-browsers
+        if: matrix.os == 'ubuntu-20.04'
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Headless - Setup Playwright
+        id: headless-setup-playwright
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          npx playwright install --with-deps
+
+      - name: Headless - Run Playwright Tests
+        id: headless-run-playwright-tests
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          npm ci
+          # Runs the tests with the debug flag so that we can see Wasp output
+          DEBUG=pw:webserver npx playwright test
+
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
+          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
 
       - name: Create Github release
         uses: ncipollo/release-action@v1

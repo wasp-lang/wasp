@@ -62,7 +62,7 @@ spec_TypeChecker = do
         let actual = typeCheck typeDefs ast
         let expectedError =
               mkTypeError ctx1 $
-                WeakenError $
+                CoercionError $
                   TypeCoercionError (wctx2 $ IntegerLiteral 5) StringType ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Properly hoists declarations" $ do
@@ -105,6 +105,6 @@ spec_TypeChecker = do
         let expected =
               Right $
                 TypedAST
-                  [ wctx1 $ Decl "Bedrooms" (wctx2 $ List [] (ListType StringType)) (DeclType "rooms")
+                  [ wctx1 $ Decl "Bedrooms" (wctx2 $ List [] EmptyListType) (DeclType "rooms")
                   ]
         actual `shouldBe` expected

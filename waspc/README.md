@@ -106,7 +106,7 @@ NOTE: Reload page if blank.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md.
+4. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
 5. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
 6. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
@@ -204,9 +204,13 @@ Tip: to make it easy to run the `run` script from any place in your wasp codebas
 alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 ```
 
+### Typescript packages
+Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_deploy_package_to_data_dir.sh`.
+
+During normal local development you can treat `packages/deploy` as a regular TS project and develop against it in a standalone manner. However, if you want to test it as part of the Wasp CLI, you can make use of this same script locally. Just manually invoke it before you run something like `cabal run wasp-cli deploy fly ...` in a wasp project so the local data directory is up to date.
 
 ## Tests
-For tests we are using [**Tasty**](https://documentup.com/feuerbach/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
+For tests we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
 
 In Tasty, there is a main test file that is run when test suite is run. In that file we need to manually compose test tree out of tests that we wrote. We organize tests in test groups, which are then recursively grouped resulting in a test tree.
 Cool thing is that we can organize tests this way however we want and also mix different type of tests (hspec, quickcheck, and whatever else we want).
@@ -353,8 +357,8 @@ NOTE: If building of your commit is suddenly taking much longer time, it might b
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
 ### Typical Release Process
-- Update ChangeLog.md with release notes, update version in waspc.cabal, and open a PR for feedback.
-- After approval and after all the checks (CI) passed, squash and merge mentioned PR into `main`.
+- ChangeLog.md and version in waspc.cabal should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing ChangeLog.md a bit even if all the data is already there. Also check that ChangeLog has correction version of wasp specified.
+- If you modified ChangeLog.md or waspc.cabal, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).
 - Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
 - Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.

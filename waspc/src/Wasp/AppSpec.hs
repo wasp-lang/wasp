@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.AppSpec
   ( AppSpec (..),
     Decl,
@@ -7,6 +9,7 @@ module Wasp.AppSpec
     refName,
     getActions,
     getQueries,
+    getApis,
     getEntities,
     getPages,
     getRoutes,
@@ -14,6 +17,8 @@ module Wasp.AppSpec
     resolveRef,
     doesConfigFileExist,
     asAbsWaspProjectDirFile,
+    getApp,
+    getApiNamespaces,
   )
 where
 
@@ -22,6 +27,9 @@ import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
+import Wasp.AppSpec.Api (Api)
+import Wasp.AppSpec.ApiNamespace (ApiNamespace)
+import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
@@ -31,7 +39,9 @@ import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
-import Wasp.Common (DbMigrationsDir, WaspProjectDir)
+import Wasp.Env (EnvVar)
+import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -50,19 +60,20 @@ data AppSpec = AppSpec
     externalSharedFiles :: [ExternalCode.File],
     -- | Absolute path to the directory in wasp project source that contains external code files.
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
-    -- | Absolute path to the .env.server file in wasp project source. It contains env variables to be
-    -- provided to the server only during the development.
-    dotEnvServerFile :: Maybe (Path' Abs File'),
-    -- | Absolute path to the .env.client file in wasp project source. It contains env variables to be
-    -- provided to the client only during the development.
-    dotEnvClientFile :: Maybe (Path' Abs File'),
+    -- | Env variables to be provided to the server only during the development.
+    devEnvVarsServer :: [EnvVar],
+    -- | Env variables to be provided to the client only during the development.
+    devEnvVarsClient :: [EnvVar],
     -- | If true, it means project is being compiled for production/deployment -> it is being "built".
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | A list of paths to any config files found (e.g., tailwind.config.js) and where to copy them.
-    configFiles :: [ConfigFileRelocator]
+    -- | A list of paths to any config files found (e.g., tailwind.config.cjs) and where to copy them.
+    configFiles :: [ConfigFileRelocator],
+    -- | Connection URL for a database used during development. If provided, generated app will
+    -- make sure to use it when run in development mode.
+    devDatabaseUrl :: Maybe String
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -79,6 +90,12 @@ getQueries = getDecls
 getActions :: AppSpec -> [(String, Action)]
 getActions = getDecls
 
+getApis :: AppSpec -> [(String, Api)]
+getApis = getDecls
+
+getApiNamespaces :: AppSpec -> [(String, ApiNamespace)]
+getApiNamespaces = getDecls
+
 getEntities :: AppSpec -> [(String, Entity)]
 getEntities = getDecls
 
@@ -90,6 +107,11 @@ getRoutes = getDecls
 
 getJobs :: AppSpec -> [(String, Job)]
 getJobs = getDecls
+
+getApp :: [Decl] -> Maybe (String, App)
+getApp dcls = case takeDecls @App dcls of
+  [] -> Nothing
+  apps -> Just $ head apps
 
 resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =

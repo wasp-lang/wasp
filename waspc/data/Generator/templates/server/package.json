@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "npx tsc",
-    "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
     "build-and-start": "npm run build && npm run start",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
+    "db-seed": "npm run build && NODE_PATH=dist node -r dotenv/config dist/dbSeed.js",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}",
     "standard": "standard",
     "postinstall": "patch-package"
@@ -27,9 +28,9 @@
     {=/ overrides =}
   },
   "engines": {
-    "node": "{=& nodeVersionRange =}",
-    "npm": "{=& npmVersionRange =}"
+    "node": "{=& nodeVersionRange =}"
   },
+  "prisma": {=& prisma =},
   {=& depsChunk =},
   {=& devDepsChunk =}
 }

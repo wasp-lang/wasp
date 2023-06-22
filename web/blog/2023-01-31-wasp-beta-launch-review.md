@@ -1,7 +1,7 @@
 ---
 title: 'Convincing developers to try a new web framework - the effects of launching beta'
 authors: [matijasos]
-image: /img/beta-launch-review/beta-feedback.png
+image: /img/beta-launch-review/how-it-started.png
 tags: [webdev, wasp, startups, github]
 ---
 
@@ -15,8 +15,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 <ImgWithCaption
     alt="Alpha feedback"
-    source="img/beta-launch-review/alpha-feedback.png"
-    caption="How it started: feedback on Wasp Alpha, 3 years ago"
+    source="img/beta-launch-review/how-it-started.png"
 />
 
 We are developing an OSS web framework in a form of a config language (DSL) that works with React & Node.js. Getting developers to use a new tool (especially a web framework) is [a pretty hard thing to do](/blog/2022/09/29/journey-to-1000-gh-stars). We wished there were more stories of how today's mainstream tools got adopted that we could learn from, so that motivated us to document our own.
@@ -27,13 +26,13 @@ We are developing an OSS web framework in a form of a config language (DSL) that
 
 ## TL;DR
 - [HackerNews launch](https://news.ycombinator.com/item?id=33910997) post brought the most traffic, by far
-- Product Hunt launch was worse then expected, bots took over
+- Product Hunt launch went worse than expected, bots took over
 - Our goal was to reach GitHub Trending but we failed
-- Less traffic overall than for the Alpha launch, but much higher quality of feedback + change of public perception
+- Less overall traffic than for the Alpha launch, but much higher quality of feedback + a shift in public perception
 - Having a public launch date made us 3x more productive
 
 ## 📊 The results: stats
-We [launched Beta](http://localhost:3000/blog/2022/11/29/wasp-beta) on Nov 27, 2022 in a launch week format, recently popularized by [Supabase](https://supabase.com/blog/supabase-how-we-launch). During the first week we launched on Product Hunt, and after the weekend we posted on HackerNews. Here's what the numbers were on the last day of the launch:
+We [launched Beta](/blog/2022/11/29/wasp-beta) on Nov 27, 2022 in a launch week format, recently popularized by [Supabase](https://supabase.com/blog/supabase-how-we-launch). During the first week we launched on Product Hunt, and after the weekend we posted on HackerNews. Here's what the numbers were on the last day of the launch:
 - 190 GitHub stars added to the repo
 - 108 new projects started
 - 83 new users (installed Wasp locally and ran it)
@@ -57,7 +56,20 @@ Looking back, this wasn't at all our biggest event in terms of traffic, but it w
     source="img/beta-launch-review/all-time-stats.png"
 />
 
-One of the main effects of the launch (together with a [few](https://news.ycombinator.com/item?id=32098144) [recent](https://news.ycombinator.com/item?id=32566123) successful HN posts, and the [Alpha Testing Program](/blog/2022/11/16/alpha-testing-program-post-mortem) we ran in Jul '22) is that we managed to move the baseline WAU from ~10 to ~20. Another effect, felt more subjectively, is the change in the community perception (I will say more about it below).
+One of the main effects of the launch (together with a [few](https://news.ycombinator.com/item?id=32098144) [recent](https://news.ycombinator.com/item?id=32566123) successful HN posts, and the [Alpha Testing Program](/blog/2022/11/16/alpha-testing-program-post-mortem) we ran in Jul '22) is that we managed to move the baseline WAU from ~10 to ~20. Another effect, felt more subjectively, is the change in the community perception.
+
+## Community perception shift
+As mentioned above, although our Alpha launch had higher absolute numbers (website traffic, HN upvotes etc), **it felt that Beta launch caused the biggest perception shift in the community so far**.
+
+Before were mostly getting superficial comments like *“this looks cool, I’ll give it a try once”*, or *“why DSL approach and not the other one”*, and this time we could notice that portion of people already knew Wasp from before (some even used it), and had more specific questions, even proposing next features that we planned but haven’t published yet.
+
+<ImgWithCaption
+    alt="Beta feedback"
+    source="img/beta-launch-review/beta-feedback.png"
+/>
+
+Although the core message (DSL for developing full-stack web apps with React & Node.js) hasn’t changed, there was significantly less pushback to the concept than before. I guess it comes down to the time elapsed and the product being more polished and validated from the outside - Beta, [published use-cases](/#showcases), [testimonials](/#testimonials), …
+
 
 ## Before the launch
 This was our initial plan:
@@ -111,18 +123,6 @@ Since we introduced all the new features during the launch week, we thought a go
 />
 
 In the end, it was definitely worth it ([see review and submissions here](https://wasp-lang.dev/blog/2023/01/11/betathon-review)). It was quite lightweight to organize (we even made a [custom web app with Wasp for the hackathon](https://betathon.wasp-lang.dev/) which you can also [use for your hackathon](https://github.com/vincanger/wasp-betathon)) and we got some really nice submissions and community shout-outs.
-
-## Community perception shift
-As mentioned above, although our Alpha launch had higher absolute numbers (website traffic, HN upvotes etc), **it felt that Beta launch caused the biggest perception shift in the community so far**.
-
-Before were mostly getting superficial comments like *“this looks cool, I’ll give it a try once”*, or *“why DSL approach and not the other one”*, and this time we could notice that portion of people already knew Wasp from before (some even used it), and had more specific questions, even proposing next features that we planned but haven’t published yet.
-
-<ImgWithCaption
-    alt="Beta feedback"
-    source="img/beta-launch-review/beta-feedback.png"
-/>
-
-Although the core message (DSL for developing full-stack web apps with React & Node.js) hasn’t changed, there was significantly less pushback to the concept than before. I guess it comes down to the time elapsed and the product being more polished and validated from the outside - Beta, [published use-cases](/#showcases), [testimonials](/#testimonials), …
 
 ## Announcing a launch date publicly is great for productivity
 

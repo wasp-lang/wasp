@@ -36,7 +36,7 @@ But which one should you use? According to our *extensive research*, a statistic
 
 Ok, it wasn’t a huge stretch for us to do so preemptively. Tailwind is one of the most heavily used CSS frameworks out there today and seems to keep growing in popularity. So how do you integrate it into your Wasp apps? Like many things in Wasp, it’s really easy- just drop in two config files into the root of your project and you can then start using it! Here are the defaults:
 
-```jsx title="./tailwind.config.js"
+```jsx title="./tailwind.config.cjs"
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -49,7 +49,7 @@ module.exports = {
 }
 ```
 
-```jsx title="./postcss.config.js"
+```jsx title="./postcss.config.cjs"
 module.exports = {
   plugins: {
     tailwindcss: {},
@@ -87,4 +87,4 @@ And then start using Tailwind classes in your components:
 
 As usual, Wasp will still automatically reload your code and refresh the browser on any changes. 🥳
 
-Lastly, here is a small example that shows how to add a few Tailwind plugins for the adventurous ([wasp file](https://github.com/wasp-lang/wasp/blob/main/waspc/examples/todoApp/todoApp.wasp#L8-L9) and [Tailwind config](https://github.com/wasp-lang/wasp/blob/main/waspc/examples/todoApp/tailwind.config.js#L10-L11)), and [here](/docs/integrations/css-frameworks) are the docs for more details. We can’t wait to see what you make!
+Lastly, here is a small example that shows how to add a few Tailwind plugins for the adventurous ([wasp file](https://github.com/wasp-lang/wasp/blob/main/waspc/examples/todoApp/todoApp.wasp#L8-L9) and [Tailwind config](https://github.com/wasp-lang/wasp/blob/main/waspc/examples/todoApp/tailwind.config.cjs#L10-L11)), and [here](/docs/integrations/css-frameworks) are the docs for more details. We can’t wait to see what you make!

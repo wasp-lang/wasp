@@ -8,15 +8,9 @@ Here, we implement it in Wasp, by following their [specification](https://realwo
 This app is deployed at https://wasp-rwa.netlify.app/ .
 
 # Development
-
-### Database
-Wasp needs postgre database running - provide it with database connection URL via env var `DATABASE_URL` - best to do it via .env file.
-
-Easy way to get going with postgresql database: run db with `docker run --rm --publish 5432:5432 -v postgresql-data:/var/lib/postgresql/data --env POSTGRES_PASSWORD=devpass postgres`.
-`DATABASE_URL` in this case is `postgresql://postgres:devpass@localhost:5432/postgres`.
-
 ### Running
-`wasp start`
+`wasp start` to run the client and the server.
+`wasp start db` to run the dev database.
 
 ## TODO
 

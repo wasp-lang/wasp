@@ -10,7 +10,80 @@ Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly 
 If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
 :::
 
-Right now, deploying of Wasp project is done by generating the code and then deploying generated code "manually", as explained below.
+# Automated
+
+## Wasp CLI
+
+Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
+```shell
+wasp deploy fly launch my-wasp-app mia
+```
+
+Under the covers, this runs the equivalent of the following commands:
+```shell
+wasp deploy fly setup my-wasp-app mia
+wasp deploy fly create-db mia
+wasp deploy fly deploy
+```
+
+In the above commands, we used an app basename of `my-wasp-app` and deployed it to the Miami, Florida (US) region (called `mia`). The basename is used to create all three app tiers, so you will have three components in your Fly dashboard:
+
+- `my-wasp-app-client`
+- `my-wasp-app-server`
+- `my-wasp-app-db`
+
+:::caution
+Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal as these commands run.
+:::
+
+:::note
+Fly has  [free allowances](https://fly.io/docs/about/pricing/#free-allowances) for up to 3 VMs. If you already have some apps deployed on their free Hobby Plan, you will need to add your credit card info before proceeding.
+:::
+
+The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/). You can also run `wasp deploy fly cmd platform regions --context server`.
+
+### Commands
+
+`setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them. We need a database first, which we create with `create-db`, and it is automatically linked to your server.
+
+:::note
+We only run the `setup` and `create-db` steps once.
+
+You may notice after running `setup` you have a `fly-server.toml` and `fly-client.toml` in your Wasp project directory. Those are meant to be version controlled. If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
+:::
+
+Finally, we `deploy` which will push your client and server live. We run this single command each time you want to update your app.
+
+:::note
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, the CLI defaults to the use of a remote Fly.io builder. If you wish to build locally, you may supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
+:::
+
+If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:
+```shell
+wasp deploy fly cmd secrets list --context server
+```
+
+:::note
+If you are deploying an app that requires any other environment variables (like social auth secrets), you will want to set your environment variables up like so:
+
+During `launch`:
+```
+wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+After `launch`/`setup`:
+```
+wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+```
+:::
+
+:::note
+If you have multiple orgs, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
+:::
+
+# Manual
+
+In addition to the CLI, you can deploy a Wasp project by generating the code and then deploying generated code "manually", as explained below.
 
 In the future, the plan is to have Wasp take care of it completely: you would declaratively define your deployment in .wasp and then just call `wasp deploy` ([github issue](https://github.com/wasp-lang/wasp/issues/169)).
 
@@ -52,7 +125,7 @@ Server uses following environment variables, so you need to ensure they are set 
 Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
 
 :::note
-Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will force the use of a remote Fly.io builder.
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will default to the use of a remote Fly.io builder.
 
 Additionally, `fly` is a symlink for `flyctl` on most systems and they can be used interchangeably.
 :::

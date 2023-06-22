@@ -181,7 +181,7 @@ genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName dataConstructo
 -- A helper function for 'genPrimDecl' and 'genRecDecl'.
 genIsDeclTypeInstanceDefinition :: Name -> Name -> ExpQ -> ExpQ -> [DecQ]
 genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE =
-  [ genFunc
+  [ genVal
       'declType
       [|
         DeclType
@@ -191,7 +191,7 @@ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
               makeDecl @ $(conT typeName) declName <$> declEvaluate typeDefs bindings declBodyExpr
           }
         |],
-    genFunc 'declEvaluate evaluateE
+    genVal 'declEvaluate evaluateE
   ]
 
 --------------- Kind, Wasp Type and Evaluation of a Haskell type ------------------

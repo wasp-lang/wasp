@@ -5,16 +5,19 @@ module Wasp.AppSpec.Valid
     ValidationError (..),
     getApp,
     isAuthEnabled,
+    doesUserEntityContainField,
   )
 where
 
 import Control.Monad (unless)
-import Data.List (find)
+import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
+import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
@@ -44,9 +47,14 @@ validateAppSpec spec =
       concat
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+          validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
+          validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
+          validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
-          validateDbIsPostgresIfPgBossUsed spec
+          validateDbIsPostgresIfPgBossUsed spec,
+          validateApiRoutesAreUnique spec,
+          validateApiNamespacePathsAreUnique spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -110,6 +118,18 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
 
+validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
+validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
+  case App.auth (snd $ getApp spec) of
+    Nothing -> []
+    Just auth ->
+      [ GenericValidationError
+          "Expected app.auth to use either email or username and password authentication, but not both."
+        | areBothAuthMethodsUsed
+      ]
+      where
+        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
+
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
@@ -131,6 +151,36 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
               [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
               ]
+
+validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
+validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isEmailAuthEnabled auth
+      then []
+      else
+        let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+            userEntityFields = Entity.getFields userEntity
+         in concatMap
+              (validateEntityHasField "app.auth.userEntity" userEntityFields)
+              [ ("email", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
+                ("password", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
+                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
+                ("emailVerificationSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?"),
+                ("passwordResetSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?")
+              ]
+
+validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
+validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isEmailAuthEnabled auth
+      then []
+      else case App.emailSender app of
+        Nothing -> [GenericValidationError "app.emailSender must be specified when using email auth."]
+        Just _ -> []
+  where
+    app = snd $ getApp spec
 
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
@@ -171,6 +221,35 @@ validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeN
               "Expected an Entity referenced by " ++ entityName ++ " to have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
           ]
 
+validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
+validateApiRoutesAreUnique spec =
+  if null groupsOfConflictingRoutes
+    then []
+    else [GenericValidationError $ "`api` routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
+  where
+    apiRoutes = AS.Api.httpRoute . snd <$> AS.getApis spec
+    groupsOfConflictingRoutes = filter ((> 1) . length) (groupBy routesHaveConflictingDefinitions $ sortBy routeComparator apiRoutes)
+
+    routeComparator :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Ordering
+    routeComparator l r | routesHaveConflictingDefinitions l r = EQ
+    routeComparator l r = compare l r
+
+    -- Two routes have conflicting definitions if they define the same thing twice,
+    -- so we don't know which definition to use. This can happen if they are exactly
+    -- the same (path and method) or if they have the same paths and one has ALL for a method.
+    routesHaveConflictingDefinitions :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Bool
+    routesHaveConflictingDefinitions (lMethod, lPath) (rMethod, rPath) =
+      lPath == rPath && (lMethod == rMethod || AS.Api.ALL `elem` [lMethod, rMethod])
+
+validateApiNamespacePathsAreUnique :: AppSpec -> [ValidationError]
+validateApiNamespacePathsAreUnique spec =
+  if null duplicatePaths
+    then []
+    else [GenericValidationError $ "`apiNamespace` paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
+  where
+    namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
+    duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
@@ -187,5 +266,18 @@ isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+getDbSystem :: AppSpec -> Maybe AS.Db.DbSystem
+getDbSystem spec = AS.Db.system =<< AS.App.db (snd $ getApp spec)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- If there is no user entity, it returns Nothing.
+doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
+doesUserEntityContainField spec fieldName = do
+  auth <- App.auth (snd $ getApp spec)
+  let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+  let userEntityFields = Entity.getFields userEntity
+  Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields

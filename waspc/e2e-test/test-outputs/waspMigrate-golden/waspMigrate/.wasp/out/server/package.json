@@ -1,30 +1,33 @@
 {
   "dependencies": {
-    "@prisma/client": "4.5.0",
+    "@prisma/client": "4.12.0",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "16.0.2",
     "express": "~4.18.1",
     "helmet": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.21",
+    "lodash.merge": "^4.6.2",
     "morgan": "~1.10.0",
     "patch-package": "^6.4.7",
+    "rate-limiter-flexible": "^2.4.1",
     "secure-password": "^4.0.0",
+    "superjson": "^1.12.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
+    "@types/express": "^4.17.13",
+    "@types/express-serve-static-core": "^4.17.13",
     "@types/node": "^18.11.9",
     "nodemon": "^2.0.19",
-    "prisma": "4.5.0",
+    "prisma": "4.12.0",
     "standard": "^17.0.0",
     "typescript": "^4.8.4"
   },
   "engineStrict": true,
   "engines": {
-    "node": "^18.12.0",
-    "npm": "^8.19.2"
+    "node": "^18.12.0"
   },
   "name": "server",
   "nodemonConfig": {
@@ -35,16 +38,18 @@
       "sodium-native": "3.3.0"
     }
   },
+  "prisma": {},
   "private": true,
   "scripts": {
     "build": "npx tsc",
     "build-and-start": "npm run build && npm run start",
-    "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
+    "db-seed": "npm run build && NODE_PATH=dist node -r dotenv/config dist/dbSeed.js",
     "postinstall": "patch-package",
     "standard": "standard",
-    "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
-    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run build-and-start",
+    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
   "type": "module",

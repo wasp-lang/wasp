@@ -3,21 +3,17 @@
   "name": "{= appName =}",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   {=& depsChunk =},
   {=& devDepsChunk =},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "start": "npm run validate-env && vite",
+    "build": "npm run validate-env && tsc && vite build",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
   "engineStrict": true,
   "engines": {
-      "node": "{=& nodeVersionRange =}",
-      "npm": "{=& npmVersionRange =}"
+      "node": "{=& nodeVersionRange =}"
   },
   "browserslist": {
     "production": [

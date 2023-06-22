@@ -1,10 +1,11 @@
 {
-  "extends": "@tsconfig/create-react-app/tsconfig.json",
+  "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
-    // Overriding this until we implement more complete TypeScript support.
-    "strict": false,
+    // Temporary loosen the type checking until we can address all the errors.
+    "jsx": "preserve",
+    "allowJs": true,
+    "strict": false
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

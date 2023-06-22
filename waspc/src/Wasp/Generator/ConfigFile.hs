@@ -7,16 +7,16 @@ where
 import Data.Map (fromList)
 import StrongPath (File', Path', Rel, castRel, relfile, (</>))
 import Wasp.AppSpec (AppSpec, doesConfigFileExist)
-import Wasp.Common (WaspProjectDir)
 import Wasp.ConfigFile (ConfigFileRelocationMap)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
+import Wasp.Project.Common (WaspProjectDir)
 
 tailwindConfigFile :: Path' (Rel WaspProjectDir) File'
-tailwindConfigFile = [relfile|tailwind.config.js|]
+tailwindConfigFile = [relfile|tailwind.config.cjs|]
 
 postcssConfigFile :: Path' (Rel WaspProjectDir) File'
-postcssConfigFile = [relfile|postcss.config.js|]
+postcssConfigFile = [relfile|postcss.config.cjs|]
 
 asProjectRootDirConfigFile :: Path' (Rel WaspProjectDir) File' -> Path' (Rel ProjectRootDir) File'
 asProjectRootDirConfigFile = (webAppRootDirInProjectRootDir </>) . castRel

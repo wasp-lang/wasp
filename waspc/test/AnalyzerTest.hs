@@ -18,6 +18,7 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Dependency as Dependency
+import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Ref (Ref (..))
@@ -57,10 +58,19 @@ spec_Analyzer = do
                 "    setupFn: import { setupServer } from \"@server/bar.js\"",
                 "  },",
                 "  client: {",
+                "    rootComponent: import { App } from \"@client/App.jsx\",",
                 "    setupFn: import { setupClient } from \"@client/baz.js\"",
                 "  },",
                 "  db: {",
-                "    system: PostgreSQL",
+                "    system: PostgreSQL,",
+                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ]",
+                "  },",
+                "  emailSender: {",
+                "    provider: SendGrid,",
+                "    defaultFrom: {",
+                "      email: \"test@test.com\",",
+                "      name: \"Test\"",
+                "    }",
                 "  }",
                 "}",
                 "",
@@ -125,7 +135,8 @@ spec_Analyzer = do
                               Auth.AuthMethods
                                 { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,
                                   Auth.google = Nothing,
-                                  Auth.gitHub = Nothing
+                                  Auth.gitHub = Nothing,
+                                  Auth.email = Nothing
                                 },
                             Auth.onAuthFailedRedirectTo = "/",
                             Auth.onAuthSucceededRedirectTo = Nothing
@@ -141,16 +152,41 @@ spec_Analyzer = do
                               Just $
                                 ExtImport
                                   (ExtImportField "setupServer")
-                                  (fromJust $ SP.parseRelFileP "bar.js")
+                                  (fromJust $ SP.parseRelFileP "bar.js"),
+                            Server.middlewareConfigFn = Nothing
                           },
                     App.client =
                       Just
                         Client.Client
                           { Client.setupFn =
                               Just $
-                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz.js")
+                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz.js"),
+                            Client.rootComponent =
+                              Just $
+                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx")
                           },
-                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL}
+                    App.db =
+                      Just
+                        Db.Db
+                          { Db.system = Just Db.PostgreSQL,
+                            Db.seeds =
+                              Just
+                                [ ExtImport
+                                    (ExtImportField "devSeedSimple")
+                                    (fromJust $ SP.parseRelFileP "dbSeeds.js")
+                                ]
+                          },
+                    App.emailSender =
+                      Just
+                        EmailSender.EmailSender
+                          { EmailSender.provider = EmailSender.SendGrid,
+                            EmailSender.defaultFrom =
+                              Just
+                                EmailSender.EmailFromField
+                                  { EmailSender.email = "test@test.com",
+                                    EmailSender.name = Just "Test"
+                                  }
+                          }
                   }
               )
             ]

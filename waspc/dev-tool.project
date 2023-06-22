@@ -10,3 +10,6 @@ constraints:
   stan ==0.0.1.0,
   hlint ==3.3.6,
   prune-juice ==0.7
+
+-- See cabal.project.
+index-state: 2023-03-09T09:15:49Z

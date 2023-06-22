@@ -1,14 +1,14 @@
 app waspJob {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.8.0"
+    version: "^0.10.6"
   },
   title: "waspJob"
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage"
+  component: import Main from "@client/MainPage.jsx"
 }
  job MySpecialJob { 
    executor: PgBoss, 

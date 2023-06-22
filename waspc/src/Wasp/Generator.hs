@@ -1,6 +1,8 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
+    Wasp.Generator.Test.testWebApp,
+    ProjectRootDir,
   )
 where
 
@@ -22,6 +24,7 @@ import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGen
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
+import qualified Wasp.Generator.Test
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)

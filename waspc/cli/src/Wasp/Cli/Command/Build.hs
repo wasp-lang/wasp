@@ -21,10 +21,10 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
+import qualified Wasp.Generator
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Lib (CompileError, CompileWarning)
-import qualified Wasp.Lib
 import qualified Wasp.Message as Msg
+import Wasp.Project (CompileError, CompileWarning)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -61,7 +61,7 @@ build = do
 
 buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
   IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where

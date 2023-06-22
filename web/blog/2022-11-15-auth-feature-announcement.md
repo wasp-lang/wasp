@@ -62,7 +62,7 @@ psl=}
 
 ### Step 2 - Update `app.auth` to use these items
 
-```css title="./main.wasp"
+```wasp title="./main.wasp"
 app authExample {
   // ...
   auth: {

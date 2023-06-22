@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -120,13 +124,13 @@ button, input[type=button], input[type=submit] {
 
 button, input, textarea {
   color: #172b4d;
-  font-size: 14px;
+  font-size: 14px !important;
   font-weight: 400;
 }
 
 input {
   border-radius: 3px;
-  padding: 8px 12px;
+  padding: 6px 10px !important;
 }
 
 ol, ul {
@@ -213,6 +217,8 @@ button.open-add-list {
 
 .list-add-button {
   margin-right: 5px;
+  border-width: 1px;
+  border-color: #000;
 }
 
 .list-cancel-edit {
@@ -427,6 +433,9 @@ textarea.card-composer-textarea {
 
 .card-add-button {
   margin-right: 5px;
+  border-width: 1px;
+  border-color: #000;
+
 }
 
 /* Board header */

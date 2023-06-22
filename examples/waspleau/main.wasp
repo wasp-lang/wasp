@@ -1,6 +1,6 @@
 app waspleau {
   wasp: {
-    version: "^0.8.0"
+    version: "^0.10.0"
   },
 
   title: "Waspleau",
@@ -51,7 +51,7 @@ psl=}
 
 route RootsRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage.jsx"
 }
 
 query dashboard {

@@ -7,7 +7,7 @@ title: Telemetry
 The term **telemetry** refers to the collection of certain usage data to help improve the quality of a piece of software (in this case, Wasp).
 
 Our telemetry implementation is anonymized and very limited in its scope, focused on answering following questions:
- - How many people and how often: tried to install Wasp, use Wasp, or have built a Wasp app?
+ - How many people and how often: tried to install Wasp, use Wasp, have built a Wasp app, or have deployed one?
  - How many projects are created with Wasp?
 
 ## When and what is sent?
@@ -22,6 +22,8 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
      "project_hash": "6d7e561d62b955d1",
      // True if command was `wasp build`, false otherwise.
      "is_build": true,
+     // Only specific deploy keywords.
+     "deploy_cmd_args": "fly;deploy",
      "wasp_version": "0.1.9.1",
      "os": "linux"
    }

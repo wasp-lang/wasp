@@ -1,13 +1,13 @@
 app TodoTypescript {
   wasp: {
-    version: "^0.7.3"
+    version: "^0.9.0"
   },
   title: "ToDo TypeScript",
 
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {}, 
+      usernameAndPassword: {},
     },
     onAuthFailedRedirectTo: "/login",
   }
@@ -16,10 +16,10 @@ app TodoTypescript {
 // Use Prisma Schema Language (PSL) to define our entities: https://www.prisma.io/docs/concepts/components/prisma-schema
 // Run `wasp db migrate-dev` in the CLI to create the database tables
 // Then run `wasp db studio` to open Prisma Studio and view your db models
-entity User {=psl 
+entity User {=psl
   id          Int     @id @default(autoincrement())
   username    String  @unique
-  password    String  
+  password    String
   tasks       Task[]
 psl=}
 
@@ -34,22 +34,22 @@ psl=}
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
-  component: import { MainPage } from "@client/MainPage"
+  component: import { MainPage } from "@client/MainPage.tsx"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage"
+  component: import { LoginPage } from "@client/LoginPage.tsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage"
+  component: import { SignupPage } from "@client/SignupPage.tsx"
 }
 
 query getTasks {
   // We specify the JS implementation of our query (which is an async JS function)
-  // Even if you use TS and have a queries.ts file, you will still need to import it using the .js extension. 
+  // Even if you use TS and have a queries.ts file, you will still need to import it using the .js extension.
   // see here for more info: https://wasp-lang.dev/docs/tutorials/todo-app/03-listing-tasks#wasp-declaration
   fn: import { getTasks } from "@server/queries.js",
   // We tell Wasp that this query is doing something with the `Task` entity. With that, Wasp will

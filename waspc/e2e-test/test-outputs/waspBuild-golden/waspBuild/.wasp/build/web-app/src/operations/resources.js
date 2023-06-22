@@ -11,7 +11,7 @@ const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.
- * @param {string} queryCacheKey - Unique key under used to identify query in the cache.
+ * @param {string[]} queryCacheKey - Unique key under used to identify query in the cache.
  * @param {string[]} resources - Names of resources that query is using.
  */
 export function addResourcesUsedByQuery(queryCacheKey, resources) {
@@ -40,16 +40,15 @@ export function getActiveOptimisticUpdates(queryKey) {
   return updateHandlers.getUpdateHandlers(queryKey)
 }
 
-export async function removeQueries() {
-  const queryClient = await queryClientInitialized
-  queryClient.removeQueries()
-}
-
 export async function invalidateAndRemoveQueries() {
   const queryClient = await queryClientInitialized
   // If we don't reset the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
   // logging out.
+  // When a query is removed, the `Observer` is removed as well, and the components
+  // that are using the query are not re-rendered. This is why we need to reset
+  // the queries, so that the `Observer` is re-created and the components are re-rendered.
+  // For more details: https://github.com/wasp-lang/wasp/pull/1014/files#r1111862125
   queryClient.resetQueries()
   // If we don't remove the queries after invalidating them, the old query data
   // remains in the cache, casuing a potential privacy issue.

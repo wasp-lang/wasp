@@ -6,6 +6,7 @@ import { randomInt } from 'node:crypto'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
+import HttpError from '../core/HttpError.js'
 import config from '../config.js'
 
 const jwtSign = util.promisify(jwt.sign)
@@ -33,7 +34,7 @@ const auth = handleRejection(async (req, res, next) => {
       userIdFromToken = (await verify(token)).id
     } catch (error) {
       if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
-        return res.status(401).send()
+        throwInvalidCredentialsError()
       } else {
         throw error
       }
@@ -41,14 +42,18 @@ const auth = handleRejection(async (req, res, next) => {
 
     const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
     if (!user) {
-      return res.status(401).send()
+      throwInvalidCredentialsError()
     }
 
+    // TODO: This logic must match the type in types/index.ts (if we remove the
+    // password field from the object here, we must to do the same there).
+    // Ideally, these two things would live in the same place:
+    // https://github.com/wasp-lang/wasp/issues/965
     const { password, ...userView } = user
 
     req.user = userView
   } else {
-    return res.status(401).send()
+    throwInvalidCredentialsError()
   }
 
   next()
@@ -62,11 +67,9 @@ export const hashPassword = async (password) => {
 }
 
 export const verifyPassword = async (hashedPassword, password) => {
-  try {
-    return await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
-  } catch (error) {
-    console.error(error)
-    return false
+  const result = await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
+  if (result !== SecurePassword.VALID) {
+    throw new Error('Invalid password.')
   }
 }
 
@@ -116,6 +119,10 @@ async function findAvailableUsername(potentialUsernames) {
   }
 
   return availableUsernames[0]
+}
+
+export function throwInvalidCredentialsError(message) {
+  throw new HttpError(401, 'Invalid credentials', { message })
 }
 
 export default auth

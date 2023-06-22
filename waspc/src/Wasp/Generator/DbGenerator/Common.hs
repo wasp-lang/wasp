@@ -1,37 +1,61 @@
 module Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
+    serverPrismaClientOutputDirEnv,
+    webAppPrismaClientOutputDirEnv,
+    prismaClientOutputDirInAppComponentDir,
+    dbSchemaFileFromAppComponentDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
-    dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
     defaultMigrateArgs,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
     MigrateArgs (..),
     RefreshOnLastDbConcurrenceChecksumFile (..),
+    DbSchemaChecksumOnLastDbConcurrenceFile,
+    DbSchemaChecksumOnLastGenerateFile,
+    PrismaDbSchema,
+    serverRootDirFromDbRootDir,
+    webAppRootDirFromDbRootDir,
+    dbSchemaFileInProjectRootDir,
+    prismaClientOutputDirEnvVar,
+    DbSchemaChecksumFile,
   )
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp.Common (DbMigrationsDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir, ServerRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data DbRootDir
+import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
 
--- | This file represents the checksum of schema.prisma at the point
+-- | This file represents the Prisma db schema.
+data PrismaDbSchema
+
+class DbSchemaChecksumFile f
+
+-- | This file represents the checksum of the Prisma db schema at the point
 -- at which we last interacted with the DB to ensure they matched.
 -- It is used to help warn the user of instances when they may need to migrate.
 data DbSchemaChecksumOnLastDbConcurrenceFile
 
--- | This file represents the checksum of schema.prisma
+instance DbSchemaChecksumFile DbSchemaChecksumOnLastDbConcurrenceFile
+
+-- | This file represents the checksum of the Prisma db schema
 -- at the point at which `prisma generate` was last run. It is used
 -- to know if we need to regenerate schema.prisma during web app generation or not.
 data DbSchemaChecksumOnLastGenerateFile
+
+instance DbSchemaChecksumFile DbSchemaChecksumOnLastGenerateFile
+
+serverRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
+serverRootDirFromDbRootDir = [reldir|../server|]
+
+webAppRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
+webAppRootDirFromDbRootDir = [reldir|../web-app|]
 
 dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
 dbRootDirInProjectRootDir = [reldir|db|]
@@ -42,12 +66,16 @@ dbTemplatesDirInTemplatesDir = [reldir|db|]
 dbSchemaFileInDbTemplatesDir :: Path' (Rel DbTemplatesDir) File'
 dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 
-dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
--- Generated schema file will be in the same relative location as the
--- template file within templates dir.
-dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
+dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) (File PrismaDbSchema)
+dbSchemaFileInDbRootDir = [relfile|schema.prisma|]
 
-dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
+dbRootDirFromAppComponentDir :: AppComponentRootDir d => Path' (Rel d) (Dir DbRootDir)
+dbRootDirFromAppComponentDir = [reldir|../db|]
+
+dbSchemaFileFromAppComponentDir :: AppComponentRootDir d => Path' (Rel d) (File PrismaDbSchema)
+dbSchemaFileFromAppComponentDir = dbRootDirFromAppComponentDir </> dbSchemaFileInDbRootDir
+
+dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
 dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
@@ -64,6 +92,22 @@ dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-gene
 
 dbSchemaChecksumOnLastGenerateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
+
+prismaClientOutputDirEnvVar :: String
+prismaClientOutputDirEnvVar = "PRISMA_CLIENT_OUTPUT_DIR"
+
+prismaClientOutputDirInAppComponentDir :: AppComponentRootDir d => Path' (Rel d) (Dir ServerRootDir)
+prismaClientOutputDirInAppComponentDir = [reldir|node_modules/.prisma/client|]
+
+serverPrismaClientOutputDirEnv :: (String, String)
+serverPrismaClientOutputDirEnv = appComponentPrismaClientOutputDirEnv serverRootDirFromDbRootDir
+
+webAppPrismaClientOutputDirEnv :: (String, String)
+webAppPrismaClientOutputDirEnv = appComponentPrismaClientOutputDirEnv webAppRootDirFromDbRootDir
+
+appComponentPrismaClientOutputDirEnv :: AppComponentRootDir d => Path' (Rel DbRootDir) (Dir d) -> (String, String)
+appComponentPrismaClientOutputDirEnv appComponentDirFromDbRootDir =
+  (prismaClientOutputDirEnvVar, SP.fromRelDir $ appComponentDirFromDbRootDir </> prismaClientOutputDirInAppComponentDir)
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,

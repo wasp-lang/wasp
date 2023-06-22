@@ -4,13 +4,14 @@ title: Features
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import SendingEmailsInDevelopment from '../_sendingEmailsInDevelopment.md'
 
 ## App
 
 There can be only one declaration of `app` type per Wasp project.
 It serves as a starting point and defines global properties of your app.
 
-```c
+```wasp
 app todoApp {
   wasp: {
     version: "^0.6.0"
@@ -58,11 +59,15 @@ Check [`app.db`](/docs/language/features#database-configuration) for more detail
 List of dependencies (external libraries).
 Check [`app.dependencies`](/docs/language/features#dependencies) for more details.
 
+#### `emailSender: dict` (optional)
+Email sender configuration.
+Check [`app.emailSender`](/docs/language/features#email-sender) for more details.
+
 ## Page
 
 `page` declaration is the top-level layout abstraction. Your app can have multiple pages.
 
-```c
+```wasp
 page MainPage {
   component: import Main from "@client/pages/Main",
   authRequired: false  // optional
@@ -89,7 +94,7 @@ Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/06-au
 
 `route` declaration provides top-level routing functionality in Wasp.
 
-```css
+```wasp
 route AboutRoute { path: "/about", to: AboutPage }
 ```
 
@@ -104,7 +109,7 @@ Name of the `page` to which the path will lead.
 Referenced page must be defined somewhere in `.wasp` file.
 
 ### Example - parametrised URL path
-```css
+```wasp
 route TaskRoute { path: "/task/:id", to: TaskPage }
 ```
 For details on URL path format check [React Router](https://reactrouter.com/web/)
@@ -116,7 +121,7 @@ Since Wasp under the hood generates code with [React Router](https://reactrouter
 the same rules apply when accessing URL params in your React components. Here is an example just to get you
 started:
 
-```c title="todoApp.wasp"
+```wasp title="todoApp.wasp"
 // ...
 route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage {
@@ -142,7 +147,7 @@ export default Task
 Navigation can be performed from the React code via `<Link/>` component, also using the functionality of
 [React Router](https://reactrouter.com/web/):
 
-```c title="todoApp.wasp"
+```wasp title="todoApp.wasp"
 // ...
 route HomeRoute { path: "/home", to: HomePage }
 page HomePage {
@@ -168,7 +173,7 @@ Wasp uses [Prisma](https://www.prisma.io/) to implement database functionality a
 
 Each `Entity` declaration corresponds 1-to-1 to Prisma data model and is defined in a following way:
 
-```css
+```wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -191,7 +196,15 @@ on top of it. The workflow is as follows:
 3. Migration data is generated in `migrations/` folder (and should be commited).
 4. Wasp developer uses Prisma JS API to work with the database when in Operations.
 
-Currently entities can be accessed only in Operations (Queries & Actions), so check their part of docs for more info on how to use entities in their context.
+#### Using Entities in Operations
+
+Most of the time in Wasp you will be working with entities in the context of Operations (Queries & Actions), so check their part of docs for more info on how to use entities in Operations.
+
+#### Using Entities directly
+
+If needed, you can also interact with entities directly via [Prisma Client(https://www.prisma.io/docs/concepts/components/prisma-client/crud) (although we recommend using them via injected `entities` when in Operations).
+
+To import Prisma Client in your Wasp server code, do `import prismaClient from '@wasp/dbClient'`.
 
 ## Queries and Actions (aka Operations)
 
@@ -215,13 +228,13 @@ After completing these two steps, you'll be able to use the Query from any point
 
 
 #### Defining the Query's NodeJS implementation
-A Query must be implemented as an `async` NodeJS function that takes two arguments.
+The Query's implementation is a NodeJS function that takes two arguments (it can be an `async` function but doesn't have to).
 Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
 1. `args`:  An object containing all the arguments (i.e., payload) **passed to the Query by the caller** (e.g., filtering conditions).
 Take a look at [the examples of usage](#using-the-query) to see how to pass this object to the Query.
 3. `context`: An additional context object **injected into the Query by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
 
-Here's an example of two simple Queries:
+Here's an example of three simple Queries:
 ```js title="src/server/queries.js"
 // our "database"
 const tasks = [
@@ -230,16 +243,21 @@ const tasks = [
   { id: 3, description: "Eat breakfast", isDone: false }
 ]
 
-
 // You don't need to use the arguments if you don't need them
-export const getAllTasks = async () => {
+export const getAllTasks = () => {
   return tasks;
 }
 
 // The 'args' object is something sent by the caller (most often from the client)
-export const getFilteredTasks = async (args) => {
+export const getFilteredTasks = (args) => {
   const { isDone } = args;
   return tasks.filter(task => task.isDone === isDone)
+}
+
+// Query implementations can be async functions and use await.
+export const getTasksWithDelay = async () => {
+  const result = await sleep(1000)
+  return tasks
 }
 ```
 
@@ -252,7 +270,7 @@ We'll leave this option aside for now. You can read more about it [here](#using-
 
 Wasp Queries and their implementations don't need to (but can) have the same name, so we will keep the names different to avoid confusion.
 With that in mind, this is how you might declare the Queries that use the implementations from the previous step:
-```c title="pages/main.wasp"
+```wasp title="pages/main.wasp"
 // ...
 
 // Again, it most likely makes sense to name the Wasp Query after
@@ -372,7 +390,7 @@ To prevent information leakage, the server won't forward these fields for any ot
 In most cases, resources used in Queries will be [Entities](#entity).
 To use an Entity in your Query, add it to the query declaration in Wasp:
 
-```c {4,9} title="main.wasp"
+```wasp {4,9} title="main.wasp"
 
 query fetchAllTasks {
   fn: import { getAllTasks } from "@server/queries.js",
@@ -418,7 +436,7 @@ export const sayHi = async () => {
 ```
 Its corresponding declaration in Wasp:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 action sayHi {
@@ -439,13 +457,13 @@ Here's an example on how you might define a less contrived Action.
 ```js title=src/server/actions.js
 // ...
 export const updateTaskIsDone = ({ id, isDone }, context) => {
-    return context.entities.Task.update({
-        where: { id },
-        data: { isDone }
-    })
+  return context.entities.Task.update({
+    where: { id },
+    data: { isDone }
+  })
 }
 ```
-```c title=main.wasp
+```wasp title=main.wasp
 action updateTaskIsDone {
   fn: import { updateTaskIsDone } from "@server/actions.js",
   entities: [Task]
@@ -453,7 +471,7 @@ action updateTaskIsDone {
 ```
 
 And here is how you might use it:
-```js {4,18} title=src/client/pages/Task.js
+```jsx {4,18} title=src/client/pages/Task.js
 import React from 'react'
 import { useQuery } from '@wasp/queries'
 import fetchTask from '@wasp/queries/fetchTask'
@@ -485,7 +503,7 @@ In other words, the hook returns a function whose API matches the original Actio
 
 The `useAction` hook accepts two arguments:
 - `actionFn` (required) - The Wasp Action (i.e., the client-side query function generated by Wasp based on a query declaration) you wish to enhance.
-- `actionOptions` (optional) - An object configuring the extra features you want to add to the given Action. While this argument is technically optional, there is no point in using the `useAction` hook without providing it (it would be the same as using the Action directly). The Action options object supports the following fields: 
+- `actionOptions` (optional) - An object configuring the extra features you want to add to the given Action. While this argument is technically optional, there is no point in using the `useAction` hook without providing it (it would be the same as using the Action directly). The Action options object supports the following fields:
   - `optimisticUpdates` (optional) - An array of objects where each object defines an [optimistic update](https://stackoverflow.com/a/33009713) to perform on the query cache. To define an optimistic update, you must specify the following properties:
     - `getQuerySpecifier` (required) - A function returning the query specifier (i.e., a value used to address the query you want to update). A query specifier is an array specifying the query function and arguments. For example, to optimistically update the query used with `useQuery(fetchFilteredTasks, {isDone: true }]`, your `getQuerySpecifier` function would have to return the array `[fetchFilteredTasks, { isDone: true}]`. Wasp will forward the argument you pass into the decorated Action to this function (i.e., you can use the properties of the added/change item to address the query).
     - `updateQuery` (required) - The function used to perform the optimistic update. It should return the desired state of the cache. Wasp will call it with the following arguments:
@@ -494,7 +512,7 @@ The `useAction` hook accepts two arguments:
 
 **NOTE:** The `updateQuery` function must be a pure function. It must return the desired cache value identified by the `getQuerySpecifier` function and _must not_ perform any side effects. Also, make sure you only update the query caches affected by your action causing the optimistic update (Wasp cannot yet verify this). Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
 
-Here's an example showing how to configure the Action from the previous example to perform an optimistic update: 
+Here's an example showing how to configure the Action from the previous example to perform an optimistic update:
 ```jsx {3,9,10,11,12,13,14,15,16,27} title=src/client/pages/Task.js
 import React from 'react'
 import { useQuery } from '@wasp/queries'
@@ -532,7 +550,7 @@ const TaskPage = ({ id }) => {
   )
 }
 
-export default TaskPage 
+export default TaskPage
 ```
 #### Advanced usage
 The `useAction` hook currently only supports specifying optimistic updates. You can expect more features in future versions of Wasp.
@@ -573,16 +591,158 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
 
 ##### Example of usage:
 ```js
-  try {
-    await context.entities.Task.create({...})
-  } catch (e) {
-    if (isPrismaError(e)) {
-      throw prismaErrorToHttpError(e)
-    } else {
-      throw e
-    }
+try {
+  await context.entities.Task.create({...})
+} catch (e) {
+  if (isPrismaError(e)) {
+    throw prismaErrorToHttpError(e)
+  } else {
+    throw e
   }
+}
 ```
+
+## APIs
+
+In Wasp, the default client-server interaction mechanism is through [Operations](#queries-and-actions-aka-operations). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
+
+### API
+
+APIs are used to tie a JS function to an HTTP (method, path) pair. They are distinct from Operations, and have no client-side helpers (like `useQuery`).
+
+To create a Wasp API, you must:
+1. Define the APIs NodeJS implementation
+2. Declare the API in Wasp using the `api` declaration
+
+After completing these two steps, you'll be able to call the API from client code (via our Axios wrapper), or from the outside world.
+
+:::note
+In order to leverage the benefits of TypeScript and use types in your NodeJS implementation (step 1), you must add your `api` declarations to your `.wasp` file (step 2) _and_ compile the Wasp project. This will enable the Wasp compiler to generate any new types based on your `.wasp`file definitions for use in your implementation files.
+:::
+
+#### Defining the APIs NodeJS implementation
+An API should be implemented as a NodeJS function that takes three arguments.
+1. `req`:  Express Request object
+2. `res`: Express Response object
+3. `context`: An additional context object **injected into the API by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in APIs](#using-entities-in-apis).
+
+##### Simple API example
+```ts title="src/server/apis.ts"
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar : FooBar = (req, res, context) => {
+  res.set('Access-Control-Allow-Origin', '*') // Example of modifying headers to override Wasp default CORS middleware.
+  res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
+}
+```
+
+##### More complicated TypeScript example
+Let's say you wanted to create some `GET` route that would take an email address as a param, and provide them the answer to "Life, the Universe and Everything." :) What would this look like in TypeScript?
+
+```wasp title="main.wasp"
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/bar/:email")
+}
+```
+
+```ts title="src/server/apis.ts"
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar: FooBar<
+{ email: string }, // params
+{ answer: number }  // response
+> = (req, res, _context) => {
+  console.log(req.params.email)
+  res.json({ answer: 42 })
+}
+```
+
+#### Declaring an API in Wasp
+After implementing your APIs in NodeJS, all that's left to do before using them is tell Wasp about it!
+You can easily do this with the `api` declaration, which supports the following fields:
+- `fn: ServerImport` (required) - The import statement of the APIs NodeJs implementation.
+- `httpRoute: (HttpMethod, string)` (required) - The HTTP (method, path) pair, where the method can be one of:
+  - `ALL`, `GET`, `POST`, `PUT` or `DELETE`
+  - and path is an Express path `string`.
+- `entities: [Entity]` (optional) - A list of entities you wish to use inside your API.
+We'll leave this option aside for now. You can read more about it [here](#using-entities-in-apis).
+- `auth: bool` (optional) - If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you may set this to `false`.
+- `middlewareConfigFn: ServerImport` (optional) - The import statement to an Express middleware config function for this API. See [the guide here](/docs/guides/middleware-customization#2-customize-api-specific-middleware).
+
+Wasp APIs and their implementations don't need to (but can) have the same name. With that in mind, this is how you might declare the API that uses the implementations from the previous step:
+```wasp title="pages/main.wasp"
+// ...
+
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  httpRoute: (GET, "/foo/bar")
+}
+```
+
+#### Using the API
+To use the API externally, you simply call the endpoint using the method and path you used. For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example/com/foo/callback` (in your browser, Postman, `curl`, another web service, etc.).
+
+To use the API from your client, including with auth support, you can import the Axios wrapper from `@wasp/api` and invoke a call. For example:
+```ts
+import React, { useEffect } from 'react'
+import api from '@wasp/api'
+
+async function fetchCustomRoute() {
+  const res = await api.get('/foo/bar')
+  console.log(res.data)
+}
+
+export const Foo = () => {
+  useEffect(() => {
+    fetchCustomRoute()
+  }, []);
+
+  return (
+    <>
+      // ...
+    </>
+  )
+}
+```
+
+#### Using Entities in APIs
+In many cases, resources used in APIs will be [Entities](#entity).
+To use an Entity in your API, add it to the `api` declaration in Wasp:
+
+```wasp {3} title="main.wasp"
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/bar")
+}
+```
+
+Wasp will inject the specified Entity into the APIs `context` argument, giving you access to the Entity's Prisma API:
+```ts title="src/server/apis.ts"
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar : FooBar = (req, res, context) => {
+  res.json({ count: await context.entities.Task.count() })
+}
+
+```
+
+The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+
+### `apiNamespace`
+
+An `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path. For example:
+
+```wasp title="main.wasp"
+apiNamespace fooBar {
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apis.js",
+  path: "/foo/bar"
+}
+```
+
+For more information about middleware configuration, please see: [Middleware Configuration](/docs/guides/middleware-customization)
 
 ## Jobs
 
@@ -590,8 +750,8 @@ If you have server tasks that you do not want to handle as part of the normal re
   * persist between server restarts
   * can be retried if they fail
   * can be delayed until the future
-  * can have a recurring schedule! 
-  
+  * can have a recurring schedule!
+
 Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
 
 ### Job Executors
@@ -606,17 +766,17 @@ Currently, Wasp supports only one type of job executor, which is `PgBoss`, but i
 
 We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
-:::info 
+:::info
 Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details below for more information.
 
 <details>
   <summary>pg-boss details</summary>
 
-  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.0.0/README.md).
+  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.4.2/README.md).
 
   When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
 
-  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
+  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
   ##### pg-boss considerations
   - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
@@ -633,7 +793,7 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
 
 To declare a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
   perform: {
@@ -654,15 +814,15 @@ console.log(await submittedJob.pgBoss.details())
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
 
-And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`. 
+And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`.
 
-Note that in our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function. 
+Note that in our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function.
 
 ### Recurring jobs
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
-```c  {6-9} title="main.wasp"
+```wasp  {6-9} title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
   perform: {
@@ -680,7 +840,7 @@ In this example, you do _not_ need to invoke anything in JavaScript. You can ima
 ### Fully specified example
 Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
 
-```c
+```wasp
 job mySpecialJob {
   executor: PgBoss,
   perform: {
@@ -715,28 +875,28 @@ job mySpecialJob {
     // Can reference context.entities.Task, for example.
   }
   ```
-  
+
   - ##### `executorOptions: dict` (optional)
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
 #### `schedule: dict` (optional)
-  
+
   - ##### `cron: string` (required)
-  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#scheduling).
-  
+  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#scheduling).
+
   _If you need help building cron expressions, Check out_ <em>[Crontab guru](https://crontab.guru/#0_*_*_*_*).</em>
-  
+
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
-    
+
   - ##### `executorOptions: dict` (optional)
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
 #### `entities: [Entity]` (optional)
 A list of entities you wish to use inside your Job (similar to Queries and Actions).
@@ -783,15 +943,15 @@ There will also be namespaced, job executor-specific objects.
 
 - For pg-boss, you may access: `pgBoss`
   - **NOTE**: no arguments are necessary, as we already applied the `jobId` in the available functions.
-  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#getjobbyidid)
-  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#cancelid)
-  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#resumeid)
+  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#getjobbyidid)
+  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
+  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
 
 ## Dependencies
 
 You can specify additional npm dependencies via `dependencies` field in `app` declaration, in following way:
 
-```c
+```wasp
 app MyApp {
   title: "My app",
   // ...
@@ -814,7 +974,7 @@ In the future, we will add support for picking any version you like, but we have
 
 Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring the `auth` field of the `app` declaration:
 
-```c 
+```wasp
 app MyApp {
   title: "My app",
   //...
@@ -822,7 +982,8 @@ app MyApp {
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {}, // use this or email, not both
+      email: {}, // use this or usernameAndPassword, not both
       google: {},
       gitHub: {},
     },
@@ -836,16 +997,17 @@ app MyApp {
 `app.auth` is a dictionary with following fields:
 
 #### `userEntity: entity` (required)
-Entity which represents the user (sometimes also referred to as *Principal*).
+Entity which represents the user.
 
 #### `externalAuthEntity: entity` (optional)
 Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20) for more info.
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
-* `google`: Provides support for login via Google accounts. See [here](#social-login-providers-oauth-20) for more.
-* `gitHub`: Provides support for login via GitHub accounts. See [here](#social-login-providers-oauth-20) for more.
+* `usernameAndPassword`: authentication with a username and password. See [here](#username-and-password) for more.
+* `email`: authentication with a email and password. See [here](#email-authentication) for more.
+* `google`: authentication via Google accounts. See [here](#social-login-providers-oauth-20) for more.
+* `gitHub`: authentication via GitHub accounts. See [here](#social-login-providers-oauth-20) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -855,7 +1017,7 @@ Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/06-au
 Path where a successfully authenticated user will be sent upon successful login/signup.
 Default value is "/".
 
-:::note 
+:::note
 Automatic redirect on successful login only works when using the Wasp provided [`Signup` and `Login` forms](#high-level-api)
 :::
 
@@ -864,7 +1026,7 @@ Automatic redirect on successful login only works when using the Wasp provided [
 `usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
 This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields:
 
-```c title="main.wasp"
+```wasp
 app MyApp {
   title: "My app",
   //...
@@ -916,10 +1078,10 @@ export const signUp = async (args, context) => {
   // ...
 
   const newUser = context.entities.User.create({
-    data: { 
-      username: args.username, 
+    data: {
+      username: args.username,
       password: args.password // password hashed automatically by Wasp! 🐝
-    } 
+    }
   })
 
   // Your custom code after sign-up.
@@ -935,26 +1097,21 @@ You don't need to worry about hashing the password yourself! Even when you are u
 ##### Customizing user entity validations
 
 To disable/enable default validations, or add your own, you can modify your custom signUp function like so:
-```js title="src/server/auth/signup.js"
-export const signUp = async (args, context) => {
-
-  const newUser = context.entities.User.create({
-    data: { 
-      username: args.username, 
-      password: args.password // password hashed automatically by Wasp! 🐝
+```js
+const newUser = context.entities.User.create({
+  data: {
+    username: args.username,
+    password: args.password // password hashed automatically by Wasp! 🐝
+  },
+  _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
+  _waspCustomValidations: [
+    {
+      validates: 'password',
+      message: 'password must contain an uppercase letter',
+      validator: password => /[A-Z]/.test(password)
     },
-    _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
-    _waspCustomValidations: [
-      {
-        validates: 'password',
-        message: 'password must contain an uppercase letter',
-        validator: password => /[A-Z]/.test(password)
-      },
-    ]
-  })
-
-  return newUser
-}
+  ]
+})
 ```
 
 :::info
@@ -963,7 +1120,7 @@ Validations always run on `create()`, but only when the field mentioned in `vali
 
 #### Specification
 
-### `login()`
+#### `login()`
 An action for logging in the user.
 ```js
 login(username, password)
@@ -985,7 +1142,7 @@ import login from '@wasp/auth/login.js'
 Login is a regular action and can be used directly from the frontend.
 
 
-### `signup()`
+#### `signup()`
 An action for signing up the user. This action does not log in the user, you still need to call `login()`.
 ```js
 signup(userFields)
@@ -1000,7 +1157,7 @@ import signup from '@wasp/auth/signup.js'
 Signup is a regular action and can be used directly from the frontend.
 
 
-### `logout()`
+#### `logout()`
 An action for logging out the user.
 ```js
 logout()
@@ -1022,9 +1179,6 @@ const SignOut = () => {
 }
 ```
 
-#### Reset password
-Coming soon.
-
 #### Updating a user's password
 If you need to update user's password, you can do it safely via Prisma client, e.g. within an action:
 ```js
@@ -1041,103 +1195,196 @@ You don't need to worry about hashing the password yourself - if you have an `au
 in your `.wasp` file, Wasp already set a middleware on Prisma that makes sure whenever password
 is created or updated on the user entity, it is also hashed before it is stored to the database.
 
+### Email authentication
 
-### Accessing the currently logged in user
-When authentication is enabled in a Wasp app, we need a way to tell whether a user is logged in and access its data.
-With that, we can further implement access control and decide which content is private and which public.
+:::info 
+We have written a step-by-step guide on how to set up the e-mail authentication with Wasp's included Auth UI. 
 
-#### On the client
-On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
-This hook is actually a thin wrapper over Wasp's [`useQuery` hook](#the-usequery-hook) and returns data in the same format.
+Read more in the [email authentication guide](/docs/guides/email-auth).
+:::
 
-### `useAuth()`
-#### `import statement`:
-```js
-import useAuth from '@wasp/auth/useAuth.js'
-```
+:::warning
+If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password.
 
-##### Example of usage:
-```js title="src/client/pages/MainPage.js"
-import React from 'react'
+If a user signs up with the e-mail and password and then tries to login with a social provider (Google or Github), they won't be able to do that.
 
-import { Link } from 'react-router-dom'
-import useAuth from '@wasp/auth/useAuth.js'
-import logout from '@wasp/auth/logout.js'
-import Todo from '../Todo.js'
+In the future, we will lift this limitation and enable smarter merging of accounts.
+:::
 
-const Main = () => {
-  const { data: user } = useAuth()
+`email` authentication method makes it possible to signup/login into the app by using an e-mail and a password.
 
-  if (!user) {
-    return (
-      <span>
-        Please <Link to='/login'>login</Link> or <Link to='/signup'>sign up</Link>.
-      </span>
-    )
-  } else {
-    return (
-      <>
-        <button onClick={logout}>Logout</button>
-        <Todo />
-      </>
-    )
-  }
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        // we'll deal with `email` below
+      },
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  },
+  // ...
 }
 
-export default Main
+// Wasp requires the userEntity to have at least the following fields
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    email                     String?       @unique
+    password                  String?
+    isEmailVerified           Boolean       @default(false)
+    emailVerificationSentAt   DateTime?
+    passwordResetSentAt       DateTime?
+psl=}
 ```
 
-#### On the server
+This method requires that `userEntity` specified in `auth` contains:
 
-When authentication is enabled, all operations (actions and queries) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
+- optional `email` field of type `String`
+- optional `password` field of type `String`
+- `isEmailVerified` field of type `Boolean` with a default value of `false`
+- optional `emailVerificationSentAt` field of type `DateTime`
+- optional `passwordResetSentAt` field of type `DateTime`
 
-##### Example of usage:
-```js title="src/server/actions.js"
-import HttpError from '@wasp/core/HttpError.js'
+#### Fields in the `email` dict
 
-export const createTask = async (task, context) => {
-  if (!context.user) {
-    throw new HttpError(403)
-  }
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
 
-  const Task = context.entities.Task
-  return Task.create({
-    data: {
-      description: task.description,
-      user: {
-        connect: { id: context.user.id }
-      }
-    }
-  })
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        fromField: {
+          name: "My App",
+          email: "hello@itsme.com"
+        },
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+        },
+        allowUnverifiedLogin: false,
+      },
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  },
+  // ...
 }
 ```
-In order to implement access control, each operation is responsible for checking `context.user` and
-acting accordingly - e.g. if `context.user` is `undefined` and the operation is private then user
-should be denied access to it.
 
-### Validation Error Handling
-When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed a class called `AuthError` for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
+##### `fromField: EmailFromField` (required)
+`fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by Wasp. It is required to be defined. The object has the following fields:
+- `name`: name of the sender (optional)
+- `email`: e-mail address of the sender
 
-#### `import statement`:
-```js
-import AuthError from '@wasp/core/AuthError.js'
+##### `emailVerification: EmailVerificationConfig` (required)
+`emailVerification` is a dict that specifies the e-mail verification process. It is required to be defined.
+
+The object has the following fields:
+- `clientRoute: Route`: a route that is used for the user to verify their e-mail address. (required)
+
+Client route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our `verifyEmail` action for that.
+
+```js title="src/pages/EmailVerificationPage.jsx"
+import { verifyEmail } from '@wasp/auth/email/actions';
+...
+await verifyEmail({ token });
 ```
 
-##### Example of usage:
-```js
-  try {
-    await context.entities.User.update(...)
-  } catch (e) {
-    if (e instanceof AuthError) {
-      throw new HttpError(422, 'Validation failed', { message: e.message })
-    } else {
-      throw e
-    }
-  }
+Read on how to do it the easiest way with Auth UI in the [email authentication guide](/docs/guides/email-auth).
+
+- `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user. (optional)
+
+Defining `getEmailContentFn` can be done by defining a Javscript or Typescript file in the `server` directory.
+
+```ts title="server/email.ts"
+import { GetVerificationEmailContentFn } from '@wasp/types'
+
+export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
+  verificationLink,
+}) => ({
+  subject: 'Verify your email',
+  text: `Click the link below to verify your email: ${verificationLink}`,
+  html: `
+        <p>Click the link below to verify your email</p>
+        <a href="${verificationLink}">Verify email</a>
+    `,
+})
 ```
 
-## Social Login Providers (OAuth 2.0)
-Wasp allows you to easily add social login providers to your app. 
+##### `passwordReset: PasswordResetConfig` (required)
+`passwordReset` is a dict that specifies the password reset process. It is required to be defined. The object has the following fields:
+- `clientRoute: Route`: a route that is used for the user to reset their password. (required)
+
+Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server.  You can use our `requestPasswordReset` and `resetPassword` actions to do that.
+
+```js title="src/pages/ForgotPasswordPage.jsx"
+import { requestPasswordReset } from '@wasp/auth/email/actions';
+...
+await requestPasswordReset({ email });
+```
+
+```js title="src/pages/PasswordResetPage.jsx"
+import { resetPassword } from '@wasp/auth/email/actions';
+...
+await resetPassword({ password, token })
+```
+
+##### `allowUnverifiedLogin: bool`: a boolean that specifies whether the user can login without verifying their e-mail address. (optional)
+
+It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
+
+
+Read on how to do it the easiest way with Auth UI in the [email authentication guide](/docs/guides/email-auth).
+
+- `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user. (optional)
+
+Defining `getEmailContentFn` is done by defining a function that looks like this:
+
+```ts title="server/email.ts"
+import { GetPasswordResetEmailContentFn } from '@wasp/types'
+
+export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
+  passwordResetLink,
+}) => ({
+  subject: 'Password reset',
+  text: `Click the link below to reset your password: ${passwordResetLink}`,
+  html: `
+        <p>Click the link below to reset your password</p>
+        <a href="${passwordResetLink}">Reset password</a>
+    `,
+})
+```
+
+#### Email sender for email authentication
+
+We require that you define an `emailSender`, so that Wasp knows how to send e-mails. Read more about that [here](#email-sender).
+
+#### Validations
+
+We provide basic validations out of the box. The validations are:
+- `email`: non-empty, valid e-mail address
+- `password`: non-empty, at least 8 characters, and contains a number
+
+Note that `email`s are stored in a case-insensitive manner.
+
+:::info
+You don't need to worry about hashing the password yourself! Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp's middleware takes care of hashing it before storing it in the database. An additional middleware also performs field validation.
+:::
+
+
+
+### Social Login Providers (OAuth 2.0)
+Wasp allows you to easily add social login providers to your app.
 
 The following is a list of links to guides that will help you get started with the currently supported providers:
 - [GitHub](/docs/integrations/github)
@@ -1148,13 +1395,13 @@ When using Social Login Providers, Wasp gives you the following options:
 - UI Helpers to make it easy to add social login buttons and actions
 - Override settings to customize the behavior of the providers
 
-### Default Settings
+#### Default Settings
 
 
 <Tabs>
 <TabItem value="google" label="Google" default>
 
-```c  
+```wasp
   auth: {
     userEntity: User,
     externalAuthEntity: SocialLogin,
@@ -1163,7 +1410,7 @@ When using Social Login Providers, Wasp gives you the following options:
     },
   }
 ```
-    
+
 <p>Add <code>google: &#123;&#125;</code> to your <code>auth.methods</code> dictionary to use it with default settings</p>
 <p>By default, Wasp expects you to set two environment variables in order to use Google authentication:</p>
 <ul>
@@ -1175,7 +1422,7 @@ When using Social Login Providers, Wasp gives you the following options:
 </TabItem>
 <TabItem value="gitHub" label="GitHub">
 
-```c
+```wasp
   auth: {
     userEntity: User,
     externalAuthEntity: SocialLogin,
@@ -1196,7 +1443,7 @@ When using Social Login Providers, Wasp gives you the following options:
 </TabItem>
 </Tabs>
 
-When a user signs in for the first time, Wasp assigns generated values to the `username` and `password` fields of the `userEntity` by default (e.g. `username: nice-blue-horse-14357`), so make sure to include these in your `userEntity` declaration even if you're only using a Social Login provider. If you'd like to change this behavior, these values can be overridden as described below.
+When a user signs in for the first time, if the `userEntity` has `username` and/or `password` fields Wasp assigns generated values to those fields by default (e.g. `username: nice-blue-horse-14357` and a strong random `password`). This is a historical coupling between auth methods that will be removed over time. If you'd like to change this behavior, these values can be overridden as described below.
 
 :::tip Overriding Defaults
 It is also posslbe to [override the default](features#overrides-for-social-login-providers) login behaviors that Wasp provides for you. This allows you to create custom setups, such as allowing Users to define a username rather than the default random username assigned by Wasp on initial Login.
@@ -1205,17 +1452,16 @@ It is also posslbe to [override the default](features#overrides-for-social-login
 #### `externalAuthEntity`
 Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains the following configuration:
 
-```c {4,14}
-...
+```wasp {4,14}
+//...
   auth: {
     userEntity: User,
     externalAuthEntity: SocialLogin,
-...
+//...
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
+    //...
     externalAuthAssociations  SocialLogin[]
 psl=}
 
@@ -1232,7 +1478,7 @@ psl=}
 :::note
 the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 :::
-### UI helpers
+#### UI helpers
 
 Wasp provides sign-in buttons, logos and URLs for your login page:
 
@@ -1260,9 +1506,9 @@ export default Login
 
 If you need more customization than what the buttons provide, you can create your own custom components using the `signInUrl`s.
 
-### Overrides
+#### Overrides
 
-When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`.
+When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. If the `userEntity` contains a `username` field it will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`. This is a historical coupling between auth methods that will be removed over time.
 
 If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your `User` entity indicating the account setup is incomplete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate
   - e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage` where they can edit the `username` property.
@@ -1270,10 +1516,10 @@ If you would like to allow the user to select their own username, or some other 
 Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their provider account. Below is an example of how to do this by using:
   - the `getUserFieldsFn` function to configure the user's `username` or `displayName` from their provider account
 
-We also show you how to customize the configuration of the Provider's settings using:  
+We also show you how to customize the configuration of the Provider's settings using:
   - the `configFn` function
 
-```c title=main.wasp {9,10,13,14,26}
+```wasp title=main.wasp {9,10,13,14,26}
 app Example {
   //...
 
@@ -1308,7 +1554,7 @@ psl=}
 ```
 
 
-#### `configFn` 
+#### `configFn`
 
 This function should return an object with the following shape:
 <Tabs>
@@ -1378,22 +1624,193 @@ This function should return the user fields to use when creating a new user upon
   - `generateAvailableDictionaryUsername` generates a random dictionary phrase that is not yet in the database. For example, `nice-blue-horse-27160`.
 
 
+### Validation Error Handling
+When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed a class called `AuthError` for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
+
+#### `import statement`:
+```js
+import AuthError from '@wasp/core/AuthError.js'
+```
+
+##### Example of usage:
+```js
+try {
+  await context.entities.User.update(...)
+} catch (e) {
+  if (e instanceof AuthError) {
+    throw new HttpError(422, 'Validation failed', { message: e.message })
+  } else {
+    throw e
+  }
+}
+```
+
+## Accessing the currently logged in user
+When authentication is enabled in a Wasp app, we need a way to tell whether a user is logged in and access its data.
+With that, we can further implement access control and decide which content is private and which public.
+
+#### On the client
+On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
+This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localhost:3002/docs/language/features#the-usequery-hook) and returns data in the same format.
+
+### `useAuth()`
+#### `import statement`:
+```js
+import useAuth from '@wasp/auth/useAuth'
+```
+
+##### Example of usage:
+```js title="src/client/pages/MainPage.js"
+import React from 'react'
+
+import { Link } from 'react-router-dom'
+import useAuth from '@wasp/auth/useAuth'
+import logout from '@wasp/auth/logout.js'
+import Todo from '../Todo.js'
+import '../Main.css'
+
+const Main = () => {
+  const { data: user } = useAuth()
+
+  if (!user) {
+    return (
+      <span>
+        Please <Link to='/login'>login</Link> or <Link to='/signup'>sign up</Link>.
+      </span>
+    )
+  } else {
+    return (
+      <>
+        <button onClick={logout}>Logout</button>
+        <Todo />
+      < />
+    )
+  }
+}
+
+export default Main
+```
+
+#### On the server
+
+### `context.user`
+
+When authentication is enabled, all operations (actions and queries) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
+
+##### Example of usage:
+```js title="src/server/actions.js"
+import HttpError from '@wasp/core/HttpError.js'
+
+export const createTask = async (task, context) => {
+  if (!context.user) {
+    throw new HttpError(403)
+  }
+
+  const Task = context.entities.Task
+  return Task.create({
+    data: {
+      description: task.description,
+      user: {
+        connect: { id: context.user.id }
+      }
+    }
+  })
+}
+```
+In order to implement access control, each operation is responsible for checking `context.user` and
+acting accordingly - e.g. if `context.user` is `undefined` and the operation is private then user
+should be denied access to it.
+
 ## Client configuration
 
 You can configure the client using the `client` field inside the `app`
-declaration, 
+declaration,
 
-```c
+```wasp
 app MyApp {
   title: "My app",
   // ...
   client: {
+    rootComponent: import Root from "@client/Root.jsx",
     setupFn: import mySetupFunction from "@client/myClientSetupCode.js"
   }
 }
 ```
 
 `app.client` is a dictionary with the following fields:
+
+#### `rootComponent: ClientImport` (optional)
+
+`rootComponent` defines the root component of your client application. It is
+expected to be a React component, and Wasp will use it to wrap your entire app.
+It must render its children, which are the actual pages of your application.
+
+You can use it to define a common layout for your application:
+
+```jsx title="src/client/Root.jsx"
+export default async function Root({ children }) {
+  return (
+    <div>
+      <header>
+        <h1>My App</h1>
+      </header>
+      {children}
+      <footer>
+        <p>My App footer</p>
+      </footer>
+    </div>
+  )
+}
+```
+
+You can use it to set up various providers that your application needs:
+
+```jsx title="src/client/Root.jsx"
+import store from './store'
+import { Provider } from 'react-redux'
+
+export default async function Root({ children }) {
+  return (
+    <Provider store={store}>
+      {children}
+    </Provider>
+  )
+}
+```
+
+As long as you render the children, you can do whatever you want in your root
+component. Here's an example of a root component both sets up a provider and
+renders a custom layout:
+
+```jsx title="src/client/Root.jsx"
+import store from './store'
+import { Provider } from 'react-redux'
+
+export default function Root({ children }) {
+  return (
+    <Provider store={store}>
+      <Layout>
+        {children}
+      </Layout>
+    </Provider>
+  )
+}
+
+function Layout({ children }) {
+  return (
+    <div>
+      <header>
+        <h1>My App</h1>
+      </header>
+      {children}
+      <footer>
+        <p>My App footer</p>
+      </footer>
+    </div>
+  )
+}
+```
+
 
 #### `setupFn: ClientImport` (optional)
 
@@ -1430,7 +1847,7 @@ _react-query_'s `QueryClient` object:
 
 
 ```js title="src/client/myClientSetupCode.js"
-import { configureQueryClient } from '@wasp/queries'
+import { configureQueryClient } from '@wasp/queryClient'
 
 export default async function mySetupFunction() {
   // ... some setup
@@ -1453,7 +1870,7 @@ explained in
 
 Via `server` field of `app` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
 
-```c
+```wasp
 app MyApp {
   title: "My app",
   // ...
@@ -1465,13 +1882,40 @@ app MyApp {
 
 `app.server` is a dictionary with following fields:
 
+#### `middlewareConfigFn: ServerImport` (optional)
+
+The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See [the guide here](/docs/guides/middleware-customization#1-customize-global-middleware).
+
 #### `setupFn: ServerImport` (optional)
 
-`setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before server continues with its setup and starts serving any requests.
+`setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
-It gives you an opportunity to do any custom setup, e.g. setting up additional database or starting cron/scheduled jobs.
+It gives you an opportunity to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
 
-The javascript function should be async, takes no arguments and its return value is ignored.
+The `setupFn` function receives the `express.Application` and the `http.Server` instances as part of its context. They can be useful for setting up any custom server routes or for example, setting up `socket.io`.
+```ts
+export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
+
+export type ServerSetupFnContext = {
+  app: Application, // === express.Application
+  server: Server,   // === http.Server
+}
+```
+
+As an example, adding a custom route would look something like:
+```ts title="src/server/myServerSetupCode.ts"
+import { ServerSetupFn, Application } from '@wasp/types'
+
+const mySetupFunction: ServerSetupFn = async ({ app }) => {
+  addCustomRoute(app)
+}
+
+function addCustomRoute(app: Application) {
+  app.get('/customRoute', (_req, res) => {
+    res.send('I am a custom route')
+  })
+}
+```
 
 In case you want to store some values for later use, or to be accessed by the Operations, recommended way is to store those in variables in the same module/file where you defined the javascript setup function and then expose additional functions for reading those values, which you can then import directly from Operations and use. This effectively turns your module into a singleton whose construction is performed on server start.
 
@@ -1519,7 +1963,7 @@ Since environmental variables are usually different for server-side and client a
 
 `.env.server` and `.env.client` files should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
 
-Variables are defined in `.env.server` or `env.client` files in the form of `NAME=VALUE`, for example:
+Variables are defined in `.env.server` or `.env.client` files in the form of `NAME=VALUE`, for example:
 ```
 DATABASE_URL=postgresql://localhost:5432
 MY_VAR=somevalue
@@ -1530,55 +1974,189 @@ Any env vars defined in the `.env.server` / `.env.client` files will be forwarde
 console.log(process.env.DATABASE_URL)
 ```
 
-## Database configuration
+## Database
 
 Via `db` field of `app` declaration, you can configure the database used by Wasp.
 
-```c
+```wasp
 app MyApp {
   title: "My app",
   // ...
   db: {
-    system: PostgreSQL
+    system: PostgreSQL,
+    seeds: [
+      import devSeed from "@server/dbSeeds.js"
+    ]
   }
 }
 ```
 
 `app.db` is a dictionary with following fields:
 
-#### `system: DbSystem`
+#### - `system: DbSystem` (Optional)
 Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.
 If not defined, or even if whole `db` field is not present, default value is `SQLite`.
 If you add/remove/modify `db` field, run `wasp db migrate-dev` to apply the changes.
+
+#### - `seeds: [ServerImport]` (Optional)
+Defines seed functions that you can use via `wasp db seed` to seed your database with initial data.
+Check out [Seeding](#seeding) section for more details.
 
 ### SQLite
 Default database is `SQLite`, since it is great for getting started with a new project (needs no configuring), but it can be used only in development - once you want to deploy Wasp to production you will need to switch to `PostgreSQL` and stick with it.
 Check below for more details on how to migrate from SQLite to PostgreSQL.
 
 ### PostgreSQL
-When using `PostgreSQL` as your database (`app: { db: { system: PostgreSQL } }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and you will need to provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+When using `PostgreSQL` as your database (`app: { db: { system: PostgreSQL } }`), you will need to make sure you have a postgres database running during development (when running `wasp start` or doing `wasp db ...` commands).
 
-One of the easiest ways to run a PostgreSQL database on your own is by spinning up [postgres docker](https://hub.docker.com/_/postgres) container when you need it with the following shell command:
-```
-docker run \
-  --rm \
-  --publish 5432:5432 \
-  -v my-app-data:/var/lib/postgresql/data \
-  --env POSTGRES_PASSWORD=devpass1234 \
-  postgres
-```
+### Using Wasp provided dev database
 
-:::note
-The password you provide via `POSTGRES_PASSWORD` is relevant only for the first time when you run that docker command, when database is set up for the first time. Consequent runs will ignore the value of `POSTGRES_PASSWORD` and will just use the password that was initially set. This is just how postgres docker works.
-:::
+Wasp provides `wasp start db` command that starts the default dev db for you.
 
-The easiest way to provide the needed `DATABASE_URL` environment variable is by adding the following line to the [.env.server](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
-```
-DATABASE_URL=postgresql://postgres:devpass1234@localhost:5432/postgres
-```
+Your Wasp app will automatically connect to it once you have it running via `wasp start db`, no additional configuration is needed. This command relies on Docker being installed on your machine.
+
+### Connecting to existing database
+
+If instead of using `wasp start db` you would rather spin up your own dev database or connect to some external database, you will need to provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+
+The easiest way to provide the needed `DATABASE_URL` environment variable is by adding it to the [.env.server](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it).
+
+You can also set it per command by doing `DATABASE_URL=<my-db-url> wasp ...` -> this can be useful if you want to run specific `wasp` command on a specific database.
+Example: you could do `DATABASE_URL=<my-db-url> wasp db seed myProdSeed` to seed data for a fresh staging or production database.
 
 ### Migrating from SQLite to PostgreSQL
 To run Wasp app in production, you will need to switch from `SQLite` to `PostgreSQL`.
-1. Set `app.db.system` to `PostgreSQL` and set `DATABASE_URL` env var accordingly (as described [above](/docs/language/features#postgresql)).
-2. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
-3. Run `wasp db migrate-dev` to apply new changes and create new, initial migration. You will need to have your postgres database running while doing this (check [above](/docs/language/features#postgresql) for easy way to get it running).
+
+1. Set `app.db.system` to `PostgreSQL`.
+3. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
+3. Run `wasp start db` to start your new db running (or check instructions above if you prefer using your own db). Leave it running, since we need it for the next step.
+4. In a different terminal, run `wasp db migrate-dev` to apply new changes and create new, initial migration.
+5. That is it, you are all done!
+
+### Seeding
+
+**Database seeding** is a term for populating database with some initial data.
+
+Seeding is most commonly used for two following scenarios:
+ 1. To put development database into a state convenient for testing / playing with it.
+ 2. To initialize dev/staging/prod database with some essential data needed for it to be useful,
+    for example default currencies in a Currency table.
+
+#### Writing a seed function
+
+Wasp enables you to define multiple **seed functions** via `app.db.seeds`:
+
+```wasp
+app MyApp {
+  // ...
+  db: {
+    // ...
+    seeds: [
+      import { devSeedSimple } from "@server/dbSeeds.js",
+      import { prodSeed } from "@server/dbSeeds.js"
+    ]
+  }
+}
+```
+
+Each seed function is expected to be an async function that takes one argument, `prismaClient`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance that you can use to interact with the database.
+This is the same instance of Prisma Client that Wasp uses internally, so you e.g. get password hashing for free.
+
+Since a seed function is part of the server-side code, it can also import other server-side code, so you can and will normally want to import and use Actions to perform the seeding.
+
+Example of a seed function that imports an Action (+ a helper function to create a user):
+
+```js
+import { createTask } from './actions.js'
+
+export const devSeedSimple = async (prismaClient) => {
+  const user = await createUser(prismaClient, {
+      username: "RiuTheDog",
+      password: "bark1234"
+  })
+
+  await createTask(
+    { description: "Chase the cat" },
+    { user, entities: { Task: prismaClient.task } }
+  )
+}
+
+async function createUser (prismaClient, data) {
+  const { password, ...newUser } = await prismaClient.user.create({ data })
+  return newUser
+}
+```
+
+#### Running seed functions
+
+ - `wasp db seed`: If you have just one seed function, it will run it. If you have multiple, it will interactively ask you to choose one to run.
+
+ - `wasp db seed <seed-name>`: It will run the seed function with the specified name, where the name is the identifier you used in its `import` expression in the `app.db.seeds` list. Example: `wasp db seed devSeedSimple`.
+
+:::tip
+  Often you will want to call `wasp db seed` right after you ran `wasp db reset`: first you empty your database, then you fill it with some initial data.
+:::
+
+
+## Email sender
+
+#### `provider: EmailProvider` (required)
+
+We support multiple different providers for sending e-mails: `SMTP`, `SendGrid` and `Mailgun`.
+
+### SMTP
+
+SMTP e-mail sender uses your SMTP server to send e-mails.
+
+Read [our guide](/docs/guides/sending-emails#using-the-smtp-provider) for setting up SMTP for more details.
+
+
+### SendGrid
+
+SendGrid is a popular service for sending e-mails that provides both API and SMTP methods of sending e-mails. We use their official SDK for sending e-mails.
+
+Check out [our guide](/docs/guides/sending-emails#using-the-sendgrid-provider) for setting up Sendgrid for more details.
+
+### Mailgun
+
+Mailgun is a popular service for sending e-mails that provides both API and SMTP methods of sending e-mails. We use their official SDK for sending e-mails.
+
+Check out [our guide](/docs/guides/sending-emails#using-the-mailgun-provider) for setting up Mailgun for more details.
+
+#### `defaultSender: EmailFromField` (optional)
+
+You can optionally provide a default sender info that will be used when you don't provide it explicitly when sending an e-mail.
+
+```wasp
+app MyApp {
+  title: "My app",
+  // ...
+  emailSender: {
+    provider: SMTP,
+    defaultFrom: {
+      name: "Hello",
+      email: "hello@itsme.com"
+    },
+  },
+}
+```
+
+After you set up the email sender, you can use it in your code to send e-mails. For example, you can send an e-mail when a user signs up, or when a user resets their password.
+
+### Sending e-mails
+
+<SendingEmailsInDevelopment />
+
+To send an e-mail, you can use the `emailSender` that is provided by the `@wasp/email` module.
+
+```ts title="src/actions/sendEmail.js"
+import { emailSender } from '@wasp/email/index.js'
+
+// In some action handler...
+const info = await emailSender.send({
+    to: 'user@domain.com',
+    subject: 'Saying hello',
+    text: 'Hello world',
+    html: 'Hello <strong>world</strong>'
+})
+```

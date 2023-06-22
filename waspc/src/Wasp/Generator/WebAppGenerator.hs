@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.WebAppGenerator
   ( genWebApp,
     npmDepsForWasp,
@@ -6,7 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -14,36 +15,38 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    relDirToPosix,
-    reldir,
+    reldirP,
     relfile,
     (</>),
   )
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import Wasp.AppSpec.App.Client as AS.App.Client
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
+import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.Env (envVarsToDotEnvContent)
+import Wasp.Generator.Common
+  ( makeJsonWithEntityData,
+    prismaVersion,
+  )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-  ( extClientCodeDirInWebAppSrcDir,
-    extClientCodeGeneratorStrategy,
+  ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -51,29 +54,37 @@ genWebApp spec = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|tsconfig.node.json|],
+      genFileCopy [relfile|vite.config.ts|],
+      genFileCopy [relfile|src/test/vitest/setup.ts|],
+      genFileCopy [relfile|src/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|src/test/index.ts|],
+      genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|]
+      genIndexHtml spec
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
+    <++> genUniversalDir
+    <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
-genDotEnv spec = return $
-  case AS.dotEnvClientFile spec of
-    Just srcFilePath
-      | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
-    _ -> []
+-- Don't generate .env if we are building for production, since .env is to be used only for
+-- development.
+genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec =
+  return
+    [ createTextFileDraft
+        (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+        (envVarsToDotEnvContent $ AS.devEnvVarsClient spec)
+    ]
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
@@ -90,8 +101,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
-              "npmVersionRange" .= show npmVersionRange
+              "nodeVersionRange" .= show NodeVersion.nodeVersionRange
             ]
       )
 
@@ -113,35 +123,59 @@ npmDepsForWasp spec =
             ("react-dom", "^17.0.2"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1")
+            -- The web app only needs @prisma/client (we're using the server's
+            -- CLI to generate what's necessary, check the description in
+            -- https://github.com/wasp-lang/wasp/pull/962/ for details).
+            ("@prisma/client", show prismaVersion),
+            ("superjson", "^1.12.2")
           ]
+          ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec,
-      -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
-      -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^4.8.4"),
-            ("@types/react", "^17.0.39"),
-            ("@types/react-dom", "^17.0.11"),
+            ("vite", "^4.1.0"),
+            ("typescript", "^4.9.3"),
+            ("@types/react", "^17.0.53"),
+            ("@types/react-dom", "^17.0.19"),
             ("@types/react-router-dom", "^5.3.3"),
-            -- TODO: What happens when react app changes its version? We should
-            -- investigate.
-            ("@tsconfig/create-react-app", "^1.0.3")
+            ("@vitejs/plugin-react-swc", "^3.0.0"),
+            ("dotenv", "^16.0.3"),
+            -- NOTE: Make sure to bump the version of the tsconfig
+            -- when updating Vite or React versions
+            ("@tsconfig/vite-react", "^1.0.1")
           ]
+          ++ depsRequiredForTesting
     }
+
+depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth spec =
+  [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
+  where
+    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
   if G.CF.isTailwindUsed spec
     then
       AS.Dependency.fromList
-        [ ("tailwindcss", "^3.1.8"),
-          ("postcss", "^8.4.18"),
-          ("autoprefixer", "^10.4.12")
+        [ ("tailwindcss", "^3.2.7"),
+          ("postcss", "^8.4.21"),
+          ("autoprefixer", "^10.4.13")
         ]
     else []
+
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^0.29.3"),
+      ("@vitest/ui", "^0.29.3"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^12.1.5"),
+      ("@testing-library/jest-dom", "^5.16.5"),
+      ("msw", "^1.1.0")
+    ]
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -152,43 +186,26 @@ genGitignore =
 
 genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
-  publicIndexHtmlFd <- genPublicIndexHtml spec
   return
-    [ publicIndexHtmlFd,
-      genFaviconFd,
+    [ genFaviconFd,
       genManifestFd
     ]
-    <++> genSocialLoginIcons maybeAuth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd =
       let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
           tmplFile = C.asTmplFile [relfile|public/manifest.json|]
        in C.mkTmplFdWithData tmplFile tmplData
 
-genSocialLoginIcons :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
-genSocialLoginIcons maybeAuth =
-  return $
-    [ C.mkTmplFd (C.asTmplFile fp)
-      | (isEnabled, fp) <- socialIcons,
-        (isEnabled <$> maybeAuth) == Just True
-    ]
-  where
-    socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> _logoFileName googleAuthInfo),
-        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> _logoFileName gitHubAuthInfo)
-      ]
-
-genPublicIndexHtml :: AppSpec -> Generator FileDraft
-genPublicIndexHtml spec =
+genIndexHtml :: AppSpec -> Generator FileDraft
+genIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|public/index.html|])
+      (C.asTmplFile [relfile|index.html|])
       targetPath
       (Just templateData)
   where
-    targetPath = [relfile|public/index.html|]
+    targetPath = [relfile|index.html|]
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
@@ -198,47 +215,64 @@ genPublicIndexHtml spec =
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
 -- although they are not used anywhere outside.
 -- We could further "templatize" this file so only what is needed is generated.
---
-
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|serviceWorker.js|],
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|types.ts|],
+      copyTmplFile [relfile|vite-env.d.ts|],
+      -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
+      copyTmplFile [relfile|api.ts|],
+      copyTmplFile [relfile|storage.ts|],
       genRouter spec,
-      genIndexJs spec,
-      genApi
+      genIndexJs spec
     ]
     <++> genOperations spec
+    <++> genEntitiesDir spec
     <++> genAuth spec
   where
     copyTmplFile = return . C.mkSrcTmplFd
 
--- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
-genApi :: Generator FileDraft
-genApi = return $ C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
+genEntitiesDir :: AppSpec -> Generator [FileDraft]
+genEntitiesDir spec = return [entitiesIndexFileDraft]
+  where
+    entitiesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/entities/index.ts|]
+        [relfile|src/entities/index.ts|]
+        (Just $ object ["entities" .= allEntities])
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 genIndexJs :: AppSpec -> Generator FileDraft
 genIndexJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/index.js|])
-      (C.asWebAppFile [relfile|src/index.js|])
+      (C.asTmplFile [relfile|src/index.tsx|])
+      (C.asWebAppFile [relfile|src/index.tsx|])
       ( Just $
           object
-            [ "doesClientSetupFnExist" .= isJust maybeSetupJsFunction,
-              "clientSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-              "clientSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
-      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-extClientCodeDirInWebAppSrcDirP :: Path Posix (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
-extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWebAppSrcDir
+    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]
+
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
+  return
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
+      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
+    ]
+
+genEnvValidationScript :: Generator [FileDraft]
+genEnvValidationScript =
+  return
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    ]

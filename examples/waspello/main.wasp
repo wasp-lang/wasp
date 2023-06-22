@@ -1,9 +1,9 @@
-app trello {
+app waspello {
   wasp: {
     version: "^0.8.0"
   },
 
-  title: "trello",
+  title: "Waspello",
 
   db: {
     system: PostgreSQL
@@ -11,8 +11,10 @@ app trello {
 
   auth: {
     userEntity: User,
+    externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {}
+      usernameAndPassword: {},
+      google: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
@@ -28,17 +30,17 @@ app trello {
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@client/MainPage.js"
+    component: import Main from "@client/MainPage.jsx"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
-    component: import Signup from "@client/SignupPage"
+    component: import Signup from "@client/SignupPage.jsx"
 }
 
 route LoginRoute { path: "/login", to: Login }
 page Login {
-    component: import Login from "@client/LoginPage"
+    component: import Login from "@client/LoginPage.jsx"
 }
 
 // Entities
@@ -49,6 +51,17 @@ entity User {=psl
     password    String
     lists       List[]
     cards       Card[]
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
 psl=}
 
 entity List {=psl

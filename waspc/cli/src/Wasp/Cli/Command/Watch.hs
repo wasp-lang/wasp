@@ -17,9 +17,9 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Lib (CompileError, CompileWarning)
-import qualified Wasp.Lib
+import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
+import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -32,8 +32,8 @@ import qualified Wasp.Message as Msg
 --   (warnings, errors) of the latest (re)compile whenever it happens. If there is already
 --   something in the MVar, it will get overwritten.
 watch ::
-  Path' Abs (Dir Common.WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
   MVar ([CompileWarning], [CompileError]) ->
   IO ()
 watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do

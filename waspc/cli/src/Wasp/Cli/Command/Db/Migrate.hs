@@ -4,21 +4,20 @@ module Wasp.Cli.Command.Db.Migrate
   )
 where
 
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
--- Wasp generator interface.
-
-import StrongPath ((</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
   )
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Cli.Common
-import qualified Wasp.Common
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProjectDir)
 
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
@@ -26,26 +25,24 @@ import qualified Wasp.Message as Msg
 migrateDev :: [String] -> Command ()
 migrateDev optionalMigrateArgs = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  let genProjectRootDir =
+  let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
+  let projectRootDir =
         waspProjectDir
           </> Cli.Common.dotWaspDirInWaspProjectDir
           </> Cli.Common.generatedCodeDirInDotWaspDir
 
-  let waspDbMigrationsDir =
-        waspProjectDir
-          </> Wasp.Common.dbMigrationsDirInWaspProjectDir
+  migrateDatabase optionalMigrateArgs projectRootDir waspDbMigrationsDir
 
-  let parsedMigrateArgs = parseMigrateArgs optionalMigrateArgs
-  case parsedMigrateArgs of
-    Left parseError ->
-      throwError $ CommandError "Migrate dev failed" parseError
-    Right migrateArgs -> do
-      cliSendMessageC $ Msg.Start "Performing migration..."
-      migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir migrateArgs
-      case migrateResult of
-        Left migrateError ->
-          throwError $ CommandError "Migrate dev failed" migrateError
-        Right () -> cliSendMessageC $ Msg.Success "Migration done."
+migrateDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
+migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
+  cliSendMessageC $ Msg.Start "Starting database migration..."
+  liftIO tryMigrate >>= \case
+    Left err -> throwError $ CommandError "Migrate dev failed" err
+    Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
+  where
+    tryMigrate = runExceptT $ do
+      migrateArgs <- liftEither $ parseMigrateArgs optionalMigrateArgs
+      ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir migrateArgs
 
 -- | Basic parsing of db-migrate args. In the future, we could use a smarter parser
 -- for this (and all other CLI arg parsing).
