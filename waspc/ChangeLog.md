@@ -66,7 +66,7 @@ We now offer an interactive way to create a new project. You can run `wasp new` 
 - We changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
     - `import { LoginForm } from '@wasp/auth/forms/Login'`
     - `import { SignupForm } from '@wasp/auth/Signup'`
-- We renamed `useAuth.js` to `useAuth.ts` and you should import it like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension)
+- We changed some of the extensions on Wasp-provided imports from `.js` to `.ts`. For example `useAuth.js` is now `useAuth.ts`. Therefore, you should import them like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension). Some other affected imports are `@wasp/auth/login.js`, `@wasp/auth/logout.js`, and similar.
 - We changed the type arguments for `useQuery` and `useAction` hooks. They now take two arguments (the `Error` type argument was removed):
   - `Input` - This type argument specifies the type for the **request's payload**.
   - `Output` - This type argument specifies the type for the **resposne's payload**.
@@ -115,7 +115,7 @@ export const TaskInfo = () => {
 ```
 The same feature is available for Actions.
 
-### Payloads compatible with Superjson 
+### Payloads compatible with Superjson
 Client and the server can now communicate with richer payloads.
 
 Return a Superjson-compatible object from your Operation:

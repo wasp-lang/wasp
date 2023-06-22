@@ -28,9 +28,13 @@ export function useSocketListener<Event extends keyof ServerToClientEvents>(
     // Casting to `keyof ServerToClientEvents` is necessary because TypeScript
     // reports the handler function as incompatible with the event type.
     // See https://github.com/wasp-lang/wasp/pull/1203#discussion_r1232068898
-    socket.on(event as keyof ServerToClientEvents, handler)
+
+    // We are wrapping it in `Extract<...>` due to Typescript infering string | number
+    // in the case of default events being used.
+    type AllowedEvents = Extract<keyof ServerToClientEvents, string>;
+    socket.on(event as AllowedEvents, handler)
     return () => {
-      socket.off(event as keyof ServerToClientEvents, handler)
+      socket.off(event as AllowedEvents, handler)
     }
   }, [event, handler])
 }
