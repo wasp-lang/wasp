@@ -1241,7 +1241,7 @@ If you require more control in your authentication flow, you can achieve that in
 - If you want to execute custom code on the server during sign up, create your own sign up action which invokes Prisma client as `context.entities.[USER_ENTITY].create()` function, along with your custom code.
 
 The code of your custom sign-up action would look like this (your user entity being `User` in this instance):
-```js
+```js title="src/server/auth/signup.js"
 export const signUp = async (args, context) => {
   // Your custom code before sign-up.
   // ...
