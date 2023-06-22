@@ -137,7 +137,7 @@ gotoDefinitionHandler :: Handlers ServerM
 gotoDefinitionHandler =
   LSP.requestHandler LSP.STextDocumentDefinition $ \request respond -> do
     definitions <- handler $ gotoDefinitionOfSymbolAtPosition $ request ^. LSP.params . LSP.position
-    respond $ Right $ LSP.InR $ LSP.InL definitions
+    respond $ Right $ LSP.InR $ LSP.InR definitions
 
 signatureHelpHandler :: Handlers ServerM
 signatureHelpHandler =
