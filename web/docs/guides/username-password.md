@@ -8,11 +8,11 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ### Configuration
 
-To implement Username & Password Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
+To get started with a simple Username & Password Auth strategy, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
 ```c title="main.wasp"
 app Example {
   wasp: {
-    version: "^0.8.0"
+    version: "^0.11.0"
   },
 
   title: "Example",
@@ -35,7 +35,7 @@ psl=}
 
 // ...
 ```
-For more info on the specific fields, check out this [Auth](./language/features#authentication--authorization) section of the docs.
+For more info on the specific fields, check out this [Auth](/docs/language/features#authentication--authorization) section of the docs.
 
 If you're adding a new entity to your `.wasp` file for the first time, make sure to create the table for it in your database:
 ```shell
@@ -49,10 +49,10 @@ JWT_SECRET=random-string-at-least-32-characters-long.
 ```
 
 With `auth` now defined, Wasp offers a number of handy features out of the box:
-- [Login and Signup forms](docs/language/features#high-level-api) located at `@wasp/auth/forms/Login` and `@wasp/auth/forms/Signup` paths, ready to be styled and used.
+- ["AuthUI" Login and Signup forms](/docs/guides/auth-ui) located at `@wasp/auth/forms/Login` and `@wasp/auth/forms/Signup` paths, ready to be styled and used.
 - The `logout()` action.
 - The `useAuth()` hook to access the logged-in user client-side.
-- The `context.user` object as an argument server-side within [Operations](docs/language/features#queries-and-actions-aka-operations).
+- The `context.user` object as an argument server-side within [Operations](/docs/language/features#queries-and-actions-aka-operations).
 
 :::tip Customizing Auth
 This is a very high-level API for auth which makes it very easy to get started quickly, but is
@@ -62,7 +62,20 @@ during signup, check out the [lower-level auth API](/docs/language/features#lowe
 
 ### Client-side
 
-To access the logged-in user client-side, you can use the `useAuth()` hook: 
+To access the logged-in user client-side, you have two options:
+
+1. You can use the `user` object that Wasp passes to all pages by default:
+
+```jsx
+const Page = ({ user }) => {
+  const username = user.username
+
+  //...
+}
+```
+
+
+2. Use the `useAuth()` hook: 
 
 ```jsx 
 import useAuth from '@wasp/auth/useAuth.js'
@@ -74,7 +87,7 @@ const Page = () => {
 }
 ```
 
-You can use this hook for things like authorization procedures and displaying some of the user information on the page. Here's an example:
+You can then do things like displaying some of the user information on the page. Here's an example:
 
 
 ```jsx 
@@ -144,7 +157,7 @@ page SignupPage {
 
 ### Server-side
 
-To access the logged-in user server-side, you can use the `context.user` object within [Operations (i.e. *queries and actions*)](docs/language/features#queries-and-actions-aka-operations):
+To access the logged-in user server-side, you can use the `context.user` object within [Operations (i.e. *queries and actions*)](/docs/language/features#queries-and-actions-aka-operations):
 
 
 ```js title="src/server/actions.js" {4}
@@ -152,7 +165,7 @@ import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (task, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401, 'You need to be logged in to create a task.')
   }
 
   return context.entities.Task.create({
