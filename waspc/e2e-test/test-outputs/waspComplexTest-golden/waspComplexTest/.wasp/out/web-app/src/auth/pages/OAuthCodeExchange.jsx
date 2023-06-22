@@ -13,8 +13,13 @@ import { initSession } from '../helpers/user'
 export default function OAuthCodeExchange({ pathToApiServerRouteHandlingOauthRedirect }) {
   const history = useHistory()
 
-  const firstRender = useRef(true)
+  // We are using a ref to prevent sending the OAuth token twice in development.
+  // Since React 18 and using their StrictMode, useEffect is called twice in development.
 
+  // Fixing it this way is not recommended by the docs, but they don't offer any alternatives
+  // for this particular use case (oauth redirect page):
+  // https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development
+  const firstRender = useRef(true)
   useEffect(() => {
     if (!firstRender.current) {
       return
