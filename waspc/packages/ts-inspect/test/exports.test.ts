@@ -14,19 +14,22 @@ const testFiles = {
   addFile: testFile('add.ts'),
   complexFile: testFile('complex.ts'),
   dictExportFile: testFile('dict_export.ts'),
+  constExportFile: testFile('const_export.ts'),
 
   emptyTsconfig: testFile('tsconfig.json'),
 };
 
 describe('exports.ts', () => {
   test('empty ts file has empty exports', async () => {
-    expect(await getExportsOfFiles([testFiles.emptyFile])).toEqual({
+    const request = { filenames: [testFiles.emptyFile] };
+    expect(await getExportsOfFiles(request)).toEqual({
       [testFiles.emptyFile]: []
     });
   });
 
   test('add file has just a default export', async () => {
-    expect(await getExportsOfFiles([testFiles.addFile])).toEqual({
+    const request = { filenames: [testFiles.addFile] };
+    expect(await getExportsOfFiles(request)).toEqual({
       [testFiles.addFile]: [
         { type: 'default', location: { line: 0, column: 0 } }
       ]
@@ -34,7 +37,8 @@ describe('exports.ts', () => {
   });
 
   test('complex file has default and normal export', async () => {
-    expect(await getExportsOfFiles([testFiles.complexFile])).toEqual({
+    const request = { filenames: [testFiles.complexFile] };
+    expect(await getExportsOfFiles(request)).toEqual({
       [testFiles.complexFile]: [
         { type: 'default', location: { line: 0, column: 0 } },
         { type: 'named', name: 'isEven', location: { line: 4, column: 0 } },
@@ -44,7 +48,8 @@ describe('exports.ts', () => {
   });
 
   test('dict_export file shows names for each export in dict', async () => {
-    expect(await getExportsOfFiles([testFiles.dictExportFile])).toEqual({
+    const request = { filenames: [testFiles.dictExportFile] };
+    expect(await getExportsOfFiles(request)).toEqual({
       [testFiles.dictExportFile]: [
         { type: 'named', name: 'add' },
         { type: 'named', name: 'sub' },
@@ -53,8 +58,18 @@ describe('exports.ts', () => {
   });
 
   test('empty ts file works with empty tsconfig', async () => {
-    expect(await getExportsOfFiles([testFiles.emptyFile], testFiles.emptyTsconfig)).toEqual({
+    const request = { filenames: [testFiles.emptyFile], tsconfig: testFiles.emptyTsconfig };
+    expect(await getExportsOfFiles(request)).toEqual({
       [testFiles.emptyFile]: []
     });
   });
+
+  test('`export const` shows up in export list', async () => {
+    const request = { filenames: [testFiles.constExportFile] };
+    expect(await getExportsOfFiles(request)).toEqual({
+      [testFiles.constExportFile]: [
+        { type: 'named', name: 'isEven', location: { line: 0, column: 13 } }
+      ]
+    });
+  })
 });

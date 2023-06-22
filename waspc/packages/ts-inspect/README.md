@@ -9,7 +9,7 @@ stdin:
   { "filenames": ["./src/exports.ts"] },
   {
     "tsconfig": "~/dev/wasp-todoapp/src/client/tsconfig.json",
-    "filenames": "~/dev/wasp-todoapp/src/client/MainPage.tsx"
+    "filenames": ["~/dev/wasp-todoapp/src/client/MainPage.tsx"]
   }
 ]
 ```

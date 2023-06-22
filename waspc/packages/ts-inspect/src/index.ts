@@ -1,9 +1,5 @@
-import { getExportsOfFiles } from "./exports.js";
-
-interface ExportsRequest {
-  filenames: string[],
-  tsconfig?: string,
-}
+import { ExportRequests, getExportsOfFiles } from "./exports.js";
+import { z } from 'zod';
 
 async function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -20,14 +16,11 @@ async function readStdin(): Promise<string> {
 async function main() {
   const inputStr = await readStdin();
   const input = JSON.parse(inputStr);
-  if (!Array.isArray(input)) {
-    throw new Error('Expected JSON array from stdin');
-  }
-  const requests: ExportsRequest[] = input;
+  const requests = ExportRequests.parse(input);
 
   let exports = {};
   for (let request of requests) {
-    const newExports = await getExportsOfFiles(request.filenames, request.tsconfig);
+    const newExports = await getExportsOfFiles(request);
     exports = { ...exports, ...newExports };
   }
   console.log(JSON.stringify(exports));
