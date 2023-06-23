@@ -1,11 +1,10 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
     askForRequiredInput,
-    Option,
+    Option (..),
   )
 where
 
@@ -39,17 +38,16 @@ import qualified Wasp.Util.Terminal as Term
   without having to type the quotes as well.
 
   We introduced the Option class to get different "show" behavior for Strings and other
-  types. Option delegates to the Show instance for all other types, but for Strings it
-  just returns the String itself.
+  types. If we are using something other then String, an instance of Option needs to be defined,
+  but for Strings it just returns the String itself.
 -}
 class Option o where
   showOption :: o -> String
+  showOptionDescription :: o -> Maybe String
 
-instance {-# OVERLAPPING #-} Option [Char] where
+instance Option [Char] where
   showOption = id
-
-instance {-# OVERLAPPABLE #-} Show t => Option t where
-  showOption = show
+  showOptionDescription = const Nothing
 
 askForRequiredInput :: String -> IO String
 askForRequiredInput = repeatIfNull . askForInput
@@ -85,8 +83,18 @@ askToChoose question options = do
     showIndexedOptions = intercalate "\n" $ showIndexedOption <$> zip [1 ..] (NE.toList options)
       where
         showIndexedOption (idx, option) =
-          showIndex idx <> " " <> showOption option <> (if isDefaultOption option then " (default)" else "")
-        showIndex i = Term.applyStyles [Term.Yellow] $ "[" ++ show (i :: Int) ++ "]"
+          Term.applyStyles [Term.Yellow] indexPrefix
+            <> Term.applyStyles [Term.Bold] (showOption option)
+            <> (if isDefaultOption option then " (default)" else "")
+            <> showDescription option (length indexPrefix)
+          where
+            indexPrefix = showIndex idx <> " "
+
+        showIndex i = "[" ++ show (i :: Int) ++ "]"
+
+        showDescription option indentLength = case showOptionDescription option of
+          Just description -> "\n" <> replicate indentLength ' ' <> description
+          Nothing -> ""
 
     defaultOption :: o
     defaultOption = NE.head options
