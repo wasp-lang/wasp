@@ -27,7 +27,7 @@ export function ShowForTs({ children }: Props) {
 
 
 /**
- * Only renders this block if user has selected TS in the codeblocks
+ * Only renders this block if user has selected JS in the codeblocks
  * @Note leave a blank space after opening the tag e.g.
  *
  * @example

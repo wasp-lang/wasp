@@ -4,7 +4,7 @@ title: "Creating tasks"
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs, ShowForJs } from '@site/src/components/ShowForTs';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 To enable the creation of new tasks, we will need two things:
 1. A Wasp action that creates a new task.

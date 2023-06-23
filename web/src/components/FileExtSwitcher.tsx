@@ -19,8 +19,8 @@ export default function FileExtSwitcher({ path }: Props) {
 
   const extensionStart = path.lastIndexOf('{')
   const extensions = path.slice(extensionStart + 1, path.length - 1)
-  const ts = extensions.split(',')[1]
+  const [jsExt, tsExt] = extensions.split(',')
   const pathWithoutExt = path.slice(0, extensionStart)
 
-  return <code>{pathWithoutExt + (jsTs === 'js' ? 'js' : ts)}</code>
+  return <code>{pathWithoutExt + (jsTs === 'js' ? jsExt : tsExt)}</code>
 }

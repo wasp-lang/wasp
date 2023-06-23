@@ -4,7 +4,7 @@ title: "Updating tasks"
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs, ShowForJs } from '@site/src/components/ShowForTs';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 Our Todo app isn't finished if you we can't mark a task as finished!
 

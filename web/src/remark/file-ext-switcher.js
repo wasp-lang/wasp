@@ -8,7 +8,7 @@ const plugin = () => {
 
   return (tree, _file) => {
     visit(tree, (node) => {
-      if (node.type === 'inlineCode' && /\w\.\{js,tsx?}$/.test(node.value)) {
+      if (node.type === 'inlineCode' && /\w\.\{jsx?,tsx?}$/.test(node.value)) {
         needImport = true
         node.type = 'jsx'
         node.value = `<FileExtSwitcher path="${node.value}" />`

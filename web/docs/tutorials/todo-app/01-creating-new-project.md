@@ -63,8 +63,8 @@ experience (i.e., autocompletion, intellisense, etc.), so it's best to leave
 them alone (for now).
 
 :::note Typescript Support
-We've introduced Typescript support in Beta version 0.7.0, but you are free to
-use JavaScript (js/jsx) or TypeScript (ts/tsx) as you see fit, on a file-by-file basis.
+Wasp supports Typescript out of the box but you are free to use JavaScript (js/jsx)
+or TypeScript (ts/tsx) as you see fit, on a file-by-file basis.
 
 For this tutorial, we will simply use vanilla Javascript and JSX syntax 🍦
 

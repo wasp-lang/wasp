@@ -4,7 +4,7 @@ title: "Listing tasks"
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs, ShowForJs } from '@site/src/components/ShowForTs';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 We want to admire our tasks, so let's list them!
 
