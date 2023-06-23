@@ -32,12 +32,14 @@ In the above commands, we used an app basename of `my-wasp-app` and deployed it 
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
-:::caution
+:::tip Unique Name
 Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal as these commands run.
 :::
 
-:::note
-Fly has  [free allowances](https://fly.io/docs/about/pricing/#free-allowances) for up to 3 VMs. If you already have some apps deployed on their free Hobby Plan, you will need to add your credit card info before proceeding.
+:::caution A Note on Free Tiers 💳
+Fly has [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a fresh account is free), but all plans require you to add your credit card info before proceeding. If you don't, the deploy will fail!
+
+To do so, go to your [account's billing page](https://fly.io/dashboard/personal/billing).
 :::
 
 The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/). You can also run `wasp deploy fly cmd platform regions --context server`.
