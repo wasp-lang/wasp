@@ -232,7 +232,7 @@ const Nav = () => {
                       transition ease-out duration-200
                     `}
                   >
-                    {'wasp new <app>'}
+                    Get Started
                   </button>
                 </Link>
 
