@@ -107,7 +107,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
        in threadDelay . (* microsecondsInASecond)
 
     handleInternalErrors :: E.ErrorCall -> IO ()
-    handleInternalErrors e = putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
+    handleInternalErrors e = do
+      putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
+      exitFailure
 
 {- ORMOLU_DISABLE -}
 printUsage :: IO ()
