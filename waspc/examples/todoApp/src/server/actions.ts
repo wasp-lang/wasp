@@ -26,10 +26,10 @@ export const createTask: CreateTask<Pick<Task, 'description'>> = async (
       },
     },
   })
-  
+
   console.log(
     'New task created! Btw, current value of someResource is: ' +
-      getSomeResource()
+    getSomeResource()
   )
 
   return newTask

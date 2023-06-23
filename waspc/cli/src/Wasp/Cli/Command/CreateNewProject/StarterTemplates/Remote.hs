@@ -21,11 +21,11 @@ createProjectOnDiskFromRemoteTemplate ::
   NewProjectAppName ->
   String ->
   Command ()
-createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName templateName = do
-  fetchGithubTemplateToDisk absWaspProjectDir templateName >>= either throwProjectCreationError pure
+createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName templatePath = do
+  fetchGithubTemplateToDisk absWaspProjectDir templatePath >>= either throwProjectCreationError pure
   liftIO $ replaceTemplatePlaceholdersInWaspFile appName projectName absWaspProjectDir
   where
     fetchGithubTemplateToDisk :: Path' Abs (Dir WaspProjectDir) -> String -> Command (Either String ())
-    fetchGithubTemplateToDisk projectDir templateFolderName = do
-      let templateFolderPath = fromJust . SP.parseRelDir $ templateFolderName
+    fetchGithubTemplateToDisk projectDir templatePathInRepo = do
+      let templateFolderPath = fromJust . SP.parseRelDir $ templatePathInRepo
       liftIO $ fetchFolderFromGithubRepoToDisk starterTemplateGithubRepo templateFolderPath projectDir

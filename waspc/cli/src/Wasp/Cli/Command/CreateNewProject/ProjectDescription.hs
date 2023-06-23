@@ -21,9 +21,9 @@ import Wasp.Cli.Command.CreateNewProject.Common
     throwProjectCreationError,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplateName,
-    defaultStarterTemplateName,
-    findTemplateNameByString,
+  ( StarterTemplate,
+    defaultStarterTemplate,
+    findTemplateByString,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
@@ -33,7 +33,7 @@ import Wasp.Util (indent, kebabToCamelCase, whenM)
 data NewProjectDescription = NewProjectDescription
   { _projectName :: NewProjectName,
     _appName :: NewProjectAppName,
-    _templateName :: StarterTemplateName,
+    _template :: StarterTemplate,
     _absWaspProjectDir :: Path' Abs (Dir WaspProjectDir)
   }
 
@@ -62,21 +62,21 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
-obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplateName] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplateNames =
+obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates =
   case projectNameArg of
-    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplateNames
-    Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplateNames
+    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplates
+    Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplates
 
-obtainNewProjectDescriptionFromCliArgs :: String -> Maybe String -> [StarterTemplateName] -> Command NewProjectDescription
+obtainNewProjectDescriptionFromCliArgs :: String -> Maybe String -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemplates =
   obtainNewProjectDescriptionFromProjectNameAndTemplateArg
     projectName
     templateNameArg
     availableTemplates
-    (return defaultStarterTemplateName)
+    (return defaultStarterTemplate)
 
-obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplateName] -> Command NewProjectDescription
+obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
   projectName <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
   obtainNewProjectDescriptionFromProjectNameAndTemplateArg
@@ -91,17 +91,17 @@ obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
   String ->
   Maybe String ->
-  [StarterTemplateName] ->
-  Command StarterTemplateName ->
+  [StarterTemplate] ->
+  Command StarterTemplate ->
   Command NewProjectDescription
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNameArg availableTemplates obtainTemplateWhenNoArg = do
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  selectedTemplate <- maybe obtainTemplateWhenNoArg findTemplateNameOrThrow templateNameArg
+  selectedTemplate <- maybe obtainTemplateWhenNoArg findTemplateOrThrow templateNameArg
   mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
   where
-    findTemplateNameOrThrow :: String -> Command StarterTemplateName
-    findTemplateNameOrThrow templateName =
-      findTemplateNameByString availableTemplates templateName
+    findTemplateOrThrow :: String -> Command StarterTemplate
+    findTemplateOrThrow templateName =
+      findTemplateByString availableTemplates templateName
         & maybe throwInvalidTemplateNameUsedError return
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
@@ -121,14 +121,14 @@ obtainAvailableProjectDirPath projectName = do
         throwProjectCreationError $
           "Directory \"" ++ projectDirName ++ "\" is not empty."
 
-mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> StarterTemplateName -> Command NewProjectDescription
-mkNewProjectDescription projectName absWaspProjectDir templateName
+mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> StarterTemplate -> Command NewProjectDescription
+mkNewProjectDescription projectName absWaspProjectDir template
   | isValidWaspIdentifier appName =
       return $
         NewProjectDescription
           { _projectName = NewProjectName projectName,
             _appName = NewProjectAppName appName,
-            _templateName = templateName,
+            _template = template,
             _absWaspProjectDir = absWaspProjectDir
           }
   | otherwise =

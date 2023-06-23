@@ -43,7 +43,7 @@ PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice)
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
-WASP_DEPLOY_COMPILE="$SCRIPT_DIR/tools/install_deploy_package_to_data_dir.sh"
+WASP_PACKAGES_COMPILE="$SCRIPT_DIR/tools/install_packages_to_data_dir.sh"
 
 echo_and_eval () {
     echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
@@ -182,8 +182,8 @@ case $COMMAND in
     module-graph)
         echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
         ;;
-    wasp-deploy:compile)
-        echo_and_eval "$WASP_DEPLOY_COMPILE"
+    wasp-packages:compile)
+        echo_and_eval "$WASP_PACKAGES_COMPILE"
         ;;
     *)
         print_usage

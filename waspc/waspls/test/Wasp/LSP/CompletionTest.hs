@@ -1,8 +1,9 @@
 module Wasp.LSP.CompletionTest where
 
 import Control.Lens ((^.))
+import Control.Monad (guard)
 import Control.Monad.Log (runLog)
-import Control.Monad.State.Strict (evalStateT, guard)
+import Control.Monad.Reader (runReaderT)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BSC
 import Data.List (elemIndex, isPrefixOf)
@@ -16,7 +17,7 @@ import Text.Printf (printf)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as Lexer
 import Wasp.LSP.Completion (getCompletionsAtPosition)
-import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics))
+import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports, _waspFileUri))
 
 -- | A string containing the input to a completion test. It represents wasp
 -- source code with a cursor position.
@@ -98,20 +99,32 @@ runCompletionTest testInput =
       parsedCST = snd $ parseCST tokens
       serverState =
         ServerState
-          { _currentWaspSource = waspSource,
+          { _waspFileUri = Nothing,
+            _currentWaspSource = waspSource,
             _latestDiagnostics = [],
-            _cst = Just parsedCST
+            _cst = Just parsedCST,
+            _tsExports = error "_tsExports not available in completion tests",
+            _reactorIn = error "_reactorIn not available in completion tests",
+            _regTokens = error "_regTokens not available in completion tests",
+            _debouncer = error "_debouncer not available in completion tests"
           }
-      (completionItems, _log) = runLog $ evalStateT (getCompletionsAtPosition cursorPosition) serverState
+      (completionItems, _log) = runLog $ runReaderT (getCompletionsAtPosition cursorPosition) serverState
       fmtedCompletionItems = map fmtCompletionItem completionItems
 
       fmtCompletionItem :: LSP.CompletionItem -> String
-      fmtCompletionItem item =
-        unwords
-          [ printf "label={%s}" (show $ item ^. LSP.label),
-            printf "kind={%s}" (show $ item ^. LSP.kind),
-            printf "detail={%s}" (show $ item ^. LSP.detail)
-          ]
+      fmtCompletionItem item = unwords fields
+        where
+          fields =
+            concat
+              [ field "label" LSP.label,
+                optionalField "kind" LSP.kind,
+                optionalField "detail" LSP.detail,
+                optionalField "insertText" LSP.insertText
+              ]
+          field label getter = [printf "%s={%s}" (label :: String) (show $ item ^. getter)]
+          optionalField label getter = case item ^. getter of
+            Nothing -> []
+            Just v -> [printf "%s={%s}" (label :: String) (show v)]
    in "Completion items:\n" ++ unlines (map ("  " <>) fmtedCompletionItems)
 
 -- | Parses a completion test case into a pair of the wasp source code to

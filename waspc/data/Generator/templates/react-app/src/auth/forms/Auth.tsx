@@ -9,10 +9,12 @@ import {
   type ErrorMessage,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
+import { MessageError, MessageSuccess } from './internal/Message'
+{=# isEmailAuthEnabled =}
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
-import { MessageError, MessageSuccess } from './internal/Message'
+{=/ isEmailAuthEnabled =}
 
 const logoStyle = {
   height: '3rem'

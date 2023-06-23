@@ -1239,7 +1239,7 @@ If you require more control in your authentication flow, you can achieve that in
 - If you want to execute custom code on the server during sign up, create your own sign up action which invokes Prisma client as `context.entities.[USER_ENTITY].create()` function, along with your custom code.
 
 The code of your custom sign-up action would look like this (your user entity being `User` in this instance):
-```js
+```js title="src/server/auth/signup.js"
 export const signUp = async (args, context) => {
   // Your custom code before sign-up.
   // ...
@@ -1304,7 +1304,7 @@ Password of the user logging in.
 
 #### `import statement`:
 ```js
-import login from '@wasp/auth/login.js'
+import login from '@wasp/auth/login'
 ```
 Login is a regular action and can be used directly from the frontend.
 
@@ -1326,7 +1326,7 @@ If you need to add extra fields to the user entity, we suggest doing it in a sep
 
 #### `import statement`:
 ```js
-import signup from '@wasp/auth/signup.js'
+import signup from '@wasp/auth/signup'
 ```
 Signup is a regular action and can be used directly from the frontend.
 
@@ -1338,12 +1338,12 @@ logout()
 
 #### `import statement`:
 ```js
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 ```
 
 ##### Example of usage:
 ```jsx
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 
 const SignOut = () => {
   return (
@@ -1838,8 +1838,8 @@ import React from 'react'
 
 import { Link } from 'react-router-dom'
 import useAuth from '@wasp/auth/useAuth'
-import logout from '@wasp/auth/logout.js'
-import Todo from '../Todo.js'
+import logout from '@wasp/auth/logout'
+import Todo from '../Todo'
 import '../Main.css'
 
 const Main = () => {

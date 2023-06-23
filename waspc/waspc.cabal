@@ -53,6 +53,12 @@ data-files:
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  packages/deploy/dist/**/*.js
+  packages/deploy/package.json
+  packages/deploy/package-lock.json
+  packages/ts-inspect/dist/**/*.js
+  packages/ts-inspect/package.json
+  packages/ts-inspect/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -300,6 +306,7 @@ library
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
+    Wasp.Package
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -316,6 +323,7 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
+    Wasp.TypeScript
     Wasp.Util
     Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
@@ -335,15 +343,24 @@ library waspls
   exposed-modules:
     Control.Monad.Log
     Control.Monad.Log.Class
+    Wasp.LSP.Debouncer
     Wasp.LSP.Server
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
+    Wasp.LSP.ExtImport
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
-    Wasp.LSP.Util
+    Wasp.LSP.GotoDefinition
+    Wasp.LSP.Reactor
+    Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.DictKeyCompletion
+    Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
+    Wasp.LSP.TypeInference
+    Wasp.LSP.Util
   build-depends:
       base
     , aeson
@@ -354,10 +371,19 @@ library waspls
     , lens ^>=5.1
     , lsp ^>=1.4.0.0
     , lsp-types ^>=1.4.0.1
+    , stm ^>=2.5.1.0
+    , stm-containers ^>=1.2
+    , hashable ^>=1.3.5.0
+    , unordered-containers
+    , strong-path
+    , path
+    , async ^>=2.2.4
+    , unliftio-core
     , mtl
     , text
     , transformers ^>=0.5.6.2
     , utf8-string
+    , unordered-containers
     , waspc
 
 library cli-lib
@@ -420,6 +446,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
@@ -544,6 +571,7 @@ test-suite waspls-test
     , filepath
   other-modules:
     Wasp.LSP.CompletionTest
+    Wasp.LSP.DebouncerTest
 
 test-suite cli-test
   import: common-all, common-exe
