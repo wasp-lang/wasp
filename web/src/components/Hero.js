@@ -38,7 +38,7 @@ const ActionButtons = () => (
         `}
       >
         <Terminal size={16} />
-        <span>{'wasp new <app>'}</span>
+        <span>{'Get Started'}</span>
       </button>
     </Link>
 
@@ -55,7 +55,7 @@ const ActionButtons = () => (
         `}
       >
         <BookOpen size={16} />
-        <span>Quick Guide</span>
+        <span>Documentation</span>
       </button>
     </Link>
   </div>

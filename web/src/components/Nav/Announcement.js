@@ -9,7 +9,7 @@ const Announcement = () => {
   let history = useHistory();
 
   const handleLink = () => {
-    history.push('/blog/2023/05/19/hackathon-2-review')
+    history.push('/blog/2023/06/22/wasp-launch-week-three')
     //history.push('/#signup')
 
     //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
@@ -39,7 +39,7 @@ const Announcement = () => {
         `}
       >
         <span className='item-center flex gap-2 px-3'>
-          <span>🏆 Wasp Hackathon 2.0 is Finished!</span>
+          <span>🔮 Wasp Launch Week #3: Jun 26 - 30</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
@@ -49,7 +49,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Check Out the Winners 🎉
+            Learn more →
           </span>
         </span>
       </div>
