@@ -13,13 +13,19 @@ module Wasp.AI.OpenAI.ChatGPT
 where
 
 import Control.Arrow ()
+import Control.Concurrent (threadDelay)
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
+import UnliftIO (MonadUnliftIO)
+import UnliftIO.Exception (catch, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
+import qualified Wasp.Util.IO as Util.IO
 
 queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO Text
 queryChatGPT apiKey params requestMessages = do
@@ -30,12 +36,14 @@ queryChatGPT apiKey params requestMessages = do
           ]
             <> ["temperature" .= t | Just t <- pure $ _temperature params]
       request =
-        HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
-          HTTP.setRequestBodyJSON reqBodyJson $
-            HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
+        -- 90 seconds should be more than enough for ChatGPT to generate an answer, or reach its own timeout.
+        -- If it proves in the future that it might need more time, we can increase this number.
+        HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro $ secondsToMicroSeconds 90) $
+          HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
+            HTTP.setRequestBodyJSON reqBodyJson $
+              HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
 
-  -- TODO: Consider using httpJSONEither here, so I can handle errors better.
-  response <- HTTP.httpJSON request
+  response <- httpJSONWithRetry request
 
   -- TODO: I should probably check status code here, confirm it is 200.
   let _responseStatusCode = HTTP.getResponseStatusCode response
@@ -43,6 +51,21 @@ queryChatGPT apiKey params requestMessages = do
   let (chatResponse :: ChatResponse) = HTTP.getResponseBody response
 
   return $ content $ message $ head $ choices chatResponse
+  where
+    secondsToMicroSeconds = (* 1000000)
+
+    httpJSONWithRetry request =
+      -- We wait 10 seconds the first time, 20 seconds the second time, in between retries.
+      -- There is no strong reason for these specific numbers, just a first guess we went for.
+      (Util.IO.retry (* (secondsToMicroSeconds 10)) 2)
+        ( (pure <$> HTTP.httpJSON request)
+            -- TODO: Maybe also handle ServerTimeout? I didn't handle it so far because
+            --   I just assumed if that happens, there is likely a bigger problem on their side
+            --   and sending more requests wont help. Wouldn't want us to spend minutes retrying
+            --   requests if we simply lost internet connection.
+            `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ResponseTimeout) -> pure $ Left e)
+        )
+        >>= either throwIO pure
 
 data ChatGPTParams = ChatGPTParams
   { _model :: !Model,
