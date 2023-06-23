@@ -1,41 +1,63 @@
 module Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( getStarterTemplateNames,
-    StarterTemplateName (..),
+  ( getStarterTemplateInfos,
+    StarterTemplateInfo (..),
+    TemplateMetadata (..),
     findTemplateNameByString,
-    defaultStarterTemplateName,
+    defaultStarterTemplateInfo,
   )
 where
 
 import Data.Either (fromRight)
 import Data.Foldable (find)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github (starterTemplateGithubRepo)
-import qualified Wasp.Cli.GithubRepo as GR
+import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github as Github
+import qualified Wasp.Cli.Interactive as Interactive
 
-data StarterTemplateName = RemoteStarterTemplate String | LocalStarterTemplate String
+data StarterTemplateInfo = RemoteStarterTemplate TemplateMetadata | LocalStarterTemplate TemplateMetadata
   deriving (Eq)
 
-instance Show StarterTemplateName where
-  show (RemoteStarterTemplate templateName) = templateName
-  show (LocalStarterTemplate templateName) = templateName
+data TemplateMetadata = TemplateMetadata
+  { _name :: String,
+    _path :: String,
+    _description :: String
+  }
+  deriving (Eq, Show)
 
-getStarterTemplateNames :: IO [StarterTemplateName]
-getStarterTemplateNames = do
-  remoteTemplates <- fromRight [] <$> fetchRemoteStarterTemplateNames
+instance Show StarterTemplateInfo where
+  show (RemoteStarterTemplate TemplateMetadata {_name = title}) = title
+  show (LocalStarterTemplate TemplateMetadata {_name = title}) = title
+
+instance Interactive.Option StarterTemplateInfo where
+  showOption = show
+  showOptionDescription (RemoteStarterTemplate TemplateMetadata {_description = description}) = Just description
+  showOptionDescription (LocalStarterTemplate TemplateMetadata {_description = description}) = Just description
+
+getStarterTemplateInfos :: IO [StarterTemplateInfo]
+getStarterTemplateInfos = do
+  remoteTemplates <- fromRight [] <$> fetchRemoteStarterTemplateInfos
   return $ localTemplates ++ remoteTemplates
 
-fetchRemoteStarterTemplateNames :: IO (Either String [StarterTemplateName])
-fetchRemoteStarterTemplateNames = do
-  fmap extractTemplateNames <$> GR.fetchRepoRootFolderContents starterTemplateGithubRepo
+fetchRemoteStarterTemplateInfos :: IO (Either String [StarterTemplateInfo])
+fetchRemoteStarterTemplateInfos = do
+  fmap extractTemplateNames <$> Github.fetchRemoteTemplatesGithubData
   where
-    extractTemplateNames :: GR.RepoFolderContents -> [StarterTemplateName]
+    extractTemplateNames :: [Github.RemoteTemplateGithubData] -> [StarterTemplateInfo]
     -- Each folder in the repo is a template.
-    extractTemplateNames = map (RemoteStarterTemplate . GR._name) . filter ((== GR.Folder) . GR._type)
+    extractTemplateNames =
+      map
+        ( \metadata ->
+            RemoteStarterTemplate $
+              TemplateMetadata
+                { _name = Github._name metadata,
+                  _path = Github._path metadata,
+                  _description = Github._description metadata
+                }
+        )
 
-localTemplates :: [StarterTemplateName]
-localTemplates = [defaultStarterTemplateName]
+localTemplates :: [StarterTemplateInfo]
+localTemplates = [defaultStarterTemplateInfo]
 
-defaultStarterTemplateName :: StarterTemplateName
-defaultStarterTemplateName = LocalStarterTemplate "basic"
+defaultStarterTemplateInfo :: StarterTemplateInfo
+defaultStarterTemplateInfo = LocalStarterTemplate $ TemplateMetadata {_name = "basic", _path = "basic", _description = "Simple starter template with a single page."}
 
-findTemplateNameByString :: [StarterTemplateName] -> String -> Maybe StarterTemplateName
+findTemplateNameByString :: [StarterTemplateInfo] -> String -> Maybe StarterTemplateInfo
 findTemplateNameByString templateNames query = find ((== query) . show) templateNames

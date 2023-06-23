@@ -14,8 +14,8 @@ import qualified Wasp.Data as Data
 import Wasp.Project (WaspProjectDir)
 
 createProjectOnDiskFromLocalTemplate :: Path' Abs (Dir WaspProjectDir) -> NewProjectName -> NewProjectAppName -> String -> IO ()
-createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName templateName = do
-  copyLocalTemplateToNewProjectDir templateName
+createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName templatePath = do
+  copyLocalTemplateToNewProjectDir templatePath
   replaceTemplatePlaceholdersInWaspFile appName projectName absWaspProjectDir
   where
     copyLocalTemplateToNewProjectDir :: String -> IO ()
