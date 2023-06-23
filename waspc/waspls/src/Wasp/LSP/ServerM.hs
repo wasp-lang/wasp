@@ -1,63 +1,109 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Wasp.LSP.ServerM
-  ( ServerM,
-    runServerM,
-    ServerError (..),
-    Severity (..),
-    liftLSP,
+  ( -- * LSP Server Monads
+
+    -- The state of the LSP server is used in two different ways:
+    -- - Read only.
+    -- - Read and write.
+    --
+    -- Additionally, the state is accessed from multiple threads concurrently.
+    -- See waspls README for the architecture of the LSP server.
+    --
+    -- To facilitate this, there are two variants of the server monad: 'ServerM',
+    -- with write-access to the shared state via a 'TVar', and 'HandlerM' for
+    -- read-only access. In general, 'ServerM' should only be used in handlers
+    -- that are doing analysis on source files, that is, computing syntactic
+    -- and/or semantic information about the code that is needed for handlers to
+    -- respond to LSP requests.
+    --
+    -- For example, processing a @textDocumentDidChange@ notification runs in
+    -- 'ServerM' because it computes a new syntax tree for the wasp file,
+    -- whereas a @textDocumentcompletion@ request handler runs in 'HandlerM',
+    -- because it only needs to read from the latest analysis of the wasp file.
+    --
+    -- Under the hood, both monads are the 'RLspM' monad, distinguished only
+    -- by whether the context type is 'TVar' or not.
+
+    -- * Monads
+    RLspM,
+    ServerM,
+    HandlerM,
+    handler,
+    runRLspM,
+
+    -- * Operations
+    sendToReactor,
     logM,
-    -- | You should usually use lenses for accessing the state.
-    --
-    -- __Examples:__
-    --
-    -- > import Control.Lens ((^.))
-    -- > gets (^. diagnostics) -- Gets the list of diagnostics
-    --
-    -- > import Control.Lens ((.~))
-    -- > modify (diagnostics .~ []) -- Clears diagnostics in the state
-    StateT.gets,
-    StateT.modify,
-    lift,
-    catchError,
-    throwError,
+    modify,
   )
 where
 
-import Control.Monad.Error.Class (MonadError (catchError, throwError))
-import Control.Monad.Except (ExceptT, runExceptT)
+import Control.Concurrent.STM (TVar, atomically, modifyTVar, readTVarIO, writeTChan)
+import Control.Lens ((^.))
+import Control.Monad.IO.Unlift (MonadUnliftIO)
 import Control.Monad.Log.Class (MonadLog (logM))
-import Control.Monad.State.Class (MonadState)
-import Control.Monad.State.Strict (StateT, runStateT)
-import qualified Control.Monad.State.Strict as StateT
-import Control.Monad.Trans (MonadIO (liftIO), lift)
-import Data.Text (Text)
-import Language.LSP.Server (LspT)
+import Control.Monad.Reader (MonadReader (ask), ReaderT (ReaderT), asks, runReaderT)
+import Control.Monad.Trans (MonadIO (liftIO))
+import Language.LSP.Server (LspM, MonadLsp)
+import qualified Language.LSP.Server as LSP
 import qualified System.Log.Logger as L
+import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerState (ServerState)
+import Wasp.LSP.ServerState (ServerState, reactorIn)
 
-newtype ServerM a = ServerM
-  { unServerM :: ExceptT ServerError (StateT ServerState (LspT ServerConfig IO)) a
+-- | \"Reader LSP monad\": The LSP monad with a 'ReaderT' for extra state. Use
+-- the type aliases 'ServerM' and 'HandlerM' instead of using this type directly.
+newtype RLspM s a = RLspM
+  { unServerM :: ReaderT s (LspM ServerConfig) a
   }
   deriving
     ( Functor,
       Applicative,
       Monad,
-      MonadError ServerError,
-      MonadState ServerState,
-      MonadIO
+      MonadReader s,
+      MonadIO,
+      MonadUnliftIO,
+      MonadLsp ServerConfig
     )
 
-runServerM ::
-  ServerState ->
-  ServerM a ->
-  LspT ServerConfig IO (Either ServerError a, ServerState)
-runServerM state m = runStateT (runExceptT $ unServerM m) state
+-- | 'RLspM' specialized to @'TVar' 'ServerState'@. This is how you can modify
+-- the server state.
+--
+-- We use a reader with a 'TVar' instead of a state monad because we want to
+-- be able to modify the state from other threads.
+type ServerM = RLspM (TVar ServerState)
 
--- | Run a LSP function in the "ServerM" monad.
-liftLSP :: LspT ServerConfig IO a -> ServerM a
-liftLSP m = ServerM $ lift $ lift m
+-- | Most LSP handlers should use this instead of 'ServerM', as there are only
+-- limited places where modifying the state is needed.
+type HandlerM = RLspM ServerState
+
+-- | Run a 'HandlerM' in 'ServerM'.
+handler :: HandlerM a -> ServerM a
+handler act = RLspM $
+  ReaderT $ \stateTVar -> do
+    state <- liftIO $ readTVarIO stateTVar
+    runRLspM state act
+
+-- | Modify the state inside the 'TVar' in the reader context.
+modify :: (ServerState -> ServerState) -> ServerM ()
+modify f = do
+  stateTVar <- ask
+  liftIO $ atomically $ modifyTVar stateTVar f
+
+-- | Send a 'ServerM' action to the reactor thread.
+sendToReactor :: ServerM () -> ServerM ()
+sendToReactor act = do
+  stateTVar <- ask
+  env <- LSP.getLspEnv
+  rin <- handler $ asks (^. reactorIn)
+  liftIO $ atomically $ writeTChan rin $ ReactorAction $ LSP.runLspT env $ runRLspM stateTVar act
+
+runRLspM ::
+  s ->
+  RLspM s a ->
+  LspM ServerConfig a
+runRLspM state m = runReaderT (unServerM m) state
 
 -- | Log a string.
 --
@@ -65,21 +111,5 @@ liftLSP m = ServerM $ lift $ lift m
 -- logged messages will be displayed in the LSP client (e.g. for VSCode, in the
 -- "Wasp Language Extension" output panel). Otherwise, it may be sent to a file
 -- or not recorded at all.
-instance MonadLog ServerM where
+instance MonadLog (RLspM s) where
   logM = liftIO . L.logM "haskell-lsp" L.DEBUG
-
--- | The type for a language server error. These are separate from diagnostics
--- and should be reported when the server fails to process a request/notification
--- for some reason.
-data ServerError = ServerError Severity Text
-
--- | Error severity levels
-data Severity
-  = -- | Displayed to user as an error
-    Error
-  | -- | Displayed to user as a warning
-    Warning
-  | -- | Displayed to user
-    Info
-  | -- | Not displayed to the user
-    Log
