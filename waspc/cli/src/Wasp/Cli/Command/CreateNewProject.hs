@@ -16,9 +16,9 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplateInfo (..),
+  ( StarterTemplate (..),
     TemplateMetadata (..),
-    getStarterTemplateInfos,
+    getStarterTemplates,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote (createProjectOnDiskFromRemoteTemplate)
@@ -31,9 +31,9 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either throwProjectCreationError return
-  starterTemplateInfos <- liftIO getStarterTemplateInfos
+  starterTemplates <- liftIO getStarterTemplates
 
-  newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplateInfos
+  newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplates
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructions $ _absWaspProjectDir newProjectDescription
@@ -56,11 +56,11 @@ createProjectOnDisk
   NewProjectDescription
     { _projectName = projectName,
       _appName = appName,
-      _templateInfo = templateInfo,
+      _template = template,
       _absWaspProjectDir = absWaspProjectDir
     } = do
-    cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show templateInfo ++ "\" template..."
-    case templateInfo of
+    cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
+    case template of
       RemoteStarterTemplate TemplateMetadata {_path = remoteTemplatePath} ->
         createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName remoteTemplatePath
       LocalStarterTemplate TemplateMetadata {_path = localTemplatePath} ->
