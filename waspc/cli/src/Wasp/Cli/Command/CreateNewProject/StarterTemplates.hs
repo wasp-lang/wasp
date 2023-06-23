@@ -59,5 +59,5 @@ localTemplates = [defaultStarterTemplateInfo]
 defaultStarterTemplateInfo :: StarterTemplateInfo
 defaultStarterTemplateInfo = LocalStarterTemplate $ TemplateMetadata {_name = "basic", _path = "basic", _description = "Simple starter template with a single page."}
 
-findTemplateNameByString :: [StarterTemplateInfo] -> String -> Maybe StarterTemplateInfo
-findTemplateNameByString templateNames query = find ((== query) . show) templateNames
+findTemplateByString :: [StarterTemplateInfo] -> String -> Maybe StarterTemplateInfo
+findTemplateByString templateInfos query = find ((== query) . show) templateInfos

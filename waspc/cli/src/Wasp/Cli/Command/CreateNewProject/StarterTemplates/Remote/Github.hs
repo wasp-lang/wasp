@@ -12,7 +12,7 @@ starterTemplateGithubRepo =
       _repoReferenceName = "main"
     }
 
-starterTemplatesDataGithubFilePath :: String
+starterTemplatesDataGithubFilePath :: FilePath
 starterTemplatesDataGithubFilePath = "templates.json"
 
 fetchRemoteTemplatesGithubData :: IO (Either String [RemoteTemplateGithubData])
