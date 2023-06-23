@@ -102,8 +102,14 @@ getOpenAIApiKey =
     throwMissingOpenAIApiKeyEnvVarError =
       throwError $
         CommandError
-          "Missing OPENAI_API_KEY env var"
-          "You can obtain this key from your OpenAI profile."
+          "Missing OPENAI_API_KEY environment variable"
+          $ unlines
+            [ "Wasp AI uses ChatGPT to generate your project, and therefore requires you to provide it with an OpenAI API key.",
+              "You can obtain this key via your OpenAI account's user settings (https://platform.openai.com/account/api-keys).",
+              "Then, add",
+              "  export OPENAI_API_KEY=<yourkeyhere>",
+              "to .bash_profile or .profile, restart your shell, and you should be good to go."
+            ]
 
 newProjectDetails :: String -> String -> NewProjectDetails
 newProjectDetails webAppName webAppDescription =

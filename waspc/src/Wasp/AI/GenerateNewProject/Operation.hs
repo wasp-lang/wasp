@@ -10,7 +10,6 @@ where
 
 import Data.Aeson (FromJSON)
 import Data.List (isPrefixOf)
-import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
@@ -180,16 +179,16 @@ instance Show OperationType where
   show Query = "query"
 
 data Operation = Operation
-  { opImpl :: OperationImpl,
-    opPlan :: Plan.Operation,
-    opType :: OperationType
+  { opImpl :: !OperationImpl,
+    opPlan :: !Plan.Operation,
+    opType :: !OperationType
   }
   deriving (Show)
 
 data OperationImpl = OperationImpl
-  { opWaspDecl :: String,
-    opJsImpl :: String,
-    opJsImports :: Maybe String
+  { opWaspDecl :: !String,
+    opJsImpl :: !String,
+    opJsImports :: !(Maybe String)
   }
   deriving (Generic, Show)
 
