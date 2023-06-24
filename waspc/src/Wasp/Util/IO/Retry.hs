@@ -4,18 +4,18 @@ module Wasp.Util.IO.Retry
     linearPause,
     expPause,
     customPause,
+    MonadRetry (..),
   )
 where
 
 import Control.Concurrent (threadDelay)
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import Numeric.Natural (Natural)
 import Prelude hiding (readFile, writeFile)
 
 -- | Runs given action, and then if it fails, retries it, up to maxNumRetries.
 --   Uses provided pauseStrategy to calculate pause between tries.
 -- TODO: Write tests.
-retry :: (MonadIO m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
+retry :: (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
 retry (PauseStrategy calcPause) maxNumRetries action = go 0
   where
     maxNumTries = maxNumRetries + 1
@@ -27,9 +27,15 @@ retry (PauseStrategy calcPause) maxNumRetries action = go 0
           let numFailedTries' = numFailedTries + 1
            in if numFailedTries' < maxNumTries
                 then do
-                  liftIO $ threadDelay $ fromIntegral $ calcPause numFailedTries'
+                  rThreadDelay $ fromIntegral $ calcPause numFailedTries'
                   go numFailedTries'
                 else pure $ Left e
+
+class (Monad m) => MonadRetry m where
+  rThreadDelay :: Int -> m ()
+
+instance MonadRetry IO where
+  rThreadDelay = threadDelay
 
 type Microseconds = Natural
 

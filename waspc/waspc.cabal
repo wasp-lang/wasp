@@ -556,7 +556,7 @@ test-suite waspc-test
     UtilTest
     Util.Diff
     Util.FilePathTest
-    Util.RetryTest
+    Util.IO.RetryTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc
