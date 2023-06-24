@@ -64,17 +64,11 @@ them alone (for now).
 
 :::note Typescript Support
 Wasp supports Typescript out of the box but you are free to use JavaScript (js/jsx)
-or TypeScript (ts/tsx) as you see fit, on a file-by-file basis.
-
-For this tutorial, we will simply use vanilla Javascript and JSX syntax 🍦
-
-If you'd prefer to follow along using TypeScript:
- 1. Start by changing `MainPage.jsx` to `MainPage.tsx`
- 2. For the rest of the tutorial, you can write TypeScript whereever you see fit. Just make sure to use the appropriate extensions.
-
-No extra configuration is needed!
+or TypeScript (ts/tsx) as you see fit. No extra configuration is needed!
 
 We'll provide you with both JavaScript and TypeScript snippets for each feature we cover.
+
+Code blocks have a toggle between vanilla 🍦 Javascript/JSX and Typescript/TSX.
 
 To see how to get the most out of Wasp and TypeScript, take a look at [our
 TypeScript doc](/docs/typescript). It contains a list of all TypeScript features

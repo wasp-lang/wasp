@@ -16,7 +16,7 @@ app TodoApp {
   // ...
 
   dependencies: [
-    ("react-clock", "3.0.0")
+    ("react-clock", "4.2.0")
   ]
 }
 ```

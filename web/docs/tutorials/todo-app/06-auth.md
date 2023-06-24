@@ -381,7 +381,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">
 
-export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+export const updateTask: UpdateTask<UpdateTaskPayload, Task[]> = async (
   { id, isDone },
   context
 ) => {
