@@ -25,7 +25,7 @@ import qualified Network.HTTP.Simple as HTTP
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
-import qualified Wasp.Util.IO as Util.IO
+import qualified Wasp.Util.IO.Retry as R
 
 queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO Text
 queryChatGPT apiKey params requestMessages = do
@@ -52,17 +52,20 @@ queryChatGPT apiKey params requestMessages = do
 
   return $ content $ message $ head $ choices chatResponse
   where
+    secondsToMicroSeconds :: Int -> Int
     secondsToMicroSeconds = (* 1000000)
 
     httpJSONWithRetry request =
       -- We wait 10 seconds the first time, 20 seconds the second time, in between retries.
       -- There is no strong reason for these specific numbers, just a first guess we went for.
-      (Util.IO.retry (* (secondsToMicroSeconds 10)) 2)
+      R.retry
+        (R.linearPause $ fromIntegral $ secondsToMicroSeconds 10)
+        2
         ( (pure <$> HTTP.httpJSON request)
-            -- TODO: Maybe also handle ServerTimeout? I didn't handle it so far because
-            --   I just assumed if that happens, there is likely a bigger problem on their side
-            --   and sending more requests wont help. Wouldn't want us to spend minutes retrying
-            --   requests if we simply lost internet connection.
+            -- NOTE: We could potentially also handle ServerTimeout, but I didn't handle it so far
+            --   because I just assumed if that happens, there is likely a bigger problem on their
+            --   side and sending more requests wont help. Wouldn't want us to spend minutes
+            --   retrying requests if we simply lost internet connection.
             `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ResponseTimeout) -> pure $ Left e)
         )
         >>= either throwIO pure

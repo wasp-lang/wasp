@@ -13,12 +13,9 @@ module Wasp.Util.IO
     tryReadFile,
     isDirectoryEmpty,
     writeFileFromText,
-    RetryDelayStrategy,
-    retry,
   )
 where
 
-import Control.Concurrent (threadDelay)
 import Control.Monad (filterM, when)
 import Control.Monad.Extra (whenM)
 import Data.Text (Text)
@@ -29,7 +26,6 @@ import qualified StrongPath as SP
 import qualified System.Directory as SD
 import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
-import UnliftIO (MonadIO (liftIO), MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 import Prelude hiding (readFile, writeFile)
 import qualified Prelude as P
@@ -126,22 +122,3 @@ isDirectoryEmpty :: Path' Abs (Dir d) -> IO Bool
 isDirectoryEmpty dirPath = do
   (files, dirs) <- listDirectory dirPath
   return $ null files && null dirs
-
--- | Takes number of tries so far and returns number of microseconds to pause before next try.
-type RetryDelayStrategy = (Int -> Int)
-
--- | Runs given action, and then if it fails, retries it, up to maxNumRetries.
---   Uses provided delayStrategy to calculate pause between tries.
--- TODO: Write tests.
-retry :: (MonadUnliftIO m) => RetryDelayStrategy -> Int -> m (Either e a) -> m (Either e a)
-retry delayStrategy maxNumRetries action = go 0
-  where
-    go numFailedRetries = do
-      action >>= \case
-        Right result -> pure $ Right result
-        Left e ->
-          if numFailedRetries < maxNumRetries
-            then do
-              liftIO $ threadDelay $ delayStrategy (numFailedRetries + 1)
-              go (numFailedRetries + 1)
-            else pure $ Left e
