@@ -5,6 +5,7 @@ module Wasp.Util.IO.Retry
     expPause,
     customPause,
     MonadRetry (..),
+    PauseStrategy,
   )
 where
 
