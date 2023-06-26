@@ -111,7 +111,7 @@ export const ChatPage = () => {
 ```
 
 ### Automatic CRUD backend generation
-For some Entity, you can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating and deleting such entities. As your entities update, Wasp will automatically regenerate the backend logic.
+You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
 
 Example of a `Task` entity with automatic CRUD:
 
