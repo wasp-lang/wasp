@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Wasp.Util.IO.Retry
   ( retry,
     constPause,
@@ -15,12 +17,13 @@ import Prelude hiding (readFile, writeFile)
 
 -- | Runs given action, and then if it fails, retries it, up to maxNumRetries.
 --   Uses provided pauseStrategy to calculate pause between tries.
--- TODO: Write tests.
-retry :: (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
+retry :: forall m e a. (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
 retry (PauseStrategy calcPause) maxNumRetries action = go 0
   where
+    maxNumTries :: Natural
     maxNumTries = maxNumRetries + 1
 
+    go :: Natural -> m (Either e a)
     go numFailedTries =
       action >>= \case
         Right result -> pure $ Right result
@@ -38,11 +41,11 @@ class (Monad m) => MonadRetry m where
 instance MonadRetry IO where
   rThreadDelay = threadDelay
 
+newtype PauseStrategy = PauseStrategy (NumFailedTries -> Microseconds)
+
 type Microseconds = Natural
 
 type NumFailedTries = Natural
-
-newtype PauseStrategy = PauseStrategy (NumFailedTries -> Microseconds)
 
 constPause :: Microseconds -> PauseStrategy
 constPause basePause = PauseStrategy (const basePause)
