@@ -344,6 +344,7 @@ library
     Wasp.Util.Control.Monad
     Wasp.Util.Fib
     Wasp.Util.IO
+    Wasp.Util.IO.Retry
     Wasp.Util.Terminal
     Wasp.Util.FilePath
     Wasp.WaspignoreFile
@@ -555,6 +556,7 @@ test-suite waspc-test
     UtilTest
     Util.Diff
     Util.FilePathTest
+    Util.IO.RetryTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc
