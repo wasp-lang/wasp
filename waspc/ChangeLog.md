@@ -62,11 +62,12 @@ export const MainPage = () => {
 ```
 
 ### Public folder support
-Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
+Wasp now supports a `public` folder in the `client` folder. All the files in this directory will be copied as they are to the `public` directory in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
 
 For example, doing this:
 
 ```bash
+main.wasp
 src
 └── client
     ├── public # <-- NEW!
