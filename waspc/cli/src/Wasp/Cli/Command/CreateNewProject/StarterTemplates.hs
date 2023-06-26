@@ -1,10 +1,11 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( getStarterTemplateNames,
-    StarterTemplateName (..),
-    findTemplateNameByString,
-    defaultStarterTemplateName,
+  ( getStarterTemplates,
+    StarterTemplate (..),
+    DirBasedTemplateMetadata (..),
+    findTemplateByString,
+    defaultStarterTemplate,
     readWaspProjectSkeletonFiles,
   )
 where
@@ -13,44 +14,73 @@ import Data.Either (fromRight)
 import Data.Foldable (find)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System, reldir, (</>))
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github (starterTemplateGithubRepo)
+import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github as Github
 import Wasp.Cli.Common (WaspProjectDir)
-import qualified Wasp.Cli.GithubRepo as GR
+import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 
-data StarterTemplateName
-  = RemoteStarterTemplate String
-  | LocalStarterTemplate String
+data StarterTemplate
+  = RemoteStarterTemplate DirBasedTemplateMetadata
+  | LocalStarterTemplate DirBasedTemplateMetadata
   | AiGeneratedStarterTemplate
   deriving (Eq)
 
-instance Show StarterTemplateName where
-  show (RemoteStarterTemplate templateName) = templateName
-  show (LocalStarterTemplate templateName) = templateName
-  show AiGeneratedStarterTemplate = "ai-generated (experimental)"
+data DirBasedTemplateMetadata = DirBasedTemplateMetadata
+  { _name :: String,
+    _path :: String, -- Path to a directory containing template files.
+    _description :: String
+  }
+  deriving (Eq, Show)
 
-getStarterTemplateNames :: IO [StarterTemplateName]
-getStarterTemplateNames = do
-  remoteTemplates <- fromRight [] <$> fetchRemoteStarterTemplateNames
+instance Show StarterTemplate where
+  show (RemoteStarterTemplate metadata) = _name metadata
+  show (LocalStarterTemplate metadata) = _name metadata
+  show AiGeneratedStarterTemplate = "ai-generated"
+
+instance Interactive.Option StarterTemplate where
+  showOption = show
+  showOptionDescription (RemoteStarterTemplate metadata) = Just $ _description metadata
+  showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
+  showOptionDescription AiGeneratedStarterTemplate =
+    Just "[experimental] Describe an app in a couple of sentences and have ChatGPT generate initial code for you."
+
+getStarterTemplates :: IO [StarterTemplate]
+getStarterTemplates = do
+  remoteTemplates <- fromRight [] <$> fetchRemoteStarterTemplates
   return $ localTemplates ++ remoteTemplates ++ [AiGeneratedStarterTemplate]
 
-fetchRemoteStarterTemplateNames :: IO (Either String [StarterTemplateName])
-fetchRemoteStarterTemplateNames = do
-  fmap extractTemplateNames <$> GR.fetchRepoRootFolderContents starterTemplateGithubRepo
+fetchRemoteStarterTemplates :: IO (Either String [StarterTemplate])
+fetchRemoteStarterTemplates = do
+  fmap extractTemplateNames <$> Github.fetchRemoteTemplatesGithubData
   where
-    extractTemplateNames :: GR.RepoFolderContents -> [StarterTemplateName]
+    extractTemplateNames :: [Github.RemoteTemplateGithubData] -> [StarterTemplate]
     -- Each folder in the repo is a template.
-    extractTemplateNames = map (RemoteStarterTemplate . GR._name) . filter ((== GR.Folder) . GR._type)
+    extractTemplateNames =
+      map
+        ( \metadata ->
+            RemoteStarterTemplate $
+              DirBasedTemplateMetadata
+                { _name = Github._name metadata,
+                  _path = Github._path metadata,
+                  _description = Github._description metadata
+                }
+        )
 
-localTemplates :: [StarterTemplateName]
-localTemplates = [defaultStarterTemplateName]
+localTemplates :: [StarterTemplate]
+localTemplates = [defaultStarterTemplate]
 
-defaultStarterTemplateName :: StarterTemplateName
-defaultStarterTemplateName = LocalStarterTemplate "basic"
+defaultStarterTemplate :: StarterTemplate
+defaultStarterTemplate =
+  LocalStarterTemplate $
+    DirBasedTemplateMetadata
+      { _name = "basic",
+        _path = "basic",
+        _description = "Simple starter template with a single page."
+      }
 
-findTemplateNameByString :: [StarterTemplateName] -> String -> Maybe StarterTemplateName
-findTemplateNameByString templateNames query = find ((== query) . show) templateNames
+findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
+findTemplateByString templates query = find ((== query) . show) templates
 
 readWaspProjectSkeletonFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readWaspProjectSkeletonFiles = do

@@ -5,13 +5,13 @@ title: "Authentication"
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Most of the apps today are multi-user, and Wasp has first-class support for it, so let's see how to add it to our Todo app!
+Most of the apps today require some sort of registration and login flows, and Wasp has support for it out of the box, so let's see how to add it to our Todo app!
 
-Let's define a Todo list (luckily we have an app for that now ;)) to get this done:
-- [ ] Add Wasp entity `User`.
-- [ ] Add `auth` Wasp declaration.
-- [ ] Add `Login` and `Signup` pages
-- [ ] Modify `src/client/MainPage.jsx` so that it requires authentication.
+Let's define a Todo list (luckily we have an app for that now 🙃) to get this done:
+- [ ] Add a new entity called `User`.
+- [ ] Add `auth` to our `app`.
+- [ ] Add `Login` and `Signup` pages.
+- [ ] Modify `src/client/MainPage.{jsx,tsx}` so that it requires authentication.
 - [ ] Add Prisma relation between `User` and `Task` entities.
 - [ ] Modify our queries and actions so that they work only with the tasks belonging to the authenticated user.
 - [ ] Add a logout button.
@@ -45,10 +45,10 @@ app TodoApp {
   title: "Todo app",
 
   auth: {
-    // Expects entity User to have (username:String) and (password:String) fields.
+    // Expects entity User to have username and passwords fields.
     userEntity: User,
     methods: {
-      // We also support Google and GitHub, with more on the way!
+      // We also support Google, GitHub and email auth, with more on the way!
       usernameAndPassword: {}
     },
     // We'll see how this is used a bit later
@@ -58,9 +58,9 @@ app TodoApp {
 ```
 What this means for us is that Wasp now offers us:
 - Login and Signup forms located at `@wasp/auth/forms/Login` and `@wasp/auth/forms/Signup` paths, ready to be used.
-- `logout()` action.
-- React hook `useAuth()`.
-- `context.user` as an argument within query/action.
+- a `logout()` action.
+- a React hook `useAuth()`.
+- `context.user` as an argument within queries/actions.
 
 This is a very high-level API for auth which makes it very easy to get started quickly, but is
 not very flexible. If you require more control (e.g. want to execute some custom code on the server
@@ -92,6 +92,9 @@ page LoginPage {
 
 Great, Wasp now knows how to route these and where to find the pages. Now to the React code of the pages:
 
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
 
@@ -112,7 +115,35 @@ const LoginPage = () => {
 export default LoginPage
 ```
 
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/client/LoginPage.tsx"
+import { Link } from 'react-router-dom'
+
+import { LoginForm } from '@wasp/auth/forms/Login'
+
+const LoginPage = () => {
+  return (
+    <>
+      <LoginForm/>
+      <br/>
+      <span>
+        I don't have an account yet (<Link to="/signup">go to signup</Link>).
+      </span>
+    </>
+  )
+}
+
+export default LoginPage
+```
+</TabItem>
+</Tabs>
+
 The Signup page is very similar to the login one:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
@@ -133,6 +164,30 @@ const SignupPage = () => {
 
 export default SignupPage
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/client/SignupPage.tsx"
+import { Link } from 'react-router-dom'
+
+import { SignupForm } from '@wasp/auth/forms/Signup'
+
+const SignupPage = () => {
+  return (
+    <>
+      <SignupForm/>
+      <br/>
+      <span>
+        I already have an account (<Link to="/login">go to login</Link>).
+      </span>
+    </>
+  )
+}
+
+export default SignupPage
+```
+</TabItem>
+</Tabs>
 
 
 ## Updating `MainPage` page to check if the user is authenticated
@@ -154,11 +209,26 @@ If an unauthenticated user tries to access route `/` where our page `MainPage` i
 
 Also, when `authRequired` is set to `true`, the React component of a page (specified by `component` property within `page`) will be provided `user` object as a prop. It can be accessed like this:
 
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```jsx {1} title="src/client/MainPage.jsx"
 const MainPage = ({ user }) => {
     // Do something with the user
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx {3} title="src/client/MainPage.tsx"
+import { User } from "@wasp/entities"
+
+const MainPage = ({ user }: { user: User }) => {
+    // Do something with the user
+}
+```
+</TabItem>
+</Tabs>
 
 Ok, time to try out how this works!
 
@@ -221,18 +291,47 @@ However, for this tutorial, for the sake of simplicity, we will stick with this.
 ## Updating operations to forbid access to non-authenticated users
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged-in user's tasks:
-```js {1,4,6} title="src/server/queries.js"
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js {1,4} title="src/server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
-  if (!context.user) { throw new HttpError(401) }
+  if (!context.user) {
+    throw new HttpError(401)
+  }
   return context.entities.Task.findMany(
     { where: { user: { id: context.user.id } } }
   )
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-```js {1,4,8,14,15,16} title="src/server/actions.js"
+```ts {3,6} title="src/server/queries.ts"
+import { Task }  from "@wasp/entities"
+import { GetTasks } from "@wasp/queries/types"
+import HttpError from '@wasp/core/HttpError.js'
+
+export const getTasks: GetTasks<void, Task[]>  = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401)
+  }
+  return context.entities.Task.findMany(
+    { where: { user: { id: context.user.id } } }
+  )
+}
+```
+</TabItem>
+</Tabs>
+
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js {1,4,8,14,17,18} title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (args, context) => {
@@ -246,13 +345,57 @@ export const createTask = async (args, context) => {
 }
 
 export const updateTask = async (args, context) => {
-  if (!context.user) { throw new HttpError(401) }
+  if (!context.user) {
+    throw new HttpError(401)
+  }
   return context.entities.Task.updateMany({
     where: { id: args.taskId, user: { id: context.user.id } },
     data: { isDone: args.data.isDone }
   })
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts {3,11,17,28,31,32} title="src/server/actions.ts"
+import { Task } from "@wasp/entities"
+import { CreateTask, UpdateTask } from "@wasp/actions/types"
+import HttpError from '@wasp/core/HttpError.js'
+
+type CreateTaskPayload = Pick<Task, "description">
+
+export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+  args,
+  context
+) => {
+  if (!context.user) {
+    throw new HttpError(401)
+  }
+  return context.entities.Task.create({
+    data: {
+      description: args.description,
+      user: { connect: { id: context.user.id } }
+    }
+  })
+}
+
+type UpdateTaskPayload = Pick<Task, "id" | "isDone">
+
+export const updateTask: UpdateTask<UpdateTaskPayload, { count: number }> = async (
+  { id, isDone },
+  context
+) => {
+  if (!context.user) {
+    throw new HttpError(401)
+  }
+  return context.entities.Task.updateMany({
+    where: { id: args.taskId, user: { id: context.user.id } },
+    data: { isDone: args.data.isDone }
+  })
+}
+```
+</TabItem>
+</Tabs>
 
 :::note
 Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
@@ -280,6 +423,10 @@ You will see that each user has their own tasks, just as we specified in our cod
 ## Logout button
 
 Last, but not least, let's add the logout functionality:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```jsx {2,10} title="src/client/MainPage.jsx"
 // ...
 import logout from '@wasp/auth/logout'
@@ -290,10 +437,30 @@ const MainPage = () => {
   return (
     <div>
       // ...
-      <button onClick={logout}> Logout </button>
+      <button onClick={logout}>Logout</button>
     </div>
   )
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx {2,10} title="src/client/MainPage.tsx"
+// ...
+import logout from '@wasp/auth/logout'
+//...
+
+const MainPage = () => {
+  // ...
+  return (
+    <div>
+      // ...
+      <button onClick={logout}>Logout</button>
+    </div>
+  )
+}
+```
+</TabItem>
+</Tabs>
 
 This is it, we have a working authentication system, and our Todo app is multi-user!

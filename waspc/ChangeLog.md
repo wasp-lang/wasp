@@ -2,18 +2,212 @@
 
 ## v0.11.0
 
-### Breaking changes
-- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
-- Wasp now uses React 18: https://react.dev/blog/2022/03/08/react-18-upgrade-guide
+### 🎉 Big new features 🎉 
+- Automatic CRUD backend generation
+- Public folder support
+- Type safe WebSocket support
+- Go to definition for imports in Wasp file
 
-### Bug fixes
+Check below for details on each of them!
+
+### ⚠️ Breaking changes
+- Wasp's **signup action** `import signup from '@wasp/auth/signup` now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
+  This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age` or `address`).
+  Instead, those should be set in the separate step after signup, or via a custom signup action of your own.
+- Wasp now uses **React 18**! Check the following upgrade guide for details: https://react.dev/blog/2022/03/08/react-18-upgrade-guide .
+  The most obvious difference you might notice is that your `useEffect` hooks run twice on component mount.
+  This is due to the React 18's StrictMode, and it happens only during development, so it doesn't change the behaviour of your app in production.
+  For more details on StrictMode, check https://react.dev/reference/react/StrictMode .
+- Updated most of the npm dependencies that Wasp app is generated with (e.g. axios), so you will also need to update those that both you and Wasp use.
+  Wasp will inform you about this with a warning/error message during compilation so just follow instructions.
+
+### 🎉 [New feature] Public directory support
+Wasp now supports a `public` directory in the `client` directory!
+
+```
+main.wasp
+src/
+├── client/
+|   ├── public/  # <-- NEW!
+|   |   ├── favicon.ico
+|   |   └── robots.txt
+|   └── ...
+└── ...
+```
+
+All the files in this directory will be copied as they are to the `public` directory in the build folder.
+This is useful for adding static assets to your project, like favicons, robots.txt, etc.
+
+### 🎉 [New feature] Type safe WebSocket support
+
+Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more.
+What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with strongly typed events.
+
+Enable WebSockets in your project by adding the following to your `main.wasp` file:
+
+```
+app todoApp {
+  // ...
+
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    autoConnect: true, // optional, default: true
+  },
+}
+```
+
+Then implement it on the server with optional types:
+```typescript
+import type { WebSocketDefinition } from '@wasp/webSocket'
+
+export const webSocketFn: WebSocketFn = (io, context) => {
+  io.on('connection', (socket) => {
+    // ...
+  })
+}
+
+type WebSocketFn = WebSocketDefinition<
+  ClientToServerEvents,
+  ServerToClientEvents
+>
+
+interface ServerToClientEvents {
+  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+}
+
+interface ClientToServerEvents {
+  chatMessage: (msg: string) => void;
+}
+```
+
+And use it on the client with automatic type inference:
+```typescript
+import React, { useState } from 'react'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+} from '@wasp/webSocket'
+
+export const ChatPage = () => {
+  const [messageText, setMessageText] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ClientToServerPayload<'chatMessage'>
+  >('')
+  const [messages, setMessages] = useState<
+    ServerToClientPayload<'chatMessage'>[]
+  >([])
+  // The "socket" instance is typed with the types you defined on the server.
+  const { socket, isConnected } = useSocket()
+
+  // This is a type-safe event handler: "chatMessage" event and its payload type
+  // are defined on the server.
+  useSocketListener('chatMessage', logMessage)
+
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
+    setMessages((priorMessages) => [msg, ...priorMessages])
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // This is a type-safe event emitter: "chatMessage" event and its payload type
+    // are defined on the server.
+    socket.emit('chatMessage', messageText)
+    // ...
+  }
+
+  // ...
+}
+```
+
+### 🎉 [New feature] Automatic CRUD backend generation
+You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
+
+Example of a `Task` entity with automatic CRUD:
+
+```
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // by default only logged in users can perform operations
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+    delete: {},
+  },
+}
+```
+
+This gives us the following operations: `getAll`, `get`, `create`, `update` and `delete`, which we can use in our client like this:
+
+```typescript
+import { Tasks } from '@wasp/crud/Tasks'
+import { useState } from 'react'
+
+export const MainPage = () => {
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
+  const createTask = Tasks.create.useAction()
+  // ...
+
+  function handleCreateTask() {
+    createTask({ description: taskDescription, isDone: false })
+    setTaskDescription('')
+  }
+
+  // ...
+}
+```
+
+### 🎉 [New feature] IDE tooling improvements
+
+#### Go to definition from wasp file + detection of invalid imports
+
+```
+query getRecipes {
+  fn: import { getRecipes } from "@server/recipe.js",  // <- You can now click on this import!
+  entities: [Recipe],
+}
+```
+
+Wasp language server just got smarter regarding imports in wasp file!
+1. If there is no file to which import points, error is reported.
+2. If file doesn't contain symbol that we are importing, error is reported.
+3. Clicking on import statement now takes you to the code that is being imported.
+
+We have more ideas in this direction on the way though!
+A bit of a sneak peek of what is coming soon: if Wasp recognizes file / symbol is missing, it will offer to scaffold the code for you!
+
+#### Autocompletion for dictionary keys
+
+```
+app RecipeApp {
+  title: "My Recipes",
+  wasp: { version: "^0.10.0" },
+  auth: {
+    methods: { usernameAndPassword: {} },
+    █       // <- your cursor
+  }
+}
+```
+
+As per popular request, Wasp language server now recognizes when you are in dictionary and will offer possible key values for autocompletion!
+For instance, in the code example above, it will offer completions such as `onAuthFailedRedirectTo`, `userEntity`, ... .
+It will also show their types.
+
+### 🐞 Bug fixes / 🔧 small improvements
 - Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
+- Wasp starter templates now show description.
+- Wasp CLI now correctly exits with exit code 1 after compiler bug crash.
+- Added extra type info to middleware customization fn.
+- Upgraded most of the dependencies (with react-router and prisma upgrades coming soon).
+- Wasp CLI now always shows a nice error message when database is not accessible.
+- We now ensure that User entity's username field must have `unique` attribute.
+- Improved how Wasp CLI detects wrong/missing node + the error message it prints.
 
-### Public folder support
-Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
-
-### Type safe WebSocket support
-Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more. What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with the correct types.
 
 ## v0.10.6
 
@@ -45,8 +239,6 @@ We now offer an interactive way to create a new project. You can run `wasp new` 
 - Adds missing import for HttpError which prevent auth from working properly.
 
 ## v0.10.3
-
-### Bug fixes
 - Fixed a bug with circular imports in JS code which prevented database seeding from working properly.
 
 ## v0.10.2
