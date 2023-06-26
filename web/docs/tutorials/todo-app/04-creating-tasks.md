@@ -4,17 +4,22 @@ title: "Creating tasks"
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 To enable the creation of new tasks, we will need two things:
 1. A Wasp action that creates a new task.
 2. A React form that calls that action with the new task's data.
 
-## Action
+## Defining the Action
 Creating an action is very similar to creating a query.
 
 ### Wasp declaration
 
-First, we declare the action in Wasp:
+We must first declare the Action in `main.wasp`:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```wasp title="main.wasp"
 // ...
 
@@ -24,9 +29,39 @@ action createTask {
 }
 ```
 
-### JS implementation
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-Next, we define a JS function for that action:
+```wasp title="main.wasp"
+// ...
+
+action createTask {
+  fn: import { createTask } from "@server/actions.js",
+  entities: [Task]
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+<ShowForJs>
+
+### JavaScript implementation
+Let's now define a JavaScript function for our action:
+
+</ShowForJs>
+
+<ShowForTs>
+
+### TypeScript implementation
+Let's now define a TypeScript function for our action:
+
+</ShowForTs>
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```js title="src/server/actions.js"
 export const createTask = async (args, context) => {
   return context.entities.Task.create({
@@ -35,19 +70,47 @@ export const createTask = async (args, context) => {
 }
 ```
 
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+
+```ts title="src/server/actions.ts"
+import { Task } from "@wasp/entities"
+import { CreateTask } from "@wasp/actions/types"
+
+type CreateTaskPayload = Pick<Task, "description">
+
+export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+  args,
+  context
+) => {
+  return context.entities.Task.create({
+    data: { description: args.description },
+  })
+}
+```
+Once again, we've annotated the Action with proper types (using the types `Task` and `CreateTask` Wasp generated for us). Annotating the Action makes the type information automatically available the frontend, giving us automatic **full-stack type safety**.
+
+</TabItem>
+</Tabs>
+
 :::tip
-We put the JS function in a new file `src/server/actions.js`, but we could have put it anywhere we wanted! There are no limitations here, as long as the import statement in the Wasp file is correct and the source file is inside the `src/server` folder.
+We put the function in a new file `src/server/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the import statement in the Wasp file is correct and the source file is inside the `src/server` folder.
 :::
 
-## React form
+## Invoking the Action on the frontend 
 
-```jsx {3,10,37-59} title="src/client/MainPage.jsx"
-import { useQuery } from '@wasp/queries'
-import getTasks from '@wasp/queries/getTasks'
-import createTask from '@wasp/actions/createTask'
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx {3,10,41-60} title="src/client/MainPage.jsx"
+import getTasks from "@wasp/queries/getTasks"
+import createTask from "@wasp/actions/createTask"
+import { useQuery } from "@wasp/queries"
 
 const MainPage = () => {
-  const { data: tasks, isFetching, error } = useQuery(getTasks)
+  const { data: tasks, isLoading, error } = useQuery(getTasks)
 
   return (
     <div>
@@ -55,49 +118,50 @@ const MainPage = () => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      {isFetching && 'Fetching...'}
-      {error && 'Error: ' + error}
+      {isLoading && "Loading..."}
+      {error && "Error: " + error}
     </div>
   )
 }
 
-const Task = (props) => {
+const Task = ({ task }) => {
   return (
     <div>
-      <input
-        type='checkbox' id={props.task.id}
-        checked={props.task.isDone}
-      />
-      {props.task.description}
+      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
+      {task.description}
     </div>
   )
 }
 
-const TasksList = (props) => {
-  if (!props.tasks?.length) return 'No tasks'
-  return props.tasks.map((task, idx) => <Task task={task} key={idx} />)
+const TasksList = ({ tasks }) => {
+  if (!tasks?.length) return <div>No tasks</div>
+
+  return (
+    <div>
+      {tasks.map((task, idx) => (
+        <Task task={task} key={idx} />
+      ))}
+    </div>
+  )
 }
 
-const NewTaskForm = (props) => {
+const NewTaskForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     try {
-      const description = event.target.description.value
-      event.target.reset()
+      const target = event.target
+      const description = target.description.value
+      target.reset()
       await createTask({ description })
-    } catch (err) {
-      window.alert('Error: ' + err.message)
+    } catch (err: any) {
+      window.alert("Error: " + err.message)
     }
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name='description'
-        type='text'
-        defaultValue=''
-      />
-      <input type='submit' value='Create task' />
+      <input name="description" type="text" defaultValue="" />
+      <input type="submit" value="Create task" />
     </form>
   )
 }
@@ -105,9 +169,90 @@ const NewTaskForm = (props) => {
 export default MainPage
 ```
 
-Here we call our action directly (no hooks) because we don't need any reactivity. The rest is just regular React code.
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx {1,3,12,43-62} title="src/client/MainPage.tsx"
+import { FormEvent } from "react"
+import getTasks from "@wasp/queries/getTasks"
+import createTask from "@wasp/actions/createTask"
+import { useQuery } from "@wasp/queries"
+import { Task } from "@wasp/entities"
+
+const MainPage = () => {
+  const { data: tasks, isLoading, error } = useQuery(getTasks)
+
+  return (
+    <div>
+      <NewTaskForm />
+
+      {tasks && <TasksList tasks={tasks} />}
+
+      {isLoading && "Loading..."}
+      {error && "Error: " + error}
+    </div>
+  )
+}
+
+const Task = ({ task }: { task: Task }) => {
+  return (
+    <div>
+      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
+      {task.description}
+    </div>
+  )
+}
+
+const TasksList = ({ tasks }: { tasks: Task[] }) => {
+  if (!tasks?.length) return <div>No tasks</div>
+
+  return (
+    <div>
+      {tasks.map((task, idx) => (
+        <Task task={task} key={idx} />
+      ))}
+    </div>
+  )
+}
+
+const NewTaskForm = () => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    try {
+      const target = event.target as HTMLFormElement
+      const description = target.description.value
+      target.reset()
+      await createTask({ description })
+    } catch (err: any) {
+      window.alert("Error: " + err.message)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="description" type="text" defaultValue="" />
+      <input type="submit" value="Create task" />
+    </form>
+  )
+}
+
+export default MainPage
+```
+
+</TabItem>
+</Tabs>
+
+We're calling the `createTask` Action directly this time (i.e., without wrapping it with a hook) because we don't need reactivity. The rest is just regular React code.
+
+
+<ShowForTs>
+
+Finally, because we've previously annotated the Action's backend implementation with the correct type, Wasp knows that the `createTask` action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` action returns a `Task`, but we don't need it.
+
+</ShowForTs>
 
 That's it!
+
 Try creating a "Build a Todo App in Wasp" task and see it appear in the list below.
 The task is created on the server and also saved in the database. Try refreshing the page or opening it in another browser - you'll see the tasks are still here!
 

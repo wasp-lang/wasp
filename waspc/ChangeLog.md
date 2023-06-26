@@ -3,23 +3,28 @@
 ## v0.11.0
 
 ### Breaking changes
-- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
-- Wasp now uses React 18: https://react.dev/blog/2022/03/08/react-18-upgrade-guide
-
-### Bug fixes
-- Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
+- Wasp's **signup action** `import signup from '@wasp/auth/signup` now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
+  This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age` or `address`).
+  Instead, those should be set in the separate step after signup, or via a custom signup action of your own.
+- Wasp now uses **React 18**! Check the following upgrade guide for details: https://react.dev/blog/2022/03/08/react-18-upgrade-guide .
+  The most obvious difference you might notice is that your `useEffect` hooks run twice on component mount.
+  This is due to the React 18's StrictMode, and it happens only during development, so it doesn't change the behaviour of your app in production.
+  For more details on StrictMode, check https://react.dev/reference/react/StrictMode .
 
 ### New features
 - Automatic CRUD backend generation
 - Public folder support
 - Type safe WebSocket support
+- IDE tooling improvements
+  - Go to definition from wasp file + detection of invalid imports
+  - Autocompletion for dictionary keys
 
 ### Automatic CRUD backend generation
 You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
 
 Example of a `Task` entity with automatic CRUD:
 
-```
+```wasp
 crud Tasks {
   entity: Task,
   operations: {
@@ -61,17 +66,17 @@ Wasp now supports a `public` folder in the `client` folder. This folder will be 
 
 For example, doing this:
 
-```
+```bash
 src
 └── client
-    ├── public
+    ├── public # <-- NEW!
     │   └── favicon.ico
     └── ...
 ```
 
 will result in the following directory structure in the build folder:
 
-```
+```bash
 build
 └── public
     └── favicon.ico
@@ -82,7 +87,7 @@ Wasp now supports WebSockets! This will allow you to have a persistent, realtime
 
 Enable WebSockets in your project by adding the following to your `main.wasp` file:
 
-```
+```wasp
 app todoApp {
   // ...
 
@@ -156,6 +161,53 @@ export const ChatPage = () => {
   // ...
 }
 ```
+
+### IDE tooling improvements
+
+#### Go to definition from wasp file + detection of invalid imports
+
+```
+query getRecipes {
+  fn: import { getRecipes } from "@server/recipe.js",  // <- You can now click on this import!
+  entities: [Recipe],
+}
+```
+
+Wasp language server just got smarter regarding imports in wasp file!
+1. If there is no file to which import points, error is reported.
+2. If file doesn't contain symbol that we are importing, error is reported.
+3. Clicking on import statement now takes you to the code that is being imported.
+
+We have more ideas in this direction on the way though!
+A bit of a sneak peek of what is coming soon: if Wasp recognizes file / symbol is missing, it will offer to scaffold the code for you!
+
+#### Autocompletion for dictionary keys
+
+```
+app RecipeApp {
+  title: "My Recipes",
+  wasp: { version: "^0.10.0" },
+  auth: {
+    methods: { usernameAndPassword: {} },
+    █       // <- your cursor
+  }
+}
+```
+
+As per popular request, Wasp language server now recognizes when you are in dictionary and will offer possible key values for autocompletion!
+For instance, in the code example above, it will offer completions such as `onAuthFailedRedirectTo`, `userEntity`, ... .
+It will also show their types.
+
+### Bug fixes / small improvements
+- Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
+- Wasp starter templates now show description.
+- Wasp CLI now correctly exits with exit code 1 after compiler bug crash.
+- Added extra type info to middleware customization fn.
+- Upgraded most of the dependencies (with react-router and prisma upgrades coming soon).
+- Wasp CLI now always shows a nice error message when database is not accessible.
+- We now ensure that User entity's username field must have `unique` attribute.
+- Improved how Wasp CLI detects wrong/missing node + the error message it prints.
+
 
 ## v0.10.6
 
