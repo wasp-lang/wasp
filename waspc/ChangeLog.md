@@ -12,8 +12,145 @@
 ### Public folder support
 Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
 
+For example, doing this:
+
+```
+src
+└── client
+    ├── public
+    │   └── favicon.ico
+    └── ...
+```
+
+will result in the following directory structure in the build folder:
+
+```
+build
+└── public
+    └── favicon.ico
+```
+
 ### Type safe WebSocket support
-Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more. What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with the correct types.
+Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more. What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with strongly typed events.
+
+Enable WebSockets in your project by adding the following to your `main.wasp` file:
+
+```
+app todoApp {
+  // ...
+
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    autoConnect: true, // optional, default: true
+  },
+}
+```
+
+Then implement it on the server with optional types:
+```typescript
+import type { WebSocketDefinition } from '@wasp/webSocket'
+
+export const webSocketFn: WebSocketFn = (io, context) => {
+  io.on('connection', (socket) => {
+    // ...
+  })
+}
+
+type WebSocketFn = WebSocketDefinition<
+  ClientToServerEvents,
+  ServerToClientEvents
+>
+
+interface ServerToClientEvents {
+  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+}
+
+interface ClientToServerEvents {
+  chatMessage: (msg: string) => void;
+}
+```
+
+And use it on the client with automatic type inference:
+```typescript
+import React, { useState } from 'react'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+} from '@wasp/webSocket'
+
+export const ChatPage = () => {
+  const [messageText, setMessageText] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ClientToServerPayload<'chatMessage'>
+  >('')
+  const [messages, setMessages] = useState<
+    ServerToClientPayload<'chatMessage'>[]
+  >([])
+  // The "socket" instance is typed with the types you defined on the server.
+  const { socket, isConnected } = useSocket()
+
+  // This is a type-safe event handler: "chatMessage" event and its payload type
+  // are defined on the server.
+  useSocketListener('chatMessage', logMessage)
+
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
+    setMessages((priorMessages) => [msg, ...priorMessages])
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // This is a type-safe event emitter: "chatMessage" event and its payload type
+    // are defined on the server.
+    socket.emit('chatMessage', messageText)
+    // ...
+  }
+
+  // ...
+}
+```
+
+### Automatic CRUD backend generation
+For some Entity, you can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating and deleting such entities. As your entities update, Wasp will automatically regenerate the backend logic.
+
+Example of a `Task` entity with automatic CRUD:
+
+```
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // by default only logged in users can perform operations
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+    delete: {},
+  },
+}
+```
+
+This gives us the following operations: `getAll`, `get`, `create`, `update` and `delete`, which we can use in our client like this:
+
+```typescript
+import { Tasks } from '@wasp/crud/Tasks'
+import { useState } from 'react'
+
+export const MainPage = () => {
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
+  const createTask = Tasks.create.useAction()
+  // ...
+
+  function handleCreateTask() {
+    createTask({ description: taskDescription, isDone: false })
+    setTaskDescription('')
+  }
+
+  // ...
+}
+```
 
 ## v0.10.6
 
