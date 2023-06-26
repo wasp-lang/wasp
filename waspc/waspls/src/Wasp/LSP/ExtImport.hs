@@ -43,7 +43,7 @@ import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (findChild, lexemeAt)
 import Wasp.LSP.Util (hoistMaybe)
 import Wasp.Project (WaspProjectDir)
-import qualified Wasp.TypeScript as TS
+import qualified Wasp.TypeScript.Inspect.Exports as TS
 import Wasp.Util.IO (doesFileExist)
 
 -- TODO(before merge): cleanup this module, maybe break into multiple

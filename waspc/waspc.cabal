@@ -323,7 +323,7 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
-    Wasp.TypeScript
+    Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad

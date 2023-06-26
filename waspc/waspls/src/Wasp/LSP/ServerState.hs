@@ -31,7 +31,7 @@ import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import Wasp.LSP.Debouncer (Debouncer)
 import Wasp.LSP.Diagnostic (WaspDiagnostic)
 import Wasp.LSP.Reactor (ReactorInput)
-import Wasp.TypeScript (TsExport)
+import Wasp.TypeScript.Inspect.Exports (TsExport)
 
 -- | LSP State preserved between handlers.
 --

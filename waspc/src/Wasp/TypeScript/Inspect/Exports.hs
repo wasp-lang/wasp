@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Wasp.TypeScript
+module Wasp.TypeScript.Inspect.Exports
   ( -- * Getting Information About TypeScript Files
 
     -- Internally, this module calls out to @packages/ts-inspect@, which uses

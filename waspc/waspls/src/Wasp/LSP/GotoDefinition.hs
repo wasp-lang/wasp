@@ -17,7 +17,7 @@ import Wasp.LSP.ServerM (HandlerM)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
-import qualified Wasp.TypeScript as TS
+import qualified Wasp.TypeScript.Inspect.Exports as TS
 
 definitionProviders :: [String -> Traversal -> HandlerM [LSP.LocationLink]]
 definitionProviders = [extImportDefinitionProvider]
