@@ -2,8 +2,6 @@
 title: Features
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import SendingEmailsInDevelopment from '../_sendingEmailsInDevelopment.md'
 
 ## App
