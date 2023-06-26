@@ -51,7 +51,7 @@ linearPause :: Microseconds -> PauseStrategy
 linearPause basePause = PauseStrategy (* basePause)
 
 expPause :: Microseconds -> PauseStrategy
-expPause basePause = PauseStrategy $ (* basePause) . (2 ^) . (`subtract` 1)
+expPause basePause = PauseStrategy $ \i -> basePause * 2 ^ (i - 1)
 
 customPause :: (NumFailedTries -> Microseconds) -> PauseStrategy
 customPause = PauseStrategy

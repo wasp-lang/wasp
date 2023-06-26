@@ -13,8 +13,6 @@ module Wasp.AI.OpenAI.ChatGPT
 where
 
 import Control.Arrow ()
-import Control.Concurrent (threadDelay)
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
@@ -22,7 +20,6 @@ import Data.Text (Text)
 import GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
-import UnliftIO (MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.Util.IO.Retry as R
