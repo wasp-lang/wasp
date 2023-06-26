@@ -9,6 +9,53 @@
 ### Bug fixes
 - Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
 
+### New features
+- Automatic CRUD backend generation
+- Public folder support
+- Type safe WebSocket support
+
+### Automatic CRUD backend generation
+You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
+
+Example of a `Task` entity with automatic CRUD:
+
+```
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // by default only logged in users can perform operations
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+    delete: {},
+  },
+}
+```
+
+This gives us the following operations: `getAll`, `get`, `create`, `update` and `delete`, which we can use in our client like this:
+
+```typescript
+import { Tasks } from '@wasp/crud/Tasks'
+import { useState } from 'react'
+
+export const MainPage = () => {
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
+  const createTask = Tasks.create.useAction()
+  // ...
+
+  function handleCreateTask() {
+    createTask({ description: taskDescription, isDone: false })
+    setTaskDescription('')
+  }
+
+  // ...
+}
+```
+
 ### Public folder support
 Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
 
@@ -110,48 +157,6 @@ export const ChatPage = () => {
 }
 ```
 
-### Automatic CRUD backend generation
-You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
-
-Example of a `Task` entity with automatic CRUD:
-
-```
-crud Tasks {
-  entity: Task,
-  operations: {
-    getAll: {
-      isPublic: true, // by default only logged in users can perform operations
-    },
-    get: {},
-    create: {
-      overrideFn: import { createTask } from "@server/tasks.js",
-    },
-    update: {},
-    delete: {},
-  },
-}
-```
-
-This gives us the following operations: `getAll`, `get`, `create`, `update` and `delete`, which we can use in our client like this:
-
-```typescript
-import { Tasks } from '@wasp/crud/Tasks'
-import { useState } from 'react'
-
-export const MainPage = () => {
-  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
-  const createTask = Tasks.create.useAction()
-  // ...
-
-  function handleCreateTask() {
-    createTask({ description: taskDescription, isDone: false })
-    setTaskDescription('')
-  }
-
-  // ...
-}
-```
-
 ## v0.10.6
 
 ### Bug fixes
@@ -171,7 +176,6 @@ We now offer the ability to customize Express middleware:
 - globally (impacting all actions, queries, and apis by default)
 - on a per-api basis
 - on a per-path basis (groups of apis)
-
 
 ### Interactive new project creation
 We now offer an interactive way to create a new project. You can run `wasp new` and follow the prompts to create a new project. This is the recommended way to create a new project. It will ask you for the project name and to choose one of the starter templates.
