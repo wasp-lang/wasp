@@ -37,7 +37,7 @@ import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule))
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
-import Wasp.LSP.Diagnostic (MissingImportReason (NoDefaultExport, NoFile, NoNamedExport), WaspDiagnostic (MissingImportDiagnostic), clearMissingImportDiagnostics)
+import Wasp.LSP.Diagnostic (MissingExtImportReason (NoDefaultExport, NoFile, NoNamedExport), WaspDiagnostic (MissingExtImportDiagnostic), clearMissingImportDiagnostics)
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (findChild, lexemeAt)
@@ -45,6 +45,8 @@ import Wasp.LSP.Util (hoistMaybe)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.TypeScript as TS
 import Wasp.Util.IO (doesFileExist)
+
+-- TODO(before merge): cleanup this module, maybe break into multiple
 
 -- | Finds all external imports and refreshes the export cache for the relevant
 -- files.
@@ -245,14 +247,14 @@ findDiagnosticForExtImport extImport =
       logM $ "[getMissingImportDiagnostics] ignoring extimport with a syntax error " ++ show extImportSpan
       return Nothing
     ImportCacheMiss -> return Nothing
-    ImportedFileDoesNotExist tsFile -> return $ Just $ MissingImportDiagnostic extImportSpan NoFile tsFile
+    ImportedFileDoesNotExist tsFile -> return $ Just $ MissingExtImportDiagnostic extImportSpan NoFile tsFile
     ImportedSymbolDoesNotExist tsFile -> return $ Just $ diagnosticForExtImport tsFile
     ImportsSymbol _ _ -> return Nothing -- Valid extimport, no diagnostic to report.
   where
     diagnosticForExtImport tsFile = case einName extImport of
       Nothing -> error "diagnosticForExtImport called for nameless ext import. This should never happen."
-      Just (ExtImportModule _) -> MissingImportDiagnostic extImportSpan NoDefaultExport tsFile
-      Just (ExtImportField name) -> MissingImportDiagnostic extImportSpan (NoNamedExport name) tsFile
+      Just (ExtImportModule _) -> MissingExtImportDiagnostic extImportSpan NoDefaultExport tsFile
+      Just (ExtImportField name) -> MissingExtImportDiagnostic extImportSpan (NoNamedExport name) tsFile
 
     extImportSpan = T.spanAt $ einLocation extImport
 

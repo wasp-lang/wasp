@@ -1,6 +1,6 @@
 module Wasp.LSP.Diagnostic
   ( WaspDiagnostic (..),
-    MissingImportReason (..),
+    MissingExtImportReason (..),
     waspDiagnosticToLspDiagnostic,
     clearMissingImportDiagnostics,
   )
@@ -22,13 +22,13 @@ import Wasp.LSP.Util (waspSourceRegionToLspRange)
 data WaspDiagnostic
   = ParseDiagnostic !CPE.ParseError
   | AnalyzerDiagonstic !W.AnalyzeError
-  | MissingImportDiagnostic !SourceSpan !MissingImportReason !(SP.Path' SP.Abs SP.File')
+  | MissingExtImportDiagnostic !SourceSpan !MissingExtImportReason !(SP.Path' SP.Abs SP.File')
   deriving (Eq, Show)
 
-data MissingImportReason = NoDefaultExport | NoNamedExport !String | NoFile
+data MissingExtImportReason = NoDefaultExport | NoNamedExport !String | NoFile
   deriving (Eq, Show)
 
-showMissingImportReason :: MissingImportReason -> SP.Path' SP.Abs SP.File' -> Text
+showMissingImportReason :: MissingExtImportReason -> SP.Path' SP.Abs SP.File' -> Text
 showMissingImportReason NoDefaultExport tsFile =
   "No default export in " <> Text.pack (SP.fromAbsFile tsFile)
 showMissingImportReason (NoNamedExport name) tsFile =
@@ -36,13 +36,13 @@ showMissingImportReason (NoNamedExport name) tsFile =
 showMissingImportReason NoFile tsFile =
   Text.pack (SP.fromAbsFile tsFile) <> " does not exist"
 
-missingImportSeverity :: MissingImportReason -> LSP.DiagnosticSeverity
+missingImportSeverity :: MissingExtImportReason -> LSP.DiagnosticSeverity
 missingImportSeverity _ = LSP.DsError
 
 waspDiagnosticToLspDiagnostic :: String -> WaspDiagnostic -> LSP.Diagnostic
 waspDiagnosticToLspDiagnostic src (ParseDiagnostic err) = concreteParseErrorToDiagnostic src err
 waspDiagnosticToLspDiagnostic _ (AnalyzerDiagonstic analyzeError) = waspErrorToDiagnostic analyzeError
-waspDiagnosticToLspDiagnostic src (MissingImportDiagnostic sourceSpan reason tsFile) =
+waspDiagnosticToLspDiagnostic src (MissingExtImportDiagnostic sourceSpan reason tsFile) =
   let message = showMissingImportReason reason tsFile
       severity = missingImportSeverity reason
       region = sourceSpanToRegion src sourceSpan
@@ -119,5 +119,5 @@ waspErrorRange err =
 clearMissingImportDiagnostics :: [WaspDiagnostic] -> [WaspDiagnostic]
 clearMissingImportDiagnostics = filter (not . isMissingImportDiagnostic)
   where
-    isMissingImportDiagnostic (MissingImportDiagnostic _ _ _) = True
+    isMissingImportDiagnostic (MissingExtImportDiagnostic _ _ _) = True
     isMissingImportDiagnostic _ = False

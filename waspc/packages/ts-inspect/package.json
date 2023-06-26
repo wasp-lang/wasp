@@ -11,6 +11,10 @@
     "start": "node ./dist/index.js",
     "test": "jest"
   },
+  "//": [
+    "typescript is purposefully a normal dependency, and not a dev dependency:",
+    "the compiler is called at runtime to extract information from JS/TS files."
+  ],
   "dependencies": {
     "json5": "^2.2.3",
     "typescript": "^5.1.3",

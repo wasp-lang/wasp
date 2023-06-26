@@ -1,4 +1,4 @@
-import { ExportRequests, getExportsOfFiles } from "./exports.js";
+import { ExportsRequests, getExportsOfFiles } from "./exports.js";
 
 async function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ async function readStdin(): Promise<string> {
 async function main() {
   const inputStr = await readStdin();
   const input = JSON.parse(inputStr);
-  const requests = ExportRequests.parse(input);
+  const requests = ExportsRequests.parse(input);
 
   let exports = {};
   for (let request of requests) {

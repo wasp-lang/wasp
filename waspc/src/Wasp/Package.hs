@@ -42,8 +42,9 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- These packages are built during CI/locally via the @tools/install_packages_to_data_dir.sh@
 -- script.
 --
--- If the package does not have its dependencies installed yet (i.e. after they
--- just installed a Wasp version), we install the dependencies.
+-- If the package does not have its dependencies installed yet (for example,
+-- when the package is run for the first time after installing Wasp), we install
+-- the dependencies.
 getPackageProc :: Package -> [String] -> IO P.CreateProcess
 getPackageProc package args = do
   getAndCheckNodeVersion >>= \case

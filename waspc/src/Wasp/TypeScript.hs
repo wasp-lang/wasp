@@ -85,7 +85,7 @@ newtype TsExportResponse = TsExportResponse (M.HashMap FilePath [TsExport])
 
 -- | A list of files associated with an optional tsconfig file that is run
 -- through the TypeScript compiler as a group.
-data TsExportRequest = TsExportRequest {filenames :: ![FilePath], tsconfig :: !(Maybe FilePath)}
+data TsExportRequest = TsExportRequest {filepaths :: ![FilePath], tsconfig :: !(Maybe FilePath)}
   deriving (Eq, Show, Generic)
 
 instance ToJSON TsExportRequest where

@@ -207,11 +207,9 @@ alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 ### Typescript packages
 Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
 
-During normal local development you can treat the packages in `packages/` as
-regular npm projects. See `packages/README.md` for specific information as to
-how these projectss are expected to be set up. However, if you want to test it as part of the Wasp CLI, you can make use of this same script locally. Just manually invoke it before you run something like `cabal run wasp-cli deploy fly ...` in a wasp project so the local data directory is up to date.
+During normal local development you can treat the packages in `packages/` as regular npm projects. See `packages/README.md` for specific information as to how these projectss are expected to be set up. However, if you want to test it as part of the Wasp CLI, you can make use of this same script locally. Just manually invoke it before you run something like `cabal run wasp-cli deploy fly ...` in a wasp project so the local data directory is up to date.
 
-Note that you can not test these packages as part of `waspc` with `cabal install`: cabal does not copy `packages` along with the rest of the data directory due to a limitation in how you tell cabal which data files to include.
+These packages can also be run via `wasp-cli` after running `cabal install`.
 
 ## Tests
 For tests we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.

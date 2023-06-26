@@ -18,8 +18,8 @@ packages/<package-name>/package-lock.json
 packages/<package-name>/dist/**/*.js
 ```
 
-The last line assumes the project is compiled to JavaScript files inside the
-`dist` directory. You should adjust that if needed.
+The last line assumes the project is compiled to `.js` files inside the `dist`
+directory. You should adjust this and/or add more file extensions if needed.
 
 # CI Builds/Release
 

@@ -1,8 +1,6 @@
-NOTE: `typescript` is purposefully a normal dependency instead of a dev
-dependency.
-
-Run the program `node ./dist/index.js` and pass a list of export requests over
-stdin:
+This package provides a command-line interface for getting information about
+exported symbols from JS/TS files. As input you give it a list of exports requests,
+each containing a list of filepaths and, optionally, a path to a tsconfig file.
 
 ```json
 [
@@ -14,7 +12,12 @@ stdin:
 ]
 ```
 
-It will respond with an object mapping filenames to exports, something like:
+Note that an instance of the TypeScript compiler is created for each exports
+request, so grouping all files with the same tsconfig into one request confers
+some performance benefit.
+
+The program responds with a list of exports for each file. The filepaths in the
+result will always exactly match the filepaths in the input:
 
 ```json
 {

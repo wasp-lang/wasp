@@ -107,7 +107,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
-      - name: Compile deploy TS packages and move it into the Cabal data dir
+      - name: Compile TS packages and move it into the Cabal data dir
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/install_packages_to_data_dir.sh
 

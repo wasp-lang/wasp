@@ -41,6 +41,9 @@ import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.SignatureHelp (getSignatureHelpAtPosition)
 
+-- TODO(before merge): move dynamic registration into new module(s)
+-- TODO(before merge): move analysis stuff into new module(s) - the diagnoseWaspFile stuff
+
 -- LSP notification and request handlers
 
 -- | "Initialized" notification is sent when the client is started. We don't
