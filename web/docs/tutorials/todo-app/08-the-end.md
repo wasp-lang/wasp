@@ -24,8 +24,7 @@ Check out [this guide](/docs/integrations/css-frameworks#tailwind) to learn more
 
 ## What's next?
 
-Well, you could check the **Guides** on the left of the docs for more details on specific parts of Wasp. Maybe something real-time with [WebSockets](/docs/guides/websockets) or with [async jobs](/docs/language/features#jobs)?
-Let your imagination run wild and build something of your own! ✨
+Well, you could check the **Guides** on the left of the docs for more details on specific parts of Wasp. Let your imagination run wild and build something of your own! ✨ Maybe something real-time with [WebSockets](/docs/guides/websockets) or with [async jobs](/docs/language/features#jobs)?
 
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 

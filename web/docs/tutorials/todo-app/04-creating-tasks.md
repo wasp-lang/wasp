@@ -89,7 +89,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
   })
 }
 ```
-Once again, we've annotated the Action with proper types (using the types `Task` and `CreateTask` Wasp generated for us). Annotating the Action makes the type information automatically available the frontend, giving us automatic **Full-stack type safety**.
+Once again, we've annotated the Action with proper types (using the types `Task` and `CreateTask` Wasp generated for us). Annotating the Action makes the type information automatically available the frontend, giving us automatic **full-stack type safety**.
 
 </TabItem>
 </Tabs>

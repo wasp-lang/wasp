@@ -22,7 +22,15 @@ To list tasks, we will need two things:
 ## Defining the Query
 
 Let's implement `getTasks` [query](language/features.md#query).
+
+<ShowForJs>
+
 It consists of a declaration in Wasp and implementation in JS (in `src/server/` directory).
+</ShowForJs>
+<ShowForTs>
+
+It consists of a declaration in Wasp and implementation in TS (in `src/server/` directory).
+</ShowForTs>
 
 ### Wasp declaration
 Add the following code to `main.wasp`:
@@ -113,7 +121,7 @@ Wasp automatically generates the types `GetTasks` and `Task` based the contents 
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (meaning that its input type is `void`), but it does return an array of tasks (meaning that its output type is `Task[]`)
 
-Annotating the Queries is optional, but highly recommended because doing so enables **Full-stack type safety**. We'll see what this means in the next section.
+Annotating the Queries is optional, but highly recommended because doing so enables **full-stack type safety**. We'll see what this means in the next section.
 
 </TabItem>
 </Tabs>
@@ -243,7 +251,7 @@ Most of this code is just regular React, the only exception being the three spec
 
 Notice how you didn't need to tell TypeScript anything about the Query's response data - TypeScript inferred it automatically.
 
-Because we've previously annotated the Query's backend implementation with `GetTasks<void, Task[]>`, Wasp knows the response data's correct type (i.e., `Task[]`) on the frontend. We call this feature **Full-stack type safety**.
+Because we've previously annotated the Query's backend implementation with `GetTasks<void, Task[]>`, Wasp knows the response data's correct type (i.e., `Task[]`) on the frontend. We call this feature **full-stack type safety**.
  
 </ShowForTs>
 

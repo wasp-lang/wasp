@@ -4,6 +4,7 @@ title: "Creating a new project"
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { ShowForTs } from '@site/src/components/TsJsHelpers';
 
 Run the following command in your terminal to create a new Wasp project:
 ```shell
@@ -17,7 +18,7 @@ wasp start
 You have just run your app in the development mode!
 
 :::note
-`wasp start` might take a little bit longer due to the initial setup.
+`wasp start` might take a little bit longer to finish when you run it for the first time due to the initial setup.
 :::
 
 You will be seeing a lot of different output from the client, server and database setting themselves up.
@@ -91,7 +92,7 @@ app TodoApp { // Main declaration, defines a new web app.
   title: "Todo app" // Used as a browser tab title.
 }
 
-route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/` (default url).
+route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/`
 
 page MainPage {
   // We specify that ReactJS implementation of our page can be found in
@@ -112,17 +113,24 @@ app TodoApp { // Main declaration, defines a new web app.
   title: "Todo app" // Used as a browser tab title.
 }
 
-route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/` (default url).
+route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/`
 
 page MainPage {
   // We specify that ReactJS implementation of our page can be found in
-  // `src/client/MainPage.tsx` as a default export (uses standard js import syntax).
+  // `src/client/MainPage.tsx` as a default export (uses standard JS import syntax).
   // Use '@client' to reference files inside the src/client folder.
   component: import Main from "@client/MainPage.tsx"
 }
 ```
 </TabItem>
 </Tabs>
+
+<ShowForTs>
+
+:::warning Using TypeScript
+If you are using Typescript, you will need to rename `MainPage.jsx` to `MainPage.tsx`.
+:::
+</ShowForTs>
 
 Let's now take a look at that React component we referenced in the `page MainPage { ... }` declaration in `main.wasp`:
 <Tabs groupId="js-ts">
@@ -179,7 +187,7 @@ Next, let's make the `MainPage` component much simpler:
 
 ```jsx title="src/client/MainPage.jsx"
 const MainPage = () => {
-  return <div> Hello world! </div>
+  return <div>Hello world!</div>
 }
 
 export default MainPage
@@ -190,7 +198,7 @@ export default MainPage
 
 ```tsx title="src/client/MainPage.tsx"
 const MainPage = () => {
-  return <div> Hello world! </div>
+  return <div>Hello world!</div>
 }
 
 export default MainPage
