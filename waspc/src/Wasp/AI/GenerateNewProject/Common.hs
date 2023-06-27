@@ -13,8 +13,9 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Wasp.AI.CodeAgent (CodeAgent, queryChatGPT, writeToFile)
-import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage (..), Model (GPT_3_5_turbo_16k))
+import Wasp.AI.CodeAgent (CodeAgent, queryChatGPT, writeToFile, writeToLog)
+import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
+import qualified Wasp.AI.OpenAI.ChatGPT as GPT
 import Wasp.Util (naiveTrimJSON, textToLazyBS)
 
 data NewProjectDetails = NewProjectDetails
@@ -30,20 +31,34 @@ type File = (FilePath, Text)
 data AuthProvider = UsernameAndPassword
 
 queryChatGPTForJSON :: FromJSON a => ChatGPTParams -> [ChatMessage] -> CodeAgent a
-queryChatGPTForJSON chatGPTParams chatMessages = do
-  responseJSONText <- naiveTrimJSON <$> queryChatGPT chatGPTParams chatMessages
-  case Aeson.eitherDecode $ textToLazyBS responseJSONText of
-    Right plan -> return plan
-    Left _errMsg ->
-      -- TODO: Handle this better.
-      --   Try sending response back to chatGPT and ask it to fix it -> hey it is not valid JSON, fix it.
-      --   If it fails nonetheless, write to log, to let user know.
-      error $ "Failed to parse ChatGPT response as a JSON. Response:\n" <> T.unpack responseJSONText
+queryChatGPTForJSON chatGPTParams = doQueryForJSON True
+  where
+    doQueryForJSON isFirstTry chatMsgs = do
+      response <- queryChatGPT chatGPTParams chatMsgs
+      case Aeson.eitherDecode . textToLazyBS . naiveTrimJSON $ response of
+        Right result -> return result
+        Left errMsg ->
+          if isFirstTry
+            then
+              doQueryForJSON False $
+                chatMsgs
+                  ++ [ GPT.ChatMessage {GPT.role = GPT.Assistant, GPT.content = response},
+                       GPT.ChatMessage
+                         { GPT.role = GPT.User,
+                           GPT.content =
+                             "You did not respond with valid JSON. Please fix it and respond with only"
+                               <> " valid JSON, no other text or explanations. Error I got parsing JSON"
+                               <> " from your last message: "
+                               <> T.pack errMsg
+                         }
+                     ]
+            else do
+              writeToLog "Failed to parse ChatGPT response as JSON."
+              error $ "Failed to parse ChatGPT response as JSON: " <> errMsg
 
 -- TODO: Test more for the optimal temperature (possibly higher).
--- TODO: Should we make sure we have max_tokens set to high enough?
 defaultChatGPTParams :: ChatGPTParams
-defaultChatGPTParams = ChatGPTParams {_model = GPT_3_5_turbo_16k, _temperature = Just 1.0}
+defaultChatGPTParams = GPT.ChatGPTParams {_model = GPT.GPT_3_5_turbo_16k, _temperature = Just 1.0}
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do
