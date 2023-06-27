@@ -11,9 +11,12 @@ module Wasp.AI.GenerateNewProject.Plan
 where
 
 import Data.Aeson (FromJSON)
+import Data.Aeson.Types (ToJSON)
+import Data.List (find, intercalate, isPrefixOf)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
+import qualified Text.Parsec as Parsec
 import Wasp.AI.CodeAgent (CodeAgent)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
@@ -23,6 +26,8 @@ import Wasp.AI.GenerateNewProject.Common
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
+import qualified Wasp.Psl.Parser.Model as Psl.Parser
+import qualified Wasp.Util.Aeson as Util.Aeson
 
 -- | Additional rule to follow while generating plan.
 type PlanRule = String
@@ -30,6 +35,7 @@ type PlanRule = String
 generatePlan :: Wasp.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   queryChatGPTForJSON defaultChatGPTParams chatMessages
+    >>= fixPlanIfNeeded
   where
     chatMessages =
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
@@ -55,7 +61,7 @@ generatePlan newProjectDetails planRules = do
         {
           "entities": [{
             "entityName": "EntityName",
-            "entityBodyPsl": "id Int @id\\nname String"
+            "entityBodyPsl": "id Int @id \n name String"
           }],
           "actions": [{
             "opName": "ActionName",
@@ -79,6 +85,9 @@ generatePlan newProjectDetails planRules = do
         We will later use this plan to implement all of these parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
 
+        Typically, plan will have at least one query, at least one action, at least one page, and at
+        least two entities. It will very likely though have more than one of each.
+
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
 
@@ -87,6 +96,114 @@ generatePlan newProjectDetails planRules = do
         App name: ${appName}
         ${appDesc}
       |]
+
+    fixPlanIfNeeded :: Plan -> CodeAgent Plan
+    fixPlanIfNeeded plan = do
+      let issues =
+            checkPlanForEntityIssues plan
+              <> checkPlanForOperationIssues Query plan
+              <> checkPlanForOperationIssues Action plan
+              <> checkPlanForPageIssues plan
+      if null issues
+        then return plan
+        else do
+          let issuesText = T.pack $ intercalate "\n" $ (<> " - ") <$> issues
+          queryChatGPTForJSON defaultChatGPTParams $
+            chatMessages
+              <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan},
+                   ChatMessage
+                     { role = User,
+                       content =
+                         [trimming|
+                           I found following potential issues with the plan that you made:
+
+                           ${issuesText}
+
+                           Please improve the plan with regard to these issues and any other potential issues that you find.
+
+                           Respond ONLY with a valid JSON that is a plan.
+                           There should be no other text or explanations in the response.
+                         |]
+                     }
+                 ]
+
+checkPlanForEntityIssues :: Plan -> [String]
+checkPlanForEntityIssues plan =
+  checkNumEntities
+    <> checkUserEntity
+    <> concatMap checkIfEntityPSLCompiles (entities plan)
+  where
+    checkNumEntities =
+      let numEntities = length (entities plan)
+       in if numEntities < 2
+            then
+              [ "There is only " <> show numEntities <> " entities in the plan,"
+                  <> " I would expect at least 2 or more."
+              ]
+            else []
+
+    checkUserEntity =
+      case find ((== "User") . entityName) (entities plan) of
+        Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
+        Nothing -> ["'User' entity is missing."]
+
+    checkIfEntityPSLCompiles entity =
+      case parsePslBody (entityBodyPsl entity) of
+        Left parseError ->
+          [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
+              <> show parseError
+          ]
+        Right _ -> []
+
+    parsePslBody = Parsec.parse Psl.Parser.body ""
+
+checkPlanForOperationIssues :: OperationType -> Plan -> [String]
+checkPlanForOperationIssues opType plan =
+  checkNumOperations
+    <> concatMap checkOperationFnPath operations
+  where
+    operations = caseOnOpType queries actions $ plan
+
+    checkNumOperations =
+      let numOps = length operations
+       in if numOps < 2
+            then
+              [ "There is only " <> show numOps <> " " <> caseOnOpType "queries" "actions" <> " in the plan,"
+                  <> " I would expect at least 1 or more."
+              ]
+            else []
+
+    checkOperationFnPath op =
+      if not ("@server" `isPrefixOf` opFnPath op)
+        then
+          [ "fn path of " <> caseOnOpType "query" "action" <> " '" <> opName op
+              <> "' must start with '@server'."
+          ]
+        else []
+
+    caseOnOpType :: a -> a -> a
+    caseOnOpType queryCase actionCase = case opType of Query -> queryCase; Action -> actionCase
+
+checkPlanForPageIssues :: Plan -> [String]
+checkPlanForPageIssues plan =
+  checkNumPages
+    <> concatMap checkPageComponentPath (pages plan)
+  where
+    checkNumPages =
+      let numPages = length (pages plan)
+       in if numPages < 2
+            then
+              [ "There is only " <> show numPages <> " pages in the plan,"
+                  <> " I would expect at least 1 or more."
+              ]
+            else []
+
+    checkPageComponentPath page =
+      if not ("@client" `isPrefixOf` componentPath page)
+        then
+          [ "component path of page '" <> pageName page <> "' must start with '@client'."
+          ]
+        else []
 
 -- TODO: Alternative idea is to give quite more autonomy and equip it with tools (functions) it
 --   needs to build correct context, and then let it drive itself completely on its own. So we give
@@ -131,6 +248,8 @@ data Plan = Plan
 
 instance FromJSON Plan
 
+instance ToJSON Plan
+
 data Entity = Entity
   { entityName :: String,
     entityBodyPsl :: String
@@ -138,6 +257,10 @@ data Entity = Entity
   deriving (Generic, Show)
 
 instance FromJSON Entity
+
+instance ToJSON Entity
+
+data OperationType = Action | Query
 
 data Operation = Operation
   { opName :: String,
@@ -147,6 +270,8 @@ data Operation = Operation
   deriving (Generic, Show)
 
 instance FromJSON Operation
+
+instance ToJSON Operation
 
 data Page = Page
   { pageName :: String,
@@ -158,3 +283,5 @@ data Page = Page
   deriving (Generic, Show)
 
 instance FromJSON Page
+
+instance ToJSON Page
