@@ -12,34 +12,22 @@ module Wasp.LSP.Handlers
   )
 where
 
-import Control.Lens ((.~), (^.))
-import Control.Monad (forM_, (<=<))
+import Control.Lens ((^.))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log.Class (logM)
-import Control.Monad.Reader (asks)
-import Data.List (stripPrefix)
-import Data.Maybe (mapMaybe)
-import qualified Data.Text as T
 import Language.LSP.Server (Handlers)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
-import qualified StrongPath as SP
-import Wasp.LSP.Analysis (diagnoseWaspFile, publishDiagnostics)
+import Wasp.LSP.Analysis (diagnoseWaspFile)
 import Wasp.LSP.Completion (getCompletionsAtPosition)
-import Wasp.LSP.ExtImport (refreshExportsForFiles, updateMissingExtImportDiagnostics)
+import Wasp.LSP.DynamicHandlers (registerDynamicCapabilities)
 import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
-import Wasp.LSP.ServerM (ServerM, handler, modify, sendToReactor)
-import qualified Wasp.LSP.ServerState as State
+import Wasp.LSP.ServerM (ServerM, handler)
 import Wasp.LSP.SignatureHelp (getSignatureHelpAtPosition)
 
--- TODO(before merge): move dynamic registration into new module(s)
-
--- LSP notification and request handlers
-
--- | "Initialized" notification is sent when the client is started. We don't
--- have anything we need to do at initialization, but this is required to be
--- implemented.
+-- | "Initialized" notification is sent when the client is started. We send
+-- all of our dynamic capability registration requests when this happens.
 --
 -- The client starts the LSP at its own discretion, but commonly this is done
 -- either when:
@@ -51,47 +39,7 @@ import Wasp.LSP.SignatureHelp (getSignatureHelpAtPosition)
 initializedHandler :: Handlers ServerM
 initializedHandler = do
   LSP.notificationHandler LSP.SInitialized $ \_params -> do
-    -- Register workspace watcher for src/ directory. This is used for checking
-    -- TS export lists.
-    --
-    -- This can fail if the client doesn't support dynamic registration for this:
-    -- in that case, we can't provide some features. See "Wasp.LSP.ExtImport" for
-    -- what features require this watcher.
-    watchSourceFilesToken <-
-      LSP.registerCapability
-        LSP.SWorkspaceDidChangeWatchedFiles
-        LSP.DidChangeWatchedFilesRegistrationOptions
-          { _watchers =
-              LSP.List
-                [LSP.FileSystemWatcher {_globPattern = "**/*.{ts,tsx,js,jsx}", _kind = Nothing}]
-          }
-        watchSourceFilesHandler
-    case watchSourceFilesToken of
-      Nothing -> logM "[initializedHandler] Client did not accept WorkspaceDidChangeWatchedFiles registration"
-      Just _ -> logM "[initializedHandler] WorkspaceDidChangeWatchedFiles registered for JS/TS source files"
-    modify (State.regTokens . State.watchSourceFilesToken .~ watchSourceFilesToken)
-
--- | Ran when files in src/ change. It refreshes the relevant export lists in
--- the cache and updates missing import diagnostics.
---
--- Both of these tasks are ran in the reactor thread so that other requests
--- can still be answered.
-watchSourceFilesHandler :: LSP.Handler ServerM 'LSP.WorkspaceDidChangeWatchedFiles
-watchSourceFilesHandler msg = do
-  let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
-  logM $ "[watchSourceFilesHandler] Received file changes: " ++ show uris
-  let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
-  forM_ fileUris $ \file -> sendToReactor $ do
-    -- Refresh export list for modified file
-    refreshExportsForFiles [file]
-    -- Update diagnostics for the wasp file
-    updateMissingExtImportDiagnostics
-    handler $
-      asks (^. State.waspFileUri) >>= \case
-        Just uri -> do
-          logM $ "[watchSourceFilesHandler] Updating missing diagnostics for " ++ show uri
-          publishDiagnostics uri
-        Nothing -> pure ()
+    registerDynamicCapabilities
 
 -- | Sent by the client when the client is going to shutdown the server, this
 -- is where we do any clean up that needs to be done. This cleanup is:
@@ -142,6 +90,6 @@ signatureHelpHandler =
     signatureHelp <- handler $ getSignatureHelpAtPosition position
     respond $ Right signatureHelp
 
--- | Get the "Uri" from an object that has a "TextDocument".
+-- | Get the 'Uri' from an object that has a 'TextDocument'.
 extractUri :: (LSP.HasParams a b, LSP.HasTextDocument b c, LSP.HasUri c LSP.Uri) => a -> LSP.Uri
 extractUri = (^. (LSP.params . LSP.textDocument . LSP.uri))

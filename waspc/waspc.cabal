@@ -350,6 +350,7 @@ library waspls
     Wasp.LSP.Completions.ExprCompletion
     Wasp.LSP.Debouncer
     Wasp.LSP.Diagnostic
+    Wasp.LSP.DynamicHandlers
     Wasp.LSP.ExtImport
     Wasp.LSP.GotoDefinition
     Wasp.LSP.Handlers
