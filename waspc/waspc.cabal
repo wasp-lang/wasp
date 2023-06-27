@@ -343,20 +343,21 @@ library waspls
   exposed-modules:
     Control.Monad.Log
     Control.Monad.Log.Class
-    Wasp.LSP.Debouncer
-    Wasp.LSP.Server
-    Wasp.LSP.ServerState
-    Wasp.LSP.ServerConfig
-    Wasp.LSP.ServerM
-    Wasp.LSP.ExtImport
-    Wasp.LSP.Handlers
-    Wasp.LSP.Diagnostic
+    Wasp.LSP.Analysis
     Wasp.LSP.Completion
-    Wasp.LSP.GotoDefinition
-    Wasp.LSP.Reactor
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
     Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.Debouncer
+    Wasp.LSP.Diagnostic
+    Wasp.LSP.ExtImport
+    Wasp.LSP.GotoDefinition
+    Wasp.LSP.Handlers
+    Wasp.LSP.Reactor
+    Wasp.LSP.Server
+    Wasp.LSP.ServerConfig
+    Wasp.LSP.ServerM
+    Wasp.LSP.ServerState
     Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
     Wasp.LSP.TypeInference

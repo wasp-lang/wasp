@@ -12,8 +12,8 @@ module Wasp.LSP.ExtImport
     findExtImportAroundLocation,
     ExtImportLookupResult (..),
     lookupExtImport,
-    updateMissingImportDiagnostics,
-    getMissingImportDiagnostics,
+    updateMissingExtImportDiagnostics,
+    getMissingExtImportDiagnostics,
   )
 where
 
@@ -37,7 +37,11 @@ import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule))
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
-import Wasp.LSP.Diagnostic (MissingExtImportReason (NoDefaultExport, NoFile, NoNamedExport), WaspDiagnostic (MissingExtImportDiagnostic), clearMissingImportDiagnostics)
+import Wasp.LSP.Diagnostic
+  ( MissingExtImportReason (NoDefaultExport, NoFile, NoNamedExport),
+    WaspDiagnostic (MissingExtImportDiagnostic),
+    clearMissingExtImportDiagnostics,
+  )
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (findChild, lexemeAt)
@@ -155,15 +159,15 @@ findExtImportAroundLocation src location = do
 
 -- | Gets diagnostics for external imports and appends them to the current
 -- list of diagnostics.
-updateMissingImportDiagnostics :: ServerM ()
-updateMissingImportDiagnostics = do
-  newDiagnostics <- handler getMissingImportDiagnostics
-  modify (State.latestDiagnostics %~ ((++ newDiagnostics) . clearMissingImportDiagnostics))
+updateMissingExtImportDiagnostics :: ServerM ()
+updateMissingExtImportDiagnostics = do
+  newDiagnostics <- handler getMissingExtImportDiagnostics
+  modify (State.latestDiagnostics %~ ((++ newDiagnostics) . clearMissingExtImportDiagnostics))
 
 -- | Get diagnostics for external imports with missing definitions. Uses the
 -- cached export lists.
-getMissingImportDiagnostics :: HandlerM [WaspDiagnostic]
-getMissingImportDiagnostics =
+getMissingExtImportDiagnostics :: HandlerM [WaspDiagnostic]
+getMissingExtImportDiagnostics =
   asks (^. State.cst) >>= \case
     Nothing -> return []
     Just syntax -> do
