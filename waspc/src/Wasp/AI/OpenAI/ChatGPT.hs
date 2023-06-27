@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module Wasp.AI.OpenAI.ChatGPT
   ( queryChatGPT,
@@ -14,10 +13,12 @@ module Wasp.AI.OpenAI.ChatGPT
 where
 
 import Control.Arrow ()
+import Control.Monad (when)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
 import Data.Text (Text)
+import Debug.Pretty.Simple (pTrace)
 import GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
@@ -47,6 +48,16 @@ queryChatGPT apiKey params requestMessages = do
   let _responseStatusCode = HTTP.getResponseStatusCode response
 
   let (chatResponse :: ChatResponse) = HTTP.getResponseBody response
+
+  when False $
+    pTrace
+      ( "\n\n\n\n==================================\n\n"
+          <> show requestMessages
+          <> "\n\n============\n\n"
+          <> show (usage chatResponse)
+          <> "\n\n==================================\n\n\n\n"
+      )
+      $ return ()
 
   return $ content $ message $ head $ choices chatResponse
   where
