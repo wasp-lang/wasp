@@ -131,10 +131,11 @@ checkPlanForEntityIssues plan =
   where
     checkNumEntities =
       let numEntities = length (entities plan)
-       in if numEntities < 2
+          expectedNumEntities = 2
+       in if numEntities < expectedNumEntities
             then
               [ "There is only " <> show numEntities <> " entities in the plan,"
-                  <> " I would expect at least 2 or more."
+                  <> (" I would expect at least " <> show expectedNumEntities <> " or more.")
               ]
             else []
 
@@ -162,10 +163,11 @@ checkPlanForOperationIssues opType plan =
 
     checkNumOperations =
       let numOps = length operations
-       in if numOps < 2
+          expectedNumOps = 1
+       in if numOps < expectedNumOps
             then
               [ "There is only " <> show numOps <> " " <> caseOnOpType "queries" "actions" <> " in the plan,"
-                  <> " I would expect at least 1 or more."
+                  <> (" I would expect at least " <> show expectedNumOps <> " or more.")
               ]
             else []
 
@@ -187,10 +189,11 @@ checkPlanForPageIssues plan =
   where
     checkNumPages =
       let numPages = length (pages plan)
-       in if numPages < 1
+          expectedNumPages = 1
+       in if numPages < expectedNumPages
             then
               [ "There is only " <> show numPages <> " pages in the plan,"
-                  <> " I would expect at least 1 or more."
+                  <> (" I would expect at least " <> show expectedNumPages <> " or more.")
               ]
             else []
 
