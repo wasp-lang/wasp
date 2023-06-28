@@ -1,4 +1,3 @@
-// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
@@ -12,7 +11,7 @@ import { Link } from "react-router-dom";
 export const ResultPage = () => {
   const { appId } = useParams();
   const [generationDone, setGenerationDone] = useState(false);
-  const { data: appGenerationResult } = useQuery(
+  const { data: appGenerationResult, isError } = useQuery(
     getAppGenerationResult,
     { appId },
     { enabled: !!appId && !generationDone, refetchInterval: 3000 }
@@ -45,20 +44,7 @@ export const ResultPage = () => {
     }
   }, [appGenerationResult]);
 
-  const logs = appGenerationResult?.messages
-    .filter((m) => m.type === "log")
-    .map((m) => m.text)
-    .reverse();
-
-  // let files = {};
-  // {
-  //   appGenerationResult?.messages
-  //     .filter((m) => m.type === "write-file")
-  //     .map((m) => m.text.split("\n"))
-  //     .forEach(([path, ...contentLines]) => {
-  //       files[path] = contentLines.join("\n");
-  //     });
-  // }e
+  const logs = appGenerationResult?.project?.logs.map((log) => log.content);
 
   const files = useMemo(() => {
     let files = {};
@@ -97,10 +83,15 @@ export const ResultPage = () => {
             path !== "src/.waspignore" &&
             path !== ".wasproot"
         )
-        .sort(
-          (a, b) =>
-            (a.endsWith(".wasp") ? 0 : 1) - (b.endsWith(".wasp") ? 0 : 1)
-        );
+        .sort((a, b) => {
+          if (a === a.endsWith(".wasp")) {
+            return -1;
+          }
+          if (b === b.endsWith(".wasp")) {
+            return 1;
+          }
+          return a.split("/").length - b.split("/").length;
+        });
     } else {
       return [];
     }
@@ -127,20 +118,54 @@ export const ResultPage = () => {
     setLogsVisible(!logsVisible);
   }
 
+  function getEmoji(log) {
+    // log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "
+    if (log.toLowerCase().includes("generated")) {
+      return "✅ ";
+    }
+    if (log.toLowerCase().includes("done!")) {
+      return "🎉 ";
+    }
+    if (
+      log.toLowerCase().includes("error") ||
+      log.toLowerCase().includes("fail")
+    ) {
+      return "❌ ";
+    }
+    if (log.toLowerCase().includes("warning")) {
+      return "⚠️ ";
+    }
+    return "⌛️ ";
+  }
+
   return (
     <div className="container">
       <div className="mb-4 bg-slate-50 p-8 rounded-xl flex justify-between items-center">
         <Title />
-        <StatusPill status={currentStatus.status}>
-          {currentStatus.message}
-        </StatusPill>
+        {appGenerationResult?.project && (
+          <StatusPill status={currentStatus.status}>
+            {currentStatus.message}
+          </StatusPill>
+        )}
       </div>
 
-      {logs && currentStatus.status !== "success" && (
+      {isError && !appGenerationResult?.project && (
+        <div className="mb-4 bg-red-50 p-8 rounded-xl">
+          <div className="text-red-500">
+            We couldn't find the app generation result. Maybe the link is
+            incorrect or the app generation has failed.
+          </div>
+          <Link className="button gray sm mt-4 inline-block" to="/">
+            Generate another one?
+          </Link>
+        </div>
+      )}
+
+      {logs && (
         <>
           <header className="mt-4 mb-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3">
-              <Loader />
+              {currentStatus.status === "inProgress" && <Loader />}
             </div>
             {logs && (
               <pre className="flex-1">
@@ -155,7 +180,7 @@ export const ResultPage = () => {
                         : (previewLogsCount - i) * (1 / previewLogsCount),
                     }}
                   >
-                    {log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "}
+                    {getEmoji(log)}
                     {log}
                   </pre>
                 ))}

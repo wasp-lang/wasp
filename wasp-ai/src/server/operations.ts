@@ -2,6 +2,7 @@ import { StartGeneratingNewApp } from "@wasp/actions/types";
 import { GetAppGenerationResult } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { spawn } from "child_process";
+import { Mutex } from "async-mutex";
 
 const appGenerationResults: Record<string, any> = {};
 
@@ -24,7 +25,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   if (!args.appDesc) {
     throw new HttpError(422, "App description is required.");
   }
-  const { Project, File } = context.entities;
+  const { Project, File, Log } = context.entities;
   const project = await Project.create({
     data: {
       name: args.appName,
@@ -35,104 +36,96 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   const appId = project.id;
   appGenerationResults[appId] = {
     status: "in-progress",
-    messages: [],
     unconsumedStdout: "",
   };
 
+  const stdoutMutex = new Mutex();
   let waspCliProcess = null;
   if (process.env.NODE_ENV === "production") {
-    waspCliProcess = spawn("wasp", [
-      "new-ai",
-      args.appName,
-      args.appDesc,
-    ]);
+    waspCliProcess = spawn("wasp", ["new-ai", args.appName, args.appDesc]);
   } else {
     // NOTE: In dev when we use `wasp-cli`, we want to make sure that if this app is run via `wasp` that its datadir env var does not propagate,
     //   so we reset it here. This is problem only if you run app with `wasp` and let it call `wasp-cli` here.
-    waspCliProcess = spawn(
-      "wasp-cli",
-      ["new-ai", args.appName, args.appDesc],
-      { env: { ...process.env, waspc_datadir: undefined } }
-    );
+    waspCliProcess = spawn("wasp-cli", ["new-ai", args.appName, args.appDesc], {
+      env: { ...process.env, waspc_datadir: undefined },
+    });
   }
 
   waspCliProcess.stdout.on("data", async (data) => {
-    console.log(data.toString());
-    const newStdoutChunk = data.toString();
-    let unconsumedStdout =
-      appGenerationResults[appId].unconsumedStdout + newStdoutChunk;
-    let newMessages: Message[] = [];
-    while (true) {
-      const firstMsgEndHeaderMatch = unconsumedStdout.match(
-        /===\/ WASP AI: (LOG|WRITE FILE) ====/
-      );
-      if (firstMsgEndHeaderMatch) {
-        const msgEndHeaderStartIdx = firstMsgEndHeaderMatch.index;
-        const msgEndHeader = firstMsgEndHeaderMatch[0];
-        const msgStartHeader = msgEndHeader.replace("===/", "====") + "\n";
-        const msgStartHeaderMatch = unconsumedStdout.match(
-          new RegExp(msgStartHeader)
-        );
-        const msgStartHeaderStartIdx = msgStartHeaderMatch.index;
-        const message: Message = {
-          text: unconsumedStdout.substring(
-            msgStartHeaderStartIdx + msgStartHeader.length,
-            msgEndHeaderStartIdx
-          ),
-          type:
-            msgStartHeader === "==== WASP AI: LOG ====\n"
-              ? "log"
-              : "write-file",
-        };
-        if (message.type === "write-file") {
-          const [filename, ...rest] = message.text.split("\n");
-          const content = rest.join("\n");
-          const file = await File.findFirst({
-            where: { name: filename, projectId: appId },
-          });
-          if (file) {
-            await File.update({
-              where: { id: file.id },
-              data: { content },
-            });
-          } else {
-            await File.create({
+    const release = await stdoutMutex.acquire();
+    try {
+      appGenerationResults[appId].unconsumedStdout += data;
+      const patterns = [
+        {
+          regex: /==== WASP AI: LOG ====\n([\s\S]*?)\n===\/ WASP AI: LOG ====/,
+          action: async (match: RegExpMatchArray) => {
+            const content = match[1];
+            console.log(`Log: ${content}`);
+            await Log.create({
               data: {
-                name: filename,
                 content,
-                projectId: appId,
+                project: {
+                  connect: { id: appId },
+                },
               },
             });
-          }
-        } else {
-          newMessages = [...newMessages, message];
-        }
-        unconsumedStdout = unconsumedStdout.substring(
-          msgEndHeaderStartIdx + msgEndHeader.length
-        );
-      } else {
-        break;
-      }
-    }
-    appGenerationResults[appId].messages = [
-      ...appGenerationResults[appId].messages,
-      ...newMessages,
-    ];
+          },
+        },
+        {
+          regex:
+            /==== WASP AI: WRITE FILE ====\n([\s\S]*?)\n===\/ WASP AI: WRITE FILE ====/,
+          action: async (match: RegExpMatchArray) => {
+            const text = match[1];
+            const [filename, ...rest] = text.split("\n");
+            const content = rest.join("\n");
+            const file = await File.findFirst({
+              where: { name: filename, projectId: appId },
+            });
+            if (file) {
+              console.log(`Updating file ${filename} in project ${appId}.`);
+              await File.update({
+                where: { id: file.id },
+                data: { content },
+              });
+            } else {
+              console.log(`Creating file ${filename} in project ${appId}.`);
+              await File.create({
+                data: {
+                  name: filename,
+                  content,
+                  projectId: appId,
+                },
+              });
+            }
+          },
+        },
+      ];
 
-    // TODO: Rethink logs so they are fully saved in the DB
-    // await Promise.all(
-    //   newMessages.map((message) =>
-    //     Log.create({
-    //       data: {
-    //         content: message.text,
-    //         project: {
-    //           connect: { id: appId },
-    //         },
-    //       },
-    //     })
-    //   )
-    // );
-    appGenerationResults[appId].unconsumedStdout = unconsumedStdout;
+      let match: any = null;
+      do {
+        match = null;
+        for (const pattern of patterns) {
+          const newMatch = pattern.regex.exec(
+            appGenerationResults[appId].unconsumedStdout
+          );
+          if (newMatch && (!match || newMatch.index < match.index)) {
+            match = {
+              ...newMatch,
+              action: pattern.action,
+            };
+          }
+        }
+
+        if (match) {
+          await match.action(match);
+          appGenerationResults[appId].unconsumedStdout = appGenerationResults[
+            appId
+          ].unconsumedStdout.replace(match[0], "");
+        }
+      } while (match);
+    } finally {
+      release();
+    }
   });
 
   waspCliProcess.stderr.on("data", (data) => {
@@ -140,7 +133,6 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   });
 
   waspCliProcess.on("close", (code) => {
-    console.log("WASP CLI PROCESS STOPPED");
     if (code === 0) {
       appGenerationResults[appId].status = "success";
     } else {
@@ -159,27 +151,25 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
 export const getAppGenerationResult = (async (args, context) => {
   const appId = args.appId;
   const { Project } = context.entities;
-  const project = await Project.findUnique({
-    where: { id: appId },
-    include: {
-      files: true,
-      logs: {
-        orderBy: {
-          createdAt: "asc",
+  try {
+    const project = await Project.findUniqueOrThrow({
+      where: { id: appId },
+      include: {
+        files: true,
+        logs: {
+          orderBy: {
+            createdAt: "desc",
+          },
         },
       },
-    },
-  });
-  return {
-    status: appGenerationResults[appId]?.status ?? "success",
-    messages: appGenerationResults[appId]?.messages ?? [],
-    project,
-  };
+    });
+    return {
+      status: appGenerationResults[appId]?.status ?? "success",
+      project,
+    };
+  } catch (e) {
+    throw new HttpError(404, "App not found.");
+  }
 }) satisfies GetAppGenerationResult<{
   appId: string;
 }>;
-
-type Message = {
-  text: string;
-  type: "log" | "write-file";
-};

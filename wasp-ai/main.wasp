@@ -4,11 +4,11 @@ app waspAi {
   },
   title: "wasp-ai",
   dependencies: [
-    ("uuid", "^9.0.0"),
     ("prismjs", "^1.29.0"),
     ("react-accessible-treeview", "2.6.1"),
     ("react-icons", "4.9.0"),
-    ("@zip.js/zip.js", "2.7.16")
+    ("@zip.js/zip.js", "2.7.16"),
+    ("async-mutex", "0.4.0")
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
