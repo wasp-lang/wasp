@@ -134,7 +134,7 @@ export const ResultPage = () => {
       log.toLowerCase().includes("added") ||
       log.toLowerCase().includes("updated")
     ) {
-      return "✅ ";
+      return "✅";
     }
     if (log.toLowerCase().includes("done!")) {
       return "🎉";
