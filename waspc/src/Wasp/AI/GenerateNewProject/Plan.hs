@@ -191,7 +191,7 @@ checkPlanForPageIssues plan =
   where
     checkNumPages =
       let numPages = length (pages plan)
-       in if numPages < 2
+       in if numPages < 1
             then
               [ "There is only " <> show numPages <> " pages in the plan,"
                   <> " I would expect at least 1 or more."
