@@ -9,6 +9,7 @@ module Wasp.Analyzer.Parser.AbstractParser
 where
 
 import Control.Arrow (Arrow (first))
+import Control.Monad (join)
 import Control.Monad.Except (throwError)
 import Control.Monad.State.Strict (gets)
 import Data.Maybe (catMaybes)
@@ -60,13 +61,15 @@ parseExpression source syntax = case runParserM source $ coerceExpr syntax of
 -- | Try to turn CST into top-level AST.
 coerceProgram :: NodesParser AST
 coerceProgram [] = return $ AST.AST []
-coerceProgram (SyntaxNode S.Program _ children : _) = AST.AST . catMaybes <$> mapM coerceStmt children
+coerceProgram (SyntaxNode S.Program _ children : _) =
+  AST.AST . catMaybes
+    <$> mapM (fmap join . nodeParserRecover coerceStmt) children
 coerceProgram (SyntaxNode kind width _ : remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceProgram remaining
   | otherwise = unexpectedNode kind "in root"
 
 -- | Try to turn CST into Stmt AST. Returns @Nothing@ if the given node is a
--- trivia node.
+-- trivia node, or if it contains invalid syntax.
 coerceStmt :: NodeParser (Maybe (WithCtx Stmt))
 coerceStmt (SyntaxNode S.Decl _ children) = do
   startPos <- gets pstateStartPos
@@ -282,6 +285,13 @@ coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
       return (lexeme, remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
+
+-- | Try running a node parser, properly using the node on failure.
+nodeParserRecover :: NodeParser a -> NodeParser (Maybe a)
+nodeParserRecover parser node =
+  try (parser node) >>= \case
+    Right a -> return $ Just a
+    Left _ -> advance (S.snodeWidth node) >> return Nothing
 
 -- | Alias for 'pstatePos'
 pstateStartPos :: ParseState -> SourcePosition
