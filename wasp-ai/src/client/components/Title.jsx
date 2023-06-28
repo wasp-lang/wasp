@@ -10,7 +10,6 @@ export function Title() {
         <div className="mt-2 flex justify-flex-start">
           <iframe
             src="https://ghbtns.com/github-btn.html?user=wasp-lang&repo=wasp&type=star&count=true"
-            frameborder="0"
             width="100"
             height="20"
             title="GitHub"

@@ -12,6 +12,9 @@ app waspAi {
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
+  },
+  db: {
+    system: PostgreSQL
   }
 }
 
@@ -26,9 +29,45 @@ page ResultPage {
 }
 
 action startGeneratingNewApp {
-  fn: import { startGeneratingNewApp } from "@server/operations.js"
+  fn: import { startGeneratingNewApp } from "@server/operations.js",
+  entities: [
+    Project,
+    File,
+    Log,
+  ]
 }
 
 query getAppGenerationResult {
-  fn: import { getAppGenerationResult } from "@server/operations.js"
+  fn: import { getAppGenerationResult } from "@server/operations.js",
+  entities: [
+    Project
+  ]
 }
+
+entity Project {=psl
+  id String @id @default(uuid())
+  name String
+  description String
+  createdAt DateTime @default(now())
+  files File[]
+  logs Log[]
+psl=}
+
+entity File {=psl
+  id String @id @default(uuid())
+  name String
+  content String
+  createdAt DateTime @default(now())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([name, projectId])
+psl=}
+
+entity Log {=psl
+  id String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
+psl=}

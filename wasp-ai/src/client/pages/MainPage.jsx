@@ -15,15 +15,19 @@ const MainPage = () => {
 
   async function startGenerating(event) {
     event.preventDefault();
-    if (!(appName && appDesc)) {
-      return alert("Please enter an app name and description.");
-    }
     setCurrentStatus({
       status: "inProgress",
       message: "Booting up AI",
     });
-    const appId = await startGeneratingNewApp({ appName, appDesc });
-    history.push(`/result/${appId}`);
+    try {
+      const appId = await startGeneratingNewApp({ appName, appDesc });
+      history.push(`/result/${appId}`);
+    } catch (e) {
+      setCurrentStatus({
+        status: "error",
+        message: e.message,
+      });
+    }
   }
 
   const exampleIdeas = [
@@ -39,7 +43,7 @@ const MainPage = () => {
         "A blog with posts and comments. Posts can be created, edited and deleted. Comments can be created and deleted. Posts and comments are saved in the database.",
     },
     {
-      name: "Flower Shop",
+      name: "FlowerShop",
       description:
         "A flower shop with a main page that lists all the flowers. I can create new flowers, or toggle existing ones." +
         "User owns flowers. User can only see and edit their own flowers. Flowers are saved in the database.",
@@ -66,10 +70,10 @@ const MainPage = () => {
           <input
             required
             type="text"
-            placeholder="Your app name"
+            placeholder="Your app name (don't put spaces in the name)"
             value={appName}
             onChange={(e) => setAppName(e.target.value)}
-            disabled={currentStatus.status !== "idle"}
+            disabled={currentStatus.status === "inProgress"}
           />
           <textarea
             required
@@ -78,12 +82,12 @@ const MainPage = () => {
             rows="5"
             cols="50"
             onChange={(e) => setAppDesc(e.target.value)}
-            disabled={currentStatus.status !== "idle"}
+            disabled={currentStatus.status === "inProgress"}
           />
         </div>
         <button
           className="button mr-2"
-          disabled={currentStatus.status !== "idle"}
+          disabled={currentStatus.status === "inProgress"}
         >
           Generate the app
         </button>
@@ -101,7 +105,10 @@ const MainPage = () => {
                   <h4 className="text-xl font-semibold text-slate-700 mb-1">
                     {idea.name}
                   </h4>
-                  <button className="button sm gray" onClick={() => useIdea(idea)}>
+                  <button
+                    className="button sm gray"
+                    onClick={() => useIdea(idea)}
+                  >
                     Use this idea
                   </button>
                 </div>

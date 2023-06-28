@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
@@ -49,15 +50,24 @@ export const ResultPage = () => {
     .map((m) => m.text)
     .reverse();
 
-  let files = {};
-  {
-    appGenerationResult?.messages
-      .filter((m) => m.type === "write-file")
-      .map((m) => m.text.split("\n"))
-      .forEach(([path, ...contentLines]) => {
-        files[path] = contentLines.join("\n");
-      });
-  }
+  // let files = {};
+  // {
+  //   appGenerationResult?.messages
+  //     .filter((m) => m.type === "write-file")
+  //     .map((m) => m.text.split("\n"))
+  //     .forEach(([path, ...contentLines]) => {
+  //       files[path] = contentLines.join("\n");
+  //     });
+  // }e
+
+  const files = useMemo(() => {
+    let files = {};
+    (appGenerationResult?.project?.files ?? []).reduce((acc, file) => {
+      acc[file.name] = file.content;
+      return acc;
+    }, files);
+    return files;
+  }, [appGenerationResult]);
 
   const language = useMemo(() => {
     if (activeFilePath) {
@@ -96,8 +106,17 @@ export const ResultPage = () => {
     }
   }, [files]);
 
+  const previewLogsCount = 3;
+  const visibleLogs = useMemo(() => {
+    if (logs) {
+      return logsVisible ? logs : logs.slice(0, previewLogsCount);
+    } else {
+      return [];
+    }
+  }, [logs, logsVisible]);
+
   function downloadZip() {
-    const safeAppName = appGenerationResult.appName.replace(
+    const safeAppName = appGenerationResult?.project?.name.replace(
       /[^a-zA-Z0-9]/g,
       "_"
     );
@@ -117,25 +136,49 @@ export const ResultPage = () => {
         </StatusPill>
       </div>
 
-      <header className="mt-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-center">
-        <div className="flex-shrink-0 mr-3">
-          <Loader />
-        </div>
-        <pre className="flex-1">{logs && logs.length > 0 ? logs[0] : "Waiting for logs..."}</pre>
-        <button onClick={toggleLogs}>
-          {logsVisible ? "Hide the logs" : "Expand the logs"}
-        </button>
-      </header>
+      {logs && currentStatus.status !== "success" && (
+        <>
+          <header className="mt-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
+            <div className="flex-shrink-0 mr-3">
+              <Loader />
+            </div>
+            {logs && (
+              <pre className="flex-1">
+                {logs.length === 0 && "Waiting for logs..."}
+                {visibleLogs.map((log, i) => (
+                  <pre
+                    key={i}
+                    className="py-1"
+                    style={{
+                      opacity: logsVisible
+                        ? 1
+                        : (previewLogsCount - i) * (1 / previewLogsCount),
+                    }}
+                  >
+                    {log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "}
+                    {log}
+                  </pre>
+                ))}
+              </pre>
+            )}
+            {logs.length > 1 && (
+              <button onClick={toggleLogs}>
+                {logsVisible ? "Collapse the logs" : "Expand the logs"}
+              </button>
+            )}
+          </header>
+        </>
+      )}
 
       {interestingFilePaths.length > 0 && (
         <>
-          <div className="grid gap-4 grid-cols-[300px_minmax(900px,_1fr)_100px] mt-4">
+          <div className="mb-2">
+            <h2 className="text-xl font-bold text-gray-800">
+              {appGenerationResult?.project?.name}
+            </h2>
+          </div>
+          <div className="grid gap-4 grid-cols-[320px_1fr] mt-4">
             <aside>
-              <div className="mb-2">
-                <h2 className="text-xl font-bold text-gray-800">
-                  {appGenerationResult.appName}
-                </h2>
-              </div>
               <FileTree
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
@@ -234,22 +277,24 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
                     First, you need to install Wasp locally. You can do that by
                     running this command in your terminal:
                   </p>
-                  <pre className="bg-slate-50 p-4 rounded-lg text-sm">curl -sSL https://get.wasp-lang.dev/installer.sh | sh</pre>
+                  <pre className="bg-slate-50 p-4 rounded-lg text-sm">
+                    curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+                  </pre>
                   <p className="text-base leading-relaxed text-gray-500">
                     Then, you download the ZIP file with the generated app:
                   </p>
-                  <button
-                    className="button w-full"
-                    onClick={onDownloadZip}
-                  >
+                  <button className="button w-full" onClick={onDownloadZip}>
                     Download ZIP
                   </button>
                   <p className="text-base leading-relaxed text-gray-500">
                     Unzip the file and run the app with:
                   </p>
-                  <pre className="bg-slate-50 p-4 rounded-lg text-sm">wasp start</pre>
+                  <pre className="bg-slate-50 p-4 rounded-lg text-sm">
+                    wasp start
+                  </pre>
                   <p className="text-base leading-relaxed text-gray-500">
-                    Congratulations, you are now running your Wasp app locally! 🎉
+                    Congratulations, you are now running your Wasp app locally!
+                    🎉
                   </p>
                 </div>
               </div>
