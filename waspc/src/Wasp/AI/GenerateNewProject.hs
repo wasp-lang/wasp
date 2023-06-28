@@ -16,6 +16,7 @@ import Wasp.AI.GenerateNewProject.Page (generateAndWritePage)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
+import Wasp.AI.GenerateNewProject.WaspFile (fixWaspFile)
 import Wasp.Project (WaspProjectDir)
 
 generateNewProject ::
@@ -55,6 +56,13 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   _pages <-
     forM (Plan.pages plan) $
       generateAndWritePage newProjectDetails waspFilePath (Plan.entities plan) queries actions
+
+  -- TODO: Pass plan rules into fixWaspFile, as extra guidance what to keep an eye on? We can't just
+  --   do it blindly though, some of them are relevant only to plan (e.g. not generating login /
+  --   signup page), we would have to do some adapting.
+  writeToLog "Fixing any mistakes in Wasp file..."
+  fixWaspFile newProjectDetails waspFilePath
+  writeToLog "Wasp file fixed."
 
   -- TODO: what about having additional step here that goes through all the files once again and
   --   fixes any stuff in them (Wasp, JS files)? REPL?

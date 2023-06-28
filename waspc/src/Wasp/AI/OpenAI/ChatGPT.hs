@@ -49,7 +49,7 @@ queryChatGPT apiKey params requestMessages = do
 
   let (chatResponse :: ChatResponse) = HTTP.getResponseBody response
 
-  when False $
+  when True $
     pTrace
       ( "\n\n\n\n==================================\n\n"
           <> show requestMessages

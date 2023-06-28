@@ -23,7 +23,7 @@ import Wasp.AI.GenerateNewProject.Common
     defaultChatGPTParams,
     queryChatGPTForJSON,
   )
-import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
+import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Psl.Parser.Model as Psl.Parser
@@ -32,7 +32,7 @@ import qualified Wasp.Util.Aeson as Util.Aeson
 -- | Additional rule to follow while generating plan.
 type PlanRule = String
 
-generatePlan :: Wasp.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
+generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   queryChatGPTForJSON defaultChatGPTParams chatMessages
     >>= fixPlanIfNeeded
@@ -41,8 +41,7 @@ generatePlan newProjectDetails planRules = do
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = planPrompt}
       ]
-    appName = T.pack $ _projectAppName newProjectDetails
-    appDesc = T.pack $ _projectDescription newProjectDetails
+    appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
     rulesText = T.pack . unlines $ "Instructions you must follow while generating plan:" : map (" - " ++) planRules
@@ -91,10 +90,7 @@ generatePlan newProjectDetails planRules = do
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
 
-        ${appDescriptionStartMarkerLine}
-
-        App name: ${appName}
-        ${appDesc}
+        ${appDescriptionBlockText}
       |]
 
     fixPlanIfNeeded :: Plan -> CodeAgent Plan
@@ -107,7 +103,7 @@ generatePlan newProjectDetails planRules = do
       if null issues
         then return plan
         else do
-          let issuesText = T.pack $ intercalate "\n" $ (<> " - ") <$> issues
+          let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
           queryChatGPTForJSON defaultChatGPTParams $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan},

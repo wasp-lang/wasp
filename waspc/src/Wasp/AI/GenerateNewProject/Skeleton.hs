@@ -58,12 +58,12 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           [ "App uses username and password authentication.",
             T.unpack
               [trimming|
-              You MUST add a 'User' entity to plan, with following fields required:
+              App MUST have a 'User' entity, with following fields required:
                 - `id Int @id @default(autoincrement())`
                 - `username String @unique`
                 - `password String`
-            |],
-            "One of the pages you generate must have a route path \"/\"."
+              |],
+            "One of the pages in the app must have a route path \"/\"."
           ]
         )
     planRules = authPlanRules <> ["Don't generate the Login or Signup page."]
@@ -129,7 +129,7 @@ generateDotEnvServerFile :: File
 generateDotEnvServerFile =
   ( ".env.server",
     [trimming|
-      // Here you can define env vars to pass to the server.
-      // MY_ENV_VAR=foobar
+      # Here you can define env vars to pass to the server.
+      # MY_ENV_VAR=foobar
     |]
   )
