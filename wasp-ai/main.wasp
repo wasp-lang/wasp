@@ -8,7 +8,7 @@ app waspAi {
     ("react-accessible-treeview", "2.6.1"),
     ("react-icons", "4.9.0"),
     ("@zip.js/zip.js", "2.7.16"),
-    ("async-mutex", "0.4.0")
+    ("async-mutex", "0.4.0"),
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",

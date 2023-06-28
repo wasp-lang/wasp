@@ -11,7 +11,11 @@ import { Link } from "react-router-dom";
 export const ResultPage = () => {
   const { appId } = useParams();
   const [generationDone, setGenerationDone] = useState(false);
-  const { data: appGenerationResult, isError } = useQuery(
+  const {
+    data: appGenerationResult,
+    isError,
+    isLoading,
+  } = useQuery(
     getAppGenerationResult,
     { appId },
     { enabled: !!appId && !generationDone, refetchInterval: 3000 }
@@ -36,13 +40,15 @@ export const ResultPage = () => {
             ? "Finished"
             : "There was an error",
       });
+    } else if (isError) {
+      setGenerationDone(true);
     } else {
       setCurrentStatus({
         status: "inProgress",
         message: "Generating app",
       });
     }
-  }, [appGenerationResult]);
+  }, [appGenerationResult, isError]);
 
   const logs = appGenerationResult?.project?.logs.map((log) => log.content);
 
@@ -149,16 +155,27 @@ export const ResultPage = () => {
         )}
       </div>
 
-      {isError && !appGenerationResult?.project && (
+      {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
           <div className="text-red-500">
             We couldn't find the app generation result. Maybe the link is
             incorrect or the app generation has failed.
           </div>
           <Link className="button gray sm mt-4 inline-block" to="/">
-            Generate another one?
+            Generate a new one
           </Link>
         </div>
+      )}
+
+      {isLoading && (
+        <>
+          <header className="mt-4 mb-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
+            <div className="flex-shrink-0 mr-3">
+              <Loader />
+            </div>
+            <pre className="flex-1">Fetching the app...</pre>
+          </header>
+        </>
       )}
 
       {logs && (
@@ -173,7 +190,7 @@ export const ResultPage = () => {
                 {visibleLogs.map((log, i) => (
                   <pre
                     key={i}
-                    className="py-1"
+                    className="mb-2"
                     style={{
                       opacity: logsVisible
                         ? 1
@@ -209,15 +226,26 @@ export const ResultPage = () => {
           </div>
           <div className="grid gap-4 grid-cols-[320px_1fr] mt-4">
             <aside>
+              <div className="mb-2">
+                <RunTheAppModal
+                  onDownloadZip={downloadZip}
+                  disabled={currentStatus.status !== "success"}
+                />
+              </div>
+              {currentStatus.status !== "success" && (
+                <small className="text-gray-500 text-center block my-2">
+                  The app is still being generated.
+                </small>
+              )}
               <FileTree
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
                 onActivePathSelect={setActiveFilePath}
               />
-              <RunTheAppModal
-                onDownloadZip={downloadZip}
-                disabled={currentStatus.status !== "success"}
-              />
+              <p className="text-gray-500 text-sm my-4 leading-relaxed">
+                <strong>User provided prompt: </strong>
+                {appGenerationResult?.project?.description}
+              </p>
               {currentStatus.status === "success" && (
                 <Link className="button gray w-full mt-2 block" to="/">
                   Generate another one?
@@ -266,7 +294,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className="button w-full mt-2"
+        className="button w-full"
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >

@@ -60,7 +60,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
           regex: /==== WASP AI: LOG ====\n([\s\S]*?)\n===\/ WASP AI: LOG ====/,
           action: async (match: RegExpMatchArray) => {
             const content = match[1];
-            console.log(`Log: ${content}`);
+            // console.log(`Log: ${content}`);
             await Log.create({
               data: {
                 content,
@@ -82,13 +82,13 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
               where: { name: filename, projectId: appId },
             });
             if (file) {
-              console.log(`Updating file ${filename} in project ${appId}.`);
+              // console.log(`Updating file ${filename} in project ${appId}.`);
               await File.update({
                 where: { id: file.id },
                 data: { content },
               });
             } else {
-              console.log(`Creating file ${filename} in project ${appId}.`);
+              // console.log(`Creating file ${filename} in project ${appId}.`);
               await File.create({
                 data: {
                   name: filename,

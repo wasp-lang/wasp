@@ -93,7 +93,7 @@ const MainPage = () => {
         </button>
       </form>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Some example ideas</h3>
+        <h3 className="text-xl font-semibold mb-4 text-slate-800">Some example ideas</h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
           {exampleIdeas.map((idea) => (
             <div
