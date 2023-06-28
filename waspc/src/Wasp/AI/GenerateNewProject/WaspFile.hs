@@ -68,11 +68,22 @@ fixWaspFile newProjectDetails waspFilePath = do
             Some common mistakes to look for:
               - Missing ',' between dictionary entries, for example before `entities` field in action/query.
                 Fix these by adding missing ','.
+
+                For example, the following is missing ',' after the component field:
+                ```
+                  page MainPage {
+                    component: import { MainPage } from "@client/pages/MainPage.jsx" // <- missing ','
+                    authRequired: true
+                  }
+                ```
+
               - "TODO" comments or "..." that should be replaced with actual implementation.
                 Fix these by replacing them with actual implementation.
               - Value of `fn:` field in `query` or `action` not having correct import syntax,
                 for example it might have invalid syntax, e.g. `fn: @server/actions.js`.
                 Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@server/actions.js"`.
+              - Entities having a reference to another entity but that entity doesn't have a reference back to it.
+                Fix these by adding a reference back to the entity that is referenced.
 
             With this in mind, generate a new, fixed wasp file.
             Do actual fixes, don't leave comments with "TODO"!

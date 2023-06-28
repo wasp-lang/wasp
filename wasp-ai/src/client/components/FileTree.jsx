@@ -92,6 +92,7 @@ const FileIcon = ({ filename }) => {
   switch (extension) {
     case "js":
     case "ts":
+    case "cjs":
       return <DiJavascript color="yellow" className="icon" />;
     case "jsx":
     case "tsx":

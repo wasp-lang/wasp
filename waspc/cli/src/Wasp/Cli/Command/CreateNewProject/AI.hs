@@ -28,7 +28,7 @@ import qualified Wasp.Cli.Interactive as Interactive
 createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> Command ()
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
-  appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences:\n"
+  appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
   liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription
 
 createNewProjectNonInteractiveOnDisk :: String -> String -> Command ()
@@ -112,16 +112,16 @@ getOpenAIApiKey =
     >>= maybe throwMissingOpenAIApiKeyEnvVarError pure
   where
     throwMissingOpenAIApiKeyEnvVarError =
-      throwError $
-        CommandError
+      throwError
+        $ CommandError
           "Missing OPENAI_API_KEY environment variable"
-          $ unlines
-            [ "Wasp AI uses ChatGPT to generate your project, and therefore requires you to provide it with an OpenAI API key.",
-              "You can obtain this key via your OpenAI account's user settings (https://platform.openai.com/account/api-keys).",
-              "Then, add",
-              "  export OPENAI_API_KEY=<yourkeyhere>",
-              "to .bash_profile or .profile, restart your shell, and you should be good to go."
-            ]
+        $ unlines
+          [ "Wasp AI uses ChatGPT to generate your project, and therefore requires you to provide it with an OpenAI API key.",
+            "You can obtain this key via your OpenAI account's user settings (https://platform.openai.com/account/api-keys).",
+            "Then, add",
+            "  export OPENAI_API_KEY=<yourkeyhere>",
+            "to .bash_profile or .profile, restart your shell, and you should be good to go."
+          ]
 
 newProjectDetails :: String -> String -> NewProjectDetails
 newProjectDetails webAppName webAppDescription =

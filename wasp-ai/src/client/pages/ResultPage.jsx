@@ -64,7 +64,7 @@ export const ResultPage = () => {
   const language = useMemo(() => {
     if (activeFilePath) {
       const ext = activeFilePath.split(".").pop();
-      if (["jsx", "tsx", "js", "ts"].includes(ext)) {
+      if (["jsx", "tsx", "js", "ts", "cjs"].includes(ext)) {
         return "javascript";
       } else if (["wasp"].includes(ext)) {
         return "wasp";
@@ -90,10 +90,10 @@ export const ResultPage = () => {
             path !== ".wasproot"
         )
         .sort((a, b) => {
-          if (a === a.endsWith(".wasp")) {
+          if (a.endsWith(".wasp") && !b.endsWith(".wasp")) {
             return -1;
           }
-          if (b === b.endsWith(".wasp")) {
+          if (!a.endsWith(".wasp") && b.endsWith(".wasp")) {
             return 1;
           }
           return a.split("/").length - b.split("/").length;
@@ -117,7 +117,9 @@ export const ResultPage = () => {
       /[^a-zA-Z0-9]/g,
       "_"
     );
-    createFilesAndDownloadZip(files, safeAppName);
+    const randomSuffix = Math.random().toString(36).substring(2, 7);
+    const appNameWithSuffix = `${safeAppName}-${randomSuffix}`;
+    createFilesAndDownloadZip(files, appNameWithSuffix);
   }
 
   function toggleLogs() {
@@ -125,12 +127,14 @@ export const ResultPage = () => {
   }
 
   function getEmoji(log) {
+    // log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "
     if (
       log.toLowerCase().includes("generated") ||
       log.toLowerCase().includes("fixed") ||
+      log.toLowerCase().includes("added") ||
       log.toLowerCase().includes("updated")
     ) {
-      return "✅";
+      return "✅ ";
     }
     if (log.toLowerCase().includes("done!")) {
       return "🎉";

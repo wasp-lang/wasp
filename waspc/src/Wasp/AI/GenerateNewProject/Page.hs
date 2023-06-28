@@ -75,6 +75,16 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
         Queries:
         ${queriesInfo}
 
+        You should use Tailwind to style your pages. Example of Tailwind usage:
+
+        ```jsx
+          <div className="p-4 bg-slate-50 rounded-lg">
+            <button className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded">
+              Button
+            </button>
+          </div>
+        ```
+
         Let's now implement the following Wasp page:
          - name: ${pageName}
          - component: ${componentPath}
@@ -104,7 +114,7 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
         }
         ```
 
-        Example of ReactJS implementation:
+        Example of ReactJS implementation (you can use Tailwind CSS for styling):
 
         ```jsx
           import React from 'react';
@@ -122,11 +132,11 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
             if (error) return 'Error: ' + error;
 
             return (
-              <div>
+              <div className="p-4 bg-slate-50">
                 {user.username}
                 {task.id}
-                <button onClick={createTask({description: 'new task'})}> + </button>
-                <button onClick={logout}> Logout </button>
+                <button onClick={createTask({description: 'new task'})} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> + </button>
+                <button onClick={logout} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> Logout </button>
               </div>
             );
           };

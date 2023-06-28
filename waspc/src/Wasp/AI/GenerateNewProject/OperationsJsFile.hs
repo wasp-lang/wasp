@@ -70,6 +70,9 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
               Fix these by replacing them with actual implementation.
             - Duplicate imports. If there are any, make sure to remove them.
             - Redundant imports of prisma client or of prisma entities. Those imports are not needed -> remove them!
+
+              We are not using PrismaClient directly, we are using it through the context. For example: `context.entities.Task.findMany({})`
+
             - There might be some invalid JS syntax -> fix it if there is any.
             - If there is some obvious refactoring that could improve code quality, go for it.
 
