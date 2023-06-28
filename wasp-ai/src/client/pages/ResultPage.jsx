@@ -125,23 +125,32 @@ export const ResultPage = () => {
   }
 
   function getEmoji(log) {
-    // log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "
-    if (log.toLowerCase().includes("generated")) {
-      return "✅ ";
+    if (
+      log.toLowerCase().includes("generated") ||
+      log.toLowerCase().includes("fixed") ||
+      log.toLowerCase().includes("updated")
+    ) {
+      return "✅";
     }
     if (log.toLowerCase().includes("done!")) {
-      return "🎉 ";
+      return "🎉";
     }
     if (
       log.toLowerCase().includes("error") ||
       log.toLowerCase().includes("fail")
     ) {
-      return "❌ ";
+      return "❌";
     }
     if (log.toLowerCase().includes("warning")) {
-      return "⚠️ ";
+      return "⚠️";
     }
-    return "⌛️ ";
+    if (log.toLowerCase().includes("tokens usage")) {
+      return "📊";
+    }
+    if (log.toLowerCase().endsWith("...")) {
+      return "⌛️";
+    }
+    return "🤖";
   }
 
   return (
@@ -197,7 +206,7 @@ export const ResultPage = () => {
                         : (previewLogsCount - i) * (1 / previewLogsCount),
                     }}
                   >
-                    {getEmoji(log)}
+                    {getEmoji(log) + " "}
                     {log}
                   </pre>
                 ))}

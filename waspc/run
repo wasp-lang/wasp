@@ -92,8 +92,8 @@ print_usage () {
                     "Runs the code formatter and formats the code in place."
     print_usage_cmd "module-graph" \
                     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
-    print_usage_cmd "wasp-deploy:compile" \
-                    "Compiles the TS project under packages/deploy"
+    print_usage_cmd "wasp-packages:compile" \
+                    "Compiles the TS projects under packages/."
 }
 
 exitStatusToString () {

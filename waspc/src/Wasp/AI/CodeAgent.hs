@@ -10,6 +10,7 @@ module Wasp.AI.CodeAgent
     getFile,
     getAllFiles,
     queryChatGPT,
+    getTotalTokensUsage,
   )
 where
 
@@ -35,7 +36,7 @@ runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
 runCodeAgent config codeAgent =
   fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState
   where
-    initialState = CodeAgentState {_files = H.empty}
+    initialState = CodeAgentState {_files = H.empty, _usage = []}
 
 writeToLog :: Text -> CodeAgent ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
@@ -56,12 +57,24 @@ getFile path = gets $ H.lookup path . _files
 getAllFiles :: CodeAgent [(FilePath, Text)]
 getAllFiles = gets $ H.toList . _files
 
--- TODO: Make it so that if ChatGPT replies with being too busy, we try again.
 queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent Text
 queryChatGPT params messages = do
   key <- asks _openAIApiKey
-  liftIO $ ChatGPT.queryChatGPT key params messages
+  chatResponse <- liftIO $ ChatGPT.queryChatGPT key params messages
+  modify $ \s -> s {_usage = _usage s <> [ChatGPT.usage chatResponse]}
+  return $ ChatGPT.getChatResponseContent chatResponse
+
+type NumTokens = Int
+
+-- | Returns total tokens usage: (<num_prompt_tokens>, <num_completion_tokens>).
+getTotalTokensUsage :: CodeAgent (NumTokens, NumTokens)
+getTotalTokensUsage = do
+  usage <- gets _usage
+  let numPromptTokens = sum $ ChatGPT.prompt_tokens <$> usage
+  let numCompletionTokens = sum $ ChatGPT.completion_tokens <$> usage
+  return (numPromptTokens, numCompletionTokens)
 
 data CodeAgentState = CodeAgentState
-  { _files :: H.HashMap FilePath Text -- TODO: Name this "cacheFiles" maybe?
+  { _files :: H.HashMap FilePath Text, -- TODO: Name this "cacheFiles" maybe?
+    _usage :: [ChatGPT.ChatResponseUsage]
   }

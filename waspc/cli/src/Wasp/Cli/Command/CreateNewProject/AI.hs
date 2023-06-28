@@ -103,7 +103,7 @@ createNewProjectNonInteractiveToStdout projectName appDescription = do
 generateNewProject :: CA.CodeAgentConfig -> NewProjectAppName -> String -> IO ()
 generateNewProject codeAgentConfig (NewProjectAppName appName) appDescription = do
   waspProjectSkeletonFiles <- readWaspProjectSkeletonFiles
-  CA.runCodeAgent codeAgentConfig $
+  CA.runCodeAgent codeAgentConfig $ do
     GNP.generateNewProject (newProjectDetails appName appDescription) waspProjectSkeletonFiles
 
 getOpenAIApiKey :: Command OpenAIApiKey

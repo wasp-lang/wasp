@@ -9,6 +9,7 @@ module Wasp.AI.OpenAI.ChatGPT
     ChatResponseChoice (..),
     ChatMessage (..),
     ChatRole (..),
+    getChatResponseContent,
   )
 where
 
@@ -26,7 +27,7 @@ import UnliftIO.Exception (catch, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.Util.IO.Retry as R
 
-queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO Text
+queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO ChatResponse
 queryChatGPT apiKey params requestMessages = do
   let reqBodyJson =
         Aeson.object $
@@ -59,7 +60,7 @@ queryChatGPT apiKey params requestMessages = do
       )
       $ return ()
 
-  return $ content $ message $ head $ choices chatResponse
+  return chatResponse
   where
     secondsToMicroSeconds :: Int -> Int
     secondsToMicroSeconds = (* 1000000)
@@ -75,6 +76,9 @@ queryChatGPT apiKey params requestMessages = do
             `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ConnectionTimeout) -> pure $ Left e)
         )
         >>= either throwIO pure
+
+getChatResponseContent :: ChatResponse -> Text
+getChatResponseContent = content . message . head . choices
 
 data ChatGPTParams = ChatGPTParams
   { _model :: !Model,

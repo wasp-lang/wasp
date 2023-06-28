@@ -9,7 +9,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import StrongPath (File', Path, Rel, System)
-import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
+import Text.Printf (printf)
+import Wasp.AI.CodeAgent (CodeAgent, getTotalTokensUsage, writeToLog)
 import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
 import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation, getOperationJsFilePath)
@@ -42,7 +43,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog $ "Plan generated!\n" <> summarizePlan plan
 
   writeEntitiesToWaspFile waspFilePath (Plan.entities plan)
-  writeToLog "Added entities to wasp file."
+  writeToLog "Updated wasp file with entities."
 
   writeToLog "Generating actions..."
   actions <-
@@ -72,11 +73,13 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
     writeToLog $ T.pack $ "Fixed NodeJS operations file '" <> opFp <> "'."
   writeToLog "NodeJS operations files fixed."
 
-  -- TODO: what about having additional step here that goes through all the files once again and
-  --   fixes any stuff in them (Wasp, JS files)? REPL?
+  -- TODO: Also try fixing Pages / JSX files.
 
-  -- TODO: Consider going through all the prompts and trying to reduce their length,
-  --   to make sure we are not droping anyting out of context + that we are not wasteful.
+  (promptTokensUsed, completionTokensUsed) <- getTotalTokensUsage
+  writeToLog $
+    T.pack $
+      printf "Total tokens usage: ~%.1fk" $
+        fromIntegral (promptTokensUsed + completionTokensUsed) / (1000 :: Double)
 
   writeToLog "Done!"
   where
