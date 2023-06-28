@@ -49,10 +49,10 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/basic/.gitignore
-  Cli/templates/basic/.wasproot
-  Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  Cli/templates/skeleton/.gitignore
+  Cli/templates/skeleton/.wasproot
+  Cli/templates/skeleton/src/.waspignore
   packages/deploy/dist/**/*.js
   packages/deploy/package.json
   packages/deploy/package-lock.json
