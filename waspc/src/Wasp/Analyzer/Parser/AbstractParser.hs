@@ -126,12 +126,12 @@ coerceDict syntax = do
 coerceEntries :: NodesPartialParser [(Identifier, WithCtx Expr)]
 coerceEntries [] = return ([], [])
 coerceEntries (n@(SyntaxNode kind width children) : remaining)
-  | kind == S.DictEntry = (first . (:)) <$> coerceEntry children <*> coerceEntries remaining
+  | kind == S.DictEntry = first . mcons <$> coerceEntry children <*> coerceEntries remaining
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceEntries remaining
   | otherwise = return ([], n : remaining)
 
-coerceEntry :: NodesParser (Identifier, WithCtx Expr)
-coerceEntry syntax = do
+coerceEntry :: NodesParser (Maybe (Identifier, WithCtx Expr))
+coerceEntry = nodesParserRecover $ \syntax -> do
   (dictKey, _, expr) <-
     runNodesPartialParser syntax $
       sequence3
@@ -172,8 +172,10 @@ coerceValues [] = return ([], [])
 coerceValues (n@(SyntaxNode kind width _) : remaining)
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceValues remaining
   | S.syntaxKindIsExpr kind = do
-      expr <- runNodesPartialParser [n] coerceExpr
-      first (expr :) <$> coerceValues remaining
+      -- Recovers without consuming any nodes: this is ok because 'runNodesPartialParser'
+      -- will consume all the nodes in that case.
+      mbExpr <- runNodesPartialParser [n] $ nodesPartialParserRecoverAt (const True) coerceExpr
+      first (mbExpr `mcons`) <$> coerceValues remaining
   | otherwise = return ([], n : remaining)
 
 coerceExtImport :: NodesParser Expr
@@ -286,12 +288,33 @@ coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
 
--- | Try running a node parser, properly using the node on failure.
+-- | Try running a 'NodeParser', properly using the node on failure.
 nodeParserRecover :: NodeParser a -> NodeParser (Maybe a)
 nodeParserRecover parser node =
   try (parser node) >>= \case
     Right a -> return $ Just a
     Left _ -> advance (S.snodeWidth node) >> return Nothing
+
+-- | Try running a 'NodesParser', properly using the nodes on failure.
+nodesParserRecover :: NodesParser a -> NodesParser (Maybe a)
+nodesParserRecover parser nodes =
+  try (parser nodes) >>= \case
+    Right a -> return $ Just a
+    Left _ -> advance (sum $ map S.snodeWidth nodes) >> return Nothing
+
+nodesPartialParserRecoverAt :: (SyntaxKind -> Bool) -> NodesPartialParser a -> NodesPartialParser (Maybe a)
+nodesPartialParserRecoverAt cond parser nodes =
+  try (parser nodes) >>= \case
+    Right (a, remaining) -> return (Just a, remaining)
+    Left _ -> do
+      let (use, remaining) = break (cond . S.snodeKind) nodes
+      advance $ sum $ map S.snodeWidth use
+      return (Nothing, remaining)
+
+-- | @mbX `mcons` xs@ conses a value to a list if the value exists.
+mcons :: Maybe a -> [a] -> [a]
+mcons (Just x) xs = x : xs
+mcons Nothing xs = xs
 
 -- | Alias for 'pstatePos'
 pstateStartPos :: ParseState -> SourcePosition
