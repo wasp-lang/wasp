@@ -9,7 +9,8 @@ module Wasp.AI.GenerateNewProject.Operation
 where
 
 import Data.Aeson (FromJSON)
-import Data.List (isPrefixOf)
+import Data.Aeson.Types (ToJSON)
+import Data.List (find, intercalate, isInfixOf, isPrefixOf)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
@@ -26,6 +27,8 @@ import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
 import Wasp.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
+import qualified Wasp.Analyzer.Parser as P
+import qualified Wasp.Util.Aeson as Util.Aeson
 
 generateAndWriteOperation :: OperationType -> NewProjectDetails -> FilePath -> Plan -> Plan.Operation -> CodeAgent Operation
 generateAndWriteOperation operationType newProjectDetails waspFilePath plan operationPlan = do
@@ -37,7 +40,9 @@ generateAndWriteOperation operationType newProjectDetails waspFilePath plan oper
 
 generateOperation :: OperationType -> NewProjectDetails -> [Plan.Entity] -> Plan.Operation -> CodeAgent Operation
 generateOperation operationType newProjectDetails entityPlans operationPlan = do
-  impl <- queryChatGPTForJSON defaultChatGPTParams chatMessages
+  impl <-
+    queryChatGPTForJSON defaultChatGPTParams chatMessages
+      >>= fixOperationImplIfNeeded
   return Operation {opImpl = impl, opPlan = operationPlan, opType = operationType}
   where
     chatMessages =
@@ -69,12 +74,27 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
          - description: ${operationDesc}
 
         Please, respond ONLY with a valid JSON, of following format:
-        { "opWaspDecl": "${operationTypeText} ${operationName} {\n ... }",
-          "opJsImpl": "export const {$operationName} ... ",
-          "opJsImports": "import foo from \"bar.js\"\n ...""
+        { "opWaspDecl": string,  // Wasp declaration.
+          "opJsImpl": string,    // Javascript implementation that will go into ${operationFnPath} file.
+          "opJsImports": string  // Javascript imports that will go into ${operationFnPath} file, needed by the JS implementation.
         }
-        "waspDeclaration" and "jsImplementation" are required, "jsImports" you can skip if none are needed.
-        There should be no other text in the response.
+
+        Example of response:
+        { "opWaspDecl": "${operationTypeText} ${operationName} {\n  fn: import { ${operationName} } from \"${operationFnPath}\",\n  entities: [Task]\n}",
+          "opJsImpl": "export const {$operationName} = async (args, context) => { ... }",
+          "opJsImports": "import HttpError from '@wasp/core/HttpError.js'"
+        }
+        "opWaspDecl" and "opJsImpl" are required, "opJsImports" you can skip if none are needed.
+        There should be no other text in the response, just valid JSON.
+
+        Additional strong guidelines for you to follow:
+         - There should typically be at least one entity listed under `entities` field in the wasp declaration.
+         - Don't ever put "..." or "//TODO" comments in the wasp declaration (`opWaspDecl`) or js implementation (`opJsImpl`).
+           Instead, always write real implementation!
+         - Don't import prisma client in the JS imports, it is not needed.
+         - In wasp declaration (`opWaspDecl`), make sure to use ',' before `entities:`.
+           Also, make sure to use full import statement for `fn:`: `import { getTasks } from "@server/actions.js"`,
+           don't provide just the file path.
 
         ${appDescriptionStartMarkerLine}
 
@@ -148,6 +168,74 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
         Query can then be easily called from the client, via Wasp's RPC mechanism.
       |]
 
+    fixOperationImplIfNeeded :: OperationImpl -> CodeAgent OperationImpl
+    fixOperationImplIfNeeded operationImpl = do
+      let issues = checkWaspDecl operationImpl <> checkJsImpl operationImpl
+      if null issues
+        then return operationImpl
+        else do
+          let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
+          queryChatGPTForJSON defaultChatGPTParams $
+            chatMessages
+              <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText operationImpl},
+                   ChatMessage
+                     { role = User,
+                       content =
+                         [trimming|
+                           I found following potential issues with the ${operationTypeText} that you generated:
+
+                           ${issuesText}
+
+                           Please improve the ${operationTypeText} with regard to these issues and any other potential issues that you find.
+
+                           Respond ONLY with a valid JSON that is an ${operationTypeText}.
+                           There should be no other text or explanations in the response.
+                         |]
+                     }
+                 ]
+
+-- TODO: This is quite manual here, checking the AST!
+-- Consider instead generating entities during assembling Plan,
+-- and then using those to manually construct the wasp decl, so we are
+-- sure it is correct and don't have to check it here.
+-- Check for number of entities would then go into plan.
+checkWaspDecl :: OperationImpl -> [String]
+checkWaspDecl operationImpl =
+  case P.parseStatements $ opWaspDecl operationImpl of
+    Left err -> [show err]
+    Right
+      P.AST
+        { astStmts =
+            [P.WithCtx _ (P.Decl _ _ (P.WithCtx _ (P.Dict dictEntries)))]
+        } ->
+        let entitiesIssues = case find ((== "entities") . fst) dictEntries of
+              Nothing -> ["There is no `entities` field."]
+              Just ("entities", P.WithCtx _ (P.List entities)) ->
+                if null entities
+                  then ["There are 0 entities listed, typically there should be at least 1."]
+                  else []
+              Just _wrongShape -> ["'entities' field is of of wrong shape, it should be a list."]
+            fnIssues = case find ((== "fn") . fst) dictEntries of
+              Nothing -> ["There is no `fn` field."]
+              Just ("fn", P.WithCtx _ (P.ExtImport _name _path)) -> []
+              Just _wrongShape -> ["`fn` field is of of wrong shape."]
+         in entitiesIssues <> fnIssues
+    Right _wrongShape -> ["Operation declaration should be a dictionary."]
+
+checkJsImpl :: OperationImpl -> [String]
+checkJsImpl operationImpl =
+  let todoIssue =
+        if "TODO" `isInfixOf` jsImpl
+          then ["Seems like there is a 'TODO' in the js implementation. Replace it with real implementation!"]
+          else []
+      threeDotsIssue =
+        if "..." `isInfixOf` jsImpl
+          then ["Seems like there is a '...' in the js implementation. Replace it with real implementation!"]
+          else []
+   in todoIssue <> threeDotsIssue
+  where
+    jsImpl = opJsImpl operationImpl
+
 writeOperationToJsFile :: Operation -> CodeAgent ()
 writeOperationToJsFile operation =
   -- TODO: An issue we have here is that if other operation already did the same import,
@@ -193,3 +281,5 @@ data OperationImpl = OperationImpl
   deriving (Generic, Show)
 
 instance FromJSON OperationImpl
+
+instance ToJSON OperationImpl

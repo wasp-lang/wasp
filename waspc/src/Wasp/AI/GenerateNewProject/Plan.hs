@@ -63,12 +63,12 @@ generatePlan newProjectDetails planRules = do
             "entityBodyPsl": "id Int @id \n name String"
           }],
           "actions": [{
-            "opName": "ActionName",
+            "opName": "actionName",
             "opFnPath": "@server/{filename}.js",
             "opDesc": "description of what this action does"
           }],
           "queries": [{
-            "opName": "QueryName",
+            "opName": "queryName",
             "opFnPath": "@server/{filename}.js",
             "opDesc": "description of what this query does"
           }],
