@@ -144,6 +144,7 @@ library
     Wasp.AI.GenerateNewProject.Common.Prompts
     Wasp.AI.GenerateNewProject.Entity
     Wasp.AI.GenerateNewProject.Operation
+    Wasp.AI.GenerateNewProject.OperationsJsFile
     Wasp.AI.GenerateNewProject.Page
     Wasp.AI.GenerateNewProject.Plan
     Wasp.AI.GenerateNewProject.Skeleton

@@ -3,7 +3,8 @@ module Wasp.AI.GenerateNewProject
   )
 where
 
-import Control.Monad (forM)
+import Control.Monad (forM, forM_)
+import Data.List (nub)
 import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
@@ -11,7 +12,8 @@ import StrongPath (File', Path, Rel, System)
 import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
-import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation)
+import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation, getOperationJsFilePath)
+import Wasp.AI.GenerateNewProject.OperationsJsFile (fixOperationsJsFile)
 import Wasp.AI.GenerateNewProject.Page (generateAndWritePage)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
@@ -63,6 +65,12 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog "Fixing any mistakes in Wasp file..."
   fixWaspFile newProjectDetails waspFilePath
   writeToLog "Wasp file fixed."
+
+  writeToLog "Fixing any mistakes in NodeJS operations files..."
+  forM_ (nub $ getOperationJsFilePath <$> (queries <> actions)) $ \opFp -> do
+    fixOperationsJsFile newProjectDetails waspFilePath opFp
+    writeToLog $ T.pack $ "Fixed NodeJS operations file '" <> opFp <> "'."
+  writeToLog "NodeJS operations files fixed."
 
   -- TODO: what about having additional step here that goes through all the files once again and
   --   fixes any stuff in them (Wasp, JS files)? REPL?

@@ -5,12 +5,16 @@ module Wasp.AI.GenerateNewProject.Operation
     Operation (..),
     OperationType (..),
     OperationImpl (..),
+    actionDocPrompt,
+    queryDocPrompt,
+    getOperationJsFilePath,
   )
 where
 
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
 import Data.List (find, intercalate, isInfixOf, isPrefixOf)
+import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
@@ -106,68 +110,6 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
       Action -> actionDocPrompt
       Query -> queryDocPrompt
 
-    actionDocPrompt =
-      [trimming|
-        Action is implemented via Wasp declaration and corresponding NodeJS implementation.
-
-        Example of Wasp declaration:
-
-        ```wasp
-        action updateTaskIsDone {
-          fn: import { updateTaskIsDone } from "@server/taskActions.js",
-          entities: [Task] // Entities that action uses.
-        }
-        ```
-
-        Example of NodeJS implementation:
-
-        ```js
-        import HttpError from '@wasp/core/HttpError.js'
-
-        export const updateTaskIsDone = (args, context) => {
-          if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
-
-          return context.entities.Task.update({ // prisma object
-            where: { args.id },
-            data: { args.isDone }
-          })
-        }
-        ```
-
-        Action can then be easily called from the client, via Wasp's RPC mechanism.
-      |]
-
-    queryDocPrompt =
-      [trimming|
-        Query is implemented via Wasp declaration and corresponding NodeJS implementation.
-        It is important that Query doesn't do any mutations, be it on the server or external world.
-
-        Example of Wasp declaration:
-
-        ```wasp
-        query fetchFilteredTasks {
-          fn: import { getFilteredTasks } from "@server/taskQueries.js",
-          entities: [Task] // Entities that query uses.
-        }
-        ```
-
-        Example of NodeJS implementation:
-
-        ```js
-        import HttpError from '@wasp/core/HttpError.js'
-
-        export const getFilteredTasks = async (args, context) => {
-          if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
-
-          return context.entities.Task.findMany({
-            where: { isDone: args.isDone }
-          })
-        }
-        ```
-
-        Query can then be easily called from the client, via Wasp's RPC mechanism.
-      |]
-
     fixOperationImplIfNeeded :: OperationImpl -> CodeAgent OperationImpl
     fixOperationImplIfNeeded operationImpl = do
       let issues = checkWaspDecl operationImpl <> checkJsImpl operationImpl
@@ -193,6 +135,70 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
                          |]
                      }
                  ]
+
+actionDocPrompt :: Text
+actionDocPrompt =
+  [trimming|
+    Action is implemented via Wasp declaration and corresponding NodeJS implementation.
+
+    Example of Wasp declaration:
+
+    ```wasp
+    action updateTaskIsDone {
+      fn: import { updateTaskIsDone } from "@server/taskActions.js",
+      entities: [Task] // Entities that action uses.
+    }
+    ```
+
+    Example of NodeJS implementation:
+
+    ```js
+    import HttpError from '@wasp/core/HttpError.js'
+
+    export const updateTaskIsDone = (args, context) => {
+      if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
+
+      return context.entities.Task.update({ // prisma object
+        where: { args.id },
+        data: { args.isDone }
+      })
+    }
+    ```
+
+    Action can then be easily called from the client, via Wasp's RPC mechanism.
+  |]
+
+queryDocPrompt :: Text
+queryDocPrompt =
+  [trimming|
+    Query is implemented via Wasp declaration and corresponding NodeJS implementation.
+    It is important that Query doesn't do any mutations, be it on the server or external world.
+
+    Example of Wasp declaration:
+
+    ```wasp
+    query fetchFilteredTasks {
+      fn: import { getFilteredTasks } from "@server/taskQueries.js",
+      entities: [Task] // Entities that query uses.
+    }
+    ```
+
+    Example of NodeJS implementation:
+
+    ```js
+    import HttpError from '@wasp/core/HttpError.js'
+
+    export const getFilteredTasks = async (args, context) => {
+      if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
+
+      return context.entities.Task.findMany({
+        where: { isDone: args.isDone }
+      })
+    }
+    ```
+
+    Query can then be easily called from the client, via Wasp's RPC mechanism.
+  |]
 
 -- TODO: This is quite manual here, checking the AST!
 -- Consider instead generating entities during assembling Plan,
@@ -240,16 +246,23 @@ writeOperationToJsFile :: Operation -> CodeAgent ()
 writeOperationToJsFile operation =
   -- TODO: An issue we have here is that if other operation already did the same import,
   --   we don't know and we import it again.
-  --   One thing we can do it supply chatGPT with a list of imports that are already there.
-  --   Second thing we can do is to look for same lines at the start of the file, but that sounds fragile.
+  --   One thing we can do is supply chatGPT with a list of imports that are already there.
+  --   Second thing we can do is to look for same lines at the start of the file, but that sounds
+  --   fragile.
   --   Maybe best to read and pass previous imports (we would have to do that above somewhere).
   --   Or even the whole file? Hmmmmm.
+  --   Right now we fix this later, while fixing the whole operations file, but we could try to fix
+  --   it here, earlier.
   writeToFile path $
     (jsImportsBlock <>) . (<> jsImpl) . maybe "" (<> "\n\n")
   where
-    path = resolvePath $ Plan.opFnPath $ opPlan operation
+    path = getOperationJsFilePath operation
     jsImpl = T.pack $ opJsImpl $ opImpl operation
     jsImportsBlock = T.pack $ maybe "" (<> "\n") $ opJsImports $ opImpl operation
+
+getOperationJsFilePath :: Operation -> FilePath
+getOperationJsFilePath operation = resolvePath $ Plan.opFnPath $ opPlan operation
+  where
     pathPrefix = "@server/"
     resolvePath p | pathPrefix `isPrefixOf` p = "src/" <> drop (length ("@" :: String)) p
     resolvePath _ = error "path incorrectly formatted, should start with " <> pathPrefix <> "."
