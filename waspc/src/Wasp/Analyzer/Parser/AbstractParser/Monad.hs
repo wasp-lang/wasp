@@ -11,7 +11,7 @@ module Wasp.Analyzer.Parser.AbstractParser.Monad
 where
 
 import Control.Monad.Except (Except, runExcept, throwError)
-import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
+import Control.Monad.State.Strict (StateT, gets, modify, runStateT)
 import Wasp.Analyzer.Parser.CST (SyntaxKind)
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
@@ -20,7 +20,8 @@ data ParseState = ParseState
   { pstateLine :: !Int,
     pstateColumn :: !Int,
     pstateLastLineLength :: !Int,
-    pstateRemainingSource :: String
+    pstateRemainingSource :: String,
+    pstateErrors :: [ParseError]
   }
 
 pstatePos :: ParseState -> SourcePosition
@@ -28,15 +29,21 @@ pstatePos s = SourcePosition (pstateLine s) (pstateColumn s)
 
 type ParserM a = StateT ParseState (Except ParseError) a
 
-runParserM :: String -> ParserM a -> Either ParseError a
-runParserM source parser = runExcept $ evalStateT parser initialState
+runParserM :: String -> ParserM a -> Either [ParseError] a
+runParserM source parser = case runExcept $ runStateT parser initialState of
+  Left err -> Left [err]
+  Right (result, finalState) ->
+    if not (null $ pstateErrors finalState)
+      then Left $ pstateErrors finalState
+      else Right result
   where
     initialState =
       ParseState
         { pstateLine = 1,
           pstateColumn = 1,
           pstateLastLineLength = 1,
-          pstateRemainingSource = source
+          pstateRemainingSource = source,
+          pstateErrors = []
         }
 
 consume :: Int -> ParserM String

@@ -216,10 +216,8 @@ analyzeWaspFile uri = do
       case analyzeResult of
         Right _ -> do
           modify (latestDiagnostics .~ [])
-        Left err -> do
-          let newDiagnostics =
-                [ AnalyzerDiagonstic err
-                ]
+        Left errs -> do
+          let newDiagnostics = map AnalyzerDiagonstic errs
           modify (latestDiagnostics .~ newDiagnostics)
 
 -- | Read the contents of a "Uri" in the virtual file system maintained by the

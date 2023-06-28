@@ -41,7 +41,7 @@ type NodesPartialParser a = [SyntaxNode] -> ParserM (a, [SyntaxNode])
 
 -- | @parseStatements sourceString syntax@ tries to convert a concrete syntax
 -- tree into an AST.
-parseStatements :: String -> [SyntaxNode] -> Either ParseError AST
+parseStatements :: String -> [SyntaxNode] -> Either [ParseError] AST
 parseStatements source syntax = runParserM source $ coerceProgram syntax
 
 -- | @parseExpression sourceString syntax@ tries to convert a concrete syntax
@@ -52,9 +52,9 @@ parseStatements source syntax = runParserM source $ coerceProgram syntax
 --
 -- This should never cause any issues: correct output from the CST parser will
 -- not have any extra nodes (besides trivia nodes).
-parseExpression :: String -> [SyntaxNode] -> Either ParseError Expr
+parseExpression :: String -> [SyntaxNode] -> Either [ParseError] Expr
 parseExpression source syntax = case runParserM source $ coerceExpr syntax of
-  Left err -> Left err
+  Left errs -> Left errs
   Right (WithCtx _ expr, _) -> Right expr
 
 -- | Try to turn CST into top-level AST.
