@@ -9,7 +9,7 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.AI (createNewProjectForHuman)
+import Wasp.Cli.Command.CreateNewProject.AI (createNewProjectInteractiveOnDisk)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (parseNewProjectArgs)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
@@ -67,4 +67,4 @@ createProjectOnDisk
       LocalStarterTemplate metadata ->
         liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
       AiGeneratedStarterTemplate ->
-        createNewProjectForHuman absWaspProjectDir appName
+        createNewProjectInteractiveOnDisk absWaspProjectDir appName

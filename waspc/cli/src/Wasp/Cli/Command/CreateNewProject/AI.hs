@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.CreateNewProject.AI
-  ( createNewProjectForHuman,
-    createNewProjectForMachine,
+  ( createNewProjectInteractiveOnDisk,
+    createNewProjectNonInteractiveOnDisk,
+    createNewProjectNonInteractiveToStdout,
   )
 where
 
@@ -19,42 +20,53 @@ import qualified Wasp.AI.GenerateNewProject as GNP
 import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), parseWaspProjectNameIntoAppName)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), obtainAvailableProjectDirPath, parseWaspProjectNameIntoAppName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
 
-createNewProjectForHuman :: Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> Command ()
-createNewProjectForHuman waspProjectDir appName = do
+createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> Command ()
+createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
-
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences:\n"
+  liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription
 
-  liftIO $ do
-    createDirectory $ fromAbsDir waspProjectDir
-    setCurrentDirectory $ fromAbsDir waspProjectDir
+createNewProjectNonInteractiveOnDisk :: String -> String -> Command ()
+createNewProjectNonInteractiveOnDisk projectName appDescription = do
+  appName <- case parseWaspProjectNameIntoAppName projectName of
+    Right appName -> pure appName
+    Left err -> throwError $ CommandError "Invalid project name" err
+  waspProjectDir <- obtainAvailableProjectDirPath projectName
+  openAIApiKey <- getOpenAIApiKey
+  liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription
 
-  let codeAgentConfig =
-        CA.CodeAgentConfig
-          { CA._openAIApiKey = openAIApiKey,
-            CA._writeFile = writeFileToDisk,
-            CA._writeLog = forwardLogToStdout
-          }
-
-  liftIO $ generateNewProject codeAgentConfig appName appDescription
+createNewProjectOnDisk :: OpenAIApiKey -> Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> String -> IO ()
+createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription = do
+  createDirectory $ fromAbsDir waspProjectDir
+  setCurrentDirectory $ fromAbsDir waspProjectDir
+  generateNewProject codeAgentConfig appName appDescription
   where
+    codeAgentConfig =
+      CA.CodeAgentConfig
+        { CA._openAIApiKey = openAIApiKey,
+          CA._writeFile = writeFileToDisk,
+          CA._writeLog = forwardLogToStdout
+        }
+
     writeFileToDisk path content = do
       createDirectoryIfMissing True (takeDirectory path)
       T.IO.writeFile path content
-      putStrLn $ "[info] Wrote file at " <> path
+      putStrLn $ "> Wrote file at " <> path
       hFlush stdout
 
     forwardLogToStdout msg = do
       putStrLn . T.unpack $ msg
       hFlush stdout
 
-createNewProjectForMachine :: String -> String -> Command ()
-createNewProjectForMachine projectName appDescription = do
+-- | Instead of writing files to disk, it will write files (and logs) to the stdout,
+-- with delimiters that make it easy to programmaticaly parse the output.
+createNewProjectNonInteractiveToStdout :: String -> String -> Command ()
+createNewProjectNonInteractiveToStdout projectName appDescription = do
   openAIApiKey <- getOpenAIApiKey
 
   appName <- case parseWaspProjectNameIntoAppName projectName of

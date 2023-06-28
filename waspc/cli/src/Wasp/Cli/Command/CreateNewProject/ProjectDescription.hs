@@ -4,6 +4,7 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
     NewProjectName (..),
     NewProjectAppName (..),
     parseWaspProjectNameIntoAppName,
+    obtainAvailableProjectDirPath,
   )
 where
 

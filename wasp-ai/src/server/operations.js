@@ -14,6 +14,8 @@ export async function startGeneratingNewApp (args, _context) {
     unconsumedStdout: ''
   }
 
+  // TODO: Replace `new-ai` call with `new-ai:stdout` because it is more explicit.
+  //   Then, also remove `new-ai` call from CLI, it will be redundant (cli/exe/Main.hs).
   let waspCliProcess = null
   if (process.env.NODE_ENV === 'production') {
     waspCliProcess = spawn('wasp', ['new-ai', args.appName, args.appDesc])
@@ -53,7 +55,7 @@ export async function startGeneratingNewApp (args, _context) {
   waspCliProcess.stderr.on('data', (data) => {
     console.error(data.toString())
   })
-  
+
   waspCliProcess.on('close', (code) => {
     console.log('WASP CLI PROCESS STOPPED')
     if (code === 0) {
