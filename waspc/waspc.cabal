@@ -341,6 +341,7 @@ library
     Wasp.SemanticVersion
     Wasp.TypeScript
     Wasp.Util
+    Wasp.Util.Aeson
     Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
     Wasp.Util.Fib
