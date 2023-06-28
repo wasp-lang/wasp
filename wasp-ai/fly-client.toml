@@ -1,0 +1,14 @@
+# fly.toml app configuration file generated for wasp-ai-client on 2023-06-27T10:39:16+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "wasp-ai-client"
+primary_region = "mad"
+
+[http_service]
+  internal_port = 8043
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
