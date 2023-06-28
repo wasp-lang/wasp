@@ -118,8 +118,8 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
 
         ```jsx
           import React from 'react';
-          import logout from '@wasp/auth/logout.js';
-          import useAuth from '@wasp/auth/useAuth.js';
+          import logout from '@wasp/auth/logout';
+          import useAuth from '@wasp/auth/useAuth';
           import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query
           import getTask from '@wasp/queries/getTasks';
           import createTask from '@wasp/actions/createTask';
