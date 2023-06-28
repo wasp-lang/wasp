@@ -26,6 +26,7 @@ export const ResultPage = () => {
     message: "Waiting for instructions",
   });
   const [logsVisible, setLogsVisible] = useState(false);
+  const [currentFiles, setCurrentFiles] = useState({});
 
   useEffect(() => {
     if (
@@ -60,6 +61,25 @@ export const ResultPage = () => {
     }, files);
     return files;
   }, [appGenerationResult]);
+
+  const freshlyUpdatedFilePaths = useMemo(() => {
+    const oldCurrentFiles = currentFiles;
+    setCurrentFiles(files);
+
+    const updatedFilePaths = [];
+
+    if (Object.keys(oldCurrentFiles).length) {
+      for (let path in files) {
+        if (files.hasOwnProperty(path)) {
+          if (files[path] !== oldCurrentFiles[path]) {
+            updatedFilePaths.push(path);
+          }
+        }
+      }
+    }
+
+    return updatedFilePaths;
+  }, [files])
 
   const language = useMemo(() => {
     if (activeFilePath) {
@@ -250,6 +270,7 @@ export const ResultPage = () => {
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
                 onActivePathSelect={setActiveFilePath}
+                freshlyUpdatedPaths={freshlyUpdatedFilePaths}
               />
               <p className="text-gray-500 text-sm my-4 leading-relaxed">
                 <strong>User provided prompt: </strong>
