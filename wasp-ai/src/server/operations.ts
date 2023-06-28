@@ -24,8 +24,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   if (!args.appDesc) {
     throw new HttpError(422, "App description is required.");
   }
-  // Create a new project
-  const { Project, File, Log } = context.entities;
+  const { Project, File } = context.entities;
   const project = await Project.create({
     data: {
       name: args.appName,

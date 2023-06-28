@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .button {
-  @apply bg-sky-600 text-white font-bold py-3 px-6 rounded text-center;
+  @apply bg-sky-600 text-white font-bold py-3 px-6 rounded text-center hover:bg-sky-500 transition duration-150;
 }
 .button.gray {
   @apply bg-slate-200 text-slate-600;
@@ -15,7 +15,7 @@
   @apply text-sm py-2 px-4;
 }
 .button:disabled {
-  @apply opacity-50 cursor-not-allowed;
+  @apply opacity-50 cursor-not-allowed pointer-events-none;
 }
 input,
 textarea {

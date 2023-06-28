@@ -138,7 +138,7 @@ export const ResultPage = () => {
 
       {logs && currentStatus.status !== "success" && (
         <>
-          <header className="mt-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
+          <header className="mt-4 mb-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3">
               <Loader />
             </div>
@@ -162,9 +162,14 @@ export const ResultPage = () => {
               </pre>
             )}
             {logs.length > 1 && (
-              <button onClick={toggleLogs}>
-                {logsVisible ? "Collapse the logs" : "Expand the logs"}
-              </button>
+              <div className="flex-shrink-0 ml-3">
+                <button
+                  onClick={toggleLogs}
+                  className="p-2 px-4 rounded-full bg-slate-800 hover:bg-slate-700"
+                >
+                  {logsVisible ? "Collapse the logs" : "Expand the logs"}
+                </button>
+              </div>
             )}
           </header>
         </>
