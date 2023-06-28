@@ -58,7 +58,9 @@ parseExpression source syntax = case runParserM source $ coerceExpr syntax of
   Left errs -> Left errs
   Right (WithCtx _ expr, _) -> Right expr
 
--- | Try to turn CST into top-level AST.
+-- | Try to turn CST into top-level 'AST'. Recovers from errors occuring inside
+-- each statement node. Statements with errors are not included in the returned
+-- 'AST'.
 coerceProgram :: NodesParser AST
 coerceProgram [] = return $ AST.AST []
 coerceProgram (SyntaxNode S.Program _ children : _) =
@@ -69,7 +71,8 @@ coerceProgram (SyntaxNode kind width _ : remaining)
   | otherwise = unexpectedNode kind "in root"
 
 -- | Try to turn CST into Stmt AST. Returns @Nothing@ if the given node is a
--- trivia node, or if it contains invalid syntax.
+-- trivia node. If parsing the node throws an error, the error is recovered from
+-- and 'Nothing' is returned.
 coerceStmt :: NodeParser (Maybe (WithCtx Stmt))
 coerceStmt (SyntaxNode S.Decl _ children) = do
   startPos <- gets pstateStartPos
@@ -95,22 +98,22 @@ coerceExpr [] = throwMissingSyntax "expression"
 coerceExpr (SyntaxNode kind width children : remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceExpr remaining
   | otherwise = do
-      startPos <- gets pstateStartPos
-      expr <- case kind of
-        S.String -> AST.StringLiteral . read <$> consume width
-        S.Int -> AST.IntegerLiteral . read <$> consume width
-        S.Double -> AST.DoubleLiteral . read <$> consume width
-        S.BoolTrue -> advance width >> return (AST.BoolLiteral True)
-        S.BoolFalse -> advance width >> return (AST.BoolLiteral False)
-        S.Var -> AST.Var <$> consume width
-        S.Dict -> coerceDict children
-        S.List -> coerceList children
-        S.Tuple -> coerceTuple children
-        S.ExtImport -> coerceExtImport children
-        S.Quoter -> coerceQuoter children
-        _ -> unexpectedNode kind "where an expression was expected"
-      endPos <- gets pstateEndPos
-      return (WithCtx (ctxFromRgn startPos endPos) expr, remaining)
+    startPos <- gets pstateStartPos
+    expr <- case kind of
+      S.String -> AST.StringLiteral . read <$> consume width
+      S.Int -> AST.IntegerLiteral . read <$> consume width
+      S.Double -> AST.DoubleLiteral . read <$> consume width
+      S.BoolTrue -> advance width >> return (AST.BoolLiteral True)
+      S.BoolFalse -> advance width >> return (AST.BoolLiteral False)
+      S.Var -> AST.Var <$> consume width
+      S.Dict -> coerceDict children
+      S.List -> coerceList children
+      S.Tuple -> coerceTuple children
+      S.ExtImport -> coerceExtImport children
+      S.Quoter -> coerceQuoter children
+      _ -> unexpectedNode kind "where an expression was expected"
+    endPos <- gets pstateEndPos
+    return (WithCtx (ctxFromRgn startPos endPos) expr, remaining)
 
 coerceDict :: NodesParser Expr
 coerceDict syntax = do
@@ -123,6 +126,9 @@ coerceDict syntax = do
         )
   return $ AST.Dict entries
 
+-- | Parse the comma-separated list of entries in a dictioanry. Recovers from
+-- errors that occur within each entry. If an error occurs while parsing an
+-- entry, that entry is not included in the returned list.
 coerceEntries :: NodesPartialParser [(Identifier, WithCtx Expr)]
 coerceEntries [] = return ([], [])
 coerceEntries (n@(SyntaxNode kind width children) : remaining)
@@ -130,6 +136,8 @@ coerceEntries (n@(SyntaxNode kind width children) : remaining)
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceEntries remaining
   | otherwise = return ([], n : remaining)
 
+-- | Parse a dictionary entry. If parsing throws an error, the error is recovered
+-- from and 'Nothing' is returned.
 coerceEntry :: NodesParser (Maybe (Identifier, WithCtx Expr))
 coerceEntry = nodesParserRecover $ \syntax -> do
   (dictKey, _, expr) <-
@@ -167,15 +175,18 @@ coerceTuple syntax = do
     (x1 : x2 : xs) -> return $ AST.Tuple (x1, x2, xs)
     _ -> throwError $ TupleTooFewValues (SourceRegion startPos endPos) (length values)
 
+-- | Parse a list of comma-separated expressions. Recovers from errors within
+-- each value in the list. Values with parse errors are not included in the
+-- returned list of expressions.
 coerceValues :: NodesPartialParser [WithCtx Expr]
 coerceValues [] = return ([], [])
 coerceValues (n@(SyntaxNode kind width _) : remaining)
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceValues remaining
   | S.syntaxKindIsExpr kind = do
-      -- Recovers without consuming any nodes: this is ok because 'runNodesPartialParser'
-      -- will consume all the nodes in that case.
-      mbExpr <- runNodesPartialParser [n] $ nodesPartialParserRecoverAt (const True) coerceExpr
-      first (mbExpr `mcons`) <$> coerceValues remaining
+    -- Recovers without consuming any nodes: this is ok because 'runNodesPartialParser'
+    -- will consume all the nodes in that case.
+    mbExpr <- runNodesPartialParser [n] $ nodesPartialParserRecoverAt (const True) coerceExpr
+    first (mbExpr `mcons`) <$> coerceValues remaining
   | otherwise = return ([], n : remaining)
 
 coerceExtImport :: NodesParser Expr
@@ -194,17 +205,17 @@ coerceExtImportName :: NodesPartialParser ExtImportName
 coerceExtImportName [] = throwMissingSyntax "external import name"
 coerceExtImportName (SyntaxNode kind width _ : remaining)
   | kind == S.ExtImportModule = do
-      name <- AST.ExtImportModule <$> consume width
-      return (name, remaining)
+    name <- AST.ExtImportModule <$> consume width
+    return (name, remaining)
   | kind == S.Token T.LCurly = do
-      advance width
-      ((name, _), syntax') <-
-        sequence2
-          ( coerceLexeme S.ExtImportField "external import field",
-            coerceLexeme (S.Token T.RCurly) "}"
-          )
-          remaining
-      return (AST.ExtImportField name, syntax')
+    advance width
+    ((name, _), syntax') <-
+      sequence2
+        ( coerceLexeme S.ExtImportField "external import field",
+          coerceLexeme (S.Token T.RCurly) "}"
+        )
+        remaining
+    return (AST.ExtImportField name, syntax')
   | S.syntaxKindIsTrivia kind = advance width >> coerceExtImportName remaining
   | otherwise = unexpectedNode kind "in external import name"
 
@@ -231,8 +242,8 @@ collectQuoted :: NodesPartialParser [String]
 collectQuoted [] = return ([], [])
 collectQuoted (n@(SyntaxNode kind width _) : remaining)
   | kind == S.Token T.Quoted = do
-      lexeme <- consume width
-      first (lexeme :) <$> collectQuoted remaining
+    lexeme <- consume width
+    first (lexeme :) <$> collectQuoted remaining
   | kind == S.Token T.RQuote = return ([], n : remaining)
   | otherwise = unexpectedNode kind "inside quoter"
 
@@ -283,25 +294,30 @@ coerceLexeme :: SyntaxKind -> String -> NodesPartialParser String
 coerceLexeme _ description [] = throwMissingSyntax description
 coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
   | kind == wantedKind = do
-      lexeme <- consume width
-      return (lexeme, remaining)
+    lexeme <- consume width
+    return (lexeme, remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
 
--- | Try running a 'NodeParser', properly using the node on failure.
+-- | Try running a 'NodeParser'. If the parser throws an error, reset state to
+-- before the parser was ran, use the node, and return 'Nothing'.
 nodeParserRecover :: NodeParser a -> NodeParser (Maybe a)
 nodeParserRecover parser node =
   try (parser node) >>= \case
     Right a -> return $ Just a
     Left _ -> advance (S.snodeWidth node) >> return Nothing
 
--- | Try running a 'NodesParser', properly using the nodes on failure.
+-- | Try running a 'NodesParser'. If the parser throws an error, reset state to
+-- before the parser was ran, use all of the nodes, and return 'Nothing'.
 nodesParserRecover :: NodesParser a -> NodesParser (Maybe a)
 nodesParserRecover parser nodes =
   try (parser nodes) >>= \case
     Right a -> return $ Just a
     Left _ -> advance (sum $ map S.snodeWidth nodes) >> return Nothing
 
+-- | Try running a 'NodesPartialParser'. If the parser throws an error, reset state to
+-- before the parser was ran, and use the nodes until the given condition is true
+-- on the next unused node.
 nodesPartialParserRecoverAt :: (SyntaxKind -> Bool) -> NodesPartialParser a -> NodesPartialParser (Maybe a)
 nodesPartialParserRecoverAt cond parser nodes =
   try (parser nodes) >>= \case
