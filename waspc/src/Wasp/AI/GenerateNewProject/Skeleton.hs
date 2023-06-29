@@ -91,17 +91,17 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
 
         route LoginRoute { path: "/login", to: LoginPage }
         page LoginPage {
-          component: import Login from "@client/pages/Login.jsx"
+          component: import Login from "@client/pages/auth/Login.jsx"
         }
         route SignupRoute { path: "/signup", to: SignupPage }
         page SignupPage {
-          component: import Signup from "@client/pages/Signup.jsx"
+          component: import Signup from "@client/pages/auth/Signup.jsx"
         }
       |]
 
 generateLoginJsPage :: File
 generateLoginJsPage =
-  ( "src/client/pages/Login.jsx",
+  ( "src/client/pages/auth/Login.jsx",
     [trimming|
       import React from "react";
       import { Link } from "react-router-dom";
@@ -125,7 +125,7 @@ generateLoginJsPage =
 
 generateSignupJsPage :: File
 generateSignupJsPage =
-  ( "src/client/pages/Signup.jsx",
+  ( "src/client/pages/auth/Signup.jsx",
     [trimming|
       import React from "react";
       import { Link } from "react-router-dom";

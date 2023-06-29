@@ -65,7 +65,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   --   do it blindly though, some of them are relevant only to plan (e.g. not generating login /
   --   signup page), we would have to do some adapting.
   writeToLog "Fixing any mistakes in Wasp file..."
-  fixWaspFile newProjectDetails waspFilePath
+  fixWaspFile newProjectDetails waspFilePath plan
   writeToLog "Wasp file fixed."
 
   writeToLog "Fixing any mistakes in NodeJS operations files..."

@@ -48,6 +48,8 @@ basicWaspLangInfo =
   [trimming|
     Wasp is a full-stack web app framework that uses React (for client), NodeJS and Prisma (for server).
     High-level of the app is described in main.wasp file (which is written in special Wasp DSL), details in JS/JSX files.
+    Wasp DSL (used in main.wasp) reminds a bit of JSON, and doesn't use single quotes for strings, only double quotes. Examples will follow.
+
     Important Wasp features:
      - Routes and Pages: client side, Pages are written in React.
      - Queries and Actions: RPC, called from client, execute on server (nodejs).
@@ -83,10 +85,10 @@ waspFileExample =
           component: import Login from "@client/pages/auth/Login.jsx"
         }
 
-        route HomeRoute { path: "/", to: MainPage }
-        page MainPage {
+        route DashboardRoute { path: "/", to: Dashboard }
+        page DashboardPage {
           authRequired: true,
-          component: import Main from "@client/pages/Main.jsx"
+          component: import Dashboard from "@client/pages/Dashboard.jsx"
         }
 
         entity User {=psl

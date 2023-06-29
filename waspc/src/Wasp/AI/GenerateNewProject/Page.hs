@@ -91,11 +91,16 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
         Let's now implement the following Wasp page:
          - name: ${pageName}
          - component: ${componentPath}
+         - routeName: ${routeName}
          - routePath: ${routePath}
          - description: ${pageDesc}
 
         Please, respond ONLY with a valid JSON, of following format:
-        { "pageWaspDecl": "route ${routeName} { ... }\npage ${pageName} {\n ... }",
+        { "pageWaspDecl": string, "pageJsImpl": string }
+
+        Example of such JSON:
+        {
+          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import { ExamplePage } from \"@client/ExamplePage.jsx\",\n  authRequired: true\n}",
           "pageJsImpl": "JS imports + React component implementing the page.",
         }
         There should be no other text in the response.
