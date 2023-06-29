@@ -15,7 +15,8 @@ import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
 import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation, getOperationJsFilePath)
 import Wasp.AI.GenerateNewProject.OperationsJsFile (fixOperationsJsFile)
-import Wasp.AI.GenerateNewProject.Page (generateAndWritePage)
+import Wasp.AI.GenerateNewProject.Page (generateAndWritePage, getPageComponentPath)
+import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
@@ -56,7 +57,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
       generateAndWriteOperation Query newProjectDetails waspFilePath plan
 
   writeToLog "Generating pages..."
-  _pages <-
+  pages <-
     forM (Plan.pages plan) $
       generateAndWritePage newProjectDetails waspFilePath (Plan.entities plan) queries actions
 
@@ -73,7 +74,14 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
     writeToLog $ T.pack $ "Fixed NodeJS operations file '" <> opFp <> "'."
   writeToLog "NodeJS operations files fixed."
 
-  -- TODO: Also try fixing Pages / JSX files.
+  writeToLog "Fixing any mistakes in pages..."
+  forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
+    fixPageComponent newProjectDetails waspFilePath pageFp
+    writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
+  -- forM_ getPageComponentPath pages $ \pageFp -> do
+  --   fixPageComponent newProjectDetails waspFilePath pageFp
+  --   writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
+  writeToLog "Pages fixed."
 
   (promptTokensUsed, completionTokensUsed) <- getTotalTokensUsage
   writeToLog $

@@ -52,6 +52,7 @@ queryChatGPTForJSON chatGPTParams = doQueryForJSON 0
                                    <> " valid JSON, no other text or explanations. Error I got parsing JSON"
                                    <> " from your last message: "
                                    <> T.pack errMsg
+                                   <> ". Newlines should be escaped as \\n."
                              }
                          ]
                 else do

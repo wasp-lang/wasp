@@ -146,6 +146,7 @@ library
     Wasp.AI.GenerateNewProject.Operation
     Wasp.AI.GenerateNewProject.OperationsJsFile
     Wasp.AI.GenerateNewProject.Page
+    Wasp.AI.GenerateNewProject.PageComponentFile
     Wasp.AI.GenerateNewProject.Plan
     Wasp.AI.GenerateNewProject.Skeleton
     Wasp.AI.GenerateNewProject.WaspFile

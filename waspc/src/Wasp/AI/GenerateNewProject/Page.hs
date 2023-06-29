@@ -2,6 +2,8 @@
 
 module Wasp.AI.GenerateNewProject.Page
   ( generateAndWritePage,
+    pageDocPrompt,
+    getPageComponentPath,
     Page (..),
   )
 where
@@ -100,8 +102,9 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
         ${appDescriptionBlock}
       |]
 
-    pageDocPrompt =
-      [trimming|
+pageDocPrompt :: Text
+pageDocPrompt =
+  [trimming|
         Page is implemented via Wasp declaration and corresponding NodeJS implementation.
 
         Example of Wasp declaration:
@@ -160,8 +163,13 @@ writePageToJsFile :: Page -> CodeAgent ()
 writePageToJsFile page =
   writeToFile path $ (<> "\n\n" <> jsImpl) . fromMaybe ""
   where
-    path = resolvePath $ Plan.componentPath $ pagePlan page
+    path = getPageComponentPath page
     jsImpl = T.pack $ pageJsImpl $ pageImpl page
+
+getPageComponentPath :: Page -> String
+getPageComponentPath page = path
+  where
+    path = resolvePath $ Plan.componentPath $ pagePlan page
     pathPrefix = "@client/"
     resolvePath p | pathPrefix `isPrefixOf` p = "src/" <> drop (length ("@" :: String)) p
     resolvePath _ = error "path incorrectly formatted, should start with " <> pathPrefix <> "."
