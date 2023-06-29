@@ -1,4 +1,3 @@
-// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
