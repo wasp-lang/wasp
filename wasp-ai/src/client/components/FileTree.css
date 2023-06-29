@@ -40,3 +40,19 @@
 .directory .icon {
   @apply w-6 h-6 pr-2;
 }
+
+@keyframes flash-background-quickly {
+  0% {
+    background-color: inherit;
+  }
+  25% {
+    @apply bg-amber-400;
+  }
+  100% {
+    background-color: inherit;
+  }
+}
+
+.freshly-updated-file {
+  animation: flash-background-quickly 2s linear;
+}

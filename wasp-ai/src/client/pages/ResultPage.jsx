@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
@@ -26,6 +27,7 @@ export const ResultPage = () => {
     message: "Waiting for instructions",
   });
   const [logsVisible, setLogsVisible] = useState(false);
+  const [currentFiles, setCurrentFiles] = useState({});
 
   useEffect(() => {
     if (
@@ -60,6 +62,27 @@ export const ResultPage = () => {
     }, files);
     return files;
   }, [appGenerationResult]);
+
+  const freshlyUpdatedFilePaths = useMemo(() => {
+    const previousFiles = currentFiles;
+    setCurrentFiles(files);
+
+    if (Object.keys(previousFiles).length === 0) {
+      return [];
+    }
+
+    const updatedFilePaths = Object.entries(files).reduce(
+      (updatedPaths, [path, newContent]) => {
+        if (newContent === previousFiles[path]) {
+          return updatedPaths;
+        }
+        return [...updatedPaths, path];
+      },
+      []
+    );
+
+    return updatedFilePaths;
+  }, [files]);
 
   const language = useMemo(() => {
     if (activeFilePath) {
@@ -254,6 +277,7 @@ export const ResultPage = () => {
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
                 onActivePathSelect={setActiveFilePath}
+                freshlyUpdatedPaths={freshlyUpdatedFilePaths}
               />
               <p className="text-gray-500 text-sm my-4 leading-relaxed">
                 <strong>User provided prompt: </strong>

@@ -7,7 +7,11 @@ import { DiCss3, DiJavascript, DiNpm, DiReact } from "react-icons/di";
 import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
 import { WaspIcon } from "./WaspIcon";
 
-export function FileTree({ paths, activeFilePath, onActivePathSelect }) {
+export function FileTree({
+  paths,
+  onActivePathSelect,
+  freshlyUpdatedPaths,
+}) {
   const tree = useMemo(() => {
     const root = { name: "", children: [] };
     paths.forEach((path) => {
@@ -33,6 +37,7 @@ export function FileTree({ paths, activeFilePath, onActivePathSelect }) {
   return (
     <DirectoryTreeView
       tree={tree}
+      freshlyUpdatedPaths={freshlyUpdatedPaths}
       onNodeSelect={(props) => {
         if (props.element.metadata.path) {
           onActivePathSelect(props.element.metadata.path);
@@ -42,7 +47,7 @@ export function FileTree({ paths, activeFilePath, onActivePathSelect }) {
   );
 }
 
-function DirectoryTreeView({ tree, onNodeSelect }) {
+function DirectoryTreeView({ tree, onNodeSelect, freshlyUpdatedPaths }) {
   const data = useMemo(() => {
     return flattenTree(tree);
   }, [tree]);
@@ -55,6 +60,7 @@ function DirectoryTreeView({ tree, onNodeSelect }) {
         <TreeView
           data={data}
           defaultExpandedIds={allIds}
+          expandedIds={allIds}
           aria-label="directory tree"
           onNodeSelect={onNodeSelect}
           nodeRenderer={({
@@ -63,17 +69,32 @@ function DirectoryTreeView({ tree, onNodeSelect }) {
             isExpanded,
             getNodeProps,
             level,
-          }) => (
-            <div {...getNodeProps()} style={{ paddingLeft: `calc(0.5rem + ${20 * (level - 1)}px)` }}>
-              {isBranch ? (
-                <FolderIcon isOpen={isExpanded} />
-              ) : (
-                <FileIcon filename={element.name} />
-              )}
+          }) => {
+            const props = getNodeProps();
+            const className = freshlyUpdatedPaths.includes(
+              element.metadata.path
+            )
+              ? `${props.className} freshly-updated-file`
+              : props.className;
+            props.className = className;
 
-              {element.name}
-            </div>
-          )}
+            return (
+              <div
+                {...props}
+                style={{
+                  paddingLeft: `calc(0.5rem + ${20 * (level - 1)}px)`,
+                }}
+              >
+                {isBranch ? (
+                  <FolderIcon isOpen={isExpanded} />
+                ) : (
+                  <FileIcon filename={element.name} />
+                )}
+
+                {element.name}
+              </div>
+            );
+          }}
         />
       </div>
     </div>
