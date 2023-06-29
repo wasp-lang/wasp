@@ -33,7 +33,7 @@ RUN cd server && PRISMA_CLIENT_OUTPUT_DIR=../server/node_modules/.prisma/client/
 RUN cd server && npm run build
 
 FROM base AS server-production
-RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.11.1-wasp-ai-4
+RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.11.1-wasp-ai-5
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
 WORKDIR /app
