@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply bg-gradient-to-r from-slate-200 to-sky-100;
+}
+
 .button {
   @apply bg-sky-600 text-white font-bold py-3 px-6 rounded text-center hover:bg-sky-500 transition duration-150;
 }
@@ -19,5 +23,5 @@
 }
 input,
 textarea {
-  @apply border border-gray-300 rounded p-3 bg-white;
+  @apply relative w-full cursor-default rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300;
 }

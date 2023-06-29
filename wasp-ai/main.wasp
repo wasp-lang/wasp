@@ -9,6 +9,8 @@ app waspAi {
     ("react-icons", "4.9.0"),
     ("@zip.js/zip.js", "2.7.16"),
     ("async-mutex", "0.4.0"),
+    ("@headlessui/react", "1.7.15"),
+    ("@heroicons/react", "2.0.18")
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
