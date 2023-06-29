@@ -29,7 +29,7 @@ import Wasp.Project.Analyze (analyzeWaspFileContent)
 
 fixWaspFile :: NewProjectDetails -> FilePath -> CodeAgent ()
 fixWaspFile newProjectDetails waspFilePath = do
-  currentWaspFileContent <- fromMaybe (error "couldn't find wasp file to fix") <$> getFile waspFilePath
+  currentWaspFileContent <- getFile waspFilePath <&> fromMaybe (error "couldn't find wasp file to fix")
 
   -- First we do one attempt at fixing wasp file even if there are no compiler errors,
   -- to give chatGPT opportunity to fix some other stuff we mention in the prompt.
@@ -46,10 +46,8 @@ fixWaspFile newProjectDetails waspFilePath = do
     askChatGptToFixWaspFile shouldContinueIfCompileErrors WaspFile {waspFileContent = wfContent} = do
       compileErrors <- liftIO $ getWaspFileCompileErrors wfContent
       case shouldContinueIfCompileErrors of
-        OnlyIfCompileErrors
-          | null compileErrors ->
-              return $ WaspFile {waspFileContent = wfContent}
-        _ ->
+        OnlyIfCompileErrors | null compileErrors -> return $ WaspFile {waspFileContent = wfContent}
+        _otherwise ->
           queryChatGPTForJSON
             defaultChatGPTParams
             [ ChatMessage {role = System, content = Prompts.systemPrompt},
