@@ -104,9 +104,14 @@ waspFileExample =
             userId      Int
         psl=}
 
+        query getUser {
+          fn: import { getUser } from "@server/queries.js",
+          entities: [User] // Entities that this query operates on.
+        }
+
         query getTasks {
           fn: import { getTasks } from "@server/queries.js",
-          entities: [Task] // Entities that this query operates on.
+          entities: [Task]
         }
 
         action createTask {

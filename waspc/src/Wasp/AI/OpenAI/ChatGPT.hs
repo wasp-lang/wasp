@@ -52,11 +52,14 @@ queryChatGPT apiKey params requestMessages = do
 
   when True $
     pTrace
-      ( "\n\n\n\n==================================\n\n"
+      ( "\n\n\n\n==================================\n"
+          <> "\n====== REQUEST =======\n"
           <> show requestMessages
-          <> "\n\n============\n\n"
-          <> show (usage chatResponse)
-          <> "\n\n==================================\n\n\n\n"
+          <> "\n======================\n"
+          <> "\n====== RESPONSE ======\n"
+          <> show chatResponse
+          <> "\n======================\n"
+          <> "\n==================================\n\n\n\n"
       )
       $ return ()
 

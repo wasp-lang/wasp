@@ -55,37 +55,46 @@ generatePlan newProjectDetails planRules = do
 
         ${rulesText}
 
-        Plan is represented as JSON. Here is what a plan should look like:
+        Plan is represented as JSON with the following schema:
+
+        {
+          "entities": [{ "entityName": string, "entityBodyPsl": string }],
+          "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
+          "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
+          "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
+        }
+
+        Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
 
         {
           "entities": [{
-            "entityName": "EntityName",
-            "entityBodyPsl": "id Int @id \n name String"
+            "entityName": "User",
+            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
           }],
           "actions": [{
-            "opName": "actionName",
-            "opFnPath": "@server/{filename}.js",
-            "opDesc": "description of what this action does"
+            "opName": "createTask",
+            "opFnPath": "@server/actions.js",
+            "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
           }],
           "queries": [{
-            "opName": "queryName",
-            "opFnPath": "@server/{filename}.js",
-            "opDesc": "description of what this query does"
+            "opName": "getTask",
+            "opFnPath": "@server/queries.js",
+            "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
           }],
           "pages": [{
-            "pageName": "ExamplePage",
-            "componentPath": "@client/{ComponentName}.jsx",
-            "routeName: "ExampleRoute",
-            "routePath": "/url/of/page",
-            "pageDesc": "description of what this page does",
+            "pageName": "TaskPage",
+            "componentPath": "@client/pages/Task.jsx",
+            "routeName: "TaskRoute",
+            "routePath": "/task/:taskId",
+            "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task.",
           }]
         }
 
-        We will later use this plan to implement all of these parts of Wasp app,
+        We will later use this plan to write main.wasp file and all the other parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
 
-        Typically, plan will have at least one query, at least one action, at least one page, and at
-        least two entities. It will very likely though have more than one of each.
+        Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
+        least two entities. It will very likely have more than one of each, though.
 
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
