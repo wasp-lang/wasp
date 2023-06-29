@@ -30,7 +30,7 @@ data NewProjectDetails = NewProjectDetails
 
 data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
-    -- CSS acceptable string for color.
+    -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
     projectPrimaryColor :: !(Maybe String)
   }
   deriving (Show)
@@ -52,7 +52,7 @@ getProjectAuth :: NewProjectDetails -> AuthProvider
 getProjectAuth = fromMaybe UsernameAndPassword . projectAuth . _projectConfig
 
 getProjectPrimaryColor :: NewProjectDetails -> String
-getProjectPrimaryColor = fromMaybe "#fc0" . projectPrimaryColor . _projectConfig
+getProjectPrimaryColor = fromMaybe "slate" . projectPrimaryColor . _projectConfig
 
 -- TODO: Support more methods.
 data AuthProvider = UsernameAndPassword

@@ -11,7 +11,7 @@ import StrongPath (File', Path, Rel)
 import qualified StrongPath as SP
 import StrongPath.Types (System)
 import Wasp.AI.CodeAgent (CodeAgent, writeNewFile)
-import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..), getProjectAuth)
+import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..), getProjectAuth, getProjectPrimaryColor)
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
@@ -36,7 +36,7 @@ generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkele
   writeNewFile generateDotEnvServerFile
 
   -- Tailwind setup: config files + layout component + CSS imports.
-  writeNewFile generateTailwindConfigFile
+  writeNewFile $ generateTailwindConfigFile newProjectDetails
   writeNewFile generatePostcssConfigFile
   writeNewFile $ generateLayoutComponent newProjectDetails
   writeNewFile generateMainCssFile
@@ -111,10 +111,18 @@ generateLoginJsPage =
       export default function Login() {
         return (
           <div>
-            <LoginForm />
+            <LoginForm
+              appearance={{
+                colors: {
+                  brand: 'var(--auth-form-brand)',
+                  brandAccent: 'var(--auth-form-brand-accent)',
+                  submitButtonText: 'var(--auth-form-submit-button-text-color)',
+                }
+              }}
+            />
             <div className="mt-4 text-center">
               If you don't have an account go to{" "}
-              <Link to="/signup" className="text-slate-500 hover:text-slate-800">
+              <Link to="/signup" className="text-primary-500 hover:text-primary-800">
                 sign up
               </Link>
             </div>
@@ -135,10 +143,18 @@ generateSignupJsPage =
       export default function Signup() {
         return (
           <div>
-            <SignupForm />
+            <SignupForm
+              appearance={{
+                colors: {
+                  brand: 'var(--auth-form-brand)',
+                  brandAccent: 'var(--auth-form-brand-accent)',
+                  submitButtonText: 'var(--auth-form-submit-button-text-color)',
+                }
+              }}
+            />
             <div className="mt-4 text-center">
               If you already have an account go to{" "}
-              <Link to="/login" className="text-slate-500 hover:text-slate-800">
+              <Link to="/login" className="text-primary-500 hover:text-primary-800">
                 login
               </Link>
             </div>
@@ -164,6 +180,12 @@ generateMainCssFile =
       @tailwind base;
       @tailwind components;
       @tailwind utilities;
+
+      :root {
+        --auth-form-brand: theme(colors.primary.500);
+        --auth-form-brand-accent: theme(colors.primary.600);
+        --auth-form-submit-button-text-color: theme(colors.white);
+      }
     |]
   )
 
@@ -171,14 +193,17 @@ generateLayoutComponent :: NewProjectDetails -> File
 generateLayoutComponent newProjectDetails =
   ( "src/client/Layout.jsx",
     [trimming|
+      import { Link } from "react-router-dom";
       import "./Main.css";
 
       export const Layout = ({ children }) => {
         return (
           <div className="flex flex-col min-h-screen">
-            <header className="bg-slate-800 text-white p-4">
+            <header className="bg-primary-800 text-white p-4">
               <div className="container mx-auto px-4 py-2">
-                <h1 className="text-xl2 font-semibold">${appName}</h1>
+                <Link to="/">
+                  <h1 className="text-xl2 font-semibold">${appName}</h1>
+                </Link>
               </div>
             </header>
             <main className="container mx-auto px-4 py-2 flex-grow">
@@ -199,21 +224,41 @@ generateLayoutComponent newProjectDetails =
   where
     appName = T.pack $ _projectAppName newProjectDetails
 
-generateTailwindConfigFile :: File
-generateTailwindConfigFile =
+generateTailwindConfigFile :: NewProjectDetails -> File
+generateTailwindConfigFile newProjectDetails =
   ( "tailwind.config.cjs",
     [trimming|
+      const colors = require('tailwindcss/colors')
+
       /** @type {import('tailwindcss').Config} */
       module.exports = {
         content: [
           "./src/**/*.{js,jsx,ts,tsx}",
         ],
         theme: {
-          extend: {},
+          extend: {
+            colors: {
+              primary: {
+                50:  ${primaryColorObject}[50],
+                100: ${primaryColorObject}[100],
+                200: ${primaryColorObject}[200],
+                300: ${primaryColorObject}[300],
+                400: ${primaryColorObject}[400],
+                500: ${primaryColorObject}[500],
+                600: ${primaryColorObject}[600],
+                700: ${primaryColorObject}[700],
+                800: ${primaryColorObject}[800],
+                900: ${primaryColorObject}[900],
+              }
+            }
+          },
         },
       }
     |]
   )
+  where
+    primaryColorName = getProjectPrimaryColor newProjectDetails
+    primaryColorObject = T.pack $ "colors." <> primaryColorName
 
 generatePostcssConfigFile :: File
 generatePostcssConfigFile =
