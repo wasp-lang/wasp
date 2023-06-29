@@ -7,7 +7,11 @@ import { DiCss3, DiJavascript, DiNpm, DiReact } from "react-icons/di";
 import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
 import { WaspIcon } from "./WaspIcon";
 
-export function FileTree({ paths, activeFilePath, onActivePathSelect, freshlyUpdatedPaths }) {
+export function FileTree({
+  paths,
+  onActivePathSelect,
+  freshlyUpdatedPaths,
+}) {
   const tree = useMemo(() => {
     const root = { name: "", children: [] };
     paths.forEach((path) => {
@@ -65,28 +69,32 @@ function DirectoryTreeView({ tree, onNodeSelect, freshlyUpdatedPaths }) {
             isExpanded,
             getNodeProps,
             level,
-          }) => (
-            <div
-              {...getNodeProps()}
-              style={{
-                paddingLeft: `calc(0.5rem + ${20 * (level - 1)}px)`
-              }}
-            >
-              {isBranch ? (
-                <FolderIcon isOpen={isExpanded} />
-              ) : (
-                <FileIcon filename={element.name} />
-              )}
+          }) => {
+            const props = getNodeProps();
+            const className = freshlyUpdatedPaths.includes(
+              element.metadata.path
+            )
+              ? `${props.className} freshly-updated-file`
+              : props.className;
+            props.className = className;
 
-              <span
-                className={
-                  freshlyUpdatedPaths.includes(element.metadata.path) ? 'freshly-updated-file' : null
-                }
+            return (
+              <div
+                {...props}
+                style={{
+                  paddingLeft: `calc(0.5rem + ${20 * (level - 1)}px)`,
+                }}
               >
+                {isBranch ? (
+                  <FolderIcon isOpen={isExpanded} />
+                ) : (
+                  <FileIcon filename={element.name} />
+                )}
+
                 {element.name}
-              </span>
-            </div>
-          )}
+              </div>
+            );
+          }}
         />
       </div>
     </div>

@@ -46,7 +46,7 @@
     background-color: inherit;
   }
   25% {
-    background-color: yellow;
+    @apply bg-amber-400;
   }
   100% {
     background-color: inherit;

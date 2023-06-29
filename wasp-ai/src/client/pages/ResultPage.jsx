@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import { useQuery } from "@wasp/queries";
@@ -63,23 +64,25 @@ export const ResultPage = () => {
   }, [appGenerationResult]);
 
   const freshlyUpdatedFilePaths = useMemo(() => {
-    const oldCurrentFiles = currentFiles;
+    const previousFiles = currentFiles;
     setCurrentFiles(files);
 
-    const updatedFilePaths = [];
-
-    if (Object.keys(oldCurrentFiles).length) {
-      for (let path in files) {
-        if (files.hasOwnProperty(path)) {
-          if (files[path] !== oldCurrentFiles[path]) {
-            updatedFilePaths.push(path);
-          }
-        }
-      }
+    if (Object.keys(previousFiles).length === 0) {
+      return [];
     }
 
+    const updatedFilePaths = Object.entries(files).reduce(
+      (updatedPaths, [path, newContent]) => {
+        if (newContent === previousFiles[path]) {
+          return updatedPaths;
+        }
+        return [...updatedPaths, path];
+      },
+      []
+    );
+
     return updatedFilePaths;
-  }, [files])
+  }, [files]);
 
   const language = useMemo(() => {
     if (activeFilePath) {
