@@ -55,8 +55,8 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
           ${currentWaspFileContent}
           ```
 
-          Here is a NodeJS file (${opJsFilePathText}) containing some Wasp Operations
-          (Queries and Actions) that we generated together earlier:
+          Here is a NodeJS file (${opJsFilePathText}) containing some of the Wasp Operations
+          (Queries and/or Actions) that we generated together earlier:
           ```js
           ${currentOpJsFileContent}
           ```
@@ -82,6 +82,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
               ```
 
           With this in mind, generate a new, fixed NodeJS file with operations (${opJsFilePathText}).
+          Don't do too big changes, like deleting or adding whole functions, focus on smaller things and those listed above.
           Do actual fixes, don't leave comments with "TODO"!
           Please respond ONLY with a valid JSON of the format { opJsFileContent: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
