@@ -72,7 +72,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
             - Duplicate imports. If there are any, make sure to remove them.
             - There might be some invalid JS or JSX syntax -> fix it if there is any.
 
-          Here is the Wasp file to help you:
+          Here is our main.wasp file, to provide you with the additional context about the app:
           ```wasp
           ${currentWaspFileContent}
           ```

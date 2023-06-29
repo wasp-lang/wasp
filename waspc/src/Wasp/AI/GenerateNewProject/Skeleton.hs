@@ -69,6 +69,7 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
                 - `id Int @id @default(autoincrement())`
                 - `username String @unique`
                 - `password String`
+              It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
               |],
             "One of the pages in the app must have a route path \"/\"."
           ]
