@@ -4,6 +4,7 @@ module Wasp.AI.GenerateNewProject.Page
   ( generateAndWritePage,
     pageDocPrompt,
     getPageComponentPath,
+    operationInfo,
     Page (..),
   )
 where

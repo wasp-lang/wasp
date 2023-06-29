@@ -95,8 +95,26 @@ fixWaspFile newProjectDetails waspFilePath = do
               - Value of `fn:` field in `query` or `action` not having correct import syntax,
                 for example it might have invalid syntax, e.g. `fn: @server/actions.js`.
                 Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@server/actions.js"`.
-              - Entities having a reference to another entity but that entity doesn't have a reference back to it.
-                Fix these by adding a reference back to the entity that is referenced.
+              - If two entities are in a relation, make sure that they both have a field that references the other entity.
+              - If an entity has a field that references another entity (e.g. location), make sure to include @relation directive on that field.
+              - If an entity references another entity, make sure the ID field (e.g. locationId) of the referenced entity is also included.
+
+                ```
+                entity Location {=psl
+                  id Int @id @default(autoincrement())
+                  latitude Float
+                  longitude Float
+                  weathers Weather[]
+                psl=}
+
+                entity Weather {=psl
+                  id Int @id @default(autoincrement())
+                  temperature Float
+                  description String
+                  location Location @relation(fields: [locationId], references: [id])
+                  locationId Int
+                psl=}
+                ```
 
             With this in mind, generate a new, fixed wasp file.
             Do actual fixes, don't leave comments with "TODO"!

@@ -75,6 +75,11 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
 
             - There might be some invalid JS syntax -> fix it if there is any.
             - If there is some obvious refactoring that could improve code quality, go for it.
+            - Use the "arg" variable to get the arguments of the operation.
+              For example, if the operation is "createTask", then you can get the arguments like this:
+              ```js
+              const { name, description } = arg;
+              ```
 
           With this in mind, generate a new, fixed NodeJS file with operations (${opJsFilePathText}).
           Do actual fixes, don't leave comments with "TODO"!
