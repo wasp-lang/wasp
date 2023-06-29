@@ -32,7 +32,7 @@ fixWaspFile newProjectDetails waspFilePath = do
   currentWaspFileContent <- fromMaybe (error "couldn't find wasp file to fix") <$> getFile waspFilePath
   compileErrors <-
     liftIO (analyzeWaspFileContent $ T.unpack currentWaspFileContent)
-      <&> either (pure . showCompileError) (const [])
+      <&> either (map showCompileError) (const [])
   fixedWaspFile <-
     queryChatGPTForJSON
       defaultChatGPTParams

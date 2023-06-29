@@ -33,18 +33,18 @@ analyzeWaspProject ::
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec)
 analyzeWaspProject waspDir options = runExceptT $ do
-  waspFilePath <- ExceptT $ Control.Arrow.left pure <$> findWaspFile waspDir
-  declarations <- ExceptT $ Control.Arrow.left pure <$> analyzeWaspFile waspFilePath
+  waspFilePath <- ExceptT $ left pure <$> findWaspFile waspDir
+  declarations <- ExceptT $ analyzeWaspFile waspFilePath
   ExceptT $ constructAppSpec waspDir options declarations
 
-analyzeWaspFile :: Path' Abs File' -> IO (Either CompileError [AS.Decl])
+analyzeWaspFile :: Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFile waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
-  left (showCompilerErrorForTerminal (waspFilePath, waspFileContent))
+  left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
     <$> analyzeWaspFileContent waspFileContent
 
-analyzeWaspFileContent :: String -> IO (Either (String, Ctx) [AS.Decl])
-analyzeWaspFileContent = return . left getErrorMessageAndCtx . Analyzer.analyze
+analyzeWaspFileContent :: String -> IO (Either [(String, Ctx)] [AS.Decl])
+analyzeWaspFileContent = return . left (map getErrorMessageAndCtx) . Analyzer.analyze
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
