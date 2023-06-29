@@ -65,12 +65,17 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
       [trimming|
         ${basicWaspLangInfoPrompt}
 
+        ===========
+
         ${operationDocPrompt}
+
+        ===========
 
         We are implementing a Wasp app (check bottom for description).
 
-        This app has following entities:
-        ${entityDecls}
+        This app has the following entities:
+          ${entityDecls}
+
 
         Let's now implement the following Wasp ${operationTypeText}:
          - name: ${operationName}
@@ -99,6 +104,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
          - In wasp declaration (`opWaspDecl`), make sure to use ',' before `entities:`.
            Also, make sure to use full import statement for `fn:`: `import { getTasks } from "@server/actions.js"`,
            don't provide just the file path.
+         - In NodeJS implementation, you will typically want to check if user is authenticated, by doing `if (!context.user) { throw new HttpError(401) }` at the start of the operation.
 
         ${appDescriptionStartMarkerLine}
 
@@ -139,33 +145,70 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
 actionDocPrompt :: Text
 actionDocPrompt =
   [trimming|
-    Action is implemented via Wasp declaration and corresponding NodeJS implementation.
+    Wasp Action is implemented via Wasp declaration and corresponding NodeJS implementation.
+    Action can then be easily called from the client, via Wasp's RPC mechanism.
 
-    Example of Wasp declaration:
+    Action example #1:
+    =================
 
+    - Wasp declaration:
     ```wasp
-    action updateTaskIsDone {
-      fn: import { updateTaskIsDone } from "@server/taskActions.js",
+    action updateTask {
+      fn: import { updateTask } from "@server/taskActions.js",
       entities: [Task] // Entities that action uses.
     }
     ```
 
-    Example of NodeJS implementation:
-
+    - NodeJS implementation (with imports):
     ```js
     import HttpError from '@wasp/core/HttpError.js'
 
-    export const updateTaskIsDone = (args, context) => {
-      if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
+    export const updateTask = (args, context) => {
+      if (!context.user) { throw new HttpError(401) } // If user needs to be authenticated.
 
-      return context.entities.Task.update({ // prisma object
-        where: { args.id },
-        data: { args.isDone }
+      return context.entities.Task.updateMany({
+        where: {
+          id: args.id,
+          user: { id: context.user.id }  // To ensure task belongs to the user.
+        },
+        data: { isDone: args.isDone }
       })
     }
     ```
 
-    Action can then be easily called from the client, via Wasp's RPC mechanism.
+    Action example #2:
+    ========================
+
+    ```wasp
+    action deleteList {
+      fn: import { deleteList } from "@server/actions.js",
+      entities: [List, Card]
+    }
+    ```
+
+    - NodeJS implementation (with imports):
+    ```js
+    import HttpError from '@wasp/core/HttpError.js'
+
+    export const deleteList = async ({ listId }, context) => {
+      if (!context.user) { throw new HttpError(401) }
+
+      // We make sure that user is not trying to delete somebody else's list.
+      const list = await context.entities.List.findUnique({
+        where: { id: listId }
+      })
+      if (list.userId !== context.user.id) { throw new HttpError(403) }
+
+      // First delete all the cards that are in the list we want to delete.
+      await context.entities.Card.deleteMany({
+        where: { listId }
+      })
+
+      await context.entities.List.delete({
+        where: { id: listId }
+      })
+    }
+    ```
   |]
 
 queryDocPrompt :: Text
@@ -173,9 +216,12 @@ queryDocPrompt =
   [trimming|
     Query is implemented via Wasp declaration and corresponding NodeJS implementation.
     It is important that Query doesn't do any mutations, be it on the server or external world.
+    Query can then be easily called from the client, via Wasp's RPC mechanism.
 
-    Example of Wasp declaration:
+    Query example #1:
+    =================
 
+    - Wasp declaration:
     ```wasp
     query fetchFilteredTasks {
       fn: import { getFilteredTasks } from "@server/taskQueries.js",
@@ -183,8 +229,7 @@ queryDocPrompt =
     }
     ```
 
-    Example of NodeJS implementation:
-
+    - NodeJS implementation (with imports):
     ```js
     import HttpError from '@wasp/core/HttpError.js'
 
@@ -192,12 +237,47 @@ queryDocPrompt =
       if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
 
       return context.entities.Task.findMany({
-        where: { isDone: args.isDone }
+        where: {
+          isDone: args.isDone,
+          user: { id: context.user.id } // Only tasks that belong to the user.
+        }
       })
     }
     ```
 
-    Query can then be easily called from the client, via Wasp's RPC mechanism.
+    Query example #2:
+    =================
+
+    - Wasp declaration:
+    ```wasp
+    query getAuthor {
+      fn: import { getAuthor } from "@server/author/queries.js",
+      entities: [Author]
+    }
+    ```
+
+    - NodeJS implementation (with imports):
+    ```js
+    import HttpError from '@wasp/core/HttpError.js'
+
+    export const getAuthor = async ({ username }, context) => {
+      // Here we don't check if user is authenticated as this query is public.
+
+      const author = await context.entities.Author.findUnique({
+        where: { username },
+        select: {
+          username: true,
+          id: true,
+          bio: true,
+          profilePictureUrl: true
+        }
+      })
+
+      if (!author) throw new HttpError(404, 'No author with username ' + username)
+
+      return author
+    }
+    ```
   |]
 
 -- TODO: This is quite manual here, checking the AST!
