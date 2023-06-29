@@ -7,6 +7,7 @@ where
 
 import Control.Arrow ()
 import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
+import Data.Function ((&))
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', fromAbsDir)
@@ -17,34 +18,44 @@ import System.FilePath (takeDirectory)
 import System.IO (hFlush, stdout)
 import qualified Wasp.AI.CodeAgent as CA
 import qualified Wasp.AI.GenerateNewProject as GNP
-import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
+import Wasp.AI.GenerateNewProject.Common (NewProjectConfig, NewProjectDetails (..), emptyNewProjectConfig)
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), obtainAvailableProjectDirPath, parseWaspProjectNameIntoAppName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
+import qualified Wasp.Util.Aeson as Utils.Aeson
 
 createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> Command ()
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
-  liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription
+  liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription emptyNewProjectConfig
 
-createNewProjectNonInteractiveOnDisk :: String -> String -> Command ()
-createNewProjectNonInteractiveOnDisk projectName appDescription = do
+createNewProjectNonInteractiveOnDisk :: String -> String -> String -> Command ()
+createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson = do
   appName <- case parseWaspProjectNameIntoAppName projectName of
     Right appName -> pure appName
     Left err -> throwError $ CommandError "Invalid project name" err
+  projectConfig <-
+    Utils.Aeson.decodeFromString projectConfigJson
+      & either (throwError . CommandError "Invalid project config" . ("Failed to parse JSON: " <>)) pure
   waspProjectDir <- obtainAvailableProjectDirPath projectName
   openAIApiKey <- getOpenAIApiKey
-  liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription
+  liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig
 
-createNewProjectOnDisk :: OpenAIApiKey -> Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> String -> IO ()
-createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription = do
+createNewProjectOnDisk ::
+  OpenAIApiKey ->
+  Path' Abs (Dir WaspProjectDir) ->
+  NewProjectAppName ->
+  String ->
+  NewProjectConfig ->
+  IO ()
+createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig = do
   createDirectory $ fromAbsDir waspProjectDir
   setCurrentDirectory $ fromAbsDir waspProjectDir
-  generateNewProject codeAgentConfig appName appDescription
+  generateNewProject codeAgentConfig appName appDescription projectConfig
   where
     codeAgentConfig =
       CA.CodeAgentConfig
@@ -65,13 +76,17 @@ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription = do
 
 -- | Instead of writing files to disk, it will write files (and logs) to the stdout,
 -- with delimiters that make it easy to programmaticaly parse the output.
-createNewProjectNonInteractiveToStdout :: String -> String -> Command ()
-createNewProjectNonInteractiveToStdout projectName appDescription = do
+createNewProjectNonInteractiveToStdout :: String -> String -> String -> Command ()
+createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJsonStr = do
   openAIApiKey <- getOpenAIApiKey
 
   appName <- case parseWaspProjectNameIntoAppName projectName of
     Right appName -> pure appName
     Left err -> throwError $ CommandError "Invalid project name" err
+
+  projectConfig <-
+    Utils.Aeson.decodeFromString projectConfigJsonStr
+      & either (throwError . CommandError "Invalid project config" . ("Failed to parse JSON: " <>)) pure
 
   let codeAgentConfig =
         CA.CodeAgentConfig
@@ -80,7 +95,7 @@ createNewProjectNonInteractiveToStdout projectName appDescription = do
             CA._writeLog = writeLogToStdoutWithDelimiters
           }
 
-  liftIO $ generateNewProject codeAgentConfig appName appDescription
+  liftIO $ generateNewProject codeAgentConfig appName appDescription projectConfig
   where
     writeFileToStdoutWithDelimiters path content =
       writeToStdoutWithDelimiters "WRITE FILE" [T.pack path, content]
@@ -100,11 +115,11 @@ createNewProjectNonInteractiveToStdout projectName appDescription = do
           "===/ WASP AI: " <> title <> " ===="
         ]
 
-generateNewProject :: CA.CodeAgentConfig -> NewProjectAppName -> String -> IO ()
-generateNewProject codeAgentConfig (NewProjectAppName appName) appDescription = do
+generateNewProject :: CA.CodeAgentConfig -> NewProjectAppName -> String -> NewProjectConfig -> IO ()
+generateNewProject codeAgentConfig (NewProjectAppName appName) appDescription projectConfig = do
   waspProjectSkeletonFiles <- readWaspProjectSkeletonFiles
   CA.runCodeAgent codeAgentConfig $ do
-    GNP.generateNewProject (newProjectDetails appName appDescription) waspProjectSkeletonFiles
+    GNP.generateNewProject (newProjectDetails projectConfig appName appDescription) waspProjectSkeletonFiles
 
 getOpenAIApiKey :: Command OpenAIApiKey
 getOpenAIApiKey =
@@ -123,10 +138,10 @@ getOpenAIApiKey =
               "to .bash_profile or .profile, restart your shell, and you should be good to go."
             ]
 
-newProjectDetails :: String -> String -> NewProjectDetails
-newProjectDetails webAppName webAppDescription =
+newProjectDetails :: NewProjectConfig -> String -> String -> NewProjectDetails
+newProjectDetails projectConfig webAppName webAppDescription =
   NewProjectDetails
     { _projectAppName = webAppName,
       _projectDescription = webAppDescription,
-      _projectAuth = UsernameAndPassword
+      _projectConfig = projectConfig
     }

@@ -1,14 +1,18 @@
 module Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
-    File,
+    NewProjectConfig (..),
     AuthProvider (..),
+    File,
+    getProjectAuth,
+    getProjectPrimaryColor,
+    emptyNewProjectConfig,
     queryChatGPTForJSON,
     defaultChatGPTParams,
     writeToWaspFileEnd,
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, withObject, withText, (.:?))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
@@ -21,14 +25,46 @@ import Wasp.Util (naiveTrimJSON, textToLazyBS)
 data NewProjectDetails = NewProjectDetails
   { _projectAppName :: !String,
     _projectDescription :: !String,
-    _projectAuth :: !AuthProvider
+    _projectConfig :: NewProjectConfig
   }
 
--- TODO: Make these relative to WaspProjectDir, via StrongPath?
-type File = (FilePath, Text)
+data NewProjectConfig = NewProjectConfig
+  { projectAuth :: !(Maybe AuthProvider),
+    -- CSS acceptable string for color.
+    projectPrimaryColor :: !(Maybe String)
+  }
+  deriving (Show)
+
+instance Aeson.FromJSON NewProjectConfig where
+  parseJSON = withObject "NewProjectConfig" $ \obj -> do
+    auth <- obj .:? "auth"
+    primaryColor <- obj .:? "primaryColor"
+    return (NewProjectConfig {projectAuth = auth, projectPrimaryColor = primaryColor})
+
+emptyNewProjectConfig :: NewProjectConfig
+emptyNewProjectConfig =
+  NewProjectConfig
+    { projectAuth = Nothing,
+      projectPrimaryColor = Nothing
+    }
+
+getProjectAuth :: NewProjectDetails -> AuthProvider
+getProjectAuth = fromMaybe UsernameAndPassword . projectAuth . _projectConfig
+
+getProjectPrimaryColor :: NewProjectDetails -> String
+getProjectPrimaryColor = fromMaybe "#fc0" . projectPrimaryColor . _projectConfig
 
 -- TODO: Support more methods.
 data AuthProvider = UsernameAndPassword
+  deriving (Show)
+
+instance Aeson.FromJSON AuthProvider where
+  parseJSON = withText "AuthProvider" $ \case
+    "UsernameAndPassword" -> return UsernameAndPassword
+    _ -> fail "invalid auth provider"
+
+-- TODO: Make these relative to WaspProjectDir, via StrongPath?
+type File = (FilePath, Text)
 
 queryChatGPTForJSON :: FromJSON a => ChatGPTParams -> [ChatMessage] -> CodeAgent a
 queryChatGPTForJSON chatGPTParams = doQueryForJSON 0

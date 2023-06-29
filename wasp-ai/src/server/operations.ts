@@ -38,14 +38,17 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     unconsumedStdout: "",
   };
 
+  // { auth: 'UsernameAndPassword', primaryColor: string }
+  const projectConfig = {}
+
   const stdoutMutex = new Mutex();
   let waspCliProcess = null;
   if (process.env.NODE_ENV === "production") {
-    waspCliProcess = spawn("wasp", ["new-ai", args.appName, args.appDesc]);
+    waspCliProcess = spawn("wasp", ["new-ai", args.appName, args.appDesc, JSON.stringify(projectConfig)]);
   } else {
     // NOTE: In dev when we use `wasp-cli`, we want to make sure that if this app is run via `wasp` that its datadir env var does not propagate,
     //   so we reset it here. This is problem only if you run app with `wasp` and let it call `wasp-cli` here.
-    waspCliProcess = spawn("wasp-cli", ["new-ai", args.appName, args.appDesc], {
+    waspCliProcess = spawn("wasp-cli", ["new-ai", args.appName, args.appDesc, JSON.stringify(projectConfig)], {
       env: { ...process.env, waspc_datadir: undefined },
     });
   }

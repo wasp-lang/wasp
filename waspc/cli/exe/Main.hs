@@ -47,11 +47,11 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("new" : newArgs) -> Command.Call.New newArgs
         -- new-ai / new-ai:stdout is meant to be called and consumed programatically (e.g. by our Wasp AI
         -- web app), while new-ai:disk is useful for us for testing.
-        [newAiCmd, projectName, appDescription]
+        [newAiCmd, projectName, appDescription, projectConfigJson]
           | newAiCmd `elem` ["new-ai", "new-ai:stdout"] ->
-              Command.Call.NewAiToStdout projectName appDescription
+              Command.Call.NewAiToStdout projectName appDescription projectConfigJson
           | newAiCmd == "new-ai:disk" ->
-              Command.Call.NewAiToDisk projectName appDescription
+              Command.Call.NewAiToDisk projectName appDescription projectConfigJson
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -86,10 +86,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.NewAiToStdout projectName appDescription ->
-      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout projectName appDescription
-    Command.Call.NewAiToDisk projectName appDescription ->
-      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk projectName appDescription
+    Command.Call.NewAiToStdout projectName appDescription projectConfigJson ->
+      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJson
+    Command.Call.NewAiToDisk projectName appDescription projectConfigJson ->
+      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean

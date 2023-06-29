@@ -11,7 +11,7 @@ import StrongPath (File', Path, Rel)
 import qualified StrongPath as SP
 import StrongPath.Types (System)
 import Wasp.AI.CodeAgent (CodeAgent, writeNewFile)
-import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..))
+import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..), getProjectAuth)
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
@@ -28,7 +28,7 @@ generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkele
   let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails
   writeNewFile waspFile
 
-  case _projectAuth newProjectDetails of
+  case getProjectAuth newProjectDetails of
     UsernameAndPassword -> do
       writeNewFile generateLoginJsPage
       writeNewFile generateSignupJsPage
@@ -50,7 +50,7 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
     appName = T.pack $ _projectAppName newProjectDetails
     appTitle = appName
     waspVersionRange = T.pack . show $ SV.backwardsCompatibleWith Wasp.Version.waspVersion
-    (appAuth, authPlanRules) = case _projectAuth newProjectDetails of
+    (appAuth, authPlanRules) = case getProjectAuth newProjectDetails of
       UsernameAndPassword ->
         ( [trimming|
             auth: {
