@@ -12,7 +12,8 @@ import qualified StrongPath as SP
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal, fromSyntaxForest)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
 import Wasp.Analyzer.Parser.SourceRegion (sourceSpanToRegion)
-import qualified Wasp.LSP.ExtImport as ExtImport
+import qualified Wasp.LSP.ExtImport.ExportsCache as ExtImport
+import qualified Wasp.LSP.ExtImport.Syntax as ExtImport
 import Wasp.LSP.ServerM (HandlerM)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)

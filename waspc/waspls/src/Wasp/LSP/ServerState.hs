@@ -26,10 +26,10 @@ import Data.Hashable (Hashable)
 import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
-import qualified StrongPath as SP
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import Wasp.LSP.Debouncer (Debouncer)
 import Wasp.LSP.Diagnostic (WaspDiagnostic)
+import Wasp.LSP.ExtImport.Path (ExtFileCachePath)
 import Wasp.LSP.Reactor (ReactorInput)
 import Wasp.TypeScript.Inspect.Exports (TsExport)
 
@@ -59,7 +59,7 @@ data ServerState = ServerState
   }
 
 -- | Map from paths to JS/TS files to the list of exports from that file.
-type TsExportCache = M.HashMap (SP.Path' SP.Abs SP.File') [TsExport]
+type TsExportCache = M.HashMap ExtFileCachePath [TsExport]
 
 -- | LSP dynamic capability registration tokens.
 --

@@ -351,7 +351,10 @@ library waspls
     Wasp.LSP.Debouncer
     Wasp.LSP.Diagnostic
     Wasp.LSP.DynamicHandlers
-    Wasp.LSP.ExtImport
+    Wasp.LSP.ExtImport.Diagnostic
+    Wasp.LSP.ExtImport.ExportsCache
+    Wasp.LSP.ExtImport.Path
+    Wasp.LSP.ExtImport.Syntax
     Wasp.LSP.GotoDefinition
     Wasp.LSP.Handlers
     Wasp.LSP.Reactor

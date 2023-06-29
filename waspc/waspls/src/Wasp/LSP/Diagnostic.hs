@@ -9,7 +9,6 @@ where
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
-import qualified StrongPath as SP
 import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CPE
@@ -17,24 +16,25 @@ import Wasp.Analyzer.Parser.Ctx (getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
 import Wasp.Analyzer.Parser.SourceRegion (sourceSpanToRegion)
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
+import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath (WaspStyleExtFilePath))
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
 data WaspDiagnostic
   = ParseDiagnostic !CPE.ParseError
   | AnalyzerDiagonstic !W.AnalyzeError
-  | MissingExtImportDiagnostic !SourceSpan !MissingExtImportReason !(SP.Path' SP.Abs SP.File')
+  | MissingExtImportDiagnostic !SourceSpan !MissingExtImportReason !WaspStyleExtFilePath
   deriving (Eq, Show)
 
 data MissingExtImportReason = NoDefaultExport | NoNamedExport !String | NoFile
   deriving (Eq, Show)
 
-showMissingImportReason :: MissingExtImportReason -> SP.Path' SP.Abs SP.File' -> Text
-showMissingImportReason NoDefaultExport tsFile =
-  "No default export in " <> Text.pack (SP.fromAbsFile tsFile)
-showMissingImportReason (NoNamedExport name) tsFile =
-  "`" <> Text.pack name <> "` is not exported from " <> Text.pack (SP.fromAbsFile tsFile)
-showMissingImportReason NoFile tsFile =
-  Text.pack (SP.fromAbsFile tsFile) <> " does not exist"
+showMissingImportReason :: MissingExtImportReason -> WaspStyleExtFilePath -> Text
+showMissingImportReason NoDefaultExport (WaspStyleExtFilePath tsFile) =
+  "No default export in " <> Text.pack tsFile
+showMissingImportReason (NoNamedExport name) (WaspStyleExtFilePath tsFile) =
+  "`" <> Text.pack name <> "` is not exported from " <> Text.pack tsFile
+showMissingImportReason NoFile (WaspStyleExtFilePath tsFile) =
+  "Module " <> Text.pack tsFile <> " does not exist"
 
 missingImportSeverity :: MissingExtImportReason -> LSP.DiagnosticSeverity
 missingImportSeverity _ = LSP.DsError

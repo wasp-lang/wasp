@@ -17,7 +17,8 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import qualified StrongPath as SP
 import Wasp.LSP.Analysis (publishDiagnostics)
-import Wasp.LSP.ExtImport (refreshExportsForFiles, updateMissingExtImportDiagnostics)
+import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
+import Wasp.LSP.ExtImport.ExportsCache (refreshExportsOfFiles)
 import Wasp.LSP.ServerM (ServerM, handler, modify, sendToReactor)
 import qualified Wasp.LSP.ServerState as State
 
@@ -86,7 +87,7 @@ sourceFilesChangedHandler msg = do
   let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
   forM_ fileUris $ \file -> sendToReactor $ do
     -- Refresh export list for modified file
-    refreshExportsForFiles [file]
+    refreshExportsOfFiles [file]
     -- Update diagnostics for the wasp file
     updateMissingExtImportDiagnostics
     handler $
