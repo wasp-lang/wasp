@@ -31,16 +31,16 @@ analyzeWaspProject ::
   IO (Either [CompileError] AS.AppSpec)
 analyzeWaspProject waspDir options = runExceptT $ do
   waspFilePath <- ExceptT $ Control.Arrow.left pure <$> findWaspFile waspDir
-  declarations <- ExceptT $ Control.Arrow.left pure <$> analyzeWaspFileContent waspFilePath
+  declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
   ExceptT $ constructAppSpec waspDir options declarations
 
-analyzeWaspFileContent :: Path' Abs File' -> IO (Either CompileError [AS.Decl])
+analyzeWaspFileContent :: Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFileContent waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
   let declsOrAnalyzeError = Analyzer.analyze waspFileContent
   return $
     Control.Arrow.left
-      (showCompilerErrorForTerminal (waspFilePath, waspFileContent) . getErrorMessageAndCtx)
+      (map (showCompilerErrorForTerminal (waspFilePath, waspFileContent) . getErrorMessageAndCtx))
       declsOrAnalyzeError
 
 constructAppSpec ::

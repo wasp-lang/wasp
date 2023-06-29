@@ -131,8 +131,8 @@ import Wasp.Analyzer.TypeChecker (typeCheck)
 
 -- | Takes a Wasp source file and produces a list of declarations or a
 --   description of an error in the source file.
-analyze :: String -> Either AnalyzeError [Decl]
+analyze :: String -> Either [AnalyzeError] [Decl]
 analyze =
-  (left ParseError . parseStatements)
-    >=> (left TypeError . typeCheck stdTypes)
-    >=> (left EvaluationError . evaluate stdTypes)
+  (left (map ParseError) . parseStatements)
+    >=> (left ((: []) . TypeError) . typeCheck stdTypes)
+    >=> (left ((: []) . EvaluationError) . evaluate stdTypes)
