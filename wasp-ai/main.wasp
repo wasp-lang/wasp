@@ -49,6 +49,7 @@ entity Project {=psl
   name String
   description String
   createdAt DateTime @default(now())
+  status String @default("in-progress")
   files File[]
   logs Log[]
 psl=}

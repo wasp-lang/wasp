@@ -30,14 +30,14 @@ export const ResultPage = () => {
 
   useEffect(() => {
     if (
-      appGenerationResult?.status === "success" ||
-      appGenerationResult?.status === "failure"
+      appGenerationResult?.project?.status === "success" ||
+      appGenerationResult?.project?.status === "failure"
     ) {
       setGenerationDone(true);
       setCurrentStatus({
-        status: appGenerationResult.status === "success" ? "success" : "error",
+        status: appGenerationResult.project.status === "success" ? "success" : "error",
         message:
-          appGenerationResult.status === "success"
+          appGenerationResult.project.status === "success"
             ? "Finished"
             : "There was an error",
       });

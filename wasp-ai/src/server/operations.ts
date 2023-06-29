@@ -35,7 +35,6 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
 
   const appId = project.id;
   appGenerationResults[appId] = {
-    status: "in-progress",
     unconsumedStdout: "",
   };
 
@@ -132,17 +131,26 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     console.error(data.toString());
   });
 
-  waspCliProcess.on("close", (code) => {
+  waspCliProcess.on("close", async (code) => {
     if (code === 0) {
-      appGenerationResults[appId].status = "success";
+      await Project.update({
+        where: { id: appId },
+        data: { status: "success" },
+      });
     } else {
-      appGenerationResults[appId].status = "failure";
+      await Project.update({
+        where: { id: appId },
+        data: { status: "failure" },
+      });
     }
   });
 
-  waspCliProcess.on("error", (err) => {
+  waspCliProcess.on("error", async (err) => {
     console.error("WASP CLI PROCESS ERROR", err);
-    appGenerationResults[appId].status = "failure";
+    await Project.update({
+      where: { id: appId },
+      data: { status: "failure" },
+    });
   });
 
   return appId;
@@ -164,7 +172,6 @@ export const getAppGenerationResult = (async (args, context) => {
       },
     });
     return {
-      status: appGenerationResults[appId]?.status ?? "success",
       project,
     };
   } catch (e) {
