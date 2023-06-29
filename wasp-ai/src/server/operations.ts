@@ -55,7 +55,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   ];
 
   if (process.env.NODE_ENV === "production") {
-    waspCliProcess = spawn("wasp");
+    waspCliProcess = spawn("wasp", waspCliProcessArgs);
   } else {
     // NOTE: In dev when we use `wasp-cli`, we want to make sure that if this app is run via `wasp` that its datadir env var does not propagate,
     //   so we reset it here. This is problem only if you run app with `wasp` and let it call `wasp-cli` here.
