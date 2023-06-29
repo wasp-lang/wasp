@@ -234,7 +234,7 @@ queryDocPrompt =
     import HttpError from '@wasp/core/HttpError.js'
 
     export const getFilteredTasks = async (args, context) => {
-      if (!context.user) { throw new HttpError(403) } // If user needs to be authenticated.
+      if (!context.user) { throw new HttpError(401) } // If user needs to be authenticated.
 
       return context.entities.Task.findMany({
         where: {
