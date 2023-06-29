@@ -348,12 +348,12 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
                   </h3>
                   <button
                     type="button"
-                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
                     onClick={() => setShowModal(false)}
                   >
                     <svg
                       aria-hidden="true"
-                      class="w-5 h-5"
+                      className="w-5 h-5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
@@ -364,10 +364,11 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
                         clip-rule="evenodd"
                       ></path>
                     </svg>
-                    <span class="sr-only">Close modal</span>
+                    <span className="sr-only">Close modal</span>
                   </button>
                 </div>
                 <div className="p-6 space-y-6">
+                  <WarningAboutAI />
                   <p className="text-base leading-relaxed text-gray-500">
                     First, you need to install Wasp locally. You can do that by
                     running this command in your terminal:
@@ -399,5 +400,33 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
         </>
       ) : null}
     </>
+  );
+}
+
+function WarningAboutAI() {
+  return (
+    <div className="bg-yellow-50 text-yellow-700 p-4 rounded">
+      <div className="flex">
+        <div className="ml-3">
+          <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
+          <div className="mt-2 text-sm leading-5">
+            <p>
+              Since this is an AI generated app, it might contain small issues.
+              The bugs are usually small and easy to fix, but if you need help,
+              feel free to reach out to us on{" "}
+              <a
+                href="https://discord.gg/rzdnErX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150"
+              >
+                Discord
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

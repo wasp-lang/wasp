@@ -30,7 +30,7 @@ const MainPage = () => {
     }
   }
 
-  const exampleIdeas = [
+  const poolOfExampleIdeas = [
     {
       name: "TodoApp",
       description:
@@ -48,7 +48,16 @@ const MainPage = () => {
         "A flower shop with a main page that lists all the flowers. I can create new flowers, or toggle existing ones." +
         "User owns flowers. User can only see and edit their own flowers. Flowers are saved in the database.",
     },
+    {
+      name: "WeatherApplication",
+      description:
+        "Build a simple app that uses the browser to get the current user's location. It then fetches the current weather. It uses the Open Weather API on the backend",
+    },
   ];
+  // Pick random 3 ideas
+  const ideasToDisplay = poolOfExampleIdeas
+    .sort(() => Math.random() - Math.random())
+    .slice(0, 3);
 
   function useIdea(idea) {
     setAppName(idea.name);
@@ -93,9 +102,11 @@ const MainPage = () => {
         </button>
       </form>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4 text-slate-800">Some example ideas</h3>
+        <h3 className="text-xl font-semibold mb-4 text-slate-800">
+          Some example ideas
+        </h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
-          {exampleIdeas.map((idea) => (
+          {ideasToDisplay.map((idea) => (
             <div
               key={idea.name}
               className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center"
