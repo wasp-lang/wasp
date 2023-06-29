@@ -76,7 +76,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
 
   writeToLog "Fixing any mistakes in pages..."
   forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
-    fixPageComponent newProjectDetails waspFilePath pageFp actions queries
+    fixPageComponent newProjectDetails waspFilePath pageFp
     writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
   writeToLog "Pages fixed."
 

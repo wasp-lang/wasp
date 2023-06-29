@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { StatusPill } from "../components/StatusPill";
 import { useHistory } from "react-router-dom";
@@ -55,9 +55,11 @@ const MainPage = () => {
     },
   ];
   // Pick random 3 ideas
-  const ideasToDisplay = poolOfExampleIdeas
-    .sort(() => Math.random() - Math.random())
-    .slice(0, 3);
+  const ideasToDisplay = useMemo(
+    () =>
+      poolOfExampleIdeas.sort(() => Math.random() - Math.random()).slice(0, 3),
+    []
+  );
 
   function useIdea(idea) {
     setAppName(idea.name);
