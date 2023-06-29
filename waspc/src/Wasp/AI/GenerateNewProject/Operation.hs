@@ -22,6 +22,7 @@ import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
+    defaultChatGPTParamsForFixing,
     queryChatGPTForJSON,
     writeToWaspFileEnd,
   )
@@ -123,7 +124,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
         then return operationImpl
         else do
           let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
-          queryChatGPTForJSON defaultChatGPTParams $
+          queryChatGPTForJSON defaultChatGPTParamsForFixing $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText operationImpl},
                    ChatMessage
@@ -155,7 +156,7 @@ actionDocPrompt =
     ```wasp
     action updateTask {
       fn: import { updateTask } from "@server/taskActions.js",
-      entities: [Task] // Entities that action uses.
+      entities: [Task] // Entities that action mutates.
     }
     ```
 

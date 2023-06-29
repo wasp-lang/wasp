@@ -15,7 +15,7 @@ import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails,
-    defaultChatGPTParams,
+    defaultChatGPTParamsForFixing,
     queryChatGPTForJSON,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
@@ -32,7 +32,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
   --   with npm dependencies installed, so we skipped it for now.
   fixedOpJsFile <-
     queryChatGPTForJSON
-      defaultChatGPTParams
+      defaultChatGPTParamsForFixing
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = fixOpJsFilePrompt currentWaspFileContent currentOpJsFileContent}
       ]
@@ -83,6 +83,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
 
           With this in mind, generate a new, fixed NodeJS file with operations (${opJsFilePathText}).
           Don't do too big changes, like deleting or adding whole functions, focus on smaller things and those listed above.
+          DO NOT add new queries / actions to the file, or delete existing ones!
           Do actual fixes, don't leave comments with "TODO"!
           Please respond ONLY with a valid JSON of the format { opJsFileContent: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.

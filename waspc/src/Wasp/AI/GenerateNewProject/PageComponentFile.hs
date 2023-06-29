@@ -14,7 +14,7 @@ import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
-    defaultChatGPTParams,
+    defaultChatGPTParamsForFixing,
     queryChatGPTForJSON,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
@@ -28,7 +28,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
   currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
   fixedPageComponent <-
     queryChatGPTForJSON
-      defaultChatGPTParams
+      defaultChatGPTParamsForFixing
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = fixPageComponentPrompt currentWaspFileContent currentPageComponentContent}
       ]
@@ -38,11 +38,18 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
       [trimming|
           ${basicWaspLangInfoPrompt}
 
+          ===============
+
           ${pageDocPrompt}
 
           ===============
 
           We are together building a new Wasp app (description at the end of prompt).
+
+          Here is our main.wasp file that we generated so far, to provide you with the additional context about the app:
+          ```wasp
+          ${currentWaspFileContent}
+          ```
 
           Here is a React component (${pageComponentPathText}) containing some frontend code
           that we generated together earlier:
@@ -50,32 +57,19 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
           ${currentPageContent}
           ```
 
-          ===============
-
           The React component probably has some mistakes: let's fix it!
 
-          Some common mistakes to look for:
+          Strong guidelines for fixing:
             - Make sure to use only queries and actions that are defined in the Wasp file (listed below)!
-            - You should import queries from "@wasp/queries/{queryName}" like 
-              ```
-              import getTask from '@wasp/queries/getTasks';
-              ```
-            - You should import actions from "@wasp/actions/{actionName}" like
-              ```
-              import createTask from '@wasp/actions/createTask';
-              ```
+            - Ensure query and action imports are correct. One import per query / action, default imports,
+              name of the file same as name of the query.
             - Don't use `useAction` or `useMutation`! Use actions directly.
             - Use Tailwind CSS to style the page if you didn't.
             - Use <Link /> component from "react-router-dom" to link to other pages where needed.
             - "TODO" comments or "..." that should be replaced with actual implementation.
               Fix these by replacing them with actual implementation.
-            - Duplicate imports. If there are any, make sure to remove them.
+            - If there are any duplicate imports, make sure to remove them.
             - There might be some invalid JS or JSX syntax -> fix it if there is any.
-
-          Here is our main.wasp file, to provide you with the additional context about the app:
-          ```wasp
-          ${currentWaspFileContent}
-          ```
 
           With this in mind, generate a new, fixed React component (${pageComponentPathText}).
           Do actual fixes, don't leave comments with "TODO"!

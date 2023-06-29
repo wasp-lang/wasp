@@ -65,20 +65,24 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
       [trimming|
         ${basicWaspLangInfoPrompt}
 
+        ===============
+
         ${pageDocPrompt}
+
+        ===============
 
         We are implementing a Wasp app (check bottom for description).
 
-        Entities:
+        Entities in our app:
         ${entityDecls}
 
-        Actions:
+        Actions in our app:
         ${actionsInfo}
 
-        Queries:
+        Queries in our app:
         ${queriesInfo}
 
-        You should use Tailwind to style your pages. Example of Tailwind usage:
+        We use Tailwind to style pages. Example of Tailwind usage:
 
         ```jsx
           <div className="p-4 bg-slate-50 rounded-lg">
@@ -87,6 +91,8 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
             </button>
           </div>
         ```
+
+        ===============
 
         Let's now implement the following Wasp page:
          - name: ${pageName}
@@ -150,6 +156,14 @@ pageDocPrompt =
             );
           };
         ```
+
+        A bit about importing actions and queries.
+        If query is named "myQuery", its import should look like `import myQuery from '@wasp/queries/myQuery';`.
+        It has to be default import, and name of the file is the same as name of the query.
+        Same rules apply for actions.
+        One import statement per query/action.
+
+        Note: there is no `useMutation` or `useAction` hook to import in Wasp. Actions are to be called directly.
       |]
 
 operationInfo :: Operation -> Text

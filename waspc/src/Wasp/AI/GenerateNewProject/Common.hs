@@ -8,6 +8,7 @@ module Wasp.AI.GenerateNewProject.Common
     emptyNewProjectConfig,
     queryChatGPTForJSON,
     defaultChatGPTParams,
+    defaultChatGPTParamsForFixing,
     writeToWaspFileEnd,
   )
 where
@@ -99,7 +100,10 @@ queryChatGPTForJSON chatGPTParams = doQueryForJSON 0
 
 -- TODO: Test more for the optimal temperature (possibly higher).
 defaultChatGPTParams :: ChatGPTParams
-defaultChatGPTParams = GPT.ChatGPTParams {_model = GPT.GPT_3_5_turbo_16k, _temperature = Just 1.0}
+defaultChatGPTParams = GPT.ChatGPTParams {_model = GPT.GPT_3_5_turbo_16k, _temperature = Just 0.7}
+
+defaultChatGPTParamsForFixing :: ChatGPTParams
+defaultChatGPTParamsForFixing = GPT.ChatGPTParams {_model = GPT.GPT_3_5_turbo_16k, _temperature = Just 0.5}
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do

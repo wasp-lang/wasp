@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AI.OpenAI.ChatGPT
@@ -10,12 +11,13 @@ module Wasp.AI.OpenAI.ChatGPT
     ChatMessage (..),
     ChatRole (..),
     getChatResponseContent,
+    checkIfGpt4IsAvailable,
   )
 where
 
 import Control.Arrow ()
 import Control.Monad (when)
-import Data.Aeson ((.=))
+import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
 import Data.Text (Text)
@@ -83,6 +85,13 @@ queryChatGPT apiKey params requestMessages = do
 getChatResponseContent :: ChatResponse -> Text
 getChatResponseContent = content . message . head . choices
 
+checkIfGpt4IsAvailable :: OpenAIApiKey -> IO Bool
+checkIfGpt4IsAvailable apiKey = do
+  let request =
+        HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
+          HTTP.parseRequest_ $ "GET https://api.openai.com/v1/models/" <> show GPT_4
+  (200 ==) . HTTP.getResponseStatusCode <$> HTTP.httpNoBody request
+
 data ChatGPTParams = ChatGPTParams
   { _model :: !Model,
     _temperature :: !(Maybe Float)
@@ -107,47 +116,37 @@ data ChatResponse = ChatResponse
     choices :: ![ChatResponseChoice],
     usage :: !ChatResponseUsage
   }
-  deriving (Generic, Show)
-
-instance Aeson.FromJSON ChatResponse
+  deriving (Generic, Show, FromJSON)
 
 data ChatResponseUsage = ChatResponseUsage
   { prompt_tokens :: !Int,
     completion_tokens :: !Int,
     total_tokens :: !Int
   }
-  deriving (Generic, Show)
-
-instance Aeson.FromJSON ChatResponseUsage
+  deriving (Generic, Show, FromJSON)
 
 data ChatResponseChoice = ChatResponseChoice
   { index :: !Int,
     message :: !ChatMessage,
     finish_reason :: !String
   }
-  deriving (Generic, Show)
-
-instance Aeson.FromJSON ChatResponseChoice
+  deriving (Generic, Show, FromJSON)
 
 data ChatMessage = ChatMessage
   { role :: !ChatRole,
     content :: !Text
   }
-  deriving (Generic, Show)
-
-instance Aeson.ToJSON ChatMessage
-
-instance Aeson.FromJSON ChatMessage
+  deriving (Generic, Show, ToJSON, FromJSON)
 
 data ChatRole = User | System | Assistant
   deriving (Generic, Show)
 
-instance Aeson.ToJSON ChatRole where
+instance ToJSON ChatRole where
   toJSON User = "user"
   toJSON System = "system"
   toJSON Assistant = "assistant"
 
-instance Aeson.FromJSON ChatRole where
+instance FromJSON ChatRole where
   parseJSON = Aeson.withText "ChatRole" $ \case
     "user" -> return User
     "system" -> return System

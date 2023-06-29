@@ -11,6 +11,8 @@ module Wasp.AI.CodeAgent
     getAllFiles,
     queryChatGPT,
     getTotalTokensUsage,
+    getOpenAIApiKey,
+    checkIfGpt4IsAvailable,
   )
 where
 
@@ -36,7 +38,12 @@ runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
 runCodeAgent config codeAgent =
   fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState
   where
-    initialState = CodeAgentState {_files = H.empty, _usage = []}
+    initialState =
+      CodeAgentState
+        { _files = H.empty,
+          _usage = [],
+          _isGpt4Available = Nothing
+        }
 
 writeToLog :: Text -> CodeAgent ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
@@ -64,6 +71,19 @@ queryChatGPT params messages = do
   modify $ \s -> s {_usage = _usage s <> [ChatGPT.usage chatResponse]}
   return $ ChatGPT.getChatResponseContent chatResponse
 
+getOpenAIApiKey :: CodeAgent OpenAIApiKey
+getOpenAIApiKey = asks _openAIApiKey
+
+checkIfGpt4IsAvailable :: CodeAgent Bool
+checkIfGpt4IsAvailable = do
+  gets _isGpt4Available >>= \case
+    Just isAvailable -> pure isAvailable
+    Nothing -> do
+      key <- asks _openAIApiKey
+      isAvailable <- liftIO $ ChatGPT.checkIfGpt4IsAvailable key
+      modify $ \s -> s {_isGpt4Available = Just isAvailable}
+      return isAvailable
+
 type NumTokens = Int
 
 -- | Returns total tokens usage: (<num_prompt_tokens>, <num_completion_tokens>).
@@ -75,6 +95,7 @@ getTotalTokensUsage = do
   return (numPromptTokens, numCompletionTokens)
 
 data CodeAgentState = CodeAgentState
-  { _files :: H.HashMap FilePath Text, -- TODO: Name this "cacheFiles" maybe?
-    _usage :: [ChatGPT.ChatResponseUsage]
+  { _files :: !(H.HashMap FilePath Text), -- TODO: Name this "cacheFiles" maybe?
+    _usage :: ![ChatGPT.ChatResponseUsage],
+    _isGpt4Available :: !(Maybe Bool)
   }

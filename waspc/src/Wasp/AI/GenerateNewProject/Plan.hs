@@ -17,15 +17,16 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import qualified Text.Parsec as Parsec
-import Wasp.AI.CodeAgent (CodeAgent)
+import Wasp.AI.CodeAgent (CodeAgent, checkIfGpt4IsAvailable)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
+    defaultChatGPTParamsForFixing,
     queryChatGPTForJSON,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
+import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (_model), ChatMessage (..), ChatRole (..), Model (GPT_4))
 import qualified Wasp.Psl.Parser.Model as Psl.Parser
 import qualified Wasp.Util.Aeson as Util.Aeson
 
@@ -34,7 +35,8 @@ type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  queryChatGPTForJSON defaultChatGPTParams chatMessages
+  isGpt4Available <- checkIfGpt4IsAvailable
+  queryChatGPTForJSON (makeGptParams defaultChatGPTParams isGpt4Available) chatMessages
     >>= fixPlanIfNeeded
   where
     chatMessages =
@@ -86,12 +88,14 @@ generatePlan newProjectDetails planRules = do
             "componentPath": "@client/pages/Task.jsx",
             "routeName: "TaskRoute",
             "routePath": "/task/:taskId",
-            "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task.",
+            "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task. Uses getTask query and createTask action.",
           }]
         }
 
         We will later use this plan to write main.wasp file and all the other parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
+        Also, mention in the descriptions of actions/queries which entities they work with,
+        and in descriptions of pages mention which actions/queries they use.
 
         Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
         least two entities. It will very likely have more than one of each, though.
@@ -104,6 +108,7 @@ generatePlan newProjectDetails planRules = do
 
     fixPlanIfNeeded :: Plan -> CodeAgent Plan
     fixPlanIfNeeded plan = do
+      isGpt4Available <- checkIfGpt4IsAvailable
       let issues =
             checkPlanForEntityIssues plan
               <> checkPlanForOperationIssues Query plan
@@ -113,7 +118,7 @@ generatePlan newProjectDetails planRules = do
         then return plan
         else do
           let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
-          queryChatGPTForJSON defaultChatGPTParams $
+          queryChatGPTForJSON (makeGptParams defaultChatGPTParamsForFixing isGpt4Available) $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan},
                    ChatMessage
@@ -131,6 +136,10 @@ generatePlan newProjectDetails planRules = do
                          |]
                      }
                  ]
+
+    makeGptParams :: ChatGPTParams -> Bool -> ChatGPTParams
+    makeGptParams params isGpt4Available =
+      if isGpt4Available then params {_model = GPT_4} else params
 
 checkPlanForEntityIssues :: Plan -> [String]
 checkPlanForEntityIssues plan =
