@@ -10,6 +10,8 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   {
     appName: string;
     appDesc: string;
+    appPrimaryColor: string;
+    appAuthMethod: string;
   },
   string
 > = async (args, context) => {
@@ -39,16 +41,25 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   };
 
   // { auth: 'UsernameAndPassword', primaryColor: string }
-  const projectConfig = {}
+  const projectConfig = {
+    primaryColor: args.appPrimaryColor,
+  };
 
   const stdoutMutex = new Mutex();
   let waspCliProcess = null;
+  const waspCliProcessArgs = [
+    "new-ai",
+    args.appName,
+    args.appDesc,
+    JSON.stringify(projectConfig),
+  ];
+
   if (process.env.NODE_ENV === "production") {
-    waspCliProcess = spawn("wasp", ["new-ai", args.appName, args.appDesc, JSON.stringify(projectConfig)]);
+    waspCliProcess = spawn("wasp");
   } else {
     // NOTE: In dev when we use `wasp-cli`, we want to make sure that if this app is run via `wasp` that its datadir env var does not propagate,
     //   so we reset it here. This is problem only if you run app with `wasp` and let it call `wasp-cli` here.
-    waspCliProcess = spawn("wasp-cli", ["new-ai", args.appName, args.appDesc, JSON.stringify(projectConfig)], {
+    waspCliProcess = spawn("wasp-cli", waspCliProcessArgs, {
       env: { ...process.env, waspc_datadir: undefined },
     });
   }
