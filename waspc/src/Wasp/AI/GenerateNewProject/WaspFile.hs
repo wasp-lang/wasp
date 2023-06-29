@@ -30,17 +30,32 @@ import Wasp.Project.Analyze (analyzeWaspFileContent)
 fixWaspFile :: NewProjectDetails -> FilePath -> CodeAgent ()
 fixWaspFile newProjectDetails waspFilePath = do
   currentWaspFileContent <- fromMaybe (error "couldn't find wasp file to fix") <$> getFile waspFilePath
-  compileErrors <-
-    liftIO (analyzeWaspFileContent $ T.unpack currentWaspFileContent)
-      <&> either (map showCompileError) (const [])
+
+  -- First we do one attempt at fixing wasp file even if there are no compiler errors,
+  -- to give chatGPT opportunity to fix some other stuff we mention in the prompt.
+  -- Then, we do two more attempts at fixing, but only if there are compiler errors.
   fixedWaspFile <-
-    queryChatGPTForJSON
-      defaultChatGPTParams
-      [ ChatMessage {role = System, content = Prompts.systemPrompt},
-        ChatMessage {role = User, content = fixWaspFilePrompt currentWaspFileContent compileErrors}
-      ]
+    pure (WaspFile {waspFileContent = currentWaspFileContent})
+      >>= askChatGptToFixWaspFile EvenIfNoCompileErrors
+      >>= askChatGptToFixWaspFile OnlyIfCompileErrors
+      >>= askChatGptToFixWaspFile OnlyIfCompileErrors
+
   writeToFile waspFilePath (const $ waspFileContent fixedWaspFile)
   where
+    askChatGptToFixWaspFile :: ShouldContinueIfCompileErrors -> WaspFile -> CodeAgent WaspFile
+    askChatGptToFixWaspFile shouldContinueIfCompileErrors WaspFile {waspFileContent = wfContent} = do
+      compileErrors <- liftIO $ getWaspFileCompileErrors wfContent
+      case shouldContinueIfCompileErrors of
+        OnlyIfCompileErrors
+          | null compileErrors ->
+              return $ WaspFile {waspFileContent = wfContent}
+        _ ->
+          queryChatGPTForJSON
+            defaultChatGPTParams
+            [ ChatMessage {role = System, content = Prompts.systemPrompt},
+              ChatMessage {role = User, content = fixWaspFilePrompt wfContent compileErrors}
+            ]
+
     fixWaspFilePrompt currentWaspFileContent compileErrors =
       let compileErrorsText =
             T.pack $
@@ -87,6 +102,7 @@ fixWaspFile newProjectDetails waspFilePath = do
 
             With this in mind, generate a new, fixed wasp file.
             Do actual fixes, don't leave comments with "TODO"!
+            Make extra sure to fix compiler errors, if there are any.
             Please respond ONLY with a valid JSON of the format { waspFileContent: string }.
             There should be no other text in your response. Don't wrap content with the "```" code delimiters.
 
@@ -95,6 +111,14 @@ fixWaspFile newProjectDetails waspFilePath = do
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
+
+data ShouldContinueIfCompileErrors = OnlyIfCompileErrors | EvenIfNoCompileErrors
+
+getWaspFileCompileErrors :: Text -> IO [String]
+getWaspFileCompileErrors waspSource =
+  analyzeWaspFileContent (T.unpack waspSource)
+    <&> either (map showCompileError) (const [])
+  where
     showCompileError (errMsg, Ctx {ctxSourceRegion = loc}) = show loc <> ": " <> errMsg
 
 data WaspFile = WaspFile
