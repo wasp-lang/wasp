@@ -102,6 +102,7 @@ data ChatGPTParams = ChatGPTParams
 
 -- TODO: There are some more data models there but for now we went with these core ones.
 data Model = GPT_3_5_turbo | GPT_3_5_turbo_16k | GPT_4
+  deriving (Eq)
 
 instance Show Model where
   show GPT_3_5_turbo = "gpt-3.5-turbo"

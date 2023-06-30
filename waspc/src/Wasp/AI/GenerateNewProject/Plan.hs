@@ -17,7 +17,7 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import qualified Text.Parsec as Parsec
-import Wasp.AI.CodeAgent (CodeAgent, checkIfGpt4IsAvailable)
+import Wasp.AI.CodeAgent (CodeAgent)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
@@ -35,8 +35,7 @@ type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  isGpt4Available <- checkIfGpt4IsAvailable
-  queryChatGPTForJSON (makeGptParams defaultChatGPTParams isGpt4Available) chatMessages
+  queryChatGPTForJSON (defaultChatGPTParams {_model = GPT_4}) chatMessages
     >>= fixPlanIfNeeded
   where
     chatMessages =
@@ -108,7 +107,6 @@ generatePlan newProjectDetails planRules = do
 
     fixPlanIfNeeded :: Plan -> CodeAgent Plan
     fixPlanIfNeeded plan = do
-      isGpt4Available <- checkIfGpt4IsAvailable
       let issues =
             checkPlanForEntityIssues plan
               <> checkPlanForOperationIssues Query plan
@@ -118,7 +116,7 @@ generatePlan newProjectDetails planRules = do
         then return plan
         else do
           let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
-          queryChatGPTForJSON (makeGptParams defaultChatGPTParamsForFixing isGpt4Available) $
+          queryChatGPTForJSON (defaultChatGPTParamsForFixing {_model = GPT_4}) $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan},
                    ChatMessage
@@ -136,10 +134,6 @@ generatePlan newProjectDetails planRules = do
                          |]
                      }
                  ]
-
-    makeGptParams :: ChatGPTParams -> Bool -> ChatGPTParams
-    makeGptParams params isGpt4Available =
-      if isGpt4Available then params {_model = GPT_4} else params
 
 checkPlanForEntityIssues :: Plan -> [String]
 checkPlanForEntityIssues plan =

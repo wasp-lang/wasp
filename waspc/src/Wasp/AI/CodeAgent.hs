@@ -22,7 +22,7 @@ import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
 import Wasp.AI.OpenAI (OpenAIApiKey)
-import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
+import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 
 newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT CodeAgentState IO) a}
@@ -31,7 +31,8 @@ newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT
 data CodeAgentConfig = CodeAgentConfig
   { _openAIApiKey :: !OpenAIApiKey,
     _writeFile :: !(FilePath -> Text -> IO ()), -- TODO: Use StrongPath? Not clear which kind of path is it, rel, abs, ... .
-    _writeLog :: !(Text -> IO ())
+    _writeLog :: !(Text -> IO ()),
+    _useGpt3IfGpt4NotAvailable :: !Bool
   }
 
 runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
@@ -66,8 +67,18 @@ getAllFiles = gets $ H.toList . _files
 
 queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent Text
 queryChatGPT params messages = do
+  params' <- do
+    useGpt3IfGpt4NotAvailable <- asks _useGpt3IfGpt4NotAvailable
+    if ChatGPT._model params == ChatGPT.GPT_4 && useGpt3IfGpt4NotAvailable
+      then do
+        isAvailable <- checkIfGpt4IsAvailable
+        if not isAvailable
+          then return $ params {ChatGPT._model = ChatGPT.GPT_3_5_turbo_16k}
+          else return params
+      else return params
+
   key <- asks _openAIApiKey
-  chatResponse <- liftIO $ ChatGPT.queryChatGPT key params messages
+  chatResponse <- liftIO $ ChatGPT.queryChatGPT key params' messages
   modify $ \s -> s {_usage = _usage s <> [ChatGPT.usage chatResponse]}
   return $ ChatGPT.getChatResponseContent chatResponse
 
