@@ -345,7 +345,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className={`button w-full${!disabled ? " animate-bounce" : ""}`}
+        className={`button w-full${true ? " animate-jumping" : ""}`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
