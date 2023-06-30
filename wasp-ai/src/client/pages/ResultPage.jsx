@@ -129,6 +129,12 @@ export const ResultPage = () => {
     }
   }, [files]);
 
+  useEffect(() => {
+    if (activeFilePath === null && interestingFilePaths.length > 0) {
+      setActiveFilePath(interestingFilePaths[0]);
+    }
+  }, [interestingFilePaths]);
+
   const previewLogsCount = 3;
   const visibleLogs = useMemo(() => {
     if (logs) {
@@ -345,7 +351,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className={`button w-full${true ? " animate-jumping" : ""}`}
+        className={`button w-full${!disabled ? " animate-jumping" : ""}`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
