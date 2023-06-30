@@ -9,9 +9,10 @@ import Control.Lens ((.~), (^.))
 import Control.Monad (forM_, (<=<))
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
-import Data.List (stripPrefix)
+import Data.List (isSuffixOf, stripPrefix)
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as T
+import qualified Data.Text as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
@@ -55,6 +56,25 @@ registerDynamicCapabilities =
 -- rely on up-to-date export lists need to manually refresh the export lists.
 registerSourceFileWatcher :: ServerM ()
 registerSourceFileWatcher = do
+  -- We try to watch just the @src/@ directory, but we can only specify absolute
+  -- glob patterns. So we can only do this when the root path is available, which
+  -- it practically always is after @Initialized@ is sent.
+  --
+  -- NOTE: relative glob patterns are introduced in the LSP spec 3.17, but are
+  -- not available in 3.16. We are limited to 3.16 because we use lsp-1.4.0.0.
+  let tsJsGlobPattern = "**/*.{ts,tsx,js,jsx}"
+  globPattern <-
+    LSP.getRootPath >>= \case
+      Nothing -> do
+        logM "Could not access projectRootDir when setting up source file watcher. Watching any TS/JS file instead of limiting to src/."
+        return tsJsGlobPattern
+      Just projectRootDir -> do
+        let srcGlobPattern = "src/" <> tsJsGlobPattern
+        return $
+          if "/" `isSuffixOf` projectRootDir
+            then projectRootDir <> srcGlobPattern
+            else projectRootDir <> "/" <> srcGlobPattern
+
   watchSourceFilesToken <-
     LSP.registerCapability
       LSP.SWorkspaceDidChangeWatchedFiles
@@ -62,9 +82,7 @@ registerSourceFileWatcher = do
         { _watchers =
             LSP.List
               [ LSP.FileSystemWatcher
-                  { -- TODO(before merge): try again to see if i can get this working limited to src/ directory.
-                    -- Earlier testing showed that "src/**/*.{ts,tsx,js,jsx}" didn't work 🤷‍♂️
-                    _globPattern = "**/*.{ts,tsx,js,jsx}",
+                  { _globPattern = Text.pack globPattern,
                     _kind = Nothing
                   }
               ]
@@ -72,7 +90,7 @@ registerSourceFileWatcher = do
       sourceFilesChangedHandler
   case watchSourceFilesToken of
     Nothing -> logM "[initializedHandler] Client did not accept WorkspaceDidChangeWatchedFiles registration"
-    Just _ -> logM "[initializedHandler] WorkspaceDidChangeWatchedFiles registered for JS/TS source files"
+    Just _ -> logM $ "[initializedHandler] WorkspaceDidChangeWatchedFiles registered for JS/TS source files. Glob pattern: " <> globPattern
   modify (State.regTokens . State.watchSourceFilesToken .~ watchSourceFilesToken)
 
 -- | Ran when files in src/ change. It refreshes the relevant export lists in
