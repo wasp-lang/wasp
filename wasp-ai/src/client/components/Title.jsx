@@ -10,7 +10,7 @@ export function Title() {
           GPT Web App Generator ✨
         </Link>
         <p className="text-base leading-relaxed text-gray-500">
-          Generate your full-stack React, Node.js and Prisma web app
+          Generate your full-stack web app in Wasp, React, Node.js and Prisma
         </p>
         {/* <div className="mt-2 flex justify-flex-start">
           <iframe

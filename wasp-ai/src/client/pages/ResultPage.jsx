@@ -471,9 +471,17 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is an GPT generated app, it might contain small issues.
-              The bugs are usually small and easy to fix, but if you need help,
-              feel free to reach out to us on{" "}
+              Since this is a GPT generated app, it might contain small issues.
+              The bugs are usually small and easy to fix with the help of{" "}
+              <a
+                href="https://wasp-lang.dev/docs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
+                >
+                  Wasp docs
+              </a>,
+              but if you need help, feel free to reach out to us on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
@@ -481,8 +489,7 @@ function WarningAboutAI() {
                 className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
               >
                 Discord
-              </a>
-              .
+              </a>!
             </p>
           </div>
         </div>
