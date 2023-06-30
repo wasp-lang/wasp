@@ -68,18 +68,36 @@ instance Aeson.FromJSON AuthProvider where
 type File = (FilePath, Text)
 
 queryChatGPTForJSON :: FromJSON a => ChatGPTParams -> [ChatMessage] -> CodeAgent a
-queryChatGPTForJSON chatGPTParams = doQueryForJSON 0
+queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
   where
-    doQueryForJSON :: (FromJSON a) => Int -> [ChatMessage] -> CodeAgent a
-    doQueryForJSON numPrevFailures chatMsgs = do
+    -- Retry logic here got a bit complex, here is a short explanation.
+    -- We first try to do normal request, if that fails and returns invalid JSON, we ask chatGPT to
+    -- fix it while continuing on the existing conversation.
+    -- If GPT gives us invalid JSON for the `maxNumFailuresPerRunBeforeGivingUpOnARun`th time,
+    -- we give up on a current conversation (aka run) and start a new one, from the scratch, with
+    -- the initial request, to give GPT a chance to have a fresh start since obviously it can't fix
+    -- the mistake it did.
+    -- Once we fail `maxNumFailedRunsBeforeGivingUpCompletely`th conversation (run), we give up
+    -- completely.
+    -- So max total number of GPT requests is
+    -- `maxNumFailedRunsBeforeGivingUpCompletely` * `maxNumFailuresPerRunBeforeGivingUpOnARun`.
+    doQueryForJSON :: (FromJSON a) => Int -> Int -> [ChatMessage] -> CodeAgent a
+    doQueryForJSON numPrevFailedRuns numPrevFailuresPerCurrentRun chatMsgs = do
       response <- queryChatGPT chatGPTParams chatMsgs
       case Aeson.eitherDecode . textToLazyBS . naiveTrimJSON $ response of
         Right result -> return result
         Left errMsg ->
-          let numFailures = numPrevFailures + 1
-           in if numFailures <= maxNumFailuresBeforeGivingUp
-                then
-                  doQueryForJSON (numPrevFailures + 1) $
+          let numFailuresPerCurrentRun = numPrevFailuresPerCurrentRun + 1
+           in if numFailuresPerCurrentRun >= maxNumFailuresPerRunBeforeGivingUpOnARun
+                then do
+                  let numFailedRuns = numPrevFailedRuns + 1
+                   in if numFailedRuns >= maxNumFailedRunsBeforeGivingUpCompletely
+                        then do
+                          writeToLog "Failed to parse ChatGPT response as JSON."
+                          error $ "Failed to parse ChatGPT response as JSON: " <> errMsg
+                        else doQueryForJSON numFailedRuns 0 initChatMsgs
+                else
+                  doQueryForJSON numPrevFailedRuns numFailuresPerCurrentRun $
                     chatMsgs
                       ++ [ GPT.ChatMessage {GPT.role = GPT.Assistant, GPT.content = response},
                            GPT.ChatMessage
@@ -92,11 +110,9 @@ queryChatGPTForJSON chatGPTParams = doQueryForJSON 0
                                    <> ". Newlines should be escaped as \\n."
                              }
                          ]
-                else do
-                  writeToLog "Failed to parse ChatGPT response as JSON."
-                  error $ "Failed to parse ChatGPT response as JSON: " <> errMsg
 
-    maxNumFailuresBeforeGivingUp = 2
+    maxNumFailuresPerRunBeforeGivingUpOnARun = 3
+    maxNumFailedRunsBeforeGivingUpCompletely = 2
 
 -- TODO: Test more for the optimal temperature (possibly higher).
 defaultChatGPTParams :: ChatGPTParams

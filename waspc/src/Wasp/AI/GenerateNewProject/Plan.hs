@@ -35,7 +35,7 @@ type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  queryChatGPTForJSON (defaultChatGPTParams {_model = GPT_4}) chatMessages
+  queryChatGPTForJSON (defaultChatGPTParams {_model = planGptModel}) chatMessages
     >>= fixPlanIfNeeded
   where
     chatMessages =
@@ -116,7 +116,7 @@ generatePlan newProjectDetails planRules = do
         then return plan
         else do
           let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
-          queryChatGPTForJSON (defaultChatGPTParamsForFixing {_model = GPT_4}) $
+          queryChatGPTForJSON (defaultChatGPTParamsForFixing {_model = planGptModel}) $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan},
                    ChatMessage
@@ -134,6 +134,8 @@ generatePlan newProjectDetails planRules = do
                          |]
                      }
                  ]
+
+    planGptModel = GPT_4
 
 checkPlanForEntityIssues :: Plan -> [String]
 checkPlanForEntityIssues plan =
