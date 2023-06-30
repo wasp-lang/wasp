@@ -377,7 +377,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             locally. You can do that by running this command in your terminal:
           </p>
           <pre className="bg-slate-50 p-4 rounded-lg text-sm">
-            $ curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+            curl -sSL https://get.wasp-lang.dev/installer.sh | sh
           </pre>
           <p className="text-base leading-relaxed text-gray-500">
             Then, you download the ZIP file with the generated app:
@@ -390,8 +390,8 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Unzip the file and run the app with:
           </p>
           <pre className="bg-slate-50 p-4 rounded-lg text-sm">
-            $ wasp db migrate-dev
-            <br />$ wasp start
+            wasp db migrate-dev
+            <br />wasp start
           </pre>
           <p className="text-base leading-relaxed text-gray-500">
             Congratulations, you are now running your app! 🎉
