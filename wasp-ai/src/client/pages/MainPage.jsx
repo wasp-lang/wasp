@@ -135,6 +135,12 @@ const MainPage = () => {
     window.scrollTo(0, 0);
   }
 
+  function setAppNameIfValid(value) {
+    if (/^[a-zA-Z0-9_-]*$/.test(value)) {
+      setAppName(value);
+    }
+  }
+
   return (
     <div className="container">
       <div className="mb-4 bg-slate-50 p-8 rounded-xl flex justify-between items-center">
@@ -154,15 +160,11 @@ const MainPage = () => {
               id="appName"
               required
               type="text"
-              placeholder="Some cool name"
+              placeholder="e.g. TodoApp or FlowerShop"
               value={appName}
-              onChange={(e) => setAppName(e.target.value)}
+              onChange={(e) => setAppNameIfValid(e.target.value)}
               disabled={currentStatus.status === "inProgress"}
             />
-            <small className="text-sm text-slate-400 mt-2 block">
-              App name can only contain letters, numbers, dashes, or
-              underscores.
-            </small>
           </div>
           <div>
             <label htmlFor="appDesc" className="text-slate-700 block mb-2">
@@ -171,7 +173,8 @@ const MainPage = () => {
             <textarea
               id="appDesc"
               required
-              placeholder="Input for the generator on what your app should do, which pages it should have, etc."
+              placeholder="Describe your web app in a couple of sentences (check examples below).
+              Based on it, our AI code agent will then generate a full stack web app in Wasp, React, NodeJS and Prisma for you!"
               value={appDesc}
               rows="5"
               cols="50"
@@ -179,39 +182,41 @@ const MainPage = () => {
               disabled={currentStatus.status === "inProgress"}
             />
           </div>
-          <div>
-            <label
-              htmlFor="appPrimaryColor"
-              className="text-slate-700 block mb-2"
-            >
-              Primary color
-            </label>
-            <MyDropdown
-              value={appPrimaryColor}
-              onChange={setAppPrimaryColor}
-              options={availableColors}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="appAuthMethod"
-              className="text-slate-700 block mb-2"
-            >
-              Auth method
-            </label>
-            <MyRadio
-              options={availableAuthMethods}
-              value={appAuthMethod}
-              onChange={setAppAuthMethod}
-              label="Auth methods"
-            />
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gridGap: '10px'}}>
+            <div>
+              <label
+                htmlFor="appPrimaryColor"
+                className="text-slate-700 block mb-2"
+              >
+                Primary color
+              </label>
+              <MyDropdown
+                value={appPrimaryColor}
+                onChange={setAppPrimaryColor}
+                options={availableColors}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="appAuthMethod"
+                className="text-slate-700 block mb-2"
+              >
+                Auth method
+              </label>
+              <MyDropdown
+                value={appAuthMethod}
+                onChange={setAppAuthMethod}
+                options={availableAuthMethods}
+              />
+            </div>
           </div>
         </div>
         <button
+          style={{marginTop: '15px'}}
           className="button mr-2"
           disabled={currentStatus.status === "inProgress"}
         >
-          Generate the app
+          Generate the app!
         </button>
       </form>
       <div className="mt-8">
@@ -222,7 +227,8 @@ const MainPage = () => {
           {ideasToDisplay.map((idea) => (
             <div
               key={idea.name}
-              className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center"
+              className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center cursor-pointer hover:bg-slate-100"
+              onClick={() => useIdea(idea)}
             >
               <div className="idea">
                 <div className="flex justify-between items-center mb-4">
@@ -233,10 +239,7 @@ const MainPage = () => {
                     ></span>
                     {idea.name}
                   </h4>
-                  <button
-                    className="button sm gray"
-                    onClick={() => useIdea(idea)}
-                  >
+                  <button className="button sm gray">
                     Use this idea
                   </button>
                 </div>
