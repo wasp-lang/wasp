@@ -33,6 +33,10 @@ textarea {
   @apply bg-slate-50 text-slate-800 p-8 rounded-xl;
 }
 
+.big-box-dark {
+  @apply bg-slate-900 text-white p-8 rounded-xl;
+}
+
 .status-icon {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
 }

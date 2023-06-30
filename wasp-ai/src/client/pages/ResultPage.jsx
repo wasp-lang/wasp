@@ -267,7 +267,14 @@ export const ResultPage = () => {
 
       {logs && (
         <>
-          <header className="big-box mt-4 mb-4 flex justify-between items-flex-start">
+          <header className="relative big-box-dark mt-4 mb-4 flex justify-between items-flex-start">
+            {currentStatus.status === "success" && (
+              <div className="absolute inset-0 bg-green-500 opacity-20 z-0"></div>
+            )}
+            {currentStatus.status === "error" && (
+              <div className="absolute inset-0 bg-red-500 opacity-20 z-0"></div>
+            )}
+
             <div className="flex-shrink-0 mr-3">
               {currentStatus.status === "inProgress" && <Loader />}
               {currentStatus.status === "success" && (
@@ -308,10 +315,10 @@ export const ResultPage = () => {
               </pre>
             )}
             {logs.length > 1 && (
-              <div className="flex-shrink-0 ml-3">
+              <div className="flex-shrink-0 ml-3 z-10">
                 <button
                   onClick={toggleLogs}
-                  className="p-2 px-4 rounded-full bg-slate-100 hover:bg-slate-200"
+                  className="p-2 px-4 rounded-full bg-slate-800 hover:bg-slate-700"
                 >
                   {logsVisible ? "Collapse the logs" : "Expand the logs"}
                 </button>
