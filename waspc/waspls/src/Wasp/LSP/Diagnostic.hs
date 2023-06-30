@@ -21,7 +21,7 @@ import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
 data WaspDiagnostic
   = ParseDiagnostic !CPE.ParseError
-  | AnalyzerDiagonstic !W.AnalyzeError
+  | AnalyzerDiagnostic !W.AnalyzeError
   | MissingExtImportDiagnostic !SourceSpan !MissingExtImportReason !WaspStyleExtFilePath
   deriving (Eq, Show)
 
@@ -41,7 +41,7 @@ missingImportSeverity _ = LSP.DsError
 
 waspDiagnosticToLspDiagnostic :: String -> WaspDiagnostic -> LSP.Diagnostic
 waspDiagnosticToLspDiagnostic src (ParseDiagnostic err) = concreteParseErrorToDiagnostic src err
-waspDiagnosticToLspDiagnostic _ (AnalyzerDiagonstic analyzeError) = waspErrorToDiagnostic analyzeError
+waspDiagnosticToLspDiagnostic _ (AnalyzerDiagnostic analyzeError) = waspErrorToDiagnostic analyzeError
 waspDiagnosticToLspDiagnostic src (MissingExtImportDiagnostic sourceSpan reason tsFile) =
   let message = showMissingImportReason reason tsFile
       severity = missingImportSeverity reason

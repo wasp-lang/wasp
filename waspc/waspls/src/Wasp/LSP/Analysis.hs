@@ -19,7 +19,7 @@ import Wasp.Analyzer (analyze)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Debouncer (debounce)
-import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagonstic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
+import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagnostic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
 import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (refreshExportsForAllExtImports)
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
@@ -92,10 +92,8 @@ analyzeWaspFile uri = do
       case analyzeResult of
         Right _ -> do
           modify (State.latestDiagnostics .~ [])
-        Left err -> do
-          let newDiagnostics =
-                [ AnalyzerDiagonstic err
-                ]
+        Left errs -> do
+          let newDiagnostics = fmap AnalyzerDiagnostic errs
           modify (State.latestDiagnostics .~ newDiagnostics)
 
 -- | Read the contents of a "Uri" in the virtual file system maintained by the
