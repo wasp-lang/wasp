@@ -100,7 +100,7 @@ const MainPage = () => {
     {
       name: "TodoApp",
       description:
-        "A simple todo app with one main page that lists all the tasks. I can create new tasks, or toggle existing ones." +
+        "A simple todo app with one main page that lists all the tasks. I can create new tasks, or toggle existing ones. " +
         "User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database.",
       color: availableColors.find((color) => color.name === "rose"),
     },
@@ -113,7 +113,7 @@ const MainPage = () => {
     {
       name: "FlowerShop",
       description:
-        "A flower shop with a main page that lists all the flowers. I can create new flowers, or toggle existing ones." +
+        "A flower shop with a main page that lists all the flowers. I can create new flowers, or 'water' existing ones. " +
         "User owns flowers. User can only see and edit their own flowers. Flowers are saved in the database.",
       color: availableColors.find((color) => color.name === "emerald"),
     },
