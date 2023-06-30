@@ -1,4 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Redundant bracket" #-}
 
 module Wasp.AI.GenerateNewProject.Operation
   ( generateAndWriteOperation,
@@ -13,7 +16,7 @@ where
 
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
-import Data.List (find, intercalate, isInfixOf, isPrefixOf)
+import Data.List (find, intercalate, isInfixOf, isPrefixOf, nub)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
@@ -334,12 +337,16 @@ writeOperationToJsFile operation =
   --   Or even the whole file? Hmmmmm.
   --   Right now we fix this later, while fixing the whole operations file, but we could try to fix
   --   it here, earlier.
-  writeToFile path $
-    (jsImportsBlock <>) . (<> jsImpl) . maybe "" (<> "\n\n")
+  writeToFile (getOperationJsFilePath operation) $ \maybeOldContent ->
+    let oldContent = maybe "\n" (<> "\n\n") maybeOldContent
+        (oldImportLines, otherOldLines) = span ("import" `T.isPrefixOf`) $ T.lines oldContent
+        operationImportLines = T.lines operationJsImportsBlock
+        newImportLines = nub $ T.strip <$> (oldImportLines <> operationImportLines)
+        newContent = (T.unlines (newImportLines <> otherOldLines)) <> operationJsImpl
+     in newContent
   where
-    path = getOperationJsFilePath operation
-    jsImpl = T.pack $ opJsImpl $ opImpl operation
-    jsImportsBlock = T.pack $ maybe "" (<> "\n") $ opJsImports $ opImpl operation
+    operationJsImpl = T.pack $ opJsImpl $ opImpl operation
+    operationJsImportsBlock = T.pack $ maybe "" (<> "\n") $ opJsImports $ opImpl operation
 
 getOperationJsFilePath :: Operation -> FilePath
 getOperationJsFilePath operation = resolvePath $ Plan.opFnPath $ opPlan operation

@@ -72,7 +72,7 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
   where
     -- Retry logic here got a bit complex, here is a short explanation.
     -- We first try to do normal request, if that fails and returns invalid JSON, we ask chatGPT to
-    -- fix it while continuing on the existing conversation.
+    -- fix it while continuing on the initial conversation.
     -- If GPT gives us invalid JSON for the `maxNumFailuresPerRunBeforeGivingUpOnARun`th time,
     -- we give up on a current conversation (aka run) and start a new one, from the scratch, with
     -- the initial request, to give GPT a chance to have a fresh start since obviously it can't fix
@@ -98,7 +98,7 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
                         else doQueryForJSON numFailedRuns 0 initChatMsgs
                 else
                   doQueryForJSON numPrevFailedRuns numFailuresPerCurrentRun $
-                    chatMsgs
+                    initChatMsgs
                       ++ [ GPT.ChatMessage {GPT.role = GPT.Assistant, GPT.content = response},
                            GPT.ChatMessage
                              { GPT.role = GPT.User,
@@ -111,7 +111,7 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
                              }
                          ]
 
-    maxNumFailuresPerRunBeforeGivingUpOnARun = 3
+    maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
 
 -- TODO: Test more for the optimal temperature (possibly higher).
