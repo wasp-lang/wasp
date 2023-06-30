@@ -32,6 +32,8 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     data: {
       name: args.appName,
       description: args.appDesc,
+      primaryColor: args.appPrimaryColor,
+      authMethod: args.appAuthMethod,
     },
   });
 

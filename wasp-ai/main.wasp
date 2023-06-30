@@ -57,6 +57,8 @@ entity Project {=psl
   id String @id @default(uuid())
   name String
   description String
+  primaryColor String @default("sky")
+  authMethod String @default("usernameAndPassword")
   createdAt DateTime @default(now())
   status String @default("in-progress")
   files File[]

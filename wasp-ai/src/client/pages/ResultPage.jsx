@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
+import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
@@ -8,6 +9,7 @@ import { StatusPill } from "../components/StatusPill";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { useHistory } from "react-router-dom";
 
 export const ResultPage = () => {
   const { appId } = useParams();
@@ -28,6 +30,7 @@ export const ResultPage = () => {
   });
   const [logsVisible, setLogsVisible] = useState(false);
   const [currentFiles, setCurrentFiles] = useState({});
+  const history = useHistory();
 
   useEffect(() => {
     if (
@@ -54,6 +57,10 @@ export const ResultPage = () => {
       });
     }
   }, [appGenerationResult, isError]);
+
+  useEffect(() => {
+    setGenerationDone(false);
+  }, [appId]);
 
   const logs = appGenerationResult?.project?.logs.map((log) => log.content);
 
@@ -189,6 +196,41 @@ export const ResultPage = () => {
     return "🤖";
   }
 
+  async function retry() {
+    const project = appGenerationResult?.project;
+    if (
+      !project ||
+      !project.name ||
+      !project.description ||
+      !project.primaryColor ||
+      !project.authMethod
+    ) {
+      setCurrentStatus({
+        status: "error",
+        message: "Missing project data",
+      });
+      return;
+    }
+    setCurrentStatus({
+      status: "inProgress",
+      message: "Retrying app generation",
+    });
+    try {
+      const appId = await startGeneratingNewApp({
+        appName: project.name,
+        appDesc: project.description,
+        appPrimaryColor: project.primaryColor,
+        appAuthMethod: project.authMethod,
+      });
+      history.push(`/result/${appId}`);
+    } catch (e) {
+      setCurrentStatus({
+        status: "error",
+        message: e.message,
+      });
+    }
+  }
+
   return (
     <div className="container">
       <div className="mb-4 bg-slate-50 p-8 rounded-xl flex justify-between items-center">
@@ -253,7 +295,14 @@ export const ResultPage = () => {
                     }}
                   >
                     {getEmoji(log) + " "}
-                    {log}
+                    {log} {i === 0 && currentStatus.status === "error" && (
+                      <button
+                        onClick={retry}
+                        className="button gray xs"
+                      >
+                        Retry
+                      </button>
+                    )}
                   </pre>
                 ))}
               </pre>
@@ -391,7 +440,8 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
           </p>
           <pre className="bg-slate-50 p-4 rounded-lg text-sm">
             wasp db migrate-dev
-            <br />wasp start
+            <br />
+            wasp start
           </pre>
           <p className="text-base leading-relaxed text-gray-500">
             Congratulations, you are now running your app! 🎉

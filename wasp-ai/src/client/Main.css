@@ -18,6 +18,9 @@ body {
 .button.sm {
   @apply text-sm py-2 px-4;
 }
+.button.xs {
+  @apply text-xs py-1 px-2;
+}
 .button:disabled {
   @apply opacity-50 cursor-not-allowed pointer-events-none;
 }
