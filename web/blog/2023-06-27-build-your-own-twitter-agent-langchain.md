@@ -17,7 +17,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 In this tutorial, we’ll build a full-stack web app that acts as our own personal Twitter Agent, or “intern”, as I like to call it. It keeps track of your notes and ideas, and uses them — along with tweets from trending-setting twitter users — to brainstorm new ideas and write tweet drafts for you! 💥
 
-The app we will be building here is a simplified version of the [Banger Tweet Bot](https://banger-tweet-bot.netlify.app) I built for my own twitter marketing needs. You can take the [app for a spin](https://banger-tweet-bot.netlify.app), and you can also check out the full, final repo here: https://github.com/vincanger/twitter-brainstorming-agent
+BTW, If you get stuck during the tutorial, or at any point just want to check out the full, final repo of the app we're building, here it is: https://github.com/vincanger/twitter-intern
 
 <!-- truncate -->
 
@@ -140,6 +140,18 @@ OPENAI_API_KEY=
 PINECONE_API_KEY=
 # will be a location, e.g 'us-west4-gcp-free'
 PINECONE_ENV=   
+
+# We will fill these in later during the Twitter Scraping section
+# Twitter details -- only needed once for Rettiwt.account.login() to get the tokens 
+TWITTER_EMAIL=
+TWITTER_HANDLE=
+TWITTER_PASSWORD=
+
+# TOKENS -- fill these in after running the getTwitterTokens script in the Twitter Scraping section
+KDT=
+TWID=
+CT0=
+AUTH_TOKEN=
 ```
 
 We need a way for us to store all our great ideas. So let’s first head to [Pinecone.io](http://Pinecone.io) and set up a free trial account. 
@@ -577,9 +589,9 @@ So now we have a way to add our own ideas and notes to our vector store. Pretty 
 ## Generating New Ideas & Tweet Drafts
 ### Using LangChain's Sequential Chains
 
-To pull the tweets from our favorite trend-setting twitter users, we’ll be using a package, `Rettiwt`, that pulls the information from the unauthenticated public twitter page. This is perfect for our purposes since we only want to fetch tweets from our selected twitter "trend-setters" and don't need to interact with the official twitter API.
+Now we need to set up the sequential chain of LLM calls that LangChain is so great at.
 
-To achieve this, we will perform the following steps:
+Here are the steps we will take:
 
 1. define a function that uses LangChain to initiate a “chain” of API calls to OpenAI’s ChatGPT completions endpoint.
     1. this function takes a tweet that we pulled from one of our favorite twitter users as an argument, searches our vector store for similar notes & ideas, and returns a list of new “brainstormed” based on the example tweet and our notes.
@@ -741,9 +753,92 @@ In our case, we went for a moderate similarity threshold of 0.7, which means tha
 
 With this function, we will get our `newTweetIdeas` and our `interestingTweet` draft back as results that we can use within our server-side action.
 
+### Scraping Twitter
+
+Before we can pass an `exampleTweet` as an argument to our newly created Sequential Chain, we need to fetch it first!
+
+To do this, we're going to use the `Rettiwt-Api` (which is just Twitter written backwards). Because it's an unofficial API there are a few caveats:
+
+1. We have to use the rettiwt client to login to our twitter account once. We will output the tokens it returns via a script and save those in our `.env.server` file for later.
+    
+2. It's best to use an alternative account for this process. If you don't have an alternative account, go ahead and register a new one now.
+    
+
+:::warning ⚠️ The use of an unofficial Twitter client, Rettiwt, is for illustrative purposes only. It's crucial that you familiarize yourself with Twitter's policies and rules regarding scraping before implementing these methods. Any abuse or misuse of these scripts and techniques may lead to actions taken against your Twitter account. We hold no responsibility for any consequences arising from your personal use of this tutorial and/or the related scripts. It is intended purely for learning and educational purposes.
+:::
+
+Let's go ahead and create a new folder in `src/server` called `scripts` with a file inside called `tokens.ts`. This will be our script that we will run only once, just so that we get the necessary tokens to pass to our Rettiwt client.
+
+We want to avoid running this script many times otherwise our account could get rate-limited. This shouldn't be an issue though, because once we return the tokens, they are valid for up to a year.
+
+So inside `src/server/scripts/tokens.ts` add the following code:
+
+```typescript
+import { Rettiwt } from 'rettiwt-api'; 
+
+/**
+ * This is a script we can now run from the cli with `wasp db seed`
+ * IMPORTANT! We only want to run this script once, after which we save the tokens
+ * in the .env.server file. They should be good for up to a year.
+ */
+export const getTwitterTokens = async () => {
+  const tokens = await Rettiwt().account.login(
+    process.env.TWITTER_EMAIL!,
+    process.env.TWITTER_HANDLE!,
+    process.env.TWITTER_PASSWORD!
+  );
+
+  console.log('tokens: ', tokens)
+};
+```
+
+Make sure to add your twitter login details to our `.env.server` file, if you haven't already!
+
+Great. To be able to run this script via a simple Wasp CLI command, add it via the `seeds` array within the `db` object at the top of your `main.wasp` file:
+
+```typescript
+app twitterAgent {
+  wasp: {
+    version: "^0.10.6"
+  },
+  //...
+  db: { 
+    system: PostgreSQL,
+    seeds: [ // <---------- add this
+      import { getTwitterTokens } from "@server/scripts/tokens.js",
+    ]
+  },
+  //...
+```
+
+Nice! Now for the fun part :)
+
+in your terminal, at the root of your project, run `wasp db seed`, and you should see the tokens output to the terminal similar to this:
+
+```plaintext
+[Db]      Running seed: getTwitterTokens
+[Db]      tokens:  { // your tokens... }
+```
+
+Copy and paste those tokens into your `.env.server` file:
+
+```plaintext
+
+# TOKENS -- fill these in after running the getTwitterTokens script in the Twitter Scraping section
+KDT='...'
+TWID='...'
+CT0='...'
+AUTH_TOKEN='...'
+```
+
+Now with that, we should be able to access our favorite trend-setting users' recent tweets and use them to help us brainstorm new ideas!
+
+
 ### Server Action
 
-Now let’s define that action in our `main.wasp` file
+Ok, so we've got the tokens we need to get our trend-setting example tweets, and we've got a function that runs our similarity search and sequential chain of LLM calls.
+
+Now let’s define an action in our `main.wasp` file that pulls it all together:
 
 ```tsx
 // actions...
@@ -765,7 +860,13 @@ import type {
 // ... other imports ...
 import { generateIdeas } from './chain.js'; // < ---- this too -----
 import { Rettiwt } from 'rettiwt-api'; // < ---- and this here -----
-const twitter = Rettiwt(); // < ---- and this -----
+
+const twitter = Rettiwt({ // < ---- and this -----
+  kdt: process.env.KDT!,
+  twid: process.env.TWID!,
+  ct0:  process.env.CT0!,
+  auth_token: process.env.AUTH_TOKEN!,
+}); 
 
 //... other stuff ...
 
@@ -780,19 +881,29 @@ export const generateNewIdeas: GenerateNewIdeas<unknown, void> = async (_args, c
 
       for (let h = 0; h < user.favUsers.length; h++) {
         const favUser = user.favUsers[h];
-        const userDetails = await twitter.users.getUserDetails(favUser);
-        const favUserTweets = await twitter.users.getUserTweets(userDetails.id);
-        // filter out retweets
-        let favUserTweetTexts = favUserTweets.list.filter((tweet) => !tweet.fullText.startsWith('RT'));
-        favUserTweetTexts = favUserTweetTexts.filter((tweet) => {
-          // filter out tweets that were created more than 24 hours ago
-          const createdAt = new Date(tweet.createdAt); // createdAt: 'Wed May 24 03:41:53 +0000 2023'
-          const now = new Date();
-          const twelveHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-          return createdAt > twelveHoursAgo;
+        const oneDayFromNow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        // convert oneDayFromNow to format YYYY-MM-DD
+        const endDate = oneDayFromNow.toISOString().split('T')[0];
+
+        // find the most recent tweet from the favUser
+        const mostRecentTweet = await context.entities.Tweet.findFirst({
+          where: {
+            authorUsername: favUser,
+          },
+          orderBy: {
+            tweetedAt: 'desc',
+          },
         });
 
-        const authorUsername = userDetails.userName
+        console.log('mostRecentTweet: ', mostRecentTweet)
+
+        const favUserTweets = await twitter.tweets.getTweets({
+          fromUsers: [favUser],
+          sinceId: mostRecentTweet?.tweetId || undefined, // get tweets since the most recent tweet if it exists
+          endDate: endDate, // endDate in format YYYY-MM-DD
+        });
+
+        const favUserTweetTexts = favUserTweets.list
 
         for (let i = 0; i < favUserTweetTexts.length; i++) {
           const tweet = favUserTweetTexts[i];
@@ -828,7 +939,7 @@ export const generateNewIdeas: GenerateNewIdeas<unknown, void> = async (_args, c
             data: {
               tweetId: tweet.id,
               content: tweet.fullText,
-              authorUsername: userDetails.userName,
+              authorUsername: favUser,
               tweetedAt: new Date(tweet.createdAt),
 							userId: user.id
             },
