@@ -3,10 +3,8 @@ import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import addWaspLangauge from "./prism/wasp";
 import addPrismaLanguage from "./prism/prisma";
-import { DiGithubBadge } from "react-icons/di";
 
 import "./Main.css";
-// import { MyDialog } from "./components/Dialog";
 
 addPrismaLanguage(Prism);
 addWaspLangauge(Prism);
@@ -55,15 +53,6 @@ export function RootComponent({ children }) {
               marginBottom: "-5px",
             }}
           >
-            {/* <span
-            className={`
-              bg-neutral-700 px-2.5 py-1 text-xs rounded-full cursor-pointer
-              hover:bg-neutral-600
-              flex items-center space-x-1
-            `}
-          >
-            Open Github <DiGithubBadge size={16} className="ml-1"/>
-          </span> */}
             <a
               className="github-button"
               href="https://github.com/wasp-lang/wasp"
@@ -78,38 +67,32 @@ export function RootComponent({ children }) {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
-        {/* <MyDialog
-        isOpen={isDialogOpen}
-        onClose={() => {
-          setIsDialogOpen(false);
-        }}
-        title="Welcome to GPT Web App Generator 👋"
-      >
-        <p className="leading-relaxed text-gray-500"> 
-          This is an experiment by the Wasp team with OpenAI's GPT-4 model. Enjoy and let us know what you think!
-        </p>
-      </MyDialog> */}
-        <footer className="text-center text-gray-500 text-sm mt-8">
-          This is an experiment by{" "}
-          <a
-            href="https://wasp-lang.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sky-500 hover:text-sky-600"
-          >
-            Wasp team
-          </a>
+        <footer className="mt-8">
+          <p className="text-center text-slate-800">
+            This is an experiment by{" "}
+            <a
+              href="https://wasp-lang.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-500 hover:text-sky-600"
+            >
+              Wasp {'=}'}
+            </a>
+          </p>
+          <p className="text-center text-slate-500 text-sm mt-2">
+            This whole app is open-source, you can find the code{" "}
+            <a
+              href="https://github.com/wasp-lang/wasp/tree/wasp-ai/wasp-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-500 hover:text-sky-600"
+            >
+              here
+            </a>
+            .
+          </p>
         </footer>
       </div>
     </>
   );
 }
-
-// function useWelcomeDialog() {
-//   const isAlreadyShown =
-//     window.localStorage.getItem("isAlreadyShown") === "true";
-//   useEffect(() => {
-//     window.localStorage.setItem("isAlreadyShown", "true");
-//   }, []);
-//   return { isAlreadyShown };
-// }

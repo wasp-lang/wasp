@@ -25,3 +25,11 @@ input,
 textarea {
   @apply relative w-full cursor-default rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300;
 }
+
+.big-box {
+  @apply bg-slate-50 text-slate-800 p-8 rounded-xl;
+}
+
+.status-icon {
+  @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
+}

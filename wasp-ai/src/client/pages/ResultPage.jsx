@@ -7,6 +7,7 @@ import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 import { StatusPill } from "../components/StatusPill";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 
 export const ResultPage = () => {
   const { appId } = useParams();
@@ -207,7 +208,7 @@ export const ResultPage = () => {
 
       {isLoading && (
         <>
-          <header className="mt-4 mb-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
+          <header className="big-box mt-4 mb-4 flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3">
               <Loader />
             </div>
@@ -218,9 +219,19 @@ export const ResultPage = () => {
 
       {logs && (
         <>
-          <header className="mt-4 mb-4 bg-slate-900 text-white p-8 rounded-xl flex justify-between items-flex-start">
+          <header className="big-box mt-4 mb-4 flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3">
               {currentStatus.status === "inProgress" && <Loader />}
+              {currentStatus.status === "success" && (
+                <div className="status-icon bg-green-500">
+                  <CheckIcon className="w-4 h-4 text-white" />
+                </div>
+              )}
+              {currentStatus.status === "error" && (
+                <div className="status-icon bg-red-500">
+                  <XMarkIcon className="w-4 h-4 text-white" />
+                </div>
+              )}
             </div>
             {logs && (
               <pre className="flex-1">
@@ -245,7 +256,7 @@ export const ResultPage = () => {
               <div className="flex-shrink-0 ml-3">
                 <button
                   onClick={toggleLogs}
-                  className="p-2 px-4 rounded-full bg-slate-800 hover:bg-slate-700"
+                  className="p-2 px-4 rounded-full bg-slate-100 hover:bg-slate-200"
                 >
                   {logsVisible ? "Collapse the logs" : "Expand the logs"}
                 </button>
