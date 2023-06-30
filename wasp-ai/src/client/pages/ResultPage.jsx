@@ -267,12 +267,12 @@ export const ResultPage = () => {
 
       {logs && (
         <>
-          <header className="relative big-box-dark mt-4 mb-4 flex justify-between items-flex-start">
+          <header className="relative big-box-dark mt-4 mb-4 flex justify-between items-flex-start z-10">
             {currentStatus.status === "success" && (
-              <div className="absolute inset-0 bg-green-500 opacity-20 z-0"></div>
+              <div className="absolute inset-0 bg-green-500 opacity-20 z-[-10]"></div>
             )}
             {currentStatus.status === "error" && (
-              <div className="absolute inset-0 bg-red-500 opacity-20 z-0"></div>
+              <div className="absolute inset-0 bg-red-500 opacity-20 z-[-10]"></div>
             )}
 
             <div className="flex-shrink-0 mr-3">
@@ -315,7 +315,7 @@ export const ResultPage = () => {
               </pre>
             )}
             {logs.length > 1 && (
-              <div className="flex-shrink-0 ml-3 z-10">
+              <div className="flex-shrink-0 ml-3">
                 <button
                   onClick={toggleLogs}
                   className="p-2 px-4 rounded-full bg-slate-800 hover:bg-slate-700"
