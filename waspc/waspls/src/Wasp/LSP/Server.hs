@@ -40,7 +40,8 @@ lspServerHandlers stopReactor =
       didChangeHandler,
       completionHandler,
       signatureHelpHandler,
-      gotoDefinitionHandler
+      gotoDefinitionHandler,
+      codeActionHandler
     ]
 
 serve :: Maybe FilePath -> IO ()

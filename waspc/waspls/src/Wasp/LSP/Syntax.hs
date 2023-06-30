@@ -3,6 +3,7 @@ module Wasp.LSP.Syntax
 
     -- | Module with utilities for working with/looking for patterns in CSTs
     lspPositionToOffset,
+    lspRangeToSpan,
     locationAtOffset,
     parentIs,
     hasLeft,
@@ -18,6 +19,7 @@ import Data.List (find, intercalate)
 import qualified Language.LSP.Types as J
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (SourceSpan))
 import Wasp.LSP.Util (allP, anyP)
 
 -- | @lspPositionToOffset srcString position@ returns 0-based offset from the
@@ -27,6 +29,14 @@ lspPositionToOffset srcString (J.Position l c) =
   let linesBefore = take (fromIntegral l) (lines srcString)
    in -- We add 1 to the length of each line to make sure to count the newline
       sum (map ((+ 1) . length) linesBefore) + fromIntegral c
+
+-- | @lspRangeToSpan srcString range@ returns 0-based source span from start of
+-- @srcString@ to the specified line and column.
+lspRangeToSpan :: String -> J.Range -> SourceSpan
+lspRangeToSpan srcString (J.Range start end) =
+  let startOffset = lspPositionToOffset srcString start
+      endOffset = lspPositionToOffset srcString end
+   in SourceSpan startOffset endOffset
 
 -- | Move to the node containing the offset.
 --

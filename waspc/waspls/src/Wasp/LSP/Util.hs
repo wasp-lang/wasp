@@ -10,7 +10,7 @@ where
 import Control.Lens ((+~))
 import Control.Monad.Trans.Maybe (MaybeT (MaybeT))
 import Data.Function ((&))
-import qualified Language.LSP.Types as LSP
+import qualified Language.LSP.Types as LSP hiding (line)
 import qualified Language.LSP.Types.Lens as LSP
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.SourceRegion as W

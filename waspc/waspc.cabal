@@ -344,6 +344,7 @@ library waspls
     Control.Monad.Log
     Control.Monad.Log.Class
     Wasp.LSP.Analysis
+    Wasp.LSP.CodeActions
     Wasp.LSP.Completion
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
@@ -516,6 +517,7 @@ test-suite waspc-test
     Analyzer.Parser.CST.TraverseTest
     Analyzer.Parser.ParseErrorTest
     Analyzer.Parser.SourcePositionTest
+    Analyzer.Parser.SourceSpanTest
     Analyzer.ParserTest
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
