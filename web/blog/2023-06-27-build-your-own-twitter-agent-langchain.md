@@ -764,7 +764,8 @@ To do this, we're going to use the `Rettiwt-Api` (which is just Twitter written 
 2. It's best to use an alternative account for this process. If you don't have an alternative account, go ahead and register a new one now.
     
 
-:::warning ⚠️ The use of an unofficial Twitter client, Rettiwt, is for illustrative purposes only. It's crucial that you familiarize yourself with Twitter's policies and rules regarding scraping before implementing these methods. Any abuse or misuse of these scripts and techniques may lead to actions taken against your Twitter account. We hold no responsibility for any consequences arising from your personal use of this tutorial and/or the related scripts. It is intended purely for learning and educational purposes.
+:::warning ⚠️ 
+The use of an unofficial Twitter client, Rettiwt, is for illustrative purposes only. It's crucial that you familiarize yourself with Twitter's policies and rules regarding scraping before implementing these methods. Any abuse or misuse of these scripts and techniques may lead to actions taken against your Twitter account. We hold no responsibility for any consequences arising from your personal use of this tutorial and/or the related scripts. It is intended purely for learning and educational purposes.
 :::
 
 Let's go ahead and create a new folder in `src/server` called `scripts` with a file inside called `tokens.ts`. This will be our script that we will run only once, just so that we get the necessary tokens to pass to our Rettiwt client.
@@ -908,7 +909,7 @@ export const generateNewIdeas: GenerateNewIdeas<unknown, void> = async (_args, c
         for (let i = 0; i < favUserTweetTexts.length; i++) {
           const tweet = favUserTweetTexts[i];
 
-					const existingTweet = await context.entities.User.findFirst({
+          const existingTweet = await context.entities.User.findFirst({
             where: {
               id: user.id,
             },
@@ -941,7 +942,7 @@ export const generateNewIdeas: GenerateNewIdeas<unknown, void> = async (_args, c
               content: tweet.fullText,
               authorUsername: favUser,
               tweetedAt: new Date(tweet.createdAt),
-							userId: user.id
+              userId: user.id
             },
           });
 
@@ -970,7 +971,7 @@ export const generateNewIdeas: GenerateNewIdeas<unknown, void> = async (_args, c
               data: {
                 content: newTweetIdea,
                 originalTweetId: originalTweet.id,
-								userId: user.id
+                userId: user.id
               },
             });
             console.log('newIdea saved to DB: ', newIdea);
@@ -981,7 +982,7 @@ export const generateNewIdeas: GenerateNewIdeas<unknown, void> = async (_args, c
               content: draft.interestingTweet,
               originalTweetId: originalTweet.id,
               notes: draft.notes,
-							userId: user.id
+              userId: user.id
             },
           });
 
