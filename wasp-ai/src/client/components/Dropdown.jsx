@@ -5,9 +5,9 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export function MyDropdown({ value, onChange, options }) {
   return (
-    <Listbox value={value} onChange={onChange}>
+    <Listbox value={value} onChange={onChange}> 
       <div className="relative mt-1">
-        <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300">
+        <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300 cursor-pointer">
           <Option value={value} />
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon
@@ -27,11 +27,13 @@ export function MyDropdown({ value, onChange, options }) {
               <Listbox.Option
                 key={optionIdx}
                 className={({ active }) =>
-                  `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                    active ? "bg-slate-100 text-slate-900" : "text-gray-900"
-                  }`
+                  `relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900
+                   ${option.disabled ? "text-slate-400" : "cursor-pointer"}
+                   ${active ? "bg-slate-100 text-slate-900" : null} 
+                  `
                 }
                 value={option}
+                disabled={option.disabled}
               >
                 {({ selected }) => (
                   <>
