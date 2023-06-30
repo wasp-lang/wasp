@@ -7,7 +7,7 @@ body {
 }
 
 .button {
-  @apply bg-sky-600 text-white font-bold py-3 px-6 rounded text-center hover:bg-sky-500 transition duration-150;
+  @apply bg-orange-300 text-gray-700 font-bold py-3 px-6 rounded text-center hover:bg-orange-200 transition duration-150;
 }
 .button.gray {
   @apply bg-slate-200 text-slate-600;

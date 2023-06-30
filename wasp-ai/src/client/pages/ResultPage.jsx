@@ -285,11 +285,11 @@ export const ResultPage = () => {
                 <strong>User provided prompt: </strong>
                 {appGenerationResult?.project?.description}
               </p>
-              {currentStatus.status === "success" && (
+              {/* {currentStatus.status === "success" && (
                 <Link className="button gray w-full mt-2 block" to="/">
                   Generate another one?
                 </Link>
-              )}
+              )} */}
             </aside>
 
             {activeFilePath && (
@@ -334,39 +334,62 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className="button w-full"
+        className={`button w-full${!disabled ? " animate-bounce" : ""}`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
-        Run the app locally ⚡️
+        Run the app locally 💻
       </button>
       <MyDialog
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title="Run the app locally ⚡️"
+        title="Run the app locally 💻"
       >
         <div className="mt-6 space-y-6">
           <WarningAboutAI />
           <p className="text-base leading-relaxed text-gray-500">
-            First, you need to install Wasp locally. You can do that by running
-            this command in your terminal:
+            First, you need to install{" "}
+            <a
+              href="https://wasp-lang.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Wasp
+            </a>{" "}
+            locally. You can do that by running this command in your terminal:
           </p>
           <pre className="bg-slate-50 p-4 rounded-lg text-sm">
-            curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+            $ curl -sSL https://get.wasp-lang.dev/installer.sh | sh
           </pre>
           <p className="text-base leading-relaxed text-gray-500">
             Then, you download the ZIP file with the generated app:
+            <button className="button w-full mt-2" onClick={onDownloadZip}>
+              Download ZIP
+            </button>
           </p>
-          <button className="button w-full" onClick={onDownloadZip}>
-            Download ZIP
-          </button>
+
           <p className="text-base leading-relaxed text-gray-500">
             Unzip the file and run the app with:
           </p>
-          <pre className="bg-slate-50 p-4 rounded-lg text-sm">wasp start</pre>
+          <pre className="bg-slate-50 p-4 rounded-lg text-sm">
+            $ wasp db migrate-dev
+            <br />$ wasp start
+          </pre>
           <p className="text-base leading-relaxed text-gray-500">
-            Congratulations, you are now running your Wasp app locally! 🎉
+            Congratulations, you are now running your app! 🎉
           </p>
+          <div className="bg-pink-50 text-pink-800 p-4 rounded">
+            If you like this project,{" "}
+            <a
+              href="https://github.com/wasp-lang/wasp"
+              target="_blank"
+              className="underline text-pink-600"
+            >
+              star us on GitHub
+            </a>{" "}
+            ⭐️
+          </div>
         </div>
       </MyDialog>
     </>
@@ -381,14 +404,14 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is an AI generated app, it might contain small issues.
+              Since this is an GPT generated app, it might contain small issues.
               The bugs are usually small and easy to fix, but if you need help,
               feel free to reach out to us on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150"
+                className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
               >
                 Discord
               </a>

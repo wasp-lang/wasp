@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import { Title } from "../components/Title";
 import { MyDropdown } from "../components/Dropdown";
 import tailwindColors from "tailwindcss/colors";
-import { MyRadio } from "../components/Radio";
+import { ExampleCard } from "../components/ExampleCard";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -37,6 +37,9 @@ const MainPage = () => {
             "trueGray",
             "coolGray",
             "blueGray",
+            "gray",
+            "neutral",
+            "zinc",
           ].includes(color.name)
       );
   }, []);
@@ -151,7 +154,7 @@ const MainPage = () => {
       </div>
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
-        <div className="mb-4 flex flex-col gap-3">
+        <div className="mb-6 flex flex-col gap-3">
           <div>
             <label htmlFor="appName" className="text-slate-700 block mb-2">
               App name <span className="text-red-500">*</span>
@@ -182,13 +185,15 @@ const MainPage = () => {
               disabled={currentStatus.status === "inProgress"}
             />
           </div>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gridGap: '10px'}}>
+          <div
+            className="grid grid-cols-2 gap-3"
+          >
             <div>
               <label
                 htmlFor="appPrimaryColor"
                 className="text-slate-700 block mb-2"
               >
-                Primary color
+                App brand color
               </label>
               <MyDropdown
                 value={appPrimaryColor}
@@ -212,7 +217,6 @@ const MainPage = () => {
           </div>
         </div>
         <button
-          style={{marginTop: '15px'}}
           className="button mr-2"
           disabled={currentStatus.status === "inProgress"}
         >
@@ -225,29 +229,7 @@ const MainPage = () => {
         </h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
           {ideasToDisplay.map((idea) => (
-            <div
-              key={idea.name}
-              className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center cursor-pointer hover:bg-slate-100"
-              onClick={() => useIdea(idea)}
-            >
-              <div className="idea">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-xl font-semibold text-slate-700 mb-1">
-                    <span
-                      className="inline-block w-4 h-4 rounded-full mr-2"
-                      style={{ backgroundColor: idea.color.color }}
-                    ></span>
-                    {idea.name}
-                  </h4>
-                  <button className="button sm gray">
-                    Use this idea
-                  </button>
-                </div>
-                <p className="text-base leading-relaxed text-slate-500">
-                  {idea.description}
-                </p>
-              </div>
-            </div>
+            <ExampleCard key={idea.name} idea={idea} useIdea={useIdea} />
           ))}
         </div>
       </div>

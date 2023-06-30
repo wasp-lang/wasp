@@ -5,9 +5,9 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export function MyDropdown({ value, onChange, options }) {
   return (
-    <Listbox value={value} onChange={onChange}> 
+    <Listbox value={value} onChange={onChange}>
       <div className="relative mt-1">
-        <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300 cursor-pointer">
+        <Listbox.Button className="relative w-full rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300 cursor-pointer">
           <Option value={value} />
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon
@@ -61,14 +61,16 @@ function Option({ value, selected = false }) {
         selected ? "font-medium" : "font-normal"
       }`}
     >
-      <span className="mr-2">
-        <div
-          className={`w-5 h-5 rounded-full`}
-          style={{
-            backgroundColor: value.color,
-          }}
-        ></div>
-      </span>
+      {value.color && (
+        <span className="mr-2">
+          <div
+            className={`w-5 h-5 rounded-full`}
+            style={{
+              backgroundColor: value.color,
+            }}
+          ></div>
+        </span>
+      )}
       {value.name}
     </span>
   );

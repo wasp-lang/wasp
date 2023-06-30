@@ -2,7 +2,7 @@ app waspAi {
   wasp: {
     version: "^0.11.0"
   },
-  title: "wasp-ai",
+  title: "GPT Web App Generator ✨",
   dependencies: [
     ("prismjs", "^1.29.0"),
     ("react-accessible-treeview", "2.6.1"),
@@ -10,7 +10,8 @@ app waspAi {
     ("@zip.js/zip.js", "2.7.16"),
     ("async-mutex", "0.4.0"),
     ("@headlessui/react", "1.7.15"),
-    ("@heroicons/react", "2.0.18")
+    ("@heroicons/react", "2.0.18"),
+    ("react-parallax-tilt", "1.7.151")
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
