@@ -177,7 +177,7 @@ const MainPage = () => {
               id="appDesc"
               required
               placeholder="Describe your web app in a couple of sentences (check examples below).
-              Based on it, our AI code agent will then generate a full stack web app in Wasp, React, NodeJS and Prisma for you!"
+Based on it, our AI code agent will then generate a full stack web app in Wasp, React, NodeJS and Prisma for you!"
               value={appDesc}
               rows="5"
               cols="50"

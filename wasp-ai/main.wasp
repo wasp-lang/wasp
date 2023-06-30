@@ -3,6 +3,13 @@ app waspAi {
     version: "^0.11.0"
   },
   title: "GPT Web App Generator ✨",
+  head: [
+    "<meta property=\"og:title\" content=\"GPT Web App Generator ✨\">",
+    "<meta property=\"og:site_name\" content=\"GPT Web App Generator ✨\">",
+    "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and Wasp Lang full-stack framework.\">",
+    "<meta property=\"og:type\" content=\"website\">",
+    "<meta property=\"og:image\" content=\"/cover.jpeg\">"
+  ],
   dependencies: [
     ("prismjs", "^1.29.0"),
     ("react-accessible-treeview", "2.6.1"),
