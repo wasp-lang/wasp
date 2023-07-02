@@ -1,11 +1,11 @@
+// @ts-check
 import { useState, useMemo } from "react";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
-import { StatusPill } from "../components/StatusPill";
 import { useHistory } from "react-router-dom";
-import { Title } from "../components/Title";
 import { MyDropdown } from "../components/Dropdown";
 import tailwindColors from "tailwindcss/colors";
 import { ExampleCard } from "../components/ExampleCard";
+import { Header } from "../components/Header";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -146,12 +146,7 @@ const MainPage = () => {
 
   return (
     <div className="container">
-      <div className="mb-4 bg-slate-50 p-8 rounded-xl flex justify-between items-center">
-        <Title />
-        <StatusPill status={currentStatus.status}>
-          {currentStatus.message}
-        </StatusPill>
-      </div>
+      <Header currentStatus={currentStatus} isStatusVisible={true} />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-6 flex flex-col gap-3">
@@ -188,7 +183,7 @@ Based on it, our AI code agent will then generate a full stack web app in Wasp, 
             />
           </div>
           <div
-            className="grid grid-cols-2 gap-3"
+            className="grid md:grid-cols-2 gap-3"
           >
             <div>
               <label

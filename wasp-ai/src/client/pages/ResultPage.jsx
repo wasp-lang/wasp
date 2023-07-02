@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
@@ -5,11 +6,13 @@ import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
 import { createFilesAndDownloadZip } from "../zip/zipHelpers";
-import { StatusPill } from "../components/StatusPill";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { useHistory } from "react-router-dom";
+import { Loader } from "../components/Loader";
+import { MyDialog } from "../components/Dialog";
+import { Logs } from "../components/Logs";
+import { Header } from "../components/Header";
 
 export const ResultPage = () => {
   const { appId } = useParams();
@@ -28,9 +31,9 @@ export const ResultPage = () => {
     status: "idle",
     message: "Waiting for instructions",
   });
-  const [logsVisible, setLogsVisible] = useState(false);
   const [currentFiles, setCurrentFiles] = useState({});
   const history = useHistory();
+  const [isMobileFileBrowserOpen, setIsMobileFileBrowserOpen] = useState(false);
 
   useEffect(() => {
     if (
@@ -142,14 +145,9 @@ export const ResultPage = () => {
     }
   }, [interestingFilePaths]);
 
-  const previewLogsCount = 3;
-  const visibleLogs = useMemo(() => {
-    if (logs) {
-      return logsVisible ? logs : logs.slice(0, previewLogsCount);
-    } else {
-      return [];
-    }
-  }, [logs, logsVisible]);
+  useEffect(() => {
+    setIsMobileFileBrowserOpen(false);
+  }, [activeFilePath]);
 
   function downloadZip() {
     const safeAppName = appGenerationResult?.project?.name.replace(
@@ -159,41 +157,6 @@ export const ResultPage = () => {
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     const appNameWithSuffix = `${safeAppName}-${randomSuffix}`;
     createFilesAndDownloadZip(files, appNameWithSuffix);
-  }
-
-  function toggleLogs() {
-    setLogsVisible(!logsVisible);
-  }
-
-  function getEmoji(log) {
-    // log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "
-    if (
-      log.toLowerCase().includes("generated") ||
-      log.toLowerCase().includes("fixed") ||
-      log.toLowerCase().includes("added") ||
-      log.toLowerCase().includes("updated")
-    ) {
-      return "✅";
-    }
-    if (log.toLowerCase().includes("done!")) {
-      return "🎉";
-    }
-    if (
-      log.toLowerCase().includes("error") ||
-      log.toLowerCase().includes("fail")
-    ) {
-      return "❌";
-    }
-    if (log.toLowerCase().includes("warning")) {
-      return "⚠️";
-    }
-    if (log.toLowerCase().includes("tokens usage")) {
-      return "📊";
-    }
-    if (log.toLowerCase().endsWith("...")) {
-      return "⌛️";
-    }
-    return "🤖";
   }
 
   async function retry() {
@@ -231,16 +194,16 @@ export const ResultPage = () => {
     }
   }
 
+  function toggleMobileFileBrowser() {
+    setIsMobileFileBrowserOpen((isOpen) => !isOpen);
+  }
+
   return (
     <div className="container">
-      <div className="mb-4 bg-slate-50 p-8 rounded-xl flex justify-between items-center">
-        <Title />
-        {appGenerationResult?.project && (
-          <StatusPill status={currentStatus.status}>
-            {currentStatus.message}
-          </StatusPill>
-        )}
-      </div>
+      <Header
+        currentStatus={currentStatus}
+        isStatusVisible={!!appGenerationResult?.project}
+      />
 
       {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
@@ -265,68 +228,7 @@ export const ResultPage = () => {
         </>
       )}
 
-      {logs && (
-        <>
-          <header className="relative big-box-dark mt-4 mb-4 flex justify-between items-flex-start z-10">
-            {currentStatus.status === "success" && (
-              <div className="absolute inset-0 bg-green-500 opacity-20 z-[-10]"></div>
-            )}
-            {currentStatus.status === "error" && (
-              <div className="absolute inset-0 bg-red-500 opacity-20 z-[-10]"></div>
-            )}
-
-            <div className="flex-shrink-0 mr-3">
-              {currentStatus.status === "inProgress" && <Loader />}
-              {currentStatus.status === "success" && (
-                <div className="status-icon bg-green-500">
-                  <CheckIcon className="w-4 h-4 text-white" />
-                </div>
-              )}
-              {currentStatus.status === "error" && (
-                <div className="status-icon bg-red-500">
-                  <XMarkIcon className="w-4 h-4 text-white" />
-                </div>
-              )}
-            </div>
-            {logs && (
-              <pre className="flex-1">
-                {logs.length === 0 && "Waiting for logs..."}
-                {visibleLogs.map((log, i) => (
-                  <pre
-                    key={i}
-                    className="mb-2"
-                    style={{
-                      opacity: logsVisible
-                        ? 1
-                        : (previewLogsCount - i) * (1 / previewLogsCount),
-                    }}
-                  >
-                    {getEmoji(log) + " "}
-                    {log} {i === 0 && currentStatus.status === "error" && (
-                      <button
-                        onClick={retry}
-                        className="button gray xs"
-                      >
-                        Retry
-                      </button>
-                    )}
-                  </pre>
-                ))}
-              </pre>
-            )}
-            {logs.length > 1 && (
-              <div className="flex-shrink-0 ml-3">
-                <button
-                  onClick={toggleLogs}
-                  className="p-2 px-4 rounded-full bg-slate-800 hover:bg-slate-700"
-                >
-                  {logsVisible ? "Collapse the logs" : "Expand the logs"}
-                </button>
-              </div>
-            )}
-          </header>
-        </>
-      )}
+      <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
 
       {interestingFilePaths.length > 0 && (
         <>
@@ -335,8 +237,15 @@ export const ResultPage = () => {
               {appGenerationResult?.project?.name}
             </h2>
           </div>
-          <div className="grid gap-4 grid-cols-[320px_1fr] mt-4">
-            <aside>
+          <button
+            className="button gray block w-full mb-4 md:hidden"
+            onClick={toggleMobileFileBrowser}
+          >
+            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser (
+            {interestingFilePaths.length} files)
+          </button>
+          <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto">
+            <aside className={isMobileFileBrowserOpen ? "" : "hidden md:block"}>
               <div className="mb-2">
                 <RunTheAppModal
                   onDownloadZip={downloadZip}
@@ -354,19 +263,16 @@ export const ResultPage = () => {
                 onActivePathSelect={setActiveFilePath}
                 freshlyUpdatedPaths={freshlyUpdatedFilePaths}
               />
-              <p className="text-gray-500 text-sm my-4 leading-relaxed">
+              <p className="text-gray-500 text-sm my-4 leading-relaxed hidden md:block">
                 <strong>User provided prompt: </strong>
                 {appGenerationResult?.project?.description}
               </p>
-              {/* {currentStatus.status === "success" && (
-                <Link className="button gray w-full mt-2 block" to="/">
-                  Generate another one?
-                </Link>
-              )} */}
             </aside>
 
             {activeFilePath && (
-              <main>
+              <main
+                className={isMobileFileBrowserOpen ? "hidden md:block" : ""}
+              >
                 <div className="font-bold text-sm bg-slate-200 text-slate-700 p-3 rounded rounded-b-none">
                   {activeFilePath}:
                 </div>
@@ -374,7 +280,10 @@ export const ResultPage = () => {
                   key={activeFilePath}
                   className="py-4 bg-slate-100 rounded rounded-t-none"
                 >
-                  <CodeHighlight language={language}>
+                  <CodeHighlight
+                    language={language}
+                    className="text-sm md:text-base"
+                  >
                     {files[activeFilePath].trim()}
                   </CodeHighlight>
                 </div>
@@ -391,19 +300,18 @@ export const ResultPage = () => {
               </main>
             )}
           </div>
+          <p className="text-gray-500 text-sm my-4 leading-relaxed md:hidden">
+            <strong>User provided prompt: </strong>
+            {appGenerationResult?.project?.description}
+          </p>
         </>
       )}
     </div>
   );
 };
 
-import React from "react";
-import { Title } from "../components/Title";
-import { Loader } from "../components/Loader";
-import { MyDialog } from "../components/Dialog";
-
 export default function RunTheAppModal({ disabled, onDownloadZip }) {
-  const [showModal, setShowModal] = React.useState(false);
+  const [showModal, setShowModal] = useState(false);
   return (
     <>
       <button
@@ -485,10 +393,10 @@ function WarningAboutAI() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
-                >
-                  Wasp docs
-              </a>,
-              but if you need help, feel free to reach out to us on{" "}
+              >
+                Wasp docs
+              </a>
+              , but if you need help, feel free to reach out to us on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
@@ -496,7 +404,8 @@ function WarningAboutAI() {
                 className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
               >
                 Discord
-              </a>!
+              </a>
+              !
             </p>
           </div>
         </div>
