@@ -1,4 +1,3 @@
-// @ts-check
 import { useMemo, useState } from "react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Loader } from "./Loader";

@@ -1,4 +1,3 @@
-// @ts-check
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";

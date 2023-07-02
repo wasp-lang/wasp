@@ -1,4 +1,3 @@
-// @ts-check
 import { useState, useMemo } from "react";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { useHistory } from "react-router-dom";
