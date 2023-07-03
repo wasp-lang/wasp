@@ -2,9 +2,9 @@ import { useState, useMemo } from "react";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { useHistory } from "react-router-dom";
 import { MyDropdown } from "../components/Dropdown";
-import tailwindColors from "tailwindcss/colors";
 import { ExampleCard } from "../components/ExampleCard";
 import { Header } from "../components/Header";
+import { availableColors } from "../components/Color";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -14,34 +14,6 @@ const MainPage = () => {
     message: "Waiting for instructions",
   });
   const history = useHistory();
-
-  const availableColors = useMemo(() => {
-    return Object.entries(tailwindColors)
-      .map(([name, color]) => {
-        return {
-          name,
-          color: color[500],
-        };
-      })
-      .filter(
-        (color) =>
-          ![
-            "black",
-            "white",
-            "transparent",
-            "inherit",
-            "current",
-            "lightBlue",
-            "warmGray",
-            "trueGray",
-            "coolGray",
-            "blueGray",
-            "gray",
-            "neutral",
-            "zinc",
-          ].includes(color.name)
-      );
-  }, []);
 
   const [appPrimaryColor, setAppPrimaryColor] = useState(
     availableColors.find((color) => color.name === "sky")

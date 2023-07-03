@@ -1,5 +1,5 @@
 import { StartGeneratingNewApp } from "@wasp/actions/types";
-import { GetAppGenerationResult } from "@wasp/queries/types";
+import { GetAppGenerationResult, GetStats } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { spawn } from "child_process";
 import { Mutex } from "async-mutex";
@@ -196,3 +196,15 @@ export const getAppGenerationResult = (async (args, context) => {
 }) satisfies GetAppGenerationResult<{
   appId: string;
 }>;
+
+export const getStats = (async (args, context) => {
+  const { Project } = context.entities;
+  const projects = await Project.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return {
+    projects,
+  };
+}) satisfies GetStats<{}>;

@@ -1,4 +1,4 @@
-export function StatusPill({ children, status, className = "" }) {
+export function StatusPill({ children, status, className = "", sm = false }) {
   const statusToClassName = {
     idle: "bg-gray-100 text-gray-700",
     inProgress: "bg-sky-100 text-sky-700",
@@ -9,7 +9,9 @@ export function StatusPill({ children, status, className = "" }) {
   return (
     <div className={`flex items-center ${className}`}>
       <span
-        className={`text-center inline-flex items-center pl-3 pr-4 py-2 rounded-lg shadow-md ${statusToClassName[status]}`}
+        className={`text-center inline-flex items-center rounded-lg shadow-md ${statusToClassName[status]} ${
+          sm ? "py-1 pl-2 pr-2" : "py-2 pl-3 pr-4"
+        }`}
       >
         <span className="w-1.5 h-1.5 rounded-full mr-2 bg-current"></span>
         {children}

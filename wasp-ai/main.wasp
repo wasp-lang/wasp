@@ -17,7 +17,15 @@ app waspAi {
     ("async-mutex", "0.4.0"),
     ("@headlessui/react", "1.7.15"),
     ("@heroicons/react", "2.0.18"),
-    ("react-parallax-tilt", "1.7.151")
+    ("react-parallax-tilt", "1.7.151"),
+    ("timeago.js", "4.0.2"),
+    ("@visx/mock-data", "3.0.0"),
+    ("@visx/group", "3.0.0"),
+    ("@visx/shape", "3.0.0"),
+    ("@visx/scale", "3.2.0"),
+    ("@visx/responsive", "3.0.0"),
+    ("@visx/gradient", "3.0.0"),
+    ("@visx/axis", "3.2.0")
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
@@ -37,6 +45,11 @@ page ResultPage {
   component: import { ResultPage } from "@client/pages/ResultPage.jsx"
 }
 
+route StatsRoute { path: "/stats", to: StatsPage }
+page StatsPage {
+  component: import { Stats } from "@client/pages/StatsPage.jsx"
+}
+
 action startGeneratingNewApp {
   fn: import { startGeneratingNewApp } from "@server/operations.js",
   entities: [
@@ -48,6 +61,13 @@ action startGeneratingNewApp {
 
 query getAppGenerationResult {
   fn: import { getAppGenerationResult } from "@server/operations.js",
+  entities: [
+    Project
+  ]
+}
+
+query getStats {
+  fn: import { getStats } from "@server/operations.js",
   entities: [
     Project
   ]

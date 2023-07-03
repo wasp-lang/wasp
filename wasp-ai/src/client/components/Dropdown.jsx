@@ -1,7 +1,7 @@
-// @ts-check
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { Color } from "./Color";
 
 export function MyDropdown({ value, onChange, options }) {
   return (
@@ -63,12 +63,7 @@ function Option({ value, selected = false }) {
     >
       {value.color && (
         <span className="mr-2">
-          <div
-            className={`w-5 h-5 rounded-full`}
-            style={{
-              backgroundColor: value.color,
-            }}
-          ></div>
+          <Color value={value.color} />
         </span>
       )}
       {value.name}
