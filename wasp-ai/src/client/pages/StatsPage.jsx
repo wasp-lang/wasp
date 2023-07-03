@@ -85,7 +85,7 @@ export function Stats() {
           </div>
 
           <div className="py-2 flex justify-between items-center">
-            <div class="flex items-center mb-4">
+            <div className="flex items-center mb-4">
               <input
                 id="default-checkbox"
                 type="checkbox"
@@ -96,8 +96,8 @@ export function Stats() {
                 className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
               />
               <label
-                for="default-checkbox"
-                class="ml-2 text-sm font-medium text-gray-900"
+                htmlFor="default-checkbox"
+                className="ml-2 text-sm font-medium text-gray-900"
               >
                 Filter out example apps
               </label>

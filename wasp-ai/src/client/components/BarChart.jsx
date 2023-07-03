@@ -18,14 +18,17 @@ function generateLast24HoursData(projects) {
   }
   projects.forEach((project) => {
     const createdAt = new Date(project.createdAt);
+    // Difference in hours between now and when the project was created
     const bucketIndex = Math.floor(
-      (createdAt.getTime() - last24Hours.getTime()) / (60 * 60 * 1000)
+      (now.getTime() - createdAt.getTime()) / (60 * 60 * 1000)
     );
+    const reverseBucketIndex = buckets.length - bucketIndex - 1;
     // Count only projects that were created in the last 24 hours
     if (bucketIndex >= 0 && bucketIndex < 24) {
-      buckets[bucketIndex].count++;
+      buckets[reverseBucketIndex].count++;
     }
   });
+  console.log(buckets);
   return buckets;
 }
 
@@ -33,9 +36,6 @@ const verticalMargin = 50;
 const margins = {
   left: 30,
 };
-
-const getLetter = (d) => d.letter;
-const getLetterFrequency = (d) => Number(d.frequency) * 100;
 
 export function BarChart({ projects, width, height, events = false }) {
   const data = useMemo(() => generateLast24HoursData(projects), [projects]);
@@ -72,14 +72,14 @@ export function BarChart({ projects, width, height, events = false }) {
       <rect width={width} height={height} className="fill-slate-100" rx={14} />
       <Group top={verticalMargin / 2} left={margins.left}>
         {data.map((d) => {
-          const letter = getLetter(d);
+          const dateHour = d.date.getHours();
           const barWidth = xScale.bandwidth();
-          const barHeight = yMax - (yScale(getLetterFrequency(d)) ?? 0);
-          const barX = xScale(letter);
+          const barHeight = yMax - (yScale(d.count) ?? 0);
+          const barX = xScale(dateHour);
           const barY = yMax - barHeight;
           return (
             <Bar
-              key={`bar-${letter}`}
+              key={`bar-${d.date}`}
               x={barX}
               y={barY}
               width={barWidth}
