@@ -5,6 +5,7 @@ import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
 import { Header } from "../components/Header";
 import { availableColors } from "../components/Color";
+import { poolOfExampleIdeas } from "../examples";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -67,34 +68,6 @@ const MainPage = () => {
     }
   }
 
-  const poolOfExampleIdeas = [
-    {
-      name: "TodoApp",
-      description:
-        "A simple todo app with one main page that lists all the tasks. I can create new tasks, or toggle existing ones. " +
-        "User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database.",
-      color: availableColors.find((color) => color.name === "rose"),
-    },
-    {
-      name: "Blog",
-      description:
-        "A blog with posts and comments. Posts can be created, edited and deleted. Comments can be created and deleted. Posts and comments are saved in the database.",
-      color: availableColors.find((color) => color.name === "amber"),
-    },
-    {
-      name: "FlowerShop",
-      description:
-        "A flower shop with a main page that lists all the flowers. I can create new flowers, or 'water' existing ones. " +
-        "User owns flowers. User can only see and edit their own flowers. Flowers are saved in the database.",
-      color: availableColors.find((color) => color.name === "emerald"),
-    },
-    {
-      name: "WeatherApp",
-      description:
-        "Build a simple app that uses the browser to get the current user's location. It then fetches the current weather. It uses the Open Weather API on the backend",
-      color: availableColors.find((color) => color.name === "sky"),
-    },
-  ];
   // Pick random 3 ideas
   const ideasToDisplay = useMemo(
     () =>
@@ -153,9 +126,7 @@ Based on it, our AI code agent will then generate a full stack web app in Wasp, 
               className="cursor-pointer"
             />
           </div>
-          <div
-            className="grid md:grid-cols-2 gap-3"
-          >
+          <div className="grid md:grid-cols-2 gap-3">
             <div>
               <label
                 htmlFor="appPrimaryColor"

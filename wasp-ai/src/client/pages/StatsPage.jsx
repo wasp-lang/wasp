@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import getStats from "@wasp/queries/getStats";
 import { useQuery } from "@wasp/queries";
 import { Link } from "react-router-dom";
@@ -7,8 +7,11 @@ import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
 import { BarChart } from "../components/BarChart";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
+import { poolOfExampleIdeas } from "../examples";
 
 export function Stats() {
+  const [filterOutExampleApps, setFilterOutExampleApps] = useState(true);
+
   const { data: stats, isLoading, error } = useQuery(getStats);
 
   function getColorValue(colorName) {
@@ -41,17 +44,23 @@ export function Stats() {
     }
   }
 
-  // Visx projects throught last 24 hours time bar chart
-  const projectInLast24Hours = useMemo(() => {
-    if (!stats) {
-      return [];
-    }
-    const now = new Date();
-    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    return stats.projects.filter((project) => {
-      return project.createdAt > last24Hours;
-    });
-  }, [stats]);
+  const filteredStats = useMemo(
+    () =>
+      stats
+        ? stats.projects.filter((stat) => {
+            if (filterOutExampleApps) {
+              return !poolOfExampleIdeas.some(
+                (example) =>
+                  example.name === stat.name &&
+                  example.description === stat.description
+              );
+            } else {
+              return true;
+            }
+          })
+        : [],
+    [stats, filterOutExampleApps]
+  );
 
   return (
     <div className="big-box">
@@ -65,9 +74,36 @@ export function Stats() {
         <>
           <div style={{ height: 300, width: "100%" }} className="mb-4">
             <ParentSize>
-              {({ width, height }) => <BarChart projects={stats.projects} width={width} height={height} />}
+              {({ width, height }) => (
+                <BarChart
+                  projects={filteredStats}
+                  width={width}
+                  height={height}
+                />
+              )}
             </ParentSize>
           </div>
+
+          <div className="py-2">
+            <div class="flex items-center mb-4">
+              <input
+                id="default-checkbox"
+                type="checkbox"
+                checked={filterOutExampleApps}
+                onChange={(event) =>
+                  setFilterOutExampleApps(event.target.checked)
+                }
+                className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
+              />
+              <label
+                for="default-checkbox"
+                class="ml-2 text-sm font-medium text-gray-900"
+              >
+                Filter out example apps
+              </label>
+            </div>
+          </div>
+
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table className="w-full text-sm text-left text-slate-500">
               <thead className="text-xs text-slate-700 uppercase bg-gray-50">
@@ -85,7 +121,7 @@ export function Stats() {
                 </tr>
               </thead>
               <tbody>
-                {stats.projects.map((stat) => (
+                {filteredStats.map((stat) => (
                   <tr className="bg-white border-b" key={stat.id}>
                     <th
                       scope="row"
@@ -100,7 +136,12 @@ export function Stats() {
                         {getStatusText(stat.status)}
                       </StatusPill>
                     </td>
-                    <td className="px-6 py-4" title={`${stat.createdAt.toLocaleDateString()} ${stat.createdAt.toLocaleTimeString()}`}>{format(stat.createdAt)}</td>
+                    <td
+                      className="px-6 py-4"
+                      title={`${stat.createdAt.toLocaleDateString()} ${stat.createdAt.toLocaleTimeString()}`}
+                    >
+                      {format(stat.createdAt)}
+                    </td>
                     <td className="px-6 py-4">
                       <Link
                         to={`/result/${stat.id}`}
