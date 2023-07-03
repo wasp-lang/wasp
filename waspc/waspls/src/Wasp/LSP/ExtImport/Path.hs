@@ -3,11 +3,16 @@
 
 module Wasp.LSP.ExtImport.Path
   ( ExtFileCachePath,
+    cachePathExtType,
     WaspStyleExtFilePath (WaspStyleExtFilePath),
     waspStylePathToCachePath,
     absPathToCachePath,
+    cachePathToAbsPathWithoutExt,
     cachePathToAbsPath,
     tryGetTsconfigForAbsPath,
+    ExtensionType,
+    replaceExtension,
+    allowedExts,
   )
 where
 
@@ -15,6 +20,7 @@ import Control.Applicative ((<|>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Hashable (Hashable (hashWithSalt))
 import Data.List (stripPrefix)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
@@ -33,6 +39,9 @@ data ExtensionlessExtFile
 data ExtFileCachePath
   = ExtFileCachePath !(SP.Path' (SP.Rel SourceExternalCodeDir) (SP.File ExtensionlessExtFile)) !ExtensionType
   deriving (Show, Eq, Generic)
+
+cachePathExtType :: ExtFileCachePath -> ExtensionType
+cachePathExtType (ExtFileCachePath _ ext) = ext
 
 -- | Hashes only the path portion (ignoring the extension type). This is so that
 -- hashing does not get in the way of equality comparisons while looking up
@@ -68,15 +77,20 @@ absPathToCachePath absFile = do
               let (extensionLessFile, extType) = splitExtensionType relFile
               pure $ Just $ ExtFileCachePath (SP.fromPathRelFile extensionLessFile) extType
 
-cachePathToAbsPath :: forall m c. LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs SP.File'))
-cachePathToAbsPath (ExtFileCachePath cachePath extType) = do
-  -- Converts to an absolute path and finds the appropriate extension.
+cachePathToAbsPathWithoutExt :: LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))
+cachePathToAbsPathWithoutExt (ExtFileCachePath cachePath _) = do
+  -- Converts to an absolute path, but does not add any extension.
   maybeProjectDir <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
   case maybeProjectDir of
-    Nothing -> pure Nothing
+    Nothing -> return Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) -> do
-      let fileWithNoExtension = projectRootDir SP.</> srcDirInProjectRootDir SP.</> cachePath
-      useFirstExtensionThatExists fileWithNoExtension $ allowedExts extType
+      return $ Just $ projectRootDir SP.</> srcDirInProjectRootDir SP.</> cachePath
+
+cachePathToAbsPath :: forall m c. LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs SP.File'))
+cachePathToAbsPath cp@(ExtFileCachePath _ extType) =
+  cachePathToAbsPathWithoutExt cp >>= \case
+    Nothing -> return Nothing
+    Just absPathWithoutExt -> useFirstExtensionThatExists absPathWithoutExt $ allowedExts extType
   where
     useFirstExtensionThatExists :: SP.Path' SP.Abs (SP.File ExtensionlessExtFile) -> [String] -> m (Maybe (SP.Path' SP.Abs SP.File'))
     useFirstExtensionThatExists _ [] = pure Nothing
@@ -142,6 +156,10 @@ allowedExts DotTJS = [".ts", ".js"]
 allowedExts DotTJSX = [".tsx", ".jsx"]
 allowedExts DotAnyTS = [".ts", ".js", ".tsx", ".jsx"]
 allowedExts (DotExact ext) = [ext]
+
+replaceExtension :: SP.Path' SP.Abs (SP.File a) -> String -> SP.Path' SP.Abs (SP.File a)
+replaceExtension path ext =
+  SP.fromPathAbsFile $ fromMaybe (error "invalid extension") $ P.replaceExtension ext $ SP.toPathAbsFile path
 
 -- | The 'Eq' instance on this type is slightly weird: it represents compatibilty,
 -- not equality. Specifically, two extension types are equal if they share at

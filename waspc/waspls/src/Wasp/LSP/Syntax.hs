@@ -10,6 +10,7 @@ module Wasp.LSP.Syntax
     isAtExprPlace,
     lexemeAt,
     findChild,
+    findAncestor,
     -- | Printing
     showNeighborhood,
   )
@@ -105,6 +106,12 @@ showNeighborhood t =
 -- | Search for a child node with the matching "SyntaxKind".
 findChild :: S.SyntaxKind -> Traversal -> Maybe Traversal
 findChild skind t = find ((== skind) . kindAt) $ children t
+
+findAncestor :: S.SyntaxKind -> Traversal -> Maybe Traversal
+findAncestor skind t =
+  if kindAt t == skind
+    then Just t
+    else findAncestor skind =<< up t
 
 -- | @lexeme src traversal@
 lexemeAt :: String -> Traversal -> String

@@ -345,6 +345,9 @@ library waspls
     Control.Monad.Log.Class
     Wasp.LSP.Analysis
     Wasp.LSP.CodeActions
+    Wasp.LSP.Command
+    Wasp.LSP.Commands.CommandPlugin
+    Wasp.LSP.Commands.ScaffoldTsSymbol
     Wasp.LSP.Completion
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion

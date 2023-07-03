@@ -19,6 +19,7 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
+import qualified Wasp.LSP.Command as Command
 import Wasp.LSP.Debouncer (newDebouncerIO)
 import Wasp.LSP.Handlers
 import Wasp.LSP.Reactor (startReactorThread)
@@ -38,6 +39,7 @@ lspServerHandlers stopReactor =
       didOpenHandler,
       didSaveHandler,
       didChangeHandler,
+      executeCommandHandler,
       completionHandler,
       signatureHelpHandler,
       gotoDefinitionHandler,
@@ -129,7 +131,8 @@ lspServerOptions =
     { LSP.textDocumentSync = Just syncOptions,
       LSP.completionTriggerCharacters = Just [':', ' '],
       LSP.signatureHelpTriggerCharacters = signatureHelpTriggerCharacters,
-      LSP.signatureHelpRetriggerCharacters = signatureHelpRetriggerCharacters
+      LSP.signatureHelpRetriggerCharacters = signatureHelpRetriggerCharacters,
+      LSP.executeCommandCommands = Just Command.availableCommands
     }
 
 -- | Options to tell the client how to update the server about the state of text

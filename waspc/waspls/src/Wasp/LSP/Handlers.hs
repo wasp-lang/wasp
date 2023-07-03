@@ -6,6 +6,7 @@ module Wasp.LSP.Handlers
     didOpenHandler,
     didChangeHandler,
     didSaveHandler,
+    executeCommandHandler,
     completionHandler,
     signatureHelpHandler,
     gotoDefinitionHandler,
@@ -22,6 +23,7 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Wasp.LSP.Analysis (diagnoseWaspFile)
 import Wasp.LSP.CodeActions (getCodeActionsInRange)
+import qualified Wasp.LSP.Command as Command
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.DynamicHandlers (registerDynamicCapabilities)
 import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
@@ -70,6 +72,9 @@ didChangeHandler =
 didSaveHandler :: Handlers ServerM
 didSaveHandler =
   LSP.notificationHandler LSP.STextDocumentDidSave $ diagnoseWaspFile . extractUri
+
+executeCommandHandler :: Handlers ServerM
+executeCommandHandler = Command.handler
 
 completionHandler :: Handlers ServerM
 completionHandler =

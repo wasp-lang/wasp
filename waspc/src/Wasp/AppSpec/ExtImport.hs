@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
@@ -7,7 +8,9 @@ module Wasp.AppSpec.ExtImport
   )
 where
 
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
+import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 
@@ -28,7 +31,11 @@ data ExtImportName
     ExtImportModule Identifier
   | -- | Represents external imports like @import { Identifier } from "file.js"@
     ExtImportField Identifier
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic)
+
+instance FromJSON ExtImportName
+
+instance ToJSON ExtImportName
 
 importIdentifier :: ExtImport -> Identifier
 importIdentifier (ExtImport importName _) = case importName of
