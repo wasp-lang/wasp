@@ -72,6 +72,9 @@ export function Stats() {
 
       {stats && (
         <>
+          <p className="text-sm text-slate-500 mb-2">
+            Number of projects created in the last 24 hours:{" "}
+          </p>
           <div style={{ height: 300, width: "100%" }} className="mb-4">
             <ParentSize>
               {({ width, height }) => (
