@@ -198,6 +198,11 @@ export const getAppGenerationResult = (async (args, context) => {
 }>;
 
 export const getStats = (async (args, context) => {
+  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
+  if (!context.user || !emailsWhitelist.includes(context.user.email)) {
+    throw new HttpError(401, "Only admins can access stats.");
+  }
+
   const { Project } = context.entities;
   const projects = await Project.findMany({
     orderBy: {

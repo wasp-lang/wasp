@@ -25,13 +25,24 @@ app waspAi {
     ("@visx/scale", "3.2.0"),
     ("@visx/responsive", "3.0.0"),
     ("@visx/gradient", "3.0.0"),
-    ("@visx/axis", "3.2.0")
+    ("@visx/axis", "3.2.0"),
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
   },
   db: {
     system: PostgreSQL
+  },
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {
+        configFn: import { getGoogleAuthConfig } from "@server/auth.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
+      }
+    },
+    onAuthFailedRedirectTo: "/login"
   }
 }
 
@@ -47,7 +58,13 @@ page ResultPage {
 
 route StatsRoute { path: "/stats", to: StatsPage }
 page StatsPage {
-  component: import { Stats } from "@client/pages/StatsPage.jsx"
+  component: import { Stats } from "@client/pages/StatsPage.jsx",
+  authRequired: true
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@client/pages/LoginPage.jsx",
 }
 
 action startGeneratingNewApp {
@@ -72,6 +89,23 @@ query getStats {
     Project
   ]
 }
+
+entity User {=psl
+  id Int @id @default(autoincrement())
+
+  email String @unique
+  externalAuthAssociations SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id String @id @default(uuid())
+
+  provider String
+  providerId String
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+psl=}
 
 entity Project {=psl
   id String @id @default(uuid())

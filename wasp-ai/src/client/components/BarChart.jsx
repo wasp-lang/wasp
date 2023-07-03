@@ -28,7 +28,6 @@ function generateLast24HoursData(projects) {
       buckets[reverseBucketIndex].count++;
     }
   });
-  console.log(buckets);
   return buckets;
 }
 

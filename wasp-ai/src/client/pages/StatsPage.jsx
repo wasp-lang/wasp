@@ -8,6 +8,7 @@ import { StatusPill } from "../components/StatusPill";
 import { BarChart } from "../components/BarChart";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
 import { poolOfExampleIdeas } from "../examples";
+import logout from "@wasp/auth/logout";
 
 export function Stats() {
   const [filterOutExampleApps, setFilterOutExampleApps] = useState(true);
@@ -64,13 +65,24 @@ export function Stats() {
 
   return (
     <div className="big-box">
-      <h1 className="text-3xl font-semibold text-slate-800 mb-4">Stats</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-semibold text-slate-800">Stats</h1>
+        <div>
+          <button className="button sm" onClick={logout}>Logout</button>
+        </div>
+      </div>
 
       {isLoading && <p>Loading...</p>}
 
       {error && <p>Error: {error.message}</p>}
 
-      {stats && (
+      {stats && filteredStats.length === 0 && (
+        <p className="text-sm text-slate-500">
+          No projects created yet.
+        </p>
+      )}
+
+      {stats && filteredStats.length > 0 && (
         <>
           <p className="text-sm text-slate-500 mb-2">
             Number of projects created in the last 24 hours:{" "}
