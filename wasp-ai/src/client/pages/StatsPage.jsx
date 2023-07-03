@@ -84,7 +84,7 @@ export function Stats() {
             </ParentSize>
           </div>
 
-          <div className="py-2">
+          <div className="py-2 flex justify-between items-center">
             <div class="flex items-center mb-4">
               <input
                 id="default-checkbox"
@@ -102,6 +102,9 @@ export function Stats() {
                 Filter out example apps
               </label>
             </div>
+            <p className="text-sm text-slate-500">
+              Number of displayed apps: {filteredStats.length}
+            </p>
           </div>
 
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
