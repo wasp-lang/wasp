@@ -243,7 +243,6 @@ library
     Wasp.Error
     Wasp.Env
     Wasp.ExternalCode
-    Wasp.JsImport
     Wasp.Generator
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
@@ -323,6 +322,7 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
+    Wasp.JsImport
     Wasp.Message
     Wasp.Node.Version
     Wasp.NpmDependency
@@ -345,15 +345,16 @@ library
     Wasp.TypeScript
     Wasp.Util
     Wasp.Util.Aeson
-    Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
     Wasp.Util.Fib
+    Wasp.Util.FilePath
     Wasp.Util.IO
     Wasp.Util.IO.Retry
+    Wasp.Util.Network.HTTP
+    Wasp.Util.Network.Socket
     Wasp.Util.Terminal
-    Wasp.Util.FilePath
-    Wasp.WaspignoreFile
     Wasp.Version
+    Wasp.WaspignoreFile
 
 library waspls
   import: common-all

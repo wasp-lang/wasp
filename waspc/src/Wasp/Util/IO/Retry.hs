@@ -15,6 +15,8 @@ import Control.Concurrent (threadDelay)
 import Numeric.Natural (Natural)
 import Prelude hiding (readFile, writeFile)
 
+-- TODO: Move out of IO module since `retry` is not about IO anymore.
+
 -- | Runs given action, and then if it fails, retries it, up to maxNumRetries.
 --   Uses provided pauseStrategy to calculate pause between tries.
 retry :: forall m e a. (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)

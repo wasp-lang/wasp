@@ -36,6 +36,7 @@ module Wasp.Util
     naiveTrimJSON,
     textToLazyBS,
     trim,
+    secondsToMicroSeconds,
   )
 where
 
@@ -252,3 +253,6 @@ naiveTrimJSON textContainingJson =
 
 textToLazyBS :: Text -> BSL.ByteString
 textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
+
+secondsToMicroSeconds :: Int -> Int
+secondsToMicroSeconds = (* 1000000)

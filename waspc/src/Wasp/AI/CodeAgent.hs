@@ -16,14 +16,20 @@ module Wasp.AI.CodeAgent
   )
 where
 
+import Control.Concurrent (threadDelay)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (MonadReader, ReaderT (runReaderT), asks)
 import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
+import UnliftIO (throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
-import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage)
+import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage, ChatResponse)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
+import qualified Wasp.Util as Util
+import Wasp.Util.IO.Retry (MonadRetry)
+import qualified Wasp.Util.IO.Retry as R
+import Wasp.Util.Network.HTTP (catchRetryableHttpException)
 
 newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT CodeAgentState IO) a}
   deriving (Monad, Applicative, Functor, MonadIO, MonadReader CodeAgentConfig, MonadState CodeAgentState)
@@ -34,6 +40,9 @@ data CodeAgentConfig = CodeAgentConfig
     _writeLog :: !(Text -> IO ()),
     _useGpt3IfGpt4NotAvailable :: !Bool
   }
+
+instance MonadRetry CodeAgent where
+  rThreadDelay = liftIO . threadDelay
 
 runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
 runCodeAgent config codeAgent =
@@ -78,9 +87,21 @@ queryChatGPT params messages = do
       else return params
 
   key <- asks _openAIApiKey
-  chatResponse <- liftIO $ ChatGPT.queryChatGPT key params' messages
+  chatResponse <- queryChatGPTWithRetry key params' messages
   modify $ \s -> s {_usage = _usage s <> [ChatGPT.usage chatResponse]}
   return $ ChatGPT.getChatResponseContent chatResponse
+  where
+    queryChatGPTWithRetry :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> CodeAgent ChatResponse
+    queryChatGPTWithRetry key params' messages' =
+      do
+        R.retry
+          (R.expPause $ fromIntegral $ Util.secondsToMicroSeconds 10)
+          3
+          ( liftIO $
+              (Right <$> ChatGPT.queryChatGPT key params' messages')
+                `catchRetryableHttpException` (pure . Left)
+          )
+          >>= either throwIO pure
 
 getOpenAIApiKey :: CodeAgent OpenAIApiKey
 getOpenAIApiKey = asks _openAIApiKey

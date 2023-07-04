@@ -16,7 +16,7 @@ module Wasp.AI.OpenAI.ChatGPT
 where
 
 import Control.Arrow ()
-import Control.Monad (void, when)
+import Control.Monad (when)
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
@@ -25,10 +25,11 @@ import Debug.Pretty.Simple (pTrace)
 import GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
-import UnliftIO.Exception (catch, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
-import qualified Wasp.Util.IO.Retry as R
+import qualified Wasp.Util as Util
+import qualified Wasp.Util.Network.HTTP as Util.HTTP
 
+-- | Might throw an HttpException.
 queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO ChatResponse
 queryChatGPT apiKey params requestMessages = do
   let reqBodyJson =
@@ -40,15 +41,12 @@ queryChatGPT apiKey params requestMessages = do
       request =
         -- 90 seconds should be more than enough for ChatGPT to generate an answer, or reach its own timeout.
         -- If it proves in the future that it might need more time, we can increase this number.
-        HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro $ secondsToMicroSeconds 90) $
+        HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro $ Util.secondsToMicroSeconds 90) $
           HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
             HTTP.setRequestBodyJSON reqBodyJson $
               HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
 
-  response <- httpJSONWithRetry request
-
-  -- TODO: I should probably check status code here, confirm it is 200.
-  let _responseStatusCode = HTTP.getResponseStatusCode response
+  response <- Util.HTTP.httpJSONThatCertainlyThrowsOnHttpError request
 
   let (chatResponse :: ChatResponse) = HTTP.getResponseBody response
 
@@ -66,36 +64,6 @@ queryChatGPT apiKey params requestMessages = do
       $ return ()
 
   return chatResponse
-  where
-    secondsToMicroSeconds :: Int -> Int
-    secondsToMicroSeconds = (* 1000000)
-
-    httpJSONWithRetry :: (FromJSON a) => HTTP.Request -> IO (HTTP.Response a)
-    httpJSONWithRetry request =
-      R.retry
-        (R.expPause $ fromIntegral $ secondsToMicroSeconds 10)
-        3
-        ( ( do
-              response <- HTTP.httpJSON request
-              -- NOTE: Although docs say that httpJSON will will be thrown for all status codes except 200,
-              --   I believe I saw situations where it wasn't thrown and instead it was part of response,
-              --   so I added this extra handling here just in case. If we can prove that is not the case,
-              --   and that exception is always thrown, we can remove this if-then-else.
-              if shouldRetry response
-                then pure $ Left $ HTTP.HttpExceptionRequest request $ HTTP.C.StatusCodeException (void response) ""
-                else pure $ Right response
-          )
-            `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ResponseTimeout) -> pure $ Left e)
-            `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ConnectionTimeout) -> pure $ Left e)
-            `catch` ( \e@(HTTP.HttpExceptionRequest _req (HTTP.C.StatusCodeException response _)) ->
-                        if shouldRetry response then pure $ Left e else throwIO e
-                    )
-        )
-        >>= either throwIO pure
-      where
-        shouldRetry response =
-          HTTP.getResponseStatusCode response `elem` retrayableHttpErrorStatusCodes
-        retrayableHttpErrorStatusCodes = [503, 429, 408, 502, 504]
 
 getChatResponseContent :: ChatResponse -> Text
 getChatResponseContent = content . message . head . choices
