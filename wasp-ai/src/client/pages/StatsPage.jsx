@@ -83,12 +83,18 @@ export function Stats() {
   }
 
   function getDuration(stat) {
+    if (stat.logs.length < 2) {
+      return "-";
+    }
     const start = stat.logs[stat.logs.length - 1].createdAt;
     const end = stat.logs[0].createdAt;
     return getFormattedDiff(start, end);
   }
 
   function getWaitingInQueueDuration(stat) {
+    if (stat.logs.length < 2) {
+      return "-";
+    }
     const start = stat.createdAt;
     const end = stat.logs[stat.logs.length - 1].createdAt;
     return getFormattedDiff(start, end);
