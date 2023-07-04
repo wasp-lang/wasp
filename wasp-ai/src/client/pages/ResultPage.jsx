@@ -341,7 +341,12 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
       <MyDialog
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title="Run the app locally 💻"
+        title={
+          <span>
+            Run the app locally{" "}
+            <PiLaptopDuotone className="inline-block" size={20} />
+          </span>
+        }
       >
         <div className="mt-6 space-y-6">
           <WarningAboutAI />
@@ -451,7 +456,7 @@ function CopyLink() {
     >
       {copying ? (
         <span>
-          Copied{" "}<PiCheckDuotone className="inline-block" size={20} />
+          Copied <PiCheckDuotone className="inline-block" size={20} />
         </span>
       ) : (
         <span>

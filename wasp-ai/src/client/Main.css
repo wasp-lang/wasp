@@ -57,5 +57,5 @@ textarea {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
 }
 .copy-link {
-  @apply text-sky-700 hover:text-sky-600 font-bold;
+  @apply text-sky-700 hover:text-sky-600 bg-sky-200 bg-opacity-50 font-bold py-1 px-3 rounded;
 }
