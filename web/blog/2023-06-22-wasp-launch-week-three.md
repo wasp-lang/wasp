@@ -62,7 +62,7 @@ The party starts at **9.30 am EDT / 3.30 pm CET** - sign up [here](https://disco
 
 As per usual, there will be memes, swag and lots of interesting dev discussions!
 
-## Monday: The future is now 🛸
+## Auto CRUD | Monday: The future is now 🛸
 
 <ImgWithCaption
     alt="The future is now"
@@ -75,9 +75,11 @@ That's what we are coming after - is it possible to avoid writing (or generating
 
 **When**: Monday, June 26 2023
 
-**Read more about it**: coming soon
+**Read more about it**:
+- [Twitter thread introing Auto CRUD](https://twitter.com/WaspLang/status/1673376102792806402)
+- [Docs Guide to Auto CRUD](/docs/guides/crud)
 
-## Tuesday: Be real, time 🔌⏱
+## WebSocket Support | Tuesday: Be real, time 🔌⏱
 
 <ImgWithCaption
     alt="Realtime"
@@ -90,7 +92,9 @@ Another situation where you might want to keep things real is when chatting to s
 
 **When**: Tuesday, June 27 2023
 
-**Read more about it**: coming soon
+**Read more about it**:
+- [Intro Twitter thread](https://twitter.com/WaspLang/status/1673742264873500673)
+- [Docs Guide](/docs/guides/websockets)
 
 ## Wednesday: Community Day 🤗
 
@@ -104,9 +108,9 @@ Community is at the centre of Wasp, and Wednesday is at the centre of the week, 
 
 **When**: Wednesday, June 28 2023
 
-**Read more about it**: coming soon
+**Read more about it**: [What can you build with Wasp?](/blog/2023/06/28/what-can-you-build-with-wasp)
 
-## Thursday: Take care of your tools 🛠
+## Wasp LSP 2.0 | Thursday: Take care of your tools 🛠
 
 <ImgWithCaption
     alt="Tools"
@@ -119,9 +123,9 @@ Us at Wasp, we are pretty much the same as Gimli - we take our tools seriously. 
 
 **When**: Thursday, June 29 2023
 
-**Read more about it**: coming soon
+**Read more about it**: [A blog post introing Wasp LSP 2.0](https://wasp-lang.dev/blog/2023/06/29/new-wasp-lsp)
 
-## Friday: Waspularity 🤖 + Tutorial-o-thon!
+## GPT Web App Generator | Friday: Waspularity 🤖 + Tutorial-o-thon!
 
 <ImgWithCaption
     alt="Waspularity"
@@ -134,7 +138,10 @@ To wrap the week up, we'll also start another hackathon, but this time in a bit 
 
 **When**: Friday, June 30 2023
 
-**Read more about it**: coming soon
+**Read more about it**:
+- [Intro Twitter thread](https://twitter.com/WaspLang/status/1674814873312608257)
+- [Try GPT Web App Generator!](https://magic-app-generator.wasp-lang.dev/)
+- [Join our Tutorial Jam #1 and win prizes!](http://localhost:3002/blog/2023/06/30/tutorial-jam)
 
 ## Recap
 
