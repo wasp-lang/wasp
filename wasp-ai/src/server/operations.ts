@@ -25,17 +25,22 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     throw new HttpError(422, "App description is required.");
   }
   const { Project } = context.entities;
+  const optionalUser = context.user
+    ? {
+        user: {
+          connect: {
+            id: context.user.id,
+          },
+        },
+      }
+    : {};
   const project = await Project.create({
     data: {
       name: args.appName,
       description: args.appDesc,
       primaryColor: args.appPrimaryColor,
       authMethod: args.appAuthMethod,
-      user: {
-        connect: {
-          id: context.user?.id,
-        },
-      },
+      ...optionalUser,
     },
   });
 
