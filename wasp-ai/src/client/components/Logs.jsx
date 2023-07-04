@@ -89,7 +89,7 @@ export function Logs({ logs, status, onRetry }) {
                   >
                     {getEmoji(log) + " "}
                     {log}{" "}
-                    {i === 0 && status === "error" && (
+                    {i === 0 && (status === "error" || status === "cancelled") && (
                       <button onClick={onRetry} className="button gray xs">
                         Retry
                       </button>
