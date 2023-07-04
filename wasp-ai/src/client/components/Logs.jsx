@@ -51,7 +51,7 @@ export function Logs({ logs, status, onRetry }) {
   return (
     logs && (
       <>
-        <header className={`big-box mt-4 mb-4 ${status}`}>
+        <header className={`big-box mt-4 mb-8 ${status}`}>
           <ToggleButton
             numberOfLogs={logs.length}
             logsVisible={logsVisible}

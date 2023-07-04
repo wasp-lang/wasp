@@ -56,3 +56,6 @@ textarea {
 .status-icon {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
 }
+.copy-link {
+  @apply text-sky-700 hover:text-sky-600 font-bold;
+}

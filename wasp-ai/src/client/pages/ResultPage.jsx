@@ -12,6 +12,12 @@ import { Loader } from "../components/Loader";
 import { MyDialog } from "../components/Dialog";
 import { Logs } from "../components/Logs";
 import { Header } from "../components/Header";
+import {
+  PiCopyDuotone,
+  PiLaptopDuotone,
+  PiDownloadDuotone,
+  PiCheckDuotone,
+} from "react-icons/pi";
 
 export const ResultPage = () => {
   const { appId } = useParams();
@@ -237,10 +243,13 @@ export const ResultPage = () => {
 
       {interestingFilePaths.length > 0 && (
         <>
-          <div className="mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-800">
               {appGenerationResult?.project?.name}
             </h2>
+            <div>
+              <CopyLink />
+            </div>
           </div>
           <button
             className="button gray block w-full mb-4 md:hidden"
@@ -249,7 +258,7 @@ export const ResultPage = () => {
             {isMobileFileBrowserOpen ? "Close" : "Open"} file browser (
             {interestingFilePaths.length} files)
           </button>
-          <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto">
+          <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto md:overflow-x-visible">
             <aside className={isMobileFileBrowserOpen ? "" : "hidden md:block"}>
               <div className="mb-2">
                 <RunTheAppModal
@@ -320,11 +329,14 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className={`button w-full${!disabled ? " animate-jumping" : ""}`}
+        className={`button flex items-center justify-center gap-1 w-full${
+          !disabled ? " animate-jumping" : ""
+        }`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
-        Run the app locally 💻
+        Run the app locally{" "}
+        <PiLaptopDuotone className="inline-block" size={20} />
       </button>
       <MyDialog
         isOpen={showModal}
@@ -350,8 +362,12 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
           </pre>
           <p className="text-base leading-relaxed text-gray-500">
             Then, you download the ZIP file with the generated app:
-            <button className="button w-full mt-2" onClick={onDownloadZip}>
-              Download ZIP
+            <button
+              className="button flex items-center justify-center gap-1 w-full mt-2"
+              onClick={onDownloadZip}
+            >
+              Download ZIP{" "}
+              <PiDownloadDuotone className="inline-block" size={20} />
             </button>
           </p>
 
@@ -416,5 +432,33 @@ function WarningAboutAI() {
         </div>
       </div>
     </div>
+  );
+}
+
+function CopyLink() {
+  const [copying, setCopying] = useState(false);
+  function copy() {
+    navigator.clipboard.writeText(window.location.href);
+    setCopying(true);
+    setTimeout(() => setCopying(false), 1500);
+  }
+
+  return (
+    <button
+      className="copy-link flex items-center justify-center gap-1"
+      onClick={copy}
+      disabled={copying}
+    >
+      {copying ? (
+        <span>
+          Copied{" "}<PiCheckDuotone className="inline-block" size={20} />
+        </span>
+      ) : (
+        <span>
+          Copy a sharable link{" "}
+          <PiCopyDuotone className="inline-block" size={20} />
+        </span>
+      )}
+    </button>
   );
 }

@@ -6,6 +6,7 @@ import { ExampleCard } from "../components/ExampleCard";
 import { Header } from "../components/Header";
 import { availableColors } from "../components/Color";
 import { poolOfExampleIdeas } from "../examples";
+import { PiMagicWandDuotone } from "react-icons/pi";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -159,7 +160,7 @@ Based on it, our AI code agent will then generate a full stack web app in Wasp, 
           className="button mr-2"
           disabled={currentStatus.status === "inProgress"}
         >
-          Generate the app!
+          Generate the app <PiMagicWandDuotone className="inline-block ml-1" />
         </button>
       </form>
       <div className="mt-8">

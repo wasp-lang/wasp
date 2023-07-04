@@ -12,7 +12,7 @@ app waspAi {
   dependencies: [
     ("prismjs", "^1.29.0"),
     ("react-accessible-treeview", "2.6.1"),
-    ("react-icons", "4.9.0"),
+    ("react-icons", "4.10.1"),
     ("@zip.js/zip.js", "2.7.16"),
     ("async-mutex", "0.4.0"),
     ("@headlessui/react", "1.7.15"),
@@ -42,7 +42,8 @@ app waspAi {
         getUserFieldsFn: import { getUserFields } from "@server/auth.js",
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: "/login",
+    onAuthSucceededRedirectTo: "/stats"
   }
 }
 
