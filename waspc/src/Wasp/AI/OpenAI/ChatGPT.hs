@@ -16,7 +16,7 @@ module Wasp.AI.OpenAI.ChatGPT
 where
 
 import Control.Arrow ()
-import Control.Monad (when)
+import Control.Monad (void, when)
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
@@ -70,17 +70,32 @@ queryChatGPT apiKey params requestMessages = do
     secondsToMicroSeconds :: Int -> Int
     secondsToMicroSeconds = (* 1000000)
 
+    httpJSONWithRetry :: (FromJSON a) => HTTP.Request -> IO (HTTP.Response a)
     httpJSONWithRetry request =
-      -- NOTE: There is no strong reason for using linear pause here, or exactly 2 retries, we went
-      -- with these settings as reasonable defaults.
       R.retry
-        (R.linearPause $ fromIntegral $ secondsToMicroSeconds 10)
-        2
-        ( (pure <$> HTTP.httpJSON request)
+        (R.expPause $ fromIntegral $ secondsToMicroSeconds 10)
+        3
+        ( ( do
+              response <- HTTP.httpJSON request
+              -- NOTE: Although docs say that httpJSON will will be thrown for all status codes except 200,
+              --   I believe I saw situations where it wasn't thrown and instead it was part of response,
+              --   so I added this extra handling here just in case. If we can prove that is not the case,
+              --   and that exception is always thrown, we can remove this if-then-else.
+              if shouldRetry response
+                then pure $ Left $ HTTP.HttpExceptionRequest request $ HTTP.C.StatusCodeException (void response) ""
+                else pure $ Right response
+          )
             `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ResponseTimeout) -> pure $ Left e)
             `catch` (\e@(HTTP.HttpExceptionRequest _req HTTP.C.ConnectionTimeout) -> pure $ Left e)
+            `catch` ( \e@(HTTP.HttpExceptionRequest _req (HTTP.C.StatusCodeException response _)) ->
+                        if shouldRetry response then pure $ Left e else throwIO e
+                    )
         )
         >>= either throwIO pure
+      where
+        shouldRetry response =
+          HTTP.getResponseStatusCode response `elem` retrayableHttpErrorStatusCodes
+        retrayableHttpErrorStatusCodes = [503, 429, 408, 502, 504]
 
 getChatResponseContent :: ChatResponse -> Text
 getChatResponseContent = content . message . head . choices
