@@ -71,8 +71,6 @@ action startGeneratingNewApp {
   fn: import { startGeneratingNewApp } from "@server/operations.js",
   entities: [
     Project,
-    File,
-    Log,
   ]
 }
 
@@ -95,6 +93,7 @@ entity User {=psl
 
   email String @unique
   externalAuthAssociations SocialLogin[]
+  projects Project[]
 psl=}
 
 entity SocialLogin {=psl
@@ -114,7 +113,9 @@ entity Project {=psl
   primaryColor String @default("sky")
   authMethod String @default("usernameAndPassword")
   createdAt DateTime @default(now())
-  status String @default("in-progress")
+  status String @default("pending")
+  userId Int?
+  user User? @relation(fields: [userId], references: [id])
   files File[]
   logs Log[]
 psl=}
@@ -137,3 +138,37 @@ entity Log {=psl
   projectId String
   project Project @relation(fields: [projectId], references: [id])
 psl=}
+
+job checkPendingAppsJob {
+  executor: PgBoss,
+  schedule: {
+    cron: "* * * * *",
+  },
+  perform: {
+    fn: import { checkForPendingApps } from "@server/jobs/checkForPendingApps.js"
+  },
+  entities: [Project]
+}
+
+job failStaleAppsJobs {
+  executor: PgBoss,
+  schedule: {
+    cron: "* * * * *",
+  },
+  perform: {
+    fn: import { failStaleGenerations } from "@server/jobs/failStaleGenerations.js",
+  },
+  entities: [Project, Log]
+}
+
+job generateAppJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { generateApp } from "@server/jobs/generateApp.js",
+  },
+  entities: [
+    Project,
+    File,
+    Log
+  ]
+}

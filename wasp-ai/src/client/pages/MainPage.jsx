@@ -49,8 +49,8 @@ const MainPage = () => {
   async function startGenerating(event) {
     event.preventDefault();
     setCurrentStatus({
-      status: "inProgress",
-      message: "Booting up AI",
+      status: "idle",
+      message: "Starting...",
     });
     try {
       const appId = await startGeneratingNewApp({

@@ -28,36 +28,42 @@ export const ResultPage = () => {
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
-    message: "Waiting for instructions",
+    message: "Waiting",
   });
   const [currentFiles, setCurrentFiles] = useState({});
   const history = useHistory();
   const [isMobileFileBrowserOpen, setIsMobileFileBrowserOpen] = useState(false);
 
   useEffect(() => {
+    const backendStatusToPillStatus = {
+      pending: "pending",
+      "in-progress": "inProgress",
+      success: "success",
+      failure: "error",
+      cancelled: "cancelled",
+    };
+    const backendStatusToPillText = {
+      pending: "In the queue",
+      "in-progress": "Generating app",
+      success: "Finished",
+      failure: "There was an error",
+      cancelled: "The generation was cancelled",
+    };
+    if (!appGenerationResult?.project) {
+      return;
+    }
     if (
       appGenerationResult?.project?.status === "success" ||
-      appGenerationResult?.project?.status === "failure"
+      appGenerationResult?.project?.status === "failure" ||
+      appGenerationResult?.project?.status === "cancelled" ||
+      isError
     ) {
       setGenerationDone(true);
-      setCurrentStatus({
-        status:
-          appGenerationResult.project.status === "success"
-            ? "success"
-            : "error",
-        message:
-          appGenerationResult.project.status === "success"
-            ? "Finished"
-            : "There was an error",
-      });
-    } else if (isError) {
-      setGenerationDone(true);
-    } else {
-      setCurrentStatus({
-        status: "inProgress",
-        message: "Generating app",
-      });
     }
+    setCurrentStatus({
+      status: backendStatusToPillStatus[appGenerationResult.project.status],
+      message: backendStatusToPillText[appGenerationResult.project.status],
+    });
   }, [appGenerationResult, isError]);
 
   useEffect(() => {

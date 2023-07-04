@@ -9,9 +9,11 @@ import { BarChart } from "../components/BarChart";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
 import { poolOfExampleIdeas } from "../examples";
 import logout from "@wasp/auth/logout";
+import { WaspIcon } from "../components/WaspIcon";
 
 export function Stats() {
-  const [filterOutExampleApps, setFilterOutExampleApps] = useState(true);
+  const [filterOutExampleApps, setFilterOutExampleApps] = useState(false);
+  const [filterOutKnownUsers, setFilterOutKnownUsers] = useState(false);
 
   const { data: stats, isLoading, error } = useQuery(getStats);
 
@@ -27,6 +29,8 @@ export function Stats() {
         return "success";
       case "failure":
         return "error";
+      case "cancelled":
+        return "cancelled";
       default:
         return "idle";
     }
@@ -40,35 +44,64 @@ export function Stats() {
         return "Success";
       case "failure":
         return "Error";
+      case "cancelled":
+        return "Cancelled";
+      case "pending":
+        return "Pending";
       default:
-        return "Idle";
+        return "Unknown";
     }
   }
 
-  const filteredStats = useMemo(
-    () =>
-      stats
-        ? stats.projects.filter((stat) => {
-            if (filterOutExampleApps) {
-              return !poolOfExampleIdeas.some(
-                (example) =>
-                  example.name === stat.name &&
-                  example.description === stat.description
-              );
-            } else {
-              return true;
-            }
-          })
-        : [],
-    [stats, filterOutExampleApps]
-  );
+  const filteredStats = useMemo(() => {
+    const filters = [];
+    if (filterOutExampleApps) {
+      filters.push(
+        (stat) =>
+          !poolOfExampleIdeas.some(
+            (example) =>
+              example.name === stat.name &&
+              example.description === stat.description
+          )
+      );
+    }
+    if (filterOutKnownUsers) {
+      filters.push((stat) => !stat.user);
+    }
+    return stats
+      ? stats.projects.filter((stat) => {
+          return filters.every((filter) => filter(stat));
+        })
+      : [];
+  }, [stats, stats?.projects, filterOutExampleApps, filterOutKnownUsers]);
+
+  function getFormattedDiff(start, end) {
+    const diff = (end - start) / 1000;
+    const minutes = Math.round(diff / 60);
+    const remainingSeconds = Math.round(diff % 60);
+    return `${minutes}m ${remainingSeconds}s`;
+  }
+
+  function getDuration(stat) {
+    const start = stat.logs[stat.logs.length - 1].createdAt;
+    const end = stat.logs[0].createdAt;
+    return getFormattedDiff(start, end);
+  }
+
+  function getWaitingInQueueDuration(stat) {
+    const start = stat.createdAt;
+    const end = stat.logs[stat.logs.length - 1].createdAt;
+    return getFormattedDiff(start, end);
+  }
 
   return (
     <div className="big-box">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-semibold text-slate-800">Stats</h1>
         <div>
-          <button className="button sm" onClick={logout}>Logout</button>
+          <button className="button sm" onClick={logout}>
+            Logout
+          </button>
         </div>
       </div>
 
@@ -76,13 +109,11 @@ export function Stats() {
 
       {error && <p>Error: {error.message}</p>}
 
-      {stats && filteredStats.length === 0 && (
-        <p className="text-sm text-slate-500">
-          No projects created yet.
-        </p>
+      {stats && stats.projects.length === 0 && (
+        <p className="text-sm text-slate-500">No projects created yet.</p>
       )}
 
-      {stats && filteredStats.length > 0 && (
+      {stats && stats.projects.length > 0 && (
         <>
           <p className="text-sm text-slate-500 mb-2">
             Number of projects created in the last 24 hours:{" "}
@@ -100,23 +131,43 @@ export function Stats() {
           </div>
 
           <div className="py-2 flex justify-between items-center">
-            <div className="flex items-center mb-4">
-              <input
-                id="default-checkbox"
-                type="checkbox"
-                checked={filterOutExampleApps}
-                onChange={(event) =>
-                  setFilterOutExampleApps(event.target.checked)
-                }
-                className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
-              />
-              <label
-                htmlFor="default-checkbox"
-                className="ml-2 text-sm font-medium text-gray-900"
-              >
-                Filter out example apps
-              </label>
+            <div className="flex gap-3">
+              <div className="flex items-center mb-4">
+                <input
+                  id="filter"
+                  type="checkbox"
+                  checked={filterOutExampleApps}
+                  onChange={(event) =>
+                    setFilterOutExampleApps(event.target.checked)
+                  }
+                  className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
+                />
+                <label
+                  htmlFor="filter"
+                  className="ml-2 text-sm font-medium text-gray-900"
+                >
+                  Filter out example apps
+                </label>
+              </div>
+              <div className="flex items-center mb-4">
+                <input
+                  id="default-checkbox"
+                  type="checkbox"
+                  checked={filterOutKnownUsers}
+                  onChange={(event) =>
+                    setFilterOutKnownUsers(event.target.checked)
+                  }
+                  className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
+                />
+                <label
+                  htmlFor="default-checkbox"
+                  className="ml-2 text-sm font-medium text-gray-900"
+                >
+                  Filter out known users
+                </label>
+              </div>
             </div>
+
             <p className="text-sm text-slate-500">
               Number of displayed apps: {filteredStats.length}
             </p>
@@ -135,6 +186,9 @@ export function Stats() {
                   <th scope="col" className="px-6 py-3">
                     Created At
                   </th>
+                  <th scope="col" className="px-6 py-3">
+                    Time in Queue &rarr; Build
+                  </th>
                   <th scope="col" className="px-6 py-3"></th>
                 </tr>
               </thead>
@@ -144,10 +198,17 @@ export function Stats() {
                     <th
                       scope="row"
                       className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
-                      title={stat.description}
                     >
                       <Color value={getColorValue(stat.primaryColor)} />{" "}
-                      {stat.name}
+                      <span title={stat.description}>{stat.name}</span>{" "}
+                      {stat.user && (
+                        <span
+                          className="text-slate-300"
+                          title={stat.user.email}
+                        >
+                          <WaspIcon className="w-5 h-5" />
+                        </span>
+                      )}
                     </th>
                     <td className="px-6 py-4">
                       <StatusPill status={getStatusName(stat.status)} sm>
@@ -159,6 +220,9 @@ export function Stats() {
                       title={`${stat.createdAt.toLocaleDateString()} ${stat.createdAt.toLocaleTimeString()}`}
                     >
                       {format(stat.createdAt)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {getWaitingInQueueDuration(stat)} &rarr; {getDuration(stat)}
                     </td>
                     <td className="px-6 py-4">
                       <Link
