@@ -63,7 +63,6 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
             - Make sure to use only queries and actions that are defined in the Wasp file (listed below)!
             - Ensure query and action imports are correct. One import per query / action, default imports,
               name of the file same as name of the query.
-            - Don't use `useAction` or `useMutation`! Use actions directly.
             - Use Tailwind CSS to style the page if you didn't.
             - Use <Link /> component from "react-router-dom" to link to other pages where needed.
             - "TODO" comments or "..." that should be replaced with actual implementation.
