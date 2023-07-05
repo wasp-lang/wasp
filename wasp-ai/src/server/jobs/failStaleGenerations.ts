@@ -1,3 +1,5 @@
+import { log } from "./utils.js";
+
 export async function failStaleGenerations(
   _args: void,
   context: {
@@ -8,7 +10,7 @@ export async function failStaleGenerations(
   }
 ) {
   // If a generation has been in progress for > 5 minutes, it fails it
-  console.log("Failing stale generations");
+  log("Failing stale generations");
   const { Project, Log } = context.entities;
 
   const now = getNowInUTC();
@@ -26,9 +28,19 @@ export async function failStaleGenerations(
           },
         },
       },
+      include: {
+        logs: {
+          select: {
+            id: true,
+          }
+        },
+      },
     });
 
     for (const project of staleProjects) {
+      if (project.logs.length === 0) {
+        continue;
+      }
       await Project.update({
         where: { id: project.id },
         data: { status: "cancelled" },

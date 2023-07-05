@@ -1,4 +1,5 @@
 import { generateAppJob } from "@wasp/jobs/generateAppJob.js";
+import { log } from "./utils.js";
 
 const maxProjectsInProgress = process.env.MAX_PROJECTS_IN_PROGRESS
   ? parseInt(process.env.MAX_PROJECTS_IN_PROGRESS, 10)
@@ -12,7 +13,7 @@ export async function checkForPendingApps(
     };
   }
 ) {
-  console.log("Checking for pending apps");
+  log("Checking for pending apps");
   const { Project } = context.entities;
 
   const pendingProjects = await Project.findMany({

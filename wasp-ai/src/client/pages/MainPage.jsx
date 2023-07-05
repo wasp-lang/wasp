@@ -107,7 +107,6 @@ const MainPage = () => {
               value={appName}
               onChange={(e) => setAppNameIfValid(e.target.value)}
               disabled={currentStatus.status === "inProgress"}
-              className="cursor-pointer"
             />
           </div>
           <div>
@@ -124,7 +123,6 @@ Based on it, our AI code agent will then generate a full stack web app in Wasp, 
               cols="50"
               onChange={(e) => setAppDesc(e.target.value)}
               disabled={currentStatus.status === "inProgress"}
-              className="cursor-pointer"
             />
           </div>
           <div className="grid md:grid-cols-2 gap-3">

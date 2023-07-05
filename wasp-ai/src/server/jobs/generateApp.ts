@@ -1,5 +1,6 @@
 import { spawn } from "child_process";
 import { Mutex } from "async-mutex";
+import { log } from "./utils.js";
 
 const appGenerationResults: Record<string, any> = {};
 
@@ -13,8 +14,7 @@ export async function generateApp(
     };
   }
 ) {
-  // Given the appID, it generates the app
-  console.log("Generating app");
+  log("Generating app");
   const appId = args.appId;
 
   const { Project, Log, File } = context.entities;
