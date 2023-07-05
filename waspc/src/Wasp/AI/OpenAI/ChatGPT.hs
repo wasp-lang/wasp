@@ -27,7 +27,6 @@ import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.Util as Util
-import qualified Wasp.Util.Network.HTTP as Util.HTTP
 
 -- | Might throw an HttpException.
 queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO ChatResponse
@@ -46,7 +45,7 @@ queryChatGPT apiKey params requestMessages = do
             HTTP.setRequestBodyJSON reqBodyJson $
               HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
 
-  response <- Util.HTTP.httpJSONThatCertainlyThrowsOnHttpError request
+  response <- HTTP.httpJSON request
 
   let (chatResponse :: ChatResponse) = HTTP.getResponseBody response
 
