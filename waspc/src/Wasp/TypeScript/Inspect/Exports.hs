@@ -12,8 +12,8 @@ module Wasp.TypeScript.Inspect.Exports
 
     -- * Export lists
     getExportsOfTsFiles,
-    TsExportRequest (..),
-    TsExportResponse (..),
+    TsExportsRequest (..),
+    TsExportsResponse (..),
     TsExport (..),
     tsExportSourceRegion,
   )
@@ -28,16 +28,16 @@ import qualified System.Process as P
 import Wasp.Analyzer (SourcePosition)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
-import Wasp.Package (Package (TsInspectPackage), getPackageProc)
+import Wasp.NodePackageFFI (Package (TsInspectPackage), getPackageProcessOptions)
 
 -- | Attempt to get list of exported names from TypeScript files.
 --
 -- The 'FilePath's in the response are guaranteed to exactly match the
 -- corresponding 'FilePath' in the request.
-getExportsOfTsFiles :: [TsExportRequest] -> IO (Either String TsExportResponse)
+getExportsOfTsFiles :: [TsExportsRequest] -> IO (Either String TsExportsResponse)
 getExportsOfTsFiles requests = do
-  let requestJSON = BS.toString $ encode $ groupExportRequests requests
-  cp <- getPackageProc TsInspectPackage []
+  let requestJSON = BS.toString $ encode $ groupExportRequestsByTsconfig requests
+  cp <- getPackageProcessOptions TsInspectPackage []
   (exitCode, response, err) <- P.readCreateProcessWithExitCode cp requestJSON
   case exitCode of
     ExitSuccess -> case decode $ BS.fromString response of
@@ -45,15 +45,15 @@ getExportsOfTsFiles requests = do
       Just exports -> return $ Right exports
     _ -> return $ Left err
 
--- | Join export requests that have the same tsconfig. The @ts-inspect@ package
+-- | Join exports requests that have the same tsconfig. The @ts-inspect@ package
 -- runs an instance of the TypeScript compiler per request group, so grouping
 -- them this way improves performance.
-groupExportRequests :: [TsExportRequest] -> [TsExportRequest]
-groupExportRequests requests =
-  map (uncurry $ flip TsExportRequest) $
+groupExportRequestsByTsconfig :: [TsExportsRequest] -> [TsExportsRequest]
+groupExportRequestsByTsconfig requests =
+  map (uncurry $ flip TsExportsRequest) $
     M.toList $ foldr insertRequest M.empty requests
   where
-    insertRequest (TsExportRequest names maybeTsconfig) grouped =
+    insertRequest (TsExportsRequest names maybeTsconfig) grouped =
       M.insertWith (++) maybeTsconfig names grouped
 
 -- | A symbol exported from a TypeScript file.
@@ -80,15 +80,15 @@ instance FromJSON TsExport where
       (_ :: Value) -> fail "invalid type for TsExport"
 
 -- | Map from TypeScript files to the list of exports found in that file.
-newtype TsExportResponse = TsExportResponse (M.HashMap FilePath [TsExport])
+newtype TsExportsResponse = TsExportsResponse (M.HashMap FilePath [TsExport])
   deriving (Eq, Show, FromJSON)
 
 -- | A list of files associated with an optional tsconfig file that is run
 -- through the TypeScript compiler as a group.
-data TsExportRequest = TsExportRequest {filepaths :: ![FilePath], tsconfig :: !(Maybe FilePath)}
+data TsExportsRequest = TsExportsRequest {filepaths :: ![FilePath], tsconfig :: !(Maybe FilePath)}
   deriving (Eq, Show, Generic)
 
-instance ToJSON TsExportRequest where
+instance ToJSON TsExportsRequest where
   toEncoding = genericToEncoding defaultOptions
 
 -- Wrapper types for parsing SourceRegions from data with 0-based offsets.

@@ -306,7 +306,7 @@ library
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
-    Wasp.Package
+    Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -360,7 +360,7 @@ library waspls
     Wasp.LSP.Reactor
     Wasp.LSP.Server
     Wasp.LSP.ServerConfig
-    Wasp.LSP.ServerM
+    Wasp.LSP.ServerMonads
     Wasp.LSP.ServerState
     Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax

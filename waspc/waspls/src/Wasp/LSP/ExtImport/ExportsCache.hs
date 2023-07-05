@@ -20,7 +20,7 @@ import qualified StrongPath as SP
 import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule))
 import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath, absPathToCachePath, cachePathToAbsPath, tryGetTsconfigForAbsPath, waspStylePathToCachePath)
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einName, einPath), getAllExtImports)
-import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify)
+import Wasp.LSP.ServerMonads (HandlerM, ServerM, handler, modify)
 import qualified Wasp.LSP.ServerState as State
 import qualified Wasp.TypeScript.Inspect.Exports as TS
 
@@ -43,19 +43,22 @@ refreshExportsOfFiles :: [SP.Path' SP.Abs SP.File'] -> ServerM ()
 refreshExportsOfFiles files = do
   logM $ "[refreshExportsOfFiles] refreshing export lists for " ++ show files
 
-  -- First, clear cache for all of the files we are about to refresh.
   cachePaths <- catMaybes <$> mapM absPathToCachePath files
-  modify (State.tsExports %~ foldr ((.) . (`M.insert` [])) id cachePaths)
 
   LSP.getRootPath >>= \case
     Nothing -> pure ()
     Just projectRootDirFilePath -> do
       let projectRootDir = fromJust $ SP.parseAbsDir projectRootDirFilePath
       let exportRequests = mapMaybe (getExportRequestForFile projectRootDir) files
-      liftIO (TS.getExportsOfTsFiles exportRequests) >>= \case
+      response <- liftIO (TS.getExportsOfTsFiles exportRequests)
+      -- Clear cache for all the files that were requested to be updated. This
+      -- takes care of removing deleted files from the cache.
+      modify (State.tsExports %~ foldr ((.) . M.delete) id cachePaths)
+      case response of
         Left err -> do
           logM $ "[refreshExportsForFile] ERROR getting exports: " ++ show err
-        Right res -> updateExportsCache res
+        Right res -> do
+          updateExportsCache res
   where
     -- Find the tsconfig for a given file and return an export request including
     -- that tsconfig. If a tsconfig can not be found (see 'tryGetTsConfigForAbsPath'
@@ -63,15 +66,15 @@ refreshExportsOfFiles files = do
     getExportRequestForFile projectRootDir file = do
       tsconfigPath <- tryGetTsconfigForAbsPath projectRootDir file
       return $
-        TS.TsExportRequest
+        TS.TsExportsRequest
           { TS.filepaths = [SP.fromAbsFile file],
             TS.tsconfig = Just $ SP.fromAbsFile tsconfigPath
           }
 
     -- Replaces entries in the exports cache with the exports lists in the
     -- response.
-    updateExportsCache :: TS.TsExportResponse -> ServerM ()
-    updateExportsCache (TS.TsExportResponse res) = do
+    updateExportsCache :: TS.TsExportsResponse -> ServerM ()
+    updateExportsCache (TS.TsExportsResponse res) = do
       newExports <- M.fromList <$> mapM exportResKeyToCachePath (M.toList res)
       void $ modify $ State.tsExports %~ (newExports `M.union`)
 

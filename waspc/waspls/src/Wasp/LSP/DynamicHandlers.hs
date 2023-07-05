@@ -20,7 +20,7 @@ import qualified StrongPath as SP
 import Wasp.LSP.Analysis (publishDiagnostics)
 import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (refreshExportsOfFiles)
-import Wasp.LSP.ServerM (ServerM, handler, modify, sendToReactor)
+import Wasp.LSP.ServerMonads (ServerM, handler, modify, sendToReactor)
 import qualified Wasp.LSP.ServerState as State
 
 -- | Sends capability registration requests for all dynamic capabilities that

@@ -12,7 +12,7 @@ import qualified Wasp.Analyzer.Parser.CST.Traverse as T
 import Wasp.LSP.Diagnostic (MissingExtImportReason (..), WaspDiagnostic (MissingExtImportDiagnostic), clearMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (ExtImportLookupResult (..), lookupExtImport)
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einLocation), getAllExtImports)
-import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify)
+import Wasp.LSP.ServerMonads (HandlerM, ServerM, handler, modify)
 import qualified Wasp.LSP.ServerState as State
 
 -- | Clears missing external import diagnostics and computes new diagnostics to

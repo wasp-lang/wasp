@@ -1,5 +1,15 @@
 module Wasp.LSP.Debouncer
-  ( Debouncer,
+  ( -- * Smoothing Noisy Events
+
+    -- Provides a debouncing API  events that get triggered repeatedly in a
+    -- short window of time. Debouncing these events treats these repeated
+    -- triggers as a single firing of the event.
+    --
+    -- For example, if we want to do something when the user finishes editing
+    -- a file, we may look typing events. But the user will type many times
+    -- to make a single logical edit, so we want to consider all of those
+    -- individual typing events as one big typing event.
+    Debouncer,
     newDebouncerIO,
     debounce,
   )

@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Wasp.LSP.ServerM
+module Wasp.LSP.ServerMonads
   ( -- * LSP Server Monads
 
     -- The state of the LSP server is used in two different ways:

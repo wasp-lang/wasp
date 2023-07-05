@@ -23,7 +23,7 @@ import Wasp.LSP.Analysis (diagnoseWaspFile)
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.DynamicHandlers (registerDynamicCapabilities)
 import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
-import Wasp.LSP.ServerM (ServerM, handler)
+import Wasp.LSP.ServerMonads (ServerM, handler)
 import Wasp.LSP.SignatureHelp (getSignatureHelpAtPosition)
 
 -- | "Initialized" notification is sent when the client is started. We send

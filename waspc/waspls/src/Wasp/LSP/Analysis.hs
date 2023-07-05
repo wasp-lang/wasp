@@ -22,7 +22,7 @@ import Wasp.LSP.Debouncer (debounce)
 import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagnostic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
 import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (refreshExportsForAllExtImports)
-import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
+import Wasp.LSP.ServerMonads (HandlerM, ServerM, handler, modify, sendToReactor)
 import qualified Wasp.LSP.ServerState as State
 
 -- | Finds diagnostics on a wasp file and sends the diagnostics to the LSP
