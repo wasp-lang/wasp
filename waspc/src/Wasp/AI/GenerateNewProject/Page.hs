@@ -136,7 +136,7 @@ pageDocPrompt =
           import logout from '@wasp/auth/logout';
           import useAuth from '@wasp/auth/useAuth';
           import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query
-          import { useAction } from '@wasp/action'; // A thin wrapper around react-query
+          import { useAction } from '@wasp/actions'; // A thin wrapper around react-query
           import getTask from '@wasp/queries/getTasks';
           import createTask from '@wasp/actions/createTask';
 
