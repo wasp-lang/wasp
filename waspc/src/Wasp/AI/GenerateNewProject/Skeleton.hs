@@ -74,7 +74,7 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
             "One of the pages in the app must have a route path \"/\"."
           ]
         )
-    planRules = authPlanRules <> ["Don't generate the Login or Signup page."]
+    planRules = authPlanRules <> ["Don't generate the Login or Signup pages and routes under any circumstances. They are already generated."]
     -- TODO: add some commented out lines to wasp file that showcase other features? jobs, api,
     --   serverSetup, sockets, ... .
     content =
