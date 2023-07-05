@@ -136,12 +136,14 @@ pageDocPrompt =
           import logout from '@wasp/auth/logout';
           import useAuth from '@wasp/auth/useAuth';
           import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query
+          import { useAction } from '@wasp/action'; // A thin wrapper around react-query
           import getTask from '@wasp/queries/getTasks';
           import createTask from '@wasp/actions/createTask';
 
           export function ExamplePage(props) {
             const { data: user } = useAuth();
             const { data: task, isLoading, error } = useQuery(getTask, { id: props.id });
+            const createTaskFn = useAction(createTask);
 
             if (isLoading) return 'Loading...';
             if (error) return 'Error: ' + error;
@@ -150,20 +152,26 @@ pageDocPrompt =
               <div className="p-4 bg-slate-50">
                 {user.username}
                 {task.id}
-                <button onClick={createTask({description: 'new task'})} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> + </button>
+                <button onClick={createTaskFn({description: 'new task'})} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> + </button>
                 <button onClick={logout} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> Logout </button>
               </div>
             );
           };
         ```
 
-        A bit about importing actions and queries.
-        If query is named "myQuery", its import should look like `import myQuery from '@wasp/queries/myQuery';`.
-        It has to be default import, and name of the file is the same as name of the query.
-        Same rules apply for actions.
-        One import statement per query/action.
+        Here are the rules for importing actions and queries.
 
-        Note: there is no `useMutation` or `useAction` hook to import in Wasp. Actions are to be called directly.
+        If a query is called "myQuery", its import should look like `import myQuery from '@wasp/queries/myQuery';`.
+        It has to be a default import, and name of the file is the same as name of the query.
+        The hook for wrapping queries is called `useQuery`.
+        Use a single import statement per query.
+
+        If an action is called "myAction", its import should look like `import myAction from '@wasp/actions/myAction';`.
+        It has to be a default import, and name of the file is the same as name of the action.
+        The hook for wrapping actions is called `useAction`.
+        Use a single import statement per action.
+
+        Note: There is no `useMutation` hook in Wasp. 
       |]
 
 operationInfo :: Operation -> Text
