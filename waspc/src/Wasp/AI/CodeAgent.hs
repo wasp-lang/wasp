@@ -17,13 +17,15 @@ module Wasp.AI.CodeAgent
 where
 
 import Control.Concurrent (threadDelay)
+import Control.Exception (Exception (displayException), SomeException)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (MonadReader, ReaderT (runReaderT), asks)
 import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
+import qualified Data.Text as T
 import System.IO (hPutStrLn, stderr)
-import UnliftIO (throwIO)
+import UnliftIO (catch, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage, ChatResponse)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
@@ -47,7 +49,12 @@ instance MonadRetry CodeAgent where
 
 runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
 runCodeAgent config codeAgent =
-  fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState
+  (fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState)
+    `catch` ( \(e :: SomeException) -> do
+                _writeLog config $
+                  "Code agent failed with the following error: " <> T.pack (shortenWithEllipsisTo 30 $ displayException e)
+                throwIO e
+            )
   where
     initialState =
       CodeAgentState
@@ -55,6 +62,8 @@ runCodeAgent config codeAgent =
           _usage = [],
           _isGpt4Available = Nothing
         }
+
+    shortenWithEllipsisTo maxLen text = if length text <= maxLen then text else (take maxLen text) <> "..."
 
 writeToLog :: Text -> CodeAgent ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
@@ -92,6 +101,7 @@ queryChatGPT params messages = do
   modify $ \s -> s {_usage = _usage s <> [ChatGPT.usage chatResponse]}
   return $ ChatGPT.getChatResponseContent chatResponse
   where
+{- ORMOLU_DISABLE -}
     queryChatGPTWithRetry :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> CodeAgent ChatResponse
     queryChatGPTWithRetry key params' messages' =
       do
@@ -101,13 +111,12 @@ queryChatGPT params messages = do
           ( liftIO $
               (Right <$> ChatGPT.queryChatGPT key params' messages')
                 `catchRetryableHttpException` ( \e -> do
-{- ORMOLU_DISABLE -}
                     hPutStrLn stderr $ "Caught retryable HTTP exception while doing ChatGPT request: " <> show e
                     return $ Left e
-{- ORMOLU_ENABLE -}
                                               )
           )
           >>= either throwIO pure
+{- ORMOLU_ENABLE -}
 
 getOpenAIApiKey :: CodeAgent OpenAIApiKey
 getOpenAIApiKey = asks _openAIApiKey
