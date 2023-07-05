@@ -22,6 +22,7 @@ import Control.Monad.Reader (MonadReader, ReaderT (runReaderT), asks)
 import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
+import System.IO (hPutStrLn, stderr)
 import UnliftIO (throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage, ChatResponse)
@@ -99,7 +100,12 @@ queryChatGPT params messages = do
           3
           ( liftIO $
               (Right <$> ChatGPT.queryChatGPT key params' messages')
-                `catchRetryableHttpException` (pure . Left)
+                `catchRetryableHttpException` ( \e -> do
+{- ORMOLU_DISABLE -}
+                    hPutStrLn stderr $ "Caught retryable HTTP exception while doing ChatGPT request: " <> show e
+                    return $ Left e
+{- ORMOLU_ENABLE -}
+                                              )
           )
           >>= either throwIO pure
 

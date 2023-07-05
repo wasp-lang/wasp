@@ -93,10 +93,13 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
                   let numFailedRuns = numPrevFailedRuns + 1
                    in if numFailedRuns >= maxNumFailedRunsBeforeGivingUpCompletely
                         then do
-                          writeToLog "Failed to parse ChatGPT response as JSON."
-                          error $ "Failed to parse ChatGPT response as JSON: " <> errMsg
-                        else doQueryForJSON numFailedRuns 0 initChatMsgs
-                else
+                          writeToLog givingUpMessage
+                          error $ T.unpack givingUpMessage <> " Error:" <> errMsg
+                        else do
+                          writeToLog retryingMessage
+                          doQueryForJSON numFailedRuns 0 initChatMsgs
+                else do
+                  writeToLog retryingMessage
                   doQueryForJSON numPrevFailedRuns numFailuresPerCurrentRun $
                     initChatMsgs
                       ++ [ GPT.ChatMessage {GPT.role = GPT.Assistant, GPT.content = response},
@@ -110,6 +113,9 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
                                    <> ". Newlines should be escaped as \\n."
                              }
                          ]
+      where
+        givingUpMessage = "Repeatedly failed to parse ChatGPT response as JSON, giving up."
+        retryingMessage = "Failed to parse ChatGPT response as JSON, trying again."
 
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
