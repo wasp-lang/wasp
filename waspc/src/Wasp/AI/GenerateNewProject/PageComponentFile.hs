@@ -5,10 +5,12 @@ module Wasp.AI.GenerateNewProject.PageComponentFile
   )
 where
 
+import Control.Monad (when)
 import Data.Aeson (FromJSON)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Debug.Trace (trace)
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
@@ -21,8 +23,9 @@ import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.GenerateNewProject.Page (pageDocPrompt)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
+import Wasp.Util.StringDiff (printTwoFiles)
 
-fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent ()
+fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent Text
 fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
   currentWaspFileContent <- fromMaybe (error "couldn't find wasp file") <$> getFile waspFilePath
   currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
@@ -33,6 +36,17 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
         ChatMessage {role = User, content = fixPageComponentPrompt currentWaspFileContent currentPageComponentContent}
       ]
   writeToFile pageComponentPath (const $ pageComponentImpl fixedPageComponent)
+
+  when True
+    $ trace
+      ( "=== Diff between old and new "
+          <> pageComponentPath
+          <> " page component: ===\n"
+          <> printTwoFiles (T.unpack currentPageComponentContent) (T.unpack $ pageComponentImpl fixedPageComponent)
+      )
+    $ return ()
+
+  return $ listOfFixes fixedPageComponent
   where
     fixPageComponentPrompt currentWaspFileContent currentPageContent =
       [trimming|
@@ -70,9 +84,10 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
             - If there are any duplicate imports, make sure to remove them.
             - There might be some invalid JS or JSX syntax -> fix it if there is any.
 
-          With this in mind, generate a new, fixed React component (${pageComponentPathText}).
+          List all of the fixes first and then generate a new, fixed React component (${pageComponentPathText}).
+          The fixes should be a - prefixed list of lines, each line being a fix.
           Do actual fixes, don't leave comments with "TODO"!
-          Please respond ONLY with a valid JSON of the format { pageComponentImpl: string }.
+          Please respond ONLY with a valid JSON of the format { pageComponentImpl: string, listOfFixes: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
 
           ${appDescriptionBlockText}
@@ -82,7 +97,8 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
     pageComponentPathText = T.pack pageComponentPath
 
 data PageComponent = PageComponent
-  { pageComponentImpl :: Text
+  { pageComponentImpl :: Text,
+    listOfFixes :: Text
   }
   deriving (Generic, Show)
 

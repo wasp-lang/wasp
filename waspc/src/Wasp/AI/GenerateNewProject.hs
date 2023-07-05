@@ -65,19 +65,19 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   --   do it blindly though, some of them are relevant only to plan (e.g. not generating login /
   --   signup page), we would have to do some adapting.
   writeToLog "Fixing any mistakes in Wasp file..."
-  fixWaspFile newProjectDetails waspFilePath plan
-  writeToLog "Wasp file fixed."
+  listOfWaspFileFixes <- fixWaspFile newProjectDetails waspFilePath plan
+  writeToLog $ appendFixes "Wasp file fixed." listOfWaspFileFixes
 
   writeToLog "Fixing any mistakes in NodeJS operations files..."
   forM_ (nub $ getOperationJsFilePath <$> (queries <> actions)) $ \opFp -> do
-    fixOperationsJsFile newProjectDetails waspFilePath opFp
-    writeToLog $ T.pack $ "Fixed NodeJS operations file '" <> opFp <> "'."
+    listOfFixes <- fixOperationsJsFile newProjectDetails waspFilePath opFp
+    writeToLog $ appendFixes ("Fixed NodeJS operations file '" <> T.pack opFp <> "'.") listOfFixes
   writeToLog "NodeJS operations files fixed."
 
   writeToLog "Fixing any mistakes in pages..."
   forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
-    fixPageComponent newProjectDetails waspFilePath pageFp
-    writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
+    listOfFixes <- fixPageComponent newProjectDetails waspFilePath pageFp
+    writeToLog $ appendFixes ("Fixed '" <> T.pack pageFp <> "' page.") listOfFixes
   writeToLog "Pages fixed."
 
   (promptTokensUsed, completionTokensUsed) <- getTotalTokensUsage
@@ -106,3 +106,9 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
 
     showT :: Show a => a -> Text
     showT = T.pack . show
+
+    appendFixes :: Text -> Text -> Text
+    appendFixes text fixesText =
+      if T.null text
+        then fixesText
+        else text <> "\n" <> fixesText

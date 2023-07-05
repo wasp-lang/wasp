@@ -5,6 +5,7 @@ module Wasp.AI.GenerateNewProject.WaspFile
   )
 where
 
+import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
@@ -13,6 +14,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Debug.Trace (trace)
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
@@ -28,8 +30,9 @@ import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Analyzer.Parser.Ctx (Ctx (..))
 import Wasp.Project.Analyze (analyzeWaspFileContent)
 import qualified Wasp.Util.Aeson as Utils.Aeson
+import Wasp.Util.StringDiff (printTwoFiles)
 
-fixWaspFile :: NewProjectDetails -> FilePath -> Plan -> CodeAgent ()
+fixWaspFile :: NewProjectDetails -> FilePath -> Plan -> CodeAgent Text
 fixWaspFile newProjectDetails waspFilePath plan = do
   currentWaspFileContent <- getFile waspFilePath <&> fromMaybe (error "couldn't find wasp file to fix")
 
@@ -37,18 +40,28 @@ fixWaspFile newProjectDetails waspFilePath plan = do
   -- to give chatGPT opportunity to fix some other stuff we mention in the prompt.
   -- Then, we do two more attempts at fixing, but only if there are compiler errors.
   fixedWaspFile <-
-    pure (WaspFile {waspFileContent = currentWaspFileContent})
+    pure (WaspFile {waspFileContent = currentWaspFileContent, listOfFixes = ""})
       >>= askChatGptToFixWaspFile EvenIfNoCompileErrors
       >>= askChatGptToFixWaspFile OnlyIfCompileErrors
       >>= askChatGptToFixWaspFile OnlyIfCompileErrors
 
   writeToFile waspFilePath (const $ waspFileContent fixedWaspFile)
+
+  when True
+    $ trace
+      ( "=== Diff between old and new "
+          <> "main.wasp ===\n"
+          <> printTwoFiles (T.unpack currentWaspFileContent) (T.unpack $ waspFileContent fixedWaspFile)
+      )
+    $ return ()
+
+  return $ listOfFixes fixedWaspFile
   where
     askChatGptToFixWaspFile :: ShouldContinueIfCompileErrors -> WaspFile -> CodeAgent WaspFile
     askChatGptToFixWaspFile shouldContinueIfCompileErrors WaspFile {waspFileContent = wfContent} = do
       compileErrors <- liftIO $ getWaspFileCompileErrors wfContent
       case shouldContinueIfCompileErrors of
-        OnlyIfCompileErrors | null compileErrors -> return $ WaspFile {waspFileContent = wfContent}
+        OnlyIfCompileErrors | null compileErrors -> return $ WaspFile {waspFileContent = wfContent, listOfFixes = ""}
         _otherwise ->
           queryChatGPTForJSON
             defaultChatGPTParamsForFixing
@@ -125,12 +138,13 @@ fixWaspFile newProjectDetails waspFilePath plan = do
               - I noticed that you sometimes by accident add redundant "}" at the end of the Wasp file while fixing it.
                 Be careful not to do that.
 
-            With this in mind, generate a new, fixed wasp file.
+            List all of the fixes first and then generate a new, fixed wasp file.
+            The fixes should be a - prefixed list of lines, each line being a fix.
             Try not to do big changes like changing names, removing/adding declarations and similar, those are usually correct, focus more on obvious, smaller errors.
             Don't touch `app` declaration, `Login` page, and `Signup` page.
             Do actual fixes, don't leave comments with "TODO"!
             Make extra sure to fix compiler errors, if there are any.
-            Please respond ONLY with a valid JSON of the format { waspFileContent: string }.
+            Please respond ONLY with a valid JSON of the format { waspFileContent: string, listOfFixes: string }.
             There should be no other text in your response. Don't wrap content with the "```" code delimiters.
 
             ${appDescriptionBlockText}
@@ -150,7 +164,8 @@ getWaspFileCompileErrors waspSource =
     showCompileError (errMsg, Ctx {ctxSourceRegion = loc}) = show loc <> ": " <> errMsg
 
 data WaspFile = WaspFile
-  { waspFileContent :: Text
+  { waspFileContent :: Text,
+    listOfFixes :: Text
   }
   deriving (Generic, Show)
 

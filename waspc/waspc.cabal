@@ -353,6 +353,7 @@ library
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.Terminal
+    Wasp.Util.StringDiff
     Wasp.Version
     Wasp.WaspignoreFile
 

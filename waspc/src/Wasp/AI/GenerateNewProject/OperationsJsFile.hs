@@ -5,11 +5,13 @@ module Wasp.AI.GenerateNewProject.OperationsJsFile
   )
 where
 
+import Control.Monad (when)
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Debug.Trace (trace)
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
@@ -22,8 +24,9 @@ import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.GenerateNewProject.Operation (actionDocPrompt, queryDocPrompt)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
+import Wasp.Util.StringDiff (printTwoFiles)
 
-fixOperationsJsFile :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent ()
+fixOperationsJsFile :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent Text
 fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
   currentWaspFileContent <- fromMaybe (error "couldn't find wasp file") <$> getFile waspFilePath
   currentOpJsFileContent <- fromMaybe (error "couldn't find operation js file to fix") <$> getFile opJsFilePath
@@ -37,6 +40,17 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
         ChatMessage {role = User, content = fixOpJsFilePrompt currentWaspFileContent currentOpJsFileContent}
       ]
   writeToFile opJsFilePath (const $ opJsFileContent fixedOpJsFile)
+
+  when True
+    $ trace
+      ( "=== Diff between old and new "
+          <> opJsFilePath
+          <> " operation: ===\n"
+          <> printTwoFiles (T.unpack currentOpJsFileContent) (T.unpack $ opJsFileContent fixedOpJsFile)
+      )
+    $ return ()
+
+  return $ listOfFixes fixedOpJsFile
   where
     fixOpJsFilePrompt currentWaspFileContent currentOpJsFileContent =
       [trimming|
@@ -81,11 +95,12 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
               const { name, description } = arg;
               ```
 
-          With this in mind, generate a new, fixed NodeJS file with operations (${opJsFilePathText}).
+          List all of the fixes first and then generate a new, fixed NodeJS file with operations (${opJsFilePathText}).
+          The fixes should be a - prefixed list of lines, each line being a fix.
           Don't do too big changes, like deleting or adding whole functions, focus on smaller things and those listed above.
           DO NOT add new queries / actions to the file, or delete existing ones!
           Do actual fixes, don't leave comments with "TODO"!
-          Please respond ONLY with a valid JSON of the format { opJsFileContent: string }.
+          Please respond ONLY with a valid JSON of the format { opJsFileContent: string, listOfFixes: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
 
           ${appDescriptionBlockText}
@@ -95,7 +110,8 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
     opJsFilePathText = T.pack opJsFilePath
 
 data OperationsJsFile = OperationsJsFile
-  { opJsFileContent :: Text
+  { opJsFileContent :: Text,
+    listOfFixes :: Text
   }
   deriving (Generic, Show)
 
