@@ -83,6 +83,11 @@ jobs:
           ghc --version
           cabal --version
 
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Cache
         uses: actions/cache@v3
         with:
@@ -107,6 +112,13 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
+      - name: packages/ts-inspect - Run tests
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: |
+          cd packages/ts-inspect
+          npm ci
+          npm test
+
       - name: Compile TS packages and move it into the Cabal data dir
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/install_packages_to_data_dir.sh
@@ -116,11 +128,6 @@ jobs:
 
       - name: Build wasp code
         run: cabal build all
-
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
         if: matrix.os == 'macos-latest'
