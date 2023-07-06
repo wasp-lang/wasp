@@ -53,6 +53,8 @@ data-files:
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  lsp/templates/**/*.js
+  lsp/templates/**/*.ts
   packages/deploy/dist/**/*.js
   packages/deploy/package.json
   packages/deploy/package-lock.json
@@ -387,6 +389,7 @@ library waspls
     , strong-path
     , path
     , async ^>=2.2.4
+    , mustache ^>=2.3.2
     , unliftio-core
     , mtl
     , text

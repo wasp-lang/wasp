@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Wasp.LSP.TypeInference
   ( -- * Inferred types for CST locations
     inferTypeAtLocation,
@@ -11,8 +13,11 @@ module Wasp.LSP.TypeInference
 where
 
 import Control.Monad (guard)
+import Data.Aeson (ToJSON)
+import Data.Aeson.Types (FromJSON)
 import Data.Foldable (find)
 import qualified Data.HashMap.Strict as M
+import GHC.Generics (Generic)
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
@@ -51,7 +56,11 @@ data ExprPathStep
     List
   | -- | @Tuple idx@. Enter the @idx@-th value inside of a tuple.
     Tuple !Int
-  deriving (Eq, Show)
+  deriving (Eq, Show, Generic)
+
+instance ToJSON ExprPathStep
+
+instance FromJSON ExprPathStep
 
 -- | This function only depends on the syntax to the left of the location, and
 -- tries to be as lenient as possible in finding paths.

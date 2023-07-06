@@ -30,7 +30,8 @@ import qualified Wasp.LSP.ExtImport.Path as ExtImport
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einLocation, einName), extImportAtLocation)
 import Wasp.LSP.ServerM (HandlerM)
 import qualified Wasp.LSP.ServerState as State
-import Wasp.LSP.Syntax (findAncestor, findChild, lexemeAt, lspRangeToSpan)
+import Wasp.LSP.Syntax (lspRangeToSpan)
+import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.Util.IO (doesFileExist)
 
 getCodeActionsInRange :: LSP.Range -> HandlerM [LSP.CodeAction]
@@ -80,7 +81,7 @@ findCodeActionsForExtImport src extImport = do
   {-
   1. Lookup up the extimport in the exports cache to see if it is valid.
   2. If it is, then no code actions need to be returned.
-  3. Otherwise, find the decl type of the surrounding decl.
+  3. Otherwise, path through the expression tree to the ext import.
   4. Use the extension type stored in the cache key to get a list of possible
      files the user might want to add the code to.
      i.   Abs path <.> each extension
@@ -88,7 +89,7 @@ findCodeActionsForExtImport src extImport = do
          that do not exist.
      iii. Otherwise, use all the paths.
   5. For each file, return a code action runs the "wasp.scaffold.ts-symbol"
-     command with the desired export name, the file path, and the decl type.
+     command with the desired export name, the file path, and the expr path.
   -}
   lookupExtImport extImport >>= \case
     ImportSyntaxError -> return [] -- Syntax error in import.
@@ -99,46 +100,36 @@ findCodeActionsForExtImport src extImport = do
       Just symbolName -> createCodeActions True symbolName waspStylePath
     ImportedSymbolDoesNotExist symbolName waspStylePath -> createCodeActions False symbolName waspStylePath
   where
-    maybeDeclType :: MonadLog m => m (Maybe String)
-    maybeDeclType =
-      case findChild S.DeclType =<< findAncestor S.Decl (einLocation extImport) of
-        Nothing -> do
-          logM "[findCodeActionsForExtImport] can't find containing decl type for external import, can't create code actions."
-          return Nothing
-        Just declType -> return $ Just $ lexemeAt src declType
-
     createCodeActions :: Bool -> ExtImportName -> WaspStyleExtFilePath -> HandlerM [LSP.CodeAction]
-    createCodeActions createNewFile symbolName waspStylePath =
-      maybeDeclType >>= \case
-        Nothing -> pure []
-        Just declType -> do
-          -- 4. Get paths.
-          let cachePathFromSrc =
-                fromMaybe (error "[createCodeActions] unreachable: invalid wasp style path") $
-                  ExtImport.waspStylePathToCachePath waspStylePath
-          maybeCachePathInCache <- asks (find (== cachePathFromSrc) . M.keys . (^. State.tsExports))
-          let allowedExts = case maybeCachePathInCache of
-                Nothing -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathFromSrc
-                Just cachePathInCache -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathInCache
-          logM $ "Allowed exts: " ++ show allowedExts
-          absPath <- fromMaybe (error "[createCodeActions] unreachable: can't get abs path") <$> ExtImport.cachePathToAbsPathWithoutExt cachePathFromSrc
-          let unfilteredPaths = map (ExtImport.replaceExtension absPath) allowedExts
-          -- 4ii-iii. Filter the paths.
-          logM $ "Checking paths: " ++ show unfilteredPaths
-          filteredPaths <-
-            if createNewFile
-              then return unfilteredPaths
-              else filterM (liftIO . doesFileExist) unfilteredPaths
-          -- 5. Create a code action for each possible file.
-          return $ map (createCodeAction symbolName declType) filteredPaths
+    createCodeActions createNewFile symbolName waspStylePath = do
+      -- 4. Get paths.
+      let cachePathFromSrc =
+            fromMaybe (error "[createCodeActions] unreachable: invalid wasp style path") $
+              ExtImport.waspStylePathToCachePath waspStylePath
+      maybeCachePathInCache <- asks (find (== cachePathFromSrc) . M.keys . (^. State.tsExports))
+      let allowedExts = case maybeCachePathInCache of
+            Nothing -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathFromSrc
+            Just cachePathInCache -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathInCache
+      logM $ "Allowed exts: " ++ show allowedExts
+      absPath <- fromMaybe (error "[createCodeActions] unreachable: can't get abs path") <$> ExtImport.cachePathToAbsPathWithoutExt cachePathFromSrc
+      let unfilteredPaths = map (ExtImport.replaceExtension absPath) allowedExts
+      -- 4ii-iii. Filter the paths.
+      logM $ "Checking paths: " ++ show unfilteredPaths
+      filteredPaths <-
+        if createNewFile
+          then return unfilteredPaths
+          else filterM (liftIO . doesFileExist) unfilteredPaths
+      let pathToExtImport = fromMaybe [] $ Inference.findExprPathToLocation src $ einLocation extImport
+      -- 5. Create a code action for each possible file.
+      return $ map (createCodeAction symbolName pathToExtImport) filteredPaths
 
     -- TODO: show filepath relative to root dir (i.e. src/...)
-    createCodeAction :: ExtImportName -> String -> SP.Path' SP.Abs (SP.File a) -> LSP.CodeAction
-    createCodeAction symbolName declType filepath =
+    createCodeAction :: ExtImportName -> Inference.ExprPath -> SP.Path' SP.Abs (SP.File a) -> LSP.CodeAction
+    createCodeAction symbolName pathToExtImport filepath =
       let args =
             ScaffoldTS.Args
               { ScaffoldTS.symbolName = symbolName,
-                ScaffoldTS.declType = declType,
+                ScaffoldTS.pathToExtImport = pathToExtImport,
                 ScaffoldTS.filepath = SP.castFile filepath
               }
           command = ScaffoldTS.command args
