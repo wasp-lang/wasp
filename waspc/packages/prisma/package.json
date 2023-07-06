@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "npx tsc",
-    "start": "npm run format",
-    "format": "node ./dist/format-cli.js",
+    "start": "node ./dist/index.js",
+    "format": "npm start format",
     "test": "jest"
   },
   "dependencies": {

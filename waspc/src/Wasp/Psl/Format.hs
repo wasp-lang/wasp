@@ -25,7 +25,7 @@ import Wasp.Util.Aeson (decodeFromString)
 -- It works even for a prisma schema that has only model declarations!
 prismaFormat :: Text -> IO PrismaFormatResult
 prismaFormat prismaSchema = do
-  cp <- WP.getPackageProc WP.PrismaPackage []
+  cp <- WP.getPackageProc WP.PrismaPackage ["format"]
   (exitCode, response, stderr) <- P.readCreateProcessWithExitCode cp $ T.unpack prismaSchema
   case exitCode of
     ExitSuccess ->
@@ -50,6 +50,9 @@ type PslModelText = Text
 
 type PslErrorsMsg = Text
 
+-- | Given a list of psl models in textual format (e.g. ["model User {\n...\n}", ...]),
+-- it returns back a list of those models but formatted, and also prisma format errors message,
+-- if there are any errors.
 prismaFormatModels :: [PslModelText] -> IO (Maybe PslErrorsMsg, [PslModelText])
 prismaFormatModels models = do
   let schema = T.intercalate ("\n" <> delimiter <> "\n") models

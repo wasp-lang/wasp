@@ -341,6 +341,7 @@ library
     Wasp.Project.Env
     Wasp.Project.WebApp
     Wasp.Psl.Ast.Model
+    Wasp.Psl.Format
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util

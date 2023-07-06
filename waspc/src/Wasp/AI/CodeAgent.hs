@@ -24,8 +24,9 @@ import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Network.HTTP.Simple as HTTP
 import System.IO (hPutStrLn, stderr)
-import UnliftIO (catch, throwIO)
+import UnliftIO (Handler (Handler), catches, throwIO)
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage, ChatResponse)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
@@ -33,6 +34,7 @@ import qualified Wasp.Util as Util
 import Wasp.Util.IO.Retry (MonadRetry)
 import qualified Wasp.Util.IO.Retry as R
 import Wasp.Util.Network.HTTP (catchRetryableHttpException)
+import qualified Wasp.Util.Network.HTTP as Utils.HTTP
 
 newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT CodeAgentState IO) a}
   deriving (Monad, Applicative, Functor, MonadIO, MonadReader CodeAgentConfig, MonadState CodeAgentState)
@@ -50,11 +52,21 @@ instance MonadRetry CodeAgent where
 runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
 runCodeAgent config codeAgent =
   (fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState)
-    `catch` ( \(e :: SomeException) -> do
-                _writeLog config $
-                  "Code agent failed with the following error: " <> T.pack (shortenWithEllipsisTo 30 $ displayException e)
-                throwIO e
-            )
+    `catches` [ Handler
+                  ( \(e :: HTTP.HttpException) -> do
+                      let errorInfo =
+                            maybe (showShortException e) show $ Utils.HTTP.getHttpExceptionStatusCode e
+                          logMsg = T.pack $ "Code agent failed with the http error: " <> errorInfo
+                      _writeLog config logMsg
+                      throwIO e
+                  ),
+                Handler
+                  ( \(e :: SomeException) -> do
+                      _writeLog config $
+                        "Code agent failed with the following error: " <> T.pack (showShortException e)
+                      throwIO e
+                  )
+              ]
   where
     initialState =
       CodeAgentState
@@ -64,6 +76,9 @@ runCodeAgent config codeAgent =
         }
 
     shortenWithEllipsisTo maxLen text = if length text <= maxLen then text else (take maxLen text) <> "..."
+
+    showShortException :: forall e. Exception e => e -> String
+    showShortException = shortenWithEllipsisTo 30 . displayException
 
 writeToLog :: Text -> CodeAgent ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
