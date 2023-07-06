@@ -2,7 +2,8 @@
 
 module Wasp.AI.GenerateNewProject.Page
   ( generateAndWritePage,
-    pageDocPrompt,
+    makePageDocPrompt,
+    getAllPossibleImports,
     getPageComponentPath,
     operationInfo,
     Page (..),
@@ -26,20 +27,43 @@ import Wasp.AI.GenerateNewProject.Common
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
 import Wasp.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
+import qualified Wasp.AI.GenerateNewProject.Operation as Operation
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
+getAllPossibleImports :: [Operation] -> [Text]
+getAllPossibleImports operations = possibleUnchangingImports ++ map makeOperationImport operations
+  where
+    possibleUnchangingImports :: [Text]
+    possibleUnchangingImports =
+      [ "import logout from '@wasp/auth/logout';",
+        "import useAuth from '@wasp/auth/useAuth';",
+        "import { useQuery } from '@wasp/queries';",
+        "import { useAction } from '@wasp/actions';"
+      ]
+
+    makeOperationImport :: Operation -> Text
+    makeOperationImport operation =
+      [trimming|
+        import ${opName} from '@wasp/${opType}/${opName}';
+      |]
+      where
+        opName = T.pack $ Plan.opName $ opPlan operation
+        opType = case Operation.opType operation of
+          Operation.Action -> "actions"
+          Operation.Query -> "queries"
+
 generateAndWritePage ::
   NewProjectDetails -> FilePath -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
-generateAndWritePage newProjectDetails waspFilePath entityPlans actions queries pPlan = do
-  page <- generatePage newProjectDetails entityPlans actions queries pPlan
+generateAndWritePage newProjectDetails waspFilePath entityPlans queries actions pPlan = do
+  page <- generatePage newProjectDetails entityPlans queries actions pPlan
   writePageToJsFile page
   writePageToWaspFile waspFilePath page
   writeToLog $ T.pack $ "Generated page: " <> Plan.pageName pPlan
   return page
 
 generatePage :: NewProjectDetails -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
-generatePage newProjectDetails entityPlans actions queries pPlan = do
+generatePage newProjectDetails entityPlans queries actions pPlan = do
   impl <- queryChatGPTForJSON defaultChatGPTParams chatMessages
   return Page {pageImpl = impl, pagePlan = pPlan}
   where
@@ -58,8 +82,9 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
     pageDesc = T.pack $ Plan.pageDesc pPlan
 
     entityDecls = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
-    actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
     queriesInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> queries
+    actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
+    pageDocPrompt = makePageDocPrompt $ queries ++ actions
 
     planPrompt =
       [trimming|
@@ -114,8 +139,8 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
         ${appDescriptionBlock}
       |]
 
-pageDocPrompt :: Text
-pageDocPrompt =
+makePageDocPrompt :: [Operation] -> Text
+makePageDocPrompt availableOperations =
   [trimming|
         Page is implemented via Wasp declaration and corresponding NodeJS implementation.
 
@@ -161,18 +186,26 @@ pageDocPrompt =
 
         Here are the rules for importing actions and queries.
 
-        If a query is called "myQuery", its import should look like `import myQuery from '@wasp/queries/myQuery';`.
-        It has to be a default import, and name of the file is the same as name of the query.
+        If a query is called "myQuery", its import MUST BE `import myQuery from '@wasp/queries/myQuery';`.
+        More generally, a query import MUST BE a default import, and name of the file is the same as name of the query.
         The hook for wrapping queries is called `useQuery`.
         Use a single import statement per query.
 
-        If an action is called "myAction", its import should look like `import myAction from '@wasp/actions/myAction';`.
-        It has to be a default import, and name of the file is the same as name of the action.
+        If an action is called "myAction", its import MUST BE `import myAction from '@wasp/actions/myAction';`.
+        More generally, an action import MUST BE a default import, and name of the file is the same as name of the action.
         The hook for wrapping actions is called `useAction`.
         Use a single import statement per action.
 
         Note: There is no `useMutation` hook in Wasp. 
+
+        When importing anything from Wasp (queries, actions, useQuery, useAction, etx.), you are only allowed to use the following imports statements:
+
+        ${possibleImportsList}
+
+        Don't try to combine them or change them in any way, just copy-paste those you need VERBATIM.
       |]
+  where
+    possibleImportsList = T.unlines $ getAllPossibleImports availableOperations
 
 operationInfo :: Operation -> Text
 operationInfo operation =

@@ -99,6 +99,8 @@ generatePlan newProjectDetails planRules = do
         Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
         least two entities. It will very likely have more than one of each, though.
 
+        DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
+
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
 
