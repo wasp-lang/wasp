@@ -193,10 +193,14 @@ checkPlanForEntityIssues plan =
 -- that captures all schema errors that prisma returns, if any.
 -- Prisma format does not only do formatting, but also fixes some small mistakes and reports errors.
 prismaFormat :: [Entity] -> IO (Maybe Text, [Entity])
-prismaFormat entities = do
-  let pslModels = getPslModelTextForEntity <$> entities
+prismaFormat unformattedEntities = do
+  let pslModels = getPslModelTextForEntity <$> unformattedEntities
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
-  let formattedEntities = zipWith (\e m -> e {entityBodyPsl = T.unpack $ getPslBodyFromPslModelText m}) entities formattedPslModels
+  let formattedEntities =
+        zipWith
+          (\e m -> e {entityBodyPsl = T.unpack $ getPslBodyFromPslModelText m})
+          unformattedEntities
+          formattedPslModels
   return (maybeErrorsMsg, formattedEntities)
   where
     getPslModelTextForEntity :: Entity -> Text
