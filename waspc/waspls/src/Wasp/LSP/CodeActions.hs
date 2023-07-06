@@ -28,7 +28,7 @@ import Wasp.LSP.ExtImport.ExportsCache (ExtImportLookupResult (..), lookupExtImp
 import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath)
 import qualified Wasp.LSP.ExtImport.Path as ExtImport
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einLocation, einName), extImportAtLocation)
-import Wasp.LSP.ServerM (HandlerM)
+import Wasp.LSP.ServerMonads (HandlerM)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (lspRangeToSpan)
 import qualified Wasp.LSP.TypeInference as Inference

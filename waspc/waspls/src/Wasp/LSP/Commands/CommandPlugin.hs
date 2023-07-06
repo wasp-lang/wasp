@@ -8,7 +8,7 @@ where
 import Data.Text (Text)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
-import Wasp.LSP.ServerM (ServerM)
+import Wasp.LSP.ServerMonads (ServerM)
 
 data CommandPlugin = CommandPlugin
   { commandName :: Text,

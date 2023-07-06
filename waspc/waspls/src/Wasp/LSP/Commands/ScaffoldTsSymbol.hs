@@ -13,16 +13,16 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
 where
 
 import Control.Lens ((^.))
-import Control.Monad (unless)
+import Control.Monad (void)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Log.Class (logM)
 import Data.Aeson (FromJSON, Result (Error, Success), ToJSON (toJSON), fromJSON, object, parseJSON, withObject, (.:), (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (intercalate)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
@@ -34,9 +34,10 @@ import Text.Printf (printf)
 import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule))
 import qualified Wasp.Data
 import Wasp.LSP.Commands.CommandPlugin (CommandPlugin (CommandPlugin, commandHandler, commandName))
-import Wasp.LSP.ServerM (ServerM)
+import Wasp.LSP.ServerMonads (ServerM)
 import Wasp.LSP.TypeInference (ExprPath)
 import qualified Wasp.LSP.TypeInference as Inference
+import Wasp.Util (toUpperFirst)
 import Wasp.Util.IO (doesFileExist)
 
 data Args = Args
@@ -89,25 +90,69 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
   _ -> respond $ Left $ invalidParams "Expected exactly one argument"
   where
     scaffold :: Args -> ServerM ()
-    scaffold Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
+    scaffold args@Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
       Nothing -> respond $ Left $ invalidParams "Invalid filepath: no extension"
       Just ext ->
         getTemplateFor pathToExtImport ext >>= \case
           Left err ->
             respond $ Left $ invalidParams $ Text.pack err
-          Right template -> do
-            let symbolData = case symbolName of
-                  ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
-                  ExtImportField name -> ["default?" .= False, "named?" .= True, "name" .= name]
-            -- TODO(before merge): get the decl name to here somehow
-            let templateData = object $ symbolData ++ ["upperDeclName" .= ("UpperDeclName" :: Text)]
-            let rendered = renderTemplate template templateData
-            fileExists <- liftIO $ doesFileExist filepath
-            logM $ printf "[wasp.scaffold.ts-symbol]: exists=%s rendered=%s" (show fileExists) (show rendered)
-            -- TODO(before merge): use workspace edits
-            unless fileExists $ liftIO $ Text.writeFile (SP.fromAbsFile filepath) ""
-            liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
-            respond $ Right Aeson.Null
+          Right template -> renderScaffoldTemplate args template
+
+    renderScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
+    renderScaffoldTemplate args@Args {..} template = case pathToExtImport of
+      Inference.Decl _ declName : _ -> do
+        let symbolData = case symbolName of
+              ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
+              ExtImportField name -> ["default?" .= False, "named?" .= True, "name" .= name]
+        let templateData = object $ symbolData ++ ["upperDeclName" .= toUpperFirst declName]
+        let rendered = renderTemplate template templateData
+        fileExists <- liftIO $ doesFileExist filepath
+        logM $ printf "[wasp.scaffold.ts-symbol]: exists=%s rendered=%s" (show fileExists) (show rendered)
+        -- TODO(before merge): use workspace edits
+        let edit = createWorkspaceEdit args fileExists rendered
+        let applyEditParams =
+              LSP.ApplyWorkspaceEditParams
+                { _label = Nothing,
+                  _edit = edit
+                }
+        logM $ "[wasp.scaffold.ts-symbol] " ++ show applyEditParams
+        void $
+          LSP.sendRequest LSP.SWorkspaceApplyEdit applyEditParams $ \case
+            Left err -> respond $ Left $ internalError $ Text.pack $ "Error applying edit: " ++ show err
+            Right res
+              | not (res ^. LSP.applied) ->
+                let reason = fromMaybe "Unknown reason" $ res ^. LSP.failureReason
+                 in respond $ Left $ internalError $ "Error applying edit: " <> reason
+            Right _ -> respond $ Right Aeson.Null
+      _ -> respond $ Left $ invalidParams $ Text.pack $ "Top-level step in path to ext import is not a decl: " ++ show pathToExtImport
+
+    createWorkspaceEdit :: Args -> Bool -> Text -> LSP.WorkspaceEdit
+    createWorkspaceEdit Args {..} fileExists rendered =
+      let uri = LSP.filePathToUri (SP.fromAbsFile filepath)
+          createFile =
+            if fileExists
+              then []
+              else
+                [ LSP.InR $
+                    LSP.InL $
+                      LSP.CreateFile
+                        { _uri = uri,
+                          _options = Just $ LSP.CreateFileOptions {_overwrite = Nothing, _ignoreIfExists = Just True},
+                          _annotationId = Nothing
+                        }
+                ]
+          appendRendered =
+            [ LSP.InL $
+                LSP.TextDocumentEdit
+                  { _textDocument = LSP.VersionedTextDocumentIdentifier {_uri = uri, _version = Nothing},
+                    _edits = LSP.List [LSP.InL $ LSP.TextEdit {_range = LSP.Range (LSP.Position 0 0) (LSP.Position 0 0), _newText = rendered}]
+                  }
+            ]
+       in LSP.WorkspaceEdit
+            { _changes = Nothing,
+              _documentChanges = Just $ LSP.List $ createFile ++ appendRendered,
+              _changeAnnotations = Nothing
+            }
 
     invalidParams msg =
       LSP.ResponseError
@@ -115,6 +160,8 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
           _message = msg,
           _xdata = Nothing
         }
+    internalError msg =
+      LSP.ResponseError {_code = LSP.InternalError, _message = msg, _xdata = Nothing}
 
 getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
@@ -157,4 +204,4 @@ relTemplateForDeclType exprPath ext = case SP.parseRelFile $ pathDescription ++ 
     stepDescription (Inference.DictKey k) = printf "%s" k
     stepDescription Inference.List = "list"
     stepDescription (Inference.Tuple n) = printf "[%d]" n
-    stepDescription (Inference.Decl decl) = decl
+    stepDescription (Inference.Decl decl _) = decl

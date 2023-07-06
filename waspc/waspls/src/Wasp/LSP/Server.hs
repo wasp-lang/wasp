@@ -79,8 +79,7 @@ serve maybeLogFile = do
         where
           runHandler :: ServerM a -> IO a
           runHandler handler =
-            LSP.runLspT env $ do
-              runRLspM stateTVar handler
+            LSP.runLspT env $ runRLspM stateTVar handler
 
   exitCode <-
     LSP.runServer

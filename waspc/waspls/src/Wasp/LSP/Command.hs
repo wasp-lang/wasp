@@ -13,7 +13,7 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Wasp.LSP.Commands.CommandPlugin (CommandPlugin (commandHandler, commandName))
 import qualified Wasp.LSP.Commands.ScaffoldTsSymbol as ScaffoldTsSymbol
-import Wasp.LSP.ServerM (ServerM)
+import Wasp.LSP.ServerMonads (ServerM)
 
 plugins :: M.HashMap Text CommandPlugin
 plugins =
