@@ -8,7 +8,7 @@ Run `npm install`.
 Run `npm run build` to compile TS to JS. Do this after any changes to TS files, or if you have never run it before.
 
 ### format
-Run `npm run format` and pass prisma schema source (so PSL) via stdin.
+Run `npm start format` and pass prisma schema source (so PSL) via stdin.
 It can even be an incomplete schema -> e.g. just model declarations.
 
 This will run `prisma format` on it and return formatted schema (PSL) + any warnings/errors.
