@@ -59,6 +59,9 @@ data-files:
   packages/ts-inspect/dist/**/*.js
   packages/ts-inspect/package.json
   packages/ts-inspect/package-lock.json
+  packages/prisma/dist/**/*.js
+  packages/prisma/package.json
+  packages/prisma/package-lock.json
 data-dir: data/
 
 source-repository head

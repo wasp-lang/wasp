@@ -20,6 +20,14 @@ import Wasp.Node.Version (getAndCheckNodeVersion)
 data Package
   = DeployPackage
   | TsInspectPackage
+  | -- | TODO(martin): I implemented this ts package because I planned to use prisma's TS sdk
+    --   (@prisma/internals) inside it, but I ended up calling `prisma format` cli cmd directly,
+    --   which means I could have really done it from Haskell!
+    --   Therefore, reconsider if we should have this package, or if we should delete it and move
+    --   this functionality here, into Haskell.
+    --   It might make sense to keep it we will be maybe using @prisma/internals or some other
+    --   prisma packages via it in the future, if not then it is not worth keeping it.
+    PrismaPackage
 
 data PackagesDir
 
@@ -33,6 +41,7 @@ packagesDirInDataDir = [reldir|packages|]
 packageDirInPackagesDir :: Package -> Path' (Rel PackagesDir) (Dir PackageDir)
 packageDirInPackagesDir DeployPackage = [reldir|deploy|]
 packageDirInPackagesDir TsInspectPackage = [reldir|ts-inspect|]
+packageDirInPackagesDir PrismaPackage = [reldir|prisma|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
