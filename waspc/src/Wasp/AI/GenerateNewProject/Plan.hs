@@ -13,6 +13,7 @@ where
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
 import Data.List (find, intercalate, isPrefixOf)
+import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
@@ -27,6 +28,7 @@ import Wasp.AI.GenerateNewProject.Common
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (_model), ChatMessage (..), ChatRole (..), Model (GPT_4))
+import qualified Wasp.Psl.Format as Prisma
 import qualified Wasp.Psl.Parser.Model as Psl.Parser
 import qualified Wasp.Util.Aeson as Util.Aeson
 
@@ -107,6 +109,9 @@ generatePlan newProjectDetails planRules = do
 
     fixPlanIfNeeded :: Plan -> CodeAgent Plan
     fixPlanIfNeeded plan = do
+      -- TODO: Call prismaFormat here, replace entities in plan with formatted entities, and
+      --   prepare an issue based on the errors message returned. Add that issue to issues below,
+      --   or maybe provide it as a special issue (yeah, probably better, because it might be messy).
       let issues =
             checkPlanForEntityIssues plan
               <> checkPlanForOperationIssues Query plan
@@ -167,6 +172,16 @@ checkPlanForEntityIssues plan =
         Right _ -> []
 
     parsePslBody = Parsec.parse Psl.Parser.body ""
+
+prismaFormat :: [Entity] -> IO (Maybe Text, [Entity])
+prismaFormat entities = do
+  Prisma.prismaFormatModels $ error "TODO"
+  error "TODO: return formatted entities + errors message if there are any."
+  where
+    getPslModelTextForEntity :: Entity -> Text
+    getPslModelTextForEntity entity = "model TODO { TODO }"
+
+    getPslBodyFromPslModelText = error "TODO: Here I will have to somehow get rid of 'model xxx {' at start and '}' at the end. I could do proper parsing but then I will loose the formatting. Or, I could do something simple, like drop till I hit { or }."
 
 checkPlanForOperationIssues :: OperationType -> Plan -> [String]
 checkPlanForOperationIssues opType plan =
