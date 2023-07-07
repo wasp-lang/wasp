@@ -15,6 +15,7 @@ module Wasp.Analyzer.Parser.CST.Traverse
     -- * Traversal operations
 
     -- | See the section on composition functions on how to compose these.
+    top,
     bottom,
     down,
     up,
@@ -136,6 +137,9 @@ pipe ops = foldl' (>=>) Just ops
 -- used for essentially the same purpose in this library.
 (&?) :: Maybe Traversal -> (Traversal -> Maybe Traversal) -> Maybe Traversal
 t &? op = t >>= op
+
+top :: Traversal -> Traversal
+top t = maybe t top $ t & up
 
 -- | Move down the tree to the deepest left-most leaf
 bottom :: Traversal -> Traversal
