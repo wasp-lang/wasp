@@ -15,7 +15,7 @@ import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
 import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation, getOperationJsFilePath)
 import Wasp.AI.GenerateNewProject.OperationsJsFile (fixOperationsJsFile)
 import Wasp.AI.GenerateNewProject.Page (generateAndWritePage, getPageComponentPath)
-import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
+import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent, fixImportsInPageComponent, fixImports)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
@@ -31,7 +31,7 @@ generateNewProject ::
   CodeAgent ()
 generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog . T.pack $
-    "Generating new wasp project named " <> _projectAppName newProjectDetails <> "!"
+    "Generating a new Wasp project named " <> _projectAppName newProjectDetails <> "!"
 
   writeToLog "Generating project skeleton..."
   (waspFilePath, planRules) <-
@@ -41,7 +41,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   plan <- generatePlan newProjectDetails planRules
 
   writeEntitiesToWaspFile waspFilePath (Plan.entities plan)
-  writeToLog "Updated wasp file with entities."
+  writeToLog "Updated the Wasp file with entities."
 
   writeToLog "Generating actions..."
   actions <-
@@ -61,17 +61,23 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   -- TODO: Pass plan rules into fixWaspFile, as extra guidance what to keep an eye on? We can't just
   --   do it blindly though, some of them are relevant only to plan (e.g. not generating login /
   --   signup page), we would have to do some adapting.
-  writeToLog "Fixing any mistakes in Wasp file..."
+  writeToLog "Fixing mistakes in the Wasp file..."
   fixWaspFile newProjectDetails waspFilePath plan
   writeToLog "Wasp file fixed."
 
-  writeToLog "Fixing any mistakes in NodeJS operations files..."
+  writeToLog "Fixing mistakes in NodeJS operation files..."
   forM_ (nub $ getOperationJsFilePath <$> (queries <> actions)) $ \opFp -> do
     fixOperationsJsFile newProjectDetails waspFilePath opFp
-    writeToLog $ T.pack $ "Fixed NodeJS operations file '" <> opFp <> "'."
-  writeToLog "NodeJS operations files fixed."
+    writeToLog $ T.pack $ "Fixed NodeJS operation file '" <> opFp <> "'."
+  writeToLog "NodeJS operation files fixed."
 
-  writeToLog "Fixing any mistakes in pages..."
+  writeToLog "Fixing import mistakes in pages..."
+  forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
+    fixImports pageFp queries actions
+    writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
+  writeToLog "Imports in pages fixed."
+
+  writeToLog "Fixing common mistakes in pages..."
   forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
     fixPageComponent newProjectDetails waspFilePath pageFp queries actions
     writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
@@ -84,4 +90,3 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
         fromIntegral (promptTokensUsed + completionTokensUsed) / (1000 :: Double)
 
   writeToLog "Done!"
-  where

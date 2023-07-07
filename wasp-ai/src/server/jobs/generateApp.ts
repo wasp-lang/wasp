@@ -150,6 +150,8 @@ export async function generateApp(
         data: { status: "success" },
       });
     } else {
+      console.log('closeano je', code)
+      console.log(JSON.stringify(appGenerationResults[appId]));
       await Project.update({
         where: { id: appId },
         data: { status: "failure" },
