@@ -306,7 +306,7 @@ library
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
-    Wasp.Package
+    Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -323,7 +323,7 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
-    Wasp.TypeScript
+    Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
@@ -343,20 +343,25 @@ library waspls
   exposed-modules:
     Control.Monad.Log
     Control.Monad.Log.Class
-    Wasp.LSP.Debouncer
-    Wasp.LSP.Server
-    Wasp.LSP.ServerState
-    Wasp.LSP.ServerConfig
-    Wasp.LSP.ServerM
-    Wasp.LSP.ExtImport
-    Wasp.LSP.Handlers
-    Wasp.LSP.Diagnostic
+    Wasp.LSP.Analysis
     Wasp.LSP.Completion
-    Wasp.LSP.GotoDefinition
-    Wasp.LSP.Reactor
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
     Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.Debouncer
+    Wasp.LSP.Diagnostic
+    Wasp.LSP.DynamicHandlers
+    Wasp.LSP.ExtImport.Diagnostic
+    Wasp.LSP.ExtImport.ExportsCache
+    Wasp.LSP.ExtImport.Path
+    Wasp.LSP.ExtImport.Syntax
+    Wasp.LSP.GotoDefinition
+    Wasp.LSP.Handlers
+    Wasp.LSP.Reactor
+    Wasp.LSP.Server
+    Wasp.LSP.ServerConfig
+    Wasp.LSP.ServerMonads
+    Wasp.LSP.ServerState
     Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
     Wasp.LSP.TypeInference

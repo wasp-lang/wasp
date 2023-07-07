@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
-import Wasp.Package (Package (DeployPackage), getPackageProc)
+import Wasp.NodePackageFFI (Package (DeployPackage), getPackageProcessOptions)
 import Wasp.Project.Common (WaspProjectDir)
 
 loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
@@ -28,7 +28,7 @@ deploy ::
   IO (Either String ())
 deploy waspExe waspDir cmdArgs = do
   let deployScriptArgs = concat [cmdArgs, ["--wasp-exe", waspExe, "--wasp-project-dir", toFilePath waspDir]]
-  cp <- getPackageProc DeployPackage deployScriptArgs
+  cp <- getPackageProcessOptions DeployPackage deployScriptArgs
   -- Set up the process so that it:
   -- - Inherits handles from the waspc process (it will print and read from stdin/out/err)
   -- - Delegates Ctrl+C: when waspc receives Ctrl+C while this process is running,

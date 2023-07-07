@@ -4,14 +4,14 @@ import * as path from 'path';
 import JSON5 from 'json5';
 import { z } from 'zod';
 
-export const ExportRequest = z.object({
+export const ExportsRequest = z.object({
   tsconfig: z.string().optional(),
-  filenames: z.array(z.string())
+  filepaths: z.array(z.string())
 });
 
-export const ExportRequests = z.array(ExportRequest);
+export const ExportsRequests = z.array(ExportsRequest);
 
-export type ExportRequest = z.infer<typeof ExportRequest>;
+export type ExportsRequest = z.infer<typeof ExportsRequest>;
 
 export type Export
   = { type: 'default' } & Range
@@ -21,33 +21,24 @@ export type Range = { range?: { start: Location, end: Location } }
 
 export type Location = { line: number, column: number }
 
-export async function getExportsOfFiles(request: ExportRequest): Promise<{ [file: string]: Export[] }> {
+export async function getExportsOfFiles(request: ExportsRequest): Promise<{ [file: string]: Export[] }> {
   let compilerOptions: ts.CompilerOptions = {};
 
   // If a tsconfig is given, load the configuration.
   if (request.tsconfig) {
-    const configJson = JSON5.parse(await fs.readFile(request.tsconfig, 'utf8'));
-    const basePath = path.dirname(request.tsconfig)
-
-    const { options, errors } = ts.convertCompilerOptionsFromJson(
-      configJson.compilerOptions, basePath, request.tsconfig
-    );
-    if (errors && errors.length) {
-      throw errors;
-    }
-    compilerOptions = options;
+    compilerOptions = await loadCompilerOptionsFromTsConfig(request.tsconfig);
   }
 
   const exportsMap: { [file: string]: Export[] } = {};
 
   // Initialize the TS compiler.
-  const program = ts.createProgram(request.filenames, compilerOptions);
+  const program = ts.createProgram(request.filepaths, compilerOptions);
   const checker = program.getTypeChecker();
 
   // Loop through each given file and try to get its exports.
-  for (let filename of request.filenames) {
+  for (let filename of request.filepaths) {
     try {
-      exportsMap[filename] = getExportsForFile(program, checker, filename);
+      exportsMap[filename] = getExportsOfFile(program, checker, filename);
     } catch (err) {
       console.error(err);
       exportsMap[filename] = [];
@@ -57,7 +48,20 @@ export async function getExportsOfFiles(request: ExportRequest): Promise<{ [file
   return exportsMap;
 }
 
-function getExportsForFile(program: ts.Program, checker: ts.TypeChecker, filename: string): Export[] {
+async function loadCompilerOptionsFromTsConfig(tsconfig: string): Promise<ts.CompilerOptions> {
+  const configJson = JSON5.parse(await fs.readFile(tsconfig, 'utf8'));
+  const basePath = path.dirname(tsconfig)
+
+  const { options, errors } = ts.convertCompilerOptionsFromJson(
+    configJson.compilerOptions, basePath, tsconfig
+  );
+  if (errors && errors.length) {
+    throw errors;
+  }
+  return options;
+}
+
+function getExportsOfFile(program: ts.Program, checker: ts.TypeChecker, filename: string): Export[] {
   const source = program.getSourceFile(filename);
   if (!source) {
     throw new Error(`Error getting source for ${filename}`);
@@ -67,23 +71,26 @@ function getExportsForFile(program: ts.Program, checker: ts.TypeChecker, filenam
     // This is caused by errors within the TS file, so we say there are no exports.
     return [];
   }
-  const exports = checker.getExportsOfModule(moduleSymbol);
-  return exports.map(exp => getExportForExportSymbol(program, checker, exp));
+  const exportSymbols = checker.getExportsOfModule(moduleSymbol);
+  return exportSymbols.map(exp => getExportForExportSymbol(program, checker, exp));
 }
 
-function getExportForExportSymbol(program: ts.Program, checker: ts.TypeChecker, exp: ts.Symbol): Export {
+function getExportForExportSymbol(program: ts.Program, checker: ts.TypeChecker, exportSymbol: ts.Symbol): Export {
   let range = undefined;
-  if (exp.valueDeclaration) {
+  // Try to get the location information from the first value declaration for
+  // the export. If there are no value declarations, we don't return any location
+  // info for this export and `range` remains undefined.
+  if (exportSymbol.valueDeclaration) {
     // NOTE: This isn't a very robust way of getting the location: it will always
     // point to the line that has `export`, rather than the line where the exported
     // symbol is defined.
-    const startOffset = exp.valueDeclaration.getStart();
+    const startOffset = exportSymbol.valueDeclaration.getStart();
     const startPos = ts.getLineAndCharacterOfPosition(
-      exp.valueDeclaration.getSourceFile(), startOffset
+      exportSymbol.valueDeclaration.getSourceFile(), startOffset
     );
-    const endOffset = exp.valueDeclaration.getEnd();
+    const endOffset = exportSymbol.valueDeclaration.getEnd();
     const endPos = ts.getLineAndCharacterOfPosition(
-      exp.valueDeclaration.getSourceFile(), endOffset
+      exportSymbol.valueDeclaration.getSourceFile(), endOffset
     )
     range = {
       start: { line: startPos.line, column: startPos.character },
@@ -92,7 +99,7 @@ function getExportForExportSymbol(program: ts.Program, checker: ts.TypeChecker, 
   }
 
   // Convert export to the output format.
-  const exportName = exp.getName();
+  const exportName = exportSymbol.getName();
   if (exportName === 'default') {
     return { type: 'default', range };
   } else {

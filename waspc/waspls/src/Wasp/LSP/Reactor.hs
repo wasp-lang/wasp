@@ -5,6 +5,16 @@ module Wasp.LSP.Reactor
     -- to the LSP client, these tasks are run on the \"reactor thread\". This
     -- thread reacts to inputs sent on a 'TChan' and runs the corresponding IO
     -- action.
+    --
+    -- Essentially, this is a thread pool with only 1 thread. The primary reason
+    -- for this is to make reasoning about concurrent modifications easier, since
+    -- only the reactor thread and the main thread are running.
+    --
+    -- Just 1 thread for these long running tasks should be fine: in general,
+    -- these tasks are triggered by actions from the user who is editing a wasp
+    -- project, which is relatively slow compared to how fast these tasks can
+    -- finish. For tasks that are being triggered often, consider debouncing
+    -- the source to reduce how often it is triggered ("Wasp.LSP.Debouncer").
     ReactorInput (..),
     reactor,
     startReactorThread,

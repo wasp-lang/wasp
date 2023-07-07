@@ -1,9 +1,13 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Package
-  ( Package (..),
-    getPackageProc,
+module Wasp.NodePackageFFI
+  ( -- * Node Package FFI
+
+    -- Provides utilities for setting up and running node processes from the
+    -- @packages/@ directory.
+    Package (..),
+    getPackageProcessOptions,
   )
 where
 
@@ -42,10 +46,11 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- These packages are built during CI/locally via the @tools/install_packages_to_data_dir.sh@
 -- script.
 --
--- If the package does not have its dependencies installed yet (i.e. after they
--- just installed a Wasp version), we install the dependencies.
-getPackageProc :: Package -> [String] -> IO P.CreateProcess
-getPackageProc package args = do
+-- If the package does not have its dependencies installed yet (for example,
+-- when the package is run for the first time after installing Wasp), we install
+-- the dependencies.
+getPackageProcessOptions :: Package -> [String] -> IO P.CreateProcess
+getPackageProcessOptions package args = do
   getAndCheckNodeVersion >>= \case
     Right _ -> pure ()
     Left errorMsg -> do
@@ -55,7 +60,7 @@ getPackageProc package args = do
   packageDir <- getPackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
   ensurePackageDependenciesAreInstalled packageDir
-  return $ packageProc packageDir "node" (fromAbsFile scriptFile : args)
+  return $ packageCreateProcess packageDir "node" (fromAbsFile scriptFile : args)
 
 getPackageDir :: Package -> IO (Path' Abs (Dir PackageDir))
 getPackageDir package = do
@@ -67,7 +72,7 @@ getPackageDir package = do
 ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO ()
 ensurePackageDependenciesAreInstalled packageDir =
   unlessM nodeModulesDirExists $ do
-    let npmInstallCreateProcess = packageProc packageDir "npm" ["install"]
+    let npmInstallCreateProcess = packageCreateProcess packageDir "npm" ["install"]
     (exitCode, _out, err) <- P.readCreateProcessWithExitCode npmInstallCreateProcess ""
     case exitCode of
       ExitFailure _ -> do
@@ -83,9 +88,9 @@ ensurePackageDependenciesAreInstalled packageDir =
 --
 -- NOTE: do not export this function! users of this module should have to go
 -- through 'getPackageProc', which makes sure node_modules are present.
-packageProc ::
+packageCreateProcess ::
   Path' Abs (Dir PackageDir) ->
   String ->
   [String] ->
   P.CreateProcess
-packageProc packageDir cmd args = (P.proc cmd args) {P.cwd = Just $ fromAbsDir packageDir}
+packageCreateProcess packageDir cmd args = (P.proc cmd args) {P.cwd = Just $ fromAbsDir packageDir}
