@@ -13,7 +13,7 @@ export function ExampleCard({ idea, useIdea }) {
         className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center cursor-pointer hover:shadow-lg transition-all"
         onClick={() => useIdea(idea)}
       >
-        <div className="idea">
+        <div className="idea w-full">
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-xl font-semibold text-slate-700 mb-1">
               <span
@@ -24,9 +24,9 @@ export function ExampleCard({ idea, useIdea }) {
             </h4>
             <button className="button sm gray">Use this idea</button>
           </div>
-          <p className="text-base leading-relaxed text-slate-500">
-            {idea.description}
-          </p>
+          <div className="text-base leading-relaxed text-slate-500">
+            {idea.description.split('\n').map(str => <p>{str}</p>)}
+          </div>
         </div>
       </div>
     </Tilt>

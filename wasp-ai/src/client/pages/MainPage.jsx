@@ -5,7 +5,7 @@ import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
 import { Header } from "../components/Header";
 import { availableColors } from "../components/Color";
-import { poolOfExampleIdeas } from "../examples";
+import { exampleIdeas } from "../examples";
 import { PiMagicWandDuotone } from "react-icons/pi";
 
 const MainPage = () => {
@@ -68,13 +68,6 @@ const MainPage = () => {
       });
     }
   }
-
-  // Pick random 3 ideas
-  const ideasToDisplay = useMemo(
-    () =>
-      poolOfExampleIdeas.sort(() => Math.random() - Math.random()).slice(0, 3),
-    []
-  );
 
   function useIdea(idea) {
     setAppName(idea.name);
@@ -166,7 +159,7 @@ Based on it, our AI code agent will then generate a full stack web app in Wasp, 
           Some example ideas
         </h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
-          {ideasToDisplay.map((idea) => (
+          {exampleIdeas.map((idea) => (
             <ExampleCard key={idea.name} idea={idea} useIdea={useIdea} />
           ))}
         </div>

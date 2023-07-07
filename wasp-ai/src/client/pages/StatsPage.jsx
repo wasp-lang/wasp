@@ -7,7 +7,7 @@ import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
 import { BarChart } from "../components/BarChart";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
-import { poolOfExampleIdeas } from "../examples";
+import { exampleIdeas } from "../examples";
 import logout from "@wasp/auth/logout";
 import { WaspIcon } from "../components/WaspIcon";
 import { Header } from "../components/Header";
@@ -59,7 +59,7 @@ export function Stats() {
     if (filterOutExampleApps) {
       filters.push(
         (stat) =>
-          !poolOfExampleIdeas.some(
+          !exampleIdeas.some(
             (example) =>
               example.name === stat.name &&
               example.description === stat.description
