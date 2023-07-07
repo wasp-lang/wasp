@@ -20,6 +20,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
+import Numeric.Natural (Natural)
 import qualified Text.Parsec as Parsec
 import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
@@ -44,8 +45,8 @@ generatePlan newProjectDetails planRules = do
   initialPlan <- queryChatGPTForJSON (defaultChatGPTParams {_model = planGptModel}) chatMessages
   writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
   writeToLog "Fixing initial plan..."
-  fixedPlan <- fixPlan initialPlan
-  writeToLog $ "Plan fixed!\n" <> summarizePlan initialPlan
+  fixedPlan <- fixPlanRepeatedly 3 initialPlan
+  writeToLog "Plan fixed!"
   return fixedPlan
   where
     chatMessages =
@@ -120,7 +121,20 @@ generatePlan newProjectDetails planRules = do
         ${appDescriptionBlockText}
       |]
 
-    fixPlan :: Plan -> CodeAgent Plan
+    -- Will try to fix plan again and again until it is either certainly fixed,
+    -- or it has reached maximal number of tries.
+    fixPlanRepeatedly :: Natural -> Plan -> CodeAgent Plan
+    fixPlanRepeatedly 0 plan = return plan
+    fixPlanRepeatedly maxNumTries plan = do
+      (isCertainlyFixed, plan') <- fixPlan plan
+      if isCertainlyFixed
+        then return plan'
+        else fixPlanRepeatedly (maxNumTries - 1) plan'
+
+    -- Attempts to fix plan.
+    -- Returns new, fixed plan, and bool that is True if plan passed all the checks and needs
+    -- no further fixing, or False if we are not sure and it might need further fixing.
+    fixPlan :: Plan -> CodeAgent (Bool, Plan)
     fixPlan initialPlan = do
       (maybePrismaFormatErrorsMsg, formattedEntities) <- liftIO $ prismaFormat $ entities initialPlan
       let plan' = initialPlan {entities = formattedEntities}
@@ -131,25 +145,38 @@ generatePlan newProjectDetails planRules = do
               <> checkPlanForLogoutAndLoginActions plan'
               <> checkPlanForPageIssues plan'
       if null issues && isNothing maybePrismaFormatErrorsMsg
-        then return plan'
+        then return (True, plan')
         else do
           let issuesText =
                 if null issues
                   then ""
                   else
-                    "I found following potential issues with the plan that you made:\n"
-                      <> T.pack (intercalate "\n" ((" - " <>) <$> issues))
+                    let issuesList = T.pack (intercalate "\n" ((" - " <>) <$> issues))
+                     in [trimming|
+                          I found following potential issues with the plan that you made:
+                            ${issuesList}
+
+                          ========================
+                        |]
           let prismaFormatErrorsText =
                 case maybePrismaFormatErrorsMsg of
                   Nothing -> ""
-                  Just msg -> "Following errors were reported by the 'prisma format' command:\n" <> msg
-          queryChatGPTForJSON (defaultChatGPTParamsForFixing {_model = planGptModel}) $
-            chatMessages
-              <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan'},
-                   ChatMessage
-                     { role = User,
-                       content =
-                         [trimming|
+                  Just errorsMsg ->
+                    [trimming|
+                      Following errors were reported by the 'prisma format' command:
+                        ${errorsMsg}
+
+                      ======================
+                    |]
+          writeToLog "Sending plan to GPT for fixing..."
+          fixedPlan <-
+            queryChatGPTForJSON (defaultChatGPTParamsForFixing {_model = planGptModel}) $
+              chatMessages
+                <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan'},
+                     ChatMessage
+                       { role = User,
+                         content =
+                           [trimming|
                            ${issuesText}
 
                            ${prismaFormatErrorsText}
@@ -159,8 +186,9 @@ generatePlan newProjectDetails planRules = do
                            Respond ONLY with a valid JSON that is a plan.
                            There should be no other text or explanations in the response.
                          |]
-                     }
-                 ]
+                       }
+                   ]
+          return (False, fixedPlan)
 
     planGptModel = GPT_4
 
