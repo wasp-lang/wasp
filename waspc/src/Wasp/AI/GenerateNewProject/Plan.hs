@@ -10,15 +10,18 @@ module Wasp.AI.GenerateNewProject.Plan
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
-import Data.Char (toLower)
+import Data.Char (toLower, isSpace)
 import Data.List (find, intercalate, isPrefixOf)
+import Data.Maybe (isNothing)
+import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import qualified Text.Parsec as Parsec
-import Wasp.AI.CodeAgent (CodeAgent)
+import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     defaultChatGPTParams,
@@ -28,6 +31,7 @@ import Wasp.AI.GenerateNewProject.Common
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (_model), ChatMessage (..), ChatRole (..), Model (GPT_4))
+import qualified Wasp.Psl.Format as Prisma
 import qualified Wasp.Psl.Parser.Model as Psl.Parser
 import qualified Wasp.Util.Aeson as Util.Aeson
 
@@ -36,8 +40,13 @@ type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  queryChatGPTForJSON (defaultChatGPTParams {_model = planGptModel}) chatMessages
-    >>= fixPlanIfNeeded
+  writeToLog "Generating plan... (slowest step, usually takes 30 to 60 seconds)"
+  initialPlan <- queryChatGPTForJSON (defaultChatGPTParams {_model = planGptModel}) chatMessages
+  writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
+  writeToLog "Fixing initial plan..."
+  fixedPlan <- fixPlan initialPlan
+  writeToLog $ "Plan fixed!\n" <> summarizePlan initialPlan
+  return fixedPlan
   where
     chatMessages =
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
@@ -108,28 +117,39 @@ generatePlan newProjectDetails planRules = do
         ${appDescriptionBlockText}
       |]
 
-    fixPlanIfNeeded :: Plan -> CodeAgent Plan
-    fixPlanIfNeeded plan = do
+    fixPlan :: Plan -> CodeAgent Plan
+    fixPlan initialPlan = do
+      (maybePrismaFormatErrorsMsg, formattedEntities) <- liftIO $ prismaFormat $ entities initialPlan
+      let plan' = initialPlan {entities = formattedEntities}
       let issues =
-            checkPlanForEntityIssues plan
-              <> checkPlanForOperationIssues Query plan
-              <> checkPlanForOperationIssues Action plan
-              <> checkPlanForLogoutAndLoginActions plan
-              <> checkPlanForPageIssues plan
-      if null issues
-        then return plan
+            checkPlanForEntityIssues plan'
+              <> checkPlanForOperationIssues Query plan'
+              <> checkPlanForOperationIssues Action plan'
+              <> checkPlanForLogoutAndLoginActions plan'
+              <> checkPlanForPageIssues plan'
+      if null issues && isNothing maybePrismaFormatErrorsMsg
+        then return plan'
         else do
-          let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
+          let issuesText =
+                if null issues
+                  then ""
+                  else
+                    "I found following potential issues with the plan that you made:\n"
+                      <> T.pack (intercalate "\n" ((" - " <>) <$> issues))
+          let prismaFormatErrorsText =
+                case maybePrismaFormatErrorsMsg of
+                  Nothing -> ""
+                  Just msg -> "Following errors were reported by the 'prisma format' command:\n" <> msg
           queryChatGPTForJSON (defaultChatGPTParamsForFixing {_model = planGptModel}) $
             chatMessages
-              <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan},
+              <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan'},
                    ChatMessage
                      { role = User,
                        content =
                          [trimming|
-                           I found following potential issues with the plan that you made:
-
                            ${issuesText}
+
+                           ${prismaFormatErrorsText}
 
                            Please improve the plan with regard to these issues and any other potential issues that you find.
 
@@ -171,6 +191,34 @@ checkPlanForEntityIssues plan =
         Right _ -> []
 
     parsePslBody = Parsec.parse Psl.Parser.body ""
+
+-- | Calls "prisma format" on given entities, and returns formatted/fixed entities + error message
+-- that captures all schema errors that prisma returns, if any.
+-- Prisma format does not only do formatting, but also fixes some small mistakes and reports errors.
+prismaFormat :: [Entity] -> IO (Maybe Text, [Entity])
+prismaFormat unformattedEntities = do
+  let pslModels = getPslModelTextForEntity <$> unformattedEntities
+  (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
+  let formattedEntities =
+        zipWith
+          (\e m -> e {entityBodyPsl = T.unpack $ getPslBodyFromPslModelText m})
+          unformattedEntities
+          formattedPslModels
+  return (maybeErrorsMsg, formattedEntities)
+  where
+    getPslModelTextForEntity :: Entity -> Text
+    getPslModelTextForEntity entity =
+      let modelName = T.pack $ entityName entity
+          modelBody = T.pack $ entityBodyPsl entity
+       in [trimming|model ${modelName} {
+                      ${modelBody}
+                    }|]
+
+    -- Example: @getPslBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.
+    getPslBodyFromPslModelText = removeEnd . removeStart . T.strip
+      where
+        removeStart = T.dropWhile (== '\n') . T.drop 1 . T.dropWhile (/= '{')
+        removeEnd = T.dropWhileEnd isSpace . T.dropEnd 1 . T.dropWhileEnd (/= '}')
 
 checkPlanForOperationIssues :: OperationType -> Plan -> [String]
 checkPlanForOperationIssues opType plan =
@@ -230,6 +278,26 @@ checkPlanForPageIssues plan =
           [ "component path of page '" <> pageName page <> "' must start with '@client'."
           ]
         else []
+
+summarizePlan :: Plan -> Text
+summarizePlan plan =
+  let numQueries = showT $ length $ queries plan
+      numActions = showT $ length $ actions plan
+      numPages = showT $ length $ pages plan
+      numEntities = showT $ length $ entities plan
+      queryNames = showT $ opName <$> queries plan
+      actionNames = showT $ opName <$> actions plan
+      pageNames = showT $ pageName <$> pages plan
+      entityNames = showT $ entityName <$> entities plan
+   in [trimming|
+        - ${numQueries} queries: ${queryNames}
+        - ${numActions} actions: ${actionNames}
+        - ${numEntities} entities: ${entityNames}
+        - ${numPages} pages: ${pageNames}
+      |]
+  where
+    showT :: Show a => a -> Text
+    showT = T.pack . show
 
 -- TODO: Alternative idea is to give quite more autonomy and equip it with tools (functions) it
 --   needs to build correct context, and then let it drive itself completely on its own. So we give

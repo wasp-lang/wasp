@@ -15,11 +15,11 @@ module Wasp.AI.OpenAI.ChatGPT
   )
 where
 
-import Control.Arrow ()
 import Control.Monad (when)
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
+import Data.Functor ((<&>))
 import Data.Text (Text)
 import Debug.Pretty.Simple (pTrace)
 import GHC.Generics (Generic)
@@ -27,7 +27,7 @@ import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.Util as Util
-import qualified Wasp.Util.Network.HTTP as Util.HTTP
+import qualified Wasp.Util.Network.HTTP as Utils.HTTP
 
 -- | Might throw an HttpException.
 queryChatGPT :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> IO ChatResponse
@@ -46,9 +46,9 @@ queryChatGPT apiKey params requestMessages = do
             HTTP.setRequestBodyJSON reqBodyJson $
               HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
 
-  response <- Util.HTTP.httpJSONThatCertainlyThrowsOnHttpError request
-
-  let (chatResponse :: ChatResponse) = HTTP.getResponseBody response
+  (chatResponse :: ChatResponse) <-
+    Utils.HTTP.httpJSONThatThrowsIfNot2xx request
+      <&> either (error . ("Failed to parse ChatGPT response body as JSON: " <>)) Prelude.id
 
   when True $
     pTrace

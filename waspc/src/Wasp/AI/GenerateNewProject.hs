@@ -7,7 +7,6 @@ import Control.Monad (forM, forM_)
 import Data.List (nub)
 import Data.Text (Text)
 import qualified Data.Text as T
-import NeatInterpolation (trimming)
 import StrongPath (File', Path, Rel, System)
 import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, getTotalTokensUsage, writeToLog)
@@ -39,9 +38,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
     generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles
   writeToLog "Generated project skeleton."
 
-  writeToLog "Generating plan..."
   plan <- generatePlan newProjectDetails planRules
-  writeToLog $ "Plan generated!\n" <> summarizePlan plan
 
   writeEntitiesToWaspFile waspFilePath (Plan.entities plan)
   writeToLog "Updated wasp file with entities."
@@ -88,21 +85,3 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
 
   writeToLog "Done!"
   where
-    summarizePlan plan =
-      let numQueries = showT $ length $ Plan.queries plan
-          numActions = showT $ length $ Plan.actions plan
-          numPages = showT $ length $ Plan.pages plan
-          numEntities = showT $ length $ Plan.entities plan
-          queryNames = showT $ Plan.opName <$> Plan.queries plan
-          actionNames = showT $ Plan.opName <$> Plan.actions plan
-          pageNames = showT $ Plan.pageName <$> Plan.pages plan
-          entityNames = showT $ Plan.entityName <$> Plan.entities plan
-       in [trimming|
-            - ${numQueries} queries: ${queryNames}
-            - ${numActions} actions: ${actionNames}
-            - ${numEntities} entities: ${entityNames}
-            - ${numPages} pages: ${pageNames}
-          |]
-
-    showT :: Show a => a -> Text
-    showT = T.pack . show
