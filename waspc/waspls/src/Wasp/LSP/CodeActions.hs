@@ -6,7 +6,7 @@ module Wasp.LSP.CodeActions
 where
 
 import Control.Lens ((^.))
-import Control.Monad (filterM)
+import Control.Monad (filterM, (<=<))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Reader.Class (asks)
@@ -14,8 +14,11 @@ import Data.Foldable (find)
 import qualified Data.HashMap.Strict as M
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as Text
+import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
+import qualified Path as P
 import qualified StrongPath as SP
+import qualified StrongPath.Path as SP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule))
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
@@ -125,10 +128,10 @@ findCodeActionsForExtImport src extImport = do
 
     -- Returns empty list if wasp.scaffold.ts-symbol does not have a template
     -- available for the request.
-    --
-    -- TODO(before merge): show filepath relative to root dir (i.e. src/...)
-    createCodeAction :: MonadIO m => ExtImportName -> Inference.ExprPath -> SP.Path' SP.Abs (SP.File a) -> m [LSP.CodeAction]
-    createCodeAction symbolName pathToExtImport filepath =
+    createCodeAction :: ExtImportName -> Inference.ExprPath -> SP.Path' SP.Abs (SP.File a) -> HandlerM [LSP.CodeAction]
+    createCodeAction symbolName pathToExtImport filepath = do
+      -- Strip the root path from @filepath@, using the absolute path if the stripping can not be done.
+      relFilepath <- maybe (SP.fromAbsFile filepath) P.toFilePath . (((`P.stripProperPrefix` SP.toPathAbsFile filepath) <=< P.parseAbsDir) =<<) <$> LSP.getRootPath
       let args =
             ScaffoldTS.Args
               { ScaffoldTS.symbolName = symbolName,
@@ -136,21 +139,21 @@ findCodeActionsForExtImport src extImport = do
                 ScaffoldTS.filepath = SP.castFile filepath
               }
           command = ScaffoldTS.command args
-          title = case symbolName of
-            ExtImportModule name -> printf "Add default export `%s` to %s" name (SP.toFilePath filepath)
-            ExtImportField name -> printf "Create function `%s` in %s" name (SP.toFilePath filepath)
-       in ScaffoldTS.hasTemplateForArgs args >>= \case
-            False -> return []
-            True ->
-              return
-                [ LSP.CodeAction
-                    { _title = Text.pack title,
-                      _kind = Just LSP.CodeActionQuickFix,
-                      _diagnostics = Nothing, -- TODO(before merge): get diagnostics,
-                      _isPreferred = Nothing,
-                      _disabled = Nothing,
-                      _edit = Nothing,
-                      _command = Just command,
-                      _xdata = Nothing
-                    }
-                ]
+      let title = case symbolName of
+            ExtImportModule name -> printf "Add default export `%s` to %s" name relFilepath
+            ExtImportField name -> printf "Create function `%s` in %s" name relFilepath
+      ScaffoldTS.hasTemplateForArgs args >>= \case
+        False -> return []
+        True ->
+          return
+            [ LSP.CodeAction
+                { _title = Text.pack title,
+                  _kind = Just LSP.CodeActionQuickFix,
+                  _diagnostics = Nothing, -- TODO(before merge): get diagnostics,
+                  _isPreferred = Nothing,
+                  _disabled = Nothing,
+                  _edit = Nothing,
+                  _command = Just command,
+                  _xdata = Nothing
+                }
+            ]

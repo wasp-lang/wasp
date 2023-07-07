@@ -3,6 +3,7 @@
 
 module Wasp.LSP.ExtImport.Path
   ( ExtFileCachePath,
+    cachePathFile,
     cachePathExtType,
     WaspStyleExtFilePath (WaspStyleExtFilePath),
     waspStylePathToCachePath,
@@ -36,12 +37,11 @@ data ExtensionlessExtFile
 --
 -- It is stored relative to @src/@ and without an extension so that cache lookups
 -- (starting with a 'WaspStyleExtFilePath') are more efficient.
-data ExtFileCachePath
-  = ExtFileCachePath !(SP.Path' (SP.Rel SourceExternalCodeDir) (SP.File ExtensionlessExtFile)) !ExtensionType
+data ExtFileCachePath = ExtFileCachePath
+  { cachePathFile :: !(SP.Path' (SP.Rel SourceExternalCodeDir) (SP.File ExtensionlessExtFile)),
+    cachePathExtType :: !ExtensionType
+  }
   deriving (Show, Eq, Generic)
-
-cachePathExtType :: ExtFileCachePath -> ExtensionType
-cachePathExtType (ExtFileCachePath _ ext) = ext
 
 -- | Hashes only the path portion (ignoring the extension type). This is so that
 -- hashing does not get in the way of equality comparisons while looking up
@@ -63,7 +63,7 @@ waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) = do
   let (extensionLessFile, extType) = splitExtensionType relFile
   return $ ExtFileCachePath (SP.fromPathRelFile extensionLessFile) extType
 
-absPathToCachePath :: LSP.MonadLsp c m => SP.Path' SP.Abs SP.File' -> m (Maybe ExtFileCachePath)
+absPathToCachePath :: LSP.MonadLsp c m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
 absPathToCachePath absFile = do
   -- Makes the path relative to src/ and deletes the extension.
   maybeProjectDir <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
@@ -86,13 +86,13 @@ cachePathToAbsPathWithoutExt (ExtFileCachePath cachePath _) = do
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) -> do
       return $ Just $ projectRootDir SP.</> srcDirInProjectRootDir SP.</> cachePath
 
-cachePathToAbsPath :: forall m c. LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs SP.File'))
+cachePathToAbsPath :: forall m c a. LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File a)))
 cachePathToAbsPath cp@(ExtFileCachePath _ extType) =
   cachePathToAbsPathWithoutExt cp >>= \case
     Nothing -> return Nothing
     Just absPathWithoutExt -> useFirstExtensionThatExists absPathWithoutExt $ allowedExts extType
   where
-    useFirstExtensionThatExists :: SP.Path' SP.Abs (SP.File ExtensionlessExtFile) -> [String] -> m (Maybe (SP.Path' SP.Abs SP.File'))
+    useFirstExtensionThatExists :: SP.Path' SP.Abs (SP.File ExtensionlessExtFile) -> [String] -> m (Maybe (SP.Path' SP.Abs (SP.File a)))
     useFirstExtensionThatExists _ [] = pure Nothing
     useFirstExtensionThatExists file (ext : exts) =
       case P.addExtension ext (SP.toPathAbsFile file) of
@@ -111,10 +111,10 @@ cachePathToAbsPath cp@(ExtFileCachePath _ extType) =
 -- config files exist.
 --
 -- IF the given path is not in either @src/@ subdirectory, returns nothing.
-tryGetTsconfigForAbsPath :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> SP.Path' SP.Abs SP.File' -> Maybe (SP.Path' SP.Abs SP.File')
+tryGetTsconfigForAbsPath :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> SP.Path' SP.Abs (SP.File a) -> Maybe (SP.Path' SP.Abs (SP.File a))
 tryGetTsconfigForAbsPath projectRootDir file = tsconfigPath [SP.reldir|src/client|] <|> tsconfigPath [SP.reldir|src/server|]
   where
-    tsconfigPath :: SP.Path' (SP.Rel WaspProjectDir) SP.Dir' -> Maybe (SP.Path' SP.Abs SP.File')
+    tsconfigPath :: SP.Path' (SP.Rel WaspProjectDir) SP.Dir' -> Maybe (SP.Path' SP.Abs (SP.File a))
     tsconfigPath folder =
       let absFolder = projectRootDir SP.</> folder
        in if SP.toPathAbsDir absFolder `P.isProperPrefixOf` SP.toPathAbsFile file
