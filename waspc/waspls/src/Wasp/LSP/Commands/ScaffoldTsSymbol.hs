@@ -6,7 +6,46 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
 
     -- Command @wasp.scaffold.ts-symbol@ appends a new function with the given
     -- name to end of a particular file.
+    --
+    -- Scaffolding is based on the location of the external import. It looks for
+    -- the templates for each kind of JS/TS code in @data/lsp/templates/ts@.
+    -- For example, it differentiates between
+    --
+    -- @
+    -- query getAll { fn: import { getAll } from "@server/queries.js" }
+    -- @
+    --
+    -- and
+    --
+    -- @
+    -- action deleteAll { fn: import { deleteAll } from "@server/queries.ts" }
+    -- @
+    --
+    -- The former looks for a template named @query.fn.js@, the latter for
+    -- @action.fn.ts@. To add support for a new kind of JS/TS code to scaffold,
+    -- create a new file @data/lsp/templates/ts/<path>.<ext>@, where @<ext>@ is
+    -- the extension of the file that the code will be added to and @<path>@ is
+    -- the dot-separated path to the external import in the wasp code. Each
+    -- piece of the path is:
+    --
+    -- - The declaration type, as a string.
+    -- - @list@, for a value inside a list.
+    -- - @[n]@, for the @n@-th value in a tuple.
+    -- - The key of a dictionary field, as a string.
+    --
+    -- The path pieces are listed from outermost to innermost.
+    --
+    -- The templates have several variables available to them:
+    --
+    -- [@default?@]: Boolean, true if the external import is importing the default
+    --   export.
+    --
+    -- [@named?@]: Boolean, true if the external import is importing a named export.
+    --
+    -- [@upperDeclName@]: String, the name of the declaration the external import
+    --   is within, with the first letter capitalized.
     Args (Args, symbolName, pathToExtImport, filepath),
+    hasTemplateForArgs,
     command,
     plugin,
   )
@@ -18,6 +57,7 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Log.Class (logM)
 import Data.Aeson (FromJSON, Result (Error, Success), ToJSON (toJSON), fromJSON, object, parseJSON, withObject, (.:), (.=))
 import qualified Data.Aeson as Aeson
+import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -131,6 +171,16 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
           _xdata = Nothing
         }
 
+-- | Check if the scaffold command has a template available for the given args.
+-- If this is false, running the command with these args will __definitely__
+-- fail.
+hasTemplateForArgs :: MonadIO m => Args -> m Bool
+hasTemplateForArgs Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
+  Nothing -> return False
+  Just ext -> isRight <$> getTemplateFor pathToExtImport ext
+
+-- | @getTemplateFor pathToExtImport extension@ finds the mustache template in
+-- @data/lsp/templates/ts@ and compiles it.
 getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir

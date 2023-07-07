@@ -121,10 +121,13 @@ findCodeActionsForExtImport src extImport = do
           else filterM (liftIO . doesFileExist) unfilteredPaths
       let pathToExtImport = fromMaybe [] $ Inference.findExprPathToLocation src $ einLocation extImport
       -- 5. Create a code action for each possible file.
-      return $ map (createCodeAction symbolName pathToExtImport) filteredPaths
+      concat <$> mapM (createCodeAction symbolName pathToExtImport) filteredPaths
 
-    -- TODO: show filepath relative to root dir (i.e. src/...)
-    createCodeAction :: ExtImportName -> Inference.ExprPath -> SP.Path' SP.Abs (SP.File a) -> LSP.CodeAction
+    -- Returns empty list if wasp.scaffold.ts-symbol does not have a template
+    -- available for the request.
+    --
+    -- TODO(before merge): show filepath relative to root dir (i.e. src/...)
+    createCodeAction :: MonadIO m => ExtImportName -> Inference.ExprPath -> SP.Path' SP.Abs (SP.File a) -> m [LSP.CodeAction]
     createCodeAction symbolName pathToExtImport filepath =
       let args =
             ScaffoldTS.Args
@@ -136,13 +139,18 @@ findCodeActionsForExtImport src extImport = do
           title = case symbolName of
             ExtImportModule name -> printf "Add default export `%s` to %s" name (SP.toFilePath filepath)
             ExtImportField name -> printf "Create function `%s` in %s" name (SP.toFilePath filepath)
-       in LSP.CodeAction
-            { _title = Text.pack title,
-              _kind = Just LSP.CodeActionQuickFix,
-              _diagnostics = Nothing, -- TODO(before merge): get diagnostics,
-              _isPreferred = Nothing,
-              _disabled = Nothing,
-              _edit = Nothing,
-              _command = Just command,
-              _xdata = Nothing
-            }
+       in ScaffoldTS.hasTemplateForArgs args >>= \case
+            False -> return []
+            True ->
+              return
+                [ LSP.CodeAction
+                    { _title = Text.pack title,
+                      _kind = Just LSP.CodeActionQuickFix,
+                      _diagnostics = Nothing, -- TODO(before merge): get diagnostics,
+                      _isPreferred = Nothing,
+                      _disabled = Nothing,
+                      _edit = Nothing,
+                      _command = Just command,
+                      _xdata = Nothing
+                    }
+                ]
