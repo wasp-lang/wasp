@@ -13,7 +13,7 @@ where
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
-import Data.Char (isSpace)
+import Data.Char (toLower, isSpace)
 import Data.List (find, intercalate, isPrefixOf)
 import Data.Maybe (isNothing)
 import Data.Text (Text)
@@ -109,6 +109,8 @@ generatePlan newProjectDetails planRules = do
         Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
         least two entities. It will very likely have more than one of each, though.
 
+        DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
+
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
 
@@ -123,6 +125,7 @@ generatePlan newProjectDetails planRules = do
             checkPlanForEntityIssues plan'
               <> checkPlanForOperationIssues Query plan'
               <> checkPlanForOperationIssues Action plan'
+              <> checkPlanForLogoutAndLoginActions plan'
               <> checkPlanForPageIssues plan'
       if null issues && isNothing maybePrismaFormatErrorsMsg
         then return plan'
@@ -222,7 +225,7 @@ checkPlanForOperationIssues opType plan =
   checkNumOperations
     <> concatMap checkOperationFnPath operations
   where
-    operations = caseOnOpType queries actions $ plan
+    operations = caseOnOpType queries actions plan
 
     checkNumOperations =
       let numOps = length operations
@@ -244,6 +247,15 @@ checkPlanForOperationIssues opType plan =
 
     caseOnOpType :: a -> a -> a
     caseOnOpType queryCase actionCase = case opType of Query -> queryCase; Action -> actionCase
+
+checkPlanForLogoutAndLoginActions :: Plan -> [String]
+checkPlanForLogoutAndLoginActions plan = checkForAction "login" ++ checkForAction "logout"
+  where
+    checkForAction name =
+      [ "You included the '" <> name <> "' action in the plan, but it's already included in Wasp. Remove it."
+        | name `elem` actionNames
+      ]
+    actionNames = map (map toLower . opName) $ actions plan
 
 checkPlanForPageIssues :: Plan -> [String]
 checkPlanForPageIssues plan =

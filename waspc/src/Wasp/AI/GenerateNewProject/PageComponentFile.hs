@@ -19,11 +19,12 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Page (pageDocPrompt)
+import Wasp.AI.GenerateNewProject.Operation (Operation)
+import Wasp.AI.GenerateNewProject.Page (getAllPossibleImports, makePageDocPrompt)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
-fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent ()
-fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
+fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> [Operation] -> [Operation] -> CodeAgent ()
+fixPageComponent newProjectDetails waspFilePath pageComponentPath queries actions = do
   currentWaspFileContent <- fromMaybe (error "couldn't find wasp file") <$> getFile waspFilePath
   currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
   fixedPageComponent <-
@@ -69,6 +70,8 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
               Fix these by replacing them with actual implementation.
             - If there are any duplicate imports, make sure to remove them.
             - There might be some invalid JS or JSX syntax -> fix it if there is any.
+            - All @wasp imports must come from the list below:
+              ${possibleImportsList}
 
           With this in mind, generate a new, fixed React component (${pageComponentPathText}).
           Do actual fixes, don't leave comments with "TODO"!
@@ -80,6 +83,8 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     pageComponentPathText = T.pack pageComponentPath
+    pageDocPrompt = makePageDocPrompt $ queries ++ actions
+    possibleImportsList = T.unlines $ getAllPossibleImports $ queries ++ actions
 
 data PageComponent = PageComponent
   { pageComponentImpl :: Text
