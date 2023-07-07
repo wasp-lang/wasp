@@ -3,20 +3,22 @@
 module Wasp.AI.GenerateNewProject.Page
   ( generateAndWritePage,
     makePageDocPrompt,
-    getAllPossibleImports,
     getPageComponentPath,
     operationInfo,
+    getAllPossibleWaspJsClientImports,
     Page (..),
   )
 where
 
 import Data.Aeson (FromJSON)
 import Data.List (isPrefixOf)
+import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
+import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
@@ -30,28 +32,6 @@ import Wasp.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), Operati
 import qualified Wasp.AI.GenerateNewProject.Operation as Operation
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
-
-getAllPossibleImports :: [Operation] -> [Text]
-getAllPossibleImports operations = possibleUnchangingImports ++ map makeOperationImport operations
-  where
-    possibleUnchangingImports :: [Text]
-    possibleUnchangingImports =
-      [ "import logout from '@wasp/auth/logout';",
-        "import useAuth from '@wasp/auth/useAuth';",
-        "import { useQuery } from '@wasp/queries';",
-        "import { useAction } from '@wasp/actions';"
-      ]
-
-    makeOperationImport :: Operation -> Text
-    makeOperationImport operation =
-      [trimming|
-        import ${opName} from '@wasp/${opType}/${opName}';
-      |]
-      where
-        opName = T.pack $ Plan.opName $ opPlan operation
-        opType = case Operation.opType operation of
-          Operation.Action -> "actions"
-          Operation.Query -> "queries"
 
 generateAndWritePage ::
   NewProjectDetails -> FilePath -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
@@ -196,7 +176,7 @@ makePageDocPrompt availableOperations =
         The hook for wrapping actions is called `useAction`.
         Use a single import statement per action.
 
-        Note: There is no `useMutation` hook in Wasp. 
+        Note: There is no `useMutation` hook in Wasp.
 
         When importing anything from Wasp (queries, actions, useQuery, useAction, etx.), you are only allowed to use the following imports statements:
 
@@ -205,11 +185,41 @@ makePageDocPrompt availableOperations =
         Don't try to combine them or change them in any way, just copy-paste those you need VERBATIM.
       |]
   where
-    possibleImportsList = T.unlines $ getAllPossibleImports availableOperations
+    possibleImportsList = T.unlines $ map T.pack $ M.elems $ getAllPossibleWaspJsClientImports availableOperations
+
+-- | Given a list of all operations in the app, it returns a list of all possible @@wasp imports
+-- that a Page could import. Those are imports for the specified operations, but also some general
+-- imports like login/logouts, hooks, ... .
+-- Each entry in the returned map is one possible @@wasp import, where key is imported symbol
+-- while import statement is the value.
+getAllPossibleWaspJsClientImports :: [Operation] -> M.Map String String
+getAllPossibleWaspJsClientImports operations = M.fromList $ possibleUnchangingImports ++ map makeOperationImport operations
+  where
+    possibleUnchangingImports :: [(String, String)]
+    possibleUnchangingImports =
+      [ ("logout", "import logout from '@wasp/auth/logout';"),
+        ("useAuth", "import useAuth from '@wasp/auth/useAuth';"),
+        ("useQuery", "import { useQuery } from '@wasp/queries';"),
+        ("useAction", "import { useAction } from '@wasp/actions';")
+      ]
+
+    makeOperationImport :: Operation -> (String, String)
+    makeOperationImport operation = (opName, opImport)
+      where
+        opImport :: String
+        opImport = printf "import %s from '@wasp/%s/%s';" opName opType opName
+
+        opName :: String
+        opName = Plan.opName $ opPlan operation
+
+        opType :: String
+        opType = case Operation.opType operation of
+          Operation.Action -> "actions"
+          Operation.Query -> "queries"
 
 operationInfo :: Operation -> Text
 operationInfo operation =
-  -- TODO: Potential optimization would be to show operation args and what it returns, now the whole
+  -- TODO: Potential optimization would be to show operation args and what it returns, not the whole
   -- implementation. However for short operations, it is just easier to show whole implementation.
   [trimming|
     { "name": ${name},
