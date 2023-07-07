@@ -8,7 +8,6 @@ where
 import Control.Lens ((^.))
 import Control.Monad (filterM, (<=<))
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Reader.Class (asks)
 import Data.Foldable (find)
 import qualified Data.HashMap.Strict as M
@@ -39,7 +38,6 @@ import Wasp.Util.IO (doesFileExist)
 
 getCodeActionsInRange :: LSP.Range -> HandlerM [LSP.CodeAction]
 getCodeActionsInRange range = do
-  logM $ "[getCodeActionsInRange] range=" <> show range
   src <- asks (^. State.currentWaspSource)
   maybeCst <- asks (^. State.cst)
   case maybeCst of
@@ -113,11 +111,10 @@ findCodeActionsForExtImport src extImport = do
       let allowedExts = case maybeCachePathInCache of
             Nothing -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathFromSrc
             Just cachePathInCache -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathInCache
-      logM $ "Allowed exts: " ++ show allowedExts
       absPath <- fromMaybe (error "[createCodeActions] unreachable: can't get abs path") <$> ExtImport.cachePathToAbsPathWithoutExt cachePathFromSrc
       let unfilteredPaths = map (ExtImport.replaceExtension absPath) allowedExts
+
       -- 4ii-iii. Filter the paths.
-      logM $ "Checking paths: " ++ show unfilteredPaths
       filteredPaths <-
         if createNewFile
           then return unfilteredPaths

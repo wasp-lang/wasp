@@ -190,6 +190,7 @@ getTemplateFor exprPath ext = runExceptT $ do
     then do
       compileResult <- liftIO $ Mustache.automaticCompile [SP.fromAbsDir templatesDir] (SP.fromAbsFile templateFile)
       case compileResult of
+        -- Note: 'error' is used here because all templates should be valid.
         Left err -> error $ printf "Compilation of template %s failed: %s" (SP.fromAbsFile templateFile) (show err)
         Right template -> return template
     else throwError $ printf "No scaffolding template for request: %s does not exist" (SP.fromAbsFile templateFile)

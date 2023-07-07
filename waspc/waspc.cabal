@@ -55,6 +55,8 @@ data-files:
   Cli/templates/basic/main.wasp
   lsp/templates/**/*.js
   lsp/templates/**/*.ts
+  lsp/templates/**/*.jsx
+  lsp/templates/**/*.tsx
   packages/deploy/dist/**/*.js
   packages/deploy/package.json
   packages/deploy/package-lock.json
