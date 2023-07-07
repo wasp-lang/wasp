@@ -511,10 +511,12 @@ test-suite waspc-test
   build-depends:
     , aeson
     , base
+    , containers
     , Diff                  ^>= 0.4.1
     , deepseq
     , filepath
     , mtl
+    , neat-interpolation
     , parsec
     , path
     , split
@@ -530,6 +532,7 @@ test-suite waspc-test
     , tasty-quickcheck      ^>= 0.10
     , tasty-golden          ^>= 2.3.5
   other-modules:
+    AI.GenerateNewProject.PageComponentFileTest
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest
     Analyzer.Parser.ConcreteParserTest
