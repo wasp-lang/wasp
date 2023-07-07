@@ -70,6 +70,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath queries action
               Fix these by replacing them with actual implementation.
             - If there are any duplicate imports, make sure to remove them.
             - There might be some invalid JS or JSX syntax -> fix it if there is any.
+            - If there are any js imports of local modules (`from "./`, `from "../`), remove them and instead add the needed implementation directly in the file we are fixing right now.
             - All @wasp imports must come from the list below:
               ${possibleImportsList}
 

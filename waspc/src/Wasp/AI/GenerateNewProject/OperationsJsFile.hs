@@ -82,9 +82,13 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
               ```
 
           With this in mind, generate a new, fixed NodeJS file with operations (${opJsFilePathText}).
+
           Don't do too big changes, like deleting or adding whole functions, focus on smaller things and those listed above.
           DO NOT add new queries / actions to the file, or delete existing ones!
           Do actual fixes, don't leave comments with "TODO"!
+
+          If there are any js imports of local modules (`from "./`, `from "../`), remove them and instead add the needed implementation directly in the file we are fixing right now.
+
           Please respond ONLY with a valid JSON of the format { opJsFileContent: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
 
