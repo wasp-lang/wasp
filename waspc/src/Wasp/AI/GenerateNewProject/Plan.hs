@@ -12,6 +12,7 @@ where
 
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
+import Data.Char (toLower)
 import Data.List (find, intercalate, isPrefixOf)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
@@ -113,6 +114,7 @@ generatePlan newProjectDetails planRules = do
             checkPlanForEntityIssues plan
               <> checkPlanForOperationIssues Query plan
               <> checkPlanForOperationIssues Action plan
+              <> checkPlanForLogoutAndLoginActions plan
               <> checkPlanForPageIssues plan
       if null issues
         then return plan
@@ -175,7 +177,7 @@ checkPlanForOperationIssues opType plan =
   checkNumOperations
     <> concatMap checkOperationFnPath operations
   where
-    operations = caseOnOpType queries actions $ plan
+    operations = caseOnOpType queries actions plan
 
     checkNumOperations =
       let numOps = length operations
@@ -197,6 +199,15 @@ checkPlanForOperationIssues opType plan =
 
     caseOnOpType :: a -> a -> a
     caseOnOpType queryCase actionCase = case opType of Query -> queryCase; Action -> actionCase
+
+checkPlanForLogoutAndLoginActions :: Plan -> [String]
+checkPlanForLogoutAndLoginActions plan = checkForAction "login" ++ checkForAction "logout"
+  where
+    checkForAction name =
+      [ "You included the '" <> name <> "' action in the plan, but it's already included in Wasp. Remove it."
+        | name `elem` actionNames
+      ]
+    actionNames = map (map toLower . opName) $ actions plan
 
 checkPlanForPageIssues :: Plan -> [String]
 checkPlanForPageIssues plan =
