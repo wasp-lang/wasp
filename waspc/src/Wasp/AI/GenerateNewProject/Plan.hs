@@ -41,7 +41,7 @@ type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  writeToLog "Generating plan... (slowest step, usually takes 30 to 60 seconds)"
+  writeToLog "Generating plan (slowest step, usually takes 30 to 90 seconds)..."
   initialPlan <- queryChatGPTForJSON (defaultChatGPTParams {_model = planGptModel}) chatMessages
   writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
   writeToLog "Fixing initial plan..."

@@ -126,7 +126,9 @@ queryChatGPT params messages = do
           ( liftIO $
               (Right <$> ChatGPT.queryChatGPT key params' messages')
                 `catchRetryableHttpException` ( \e -> do
-                    hPutStrLn stderr $ "Caught retryable HTTP exception while doing ChatGPT request: " <> show e
+                    hPutStrLn stderr $ "Caught retryable HTTP exception while doing ChatGPT request: "
+                        <> maybe "" (\code -> "Status code: " <> show code <> "; ") (Utils.HTTP.getHttpExceptionStatusCode e)
+                        <> show e
                     return $ Left e
                                               )
           )
