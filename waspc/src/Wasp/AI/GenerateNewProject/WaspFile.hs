@@ -124,6 +124,8 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 ```
               - I noticed that you sometimes by accident add redundant "}" at the end of the Wasp file while fixing it.
                 Be careful not to do that.
+              - We are using SQLite as a database for Prisma, so we can't use scalar arrays in PSL, like `String[]`,
+                as those are not supported in SQLite. We can of course normally use arrays of other models, like `Task[]`.
 
             With this in mind, generate a new, fixed wasp file.
             Try not to do big changes like changing names, removing/adding declarations and similar, those are usually correct, focus more on obvious, smaller errors.

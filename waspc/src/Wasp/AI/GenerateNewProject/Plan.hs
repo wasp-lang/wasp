@@ -13,7 +13,7 @@ where
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
-import Data.Char (toLower, isSpace)
+import Data.Char (isSpace, toLower)
 import Data.List (find, intercalate, isPrefixOf)
 import Data.Maybe (isNothing)
 import Data.Text (Text)
@@ -110,6 +110,9 @@ generatePlan newProjectDetails planRules = do
         least two entities. It will very likely have more than one of each, though.
 
         DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
+
+        Note that we are using SQLite as a database for Prisma, so don't use scalar arrays in PSL, like `String[]`,
+        as those are not supported in SQLite. You can of course normally use arrays of other models, like `Task[]`.
 
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
