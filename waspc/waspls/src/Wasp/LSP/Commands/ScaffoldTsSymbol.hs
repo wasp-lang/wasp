@@ -13,16 +13,15 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
 where
 
 import Control.Lens ((^.))
-import Control.Monad (void)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Log.Class (logM)
 import Data.Aeson (FromJSON, Result (Error, Success), ToJSON (toJSON), fromJSON, object, parseJSON, withObject, (.:), (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (intercalate)
-import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.IO as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
@@ -99,60 +98,31 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
           Right template -> renderScaffoldTemplate args template
 
     renderScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
-    renderScaffoldTemplate args@Args {..} template = case pathToExtImport of
+    renderScaffoldTemplate Args {..} template = case pathToExtImport of
       Inference.Decl _ declName : _ -> do
         let symbolData = case symbolName of
               ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
               ExtImportField name -> ["default?" .= False, "named?" .= True, "name" .= name]
         let templateData = object $ symbolData ++ ["upperDeclName" .= toUpperFirst declName]
         let rendered = renderTemplate template templateData
-        fileExists <- liftIO $ doesFileExist filepath
-        logM $ printf "[wasp.scaffold.ts-symbol]: exists=%s rendered=%s" (show fileExists) (show rendered)
-        -- TODO(before merge): use workspace edits
-        let edit = createWorkspaceEdit args fileExists rendered
-        let applyEditParams =
-              LSP.ApplyWorkspaceEditParams
-                { _label = Nothing,
-                  _edit = edit
-                }
-        logM $ "[wasp.scaffold.ts-symbol] " ++ show applyEditParams
-        void $
-          LSP.sendRequest LSP.SWorkspaceApplyEdit applyEditParams $ \case
-            Left err -> respond $ Left $ internalError $ Text.pack $ "Error applying edit: " ++ show err
-            Right res
-              | not (res ^. LSP.applied) ->
-                let reason = fromMaybe "Unknown reason" $ res ^. LSP.failureReason
-                 in respond $ Left $ internalError $ "Error applying edit: " <> reason
-            Right _ -> respond $ Right Aeson.Null
+        logM $ printf "[wasp.scaffold.ts-symbol]: rendered=%s" (show rendered)
+        -- NOTE: due to waspls only being able to see* .wasp files, we can't go
+        -- through the proper route of sending a WorkspaceApplyEdit request to
+        -- the client. Modifying the file on disk is a workaround.
+        --
+        -- \* \"See\" meaning the LSP client sends waspls document sychronization
+        -- notifications. The LSP spec does not appear to specify which documents
+        -- this happens for: it seems to be up to the client to choose. In the case
+        -- of waspls, this is set by the vscode extension.
+        --
+        -- We can easily configure the extension to send sync notifications for
+        -- TS and JS files, but it would require a large shift in the structure
+        -- of waspls to support handling events for multiple files. The best time
+        -- for this to happen would be simultaneously with wasp file imports being
+        -- implemented in the language and support added to waspls.
+        liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
+        respond $ Right Aeson.Null
       _ -> respond $ Left $ invalidParams $ Text.pack $ "Top-level step in path to ext import is not a decl: " ++ show pathToExtImport
-
-    createWorkspaceEdit :: Args -> Bool -> Text -> LSP.WorkspaceEdit
-    createWorkspaceEdit Args {..} fileExists rendered =
-      let uri = LSP.filePathToUri (SP.fromAbsFile filepath)
-          createFile =
-            if fileExists
-              then []
-              else
-                [ LSP.InR $
-                    LSP.InL $
-                      LSP.CreateFile
-                        { _uri = uri,
-                          _options = Just $ LSP.CreateFileOptions {_overwrite = Nothing, _ignoreIfExists = Just True},
-                          _annotationId = Nothing
-                        }
-                ]
-          appendRendered =
-            [ LSP.InL $
-                LSP.TextDocumentEdit
-                  { _textDocument = LSP.VersionedTextDocumentIdentifier {_uri = uri, _version = Nothing},
-                    _edits = LSP.List [LSP.InL $ LSP.TextEdit {_range = LSP.Range (LSP.Position 0 0) (LSP.Position 0 0), _newText = rendered}]
-                  }
-            ]
-       in LSP.WorkspaceEdit
-            { _changes = Nothing,
-              _documentChanges = Just $ LSP.List $ createFile ++ appendRendered,
-              _changeAnnotations = Nothing
-            }
 
     invalidParams msg =
       LSP.ResponseError
@@ -160,13 +130,11 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
           _message = msg,
           _xdata = Nothing
         }
-    internalError msg =
-      LSP.ResponseError {_code = LSP.InternalError, _message = msg, _xdata = Nothing}
 
 getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir
-  templateFile <- (templatesDir SP.</>) <$> relTemplateForDeclType exprPath ext
+  templateFile <- (templatesDir SP.</>) <$> relTemplateForPath exprPath ext
   templateExists <- liftIO $ doesFileExist templateFile
   if templateExists
     then do
@@ -195,8 +163,8 @@ getTemplatesDir = (SP.</> templatesDirInDataDir) <$> Wasp.Data.getAbsDataDirPath
 
 -- | @relTemplateForDeclType exprPath extension@ returns the relative path to the
 -- scaffold template for the expr path and file type.
-relTemplateForDeclType :: MonadError String m => ExprPath -> String -> m (SP.Path' (SP.Rel TemplatesDir) (SP.File Template))
-relTemplateForDeclType exprPath ext = case SP.parseRelFile $ pathDescription ++ ext of
+relTemplateForPath :: MonadError String m => ExprPath -> String -> m (SP.Path' (SP.Rel TemplatesDir) (SP.File Template))
+relTemplateForPath exprPath ext = case SP.parseRelFile $ pathDescription ++ ext of
   Nothing -> throwError $ "Invalid path from exprPath and ext: " ++ pathDescription ++ ext
   Just file -> return file
   where
