@@ -5,6 +5,7 @@ import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
 import { Header } from "../components/Header";
 import { availableColors } from "../components/Color";
+import { Faq } from "../components/Faq";
 import { exampleIdeas } from "../examples";
 import { PiMagicWandDuotone } from "react-icons/pi";
 
@@ -162,6 +163,9 @@ Based on it, our AI code agent will then generate a full stack web app in Wasp, 
           {exampleIdeas.map((idea) => (
             <ExampleCard key={idea.name} idea={idea} useIdea={useIdea} />
           ))}
+        </div>
+        <div className="mt-8">
+          <Faq/>
         </div>
       </div>
     </div>
