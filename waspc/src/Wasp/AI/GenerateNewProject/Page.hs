@@ -5,20 +5,17 @@ module Wasp.AI.GenerateNewProject.Page
     makePageDocPrompt,
     getPageComponentPath,
     operationInfo,
-    getAllPossibleWaspJsClientImports,
     Page (..),
   )
 where
 
 import Data.Aeson (FromJSON)
 import Data.List (isPrefixOf)
-import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
@@ -29,7 +26,6 @@ import Wasp.AI.GenerateNewProject.Common
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
 import Wasp.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
-import qualified Wasp.AI.GenerateNewProject.Operation as Operation
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
@@ -64,7 +60,7 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
     entityDecls = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
     queriesInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> queries
     actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
-    pageDocPrompt = makePageDocPrompt $ queries ++ actions
+    pageDocPrompt = makePageDocPrompt
 
     planPrompt =
       [trimming|
@@ -119,8 +115,8 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
         ${appDescriptionBlock}
       |]
 
-makePageDocPrompt :: [Operation] -> Text
-makePageDocPrompt availableOperations =
+makePageDocPrompt :: Text
+makePageDocPrompt =
   [trimming|
         Page is implemented via Wasp declaration and corresponding NodeJS implementation.
 
@@ -177,45 +173,7 @@ makePageDocPrompt availableOperations =
         Use a single import statement per action.
 
         Note: There is no `useMutation` hook in Wasp.
-
-        When importing anything from Wasp (queries, actions, useQuery, useAction, etx.), you are only allowed to use the following imports statements:
-
-        ${possibleImportsList}
-
-        Don't try to combine them or change them in any way, just copy-paste those you need VERBATIM.
       |]
-  where
-    possibleImportsList = T.unlines $ map T.pack $ M.elems $ getAllPossibleWaspJsClientImports availableOperations
-
--- | Given a list of all operations in the app, it returns a list of all possible @@wasp imports
--- that a Page could import. Those are imports for the specified operations, but also some general
--- imports like login/logouts, hooks, ... .
--- Each entry in the returned map is one possible @@wasp import, where key is imported symbol
--- while import statement is the value.
-getAllPossibleWaspJsClientImports :: [Operation] -> M.Map String String
-getAllPossibleWaspJsClientImports operations = M.fromList $ possibleUnchangingImports ++ map makeOperationImport operations
-  where
-    possibleUnchangingImports :: [(String, String)]
-    possibleUnchangingImports =
-      [ ("logout", "import logout from '@wasp/auth/logout';"),
-        ("useAuth", "import useAuth from '@wasp/auth/useAuth';"),
-        ("useQuery", "import { useQuery } from '@wasp/queries';"),
-        ("useAction", "import { useAction } from '@wasp/actions';")
-      ]
-
-    makeOperationImport :: Operation -> (String, String)
-    makeOperationImport operation = (opName, opImport)
-      where
-        opImport :: String
-        opImport = printf "import %s from '@wasp/%s/%s';" opName opType opName
-
-        opName :: String
-        opName = Plan.opName $ opPlan operation
-
-        opType :: String
-        opType = case Operation.opType operation of
-          Operation.Action -> "actions"
-          Operation.Query -> "queries"
 
 operationInfo :: Operation -> Text
 operationInfo operation =

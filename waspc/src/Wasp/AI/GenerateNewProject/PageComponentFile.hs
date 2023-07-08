@@ -7,6 +7,7 @@ module Wasp.AI.GenerateNewProject.PageComponentFile
     getPageComponentFileContentWithFixedImports,
     partitionComponentFileByImports,
     getImportedNamesFromImport,
+    getAllPossibleWaspJsClientImports,
   )
 where
 
@@ -21,6 +22,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
+import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
@@ -30,7 +32,9 @@ import Wasp.AI.GenerateNewProject.Common
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.GenerateNewProject.Operation (Operation)
-import Wasp.AI.GenerateNewProject.Page (getAllPossibleWaspJsClientImports, makePageDocPrompt)
+import qualified Wasp.AI.GenerateNewProject.Operation as Operation
+import Wasp.AI.GenerateNewProject.Page (makePageDocPrompt)
+import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Util (trim)
 
@@ -85,8 +89,38 @@ partitionComponentFileByImports componentContent = (waspImportLines, nonWaspImpo
     isWaspImportLine = ("@wasp" `isInfixOf`)
     cleanUpImportLines = filter (not . null) . fmap trim
 
-fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> [Operation] -> [Operation] -> CodeAgent ()
-fixPageComponent newProjectDetails waspFilePath pageComponentPath queries actions = do
+-- | Given a list of all operations in the app, it returns a list of all possible @@wasp imports
+-- that a Page could import. Those are imports for the specified operations, but also some general
+-- imports like login/logouts, hooks, ... .
+-- Each entry in the returned map is one possible @@wasp import, where key is imported symbol
+-- while import statement is the value.
+getAllPossibleWaspJsClientImports :: [Operation] -> M.Map String String
+getAllPossibleWaspJsClientImports operations = M.fromList $ possibleUnchangingImports ++ map makeOperationImport operations
+  where
+    possibleUnchangingImports :: [(String, String)]
+    possibleUnchangingImports =
+      [ ("logout", "import logout from '@wasp/auth/logout';"),
+        ("useAuth", "import useAuth from '@wasp/auth/useAuth';"),
+        ("useQuery", "import { useQuery } from '@wasp/queries';"),
+        ("useAction", "import { useAction } from '@wasp/actions';")
+      ]
+
+    makeOperationImport :: Operation -> (String, String)
+    makeOperationImport operation = (opName, opImport)
+      where
+        opImport :: String
+        opImport = printf "import %s from '@wasp/%s/%s';" opName opType opName
+
+        opName :: String
+        opName = Plan.opName $ Operation.opPlan operation
+
+        opType :: String
+        opType = case Operation.opType operation of
+          Operation.Action -> "actions"
+          Operation.Query -> "queries"
+
+fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent ()
+fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
   currentWaspFileContent <- fromMaybe (error "couldn't find wasp file") <$> getFile waspFilePath
   currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
   fixedPageComponent <-
@@ -144,7 +178,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath queries action
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     pageComponentPathText = T.pack pageComponentPath
-    pageDocPrompt = makePageDocPrompt $ queries ++ actions
+    pageDocPrompt = makePageDocPrompt
 
 data PageComponent = PageComponent
   { pageComponentImpl :: Text
