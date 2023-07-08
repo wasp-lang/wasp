@@ -153,7 +153,7 @@ actionDocPrompt =
     Action can then be easily called from the client, via Wasp's RPC mechanism.
 
     Action example #1:
-    =================
+    ==================
 
     - Wasp declaration:
     ```wasp
@@ -167,21 +167,23 @@ actionDocPrompt =
     ```js
     import HttpError from '@wasp/core/HttpError.js'
 
-    export const updateTask = (args, context) => {
-      if (!context.user) { throw new HttpError(401) } // If user needs to be authenticated.
+    export const updateTask = async (args, context) => {
+      if (!context.user) { throw new HttpError(401) }; // If user needs to be authenticated.
 
-      return context.entities.Task.updateMany({
-        where: {
-          id: args.id,
-          user: { id: context.user.id }  // To ensure task belongs to the user.
-        },
+      const task = await context.entities.Task.findUnique({
+        where: { id: args.id }
+      });
+      if (task.userId !== context.user.id) { throw new HttpError(403) };
+
+      return context.entities.Task.update({
+        where: { id: args.id },
         data: { isDone: args.isDone }
-      })
+      });
     }
     ```
 
     Action example #2:
-    ========================
+    ==================
 
     ```wasp
     action deleteList {
@@ -195,22 +197,22 @@ actionDocPrompt =
     import HttpError from '@wasp/core/HttpError.js'
 
     export const deleteList = async ({ listId }, context) => {
-      if (!context.user) { throw new HttpError(401) }
+      if (!context.user) { throw new HttpError(401) };
 
       // We make sure that user is not trying to delete somebody else's list.
       const list = await context.entities.List.findUnique({
         where: { id: listId }
-      })
-      if (list.userId !== context.user.id) { throw new HttpError(403) }
+      });
+      if (list.userId !== context.user.id) { throw new HttpError(403) };
 
       // First delete all the cards that are in the list we want to delete.
       await context.entities.Card.deleteMany({
         where: { listId }
-      })
+      });
 
       await context.entities.List.delete({
         where: { id: listId }
-      })
+      });
     }
     ```
   |]
@@ -238,14 +240,14 @@ queryDocPrompt =
     import HttpError from '@wasp/core/HttpError.js'
 
     export const getFilteredTasks = async (args, context) => {
-      if (!context.user) { throw new HttpError(401) } // If user needs to be authenticated.
+      if (!context.user) { throw new HttpError(401) }; // If user needs to be authenticated.
 
       return context.entities.Task.findMany({
         where: {
           isDone: args.isDone,
           user: { id: context.user.id } // Only tasks that belong to the user.
         }
-      })
+      });
     }
     ```
 
@@ -275,11 +277,11 @@ queryDocPrompt =
           bio: true,
           profilePictureUrl: true
         }
-      })
+      });
 
-      if (!author) throw new HttpError(404, 'No author with username ' + username)
+      if (!author) throw new HttpError(404, 'No author with username ' + username);
 
-      return author
+      return author;
     }
     ```
   |]
@@ -304,11 +306,11 @@ checkWaspDecl operationImpl =
                 if null entities
                   then ["There are 0 entities listed, typically there should be at least 1."]
                   else []
-              Just _wrongShape -> ["'entities' field is of of wrong shape, it should be a list."]
+              Just _wrongShape -> ["'entities' field is of wrong shape, it should be a list."]
             fnIssues = case find ((== "fn") . fst) dictEntries of
               Nothing -> ["There is no `fn` field."]
               Just ("fn", P.WithCtx _ (P.ExtImport _name _path)) -> []
-              Just _wrongShape -> ["`fn` field is of of wrong shape."]
+              Just _wrongShape -> ["`fn` field is of wrong shape."]
          in entitiesIssues <> fnIssues
     Right _wrongShape -> ["Operation declaration should be a dictionary."]
 
