@@ -125,9 +125,10 @@ generateLoginJsPage =
                   />
                   <div className="mt-4 text-center">
                     If you don't have an account go to{" "}
-                    <Link to="/signup" className="text-primary-500 hover:text-primary-800">
+                    <Link to="/signup" className="text-primary-500 hover:text-primary-800 underline">
                       sign up
                     </Link>
+                    .
                   </div>
                 </div>
               </div>
@@ -163,9 +164,10 @@ generateSignupJsPage =
                   />
                   <div className="mt-4 text-center">
                     If you already have an account go to{" "}
-                    <Link to="/login" className="text-primary-500 hover:text-primary-800">
+                    <Link to="/login" className="text-primary-500 hover:text-primary-800 underline">
                       login
                     </Link>
+                    .
                   </div>
                 </div>
               </div>
@@ -206,16 +208,32 @@ generateLayoutComponent newProjectDetails =
   ( "src/client/Layout.jsx",
     [trimming|
       import { Link } from "react-router-dom";
+      import useAuth from '@wasp/auth/useAuth';
+      import logout from '@wasp/auth/logout';
       import "./Main.css";
 
       export const Layout = ({ children }) => {
+        const { data: user } = useAuth();
+
         return (
           <div className="flex flex-col min-h-screen">
             <header className="bg-primary-800 text-white p-4">
-              <div className="container mx-auto px-4 py-2">
+              <div className="container mx-auto px-4 py-2 flex justify-between">
                 <Link to="/">
                   <h1 className="text-xl2 font-semibold">${appName}</h1>
                 </Link>
+                { user ? (
+                  <span>
+                    Hi, {user.username}!{' '}
+                    <button onClick={logout} className="text-xl2 underline">
+                      (Log out)
+                    </button>
+                  </span>
+                ) : (
+                  <Link to="/login">
+                    <h1 className="text-xl2 underline">Log in</h1>
+                  </Link>
+                )}
               </div>
             </header>
             <main className="container mx-auto px-4 py-2 flex-grow">

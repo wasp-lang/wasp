@@ -154,7 +154,6 @@ makePageDocPrompt =
                 {user.username}
                 {task.id}
                 <button onClick={createTaskFn({description: 'new task'})} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> + </button>
-                <button onClick={logout} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> Logout </button>
               </div>
             );
           };
