@@ -340,9 +340,10 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
         }
       >
         <div className="mt-6 space-y-6">
-          <WarningAboutAI />
           <p className="text-base leading-relaxed text-gray-500">
-            First, you need to install{" "}
+            Congrats, your full-stack web app is ready! 🎉
+            <br/>
+            App is implemented in{" "}
             <a
               href="https://wasp-lang.dev"
               target="_blank"
@@ -351,13 +352,22 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             >
               Wasp
             </a>{" "}
-            locally. You can do that by running this command in your terminal:
+            web framework, using React, Node.js and Prisma, and is completely full-stack (frontend + backend + database).
           </p>
-          <pre className="bg-slate-50 p-4 rounded-lg text-sm">
-            curl -sSL https://get.wasp-lang.dev/installer.sh | sh
-          </pre>
+
+          <WarningAboutAI />
+
           <p className="text-base leading-relaxed text-gray-500">
-            Then, you download the ZIP file with the generated app:
+            Now, let's download and run it!
+          </p>
+
+          <div className="mt-6 space-y-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
+            <h2 className="font-bold"> 1. Install Wasp CLI: </h2>
+            <pre className="bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
+              curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+            </pre>
+
+            <h2 className="font-bold"> 2. Download the generated app files and unzip them: </h2>
             <button
               className="button flex items-center justify-center gap-1 w-full mt-2"
               onClick={onDownloadZip}
@@ -365,19 +375,21 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               Download ZIP{" "}
               <PiDownloadDuotone className="inline-block" size={20} />
             </button>
-          </p>
 
-          <p className="text-base leading-relaxed text-gray-500">
-            Unzip the file and run the app with:
-          </p>
-          <pre className="bg-slate-50 p-4 rounded-lg text-sm">
-            wasp db migrate-dev
-            <br />
-            wasp start
-          </pre>
+            <h2 className="font-bold"> 3. Position into the unzipped dir and run the app: </h2>
+            <pre className="bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
+              cd {"<your-app-name>"}
+              <br />
+              wasp db migrate-dev  <span className="text-slate-400"># init the db</span>
+              <br />
+              wasp start
+            </pre>
+          </div>
+
           <p className="text-base leading-relaxed text-gray-500">
             Congratulations, you are now running your app! 🎉
           </p>
+
           <div className="bg-pink-50 text-pink-800 p-4 rounded">
             If you like this project,{" "}
             <a
@@ -403,8 +415,8 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is a GPT generated app, it might contain small issues.
-              The bugs are usually small and easy to fix with the help of{" "}
+              Since this is a GPT generated app, it might contain some mistakes, proportional to how complex the app is.
+              If there are some in your app, check out {" "}
               <a
                 href="https://wasp-lang.dev/docs"
                 target="_blank"
@@ -413,7 +425,7 @@ function WarningAboutAI() {
               >
                 Wasp docs
               </a>
-              , but if you need help, feel free to reach out to us on{" "}
+              {" "}for help while fixing them, and also feel free to reach out to us on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
