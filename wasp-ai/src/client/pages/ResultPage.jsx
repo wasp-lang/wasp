@@ -361,13 +361,13 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Now, let's download and run it!
           </p>
 
-          <div className="mt-6 space-y-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
+          <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
             <h2 className="font-bold"> 1. Install Wasp CLI: </h2>
-            <pre className="bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
+            <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               curl -sSL https://get.wasp-lang.dev/installer.sh | sh
             </pre>
 
-            <h2 className="font-bold"> 2. Download the generated app files and unzip them: </h2>
+            <h2 className="font-bold mt-4"> 2. Download the generated app files and unzip them: </h2>
             <button
               className="button flex items-center justify-center gap-1 w-full mt-2"
               onClick={onDownloadZip}
@@ -376,8 +376,8 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               <PiDownloadDuotone className="inline-block" size={20} />
             </button>
 
-            <h2 className="font-bold"> 3. Position into the unzipped dir and run the app: </h2>
-            <pre className="bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
+            <h2 className="font-bold mt-4"> 3. Position into the unzipped dir and run the app: </h2>
+            <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               cd {"<your-app-name>"}
               <br />
               wasp db migrate-dev  <span className="text-slate-400"># init the db</span>
