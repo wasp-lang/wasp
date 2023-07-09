@@ -179,16 +179,9 @@ export const ResultPage = () => {
       !project.primaryColor ||
       !project.authMethod
     ) {
-      setCurrentStatus({
-        status: "error",
-        message: "Missing project data",
-      });
+      alert("Missing project data");
       return;
     }
-    setCurrentStatus({
-      status: "inProgress",
-      message: "Retrying app generation",
-    });
     try {
       const appId = await startGeneratingNewApp({
         appName: project.name,
@@ -196,12 +189,10 @@ export const ResultPage = () => {
         appPrimaryColor: project.primaryColor,
         appAuthMethod: project.authMethod,
       });
+      alert("Now I will go to " + appId);
       history.push(`/result/${appId}`);
     } catch (e) {
-      setCurrentStatus({
-        status: "error",
-        message: e.message,
-      });
+      alert(e.message);
     }
   }
 

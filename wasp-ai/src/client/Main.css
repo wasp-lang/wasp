@@ -43,7 +43,7 @@ textarea {
   @apply bg-green-50 text-green-800;
 }
 
-.big-box.error {
+.big-box.error, .big-box.cancelled {
   @apply bg-red-50 text-red-800;
 }
 
@@ -55,7 +55,7 @@ textarea {
   @apply bg-green-100 
 }
 
-.big-box-button.error {
+.big-box-button.error, .big-box-button.cancelled {
   @apply bg-red-100;
 }
 

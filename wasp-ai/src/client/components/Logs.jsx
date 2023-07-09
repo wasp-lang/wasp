@@ -18,7 +18,6 @@ export function Logs({ logs, status, onRetry }) {
   }
 
   function getEmoji(log) {
-    // log.toLowerCase().includes("generated") ? "✅ " : "⌛️ "
     if (
       log.toLowerCase().includes("generated") ||
       log.toLowerCase().includes("fixed") ||
@@ -32,7 +31,8 @@ export function Logs({ logs, status, onRetry }) {
     }
     if (
       log.toLowerCase().includes("error") ||
-      log.toLowerCase().includes("fail")
+      log.toLowerCase().includes("fail") ||
+      log.toLowerCase().includes("took too long")
     ) {
       return "❌";
     }
@@ -61,13 +61,15 @@ export function Logs({ logs, status, onRetry }) {
           />
           <div className="flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3">
-              {(status === "inProgress" || status === "pending") && <Loader />}
+              {(status === "inProgress" || status === "pending") &&
+                <Loader />
+              }
               {status === "success" && (
                 <div className="status-icon bg-green-500">
                   <CheckIcon className="w-4 h-4 text-white" />
                 </div>
               )}
-              {status === "error" && (
+              {status === "error" || status === "cancelled" && (
                 <div className="status-icon bg-red-500">
                   <XMarkIcon className="w-4 h-4 text-white" />
                 </div>
