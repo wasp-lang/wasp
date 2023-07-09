@@ -3,7 +3,7 @@ import { log } from "./utils.js";
 
 const maxProjectsInProgress = process.env.MAX_PROJECTS_IN_PROGRESS
   ? parseInt(process.env.MAX_PROJECTS_IN_PROGRESS, 10)
-  : 5;
+  : 7;
 
 export async function checkForPendingApps(
   _args: void,
@@ -24,7 +24,7 @@ export async function checkForPendingApps(
     where: { status: "in-progress" },
   });
 
-  // Generate X new apps until there are 5 in progress
+  // Generate X new apps until there are `maxProjectsInProgress` in progress.
   const numAppsToGenerate = maxProjectsInProgress - inProgressProjects.length;
   const appsToGenerate = pendingProjects.slice(0, numAppsToGenerate);
   for (const app of appsToGenerate) {
