@@ -358,7 +358,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
           <WarningAboutAI />
 
           <p className="text-base leading-relaxed text-gray-500">
-            Now, let's download and run it!
+            Now, let's get the app running!
           </p>
 
           <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
