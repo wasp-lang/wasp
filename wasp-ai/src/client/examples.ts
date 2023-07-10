@@ -23,14 +23,18 @@ export const exampleIdeas = [
   },
   {
     name: "Blog",
-    description:
-      "A blog with posts and post comments. Posts can be created, edited and deleted. Comments can be created. Posts and comments are saved in the database."
-      + "\nUser owns posts and comments. Everybody can see all posts and comments, but only the owner can edit or delete them."
-      + "\nHome page lists all posts (their titles and authors) and is accessible by anybody. It also has a 'New post' button, that only logged in users can see."
-      + "\nThere is a second page, to which 'New post' button takes you, for creating / editing a post. Only post author can access it."
-      + "\nFinally, there is a third page, for viewing individual post in details, to which you are taken by clicking on the post on the home page."
-      + "\nAnybody can access this page. It also lists all post comments, and logged-in users can add new comments."
-      ,
+    description: `A blogging platform with posts and post comments.
+User owns posts and comments and they are saved in the database.
+Everybody can see all posts, but only the owner can edit or delete them. Everybody can see all the comments.
+App has four pages:
+1. "Home" page lists all posts (their titles and authors) and is accessible by anybody.
+   If you click on a post, you are taken to the "View post" page.
+   It also has a 'New post' button, that only logged in users can see, and that takes you to the "New post" page.
+2. "New post" page is accessible only by the logged in users. It has a form for creating a new post (title, content).
+3. "Edit post" page is accessible only by the post owner. It has a form for editing the post with the id specified in the url.
+4. "View post" page is accessible by anybody and it shows the details of the post with the id specified in the url: its title, author, content and comments.
+    It also has a form for creating a new comment, that is accessible only by the logged in users.
+`,
     color: availableColors.find((color) => color.name === "amber"),
     complexity: "complex",
   }
