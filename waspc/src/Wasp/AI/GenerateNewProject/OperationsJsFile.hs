@@ -69,10 +69,16 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
             - "TODO" comments or "..." that should be replaced with actual implementation.
               Fix these by replacing them with actual implementation.
             - Duplicate imports. If there are any, make sure to remove them.
+            - js imports of local modules (`from "./`, `from "../`).
+              If there are any, remove them and instead add the needed implementation directly into the file we are fixing right now.
+            - Providing more than one field in the `where` clause of `update()` and `findUnique()` Prisma methods.
+              Unlike other Prisma methods, these two can accept only one, unique field in their `where` clause.
+              If this mistake is present, refactor the code so that it still works as intended but has just one field in the `where` clause.
             - Redundant imports of prisma client or of prisma entities. Those imports are not needed -> remove them!
 
               We are not using PrismaClient directly, we are using it through the context. For example: `context.entities.Task.findMany({})`
 
+          Some strong guidelines to follow:
             - There might be some invalid JS syntax -> fix it if there is any.
             - If there is some obvious refactoring that could improve code quality, go for it.
             - Use the "arg" variable to get the arguments of the operation.
@@ -87,7 +93,6 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
           DO NOT add new queries / actions to the file, or delete existing ones!
           Do actual fixes, don't leave comments with "TODO"!
 
-          If there are any js imports of local modules (`from "./`, `from "../`), remove them and instead add the needed implementation directly in the file we are fixing right now.
 
           Please respond ONLY with a valid JSON of the format { opJsFileContent: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
