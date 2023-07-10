@@ -42,25 +42,9 @@ textarea {
   @apply bg-slate-50 text-slate-800 p-8 rounded-xl;
 }
 
-.big-box.success {
-  @apply bg-green-50 text-green-800;
-}
-
-.big-box.error, .big-box.cancelled {
-  @apply bg-red-50 text-red-800;
-}
-
-.big-box-button {
-  @apply p-2 px-4 rounded-full bg-slate-100 hover:bg-slate-200;
-}
-
-.big-box-button.success {
-  @apply bg-green-100 
-}
-
-.big-box-button.error, .big-box-button.cancelled {
-  @apply bg-red-100;
-}
+.big-box-dark {
+  @apply bg-slate-800 text-slate-100 p-8 rounded-xl;
+} 
 
 .status-icon {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;

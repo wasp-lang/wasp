@@ -51,14 +51,24 @@ export function Logs({ logs, status, onRetry }) {
   return (
     logs && (
       <>
-        <header className={`big-box mt-4 mb-8 ${status}`}>
-          <ToggleButton
-            numberOfLogs={logs.length}
-            logsVisible={logsVisible}
-            toggleLogs={toggleLogs}
-            status={status}
-            className="md:hidden mb-4"
-          />
+        <header className={`relative big-box-dark mt-4 mb-8`}>
+          {status === "success" && (
+            <div className="absolute inset-0 bg-green-500 opacity-[.15] z-0"></div>
+          )}
+          {status === "error" || status === "cancelled" && (
+            <div className="absolute inset-0 bg-red-500 opacity-[.15] z-0"></div>
+          )}
+
+          <div className="relative">
+            <ToggleButton
+              numberOfLogs={logs.length}
+              logsVisible={logsVisible}
+              toggleLogs={toggleLogs}
+              status={status}
+              className="block md:hidden mb-4 z-10"
+            />
+          </div>
+
           <div className="flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3">
               {(status === "inProgress" || status === "pending") &&
@@ -105,7 +115,7 @@ export function Logs({ logs, status, onRetry }) {
               logsVisible={logsVisible}
               toggleLogs={toggleLogs}
               status={status}
-              className="flex-shrink-0 ml-3 hidden md:block"
+              className="flex-shrink-0 ml-3 hidden md:block z-10"
             />
           </div>
         </header>
@@ -124,7 +134,7 @@ function ToggleButton({
   return (
     numberOfLogs > 1 && (
       <div className={className}>
-        <button onClick={toggleLogs} className={`big-box-button ${status}`}>
+        <button onClick={toggleLogs} className="p-2 px-4 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300">
           {logsVisible ? "Collapse the logs" : "Expand the logs"}
         </button>
       </div>
