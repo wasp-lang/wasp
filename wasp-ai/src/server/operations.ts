@@ -61,7 +61,7 @@ export const getAppGenerationResult = (async (args, context) => {
         files: true,
         logs: {
           orderBy: {
-            createdAt: "desc",
+            createdAt: "asc",
           },
         },
       },

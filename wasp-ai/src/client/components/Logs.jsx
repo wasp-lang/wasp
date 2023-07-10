@@ -7,7 +7,7 @@ export function Logs({ logs, status, onRetry }) {
   const previewLogsCount = 3;
   const visibleLogs = useMemo(() => {
     if (logs) {
-      return logsVisible ? logs : logs.slice(0, previewLogsCount);
+      return logsVisible ? logs : logs.slice(-1 * previewLogsCount);
     } else {
       return [];
     }
@@ -51,7 +51,7 @@ export function Logs({ logs, status, onRetry }) {
   return (
     logs && (
       <>
-        <header className={`relative big-box-dark mt-4 mb-8`}>
+        <header className="relative big-box-dark mt-4 mb-8">
           {status === "success" && (
             <div className="absolute inset-0 bg-green-500 opacity-[.15] z-0"></div>
           )}
@@ -70,7 +70,7 @@ export function Logs({ logs, status, onRetry }) {
           </div>
 
           <div className="flex justify-between items-flex-start">
-            <div className="flex-shrink-0 mr-3">
+            <div className="flex-shrink-0 mr-3 mb-2 self-end">
               {(status === "inProgress" || status === "pending") &&
                 <Loader />
               }
@@ -86,7 +86,7 @@ export function Logs({ logs, status, onRetry }) {
               )}
             </div>
             {logs && (
-              <pre className="flex-1 overflow-x-auto">
+              <pre className="flex-1">
                 {logs.length === 0 && "Waiting for logs..."}
 
                 {visibleLogs.map((log, i) => (
@@ -96,7 +96,7 @@ export function Logs({ logs, status, onRetry }) {
                     style={{
                       opacity: logsVisible
                         ? 1
-                        : (previewLogsCount - i) * (1 / previewLogsCount),
+                        : (i + 1) * (1 / previewLogsCount),
                     }}
                   >
                     {getEmoji(log) + " "}
