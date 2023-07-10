@@ -4,7 +4,7 @@ import { Loader } from "./Loader";
 
 export function Logs({ logs, status, onRetry }) {
   const [logsVisible, setLogsVisible] = useState(false);
-  const previewLogsCount = 3;
+  const previewLogsCount = 4;
   const visibleLogs = useMemo(() => {
     if (logs) {
       return logsVisible ? logs : logs.slice(-1 * previewLogsCount);
