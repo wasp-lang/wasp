@@ -2,19 +2,20 @@ import { useMemo, useState } from "react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Loader } from "./Loader";
 
+const DEFAULT_NUM_LOGS_TO_SHOW = 4;
+
 export function Logs({ logs, status, onRetry }) {
-  const [logsVisible, setLogsVisible] = useState(false);
-  const previewLogsCount = 4;
+  const [showAllLogs, setShowAllLogs] = useState(false);
   const visibleLogs = useMemo(() => {
     if (logs) {
-      return logsVisible ? logs : logs.slice(-1 * previewLogsCount);
+      return showAllLogs ? logs : logs.slice(-1 * DEFAULT_NUM_LOGS_TO_SHOW);
     } else {
       return [];
     }
-  }, [logs, logsVisible]);
+  }, [logs, showAllLogs]);
 
-  function toggleLogs() {
-    setLogsVisible(!logsVisible);
+  function toggleShowAllLogs() {
+    setShowAllLogs(!showAllLogs);
   }
 
   function getEmoji(log) {
@@ -62,8 +63,8 @@ export function Logs({ logs, status, onRetry }) {
           <div className="relative">
             <ToggleButton
               numberOfLogs={logs.length}
-              logsVisible={logsVisible}
-              toggleLogs={toggleLogs}
+              showAllLogs={showAllLogs}
+              toggleShowAllLogs={toggleShowAllLogs}
               status={status}
               className="block md:hidden mb-4 z-10"
             />
@@ -94,9 +95,9 @@ export function Logs({ logs, status, onRetry }) {
                     key={i}
                     className="mb-2"
                     style={{
-                      opacity: logsVisible
+                      opacity: logs.length <= DEFAULT_NUM_LOGS_TO_SHOW || showAllLogs
                         ? 1
-                        : (i + 1) * (1 / previewLogsCount),
+                        : (i + 1) * (1 / DEFAULT_NUM_LOGS_TO_SHOW),
                     }}
                   >
                     {getEmoji(log) + " "}
@@ -110,10 +111,11 @@ export function Logs({ logs, status, onRetry }) {
                 ))}
               </pre>
             )}
+
             <ToggleButton
               numberOfLogs={logs.length}
-              logsVisible={logsVisible}
-              toggleLogs={toggleLogs}
+              showAllLogs={showAllLogs}
+              toggleShowAllLogs={toggleShowAllLogs}
               status={status}
               className="flex-shrink-0 ml-3 hidden md:block z-10"
             />
@@ -126,16 +128,16 @@ export function Logs({ logs, status, onRetry }) {
 
 function ToggleButton({
   numberOfLogs,
-  logsVisible,
-  toggleLogs,
+  showAllLogs,
+  toggleShowAllLogs,
   status,
   className = "",
 }) {
   return (
-    numberOfLogs > 1 && (
+    numberOfLogs > DEFAULT_NUM_LOGS_TO_SHOW && (
       <div className={className}>
-        <button onClick={toggleLogs} className="p-2 px-4 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300">
-          {logsVisible ? "Collapse the logs" : "Expand the logs"}
+        <button onClick={toggleShowAllLogs} className="p-2 px-4 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300">
+          {showAllLogs ? "Collapse the logs" : "Expand the logs"}
         </button>
       </div>
     )
