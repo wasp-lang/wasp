@@ -28,6 +28,7 @@ import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.LSP.Util (stripProperPrefix)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (doesFileExist)
 
@@ -71,10 +72,10 @@ absPathToCachePath absFile = do
     Nothing -> pure Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) ->
       let srcDir = projectRootDir SP.</> srcDirInProjectRootDir
-       in case P.stripProperPrefix (SP.toPathAbsDir srcDir) (SP.toPathAbsFile absFile) of
+       in case stripProperPrefix srcDir absFile of
             Nothing -> pure Nothing
             Just relFile -> do
-              let (extensionLessFile, extType) = splitExtensionType relFile
+              let (extensionLessFile, extType) = splitExtensionType $ SP.toPathRelFile relFile
               pure $ Just $ ExtFileCachePath (SP.fromPathRelFile extensionLessFile) extType
 
 cachePathToAbsPathWithoutExt :: LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))

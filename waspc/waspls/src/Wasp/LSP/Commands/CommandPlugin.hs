@@ -16,11 +16,17 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Wasp.LSP.ServerMonads (ServerM)
 
+-- | Command name and handler. When a 'LSP.WorkspaceExecuteCommand' request is
+-- received with the command name matching the one listed in a 'CommandPlugin',
+-- the corresponding handler is executed.
 data CommandPlugin = CommandPlugin
   { commandName :: Text,
     commandHandler :: LSP.Handler ServerM 'LSP.WorkspaceExecuteCommand
   }
 
+-- | @withParsedArgs request respond run@ parses args from a 'LSP.WorkspaceExecuteCommand'
+-- request and passes them to @run@. If an error occurs during parsing, responds
+-- with an error and does not execute @run@.
 withParsedArgs ::
   (FromJSON args, LSP.MonadLsp c m) =>
   -- | LSP 'request'.

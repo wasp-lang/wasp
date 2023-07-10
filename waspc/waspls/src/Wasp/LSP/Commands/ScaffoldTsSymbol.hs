@@ -44,6 +44,26 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
     --
     -- [@upperDeclName@]: String, the name of the declaration the external import
     --   is within, with the first letter capitalized.
+
+    -- ** Current Limitations
+
+    -- Due to the current way waspls works, we are not able to send a
+    -- 'LSP.WorkspaceApplyEdit' request to add the scaffolded code. Instead, we
+    -- modify the file on disk. This isn't the exact proper way to modify the
+    -- code, but it works.
+    --
+    -- The reason is that waspls only receives document synchronization events
+    -- for @.wasp@ files (didChange, didOpen, didClose, etc.), so we only know
+    -- the versioned URI for the @.wasp@ file, not the TS files. But we need the
+    -- versioned URI for sending edits. The LSP spec is not clear on what files
+    -- get the sync events, but in VSCode's case it is determined by the client
+    -- (the VSCode Wasp extension).
+    --
+    -- The extension can easily be configured to send sync events for JS/TS
+    -- files, but waspls makes a lot of assumptions about what files it receives
+    -- events for and would require a lot of refactoring to work properly. It
+    -- would be best to handle this at the same time as we add support for multiple
+    -- wasp files to the language and to waspls.
     Args (Args, symbolName, pathToExtImport, filepath),
     hasTemplateForArgs,
     command,
@@ -78,6 +98,21 @@ import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.Util (toUpperFirst)
 import Wasp.Util.IO (doesFileExist)
 
+plugin :: CommandPlugin
+plugin =
+  CommandPlugin
+    { commandName = "wasp.scaffold.ts-symbol",
+      commandHandler = handler
+    }
+
+command :: Args -> LSP.Command
+command args =
+  LSP.Command
+    { _title = "Scaffold TS Code",
+      _command = commandName plugin,
+      _arguments = Just $ LSP.List [toJSON args]
+    }
+
 data Args = Args
   { -- | Name of the symbol to define. If this is 'ExtImportModule', it will
     -- create a function with the specified name and export it as default.
@@ -105,21 +140,6 @@ instance FromJSON Args where
       <*> v .: "pathToExtImport"
       <*> ((maybe (fail "Could not parse filepath") pure . SP.parseAbsFile) =<< v .: "filepath")
 
-command :: Args -> LSP.Command
-command args =
-  LSP.Command
-    { _title = "Scaffold TS Code",
-      _command = commandName plugin,
-      _arguments = Just $ LSP.List [toJSON args]
-    }
-
-plugin :: CommandPlugin
-plugin =
-  CommandPlugin
-    { commandName = "wasp.scaffold.ts-symbol",
-      commandHandler = handler
-    }
-
 handler :: LSP.Handler ServerM 'LSP.WorkspaceExecuteCommand
 handler request respond = withParsedArgs request respond scaffold
   where
@@ -139,28 +159,19 @@ handler request respond = withParsedArgs request respond scaffold
               ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
               ExtImportField name -> ["default?" .= False, "named?" .= True, "name" .= name]
         let templateData = object $ symbolData ++ ["upperDeclName" .= toUpperFirst declName]
+
         let rendered = renderTemplate template templateData
         logM $ printf "[wasp.scaffold.ts-symbol]: rendered=%s" (show rendered)
-        -- NOTE: due to waspls only being able to see* .wasp files, we can't go
-        -- through the proper route of sending a WorkspaceApplyEdit request to
-        -- the client. Modifying the file on disk is a workaround.
-        --
-        -- \* \"See\" meaning the LSP client sends waspls document sychronization
-        -- notifications. The LSP spec does not appear to specify which documents
-        -- this happens for: it seems to be up to the client to choose. In the case
-        -- of waspls, this is set by the vscode extension.
-        --
-        -- We can easily configure the extension to send sync notifications for
-        -- TS and JS files, but it would require a large shift in the structure
-        -- of waspls to support handling events for multiple files. The best time
-        -- for this to happen would be simultaneously with wasp file imports being
-        -- implemented in the language and support added to waspls.
+
+        -- NOTE: we modify the file on disk instead of applying an edit through
+        -- the LSP client. See "Current Limitations" above.
         liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
+
         notifyClientOfChanges args
         respond $ Right Aeson.Null
       _ -> respond $ Left $ invalidParams $ Text.pack $ "Top-level step in path to ext import is not a decl: " ++ show pathToExtImport
 
-    -- Displays a message to the client that  file changed, with a button to
+    -- Displays a message to the client that a file changed, with a button to
     -- open the changed file.
     notifyClientOfChanges :: Args -> ServerM ()
     notifyClientOfChanges Args {..} = do
@@ -212,6 +223,10 @@ getTemplateFor exprPath ext = runExceptT $ do
         Right template -> return template
     else throwError $ printf "No scaffolding template for request: %s does not exist" (SP.fromAbsFile templateFile)
 
+-- | Renders a mustache template to text.
+--
+-- This function is partial: if errors are encountered rendering the template,
+-- @error@ is returned.
 renderTemplate :: Mustache.Template -> Aeson.Value -> Text
 renderTemplate template templateData =
   let (errs, text) = Mustache.checkedSubstituteValue template $ Mustache.toMustache templateData
