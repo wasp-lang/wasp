@@ -133,30 +133,88 @@ makePageDocPrompt =
         Example of ReactJS implementation (you can use Tailwind CSS for styling):
 
         ```jsx
-          import React from 'react';
-          import logout from '@wasp/auth/logout';
-          import useAuth from '@wasp/auth/useAuth';
-          import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query
-          import { useAction } from '@wasp/actions'; // A thin wrapper around react-query
-          import getTask from '@wasp/queries/getTasks';
-          import createTask from '@wasp/actions/createTask';
+        import React, { useState } from 'react';
+        import logout from '@wasp/auth/logout';
+        import { Link } from 'react-router-dom';
+        import useAuth from '@wasp/auth/useAuth';
+        import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query's useQuery
+        import { useAction } from '@wasp/actions'; // A thin wrapper around react-query's useMutation
+        import getTasks from '@wasp/queries/getTasks';
+        import createTask from '@wasp/actions/createTask';
+        import toggleTask from '@wasp/actions/toggleTask';
+        import editTask from '@wasp/actions/editTask';
 
-          export function ExamplePage(props) {
-            const { data: user } = useAuth();
-            const { data: task, isLoading, error } = useQuery(getTask, { id: props.id });
-            const createTaskFn = useAction(createTask);
+        export function DashboardPage() {
+          const { data: user } = useAuth();
+          const { data: tasks, isLoading, error } = useQuery(getTasks);
+          const createTaskFn = useAction(createTask);
+          const toggleTaskFn = useAction(toggleTask);
+          const editTaskFn = useAction(editTask);
+          const [newTaskDescription, setNewTaskDescription] = useState('');
 
-            if (isLoading) return 'Loading...';
-            if (error) return 'Error: ' + error;
+          if (isLoading) return 'Loading...';
+          if (error) return 'Error: ' + error;
 
-            return (
-              <div className="p-4 bg-slate-50">
-                {user.username}
-                {task.id}
-                <button onClick={createTaskFn({description: 'new task'})} className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"> + </button>
-              </div>
-            );
+          const handleCreateTask = (event) => {
+            event.preventDefault();
+            createTaskFn({ description: newTaskDescription });
+            setNewTaskDescription('');
           };
+
+          return (
+            <div className='w-full h-full'>
+              <div className='min-w-full min-h-[75vh] flex flex-col items-center'>
+                <h1 className='text-5xl font-bold mt-20 mb-5'>
+                  {user.username}'s todo list
+                </h1>
+                <div className='w-full h-full max-w-lg p-5'>
+                  <form className='container flex gap-x-4 py-5'>
+                    <input
+                      type='text'
+                      placeholder='New Task'
+                      className='flex-grow px-1 py-2 border border-gray-300 rounded text-lg'
+                      value={newTaskDescription}
+                      onChange={(e) => setNewTaskDescription(e.target.value)}
+                    />
+                    <button
+                      onClick={handleCreateTask}
+                      className='bg-blue-500 hover:bg-blue-700 px-2 py-2 text-white font-bold rounded'
+                    >
+                      Add Task
+                    </button>
+                  </form>
+                  <div className='container rounded'>
+                    {tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className='py-2 px-2 container flex items-center hover:bg-slate-100 gap-x-2 rounded'
+                      >
+                        <input
+                          type='text'
+                          value={task.description}
+                          onChange={(e) =>
+                            editTaskFn({
+                              id: task.id,
+                              description: e.target.value,
+                            })
+                          }
+                          className='bg-inherit focus:bg-white px-1 py-1 rounded outline-0 border border-transparent focus:border-black flex-grow'
+                        />
+
+                        <input
+                          type='checkbox'
+                          checked={task.isDone}
+                          onChange={() => toggleTaskFn({ id: task.id })}
+                          className='mr-2 h-6 w-6'
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
         ```
 
         Here are the rules for importing actions and queries.
