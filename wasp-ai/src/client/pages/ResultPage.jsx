@@ -12,6 +12,7 @@ import { Loader } from "../components/Loader";
 import { MyDialog } from "../components/Dialog";
 import { Logs } from "../components/Logs";
 import { Header } from "../components/Header";
+import { Faq } from "../components/Faq";
 import {
   PiCopyDuotone,
   PiLaptopDuotone,
@@ -311,6 +312,9 @@ export const ResultPage = () => {
           </p>
         </>
       )}
+      <div className="mt-8">
+        <Faq/>
+      </div>
     </div>
   );
 };
