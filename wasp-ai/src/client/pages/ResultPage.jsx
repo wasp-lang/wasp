@@ -238,9 +238,6 @@ export const ResultPage = () => {
             <h2 className="text-xl font-bold text-gray-800">
               {appGenerationResult?.project?.name}
             </h2>
-            <div>
-              <CopyLink />
-            </div>
           </div>
           <button
             className="button gray block w-full mb-4 md:hidden"
@@ -262,6 +259,9 @@ export const ResultPage = () => {
                   The app is still being generated.
                 </small>
               )}
+              <div>
+                <ShareButton />
+              </div>
               <FileTree
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
@@ -443,7 +443,7 @@ function WarningAboutAI() {
   );
 }
 
-function CopyLink() {
+function ShareButton() {
   const [copying, setCopying] = useState(false);
   function copy() {
     navigator.clipboard.writeText(window.location.href);
@@ -453,7 +453,7 @@ function CopyLink() {
 
   return (
     <button
-      className="copy-link flex items-center justify-center gap-1"
+      className="button light-blue flex items-center justify-center gap-1 w-full mb-2"
       onClick={copy}
       disabled={copying}
     >
@@ -463,7 +463,7 @@ function CopyLink() {
         </span>
       ) : (
         <span>
-          Copy a sharable link{" "}
+          Copy a shareable link{" "}
           <PiCopyDuotone className="inline-block" size={20} />
         </span>
       )}

@@ -7,13 +7,16 @@ body {
 }
 
 .button {
-  @apply bg-orange-300 text-gray-700 font-bold py-3 px-6 rounded text-center hover:bg-orange-200 transition duration-150;
+  @apply font-bold py-3 px-6 rounded text-center transition duration-150 bg-orange-300 text-gray-700 hover:bg-orange-200;
 }
 .button.gray {
   @apply bg-slate-200 text-slate-600;
 }
 .button.yellow {
   @apply bg-yellow-400 text-yellow-900;
+}
+.button.light-blue {
+  @apply bg-sky-200 text-sky-600 hover:bg-sky-100
 }
 .button.sm {
   @apply text-sm py-2 px-4;
@@ -61,7 +64,4 @@ textarea {
 
 .status-icon {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
-}
-.copy-link {
-  @apply text-sky-700 hover:text-sky-600 bg-sky-200 bg-opacity-50 font-bold py-1 px-3 rounded;
 }
