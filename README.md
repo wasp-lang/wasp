@@ -94,9 +94,8 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 
 Currently, Wasp is in beta, with most features flushed out and working well.
 However, there are still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
-As Wasp grows further, it should allow the development of web apps of increasing complexity!
 
-While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma. We might yet change that as time goes on, taking trends into account, but for now, this is serving us well to develop Wasp.
+While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma.
 
 # Contributing
 
