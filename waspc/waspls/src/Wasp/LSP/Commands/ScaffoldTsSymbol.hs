@@ -51,11 +51,11 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
   )
 where
 
-import Control.Lens ((^.))
+import Control.Monad (void)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Log.Class (logM)
-import Data.Aeson (FromJSON, Result (Error, Success), ToJSON (toJSON), fromJSON, object, parseJSON, withObject, (.:), (.=))
+import Data.Aeson (FromJSON, ToJSON (toJSON), object, parseJSON, withObject, (.:), (.=))
 import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
@@ -64,7 +64,6 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
-import qualified Language.LSP.Types.Lens as LSP
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
@@ -72,7 +71,7 @@ import qualified Text.Mustache as Mustache
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule))
 import qualified Wasp.Data
-import Wasp.LSP.Commands.CommandPlugin (CommandPlugin (CommandPlugin, commandHandler, commandName))
+import Wasp.LSP.Commands.CommandPlugin (CommandPlugin (CommandPlugin, commandHandler, commandName), invalidParams, withParsedArgs)
 import Wasp.LSP.ServerMonads (ServerM)
 import Wasp.LSP.TypeInference (ExprPath)
 import qualified Wasp.LSP.TypeInference as Inference
@@ -122,11 +121,7 @@ plugin =
     }
 
 handler :: LSP.Handler ServerM 'LSP.WorkspaceExecuteCommand
-handler request respond = case request ^. LSP.params . LSP.arguments of
-  Just (LSP.List [argument]) -> case fromJSON argument of
-    Error err -> respond $ Left $ invalidParams $ Text.pack err
-    Success args -> scaffold args
-  _ -> respond $ Left $ invalidParams "Expected exactly one argument"
+handler request respond = withParsedArgs request respond scaffold
   where
     scaffold :: Args -> ServerM ()
     scaffold args@Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
@@ -138,7 +133,7 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
           Right template -> renderScaffoldTemplate args template
 
     renderScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
-    renderScaffoldTemplate Args {..} template = case pathToExtImport of
+    renderScaffoldTemplate args@Args {..} template = case pathToExtImport of
       Inference.Decl _ declName : _ -> do
         let symbolData = case symbolName of
               ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
@@ -161,15 +156,37 @@ handler request respond = case request ^. LSP.params . LSP.arguments of
         -- for this to happen would be simultaneously with wasp file imports being
         -- implemented in the language and support added to waspls.
         liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
+        notifyClientOfChanges args
         respond $ Right Aeson.Null
       _ -> respond $ Left $ invalidParams $ Text.pack $ "Top-level step in path to ext import is not a decl: " ++ show pathToExtImport
 
-    invalidParams msg =
-      LSP.ResponseError
-        { _code = LSP.InvalidParams,
-          _message = msg,
-          _xdata = Nothing
-        }
+    -- Displays a message to the client that  file changed, with a button to
+    -- open the changed file.
+    notifyClientOfChanges :: Args -> ServerM ()
+    notifyClientOfChanges Args {..} = do
+      let symbol = case symbolName of
+            ExtImportModule _ -> "default export"
+            ExtImportField name -> "export " <> name
+      let message =
+            LSP.ShowMessageRequestParams
+              { _xtype = LSP.MtInfo,
+                _message = Text.pack $ printf "Created %s in %s." symbol (SP.fromAbsFile filepath),
+                _actions = Just [LSP.MessageActionItem "Open"]
+              }
+      void $
+        LSP.sendRequest LSP.SWindowShowMessageRequest message $ \case
+          Left err -> logM $ "Error showing message for file created: " <> show err
+          Right (Just (LSP.MessageActionItem "Open")) -> do
+            -- Client selected the "Open" button, ask it to display the file.
+            let showDocument =
+                  LSP.ShowDocumentParams
+                    { _uri = LSP.filePathToUri $ SP.fromAbsFile filepath,
+                      _external = Nothing,
+                      _takeFocus = Just True,
+                      _selection = Nothing
+                    }
+            void $ LSP.sendRequest LSP.SWindowShowDocument showDocument (const (pure ()))
+          Right _ -> return ()
 
 -- | Check if the scaffold command has a template available for the given args.
 -- If this is false, running the command with these args will __definitely__
