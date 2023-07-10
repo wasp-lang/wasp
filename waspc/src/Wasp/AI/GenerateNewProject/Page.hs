@@ -217,6 +217,8 @@ makePageDocPrompt =
         }
         ```
 
+        Make sure to style the page with Tailwind CSS and make it as beautiful as possible.
+
         Here are the rules for importing actions and queries.
 
         If a query is called "myQuery", its import MUST BE `import myQuery from '@wasp/queries/myQuery';`.
