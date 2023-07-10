@@ -87,7 +87,7 @@ export function Logs({ logs, status, onRetry }) {
               )}
             </div>
             {logs && (
-              <pre className="flex-1">
+              <pre className="flex-1 overflow-x-auto">
                 {logs.length === 0 && "Waiting for logs..."}
 
                 {visibleLogs.map((log, i) => (
