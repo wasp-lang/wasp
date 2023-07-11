@@ -40,7 +40,7 @@ generateAndWritePage newProjectDetails waspFilePath entityPlans queries actions 
 
 generatePage :: NewProjectDetails -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
 generatePage newProjectDetails entityPlans queries actions pPlan = do
-  impl <- queryChatGPTForJSON defaultChatGPTParams chatMessages
+  impl <- queryChatGPTForJSON (defaultChatGPTParams newProjectDetails) chatMessages
   return Page {pageImpl = impl, pagePlan = pPlan}
   where
     chatMessages =

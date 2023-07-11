@@ -51,7 +51,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
         OnlyIfCompileErrors | null compileErrors -> return $ WaspFile {waspFileContent = wfContent}
         _otherwise ->
           queryChatGPTForJSON
-            defaultChatGPTParamsForFixing
+            (defaultChatGPTParamsForFixing newProjectDetails)
             [ ChatMessage {role = System, content = Prompts.systemPrompt},
               ChatMessage {role = User, content = fixWaspFilePrompt wfContent compileErrors}
             ]

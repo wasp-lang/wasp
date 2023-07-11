@@ -32,7 +32,9 @@ data NewProjectDetails = NewProjectDetails
 data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
     -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
-    projectPrimaryColor :: !(Maybe String)
+    projectPrimaryColor :: !(Maybe String),
+    projectDefaultGptModel :: !(Maybe GPT.Model),
+    projectDefaultGptTemperature :: !(Maybe Float)
   }
   deriving (Show)
 
@@ -40,13 +42,24 @@ instance Aeson.FromJSON NewProjectConfig where
   parseJSON = withObject "NewProjectConfig" $ \obj -> do
     auth <- obj .:? "auth"
     primaryColor <- obj .:? "primaryColor"
-    return (NewProjectConfig {projectAuth = auth, projectPrimaryColor = primaryColor})
+    defaultGptModel <- obj .:? "defaultGptModel"
+    defaultGptTemperature <- obj .:? "defaultGptTemperature"
+    return
+      ( NewProjectConfig
+          { projectAuth = auth,
+            projectPrimaryColor = primaryColor,
+            projectDefaultGptModel = defaultGptModel,
+            projectDefaultGptTemperature = defaultGptTemperature
+          }
+      )
 
 emptyNewProjectConfig :: NewProjectConfig
 emptyNewProjectConfig =
   NewProjectConfig
     { projectAuth = Nothing,
-      projectPrimaryColor = Nothing
+      projectPrimaryColor = Nothing,
+      projectDefaultGptModel = Nothing,
+      projectDefaultGptTemperature = Nothing
     }
 
 getProjectAuth :: NewProjectDetails -> AuthProvider
@@ -120,12 +133,17 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
 
--- TODO: Test more for the optimal temperature (possibly higher).
-defaultChatGPTParams :: ChatGPTParams
-defaultChatGPTParams = GPT.ChatGPTParams {_model = GPT.GPT_3_5_turbo_16k, _temperature = Just 0.7}
+defaultChatGPTParams :: NewProjectDetails -> ChatGPTParams
+defaultChatGPTParams projectDetails =
+  GPT.ChatGPTParams
+    { GPT._model = fromMaybe GPT.GPT_3_5_turbo_16k (projectDefaultGptModel $ _projectConfig projectDetails),
+      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+    }
 
-defaultChatGPTParamsForFixing :: ChatGPTParams
-defaultChatGPTParamsForFixing = GPT.ChatGPTParams {_model = GPT.GPT_3_5_turbo_16k, _temperature = Just 0.5}
+defaultChatGPTParamsForFixing :: NewProjectDetails -> ChatGPTParams
+defaultChatGPTParamsForFixing projectDetails =
+  let params = defaultChatGPTParams projectDetails
+   in params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do

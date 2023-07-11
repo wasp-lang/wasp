@@ -32,7 +32,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
   --   with npm dependencies installed, so we skipped it for now.
   fixedOpJsFile <-
     queryChatGPTForJSON
-      defaultChatGPTParamsForFixing
+      (defaultChatGPTParamsForFixing newProjectDetails)
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = fixOpJsFilePrompt currentWaspFileContent currentOpJsFileContent}
       ]
