@@ -1,5 +1,5 @@
 ---
-title: 'GPT Web App Generator - Let AI build your full-stack React & Node.js app in just a few minutes 🤖🤯'
+title: 'GPT Web App Generator - Let AI create a full-stack React & Node.js codebase based on your description 🤖🤯'
 authors: [martinsos]
 image: /img/gpt-wasp/gpt-wasp-thumbnail.png
 tags: [wasp-ai, GPT]
@@ -53,6 +53,8 @@ The generated apps are full-stack and consist of front-end, back-end and databas
     source="img/gpt-wasp/my-plants.png"
 />
 
+- See the generated code and run it yourself [here](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c)
+
 This app does exactly what it says - makes sure that you water your plants on time! It comes with a fully functioning front-end, back-end and the database with `User` and `Plant` entities. It also features a [full-stack authentication](/blog/2023/04/12/auth-ui) (username & password) and a Tailwind-based design.
 
 The next step would be to add more advanced features, such as email reminders (via [Wasp email sending support](/docs/guides/sending-emails)) when it is time to water your plant.
@@ -64,6 +66,8 @@ You can see and download the [entire source code](https://magic-app-generator.wa
 <ImgWithCaption
     source="img/gpt-wasp/todo-app.png"
 />
+
+- See the generated code and run it yourself [here](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f)
 
 What kind of a demo would this be if it didn't include a ToDo app? GPT Web App Generator successfully scaffolded it, along with all the basic functionality - creating and marking a task as done.
 
