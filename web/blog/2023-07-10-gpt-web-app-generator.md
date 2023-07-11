@@ -27,6 +27,11 @@ All you have to do in order to use [GPT Web App Generator](https://magic-app-gen
 
 That's it - in a matter of minutes, a full-stack web app codebase, written in React, Node.js, Prisma, and Wasp, will be generated right in front of you, and available for you to download, run it locally and deploy with a single CLI command!
 
+See a full one-minute demo here:
+<div className='flex justify-center'>
+    <iframe width="700" height="400" src="https://www.youtube.com/embed/u0MVsPb2MP8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
+
 ## The stack 📚
 
 Besides React & Node.js, GPT Web App Generator uses [Prisma](https://www.prisma.io/) and [Wasp](https://github.com/wasp-lang/wasp).
