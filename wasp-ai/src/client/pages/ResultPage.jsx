@@ -215,10 +215,9 @@ export const ResultPage = () => {
         </>
       )}
       <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
-      {currentStatus.status === "pending" &&
-        appGenerationResult.numberOfProjectsAheadInQueue > 1 && (
-          <WaitingRoomContent />
-        )}
+      {currentStatus.status === "pending" && (
+        <WaitingRoomContent />
+      )}
 
       {interestingFilePaths.length > 0 && (
         <>
