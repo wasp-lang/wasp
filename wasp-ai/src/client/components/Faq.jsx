@@ -43,6 +43,9 @@ const faqs = [
       Due to GPT being non-deterministic, it sometimes introduces (small) mistakes, especially for more complex apps, but altogether it works better than we expected!
       The code it generates is often very reasonable, and for very simple apps, it can even produce a working app out of the box, while for a bit more complex apps
       it currently serves more like a super-intelligent starter that needs a couple of tweeks to get it going.
+
+      <br/><br/>
+
       With GPT4 increasing its availability and with LLMs improving in general, the quality of generated code will only get better!
     </p>
   },
@@ -52,9 +55,32 @@ const faqs = [
       It can generate full stack web apps written in React, Node.js, Prisma, and Wasp.
       You can download the generated app, run it locally on your machine, even easily deploy if you wish.
 
+      <br/><br/>
+
       In order to keep things simpler for this first version, we enforced some limitations: no additional npm deps, no additional files, no TS, no advanced Wasp features.
 
+      <br/><br/>
+
       We believe most of these limitations can be removed in the future with more work!
+    </p>
+  },
+  {
+    question: 'How does it work?',
+    answer: <p>
+      GPT Web App Generator (aka Generator) does its work in 3 main phases: planning, generating and fixing.
+
+      <br/><br/>
+
+      During each of these steps, we heavily guide it by providing it with doc snippets, examples and guidelines that are most relevant to its current task.
+
+      <br/><br/>
+
+      We use GPT4 during the planning phase, since that is the most critical step, and then use GPT3.5 for the rest of the steps.
+      We don't use GPT4 for all of it because it is quite slower and quite more expensive than GPT3.5, so we found this to be an acceptable trade-off.
+
+      <br/><br/>
+
+      However, in the future, when GPT4 becomes cheaper / more available, it would make sense to switch to it completely, since it does generate better code.
     </p>
   },
 ]
