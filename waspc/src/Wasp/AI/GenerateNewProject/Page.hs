@@ -118,100 +118,133 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
 makePageDocPrompt :: Text
 makePageDocPrompt =
   [trimming|
-        Page is implemented via Wasp declaration and corresponding NodeJS implementation.
+        A Page is implemented with a Wasp declaration and a corresponding React implementation.
 
-        Example of Wasp declaration:
+        Here's an example of a Page declaration in Wasp:
 
         ```wasp
-        route ExampleRoute { path: "/", to: ExamplePage }
-        page ExamplePage {
-          component: import { ExamplePage } from "@client/ExamplePage.jsx",
+        route TasksRoute { path: "/", to: ExamplePage }
+        page TasksPage {
+          component: import { Tasks } from "@client/Tasks.jsx",
           authRequired: true
         }
         ```
 
-        Example of ReactJS implementation (you can use Tailwind CSS for styling):
+        Here's an example of its React implementation (you can use Tailwind CSS for styling):
 
         ```jsx
         import React, { useState } from 'react';
-        import logout from '@wasp/auth/logout';
-        import { Link } from 'react-router-dom';
-        import useAuth from '@wasp/auth/useAuth';
         import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query's useQuery
         import { useAction } from '@wasp/actions'; // A thin wrapper around react-query's useMutation
         import getTasks from '@wasp/queries/getTasks';
         import createTask from '@wasp/actions/createTask';
         import toggleTask from '@wasp/actions/toggleTask';
-        import editTask from '@wasp/actions/editTask';
 
-        export function DashboardPage() {
-          const { data: user } = useAuth();
+        export function Tasks() {
           const { data: tasks, isLoading, error } = useQuery(getTasks);
           const createTaskFn = useAction(createTask);
           const toggleTaskFn = useAction(toggleTask);
-          const editTaskFn = useAction(editTask);
           const [newTaskDescription, setNewTaskDescription] = useState('');
 
           if (isLoading) return 'Loading...';
           if (error) return 'Error: ' + error;
 
-          const handleCreateTask = (event) => {
-            event.preventDefault();
+          const handleCreateTask = () => {
             createTaskFn({ description: newTaskDescription });
             setNewTaskDescription('');
           };
 
           return (
-            <div className='w-full h-full'>
-              <div className='min-w-full min-h-[75vh] flex flex-col items-center'>
-                <h1 className='text-5xl font-bold mt-20 mb-5'>
-                  {user.username}'s todo list
-                </h1>
-                <div className='w-full h-full max-w-lg p-5'>
-                  <form className='container flex gap-x-4 py-5'>
+            <div className=''>
+              <div className='flex gap-x-4 py-5'>
+                <input
+                  type='text'
+                  placeholder='New Task'
+                  className='px-1 py-2 border rounded text-lg'
+                  value={newTaskDescription}
+                  onChange={(e) => setNewTaskDescription(e.target.value)}
+                />
+                <button
+                  onClick={handleCreateTask}
+                  className='bg-blue-500 hover:bg-blue-700 px-2 py-2 text-white font-bold rounded'
+                >
+                  Add Task
+                </button>
+              </div>
+              <div>
+                {tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className='py-2 px-2 flex items-center hover:bg-slate-100 gap-x-2 rounded'
+                  >
                     <input
-                      type='text'
-                      placeholder='New Task'
-                      className='flex-grow px-1 py-2 border border-gray-300 rounded text-lg'
-                      value={newTaskDescription}
-                      onChange={(e) => setNewTaskDescription(e.target.value)}
+                      type='checkbox'
+                      checked={task.isDone}
+                      onChange={() => toggleTaskFn({ id: task.id })}
+                      className='mr-2 h-6 w-6'
                     />
-                    <button
-                      onClick={handleCreateTask}
-                      className='bg-blue-500 hover:bg-blue-700 px-2 py-2 text-white font-bold rounded'
-                    >
-                      Add Task
-                    </button>
-                  </form>
-                  <div className='container rounded'>
-                    {tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className='py-2 px-2 container flex items-center hover:bg-slate-100 gap-x-2 rounded'
-                      >
-                        <input
-                          type='text'
-                          value={task.description}
-                          onChange={(e) =>
-                            editTaskFn({
-                              id: task.id,
-                              description: e.target.value,
-                            })
-                          }
-                          className='bg-inherit focus:bg-white px-1 py-1 rounded outline-0 border border-transparent focus:border-black flex-grow'
-                        />
+                    <p>{task.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
 
-                        <input
-                          type='checkbox'
-                          checked={task.isDone}
-                          onChange={() => toggleTaskFn({ id: task.id })}
-                          className='mr-2 h-6 w-6'
-                        />
-                      </div>
-                    ))}
+        ```
+
+        Here's another example of a Page declaration in Wasp:
+
+        ```wasp
+        route DashboardRoute { path: "/dashboard", to: DashboardPage }
+        page DashboardPage {
+          component: import { Dashboard } from "@client/Dashboard.jsx",
+          authRequired: true
+        }
+        ```
+
+        And here's the corresponding React implementation:
+
+        ```jsx
+        import React from 'react';
+        import { Link } from 'react-router-dom';
+        import { useQuery } from '@wasp/queries';
+        import { useAction } from '@wasp/actions';
+        import getUsers from '@wasp/queries/getUsers';
+        import deleteUser from '@wasp/actions/deleteUser';
+
+        export function DashboardPage() {
+          const { data: users, isLoading, error } = useQuery(getUsers);
+          const deleteUserFn = useAction(deleteUser);
+
+          if (isLoading) return 'Loading...';
+          if (error) return 'Error: ' + error;
+
+          return (
+            <div className='p-4'>
+              {users.map((user) => (
+                <div
+                  key={user.id}
+                  className='flex items-center justify-between bg-gray-100 p-4 mb-4 rounded-lg'
+                >
+                  <div>{user.username}</div>
+                  <div>{user.role}</div>
+                  <div>
+                    <button
+                      onClick={() => deleteUserFn({ userId: user.id })}
+                      className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+                    >
+                      Delete
+                    </button>
+                    <Link
+                      to={`/user/${user.id}`}
+                      className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-2'
+                    >
+                      Details
+                    </Link>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           );
         }
