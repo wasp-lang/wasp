@@ -125,7 +125,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
   currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
   fixedPageComponent <-
     queryChatGPTForJSON
-      defaultChatGPTParamsForFixing
+      (defaultChatGPTParamsForFixing newProjectDetails)
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = fixPageComponentPrompt currentWaspFileContent currentPageComponentContent}
       ]

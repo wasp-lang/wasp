@@ -19,8 +19,11 @@ import Control.Monad (when)
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
+import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.List (find)
 import Data.Text (Text)
+import qualified Data.Text as T
 import Debug.Pretty.Simple (pTrace)
 import GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP.C
@@ -85,12 +88,23 @@ data ChatGPTParams = ChatGPTParams
 
 -- TODO: There are some more data models there but for now we went with these core ones.
 data Model = GPT_3_5_turbo | GPT_3_5_turbo_16k | GPT_4
-  deriving (Eq)
+  deriving (Eq, Bounded, Enum)
 
 instance Show Model where
-  show GPT_3_5_turbo = "gpt-3.5-turbo"
-  show GPT_3_5_turbo_16k = "gpt-3.5-turbo-16k"
-  show GPT_4 = "gpt-4"
+  show = modelOpenAiId
+
+modelOpenAiId :: Model -> String
+modelOpenAiId = \case
+  GPT_3_5_turbo -> "gpt-3.5-turbo"
+  GPT_3_5_turbo_16k -> "gpt-3.5-turbo-16k"
+  GPT_4 -> "gpt-4"
+
+instance FromJSON Model where
+  parseJSON = Aeson.withText "Model" $ \t ->
+    let t' = T.unpack t
+        models = [minBound .. maxBound]
+     in find ((== t') . modelOpenAiId) models
+          & maybe (fail $ "Invalid GPT model: " <> t') pure
 
 data ChatResponse = ChatResponse
   { id :: !String,

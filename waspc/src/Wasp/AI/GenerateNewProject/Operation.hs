@@ -49,7 +49,7 @@ generateAndWriteOperation operationType newProjectDetails waspFilePath plan oper
 generateOperation :: OperationType -> NewProjectDetails -> [Plan.Entity] -> Plan.Operation -> CodeAgent Operation
 generateOperation operationType newProjectDetails entityPlans operationPlan = do
   impl <-
-    queryChatGPTForJSON defaultChatGPTParams chatMessages
+    queryChatGPTForJSON (defaultChatGPTParams newProjectDetails) chatMessages
       >>= fixOperationImplIfNeeded
   return Operation {opImpl = impl, opPlan = operationPlan, opType = operationType}
   where
@@ -145,7 +145,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
         then return operationImpl
         else do
           let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
-          queryChatGPTForJSON defaultChatGPTParamsForFixing $
+          queryChatGPTForJSON (defaultChatGPTParamsForFixing newProjectDetails) $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText operationImpl},
                    ChatMessage
