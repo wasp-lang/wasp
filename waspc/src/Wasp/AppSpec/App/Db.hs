@@ -11,7 +11,8 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Db = Db
   { system :: Maybe DbSystem,
-    seeds :: Maybe [ExtImport]
+    seeds :: Maybe [ExtImport],
+    prismaPreviewFeatures :: Maybe [String]
   }
   deriving (Show, Eq, Data)
 

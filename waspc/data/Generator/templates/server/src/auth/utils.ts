@@ -26,7 +26,7 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findUserBy<K extends keyof {= userEntityUpper =}>(where: { [key in K]: {= userEntityUpper =}[K] }): Promise<{= userEntityUpper =}> {
+export async function findUserBy(where: Prisma.{= userEntityUpper =}WhereUniqueInput): Promise<{= userEntityUpper =}> {
   return prisma.{= userEntityLower =}.findUnique({ where });
 }
 
