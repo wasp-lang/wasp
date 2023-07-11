@@ -6,7 +6,7 @@ function l(title, overrideTitle) {
     "Wasp": "https://wasp-lang.dev/",
     "web app": "https://github.com/wasp-lang/wasp/tree/wasp-ai/wasp-ai",
     "GPT code agent": "https://github.com/wasp-lang/wasp/tree/wasp-ai/waspc/src/Wasp/AI",
-    "blog post": "https://wasp-lang.dev/blog/gpt-web-app-generator/"
+    "blog post": "https://wasp-lang.dev/blog/2023/07/10/gpt-web-app-generator"
   };
 
   return <a href={links[title]} className="underline decoration-2 decoration-yellow-500">{overrideTitle || title}</a>
