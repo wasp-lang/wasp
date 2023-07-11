@@ -97,7 +97,7 @@ const MainPage = () => {
               id="appName"
               required
               type="text"
-              placeholder="e.g. TodoApp or FlowerShop"
+              placeholder="e.g. TodoApp or MyPlants"
               value={appName}
               onChange={(e) => setAppNameIfValid(e.target.value)}
               disabled={currentStatus.status === "inProgress"}
@@ -111,7 +111,7 @@ const MainPage = () => {
               id="appDesc"
               required
               placeholder="Describe your web app in a couple of sentences (check examples below).
-Based on it, our AI code agent will then generate a full stack web app in Wasp, React, NodeJS and Prisma for you!"
+Based on your description, our AI code agent will generate a full-stack web app in Wasp, React, NodeJS and Prisma!"
               value={appDesc}
               rows="5"
               cols="50"

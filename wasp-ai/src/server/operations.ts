@@ -66,8 +66,20 @@ export const getAppGenerationResult = (async (args, context) => {
         },
       },
     });
+
+    const numberOfProjectsAheadInQueue =
+      (await Project.count({
+        where: {
+          createdAt: {
+            lt: project.createdAt,
+          },
+          status: "pending",
+        },
+      })) + 1;
+
     return {
       project,
+      numberOfProjectsAheadInQueue,
     };
   } catch (e) {
     throw new HttpError(404, "App not found.");

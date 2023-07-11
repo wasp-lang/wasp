@@ -11,6 +11,7 @@ import { useHistory } from "react-router-dom";
 import { Loader } from "../components/Loader";
 import { MyDialog } from "../components/Dialog";
 import { Logs } from "../components/Logs";
+import { WaitingRoomContent } from "../components/WaitingRoomContent";
 import { Header } from "../components/Header";
 import { Faq } from "../components/Faq";
 import {
@@ -42,20 +43,6 @@ export const ResultPage = () => {
   const [isMobileFileBrowserOpen, setIsMobileFileBrowserOpen] = useState(false);
 
   useEffect(() => {
-    const backendStatusToPillStatus = {
-      pending: "pending",
-      "in-progress": "inProgress",
-      success: "success",
-      failure: "error",
-      cancelled: "cancelled",
-    };
-    const backendStatusToPillText = {
-      pending: "In the queue",
-      "in-progress": "Generating app",
-      success: "Finished",
-      failure: "There was an error",
-      cancelled: "The generation was cancelled",
-    };
     if (!appGenerationResult?.project) {
       return;
     }
@@ -67,10 +54,7 @@ export const ResultPage = () => {
     ) {
       setGenerationDone(true);
     }
-    setCurrentStatus({
-      status: backendStatusToPillStatus[appGenerationResult.project.status],
-      message: backendStatusToPillText[appGenerationResult.project.status],
-    });
+    setCurrentStatus(getStatusPillData(appGenerationResult));
   }, [appGenerationResult, isError]);
 
   useEffect(() => {
@@ -230,8 +214,11 @@ export const ResultPage = () => {
           </header>
         </>
       )}
-
       <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
+      {currentStatus.status === "pending" &&
+        appGenerationResult.numberOfProjectsAheadInQueue > 1 && (
+          <WaitingRoomContent />
+        )}
 
       {interestingFilePaths.length > 0 && (
         <>
@@ -313,11 +300,51 @@ export const ResultPage = () => {
         </>
       )}
       <div className="mt-8">
-        <Faq/>
+        <Faq />
       </div>
     </div>
   );
 };
+
+function getStatusPillData(generationResult) {
+  const backendStatusToPillStatus = {
+    pending: "pending",
+    "in-progress": "inProgress",
+    success: "success",
+    failure: "error",
+    cancelled: "cancelled",
+  };
+
+  const queueCardinalNumber = getCardinalNumber(
+    generationResult.numberOfProjectsAheadInQueue
+  );
+
+  const backendStatusToPillText = {
+    pending: `${queueCardinalNumber} in the queue`,
+    "in-progress": "Generating app",
+    success: "Finished",
+    failure: "There was an error",
+    cancelled: "The generation was cancelled",
+  };
+
+  return {
+    status: backendStatusToPillStatus[generationResult.project.status],
+    message: backendStatusToPillText[generationResult.project.status],
+  };
+}
+
+function getCardinalNumber(number) {
+  const lastDigit = number % 10;
+  if (lastDigit === 1) {
+    return `${number}st`;
+  } else if (lastDigit === 2) {
+    return `${number}nd`;
+  } else if (lastDigit === 3) {
+    return `${number}rd`;
+  } else {
+    return `${number}th`;
+  }
+}
 
 export default function RunTheAppModal({ disabled, onDownloadZip }) {
   const [showModal, setShowModal] = useState(false);
@@ -346,7 +373,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
         <div className="mt-6 space-y-6">
           <p className="text-base leading-relaxed text-gray-500">
             Congrats, your full-stack web app is ready! 🎉
-            <br/>
+            <br />
             App is implemented in{" "}
             <a
               href="https://wasp-lang.dev"
@@ -356,7 +383,8 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             >
               Wasp
             </a>{" "}
-            web framework, using React, Node.js and Prisma, and is completely full-stack (frontend + backend + database).
+            web framework, using React, Node.js and Prisma, and is completely
+            full-stack (frontend + backend + database).
           </p>
 
           <WarningAboutAI />
@@ -371,7 +399,10 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               curl -sSL https://get.wasp-lang.dev/installer.sh | sh
             </pre>
 
-            <h2 className="font-bold mt-4"> 2. Download the generated app files and unzip them: </h2>
+            <h2 className="font-bold mt-4">
+              {" "}
+              2. Download the generated app files and unzip them:{" "}
+            </h2>
             <button
               className="button flex items-center justify-center gap-1 w-full mt-2"
               onClick={onDownloadZip}
@@ -380,11 +411,15 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               <PiDownloadDuotone className="inline-block" size={20} />
             </button>
 
-            <h2 className="font-bold mt-4"> 3. Position into the unzipped dir and run the app: </h2>
+            <h2 className="font-bold mt-4">
+              {" "}
+              3. Position into the unzipped dir and run the app:{" "}
+            </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               cd {"<your-app-name>"}
               <br />
-              wasp db migrate-dev  <span className="text-slate-400"># init the db</span>
+              wasp db migrate-dev{" "}
+              <span className="text-slate-400"># init the db</span>
               <br />
               wasp start
             </pre>
@@ -419,8 +454,9 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is a GPT generated app, it might contain some mistakes, proportional to how complex the app is.
-              If there are some in your app, check out {" "}
+              Since this is a GPT generated app, it might contain some mistakes,
+              proportional to how complex the app is. If there are some in your
+              app, check out{" "}
               <a
                 href="https://wasp-lang.dev/docs"
                 target="_blank"
@@ -428,8 +464,9 @@ function WarningAboutAI() {
                 className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
               >
                 Wasp docs
-              </a>
-              {" "}for help while fixing them, and also feel free to reach out to us on{" "}
+              </a>{" "}
+              for help while fixing them, and also feel free to reach out to us
+              on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
