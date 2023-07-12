@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.11.1
+
+### 🎉 [New feature] Prisma client preview flags 
+Wasp now allows you to enable desired `previewFeatures` for the Prisma client:
+```
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    // ...
+    prisma: {
+      clientPreviewFeatures: ["extendedWhereUnique"]
+    }
+  }
+}
+```
+Read all about Prisma preview features in [the official docs](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+
 ## v0.11.0
 
 ### 🎉 Big new features 🎉 

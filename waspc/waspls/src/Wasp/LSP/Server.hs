@@ -23,7 +23,7 @@ import Wasp.LSP.Debouncer (newDebouncerIO)
 import Wasp.LSP.Handlers
 import Wasp.LSP.Reactor (startReactorThread)
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerM (ServerM, runRLspM)
+import Wasp.LSP.ServerMonads (ServerM, runRLspM)
 import Wasp.LSP.ServerState
   ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
     ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports, _waspFileUri),
