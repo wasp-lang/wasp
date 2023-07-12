@@ -20,7 +20,7 @@ data Db = Db
 data DbSystem = PostgreSQL | SQLite
   deriving (Show, Eq, Data)
 
-data PrismaOptions = Prisma
+data PrismaOptions = PrismaOptions
   { clientPreviewFeatures :: Maybe [String]
   }
   deriving (Show, Eq, Data)
