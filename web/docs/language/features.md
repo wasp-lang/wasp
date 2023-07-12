@@ -2172,7 +2172,7 @@ Any env vars defined in the `.env.server` / `.env.client` files will be forwarde
 console.log(process.env.DATABASE_URL)
 ```
 
-## Database
+## Database configuration
 
 Via `db` field of `app` declaration, you can configure the database used by Wasp.
 
@@ -2184,7 +2184,10 @@ app MyApp {
     system: PostgreSQL,
     seeds: [
       import devSeed from "@server/dbSeeds.js"
-    ]
+    ],
+    prisma: {
+      clientPreviewFeatures: ["extendedWhereUnique"]
+    }
   }
 }
 ```
@@ -2192,13 +2195,19 @@ app MyApp {
 `app.db` is a dictionary with following fields:
 
 #### - `system: DbSystem` (Optional)
-Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.
+The database system Wasp will use. It can be either `PostgreSQL` or `SQLite`.
 If not defined, or even if whole `db` field is not present, default value is `SQLite`.
 If you add/remove/modify `db` field, run `wasp db migrate-dev` to apply the changes.
 
 #### - `seeds: [ServerImport]` (Optional)
 Defines seed functions that you can use via `wasp db seed` to seed your database with initial data.
 Check out [Seeding](#seeding) section for more details.
+
+#### - `prisma: [PrismaOptions]` (Optional)
+Additional configuration for Prisma.
+It currently only supports a single field:
+  - `clientPreviewFeatures : string` - allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+
 
 ### SQLite
 Default database is `SQLite`, since it is great for getting started with a new project (needs no configuring), but it can be used only in development - once you want to deploy Wasp to production you will need to switch to `PostgreSQL` and stick with it.

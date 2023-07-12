@@ -63,7 +63,10 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL,",
-                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ]",
+                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ],",
+                "    prisma: {",
+                "      clientPreviewFeatures: [\"extendedWhereUnique\"]",
+                "    }",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -174,7 +177,12 @@ spec_Analyzer = do
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")
                                     (fromJust $ SP.parseRelFileP "dbSeeds.js")
-                                ]
+                                ],
+                            Db.prisma =
+                              Just
+                                Db.PrismaOptions
+                                  { clientPreviewFeatures = Just ["extendedWhereUnique"]
+                                  }
                           },
                     App.emailSender =
                       Just

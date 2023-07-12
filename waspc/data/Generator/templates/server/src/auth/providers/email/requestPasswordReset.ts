@@ -28,7 +28,7 @@ export function getRequestPasswordResetRoute({
 
         args.email = args.email.toLowerCase();
 
-        const user = await findUserBy<'email'>({ email: args.email });
+        const user = await findUserBy({ email: args.email });
     
         // User not found or not verified - don't leak information
         if (!user || !user.isEmailVerified) {
