@@ -10,6 +10,12 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 To enable support for Tailwind in your Wasp project, you simply need to add two config files (`tailwind.config.cjs` and `postcss.config.cjs`) to the root directory. When they are present, Wasp will add the necessary NPM dependencies and copy your config files into the generated project output. You can then start adding [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) to your CSS files and `className`s to your React components.
 
+:::tip
+
+**After adding the required config files, make sure to restart the local Wasp server** via your CLI (just run `wasp start` again). In some cases it is neccesary for Tailwind to become functional in your app.
+
+:::
+
 ### New project tree overview
 ```bash title="tree ." {6,13-14}
 .
