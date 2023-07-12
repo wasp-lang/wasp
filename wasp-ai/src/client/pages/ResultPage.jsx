@@ -20,6 +20,7 @@ import {
   PiDownloadDuotone,
   PiCheckDuotone,
 } from "react-icons/pi";
+import { RxQuestionMarkCircled } from "react-icons/rx";
 
 export const ResultPage = () => {
   const { appId } = useParams();
@@ -393,7 +394,11 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
           </p>
 
           <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
-            <h2 className="font-bold"> 1. Install Wasp CLI: </h2>
+            <h2 className="font-bold flex items-center space-x-1">
+              <span>1. Install Wasp CLI</span>
+              <a href="https://wasp-lang.dev/docs/quick-start#installation-1" target="blank" rel="noopener noreferrer"> <RxQuestionMarkCircled className="text-base" /> </a>
+              :
+            </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               curl -sSL https://get.wasp-lang.dev/installer.sh | sh
             </pre>
@@ -474,7 +479,7 @@ function WarningAboutAI() {
               >
                 Discord
               </a>
-              !
+              ! You can also try generating the app again to get different results (try playing with the creativity level).
             </p>
           </div>
         </div>

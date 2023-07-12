@@ -49,3 +49,10 @@ textarea {
 .status-icon {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
 }
+
+.creativity-creative {
+  @apply text-orange-600;
+}
+.creativity-conservative {
+  @apply text-purple-600;
+}

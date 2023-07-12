@@ -22,24 +22,43 @@ const MainPage = () => {
     availableColors.find((color) => color.name === "sky")
   );
 
+  const availableCreativityLevels = useMemo(
+    () => [{
+      value: "conservative",
+      name: "Conservative",
+      description: "Generates \"boring\" code with minimal amount of mistakes.",
+      disabled: false
+    }, {
+      value: "balanced",
+      name: "Balanced",
+      description: "Optimal trade-off between creativity and possible mistakes.",
+      disabled: false
+    }, {
+      value: "creative",
+      name: "Creative",
+      description: "Generates more creative code, but increases the chance of mistakes.",
+      disabled: false
+    }]
+  , []);
+  const [creativityLevel, setCreativityLevel] = useState(
+    availableCreativityLevels.find((lvl) => lvl.value === "balanced")
+  );
+
   const availableAuthMethods = useMemo(
     () => [
       {
         value: "usernameAndPassword",
         name: "Username & Password",
-        description: "Sign up and log in with username and password",
         disabled: false,
       },
       {
         value: "email",
         name: "Email & Password",
-        description: "Sign up and log in with email and password",
         disabled: true,
       },
       {
         value: "socialAuth",
         name: "Social Auth",
-        description: "Sign up and log in with Google & Github",
         disabled: true,
       },
     ],
@@ -60,6 +79,7 @@ const MainPage = () => {
         appDesc,
         appPrimaryColor: appPrimaryColor.name,
         appAuthMethod: appAuthMethod.value,
+        appCreativityLevel: creativityLevel.value,
       });
       history.push(`/result/${appId}`);
     } catch (e) {
@@ -110,8 +130,9 @@ const MainPage = () => {
             <textarea
               id="appDesc"
               required
-              placeholder="Describe your web app in a couple of sentences (check examples below).
-Based on your description, our AI code agent will generate a full-stack web app in Wasp, React, NodeJS and Prisma!"
+              placeholder="Describe your web app in a couple of sentences!
+Mention pages you want + what should be happening on them, what data should be stored in the db, etc.
+The simpler and more specific the app is, the better the generated app will be."
               value={appDesc}
               rows="5"
               cols="50"
@@ -119,7 +140,7 @@ Based on your description, our AI code agent will generate a full-stack web app 
               disabled={currentStatus.status === "inProgress"}
             />
           </div>
-          <div className="grid md:grid-cols-2 gap-3">
+          <div className="grid md:grid-cols-3 gap-3">
             <div>
               <label
                 htmlFor="appPrimaryColor"
@@ -131,6 +152,19 @@ Based on your description, our AI code agent will generate a full-stack web app 
                 value={appPrimaryColor}
                 onChange={setAppPrimaryColor}
                 options={availableColors}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="creativityLevel"
+                className="text-slate-700 block mb-2"
+              >
+                Creativity level
+              </label>
+              <MyDropdown
+                value={creativityLevel}
+                onChange={setCreativityLevel}
+                options={availableCreativityLevels}
               />
             </div>
             <div>

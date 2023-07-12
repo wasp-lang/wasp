@@ -198,6 +198,9 @@ export function Stats() {
                     <th scope="col" className="px-6 py-3">
                       Time in Queue &rarr; Build
                     </th>
+                    <th scope="col" className="px-6 py-3">
+                      Creativity lvl
+                    </th>
                     <th scope="col" className="px-6 py-3"></th>
                   </tr>
                 </thead>
@@ -233,6 +236,9 @@ export function Stats() {
                       <td className="px-6 py-4">
                         {getWaitingInQueueDuration(stat)} &rarr;{" "}
                         {getDuration(stat)}
+                      </td>
+                      <td className={`px-6 py-4 creativity-${stat.creativityLevel}`}>
+                        {stat.creativityLevel}
                       </td>
                       <td className="px-6 py-4">
                         <Link

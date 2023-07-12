@@ -113,6 +113,7 @@ entity Project {=psl
   description String
   primaryColor String @default("sky")
   authMethod String @default("usernameAndPassword")
+  creativityLevel String @default("balanced")
   createdAt DateTime @default(now())
   status String @default("pending")
   userId Int?

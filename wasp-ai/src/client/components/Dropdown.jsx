@@ -37,7 +37,7 @@ export function MyDropdown({ value, onChange, options }) {
               >
                 {({ selected }) => (
                   <>
-                    <Option value={option} selected={selected} />
+                    <Option value={option} selected={selected} showDescription={true} />
                     {selected ? (
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-600">
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
@@ -54,19 +54,26 @@ export function MyDropdown({ value, onChange, options }) {
   );
 }
 
-function Option({ value, selected = false }) {
+function Option({ value, selected = false, showDescription = false }) {
   return (
     <span
-      className={`flex items-center truncate ${
+      className={`flex flex-col ${
         selected ? "font-medium" : "font-normal"
       }`}
     >
-      {value.color && (
-        <span className="mr-2">
-          <Color value={value.color} />
+      <span className="flex flex-row truncate">
+        {value.color && (
+          <span className="mr-2">
+            <Color value={value.color} />
+          </span>
+        )}
+        {value.name}
+      </span>
+      { showDescription && value.description && (
+        <span className="text-slate-800 font-light text-xs">
+          {value.description}
         </span>
       )}
-      {value.name}
     </span>
   );
 }

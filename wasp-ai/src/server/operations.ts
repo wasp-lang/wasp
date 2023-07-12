@@ -9,6 +9,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     appDesc: string;
     appPrimaryColor: string;
     appAuthMethod: string;
+    appCreativityLevel: string;
   },
   string
 > = async (args, context) => {
@@ -40,6 +41,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
       description: args.appDesc,
       primaryColor: args.appPrimaryColor,
       authMethod: args.appAuthMethod,
+      creativityLevel: args.appCreativityLevel,
       ...optionalUser,
     },
   });

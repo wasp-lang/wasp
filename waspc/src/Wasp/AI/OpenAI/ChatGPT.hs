@@ -56,12 +56,12 @@ queryChatGPT apiKey params requestMessages = do
   when True $
     pTrace
       ( "\n\n\n\n==================================\n"
+          <> "\n===== GPT PARAMS ======\n"
+          <> show params
           <> "\n====== REQUEST =======\n"
           <> show requestMessages
-          <> "\n======================\n"
           <> "\n====== RESPONSE ======\n"
           <> show chatResponse
-          <> "\n======================\n"
           <> "\n==================================\n\n\n\n"
       )
       $ return ()
@@ -85,6 +85,7 @@ data ChatGPTParams = ChatGPTParams
     --   we just didn't add them for now!
     --   Check https://platform.openai.com/docs/api-reference/completions/create for complete list.
   }
+  deriving (Show)
 
 -- TODO: There are some more data models there but for now we went with these core ones.
 data Model = GPT_3_5_turbo | GPT_3_5_turbo_16k | GPT_4
