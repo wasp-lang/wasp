@@ -68,7 +68,7 @@ genPrismaSchema spec = do
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaClientOutputDir" .= makeEnvVarField Wasp.Generator.DbGenerator.Common.prismaClientOutputDirEnvVar,
-            "prismaPreviewFeatures" .= prismaPreviewFeatures 
+            "prismaPreviewFeatures" .= prismaPreviewFeatures
           ]
 
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)

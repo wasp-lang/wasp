@@ -3,7 +3,7 @@
 module Wasp.AppSpec.App.Db
   ( Db (..),
     DbSystem (..),
-    PrismaOptions (..)
+    PrismaOptions (..),
   )
 where
 
