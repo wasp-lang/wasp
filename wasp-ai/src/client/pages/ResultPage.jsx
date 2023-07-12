@@ -163,7 +163,8 @@ export const ResultPage = () => {
       !project.name ||
       !project.description ||
       !project.primaryColor ||
-      !project.authMethod
+      !project.authMethod ||
+      !project.creativityLevel
     ) {
       alert("Missing project data");
       return;
@@ -174,6 +175,7 @@ export const ResultPage = () => {
         appDesc: project.description,
         appPrimaryColor: project.primaryColor,
         appAuthMethod: project.authMethod,
+        appCreativityLevel: project.creativityLevel
       });
       alert("Now I will go to " + appId);
       history.push(`/result/${appId}`);
