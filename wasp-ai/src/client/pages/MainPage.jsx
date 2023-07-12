@@ -131,7 +131,7 @@ const MainPage = () => {
               id="appDesc"
               required
               placeholder="Describe your web app in a couple of sentences!
-Mention pages you want + what should be happening on them, what data should be stored in the db, etc.
+Mention pages you want + what should be happening on them, what data should be stored in the database, etc.
 The simpler and more specific the app is, the better the generated app will be."
               value={appDesc}
               rows="5"
