@@ -1,0 +1,3 @@
+---
+title: Static Public Files
+---

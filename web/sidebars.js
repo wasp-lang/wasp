@@ -2,72 +2,78 @@ module.exports = {
   docs: [
     {
       type: "category",
-      label: "Getting started",
+      label: "Getting Started",
       collapsed: false,
       items: [
         "introduction/what-is-wasp",
-        "introduction/getting-started"
+        "introduction/getting-started",
+        "introduction/editor-setup",
       ],
     },
     {
       type: "category",
-      label: "Tutorial",
-      collapsed: true,
-      items: [
-        "tutorials/todo-app",
-        {
-          type: "category",
-          label: "Basics",
-          collapsed: true,
-          items: [
-            "tutorials/todo-app/01-creating-new-project",
-            "tutorials/todo-app/02-task-entity",
-            "tutorials/todo-app/03-listing-tasks",
-            "tutorials/todo-app/04-creating-tasks",
-            "tutorials/todo-app/05-updating-tasks",
-          ],
-        },
-        "tutorials/todo-app/06-auth",
-        "tutorials/todo-app/07-dependencies",
-        "tutorials/todo-app/08-the-end",
-      ],
-    },
-    "examples",
-    {
-      type: "category",
-      label: "Guides",
+      label: "Essentials",
       collapsed: false,
       items: [
-        "guides/auth-ui",
-        {
-          type: "category",
-          label: "Auth Providers",
-          collapsed: false,
-          items: ["integrations/github", "integrations/google",
-            "guides/email-auth", "guides/username-password"],
-        },
-        "integrations/css-frameworks",
-        "deploying",
-        "typescript",
-        "guides/testing",
-        "guides/sending-emails",
-        "guides/middleware-customization",
-        "guides/crud",
-        "guides/websockets",
-      ],
+        "essentials/create",
+        "essentials/project-structure",
+        "essentials/pages",
+        "essentials/entities",
+        "essentials/queries",
+        "essentials/actions",
+        "essentials/auth"
+      ]
     },
     {
       type: "category",
-      label: "Language",
+      label: "Data Model",
       collapsed: false,
-      items: ["language/overview", "language/syntax", "language/features"],
+      items: [
+        "database/entities",
+        "database/operations",
+        "database/crud",
+        "database/backends",
+      ]
     },
-    "cli",
     {
       type: "category",
-      label: "Other",
-      collapsed: true,
-      items: ["contributing", "vision", "telemetry", "contact"],
+      label: "Advanced Features",
+      collapsed: false,
+      items: [
+        "advanced/email",
+        "advanced/jobs",
+        "advanced/web-sockets",
+        "advanced/apis",
+        "advanced/middleware-config",
+        "advanced/deployment"
+      ]
+    },
+    {
+      type: "category",
+      label: "Authentication",
+      collapsed: false,
+      items: [
+        "auth/overview",
+        "auth/ui",
+        "auth/username-and-pass",
+        "auth/email",
+        "auth/github",
+        "auth/google"
+      ]
+    },
+    {
+      type: "category",
+      label: "Project Setup",
+      collapsed: false,
+      items: [
+        "project/client-config",
+        "project/server-config",
+        "project/public-files",
+        "project/dotenv",
+        "project/testing",
+        "project/dependencies",
+        "project/css-frameworks",
+      ]
     },
   ],
 };
