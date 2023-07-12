@@ -76,11 +76,30 @@ const faqs = [
       <br/><br/>
 
       We use GPT4 during the planning phase, since that is the most critical step, and then use GPT3.5 for the rest of the steps.
-      We don't use GPT4 for all of it because it is quite slower and quite more expensive than GPT3.5, so we found this to be an acceptable trade-off.
+      Although using GPT4 exclusively does give better results, we use a mix to keep the costs, generation time, and bandwith acceptable (due to pricing and rate limits of GPT4).
 
       <br/><br/>
 
-      However, in the future, when GPT4 becomes cheaper / more available, it would make sense to switch to it completely, since it does generate better code.
+      However, in the future, when GPT4 becomes cheaper / more available, it would make sense to switch to it completely, since it does generate better code!
+    </p>
+  },
+  {
+    question: '[Advanced] Can I use GPT4 for the whole app?',
+    answer: <p>
+      As mentioned above, we use GPT4 + GPT3.5 for practical reasons, even though using GPT4 exclusively does give better results.<br/>
+      <br/>
+      However, if you have access yourself to the OpenAI API, you can use GPT4 for the whole app, or play with adjusting the temperature, by running the Wasp GPT code agent locally!<br/>
+      Note: generating an app usually consumes from 20k to 50k tokens, which is then approximately $1 to $2 per app with the current GPT4 pricing (Jul 11th 2023).<br/>
+      <br/>
+      You will need to install special version of Wasp:<br/>
+      <span className="bg-slate-800 text-slate-200 p-1 rounded">
+        curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.11.1-wasp-ai-11
+      </span><br/>
+      <br/>
+      Now you can run app generation locally via:<br/>
+      <span className="bg-slate-800 text-slate-200 p-1 rounded">
+        wasp ai-new:disk MyAwesomeApp "Description of my awesome app." {'"{ \\"defaultGptModel\\": \\"gpt-4\\" }"'}
+      </span>
     </p>
   },
 ]
