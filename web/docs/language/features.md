@@ -1442,7 +1442,7 @@ app MyApp {
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
         },
         passwordReset: {
-          clientRoute: PasswordResetRoute
+          clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
         allowUnverifiedLogin: false,
