@@ -3,7 +3,7 @@
 module Wasp.AppSpec.App.Db
   ( Db (..),
     DbSystem (..),
-    Prisma (..)
+    PrismaOptions (..)
   )
 where
 
@@ -13,14 +13,14 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 data Db = Db
   { system :: Maybe DbSystem,
     seeds :: Maybe [ExtImport],
-    prisma :: Maybe Prisma
+    prisma :: Maybe PrismaOptions
   }
   deriving (Show, Eq, Data)
 
 data DbSystem = PostgreSQL | SQLite
   deriving (Show, Eq, Data)
 
-data Prisma = Prisma
-  { previewFeatures :: Maybe [String]
+data PrismaOptions = Prisma
+  { clientPreviewFeatures :: Maybe [String]
   }
   deriving (Show, Eq, Data)

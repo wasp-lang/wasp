@@ -76,7 +76,7 @@ genPrismaSchema spec = do
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
-    prismaPreviewFeatures = show <$> (AS.Db.previewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
+    prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
