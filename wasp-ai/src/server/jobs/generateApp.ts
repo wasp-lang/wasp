@@ -40,7 +40,7 @@ export async function generateApp(
 
   let defaultGptTemperature;
   switch (project.creativityLevel) {
-    case "conservative":
+    case "conventional":
       defaultGptTemperature = 0.4;
       break;
     case "balanced":

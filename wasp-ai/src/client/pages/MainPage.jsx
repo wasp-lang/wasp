@@ -24,9 +24,9 @@ const MainPage = () => {
 
   const availableCreativityLevels = useMemo(
     () => [{
-      value: "conservative",
-      name: "Conservative",
-      description: "Generates \"boring\" code with minimal amount of mistakes.",
+      value: "conventional",
+      name: "Conventional",
+      description: "Generates sensible code with minimal amount of mistakes.",
       disabled: false
     }, {
       value: "balanced",
@@ -36,7 +36,7 @@ const MainPage = () => {
     }, {
       value: "creative",
       name: "Creative",
-      description: "Generates more creative code, but increases the chance of mistakes.",
+      description: "Generates more creative code, but mistakes are more likely.",
       disabled: false
     }]
   , []);
@@ -131,7 +131,7 @@ const MainPage = () => {
               id="appDesc"
               required
               placeholder="Describe your web app in a couple of sentences!
-Mention pages you want + what should be happening on them, what data should be stored in the database, etc.
+Mention pages you want + what should be happening on them, what data should be stored in the database, etc (check out the examples below).
 The simpler and more specific the app is, the better the generated app will be."
               value={appDesc}
               rows="5"

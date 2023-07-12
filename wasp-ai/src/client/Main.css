@@ -50,9 +50,9 @@ textarea {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;
 }
 
+.creativity-conventional {
+  @apply text-purple-600;
+}
 .creativity-creative {
   @apply text-orange-600;
-}
-.creativity-conservative {
-  @apply text-purple-600;
 }
