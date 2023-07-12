@@ -45,7 +45,6 @@ import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
-import Data.Aeson (encode)
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -77,7 +76,7 @@ genPrismaSchema spec = do
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
-    prismaPreviewFeatures = show <$> (AS.Db.prismaPreviewFeatures =<< AS.App.db (snd $ getApp spec))
+    prismaPreviewFeatures = show <$> (AS.Db.previewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
