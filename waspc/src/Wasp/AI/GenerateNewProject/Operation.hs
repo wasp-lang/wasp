@@ -109,24 +109,6 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
            Also, make sure to use full import statement for `fn:`: `import { getTasks } from "@server/actions.js"`,
            don't provide just the file path.
          - In NodeJS implementation, you will typically want to check if user is authenticated, by doing `if (!context.user) { throw new HttpError(401) }` at the start of the operation.
-         - DO NOT specify more than one field in the `where` clause of `update()` and `findUnique()` Prisma methods.
-           Unlike other Prisma methods, these two can accept only one, unique field in their `where` clause.
-           WRONG:
-             ```js
-              const task = await context.entities.Task.findUnique({
-                where: {
-                  id: args.id,
-                  userId: context.user.id
-                }
-              });
-             ```
-           CORRECT:
-             ```js
-              const task = await context.entities.Task.findUnique({
-                where: { id: args.id }
-              });
-              if (task.userId !== context.user.id) { throw new HttpError(403) };
-             ```
 
         ${appDescriptionStartMarkerLine}
 

@@ -72,7 +72,15 @@ waspFileExample =
             userEntity: User,
             methods: { usernameAndPassword: {} },
             onAuthFailedRedirectTo: "/login"
-          }
+          },
+          client: {
+            rootComponent: import { Layout } from "@client/Layout.jsx",
+          },
+          db: {
+            prisma: {
+              clientPreviewFeatures: ["extendedWhereUnique"]
+            }
+          },
         }
 
         route SignupRoute { path: "/signup", to: SignupPage }

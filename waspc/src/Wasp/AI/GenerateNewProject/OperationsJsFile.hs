@@ -71,9 +71,6 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
             - Duplicate imports. If there are any, make sure to remove them.
             - js imports of local modules (`from "./`, `from "../`).
               If there are any, remove them and instead add the needed implementation directly into the file we are fixing right now.
-            - Providing more than one field in the `where` clause of `update()` and `findUnique()` Prisma methods.
-              Unlike other Prisma methods, these two can accept only one, unique field in their `where` clause.
-              If this mistake is present, refactor the code so that it still works as intended but has just one field in the `where` clause.
             - Redundant imports of prisma client or of prisma entities. Those imports are not needed -> remove them!
 
               We are not using PrismaClient directly, we are using it through the context. For example: `context.entities.Task.findMany({})`

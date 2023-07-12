@@ -87,6 +87,11 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           client: {
             rootComponent: import { Layout } from "@client/Layout.jsx",
           },
+          db: {
+            prisma: {
+              clientPreviewFeatures: ["extendedWhereUnique"]
+            }
+          },
           ${appAuth}
         }
 

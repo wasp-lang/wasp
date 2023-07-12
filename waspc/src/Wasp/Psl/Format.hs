@@ -14,7 +14,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
-import qualified Wasp.Package as WP
+import qualified Wasp.NodePackageFFI as WP
 import Wasp.Util.Aeson (decodeFromString)
 
 -- | For given prisma schema source, returns formatted schema + any warnings/errors,
@@ -25,7 +25,7 @@ import Wasp.Util.Aeson (decodeFromString)
 -- It works even for a prisma schema that has only model declarations!
 prismaFormat :: Text -> IO PrismaFormatResult
 prismaFormat prismaSchema = do
-  cp <- WP.getPackageProc WP.PrismaPackage ["format"]
+  cp <- WP.getPackageProcessOptions WP.PrismaPackage ["format"]
   (exitCode, response, stderr) <- P.readCreateProcessWithExitCode cp $ T.unpack prismaSchema
   case exitCode of
     ExitSuccess ->
