@@ -98,7 +98,7 @@ const faqs = [
       <br/>
       Now you can run app generation locally via:<br/>
       <span className="bg-slate-800 text-slate-200 p-1 rounded">
-        wasp ai-new:disk MyAwesomeApp "Description of my awesome app." {'"{ \\"defaultGptModel\\": \\"gpt-4\\" }"'}
+        wasp new-ai:disk MyAwesomeApp "Description of my awesome app." {'"{ \\"defaultGptModel\\": \\"gpt-4\\" }"'}
       </span>
     </p>
   },
