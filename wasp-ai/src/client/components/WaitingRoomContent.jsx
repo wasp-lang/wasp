@@ -42,10 +42,11 @@ export function WaitingRoomContent(props) {
           Come back to this page to check the status of your app at any time!
         </p>
       </header>
-      <h3 class="text-xl font-semibold mb-4 text-slate-800">
+      <h3 className="text-xl font-semibold mb-4 text-slate-800">
         Examples of already generated apps:
       </h3>
-      <div className="flex flex-row items-stretch gap-x-10">
+
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-4">
         {showcaseSamples.map((sample) => (
           <ShowcaseCard {...sample} />
         ))}
@@ -105,7 +106,7 @@ export function ShowcaseCard({ name, specimenURL, description, color }) {
               ></span>
               {name}
             </h4>
-            <button className="button sm gray">See how it looks</button>
+            <button className="button sm gray">Check out the code</button>
           </div>
           <div className="text-base leading-relaxed text-slate-500 line-clamp-[10]">
             {description.split("\n").map((str) => (
