@@ -1,4 +1,7 @@
-import { StartGeneratingNewApp } from "@wasp/actions/types";
+import {
+  RegisterZipDownload,
+  StartGeneratingNewApp,
+} from "@wasp/actions/types";
 import { GetAppGenerationResult, GetStats } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
@@ -53,6 +56,22 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   checkPendingAppsJob.submit({});
 
   return appId;
+};
+
+export const registerZipDownload: RegisterZipDownload<{
+  appId: string;
+}> = async (args, context) => {
+  const appId = args.appId;
+  try {
+    await context.entities.Project.update({
+      where: { id: appId },
+      data: {
+        zipDownloadedAt: new Date(),
+      },
+    });
+  } catch (e) {
+    throw new HttpError(404, "App not found.");
+  }
 };
 
 export const getAppGenerationResult = (async (args, context) => {

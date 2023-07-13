@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
+import registerZipDownload from "@wasp/actions/registerZipDownload";
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
@@ -146,14 +147,21 @@ export const ResultPage = () => {
     setIsMobileFileBrowserOpen(false);
   }, [activeFilePath]);
 
-  function downloadZip() {
+  async function downloadZip() {
+    const zipName = getUniqueZipName();
+    createFilesAndDownloadZip(files, zipName);
+    registerZipDownload({
+      appId: appGenerationResult?.project?.id,
+    });
+  }
+
+  function getUniqueZipName() {
     const safeAppName = appGenerationResult?.project?.name.replace(
       /[^a-zA-Z0-9]/g,
       "_"
     );
     const randomSuffix = Math.random().toString(36).substring(2, 7);
-    const appNameWithSuffix = `${safeAppName}-${randomSuffix}`;
-    createFilesAndDownloadZip(files, appNameWithSuffix);
+    return `${safeAppName}-${randomSuffix}`;
   }
 
   async function retry() {

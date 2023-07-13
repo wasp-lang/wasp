@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import addWaspLangauge from "./prism/wasp";
@@ -11,12 +12,20 @@ addPrismaLanguage(Prism);
 addWaspLangauge(Prism);
 
 export function RootComponent({ children }) {
+  function recordAndDeleteReferrer() {
+    const urlParams = new URLSearchParams(window.location.search);
+    saveReferrerToLocalStorage(urlParams);
+    history.replace({
+      search: "",
+    });
+  }
+
   // const { isAlreadyShown } = useWelcomeDialog();
   // const [isDialogOpen, setIsDialogOpen] = useState(!isAlreadyShown);
+  const history = useHistory();
   useEffect(() => {
-    saveReferrerToLocalStorage()
+    recordAndDeleteReferrer();
     const script = document.createElement("script");
-
     script.src = "https://buttons.github.io/buttons.js"; // <----- add your script url
     script.async = true;
 
@@ -26,6 +35,7 @@ export function RootComponent({ children }) {
       document.body.removeChild(script);
     };
   }, []);
+
   return (
     <>
       <div
@@ -78,7 +88,7 @@ export function RootComponent({ children }) {
               rel="noopener noreferrer"
               className="text-sky-500 hover:text-sky-600"
             >
-              Wasp {'=}'}
+              Wasp {"=}"}
             </a>
           </p>
           <p className="text-center text-slate-500 text-sm mt-2">
