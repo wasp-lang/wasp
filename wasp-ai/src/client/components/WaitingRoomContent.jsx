@@ -1,17 +1,41 @@
+import { useMemo } from "react";
 import { availableColors } from "./Color";
 import Tilt from "react-parallax-tilt";
 
-export function WaitingRoomContent() {
+const NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL = 7;
+const AVG_APP_GENERATION_TIME_IN_MIN = 3;
+
+export function WaitingRoomContent(props) {
+  const estimatedWaitingTimeInMinutes = useMemo(() => {
+    return Math.max(1, Math.round((props.numberOfProjectsAheadInQueue - 1) / NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL * AVG_APP_GENERATION_TIME_IN_MIN));
+  }, [props.numberOfProjectsAheadInQueue]);
+
   return (
     <>
       <header className="relative mb-4 bg-slate-50 p-8 rounded-xl text-gray-500">
+        { estimatedWaitingTimeInMinutes > 5 && (
+          <>
+            <p className="bg-yellow-100 text-center text-yellow-700 rounded p-2">
+              🚨 We are experiencing heavy load at the moment! 🚨 
+            </p>
+            <br />
+          </>
+        )}
         <p className="text-gray-500">Hello there! 🤖</p>
         <br />
         <p>
-          Thanks for trying out the AI web App Generator. Looks like it might be
-          a couple of minutes before we can start building your app. In the
-          meantime, you can take a look at some of our already generated apps
-          below.
+          Thanks for trying out the AI web App Generator. Looks like it might be a bit before we can start building your app.
+        </p>
+        <br />
+        <p>
+          Estimated waiting time: <strong>{estimatedWaitingTimeInMinutes} minutes.</strong>
+        </p>
+        <br />
+        <p>
+          In the meantime, you can: <br/>
+          1. <strong>Take a look at some of our already generated apps below.</strong> You can check out the real generated code, and also try downloading and running them.<br/>
+          2. Read more about the GPT Web App Generator <a href="#faq" className="underline">here</a>.<br/>
+          3. Join our <a href="https://discord.gg/rzdnErX" className="underline" target="_blank" rel="noopener noreferrer">Discord</a> and chat with us about the project.<br/>
         </p>
         <br />
         <p>
