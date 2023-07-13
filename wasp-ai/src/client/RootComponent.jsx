@@ -3,6 +3,7 @@ import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import addWaspLangauge from "./prism/wasp";
 import addPrismaLanguage from "./prism/prisma";
+import { saveReferrerToLocalStorage } from "./storage";
 
 import "./Main.css";
 
@@ -13,6 +14,7 @@ export function RootComponent({ children }) {
   // const { isAlreadyShown } = useWelcomeDialog();
   // const [isDialogOpen, setIsDialogOpen] = useState(!isAlreadyShown);
   useEffect(() => {
+    saveReferrerToLocalStorage()
     const script = document.createElement("script");
 
     script.src = "https://buttons.github.io/buttons.js"; // <----- add your script url

@@ -5,6 +5,7 @@ import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
+    referrer: string;
     appName: string;
     appDesc: string;
     appPrimaryColor: string;
@@ -42,6 +43,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
       primaryColor: args.appPrimaryColor,
       authMethod: args.appAuthMethod,
       creativityLevel: args.appCreativityLevel,
+      referrer: args.referrer,
       ...optionalUser,
     },
   });

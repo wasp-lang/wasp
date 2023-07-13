@@ -116,6 +116,7 @@ entity Project {=psl
   creativityLevel String @default("balanced")
   createdAt DateTime @default(now())
   status String @default("pending")
+  referrer String @default("unknown")
   userId Int?
   user User? @relation(fields: [userId], references: [id])
   files File[]
