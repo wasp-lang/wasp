@@ -75,6 +75,11 @@ action startGeneratingNewApp {
   ]
 }
 
+action registerZipDownload {
+  fn: import { registerZipDownload } from "@server/operations.js",
+  entities: [Project]
+}
+
 query getAppGenerationResult {
   fn: import { getAppGenerationResult } from "@server/operations.js",
   entities: [
@@ -116,6 +121,8 @@ entity Project {=psl
   creativityLevel String @default("balanced")
   createdAt DateTime @default(now())
   status String @default("pending")
+  referrer String @default("unknown")
+  zipDownloadedAt DateTime?
   userId Int?
   user User? @relation(fields: [userId], references: [id])
   files File[]

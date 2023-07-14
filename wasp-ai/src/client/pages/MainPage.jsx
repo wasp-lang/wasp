@@ -8,6 +8,7 @@ import { availableColors } from "../components/Color";
 import { Faq } from "../components/Faq";
 import { exampleIdeas } from "../examples";
 import { PiMagicWandDuotone } from "react-icons/pi";
+import { readReferrerFromLocalStorage } from "../storage";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -74,7 +75,9 @@ const MainPage = () => {
       message: "Starting...",
     });
     try {
+      const referrer = readReferrerFromLocalStorage(); 
       const appId = await startGeneratingNewApp({
+        referrer,
         appName,
         appDesc,
         appPrimaryColor: appPrimaryColor.name,

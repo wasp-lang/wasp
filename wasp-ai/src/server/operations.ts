@@ -1,10 +1,14 @@
-import { StartGeneratingNewApp } from "@wasp/actions/types";
+import {
+  RegisterZipDownload,
+  StartGeneratingNewApp,
+} from "@wasp/actions/types";
 import { GetAppGenerationResult, GetStats } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
+    referrer: string;
     appName: string;
     appDesc: string;
     appPrimaryColor: string;
@@ -42,6 +46,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
       primaryColor: args.appPrimaryColor,
       authMethod: args.appAuthMethod,
       creativityLevel: args.appCreativityLevel,
+      referrer: args.referrer,
       ...optionalUser,
     },
   });
@@ -51,6 +56,24 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   checkPendingAppsJob.submit({});
 
   return appId;
+};
+
+export const registerZipDownload: RegisterZipDownload<{
+  appId: string;
+}> = async (args, context) => {
+  const appId = args.appId;
+  try {
+    await context.entities.Project.update({
+      where: { id: appId },
+      data: {
+        zipDownloadedAt: new Date(),
+      },
+    });
+  } catch (e) {
+    if (e.name === "NotFoundError") {
+      throw new HttpError(404, "App not found.");
+    } else { throw e; }
+  }
 };
 
 export const getAppGenerationResult = (async (args, context) => {
@@ -84,7 +107,9 @@ export const getAppGenerationResult = (async (args, context) => {
       numberOfProjectsAheadInQueue,
     };
   } catch (e) {
-    throw new HttpError(404, "App not found.");
+    if (e.name === "NotFoundError") {
+      throw new HttpError(404, "App not found.");
+    } else { throw e; }
   }
 }) satisfies GetAppGenerationResult<{
   appId: string;

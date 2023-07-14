@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import addWaspLangauge from "./prism/wasp";
 import addPrismaLanguage from "./prism/prisma";
+import { saveReferrerToLocalStorage } from "./storage";
 
 import "./Main.css";
 
@@ -11,18 +12,26 @@ addPrismaLanguage(Prism);
 addWaspLangauge(Prism);
 
 export function RootComponent({ children }) {
+  function recordAndDeleteReferrer() {
+    const urlParams = new URLSearchParams(window.location.search);
+    saveReferrerToLocalStorage(urlParams);
+    history.replace({
+      search: "",
+    });
+  }
+
   // const { isAlreadyShown } = useWelcomeDialog();
   // const [isDialogOpen, setIsDialogOpen] = useState(!isAlreadyShown);
+  const history = useHistory();
   const location = useLocation();
 
   const shouldDisplayTopBanner = useMemo(() => {
     return !(location.pathname.startsWith("/result/"));
   }, [location]);
 
-
   useEffect(() => {
+    recordAndDeleteReferrer();
     const script = document.createElement("script");
-
     script.src = "https://buttons.github.io/buttons.js"; // <----- add your script url
     script.async = true;
 
@@ -88,7 +97,7 @@ export function RootComponent({ children }) {
               rel="noopener noreferrer"
               className="text-sky-500 hover:text-sky-600"
             >
-              Wasp {'=}'}
+              Wasp {"=}"}
             </a>
           </p>
           <p className="text-center text-slate-500 text-sm mt-2">
