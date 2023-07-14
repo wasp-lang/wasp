@@ -70,7 +70,9 @@ export const registerZipDownload: RegisterZipDownload<{
       },
     });
   } catch (e) {
-    throw new HttpError(404, "App not found.");
+    if (e.name === "NotFoundError") {
+      throw new HttpError(404, "App not found.");
+    } else { throw e; }
   }
 };
 
@@ -105,7 +107,9 @@ export const getAppGenerationResult = (async (args, context) => {
       numberOfProjectsAheadInQueue,
     };
   } catch (e) {
-    throw new HttpError(404, "App not found.");
+    if (e.name === "NotFoundError") {
+      throw new HttpError(404, "App not found.");
+    } else { throw e; }
   }
 }) satisfies GetAppGenerationResult<{
   appId: string;
