@@ -52,7 +52,7 @@ export function Logs({ logs, status, onRetry }) {
   return (
     logs && (
       <>
-        <header className="relative big-box-dark mt-4 mb-8">
+        <header className="relative big-box-dark">
           {status === "success" && (
             <div className="absolute inset-0 bg-green-500 opacity-[.15] z-0"></div>
           )}

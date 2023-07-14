@@ -225,9 +225,36 @@ export const ResultPage = () => {
           </header>
         </>
       )}
+
       <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
+
+      <div
+        className="overflow-hidden
+          flex-row
+          space-x-3
+          "
+      >
+        <div
+          className={`
+            mx-auto flex items-center justify-center divide-white p-3
+            text-sm font-medium
+            lg:container lg:divide-x lg:px-16 xl:px-20
+          `}
+        >
+          <span
+            className="item-center flex gap-2 p-1 px-2 cursor-pointer text-pink-800 bg-pink-200 rounded"
+            onClick={() => window.open("https://github.com/wasp-lang/wasp/tree/wasp-ai")}
+          >
+            <span>
+              🔮 This is a Wasp powered project. If you like it,{" "}
+              <span className="underline">star us on GitHub</span>!
+            </span>
+          </span>
+        </div>
+      </div>
+
       {currentStatus.status === "pending" && (
-        <WaitingRoomContent />
+        <WaitingRoomContent numberOfProjectsAheadInQueue={appGenerationResult?.numberOfProjectsAheadInQueue || 0}/>
       )}
 
       {interestingFilePaths.length > 0 && (

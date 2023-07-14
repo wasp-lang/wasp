@@ -1,27 +1,52 @@
+import { useMemo } from "react";
 import { availableColors } from "./Color";
 import Tilt from "react-parallax-tilt";
 
-export function WaitingRoomContent() {
+const NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL = 7;
+const AVG_APP_GENERATION_TIME_IN_MIN = 3;
+
+export function WaitingRoomContent(props) {
+  const estimatedWaitingTimeInMinutes = useMemo(() => {
+    return Math.max(1, Math.round((props.numberOfProjectsAheadInQueue - 1) / NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL * AVG_APP_GENERATION_TIME_IN_MIN));
+  }, [props.numberOfProjectsAheadInQueue]);
+
   return (
     <>
       <header className="relative mb-4 bg-slate-50 p-8 rounded-xl text-gray-500">
+        { estimatedWaitingTimeInMinutes > 5 && (
+          <>
+            <p className="bg-yellow-100 text-center text-yellow-700 rounded p-2">
+              🚨 We are experiencing heavy load at the moment! 🚨 
+            </p>
+            <br />
+          </>
+        )}
         <p className="text-gray-500">Hello there! 🤖</p>
         <br />
         <p>
-          Thanks for trying out the AI web App Generator. Looks like it might be
-          a couple of minutes before we can start building your app. In the
-          meantime, you can take a look at some of our already generated apps
-          below.
+          Thanks for trying out the AI web App Generator. Looks like it might be a bit before we can start building your app.
+        </p>
+        <br />
+        <p>
+          Estimated waiting time: <strong>{estimatedWaitingTimeInMinutes} minutes.</strong>
+        </p>
+        <br />
+        <p>
+          In the meantime, you can: <br/>
+          1. <strong>Take a look at some of our already generated apps below.</strong> You can check out the real generated code, and also try downloading and running them.<br/>
+          2. Read more about the GPT Web App Generator <a href="#faq" className="underline">here</a>.<br/>
+          3. Join our <a href="https://discord.gg/rzdnErX" className="underline" target="_blank" rel="noopener noreferrer">Discord</a> and chat with us about the project.<br/>
         </p>
         <br />
         <p>
           Come back to this page to check the status of your app at any time!
         </p>
       </header>
-      <h3 class="text-xl font-semibold mb-4 text-slate-800">
+      <h3 className="text-xl font-semibold mb-4 text-slate-800">
         Examples of already generated apps:
       </h3>
-      <div className="flex flex-row items-stretch gap-x-10">
+
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-4">
         {showcaseSamples.map((sample) => (
           <ShowcaseCard {...sample} />
         ))}
@@ -81,7 +106,7 @@ export function ShowcaseCard({ name, specimenURL, description, color }) {
               ></span>
               {name}
             </h4>
-            <button className="button sm gray">See how it looks</button>
+            <button className="button sm gray">Check out the code</button>
           </div>
           <div className="text-base leading-relaxed text-slate-500 line-clamp-[10]">
             {description.split("\n").map((str) => (
