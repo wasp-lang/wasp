@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import registerZipDownload from "@wasp/actions/registerZipDownload";
+import createFeedback from "@wasp/actions/createFeedback"
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
@@ -9,6 +10,7 @@ import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
+import { RadioGroup } from '@headlessui/react'
 import { Loader } from "../components/Loader";
 import { MyDialog } from "../components/Dialog";
 import { Logs } from "../components/Logs";
@@ -20,6 +22,7 @@ import {
   PiLaptopDuotone,
   PiDownloadDuotone,
   PiCheckDuotone,
+  PiChatBold
 } from "react-icons/pi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 
@@ -287,6 +290,7 @@ export const ResultPage = () => {
               <div>
                 <ShareButton />
               </div>
+
               <FileTree
                 paths={interestingFilePaths}
                 activeFilePath={activeFilePath}
@@ -303,8 +307,14 @@ export const ResultPage = () => {
               <main
                 className={isMobileFileBrowserOpen ? "hidden md:block" : ""}
               >
-                <div className="font-bold text-sm bg-slate-200 text-slate-700 p-3 rounded rounded-b-none">
-                  {activeFilePath}:
+                <div
+                  className={`
+                    font-bold text-sm bg-slate-200 text-slate-700 p-3 rounded rounded-b-none
+                    flex items-center md:justify-between
+                  `}>
+                  <span className="mr-3">{activeFilePath}:</span>
+                  <Feedback projectId={appId} />
+
                 </div>
                 <div
                   key={activeFilePath}
@@ -523,6 +533,111 @@ function WarningAboutAI() {
       </div>
     </div>
   );
+}
+
+function Feedback({ projectId }) {
+  const [isModalOpened, setIsModalOpened] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("")
+  const [score, setScore] = useState(0)
+
+  const scoreOptions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    console.log(score, feedbackText, projectId)
+
+    try {
+      await createFeedback({ score, message: feedbackText, projectId })
+    } catch (e) {
+      console.error('Could not create feedback')
+    }
+
+    setIsModalOpened(false)
+    setScore(0)
+    setFeedbackText('')
+  }
+
+  return (
+    <div>
+      <button
+        className={`
+          text-gray-500          
+          border border-gray-500
+          py-1 px-2 rounded-md mb-1
+          flex items-center space-x-2 justify-center
+          font-bold
+          transition duration-150
+          hover:bg-gray-300
+        `}
+        onClick={() => setIsModalOpened(true)}
+      >
+        <span>💬 Give us feedback!</span>
+      </button>
+      <MyDialog
+        isOpen={isModalOpened}
+        onClose={() => setIsModalOpened(false)}
+        title={
+          <span>
+            Let us know how it went!
+          </span>
+        }
+      >
+        <form onSubmit={handleSubmit}>
+            <label className="text-slate-700 block mb-2 mt-8">
+              How likely are you to recommend this tool to a friend? <span className="text-red-500">*</span>
+            </label>
+            <div className="mx-auto w-full max-w-md">
+              <RadioGroup value={score} onChange={setScore}>
+                  <div className="flex space-x-2">
+                    {scoreOptions.map((option) => (
+                      <RadioGroup.Option value={option}>
+                        {({ active, checked }) => (
+                          <div
+                            className={`
+                              ${active ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300' : ''}
+
+
+                              ${checked ? 'bg-sky-900 bg-opacity-75 text-white' : ''}
+                              cursor-pointer px-3 py-2 shadow-md focus:outline-none
+                              rounded-md
+                            `}
+                          >
+                              {option}
+                          </div>
+                        )}
+                      </RadioGroup.Option>
+                    ))}
+                  </div>
+              </RadioGroup>
+            </div>
+
+
+            <label htmlFor="feedbackText" className="text-slate-700 block mb-2 mt-8">
+              How did it go? <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="feedback"
+              required
+              placeholder="How happy are you with the result? What could have been better?"
+              value={feedbackText}
+              rows="5"
+              cols="50"
+              onChange={(e) => setFeedbackText(e.target.value)}
+            />
+
+            <button
+              className='button black mt-4'
+              type="submit"
+            >
+              Submit
+            </button>
+
+        </form>
+      </MyDialog>
+    </div>
+
+  )
 }
 
 function ShareButton() {

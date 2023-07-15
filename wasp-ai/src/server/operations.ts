@@ -1,8 +1,9 @@
 import {
   RegisterZipDownload,
   StartGeneratingNewApp,
+  CreateFeedback
 } from "@wasp/actions/types";
-import { GetAppGenerationResult, GetStats } from "@wasp/queries/types";
+import { GetAppGenerationResult, GetStats, GetFeedback } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 
@@ -76,6 +77,26 @@ export const registerZipDownload: RegisterZipDownload<{
   }
 };
 
+export const createFeedback: CreateFeedback<
+  { score: number , message: string, projectId: string }
+> = (async (args, context) => {
+  if (!args.score) {
+    throw new HttpError(422, "Score is required.");
+  }
+  if (!args.message) {
+    throw new HttpError(422, "Message is required.");
+  }
+
+  const feedback = await context.entities.Feedback.create({
+    data: {
+      score: args.score,
+      message: args.message,
+      projectId: args.projectId
+    }
+  })
+
+})
+
 export const getAppGenerationResult = (async (args, context) => {
   const appId = args.appId;
   const { Project } = context.entities;
@@ -114,6 +135,32 @@ export const getAppGenerationResult = (async (args, context) => {
 }) satisfies GetAppGenerationResult<{
   appId: string;
 }>;
+
+export const getFeedback = (async (args, context) => {
+  // TODO(matija): extract this, since it's used at multiple locations?
+  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
+  if (!context.user || !emailsWhitelist.includes(context.user.email)) {
+    throw new HttpError(401, "Only admins can access stats.");
+  }
+
+  const feedbackEntries = await context.entities.Feedback.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      project: {
+        select: {
+          name: true,
+          description: true,
+        }
+      }
+    }
+  })
+
+  return {
+    feedbackEntries
+  }
+}) satisfies GetFeedback<{}>;
 
 export const getStats = (async (_args, context) => {
   const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];

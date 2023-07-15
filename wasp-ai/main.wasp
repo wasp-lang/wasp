@@ -63,6 +63,12 @@ page StatsPage {
   authRequired: true
 }
 
+route FeedbackRoute { path: "/feedback", to: FeedbackPage }
+page FeedbackPage {
+  component: import { Feedback } from "@client/pages/FeedbackPage.jsx",
+  authRequired: true
+}
+
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { LoginPage } from "@client/pages/LoginPage.jsx",
@@ -79,6 +85,17 @@ action registerZipDownload {
   fn: import { registerZipDownload } from "@server/operations.js",
   entities: [Project]
 }
+
+action createFeedback {
+  fn: import { createFeedback } from "@server/operations.js",
+  entities: [Feedback]
+}
+
+query getFeedback {
+  fn: import { getFeedback } from "@server/operations.js",
+  entities: [Feedback]
+}
+
 
 query getAppGenerationResult {
   fn: import { getAppGenerationResult } from "@server/operations.js",
@@ -127,6 +144,17 @@ entity Project {=psl
   user User? @relation(fields: [userId], references: [id])
   files File[]
   logs Log[]
+  feedbacks Feedback[]
+psl=}
+
+entity Feedback {=psl
+  id String @id @default(uuid())
+  score Int
+  message String
+  createdAt DateTime @default(now())
+
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
 psl=}
 
 entity File {=psl
