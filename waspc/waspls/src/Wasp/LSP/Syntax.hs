@@ -52,11 +52,11 @@ locationAtOffset targetOffset start = go $ bottom start
       | offsetAt at == targetOffset = at
       | offsetAfter at > targetOffset = at
       | offsetAfter at == targetOffset =
-        if not $ S.syntaxKindIsTrivia $ kindAt at
-          then at
-          else case at & next of
-            Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
-            _ -> at
+          if not $ S.syntaxKindIsTrivia $ kindAt at
+            then at
+            else case at & next of
+              Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
+              _ -> at
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next
