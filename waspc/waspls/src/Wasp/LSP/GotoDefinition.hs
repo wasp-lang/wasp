@@ -4,24 +4,29 @@ module Wasp.LSP.GotoDefinition
 where
 
 import Control.Lens ((^.))
+import Control.Monad (msum)
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
+import Data.Foldable (find)
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import qualified StrongPath as SP
+import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal, fromSyntaxForest)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
 import Wasp.Analyzer.Parser.SourceRegion (sourceSpanToRegion)
+import qualified Wasp.Analyzer.Type as Type
 import qualified Wasp.LSP.ExtImport.ExportsCache as ExtImport
 import qualified Wasp.LSP.ExtImport.Syntax as ExtImport
 import Wasp.LSP.ServerMonads (HandlerM)
 import qualified Wasp.LSP.ServerState as State
-import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
+import Wasp.LSP.Syntax (lexemeAt, locationAtOffset, lspPositionToOffset)
+import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
 import qualified Wasp.TypeScript.Inspect.Exports as TS
 
 definitionProviders :: [String -> Traversal -> HandlerM [LSP.LocationLink]]
-definitionProviders = [extImportDefinitionProvider]
+definitionProviders = [declDefinitionProvider, extImportDefinitionProvider]
 
 gotoDefinitionOfSymbolAtPosition :: LSP.Position -> HandlerM (LSP.List LSP.LocationLink)
 gotoDefinitionOfSymbolAtPosition position = do
@@ -36,6 +41,41 @@ gotoDefinitionOfSymbolAtPosition position = do
       definitionLocations <- concat <$> mapM (\f -> f src location) definitionProviders
       logM $ "Got definitions at " ++ show position ++ ": " ++ show definitionLocations
       return $ LSP.List definitionLocations
+
+-- | If the provided location is at a place where an identifier with 'Decl' type
+-- is expected, returns a link to the definition of the relevant declaration
+-- in the wasp file, if any.
+declDefinitionProvider :: String -> Traversal -> HandlerM [LSP.LocationLink]
+declDefinitionProvider src location =
+  case (T.kindAt location, Inference.inferTypeAtLocation src location) of
+    (S.Var, Just (Type.DeclType _)) -> findDeclDefinitionLink (lexemeAt src location)
+    (S.DeclName, _) -> findDeclDefinitionLink (lexemeAt src location)
+    _ -> return [] -- @location@ does not point to a identifier refering to a decl.
+  where
+    -- @findDeclDefinitionLink name@ finds the link to a declaration with the
+    -- given name, if it exists.
+    findDeclDefinitionLink :: String -> HandlerM [LSP.LocationLink]
+    findDeclDefinitionLink name =
+      case findDeclDefinition name of
+        Nothing -> return [] -- No definition for a decl with the given name.
+        Just definition -> do
+          let linkRange = waspSourceRegionToLspRange $ sourceSpanToRegion src $ T.spanAt location
+          let definitionRange = waspSourceRegionToLspRange $ sourceSpanToRegion src $ T.spanAt definition
+          asks (^. State.waspFileUri) >>= \case
+            Nothing -> return [] -- Can't find wasp file URI, so can't provide a link.
+            Just waspFileUri ->
+              return [link linkRange $ LSP.Location waspFileUri definitionRange]
+
+    -- @findDeclDefinition name@ looks for a declaration node named @name@ and
+    -- returns it.
+    findDeclDefinition :: String -> Maybe Traversal
+    findDeclDefinition name = search $ T.top location
+      where
+        search t = case T.kindAt t of
+          S.Decl -> case find ((== S.DeclName) . T.kindAt) (T.children t) of
+            Just nameLoc | lexemeAt src nameLoc == name -> Just t
+            _ -> Nothing
+          _ -> msum $ map search $ T.children t
 
 -- | If the provided location is within an ExtImport syntax node, returns the
 -- location in the JS/TS file of the symbol that the ExtImport points to, if
