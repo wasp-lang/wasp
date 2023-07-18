@@ -19,7 +19,7 @@ import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
-import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (SourceSpan), spansOverlap)
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan, spansOverlap)
 import qualified Wasp.LSP.Commands.ScaffoldTsSymbol as ScaffoldTS
 import Wasp.LSP.ExtImport.ExportsCache (ExtImportLookupResult (..), lookupExtImport)
 import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath)
@@ -31,34 +31,27 @@ import Wasp.LSP.Syntax (lspRangeToSpan)
 import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.LSP.Util (absFileInProjectRootDir)
 import Wasp.Util.IO (doesFileExist)
+import Wasp.Util.StrongPath (replaceExtension)
 
 -- | Runs all 'codeActionProviders' and concatenates their results.
 getCodeActionsInRange :: LSP.Range -> HandlerM [LSP.CodeAction]
 getCodeActionsInRange range = do
   src <- asks (^. State.currentWaspSource)
   maybeCst <- asks (^. State.cst)
-  -- VSCode sends codeAction requests with ranges where the start
-  -- position is equal to the end position. This range contains 0 characters,
-  -- so we add a character to it.
-  --
-  -- The LSP specification specifies that the end of a range is exclusive:
-  -- https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/#range
-  let sourceSpan =
-        let SourceSpan s e = lspRangeToSpan src range
-         in if s == e then SourceSpan s (e + 1) else SourceSpan s e
+  let sourceSpan = lspRangeToSpan src range
   case maybeCst of
     Nothing -> pure []
     Just syntax -> do
-      concat <$> mapM (\f -> f src syntax sourceSpan) codeActionProviders
+      concat <$> mapM (\provider -> provider src syntax sourceSpan) codeActionProviders
 
 codeActionProviders :: [String -> [SyntaxNode] -> SourceSpan -> HandlerM [LSP.CodeAction]]
 codeActionProviders =
   [ tsScaffoldActionProvider
   ]
 
--- | Provide 'LSP.CodeAction's for missing external imports. The code actions
--- run the "Wasp.LSP.Commands.ScaffoldTsSymbol" command to define the missing
--- function in a JS/TS file.
+-- | Provide 'LSP.CodeAction's that define missing JS/TS functions that do not
+-- already exist but are needed by external imports that are found within the
+-- given 'SourceSpan'.
 tsScaffoldActionProvider :: String -> [SyntaxNode] -> SourceSpan -> HandlerM [LSP.CodeAction]
 tsScaffoldActionProvider src syntax sourceSpan = do
   let extImports = map (extImportAtLocation src) $ collectExtImportNodesInSpan (T.fromSyntaxForest syntax)
@@ -115,7 +108,7 @@ findCodeActionsForExtImport src extImport = do
             Nothing -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathFromSrc
             Just cachePathInCache -> ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathInCache
       absPath <- fromMaybe (error "[createCodeActions] unreachable: can't get abs path") <$> ExtImport.cachePathToAbsPathWithoutExt cachePathFromSrc
-      let unfilteredPaths = map (ExtImport.replaceExtension absPath) allowedExts
+      let unfilteredPaths = map (fromMaybe (error "impossible") . replaceExtension absPath) allowedExts
 
       -- 4ii-iii.
       filteredPaths <-
@@ -139,7 +132,7 @@ findCodeActionsForExtImport src extImport = do
                 ScaffoldTS.pathToExtImport = pathToExtImport,
                 ScaffoldTS.filepath = SP.castFile filepath
               }
-          command = ScaffoldTS.command args
+          command = ScaffoldTS.lspCommand args
       let title = case symbolName of
             ExtImportModule _ -> printf "Add default export to %s" relFilepath
             ExtImportField name -> printf "Create function `%s` in %s" name relFilepath

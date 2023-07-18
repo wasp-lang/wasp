@@ -12,7 +12,6 @@ module Wasp.LSP.ExtImport.Path
     cachePathToAbsPath,
     tryGetTsconfigForAbsPath,
     ExtensionType,
-    replaceExtension,
     allowedExts,
   )
 where
@@ -21,16 +20,15 @@ import Control.Applicative ((<|>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Hashable (Hashable (hashWithSalt))
 import Data.List (stripPrefix)
-import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
-import Wasp.LSP.Util (stripProperPrefix)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (doesFileExist)
+import Wasp.Util.StrongPath (stripProperPrefix)
 
 data ExtensionlessExtFile
 
@@ -157,10 +155,6 @@ allowedExts DotTJS = [".ts", ".js"]
 allowedExts DotTJSX = [".tsx", ".jsx"]
 allowedExts DotAnyTS = [".ts", ".js", ".tsx", ".jsx"]
 allowedExts (DotExact ext) = [ext]
-
-replaceExtension :: SP.Path' SP.Abs (SP.File a) -> String -> SP.Path' SP.Abs (SP.File a)
-replaceExtension path ext =
-  SP.fromPathAbsFile $ fromMaybe (error "invalid extension") $ P.replaceExtension ext $ SP.toPathAbsFile path
 
 -- | The 'Eq' instance on this type is slightly weird: it represents compatibilty,
 -- not equality. Specifically, two extension types are equal if they share at

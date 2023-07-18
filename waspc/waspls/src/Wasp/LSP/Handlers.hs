@@ -23,7 +23,7 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Wasp.LSP.Analysis (diagnoseWaspFile)
 import Wasp.LSP.CodeActions (getCodeActionsInRange)
-import qualified Wasp.LSP.Command as Command
+import qualified Wasp.LSP.Commands as Commands
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.DynamicHandlers (registerDynamicCapabilities)
 import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
@@ -74,7 +74,7 @@ didSaveHandler =
   LSP.notificationHandler LSP.STextDocumentDidSave $ diagnoseWaspFile . extractUri
 
 executeCommandHandler :: Handlers ServerM
-executeCommandHandler = Command.handler
+executeCommandHandler = Commands.handleExecuteCommand
 
 completionHandler :: Handlers ServerM
 completionHandler =

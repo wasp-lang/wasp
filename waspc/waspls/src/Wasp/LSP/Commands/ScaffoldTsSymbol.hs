@@ -37,6 +37,9 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
     --
     -- The templates have several variables available to them:
     --
+    -- [@name@]: String, the name imported by a the external import. For example,
+    --   @getAll@ in @import { getAll } from "@server/queries.js"@.
+    --
     -- [@default?@]: Boolean, true if the external import is importing the default
     --   export.
     --
@@ -67,7 +70,7 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
     Args (Args, symbolName, pathToExtImport, filepath),
     hasTemplateForArgs,
     command,
-    plugin,
+    lspCommand,
   )
 where
 
@@ -91,25 +94,25 @@ import qualified Text.Mustache as Mustache
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule))
 import qualified Wasp.Data
-import Wasp.LSP.Commands.CommandPlugin (CommandPlugin (CommandPlugin, commandHandler, commandName), invalidParams, withParsedArgs)
+import Wasp.LSP.Commands.Command (Command (Command, commandHandler, commandName), makeInvalidParamsError, withParsedArgs)
 import Wasp.LSP.ServerMonads (ServerM)
 import Wasp.LSP.TypeInference (ExprPath)
 import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.Util (toUpperFirst)
 import Wasp.Util.IO (doesFileExist)
 
-plugin :: CommandPlugin
-plugin =
-  CommandPlugin
+command :: Command
+command =
+  Command
     { commandName = "wasp.scaffold.ts-symbol",
       commandHandler = handler
     }
 
-command :: Args -> LSP.Command
-command args =
+lspCommand :: Args -> LSP.Command
+lspCommand args =
   LSP.Command
     { _title = "Scaffold TS Code",
-      _command = commandName plugin,
+      _command = commandName command,
       _arguments = Just $ LSP.List [toJSON args]
     }
 
@@ -145,15 +148,15 @@ handler request respond = withParsedArgs request respond scaffold
   where
     scaffold :: Args -> ServerM ()
     scaffold args@Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
-      Nothing -> respond $ Left $ invalidParams "Invalid filepath: no extension"
+      Nothing -> respond $ Left $ makeInvalidParamsError "Invalid filepath: no extension"
       Just ext ->
         getTemplateFor pathToExtImport ext >>= \case
           Left err ->
-            respond $ Left $ invalidParams $ Text.pack err
-          Right template -> renderScaffoldTemplate args template
+            respond $ Left $ makeInvalidParamsError $ Text.pack err
+          Right template -> applyScaffoldTemplate args template
 
-    renderScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
-    renderScaffoldTemplate args@Args {..} template = case pathToExtImport of
+    applyScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
+    applyScaffoldTemplate args@Args {..} template = case pathToExtImport of
       Inference.Decl _ declName : _ -> do
         let symbolData = case symbolName of
               ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
@@ -167,14 +170,14 @@ handler request respond = withParsedArgs request respond scaffold
         -- the LSP client. See "Current Limitations" above.
         liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
 
-        notifyClientOfChanges args
+        notifyClientOfFileChanges args
         respond $ Right Aeson.Null
-      _ -> respond $ Left $ invalidParams $ Text.pack $ "Top-level step in path to ext import is not a decl: " ++ show pathToExtImport
+      _ -> respond $ Left $ makeInvalidParamsError $ Text.pack $ "Top-level step in path to ext import is not a decl: " ++ show pathToExtImport
 
     -- Displays a message to the client that a file changed, with a button to
     -- open the changed file.
-    notifyClientOfChanges :: Args -> ServerM ()
-    notifyClientOfChanges Args {..} = do
+    notifyClientOfFileChanges :: Args -> ServerM ()
+    notifyClientOfFileChanges Args {..} = do
       let symbol = case symbolName of
             ExtImportModule _ -> "default export"
             ExtImportField name -> "export " <> name

@@ -19,7 +19,7 @@ spec_SourceSpanTest = do
       it "when first overlaps second on its right edge" $ do
         spansOverlap (SourceSpan 4 10) (SourceSpan 0 5) `shouldBe` True
       it "when second is zero-width" $ do
-        spansOverlap (SourceSpan 0 5) (SourceSpan 2 2) `shouldBe` False
+        spansOverlap (SourceSpan 0 5) (SourceSpan 2 2) `shouldBe` True
       it "is commutative" $ do
         property $ \s0 e0 s1 e1 ->
           let first = SourceSpan s0 e0

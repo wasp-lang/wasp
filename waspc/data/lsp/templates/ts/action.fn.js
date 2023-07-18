@@ -5,4 +5,3 @@
 {{#default?}}
 export default {{name}}
 {{/default?}}
-

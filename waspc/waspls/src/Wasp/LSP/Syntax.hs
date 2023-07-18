@@ -31,8 +31,9 @@ lspPositionToOffset srcString (J.Position l c) =
    in -- We add 1 to the length of each line to make sure to count the newline
       sum (map ((+ 1) . length) linesBefore) + fromIntegral c
 
--- | @lspRangeToSpan srcString range@ returns 0-based source span from start of
--- @srcString@ to the specified line and column.
+-- | @lspRangeToSpan srcString range@ converts the @range@ into a 'SourceSpan',
+-- where the start and end offsets of the span are 0-based offsets from the
+-- start of @srcString@.
 lspRangeToSpan :: String -> J.Range -> SourceSpan
 lspRangeToSpan srcString (J.Range start end) =
   let startOffset = lspPositionToOffset srcString start
@@ -51,11 +52,11 @@ locationAtOffset targetOffset start = go $ bottom start
       | offsetAt at == targetOffset = at
       | offsetAfter at > targetOffset = at
       | offsetAfter at == targetOffset =
-          if not $ S.syntaxKindIsTrivia $ kindAt at
-            then at
-            else case at & next of
-              Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
-              _ -> at
+        if not $ S.syntaxKindIsTrivia $ kindAt at
+          then at
+          else case at & next of
+            Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
+            _ -> at
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next

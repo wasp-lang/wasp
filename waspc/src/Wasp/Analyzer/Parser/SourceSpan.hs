@@ -21,6 +21,4 @@ data SourceSpan = SourceSpan !SourceOffset !SourceOffset
 instance NFData SourceSpan
 
 spansOverlap :: SourceSpan -> SourceSpan -> Bool
-spansOverlap (SourceSpan s0 e0) (SourceSpan s1 e1)
-  | s0 == e0 || s1 == e1 = False
-  | otherwise = (s0 <= s1 && e0 > s1) || (s1 <= s0 && e1 > s0)
+spansOverlap (SourceSpan s0 e0) (SourceSpan s1 e1) = not ((s1 >= e0) || (s0 >= e1))

@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 
-module Wasp.LSP.Commands.CommandPlugin
-  ( CommandPlugin (CommandPlugin, commandName, commandHandler),
+module Wasp.LSP.Commands.Command
+  ( Command (Command, commandName, commandHandler),
     withParsedArgs,
-    invalidParams,
+    makeInvalidParamsError,
   )
 where
 
@@ -17,9 +17,9 @@ import qualified Language.LSP.Types.Lens as LSP
 import Wasp.LSP.ServerMonads (ServerM)
 
 -- | Command name and handler. When a 'LSP.WorkspaceExecuteCommand' request is
--- received with the command name matching the one listed in a 'CommandPlugin',
--- the corresponding handler is executed.
-data CommandPlugin = CommandPlugin
+-- received with the command name matching the one listed in a 'Command', the
+-- corresponding handler is executed.
+data Command = Command
   { commandName :: Text,
     commandHandler :: LSP.Handler ServerM 'LSP.WorkspaceExecuteCommand
   }
@@ -38,12 +38,12 @@ withParsedArgs ::
   m ()
 withParsedArgs request respond run = case request ^. LSP.params . LSP.arguments of
   Just (LSP.List [argument]) -> case fromJSON argument of
-    Error err -> respond $ Left $ invalidParams $ Text.pack err
+    Error err -> respond $ Left $ makeInvalidParamsError $ Text.pack err
     Success args -> run args
-  _ -> respond $ Left $ invalidParams "Expected exactly one argument"
+  _ -> respond $ Left $ makeInvalidParamsError "Expected exactly one argument"
 
-invalidParams :: Text -> LSP.ResponseError
-invalidParams msg =
+makeInvalidParamsError :: Text -> LSP.ResponseError
+makeInvalidParamsError msg =
   LSP.ResponseError
     { _code = LSP.InvalidParams,
       _message = msg,

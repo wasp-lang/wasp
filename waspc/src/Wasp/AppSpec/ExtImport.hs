@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
@@ -31,11 +32,7 @@ data ExtImportName
     ExtImportModule Identifier
   | -- | Represents external imports like @import { Identifier } from "file.js"@
     ExtImportField Identifier
-  deriving (Show, Eq, Data, Generic)
-
-instance FromJSON ExtImportName
-
-instance ToJSON ExtImportName
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 importIdentifier :: ExtImport -> Identifier
 importIdentifier (ExtImport importName _) = case importName of
