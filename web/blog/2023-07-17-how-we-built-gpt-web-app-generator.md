@@ -18,13 +18,18 @@ We created [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/), 
 
 We started this as an experiment, to see how well we could use GPT to generate full-stack web apps in [Wasp](https://wasp-lang.dev/), the open-source JS web app framework that we are developing. Since we launched, we had more than 3000 apps generated in just a couple of days!
 
+<ImgWithCaption
+  source="img/gpt-wasp/how-it-works.gif"
+  caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀"
+/>
+
 Check out [this blog post](https://wasp-lang.dev/blog/2023/07/10/gpt-web-app-generator) to see GPT Web App Generator in action, including a one-minute demo video, few example apps, and learn a bit more about our plans for the future. Or, try it out yourself at https://magic-app-generator.wasp-lang.dev/ !
 
-In this blog post, we are going to explore the technical side of creating the GPT Web App Generator: techniques we used, how we engineered our prompts, challenges we encountered, and choices we made! (Note from here on we will just refer to it as the “Generator”, or “code agent” when talking about the backend)
+In this blog post, **we are going to explore the technical side of creating the GPT Web App Generator**: techniques we used, how we engineered our prompts, challenges we encountered, and choices we made! (Note from here on we will just refer to it as the “Generator”, or “code agent” when talking about the backend)
 
 Also, all the code behind the Generator is open source: [web app](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/wasp-ai), [GPT code agent](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI).
 
-## How well does it work?
+## How well does it work 🤔?
 
 First, let’s quickly explain what we ended up with and how it performs.
 
@@ -44,11 +49,18 @@ You can see an example of generated codebase here: [https://magic-app-generator.
   caption="Result of generating a Todo app"
 />
 
-Generator does its best to produce code that works out of the box → you can download it to your machine and run it. For simpler apps, such as [TodoApp](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c), it often generates code with no mistakes, and you can run them out of the box. For a bit more complex apps, like a blog with posts and comments, it still generates a reasonable codebase but there are some mistakes to be expected here and there. For even more complex apps, it usually doesn’t follow up completely, but stops at some level of complexity and fills in the rest with TODOs or omits functionality, so it is kind of like a simplified model of what was asked for. Overall, it is optimized for producing CRUD business web apps.
+Generator does its best to produce code that works out of the box → you can download it to your machine and run it. For simpler apps, such as [TodoApp](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c), it often generates code with no mistakes, and you can run them out of the box.
+
+<ImgWithCaption
+  source="img/gpt-wasp/todo-app.png"
+  caption="What generated TodoApp looks like"
+/>
+
+For a bit more complex apps, like a blog with posts and comments, it still generates a reasonable codebase but there are some mistakes to be expected here and there. For even more complex apps, it usually doesn’t follow up completely, but stops at some level of complexity and fills in the rest with TODOs or omits functionality, so it is kind of like a simplified model of what was asked for. Overall, it is optimized for producing CRUD business web apps.
 
 This makes it a great tool for kick-starting your next web app project with a solid prototype, or to even generate working, simple apps on the fly!
 
-## How does it work?
+## How does it work ⚙️?
 
 When we set out to build the Generator, we gave ourselves the following goals:
 
@@ -59,19 +71,19 @@ When we set out to build the Generator, we gave ourselves the following goals:
 
 Therefore, to keep it simple, we don’t do any LLM-level engineering or fine-tuning, instead, **we just use OpenAI API (specifically GPT3.5 and GPT4) to generate different parts of the app while giving it the right context at every moment (pieces of docs, examples, guidelines, …)**. To ensure the coherence and quality of the generated app, we don’t give our code agent too much freedom but instead heavily guide it, step by step, through generating the app.
 
-As step zero, we generate some code files deterministically, without GPT, just based on the options that the user chose (primary color, auth method): those include some config files for the project, some basic global CSS, and some auth logic. You can see this logic here (we call those “skeleton” files): [code on Github](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/Skeleton.hs) .
+As **step zero**, we generate some code files deterministically, without GPT, just based on the options that the user chose (primary color, auth method): those include some config files for the project, some basic global CSS, and some auth logic. You can see this logic here (we call those “skeleton” files): [code on Github](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/Skeleton.hs) .
 
 Then, the code agent takes over!
 
-The code agent does its work in 3 main phases:
+**The code agent does its work in 3 main phases**:
 
-1. Planning
-2. Generating
-3. Fixing
+1. **Planning 📝**
+2. **Generating 🏭**
+3. **Fixing 🔧**
 
 Since GPT4 is quite slower and significantly more expensive than GPT3.5 (also has a lower rate limit regarding the number of tokens per minute, and also the number of requests per minute), we use GPT4 only for the planning, since that is the crucial step, and then after that, we use GPT3.5 for the rest.
 
-### Intermezzo: short explanation of OpenAI Chat Completions API
+### 🎶 Intermezzo: short explanation of OpenAI Chat Completions API
 
 OpenAI API offers different services, but we used only one of them: “chat completions”.
 
@@ -85,7 +97,7 @@ If you are wondering how ChatGPT (the web app that uses GPT in the background) w
 
 [Official guide](https://platform.openai.com/docs/guides/gpt/chat-completions-api), [official API reference](https://platform.openai.com/docs/api-reference/chat/create).
 
-### Step #1: Planning
+### Step #1: Planning 📝
 
 A Wasp app consists of Entities (Prisma data models), Operations (NodeJS Queries and Actions), and Pages (React).
 
@@ -97,12 +109,12 @@ Once given an app description and title, **the code agent first generates a Plan
 
 This is done via a single API request toward GPT, where the prompt consists of the following:
 
-1. Short info about the Wasp framework + an example of some Wasp code.
-2. We explain that we want to generate the Plan, explain what it is, and how it is represented as JSON, by describing its schema.
-3. We provide some examples of the Plan, represented as JSON.
-4. Some rules and guidelines we want it to follow (e.g. “plan should have at least 1 page”, “make sure to generate a User entity”).
-5. Instructions to return the Plan only as a valid JSON response, and no other text.
-6. App name and description (as provided by the user).
+ - Short **info about the Wasp** framework + an example of some Wasp code.
+ - We **explain that we want to generate the Plan**, explain what it is, and how it is represented as **JSON**, by describing its schema.
+ - We provide some **examples of the Plan**, represented as JSON.
+ - Some **rules and guidelines** we want it to follow (e.g. “plan should have at least 1 page”, “make sure to generate a User entity”).
+ - Instructions to return the Plan only as a **valid JSON response**, and no other text.
+ - **App name and description** (as provided by the user).
 
 You can see how we generate such a prompt in the code [here](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/Plan.hs#L61).
 
@@ -268,7 +280,7 @@ You can see how we generate such a prompt in the code [here](https://github.com/
 
 GPT then responds with a JSON (hopefully), that we parse, and we have ourselves a Plan! We will use this Plan in the following steps, to drive our generation of other parts of the app. Note that GPT sometimes adds text to the JSON response or returns invalid JSON, so we built in some simple approaches to overcome these issues, which we explain in detail later.
 
-### Intermezzo: Common prompt design
+### 🎶 Intermezzo: Common prompt design
 
 The prompt design we just described above for generating a Plan is actually very similar for other steps (e.g. the Generation and Fixing steps along with their respective sub-steps), so let’s cover those commonalities.
 
@@ -285,7 +297,7 @@ All of the prompts we use more or less adhere to the same basic structure:
 
 We put the original user prompt at the end because then we can tell GPT in the system message after it sees the start of the original user prompt (we have a special header for it), that it needs to treat everything after it as an app description and not as instructions on what to do → this way we attempt to **defend from the potential prompt injection**.
 
-### Step #2: Generating
+### Step #2: Generating 🏭
 
 After producing the Plan, Generator goes step by step through the Plan and asks GPT to generate each web app piece, while providing it with docs, examples, and guidelines. Each time a web app piece is generated, Generator fits it into the whole app. This is where most of our work comes in: **equipping GPT with the right information at the right moment**.
 
@@ -299,7 +311,7 @@ Code on Github: [generating an Operation](https://github.com/wasp-lang/wasp/blob
 
 When generating Operations, we provide GPT with the info about the previously generated Entities, while when generating Pages, we provide GPT with the info about previously generated Entities and Operations.
 
-### Step #3: Fixing
+### Step #3: Fixing 🔧
 
 Finally, the Generator tries its best to fix any mistakes that GPT might have introduced previously. **GPT loves fixing stuff it previously generated** → if you first ask it to generate some code, and then just tell it to fix it, it will often improve it!
 
@@ -321,11 +333,11 @@ In the prompt, we would usually repeat the same guidelines we provided previousl
 
 ## Things we tried/learned
 
-### Explanations
+### Explanations 💬
 
 We tried telling GPT to explain what it did while fixing mistakes: which mistakes it will fix, and which mistakes it fixed, since we read that that can help, but **we didn’t see visible improvement in its performance**.
 
-### Testing
+### Testing 🧪
 
 Testing the performance of your code agent is hard.
 
@@ -339,13 +351,13 @@ Evaluation performance would also ideally be automated, e.g. we would count the 
 
 We, unfortunately, didn’t have time to set up such a system, so **we were mostly doing testing manually, which is quite subjective and vulnerable to randomness**, and is effective only for changes that have quite a big impact, while you can’t really detect those that are minor optimizations.
 
-### Context vs smarts
+### Context vs smarts 🧠
 
 When we started working on the Generator, we thought the size of GPT’s context would be the main issue. However, we didn’t have any issues with context at the end → most of what we wanted to specify would fit into 2k to max 4k tokens, while GPT3.5 has context up to 16k!
 
 Instead, **we had bigger problems with its “smarts”** → meaning that GPT would not follow the rules we very explicitly told it to follow, or would do things we explicitly forbid it from doing. GPT4 proved to be better at following rules than GPT3.5, but even GPT4 would keep doing some mistakes over and over and forgetting about specific rules (even though there was more than enough context). The “fixing” step did help with this: we would repeat the rules there and GPT would pick up more of them, but often still not all of them.
 
-### Handling JSON as a response
+### Handling JSON as a response 📋
 
 As mentioned earlier in this article, in all our interactions with GPT, we always ask it to return the response as JSON, for which we specify the schema and give some examples.
 
@@ -360,13 +372,13 @@ In practice, **these two methods took care of invalid JSON in 99% of the cases f
 
 NOTE: While we were implementing our code agent, OpenAI released new functionality for GPT, “functions”, which is basically a mechanism to have GPT respond with a structured JSON, following the schema of your description. So it would likely make more sense to do this with “functions”, but we already had this working well so we just stuck with it.  
 
-### Handling interruptions in the service
+### Handling interruptions in the service 🚧
 
 We were calling OpenAI API directly, so we noticed quickly that often it would return 503 - service unavailable - especially during peak hours (e.g. 3 pm CET).
 
 Therefore, it is recommended to have some kind of retry mechanism, ideally with exponential backoff, that makes your code agent redundant to such random interruptions in the service, and also to potential rate limiting. **We went with the retry mechanism with exponential backoff and it worked great**.
 
-### Temperature
+### Temperature 🌡️
 
 Temperature determines how creative GPT is, but the more creative it gets, the less “stable” it is. It hallucinates more and also has a harder time following rules.
 A temperature is a number from 0 to 2, with a default value of 1.
@@ -382,16 +394,19 @@ That said, I don’t think we tested values below 0.7 enough, and that is someth
 
 **We ended up using 0.7 as our default value, except for prompts that do fixing, for those we used a lower value of 0.5** because it seemed like GPT was changing stuff too much while fixing at 0.7 (being too creative). Our logic was: let it be creative when writing the first version of the code, then have it be a bit more conventional while fixing it. Again, we haven’t tested all this enough, so this is certainly something I would like us to explore more. 
 
-## Future
+## Future 🔮
 
 While we ended up being impressed with the performance of what we managed to build in such a short time, we were also left wanting to try so many different ideas on how to improve it further. There are many avenues left to be explored in this ecosystem that is developing so rapidly, that it is hard to reach the point where you feel like you explored all the options and found the optimal solution.
 
 Some of the ideas that would be exciting to try in the future:
 
 1. We put quite a few limitations regarding the code that our code agent generates, to make sure it works well enough: we don’t allow it to create helper files, to include npm dependencies, no TypeScript, no advanced Wasp features, … . **We would love to lift the limitations**, therefore allowing the creation of more complex and powerful apps.
+
 2. Instead of our code agent doing everything in one shot, we could **allow the user to interact with it** after the first version of the app is generated: to provide additional prompts, for example, to fix something, to add some feature to the app, to do something differently, …. The hardest thing here would be figuring out which context to provide to the GPT at which moment and designing the experience appropriately, but I am certain it is doable, and it would take the Generator to the next level of usability.
 Another option is to allow intervention in between initial generation steps → for example, after the plan is generated, to allow the user to adjust it by providing additional instructions to the GPT.
+
 3. Find an open-source **LLM that fits the purpose and fine-tune / pre-train it for our purpose**. If we could teach it more about Wasp and the technologies we use, so we don’t have to include it in every prompt, we could save quite some context + have the LLM be more focused on the rules and guidelines we are specifying in the prompt. We could also host it ourselves and have more control over the costs and rate limits.
+
 4. Take a **different approach to the code agent: let it be more free**. Instead of guiding it so carefully, we could teach it about all the different things it is allowed to ask for (ask for docs, ask for examples, ask to generate a certain piece of the app, ask to see a certain already generated piece of the app, …) and would let it guide itself more freely. It could constantly generate a plan, execute it, update the plan, and so on until it reaches the state of equilibrium. This approach potentially promises more flexibility and would likely be able to generate apps of greater complexity, but it also requires quite more tokens and a powerful LLM to drive it → I believe this approach will become more feasible as LLMs become more capable.
 
 
