@@ -83,6 +83,8 @@ Then, the code agent takes over!
 
 Since GPT4 is quite slower and significantly more expensive than GPT3.5 (also has a lower rate limit regarding the number of tokens per minute, and also the number of requests per minute), we use GPT4 only for the planning, since that is the crucial step, and then after that, we use GPT3.5 for the rest.
 
+As for **cost per app** 💸: one app typically consumes from 25k to 60k tokens, which comes to about **$0.1 to $0.2** per app, when we use a mix of GPT4 and GPT3.5. If we run it just with GPT4, then the cost is 10x, which is from **$1 to $2**.
+
 ### 🎶 Intermezzo: short explanation of OpenAI Chat Completions API
 
 OpenAI API offers different services, but we used only one of them: “chat completions”.
