@@ -65,3 +65,5 @@ Answers: How do I add/configure X in my project?
 
 --> Why are these not Advanced Features? Each are pretty boring and small, and
     not really an interesting feature of Wasp, just something that can be done.
+    And they all relate to configuring the project/what can exist within the
+    project.

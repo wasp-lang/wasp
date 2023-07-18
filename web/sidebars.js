@@ -66,6 +66,7 @@ module.exports = {
       label: "Project Setup",
       collapsed: false,
       items: [
+        "project/starter-templates",
         "project/client-config",
         "project/server-config",
         "project/public-files",
@@ -75,5 +76,16 @@ module.exports = {
         "project/css-frameworks",
       ]
     },
+    {
+      type: "category",
+      label: "Miscellaneous",
+      collapsed: false,
+      items: [
+        "contributing",
+        "telemetry",
+        "vision",
+        "contact"
+      ]
+    }
   ],
 };
