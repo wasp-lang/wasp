@@ -132,11 +132,28 @@ export default HelloPage
 
 </Tabs>
 
-Now you can visit `/hello/your-name` and see `Hello your-name!`!
+Now you can visit `/hello/your-name` and see "Hello your-name!"
 
 ## Cleaning Up
 
-To prepare for starting to build the Todo app, we'll clean up the project and remove files and code we won't need. Start by deleting `Main.css`, `waspLogo.png`, and `HelloPage.jsx` that we just created in the `src/client/` folder.
+Let's prepare for building the Todo app by cleaning up the project and removing files and code we won't need. Start by deleting `Main.css`, `waspLogo.png`, and `HelloPage.jsx` that we just created in the `src/client/` folder.
+
+Since we deleted `HelloPage.jsx`, we also need to remember to remove the `route` and `page` declarations we wrote for it. Your Wasp file should now look like this:
+
+```wasp title="main.wasp"
+app TodoApp {
+  wasp: {
+    version: "^0.11.0"
+  },
+  title: "Todo app"
+}
+
+route RootRoute { path: "/", to: MainPage }
+
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
+````
 
 Next, we'll remove most of the code from the `MainPage` component:
 
