@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useMemo } from "react";
 import getStats from "@wasp/queries/getStats";
 import { useQuery } from "@wasp/queries";
@@ -11,12 +12,26 @@ import { exampleIdeas } from "../examples";
 import logout from "@wasp/auth/logout";
 import { WaspIcon } from "../components/WaspIcon";
 import { Header } from "../components/Header";
+import { PiDownloadDuotone } from "react-icons/pi";
 
 export function Stats() {
   const [filterOutExampleApps, setFilterOutExampleApps] = useState(false);
   const [filterOutKnownUsers, setFilterOutKnownUsers] = useState(false);
 
   const { data: stats, isLoading, error } = useQuery(getStats);
+
+  const logsByProjectId = useMemo(() => {
+    if (!stats) {
+      return {};
+    }
+    if (!stats.latestProjectsWithLogs) {
+      return {};
+    }
+    return stats.latestProjectsWithLogs.reduce((acc, project) => {
+      acc[project.id] = project.logs;
+      return acc;
+    }, {});
+  }, [stats]);
 
   function getColorValue(colorName) {
     return availableColors.find((color) => color.name === colorName).color;
@@ -84,20 +99,28 @@ export function Stats() {
   }
 
   function getDuration(stat) {
-    if (stat.logs.length < 2) {
+    if (!logsByProjectId[stat.id]) {
       return "-";
     }
-    const start = stat.logs[stat.logs.length - 1].createdAt;
-    const end = stat.logs[0].createdAt;
+    const logs = logsByProjectId[stat.id];
+    if (logs.length < 2) {
+      return "-";
+    }
+    const start = logs[logs.length - 1].createdAt;
+    const end = logs[0].createdAt;
     return getFormattedDiff(start, end);
   }
 
   function getWaitingInQueueDuration(stat) {
-    if (stat.logs.length < 2) {
+    if (!logsByProjectId[stat.id]) {
+      return "-";
+    }
+    const logs = logsByProjectId[stat.id];
+    if (logs.length < 2) {
       return "-";
     }
     const start = stat.createdAt;
-    const end = stat.logs[stat.logs.length - 1].createdAt;
+    const end = logs[logs.length - 1].createdAt;
     return getFormattedDiff(start, end);
   }
 
@@ -213,14 +236,23 @@ export function Stats() {
                       >
                         <Color value={getColorValue(stat.primaryColor)} />{" "}
                         <span title={stat.description}>{stat.name}</span>{" "}
-                        {stat.user && (
-                          <span
-                            className="text-slate-300"
-                            title={stat.user.email}
-                          >
-                            <WaspIcon className="w-5 h-5" />
-                          </span>
-                        )}
+                        <span className="flex gap-1">
+                          {stat.user && (
+                            <span title={stat.user.email}>
+                              <WaspIcon className="w-5 h-5" />
+                            </span>
+                          )}
+                          {stat.zipDownloadedAt && (
+                            <span
+                              title={`Downlaoded ${format(
+                                stat.zipDownloadedAt
+                              )}`}
+                              className="w-5 h-5 bg-sky-100 rounded-full flex items-center justify-center text-sky-800 border border-sky-200"
+                            >
+                              <PiDownloadDuotone className="w-3 h-3" />
+                            </span>
+                          )}
+                        </span>
                       </th>
                       <td className="px-6 py-4">
                         <StatusPill status={getStatusName(stat.status)} sm>
@@ -237,7 +269,9 @@ export function Stats() {
                         {getWaitingInQueueDuration(stat)} &rarr;{" "}
                         {getDuration(stat)}
                       </td>
-                      <td className={`px-6 py-4 creativity-${stat.creativityLevel}`}>
+                      <td
+                        className={`px-6 py-4 creativity-${stat.creativityLevel}`}
+                      >
                         {stat.creativityLevel}
                       </td>
                       <td className="px-6 py-4">

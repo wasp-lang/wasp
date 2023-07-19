@@ -1,3 +1,4 @@
+import { getNowInUTC } from "../utils.js";
 import { log } from "./utils.js";
 
 export async function failStaleGenerations(
@@ -61,9 +62,4 @@ export async function failStaleGenerations(
       success: false,
     };
   }
-}
-
-function getNowInUTC() {
-  const now = new Date();
-  return new Date(now.toUTCString());
 }

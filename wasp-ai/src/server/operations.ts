@@ -1,11 +1,16 @@
 import {
   RegisterZipDownload,
   StartGeneratingNewApp,
-  CreateFeedback
+  CreateFeedback,
 } from "@wasp/actions/types";
-import { GetAppGenerationResult, GetStats, GetFeedback } from "@wasp/queries/types";
+import {
+  GetAppGenerationResult,
+  GetStats,
+  GetFeedback,
+} from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
+import { getNowInUTC } from "./utils.js";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -71,15 +76,19 @@ export const registerZipDownload: RegisterZipDownload<{
       },
     });
   } catch (e) {
-    if (e.name === "NotFoundError") {
+    if ((e as any).name === "NotFoundError") {
       throw new HttpError(404, "App not found.");
-    } else { throw e; }
+    } else {
+      throw e;
+    }
   }
 };
 
-export const createFeedback: CreateFeedback<
-  { score: number , message: string, projectId: string }
-> = (async (args, context) => {
+export const createFeedback: CreateFeedback<{
+  score: number;
+  message: string;
+  projectId: string;
+}> = async (args, context) => {
   if (!args.score) {
     throw new HttpError(422, "Score is required.");
   }
@@ -91,11 +100,10 @@ export const createFeedback: CreateFeedback<
     data: {
       score: args.score,
       message: args.message,
-      projectId: args.projectId
-    }
-  })
-
-})
+      projectId: args.projectId,
+    },
+  });
+};
 
 export const getAppGenerationResult = (async (args, context) => {
   const appId = args.appId;
@@ -128,9 +136,11 @@ export const getAppGenerationResult = (async (args, context) => {
       numberOfProjectsAheadInQueue,
     };
   } catch (e) {
-    if (e.name === "NotFoundError") {
+    if ((e as any).name === "NotFoundError") {
       throw new HttpError(404, "App not found.");
-    } else { throw e; }
+    } else {
+      throw e;
+    }
   }
 }) satisfies GetAppGenerationResult<{
   appId: string;
@@ -152,14 +162,14 @@ export const getFeedback = (async (args, context) => {
         select: {
           name: true,
           description: true,
-        }
-      }
-    }
-  })
+        },
+      },
+    },
+  });
 
   return {
-    feedbackEntries
-  }
+    feedbackEntries,
+  };
 }) satisfies GetFeedback<{}>;
 
 export const getStats = (async (_args, context) => {
@@ -169,6 +179,27 @@ export const getStats = (async (_args, context) => {
   }
 
   const { Project } = context.entities;
+
+  const now = getNowInUTC();
+  const nowMinus24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  // Projects created in the last 24 hours, with logs
+  const latestProjectsWithLogs = await Project.findMany({
+    where: {
+      createdAt: {
+        gte: nowMinus24Hours,
+      },
+    },
+    include: {
+      logs: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
+
+  // All projects but without logs
   const projects = await Project.findMany({
     orderBy: {
       createdAt: "desc",
@@ -179,14 +210,11 @@ export const getStats = (async (_args, context) => {
           email: true,
         },
       },
-      logs: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
     },
   });
+
   return {
     projects,
+    latestProjectsWithLogs,
   };
 }) satisfies GetStats<{}>;
