@@ -7,33 +7,14 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
     -- Command @wasp.scaffold.ts-symbol@ appends a new function with the given
     -- name to end of a particular file.
     --
-    -- Scaffolding is based on the location of the external import. It looks for
-    -- the templates for each kind of JS/TS code in @data/lsp/templates/ts@.
-    -- For example, it differentiates between
+    -- Mustache templates are used to write the code for the new function.
+    -- @templateForRequest@ chooses a template in @data/lsp/template/ts@ based
+    -- on the location of the external import and the extension of the file that
+    -- the function will be appended to.
     --
-    -- @
-    -- query getAll { fn: import { getAll } from "@server/queries.js" }
-    -- @
-    --
-    -- and
-    --
-    -- @
-    -- action deleteAll { fn: import { deleteAll } from "@server/queries.ts" }
-    -- @
-    --
-    -- The former looks for a template named @query.fn.js@, the latter for
-    -- @action.fn.ts@. To add support for a new kind of JS/TS code to scaffold,
-    -- create a new file @data/lsp/templates/ts/<path>.<ext>@, where @<ext>@ is
-    -- the extension of the file that the code will be added to and @<path>@ is
-    -- the dot-separated path to the external import in the wasp code. Each
-    -- piece of the path is:
-    --
-    -- - The declaration type, as a string.
-    -- - @list@, for a value inside a list.
-    -- - @[n]@, for the @n@-th value in a tuple.
-    -- - The key of a dictionary field, as a string.
-    --
-    -- The path pieces are listed from outermost to innermost.
+    -- To add a new template, add the template to the template directory. Then,
+    -- add a new equation to @templateForRequest@ that matches when you want the
+    -- template to be used.
     --
     -- The templates have several variables available to them:
     --
@@ -81,7 +62,6 @@ import Control.Monad.Log.Class (logM)
 import Data.Aeson (FromJSON, ToJSON (toJSON), object, parseJSON, withObject, (.:), (.=))
 import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
-import Data.List (intercalate)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
@@ -96,7 +76,7 @@ import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule)
 import qualified Wasp.Data
 import Wasp.LSP.Commands.Command (Command (Command, commandHandler, commandName), makeInvalidParamsError, withParsedArgs)
 import Wasp.LSP.ServerMonads (ServerM)
-import Wasp.LSP.TypeInference (ExprPath)
+import Wasp.LSP.TypeInference (ExprPath, ExprPathStep (Decl, DictKey))
 import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.Util (toUpperFirst)
 import Wasp.Util.IO (doesFileExist)
@@ -205,23 +185,23 @@ handler request respond = withParsedArgs request respond scaffold
 -- | Check if the scaffold command has a template available for the given args.
 -- If this is false, running the command with these args will __definitely__
 -- fail.
-hasTemplateForArgs :: MonadIO m => Args -> m Bool
+hasTemplateForArgs :: Args -> Bool
 hasTemplateForArgs Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
-  Nothing -> return False
-  Just ext -> isRight <$> getTemplateFor pathToExtImport ext
+  Nothing -> False
+  Just ext -> isRight $ templateForRequest pathToExtImport ext
 
 -- | @getTemplateFor pathToExtImport extension@ finds the mustache template in
 -- @data/lsp/templates/ts@ and compiles it.
 getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir
-  templateFile <- (templatesDir SP.</>) <$> relTemplateForPath exprPath ext
+  templateFile <- (templatesDir SP.</>) <$> templateForRequest exprPath ext
   templateExists <- liftIO $ doesFileExist templateFile
   if templateExists
     then do
       compileResult <- liftIO $ Mustache.automaticCompile [SP.fromAbsDir templatesDir] (SP.fromAbsFile templateFile)
       case compileResult of
-        -- Note: 'error' is used here because all templates should be valid.
+        -- Note: 'error' is used here because all templates should compile succesfully.
         Left err -> error $ printf "Compilation of template %s failed: %s" (SP.fromAbsFile templateFile) (show err)
         Right template -> return template
     else throwError $ printf "No scaffolding template for request: %s does not exist" (SP.fromAbsFile templateFile)
@@ -241,21 +221,25 @@ data TemplatesDir
 
 data Template
 
+type TemplateFile = SP.Path' (SP.Rel TemplatesDir) (SP.File Template)
+
 templatesDirInDataDir :: SP.Path' (SP.Rel Wasp.Data.DataDir) (SP.Dir TemplatesDir)
 templatesDirInDataDir = [SP.reldir|lsp/templates/ts|]
 
 getTemplatesDir :: IO (SP.Path' SP.Abs (SP.Dir TemplatesDir))
 getTemplatesDir = (SP.</> templatesDirInDataDir) <$> Wasp.Data.getAbsDataDirPath
 
--- | @relTemplateForDeclType exprPath extension@ returns the relative path to the
--- scaffold template for the expr path and file type.
-relTemplateForPath :: MonadError String m => ExprPath -> String -> m (SP.Path' (SP.Rel TemplatesDir) (SP.File Template))
-relTemplateForPath exprPath ext = case SP.parseRelFile $ pathDescription ++ ext of
-  Nothing -> throwError $ "Invalid path from exprPath and ext: " ++ pathDescription ++ ext
-  Just file -> return file
-  where
-    pathDescription = intercalate "." $ map stepDescription exprPath
-    stepDescription (Inference.DictKey k) = printf "%s" k
-    stepDescription Inference.List = "list"
-    stepDescription (Inference.Tuple n) = printf "[%d]" n
-    stepDescription (Inference.Decl decl _) = decl
+templateForRequest ::
+  MonadError String m =>
+  -- | Path to the external import that the scaffold request came from.
+  ExprPath ->
+  -- | Extension of the file that the request is scaffolding code in.
+  String ->
+  m TemplateFile
+templateForRequest [Decl "query" _, DictKey "fn"] ".ts" = pure [SP.relfile|query.fn.ts|]
+templateForRequest [Decl "action" _, DictKey "fn"] ".ts" = pure [SP.relfile|action.fn.ts|]
+templateForRequest [Decl declType _, DictKey "fn"] ".js"
+  | declType `elem` ["query", "action"] = pure [SP.relfile|operation.fn.js|]
+templateForRequest [Decl "page" _, DictKey "component"] ext
+  | ext `elem` [".jsx", ".tsx"] = pure [SP.relfile|page.component.jsx|]
+templateForRequest exprPath ext = throwError $ printf "No template defined for %s with extension %s" (show exprPath) ext

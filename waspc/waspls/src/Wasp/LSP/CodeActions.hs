@@ -96,11 +96,17 @@ findCodeActionsForExtImport src extImport = do
     -- If no file exists, returns a list of files with each allowed extension,
     -- based on JS module resolution. For example, @import x from "@server/y.js"@
     -- results in both @y.ts@ and @y.js@.
+    --
+    -- See "Wasp.LSP.ExtImport.Path" for how allowed extensions are decided based
+    -- on the path written in the Wasp source code.
     getPossiblePaths :: Bool -> WaspStyleExtFilePath -> HandlerM [SP.Path' SP.Abs SP.File']
     getPossiblePaths createNewFile waspStylePath = do
       let cachePathFromSrc =
             fromMaybe (error "[createCodeActions] unreachable: invalid wasp style path") $
               ExtImport.waspStylePathToCachePath waspStylePath
+      -- The allowed extensions stored in the cache are based on what files exist
+      -- on disk. Usually, paths in the cache will allow only one extension, which
+      -- will be exactly the extension that is used on the file system.
       allowedExts <-
         asks (lookupKey cachePathFromSrc . (^. State.tsExports)) >>= \case
           Nothing -> pure $ ExtImport.allowedExts $ ExtImport.cachePathExtType cachePathFromSrc
@@ -139,9 +145,8 @@ findCodeActionsForExtImport src extImport = do
       let title = case symbolName of
             ExtImportModule _ -> printf "Add default export to %s" relFilepath
             ExtImportField name -> printf "Create function `%s` in %s" name relFilepath
-      ScaffoldTS.hasTemplateForArgs args >>= \case
-        False -> return []
-        True ->
+      if ScaffoldTS.hasTemplateForArgs args
+        then
           return
             [ LSP.CodeAction
                 { _title = Text.pack title,
@@ -154,3 +159,4 @@ findCodeActionsForExtImport src extImport = do
                   _xdata = Nothing
                 }
             ]
+        else return []
