@@ -12,10 +12,23 @@ import logout from "@wasp/auth/logout";
 import { WaspIcon } from "../components/WaspIcon";
 import { Header } from "../components/Header";
 import { PiDownloadDuotone } from "react-icons/pi";
+import { MyDropdown } from "../components/Dropdown";
+
+const chartTypes = [
+  {
+    name: "Last 24 hours",
+    value: "last24Hours",
+  },
+  {
+    name: "Last 30 days",
+    value: "last30Days",
+  },
+];
 
 export function Stats() {
   const [filterOutExampleApps, setFilterOutExampleApps] = useState(false);
   const [filterOutKnownUsers, setFilterOutKnownUsers] = useState(false);
+  const [chartType, setChartType] = useState(chartTypes[0]);
 
   const { data: stats, isLoading, error } = useQuery(getStats);
 
@@ -90,6 +103,22 @@ export function Stats() {
       : [];
   }, [stats, stats?.projects, filterOutExampleApps, filterOutKnownUsers]);
 
+  const numberOfDownlaodedApps = useMemo(() => {
+    if (!stats) {
+      return 0;
+    }
+    return filteredStats.filter((project) => project.zipDownloadedAt).length;
+  }, [filteredStats]);
+
+  const percentageOfDownloadedApps = useMemo(() => {
+    if (!stats) {
+      return 0;
+    }
+    return Math.round(
+      (numberOfDownlaodedApps / filteredStats.length) * 10000
+    ) / 100;
+  }, [numberOfDownlaodedApps]);
+
   function getFormattedDiff(start, end) {
     const diff = (end - start) / 1000;
     const minutes = Math.round(diff / 60);
@@ -146,13 +175,25 @@ export function Stats() {
 
         {stats && stats.projects.length > 0 && (
           <>
-            <p className="text-sm text-slate-500 mb-2">
-              Number of projects created in the last 24 hours:{" "}
-            </p>
+            <div className="mb-3 flex justify-between items-end">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Projects over time
+                </h2>
+              </div>
+              <div className="w-1/3">
+                <MyDropdown
+                  options={chartTypes}
+                  value={chartType}
+                  onChange={setChartType}
+                />
+              </div>
+            </div>
             <div style={{ height: 300, width: "100%" }} className="mb-4">
               <ParentSize>
                 {({ width, height }) => (
                   <BarChart
+                    chartType={chartType.value}
                     projects={filteredStats}
                     width={width}
                     height={height}
@@ -199,8 +240,17 @@ export function Stats() {
                 </div>
               </div>
 
-              <p className="text-sm text-slate-500">
-                Number of displayed apps: {filteredStats.length}
+              <p className="text-sm text-slate-800 flex gap-2">
+                <span className="bg-slate-100 rounded-md px-2 py-1">
+                  Generated:{" "}
+                  <strong className="text-slate-800">
+                    {filteredStats.length}
+                  </strong>
+                </span>
+                <span className="bg-slate-100 rounded-md px-2 py-1">
+                  Downlaoded:{" "}
+                  <strong className="text-slate-800">{`${numberOfDownlaodedApps} (${percentageOfDownloadedApps}%)`}</strong>
+                </span>
               </p>
             </div>
 

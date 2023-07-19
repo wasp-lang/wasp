@@ -12,6 +12,7 @@ function generateLast24HoursData(projects) {
     const bucketStart = new Date(last24Hours.getTime() + i * 60 * 60 * 1000);
     const bucket = {
       date: bucketStart,
+      displayValue: bucketStart.getHours(),
       count: 0,
     };
     buckets.push(bucket);
@@ -31,13 +32,47 @@ function generateLast24HoursData(projects) {
   return buckets;
 }
 
+function generateLast30DaysData(projects) {
+  const buckets = [];
+  const now = new Date();
+  const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  for (let i = 0; i < 30; i++) {
+    const bucketStart = new Date(last30Days.getTime() + i * 24 * 60 * 60 * 1000);
+    const bucket = {
+      date: bucketStart,
+      displayValue: bucketStart.getDate() + 1,
+      count: 0,
+    };
+    buckets.push(bucket);
+  }
+  projects.forEach((project) => {
+    const createdAt = new Date(project.createdAt);
+    // Difference in days between now and when the project was created
+    const bucketIndex = Math.floor(
+      (now.getTime() - createdAt.getTime()) / (24 * 60 * 60 * 1000)
+    );
+    const reverseBucketIndex = buckets.length - bucketIndex - 1;
+    // Count only projects that were created in the last 30 days
+    if (bucketIndex >= 0 && bucketIndex < 30) {
+      buckets[reverseBucketIndex].count++;
+    }
+  });
+  console.log(buckets);
+  return buckets;
+}
+
 const verticalMargin = 50;
 const margins = {
   left: 30,
 };
 
-export function BarChart({ projects, width, height, events = false }) {
-  const data = useMemo(() => generateLast24HoursData(projects), [projects]);
+export function BarChart({ projects, chartType, width, height }) {
+  const data = useMemo(() => {
+    if (chartType === "last24Hours") {
+      return generateLast24HoursData(projects);
+    }
+    return generateLast30DaysData(projects);
+  }, [chartType, projects]);
   // bounds
   const xMax = width - margins.left;
   const yMax = height - verticalMargin;
@@ -48,13 +83,10 @@ export function BarChart({ projects, width, height, events = false }) {
       scaleBand({
         range: [0, xMax],
         round: true,
-        domain: data.map((bucket) => {
-          const hour = bucket.date.getHours();
-          return hour;
-        }),
+        domain: data.map((bucket) => bucket.displayValue),
         padding: 0.4,
       }),
-    [xMax]
+    [data, xMax]
   );
   const yScale = useMemo(
     () =>
@@ -63,7 +95,7 @@ export function BarChart({ projects, width, height, events = false }) {
         round: true,
         domain: [0, Math.max(...data.map((bucket) => bucket.count))],
       }),
-    [yMax]
+    [data, yMax]
   );
 
   return width < 10 ? null : (
@@ -71,10 +103,9 @@ export function BarChart({ projects, width, height, events = false }) {
       <rect width={width} height={height} className="fill-slate-100" rx={14} />
       <Group top={verticalMargin / 2} left={margins.left}>
         {data.map((d) => {
-          const dateHour = d.date.getHours();
           const barWidth = xScale.bandwidth();
           const barHeight = yMax - (yScale(d.count) ?? 0);
-          const barX = xScale(dateHour);
+          const barX = xScale(d.displayValue);
           const barY = yMax - barHeight;
           return (
             <Bar
@@ -84,10 +115,6 @@ export function BarChart({ projects, width, height, events = false }) {
               width={barWidth}
               height={barHeight}
               className="fill-pink-300"
-              onClick={() => {
-                if (events)
-                  alert(`clicked: ${JSON.stringify(Object.values(d))}`);
-              }}
             />
           );
         })}
