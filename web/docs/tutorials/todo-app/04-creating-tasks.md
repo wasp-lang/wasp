@@ -153,7 +153,7 @@ const NewTaskForm = () => {
       const description = target.description.value
       target.reset()
       await createTask({ description })
-    } catch (err: any) {
+    } catch (err) {
       window.alert("Error: " + err.message)
     }
   }
