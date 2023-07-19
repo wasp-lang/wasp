@@ -1,4 +1,3 @@
-// @ts-check
 import { useState, useMemo } from "react";
 import getStats from "@wasp/queries/getStats";
 import { useQuery } from "@wasp/queries";
