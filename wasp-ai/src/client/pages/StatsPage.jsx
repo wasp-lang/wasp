@@ -103,21 +103,20 @@ export function Stats() {
       : [];
   }, [stats, stats?.projects, filterOutExampleApps, filterOutKnownUsers]);
 
-  const numberOfDownlaodedApps = useMemo(() => {
-    if (!stats) {
-      return 0;
-    }
-    return filteredStats.filter((project) => project.zipDownloadedAt).length;
-  }, [filteredStats]);
+  if (isLoading) {
+    return <p>Loading</p>;
+  }
 
-  const percentageOfDownloadedApps = useMemo(() => {
-    if (!stats) {
-      return 0;
-    }
-    return Math.round(
-      (numberOfDownlaodedApps / filteredStats.length) * 10000
-    ) / 100;
-  }, [numberOfDownlaodedApps]);
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  if (!stats) {
+    return <p>Couldn't load stats</p>;
+  }
+
+  const downloadedPercentage =
+    Math.round(stats.downloadStats.downloadRatio * 10000) / 100;
 
   function getFormattedDiff(start, end) {
     const diff = (end - start) / 1000;
@@ -151,7 +150,6 @@ export function Stats() {
     const end = logs[logs.length - 1].createdAt;
     return getFormattedDiff(start, end);
   }
-
   return (
     <>
       <Header />
@@ -165,15 +163,11 @@ export function Stats() {
           </div>
         </div>
 
-        {isLoading && <p>Loading...</p>}
-
-        {error && <p>Error: {error.message}</p>}
-
-        {stats && stats.projects.length === 0 && (
+        {stats.projects.length === 0 && (
           <p className="text-sm text-slate-500">No projects created yet.</p>
         )}
 
-        {stats && stats.projects.length > 0 && (
+        {stats.projects.length > 0 && (
           <>
             <div className="mb-3 flex justify-between items-end">
               <div>
@@ -249,7 +243,7 @@ export function Stats() {
                 </span>
                 <span className="bg-slate-100 rounded-md px-2 py-1">
                   Downlaoded:{" "}
-                  <strong className="text-slate-800">{`${numberOfDownlaodedApps} (${percentageOfDownloadedApps}%)`}</strong>
+                  <strong className="text-slate-800">{`${stats.downloadStats.projectsDownloaded} (${downloadedPercentage}%)`}</strong>
                 </span>
               </p>
             </div>
