@@ -8,7 +8,7 @@ module Wasp.LSP.Commands
     --
     -- When defining a new command, it is recommended to, in addition to the
     -- 'Command', define an @Args@ type that the command expects to be
-    -- passed to it and a @lspCommand@ function that takes an @Args@ value and
+    -- passed to it and a @makeLspCommand@ function that takes an @Args@ value and
     -- returns an 'LSP.Command'. Following this pattern will ensure a simple
     -- and consistent interface to interacting with each command.
     availableCommands,

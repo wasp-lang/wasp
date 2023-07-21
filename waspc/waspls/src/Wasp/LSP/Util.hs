@@ -4,7 +4,7 @@ module Wasp.LSP.Util
     hoistMaybe,
     waspSourceRegionToLspRange,
     waspPositionToLspPosition,
-    absFileInProjectRootDir,
+    getPathRelativeToProjectDir,
   )
 where
 
@@ -48,8 +48,8 @@ hoistMaybe = MaybeT . pure
 
 -- | @absFileInProjectRootDir file@ finds the path to @file@ if it is inside the
 -- project root directory.
-absFileInProjectRootDir :: LSP.MonadLsp c m => SP.Path' SP.Abs (SP.File a) -> m (Maybe (SP.Path' (SP.Rel WaspProjectDir) (SP.File a)))
-absFileInProjectRootDir file = do
+getPathRelativeToProjectDir :: LSP.MonadLsp c m => SP.Path' SP.Abs (SP.File a) -> m (Maybe (SP.Path' (SP.Rel WaspProjectDir) (SP.File a)))
+getPathRelativeToProjectDir file = do
   maybeProjectRootDir <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
   case maybeProjectRootDir of
     Nothing -> pure Nothing

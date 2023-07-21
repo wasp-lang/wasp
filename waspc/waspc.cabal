@@ -335,6 +335,7 @@ library
     Wasp.Util.Terminal
     Wasp.Util.FilePath
     Wasp.Util.StrongPath
+    Wasp.Util.HashMap
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall

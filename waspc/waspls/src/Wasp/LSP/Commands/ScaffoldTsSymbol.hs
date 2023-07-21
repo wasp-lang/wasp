@@ -51,7 +51,7 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
     Args (Args, symbolName, pathToExtImport, filepath),
     hasTemplateForArgs,
     command,
-    lspCommand,
+    makeLspCommand,
   )
 where
 
@@ -88,8 +88,8 @@ command =
       commandHandler = handler
     }
 
-lspCommand :: Args -> LSP.Command
-lspCommand args =
+makeLspCommand :: Args -> LSP.Command
+makeLspCommand args =
   LSP.Command
     { _title = "Scaffold TS Code",
       _command = commandName command,
@@ -100,10 +100,11 @@ data Args = Args
   { -- | Name of the symbol to define. If this is 'ExtImportModule', it will
     -- create a function with the specified name and export it as default.
     symbolName :: ExtImportName,
-    -- | Description of where the external import occurs in the source code, used,
-    -- along with the extension of 'filepath', to determine what template to use.
+    -- | Description of where the external import occurs in the wasp source code,
+    -- used, along with the extension of 'filepath', to determine what template
+    -- to use.
     pathToExtImport :: ExprPath,
-    -- | Path to the file to add the scaffoled code to the end of.
+    -- | Path to the file to add the scaffolded code to the end of.
     filepath :: SP.Path' SP.Abs SP.File'
   }
   deriving (Show, Eq)
@@ -133,10 +134,10 @@ handler request respond = withParsedArgs request respond scaffold
         getTemplateFor pathToExtImport ext >>= \case
           Left err ->
             respond $ Left $ makeInvalidParamsError $ Text.pack err
-          Right template -> applyScaffoldTemplate args template
+          Right template -> renderAndWriteScaffoldTemplate args template
 
-    applyScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
-    applyScaffoldTemplate args@Args {..} template = case pathToExtImport of
+    renderAndWriteScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
+    renderAndWriteScaffoldTemplate args@Args {..} template = case pathToExtImport of
       Inference.Decl _ declName : _ -> do
         let symbolData = case symbolName of
               ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
@@ -188,14 +189,14 @@ handler request respond = withParsedArgs request respond scaffold
 hasTemplateForArgs :: Args -> Bool
 hasTemplateForArgs Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
   Nothing -> False
-  Just ext -> isRight $ templateForRequest pathToExtImport ext
+  Just ext -> isRight $ templateFileFor pathToExtImport ext
 
 -- | @getTemplateFor pathToExtImport extension@ finds the mustache template in
 -- @data/lsp/templates/ts@ and compiles it.
 getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir
-  templateFile <- (templatesDir SP.</>) <$> templateForRequest exprPath ext
+  templateFile <- (templatesDir SP.</>) <$> templateFileFor exprPath ext
   templateExists <- liftIO $ doesFileExist templateFile
   if templateExists
     then do
@@ -229,17 +230,17 @@ templatesDirInDataDir = [SP.reldir|lsp/templates/ts|]
 getTemplatesDir :: IO (SP.Path' SP.Abs (SP.Dir TemplatesDir))
 getTemplatesDir = (SP.</> templatesDirInDataDir) <$> Wasp.Data.getAbsDataDirPath
 
-templateForRequest ::
+templateFileFor ::
   MonadError String m =>
   -- | Path to the external import that the scaffold request came from.
   ExprPath ->
   -- | Extension of the file that the request is scaffolding code in.
   String ->
   m TemplateFile
-templateForRequest [Decl "query" _, DictKey "fn"] ".ts" = pure [SP.relfile|query.fn.ts|]
-templateForRequest [Decl "action" _, DictKey "fn"] ".ts" = pure [SP.relfile|action.fn.ts|]
-templateForRequest [Decl declType _, DictKey "fn"] ".js"
+templateFileFor [Decl "query" _, DictKey "fn"] ".ts" = pure [SP.relfile|query.fn.ts|]
+templateFileFor [Decl "action" _, DictKey "fn"] ".ts" = pure [SP.relfile|action.fn.ts|]
+templateFileFor [Decl declType _, DictKey "fn"] ".js"
   | declType `elem` ["query", "action"] = pure [SP.relfile|operation.fn.js|]
-templateForRequest [Decl "page" _, DictKey "component"] ext
+templateFileFor [Decl "page" _, DictKey "component"] ext
   | ext `elem` [".jsx", ".tsx"] = pure [SP.relfile|page.component.jsx|]
-templateForRequest exprPath ext = throwError $ printf "No template defined for %s with extension %s" (show exprPath) ext
+templateFileFor exprPath ext = throwError $ printf "No template defined for %s with extension %s" (show exprPath) ext
