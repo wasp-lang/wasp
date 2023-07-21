@@ -45,43 +45,7 @@ export function Stats() {
     }, {});
   }, [stats]);
 
-  function getColorValue(colorName) {
-    return availableColors.find((color) => color.name === colorName).color;
-  }
-
-  function getStatusName(status) {
-    switch (status) {
-      case "in-progress":
-        return "inProgress";
-      case "success":
-        return "success";
-      case "failure":
-        return "error";
-      case "cancelled":
-        return "cancelled";
-      default:
-        return "idle";
-    }
-  }
-
-  function getStatusText(status) {
-    switch (status) {
-      case "in-progress":
-        return "In progress";
-      case "success":
-        return "Success";
-      case "failure":
-        return "Error";
-      case "cancelled":
-        return "Cancelled";
-      case "pending":
-        return "Pending";
-      default:
-        return "Unknown";
-    }
-  }
-
-  const filteredStats = useMemo(() => {
+  const filteredProjects = useMemo(() => {
     const filters = [];
     if (filterOutExampleApps) {
       filters.push(
@@ -115,41 +79,11 @@ export function Stats() {
     return <p>Couldn't load stats</p>;
   }
 
+  const downloadStats = getDownloadStats(filteredProjects);
+
   const downloadedPercentage =
-    Math.round(stats.downloadStats.downloadRatio * 10000) / 100;
+    Math.round(downloadStats.downloadRatio * 10000) / 100;
 
-  function getFormattedDiff(start, end) {
-    const diff = (end - start) / 1000;
-    const minutes = Math.round(diff / 60);
-    const remainingSeconds = Math.round(diff % 60);
-    return `${minutes}m ${remainingSeconds}s`;
-  }
-
-  function getDuration(stat) {
-    if (!logsByProjectId[stat.id]) {
-      return "-";
-    }
-    const logs = logsByProjectId[stat.id];
-    if (logs.length < 2) {
-      return "-";
-    }
-    const start = logs[logs.length - 1].createdAt;
-    const end = logs[0].createdAt;
-    return getFormattedDiff(start, end);
-  }
-
-  function getWaitingInQueueDuration(stat) {
-    if (!logsByProjectId[stat.id]) {
-      return "-";
-    }
-    const logs = logsByProjectId[stat.id];
-    if (logs.length < 2) {
-      return "-";
-    }
-    const start = stat.createdAt;
-    const end = logs[logs.length - 1].createdAt;
-    return getFormattedDiff(start, end);
-  }
   return (
     <>
       <Header />
@@ -188,7 +122,7 @@ export function Stats() {
                 {({ width, height }) => (
                   <BarChart
                     chartType={chartType.value}
-                    projects={filteredStats}
+                    projects={filteredProjects}
                     width={width}
                     height={height}
                   />
@@ -238,12 +172,12 @@ export function Stats() {
                 <span className="bg-slate-100 rounded-md px-2 py-1">
                   Generated:{" "}
                   <strong className="text-slate-800">
-                    {filteredStats.length}
+                    {filteredProjects.length}
                   </strong>
                 </span>
                 <span className="bg-slate-100 rounded-md px-2 py-1">
                   Downlaoded:{" "}
-                  <strong className="text-slate-800">{`${stats.downloadStats.projectsDownloaded} (${downloadedPercentage}%)`}</strong>
+                  <strong className="text-slate-800">{`${downloadStats.projectsDownloaded} (${downloadedPercentage}%)`}</strong>
                 </span>
               </p>
             </div>
@@ -271,24 +205,24 @@ export function Stats() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStats.map((stat) => (
-                    <tr className="bg-white border-b" key={stat.id}>
+                  {filteredProjects.map((project) => (
+                    <tr className="bg-white border-b" key={project.id}>
                       <th
                         scope="row"
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
-                        <Color value={getColorValue(stat.primaryColor)} />{" "}
-                        <span title={stat.description}>{stat.name}</span>{" "}
+                        <Color value={getColorValue(project.primaryColor)} />{" "}
+                        <span title={project.description}>{project.name}</span>{" "}
                         <span className="flex gap-1">
-                          {stat.user && (
-                            <span title={stat.user.email}>
+                          {project.user && (
+                            <span title={project.user.email}>
                               <WaspIcon className="w-5 h-5" />
                             </span>
                           )}
-                          {stat.zipDownloadedAt && (
+                          {project.zipDownloadedAt && (
                             <span
                               title={`Downlaoded ${format(
-                                stat.zipDownloadedAt
+                                project.zipDownloadedAt
                               )}`}
                               className="w-5 h-5 bg-sky-100 rounded-full flex items-center justify-center text-sky-800 border border-sky-200"
                             >
@@ -298,28 +232,28 @@ export function Stats() {
                         </span>
                       </th>
                       <td className="px-6 py-4">
-                        <StatusPill status={getStatusName(stat.status)} sm>
-                          {getStatusText(stat.status)}
+                        <StatusPill status={getStatusName(project.status)} sm>
+                          {getStatusText(project.status)}
                         </StatusPill>
                       </td>
                       <td
                         className="px-6 py-4"
-                        title={`${stat.createdAt.toLocaleDateString()} ${stat.createdAt.toLocaleTimeString()}`}
+                        title={`${project.createdAt.toLocaleDateString()} ${project.createdAt.toLocaleTimeString()}`}
                       >
-                        {format(stat.createdAt)}
+                        {format(project.createdAt)}
                       </td>
                       <td className="px-6 py-4">
-                        {getWaitingInQueueDuration(stat)} &rarr;{" "}
-                        {getDuration(stat)}
+                        {getWaitingInQueueDuration(project, logsByProjectId)}{" "}
+                        &rarr; {getDuration(project, logsByProjectId)}
                       </td>
                       <td
-                        className={`px-6 py-4 creativity-${stat.creativityLevel}`}
+                        className={`px-6 py-4 creativity-${project.creativityLevel}`}
                       >
-                        {stat.creativityLevel}
+                        {project.creativityLevel}
                       </td>
                       <td className="px-6 py-4">
                         <Link
-                          to={`/result/${stat.id}`}
+                          to={`/result/${project.id}`}
                           className="font-medium text-sky-600 hover:underline"
                         >
                           View the app &rarr;
@@ -335,4 +269,90 @@ export function Stats() {
       </div>
     </>
   );
+}
+
+function getDownloadStats(projects) {
+  const projectsAfterDownloadTracking = projects.filter(
+    (project) =>
+      // This is the time of the first recorded download (after we rolled out download tracking).
+      project.createdAt > new Date("2023-07-14 10:36:45.12") &&
+      project.status === "success"
+  );
+  const downloadedProjects = projectsAfterDownloadTracking.filter(
+    (project) => project.zipDownloadedAt !== null
+  );
+  return {
+    projectsDownloaded: downloadedProjects.length,
+    downloadRatio:
+      downloadedProjects.length / projectsAfterDownloadTracking.length,
+  };
+}
+
+function getFormattedDiff(start, end) {
+  const diff = (end - start) / 1000;
+  const minutes = Math.round(diff / 60);
+  const remainingSeconds = Math.round(diff % 60);
+  return `${minutes}m ${remainingSeconds}s`;
+}
+
+function getDuration(stat, logsByProjectId) {
+  if (!logsByProjectId[stat.id]) {
+    return "-";
+  }
+  const logs = logsByProjectId[stat.id];
+  if (logs.length < 2) {
+    return "-";
+  }
+  const start = logs[logs.length - 1].createdAt;
+  const end = logs[0].createdAt;
+  return getFormattedDiff(start, end);
+}
+
+function getWaitingInQueueDuration(stat, logsByProjectId) {
+  if (!logsByProjectId[stat.id]) {
+    return "-";
+  }
+  const logs = logsByProjectId[stat.id];
+  if (logs.length < 2) {
+    return "-";
+  }
+  const start = stat.createdAt;
+  const end = logs[logs.length - 1].createdAt;
+  return getFormattedDiff(start, end);
+}
+
+function getColorValue(colorName) {
+  return availableColors.find((color) => color.name === colorName).color;
+}
+
+function getStatusName(status) {
+  switch (status) {
+    case "in-progress":
+      return "inProgress";
+    case "success":
+      return "success";
+    case "failure":
+      return "error";
+    case "cancelled":
+      return "cancelled";
+    default:
+      return "idle";
+  }
+}
+
+function getStatusText(status) {
+  switch (status) {
+    case "in-progress":
+      return "In progress";
+    case "success":
+      return "Success";
+    case "failure":
+      return "Error";
+    case "cancelled":
+      return "Cancelled";
+    case "pending":
+      return "Pending";
+    default:
+      return "Unknown";
+  }
 }
