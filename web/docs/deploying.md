@@ -10,9 +10,7 @@ Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly 
 If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
 :::
 
-# Automated
-
-## Wasp CLI
+## Deploying with the Wasp CLI
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 ```shell
@@ -44,7 +42,46 @@ To do so, go to your [account's billing page](https://fly.io/dashboard/personal/
 
 The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/). You can also run `wasp deploy fly cmd platform regions --context server`.
 
-### Commands
+### Using a custom domain for your app
+
+Setting up a custom domain for your app is easy. First, you need to add your domain to Fly. You can do this by running:
+```shell
+wasp deploy fly cmd --context client certs create mycoolapp.com
+```
+
+:::info Use Your Own Domain
+Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section 🙃
+:::
+
+This command will output the instructions to add the DNS records to your domain. It will look something like this:
+```shell-session
+You can direct traffic to mycoolapp.com by:
+
+1: Adding an A record to your DNS service which reads
+
+    A @ 66.241.1XX.154
+
+You can validate your ownership of mycoolapp.com by:
+
+2: Adding an AAAA record to your DNS service which reads:
+
+    AAAA @ 2a09:82XX:1::1:ff40
+```
+
+Next, you need to add the DNS records for your domain. This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command.
+
+Finally, you need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app.  We need to do this to keep our CORS configuration up to date.
+
+You can do this by running:
+```shell
+wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
+
+That's it, your app should be available at `https://mycoolapp.com`! 🎉
+
+### Deployment commands
+
+#### Apps and the database
 
 `setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them. We need a database first, which we create with `create-db`, and it is automatically linked to your server.
 
@@ -59,6 +96,8 @@ Finally, we `deploy` which will push your client and server live. We run this si
 :::note
 Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, the CLI defaults to the use of a remote Fly.io builder. If you wish to build locally, you may supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
 :::
+
+#### Setting secrets
 
 If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:
 ```shell
@@ -79,11 +118,11 @@ wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...
 ```
 :::
 
-:::note
-If you have multiple orgs, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
-:::
+#### Multiple orgs
 
-# Manual
+If you have multiple orgs, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
+
+## Manual Deployment
 
 In addition to the CLI, you can deploy a Wasp project by generating the code and then deploying generated code "manually", as explained below.
 
@@ -93,7 +132,7 @@ If you want to deploy your App completely **free** of charge, continue reading b
 
 If you prefer to host client and server on **one platform**, and don't mind paying a very small fee for extra features, we suggest following the guide on using [Railway as your provider](#deploying-to-railway-freemium-all-in-one-solution).
 
-## Generating deployable code
+### Generating deployable code
 
 ```
 wasp build
@@ -104,6 +143,11 @@ generates deployable code for the whole app in the `.wasp/build/` directory. Nex
 NOTE: You will not be able to build the app if you are using SQLite as a database (which is a default database) -> you will have to [switch to PostgreSQL](/docs/language/features#migrating-from-sqlite-to-postgresql).
 
 ## Deploying API server (backend)
+
+:::note
+Since Wasp's API server is a Node.js app, it can be deployed anywhere where Node.js apps can be deployed. Below, we provide instructions for deploying to a few hosting providers.
+:::
+
 
 In `.wasp/build/`, there is a `Dockerfile` describing an image for building the server.
 
