@@ -162,7 +162,7 @@ module.exports = {
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
-          editUrl: "https://github.com/wasp-lang/wasp/edit/main/web/blog",
+          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
         },
         theme: {
           customCss: [require.resolve("./src/css/custom.css")],
