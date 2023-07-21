@@ -133,14 +133,14 @@ If you want to deploy your App completely **free** of charge, continue reading b
 If you prefer to host client and server on **one platform**, and don't mind paying a very small fee for extra features, we suggest following the guide on using [Railway as your provider](#deploying-to-railway-freemium-all-in-one-solution).
 
 ### Generating deployable code
-
+The following command generates deployable code for the whole app in the `.wasp/build/` directory:
 ```
 wasp build
 ```
 
-generates deployable code for the whole app in the `.wasp/build/` directory. Next, we will deploy this code.
-
-NOTE: You will not be able to build the app if you are using SQLite as a database (which is a default database) -> you will have to [switch to PostgreSQL](/docs/language/features#migrating-from-sqlite-to-postgresql).
+:::note Using SQLite in production
+You will not be able to build the app if you are using SQLite as a database (which is a default database) -> you will have to [switch to PostgreSQL](/docs/language/features#migrating-from-sqlite-to-postgresql).
+:::
 
 ## Deploying API server (backend)
 
