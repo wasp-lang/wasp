@@ -32,6 +32,10 @@ See a full one-minute demo here:
     <iframe width="700" height="400" src="https://www.youtube.com/embed/u0MVsPb2MP8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </div>
 
+<br/>
+
+Check out [this blog post](https://wasp-lang.dev/blog/2023/07/17/how-we-built-gpt-web-app-generator) if you are interested in technical details of how implemented the Generator!
+
 ## The stack 📚
 
 Besides React & Node.js, GPT Web App Generator uses [Prisma](https://www.prisma.io/) and [Wasp](https://github.com/wasp-lang/wasp).
