@@ -588,6 +588,7 @@ test-suite waspls-test
   other-modules:
     Wasp.LSP.CompletionTest
     Wasp.LSP.DebouncerTest
+    Wasp.LSP.SyntaxTest
 
 test-suite cli-test
   import: common-all, common-exe

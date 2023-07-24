@@ -24,9 +24,29 @@ data Command = Command
     commandHandler :: LSP.Handler ServerM 'LSP.WorkspaceExecuteCommand
   }
 
--- | @withParsedArgs request respond run@ parses args from a 'LSP.WorkspaceExecuteCommand'
--- request and passes them to @run@. If an error occurs during parsing, responds
--- with an error and does not execute @run@.
+-- | @withParsedArgs request respond handleUsingArgs@ parses the arguments list
+-- of a 'LSP.WorkspaceExecuteCommand' request according to the following rules
+-- and passes the parsed arguments to @handleUsingArgs@.
+--
+-- Parsing rules:
+-- - The request contains exactly one JSON argument value.
+-- - The single JSON argument can be parsed into the type that @handleUsingArgs@
+--   expects to be passed.
+--
+-- When a request does not meet these requirements, a 'LSP.ResponseError' is
+-- sent to the client and @handleUsingArgs@ is not run.
+--
+-- == Usage
+-- This function is inteneded to be wrapped around the top-level of a command
+-- handler:
+--
+-- @
+-- data Args = Args { message :: String } deriving (Generic, FromJSON)
+--
+-- handle request response = withParsedArgs request response $ \args -> do
+--   logM $ "received message " <> message args
+--   -- ...
+-- @
 withParsedArgs ::
   (FromJSON args, LSP.MonadLsp c m) =>
   -- | LSP 'request'.
@@ -36,10 +56,10 @@ withParsedArgs ::
   -- | Handler that need arguments.
   (args -> m ()) ->
   m ()
-withParsedArgs request respond run = case request ^. LSP.params . LSP.arguments of
-  Just (LSP.List [argument]) -> case fromJSON argument of
+withParsedArgs request respond handleCmdUsingArgs = case request ^. LSP.params . LSP.arguments of
+  Just (LSP.List [jsonArgument]) -> case fromJSON jsonArgument of
     Error err -> respond $ Left $ makeInvalidParamsError $ Text.pack err
-    Success args -> run args
+    Success parsedArgs -> handleCmdUsingArgs parsedArgs
   _ -> respond $ Left $ makeInvalidParamsError "Expected exactly one argument"
 
 makeInvalidParamsError :: Text -> LSP.ResponseError
