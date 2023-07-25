@@ -246,3 +246,123 @@ test('handles mock data', async () => {
 
 </TabItem>
 </Tabs>
+
+### Testing With Mocked APIs
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/client/Todo.jsx"
+import api from '@wasp/api'
+
+const Todo = (_props) => {
+  const [tasks, setTasks] = useState([])
+  useEffect(() => {
+    api.get('/tasks')
+      .then(res => res.json())
+      .then(tasks => setTasks(tasks))
+      .catch(err => window.alert(err))
+  })
+
+  return (
+    <ul>
+      {tasks && tasks.map(task => (
+        <li key={task.id}>
+          <input type="checkbox" value={task.isDone} />
+          {task.description}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+```jsx title=src/client/Todo.test.jsx
+import { test, expect } from 'vitest'
+import { screen } from '@testing-library/react'
+
+import { mockServer, renderInContext } from '@wasp/test'
+import Todo from './Todo'
+
+const { mockApi } = mockServer()
+
+const mockTasks = [{
+  id: 1,
+  description: 'test todo 1',
+  isDone: true,
+  userId: 1
+}]
+
+test('handles mock data', async () => {
+  mockApi('/tasks', { res: mockTasks })
+
+  renderInContext(<Todo />)
+
+  await screen.findByText('test todo 1')
+
+  expect(screen.getByRole('checkbox')).toBeChecked()
+
+  screen.debug()
+})
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/client/Todo.tsx"
+import { Task } from '@wasp/entities'
+import api from '@wasp/api'
+
+const Todo = (_props: {}) => {
+  const [tasks, setTasks] = useState<Task>([])
+  useEffect(() => {
+    api.get('/tasks')
+      .then(res => res.json() as Task[])
+      .then(tasks => setTasks(tasks))
+      .catch(err => window.alert(err))
+  })
+
+  return (
+    <ul>
+      {tasks && tasks.map(task => (
+        <li key={task.id}>
+          <input type="checkbox" value={task.isDone} />
+          {task.description}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+```tsx title=src/client/Todo.test.tsx
+import { test, expect } from 'vitest'
+import { screen } from '@testing-library/react'
+
+import { mockServer, renderInContext } from '@wasp/test'
+import Todo from './Todo'
+
+const { mockApi } = mockServer()
+
+const mockTasks = [{
+  id: 1,
+  description: 'test todo 1',
+  isDone: true,
+  userId: 1
+}]
+
+test('handles mock data', async () => {
+  mockApi('/tasks', mockTasks)
+
+  renderInContext(<Todo />)
+
+  await screen.findByText('test todo 1')
+
+  expect(screen.getByRole('checkbox')).toBeChecked()
+
+  screen.debug()
+})
+```
+
+</TabItem>
+</Tabs>
