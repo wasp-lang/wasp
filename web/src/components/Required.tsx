@@ -1,6 +1,6 @@
 import * as React from "react";
 
-const color = "#e11d48";
+const color = "#f59e0b";
 
 export function Required() {
   return (
