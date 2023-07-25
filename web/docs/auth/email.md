@@ -477,26 +477,31 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 ### Login
 
-Let's talk about some of the behavior you get out of the box:
-1. Rate limiting
-2. Preventing timing attacks
-
-TODO: write about the rate limiting and fake work security
-
 ![Auth UI](/img/authui/login.png)
+
+If logging in with an unverified email is allowed, the user will be able to login with an unverified email address. If logging in with an unverified email is not allowed, the user will be shown an error message.
+
+Read more about the `allowUnverifiedLogin` option [here](#allowunverifiedlogin-bool-specifies-whether-the-user-can-login-without-verifying-their-e-mail-address).
 
 ### Signup
 
-There are some default validation rules for the user passwords:
-1. The password must be at least 9 characters long.
-2. It must contain at least one lowercase letter.
-
-There is also a rate limiter for the signup requests. It is set to 1 request per minute.
-
-TODO: write about password validation rules
-
 ![Auth UI](/img/authui/signup.png)
 
+Some of the behavior you get out of the box:
+1. Rate limiting
+  
+  We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+2. Preventing user email leaks
+  
+  If somebody tries to signup with an email that already exists and it's verified, we'll give back the same response as if the user registered successfully. This is done to prevent leaking the user's email address.
+
+3. Allowing registration for unverified emails
+
+  If a user tries to register with an existing but **unverified** email, we'll allow them to do that. This is done to prevent bad actors from locking out other users from registering with their email address.
+
+4. Password validation
+
+  Read more about the default password validation rules and how to override them in [using auth docs](/docs/auth/overview).
 
 ## Email verification flow
 
@@ -595,7 +600,15 @@ export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
 
 ## Password reset flow
 
-Users can request a password and then they'll receive an e-mail with a link to reset their password. 
+Users can request a password and then they'll receive an e-mail with a link to reset their password.
+
+Some of the behavior you get out of the box:
+1. Rate limiting
+  
+  We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+2. Preventing user email leaks
+
+  If somebody requests a password reset with an unknown email address, we'll give back the same response as if the user requested a password reset successfully. This is done to prevent leaking information.
 
 Our setup in `main.wasp` looks like this:
 
@@ -690,7 +703,7 @@ To read more about how to set up the logout button and how to get access to the 
 
 If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).
 
-## Options
+## Options Reference
 
 Let's go over the options we can specify when using email authentication.
 
