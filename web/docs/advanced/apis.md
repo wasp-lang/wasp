@@ -141,10 +141,9 @@ export const Foo = () => {
 ```
 
 #### Making sure CORS works
-Since the APIs don't use the default middleware like Operations do to make APIs as flexible as possible. As a side-effect, you need to make sure CORS is enabled for your APIs to use them on the client. 
+APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
 
-You can do this by defining custom middleware for your APIs in the Wasp file. 
-
+You can do this by defining custom middleware for your APIs in the Wasp file.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -156,7 +155,7 @@ apiNamespace fooBar {
   path: "/foo"
 }
 ```
-And then in the implementation file (returning the default config):
+And then in the implementation file:
 ```js title="src/server/apis.js"
 export const apiMiddleware = (config) => {
   return config;
@@ -182,6 +181,7 @@ export const apiMiddleware: MiddlewareConfigFn = (config) => {
 </TabItem>
 </Tabs>
 
+We are returning the default middleware which enables CORS for all APIs under the `/foo` path.
 
 For more information about middleware configuration, please see: [Middleware Configuration](/docs/advanced/middleware-config)
 
