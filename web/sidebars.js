@@ -78,6 +78,14 @@ module.exports = {
     },
     {
       type: "category",
+      label: "General",
+      collapsed: false,
+      items: [
+        "general/language",
+      ]
+    },
+    {
+      type: "category",
       label: "Miscellaneous",
       collapsed: false,
       items: [

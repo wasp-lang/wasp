@@ -1,12 +1,16 @@
 ---
-title: Syntax
+title: Wasp Language (.wasp)
 ---
 
-Wasp is a declarative, statically typed, domain specific language (DSL).
+Wasp language (what you write in .wasp files) is a declarative, statically typed, domain specific language (DSL).
+
+It is a quite simple language, closer to JSON, CSS or SQL than to e.g. Javascript or Python, since it is not a general programming language, but more of a configuration language.
+
+It is pretty intuitive to learn (there isn't much to learn really!) and you can probably do just fine without reading this page and learning from the rest of the docs as you go, but if you want a bit more formal definition and deeper understanding of how it works, then read on!
 
 ## Declarations
 
-The central point of Wasp language are **declarations**, and Wasp source is at the end just a bunch of declarations, each of them describing a part of your web app.
+The central point of Wasp language are **declarations**, and Wasp code is at the end just a bunch of declarations, each of them describing a part of your web app.
 
 ```wasp
 app MyApp {
@@ -25,7 +29,7 @@ In the example above we described a web app via three declarations: `app MyApp {
 Syntax for writing a declaration is `<declaration_type> <declaration_name> <declaration_body>`, where:
 - `<declaration_type>` is one of the declaration types offered by Wasp (`app`, `route`, ...)
 - `<declaration_name>` is an identifier chosen by you to name this specific declaration
-- `<declaration_body>` is the value/definition of the declaration itself, which has to match the specific declaration body type determined by the chosen declaration type.
+- `<declaration_body>` is the value/definition of the declaration itself, which has to match the specific declaration body type expected by the chosen declaration type.
 
 So, for `app` declaration above, we have:
 - declaration type `app`
@@ -81,4 +85,6 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **JobExecutor**
     - **EmailProvider**
 
-For more details about each of the domain types, both regarding their body types and what they mean, check the [Features](/language/features.md) section.
+You can find more details about each of the domain types, both regarding their body types and what they mean, in the corresponding doc pages covering their features.
+
+
