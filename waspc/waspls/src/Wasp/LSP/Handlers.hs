@@ -6,9 +6,11 @@ module Wasp.LSP.Handlers
     didOpenHandler,
     didChangeHandler,
     didSaveHandler,
+    executeCommandHandler,
     completionHandler,
     signatureHelpHandler,
     gotoDefinitionHandler,
+    codeActionHandler,
   )
 where
 
@@ -20,6 +22,8 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Wasp.LSP.Analysis (diagnoseWaspFile)
+import Wasp.LSP.CodeActions (getCodeActionsInRange)
+import qualified Wasp.LSP.Commands as Commands
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.DynamicHandlers (registerDynamicCapabilities)
 import Wasp.LSP.GotoDefinition (gotoDefinitionOfSymbolAtPosition)
@@ -69,6 +73,9 @@ didSaveHandler :: Handlers ServerM
 didSaveHandler =
   LSP.notificationHandler LSP.STextDocumentDidSave $ diagnoseWaspFile . extractUri
 
+executeCommandHandler :: Handlers ServerM
+executeCommandHandler = Commands.handleExecuteCommand
+
 completionHandler :: Handlers ServerM
 completionHandler =
   LSP.requestHandler LSP.STextDocumentCompletion $ \request respond -> do
@@ -89,6 +96,13 @@ signatureHelpHandler =
     let LSP.SignatureHelpParams {_position = position} = request ^. LSP.params
     signatureHelp <- handler $ getSignatureHelpAtPosition position
     respond $ Right signatureHelp
+
+codeActionHandler :: Handlers ServerM
+codeActionHandler =
+  LSP.requestHandler LSP.STextDocumentCodeAction $ \request respond -> do
+    let range = request ^. LSP.params . LSP.range
+    codeActions <- handler $ getCodeActionsInRange range
+    respond $ Right $ LSP.List $ map LSP.InR codeActions
 
 -- | Get the 'Uri' from an object that has a 'TextDocument'.
 extractUri :: (LSP.HasParams a b, LSP.HasTextDocument b c, LSP.HasUri c LSP.Uri) => a -> LSP.Uri

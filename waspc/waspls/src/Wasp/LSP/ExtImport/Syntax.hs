@@ -1,5 +1,6 @@
 module Wasp.LSP.ExtImport.Syntax
   ( ExtImportNode (..),
+    extImportAtLocation,
     findExtImportAroundLocation,
     getAllExtImports,
   )
