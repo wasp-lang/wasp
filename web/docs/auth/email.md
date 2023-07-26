@@ -820,6 +820,9 @@ It has the following fields:
   </TabItem>
   </Tabs>
 
+  <small>This is the default content of the e-mail, you can customize it to your liking.</small>
+
+
 #### `passwordReset: PasswordResetConfig` <Required />
 `passwordReset` is a dict that specifies the password reset process. 
 
@@ -899,6 +902,8 @@ It has the following fields:
   ```
   </TabItem>
   </Tabs>
+
+  <small>This is the default content of the e-mail, you can customize it to your liking.</small>
 
 #### `allowUnverifiedLogin: bool`: specifies whether the user can login without verifying their e-mail address
 
