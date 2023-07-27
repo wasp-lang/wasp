@@ -2,9 +2,14 @@
 title: Client Config
 ---
 
-You can configure the client using the `client` field inside the `app` declaration,
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-```wasp
+You can configure the client using the `client` field inside the `app` declaration:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   // ...
@@ -14,19 +19,32 @@ app MyApp {
   }
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-`app.client` is a dictionary with the following fields:
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.tsx",
+    setupFn: import mySetupFunction from "@client/myClientSetupCode.ts"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
-#### `rootComponent: ClientImport` (optional)
-
-`rootComponent` defines the root component of your client application. It is
-expected to be a React component, and Wasp will use it to wrap your entire app.
-It must render its children, which are the actual pages of your application.
+## Root Component
+### Defining a Common Layout
 
 You can use it to define a common layout for your application:
 
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```jsx title="src/client/Root.jsx"
-export default async function Root({ children }) {
+export default function Root({ children }) {
   return (
     <div>
       <header>
@@ -40,25 +58,34 @@ export default async function Root({ children }) {
   )
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-Or, you can use it to set up various providers that your application needs:
-
-```jsx title="src/client/Root.jsx"
-import store from './store'
-import { Provider } from 'react-redux'
-
-export default async function Root({ children }) {
+```tsx title="src/client/Root.tsx"
+export default function Root({ children }: { children: React.ReactNode }) {
   return (
-    <Provider store={store}>
+    <div>
+      <header>
+        <h1>My App</h1>
+      </header>
       {children}
-    </Provider>
+      <footer>
+        <p>My App footer</p>
+      </footer>
+    </div>
   )
 }
 ```
+</TabItem>
+</Tabs>
 
-As long as you render the children, you can do whatever you want in your root
-component. Here's an example of a root component that both sets up a provider and
-renders a custom layout:
+
+### Setting up a Provider
+
+Or, you can use it to set up various providers that your application needs:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```jsx title="src/client/Root.jsx"
 import store from './store'
@@ -67,40 +94,52 @@ import { Provider } from 'react-redux'
 export default function Root({ children }) {
   return (
     <Provider store={store}>
-      <Layout>
-        {children}
-      </Layout>
+      {children}
     </Provider>
   )
 }
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-function Layout({ children }) {
+```tsx title="src/client/Root.tsx"
+import store from './store'
+import { Provider } from 'react-redux'
+
+export default function Root({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <header>
-        <h1>My App</h1>
-      </header>
+    <Provider store={store}>
       {children}
-      <footer>
-        <p>My App footer</p>
-      </footer>
-    </div>
+    </Provider>
   )
 }
 ```
+</TabItem>
+</Tabs>
 
+As long as you render the children, you can do whatever you want in your root
+component.
 
-#### `setupFn: ClientImport` (optional)
+Read more about the root component in the [options reference](#rootcomponent-clientimport).
 
-`setupFn` declares a JavaScript function that Wasp executes on the client
-before everything else. It is expected to be asynchronous, and
-Wasp will await its completion before rendering the page. The function takes no
-arguments, and its return value is ignored.
+## Setup Function
 
-You can use this function to perform any custom setup (e.g., setting up
-client-side periodic jobs).
+<ShowForTs>
+
+`setupFn` declares a Typescript function that Wasp executes on the client before everything else. 
+</ShowForTs>
+
+<ShowForJs>
+
+`setupFn` declares a JavaScript function that Wasp executes on the client before everything else.
+</ShowForJs>
+
+### Running Some Code
 
 Here's a dummy example of such a function:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```js title="src/client/myClientSetupCode.js"
 export default async function mySetupFunction() {
@@ -111,18 +150,33 @@ export default async function mySetupFunction() {
   )
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-##### Overriding default behaviour for Queries
-As mentioned, our `useQuery` hook uses _react-query_'s hook of the same name.
-Since _react-query_ comes configured with aggressive but sane default options,
-you most likely won't have to change those defaults for all Queries (you can
-change them for a single Query using the `options` object, as described
-[here](#the-usequery-hook)).
+```ts title="src/client/myClientSetupCode.ts"
+export default async function mySetupFunction(): Promise<void> {
+  let count = 1;
+  setInterval(
+    () => console.log(`You have been online for ${count++} hours.`),
+    1000 * 60 * 60,
+  )
+}
+```
+</TabItem>
+</Tabs>
 
-Still, if you do need the global defaults, you can do so inside client setup
-function. Wasp exposes a `configureQueryClient` hook that lets you configure
-_react-query_'s `QueryClient` object:
+### Overriding Default Behaviour for Queries
 
+:::note
+You can change the options for a single Query using the `options` object, as described [here](/docs/database/operations).
+:::
+
+Wasp's `useQuery` hook uses _react-query_'s `useQuery` hook under the hood. Since _react-query_ comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+
+If you do need to change the global defaults, you can do so inside the client setup function. Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_'s `QueryClient` object:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```js title="src/client/myClientSetupCode.js"
 import { configureQueryClient } from '@wasp/queryClient'
@@ -139,7 +193,179 @@ export default async function mySetupFunction() {
   // ... some more setup
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/client/myClientSetupCode.ts"
+import { configureQueryClient } from '@wasp/queryClient'
+
+export default async function mySetupFunction(): Promise<void> {
+  // ... some setup
+  configureQueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+      }
+    }
+  })
+  // ... some more setup
+}
+```
+</TabItem>
+</Tabs>
 
 Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [_react-query_'s docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
+
+Read more about the setup function in the [options reference](#setupfn-clientimport).
+
+
+## Options Reference
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.jsx",
+    setupFn: import mySetupFunction from "@client/myClientSetupCode.js"
+  }
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.tsx",
+    setupFn: import mySetupFunction from "@client/myClientSetupCode.ts"
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+Client has the following options:
+
+- #### `rootComponent: ClientImport`
+
+  `rootComponent` defines the root component of your client application. It is
+  expected to be a React component, and Wasp will use it to wrap your entire app.
+  It must render its children, which are the actual pages of your application.
+
+  Here's an example of a root component that both sets up a provider and
+  renders a custom layout:
+
+  <Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+
+  ```jsx title="src/client/Root.jsx"
+  import store from './store'
+  import { Provider } from 'react-redux'
+
+  export default function Root({ children }) {
+    return (
+      <Provider store={store}>
+        <Layout>
+          {children}
+        </Layout>
+      </Provider>
+    )
+  }
+
+  function Layout({ children }) {
+    return (
+      <div>
+        <header>
+          <h1>My App</h1>
+        </header>
+        {children}
+        <footer>
+          <p>My App footer</p>
+        </footer>
+      </div>
+    )
+  }
+  ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+  ```tsx title="src/client/Root.tsx"
+  import store from './store'
+  import { Provider } from 'react-redux'
+
+  export default function Root({ children }: { children: React.ReactNode }) {
+    return (
+      <Provider store={store}>
+        <Layout>
+          {children}
+        </Layout>
+      </Provider>
+    )
+  }
+
+  function Layout({ children }: { children: React.ReactNode }) {
+    return (
+      <div>
+        <header>
+          <h1>My App</h1>
+        </header>
+        {children}
+        <footer>
+          <p>My App footer</p>
+        </footer>
+      </div>
+    )
+  }
+  ```
+  </TabItem>
+  </Tabs>
+
+
+
+- #### `setupFn: ClientImport`
+
+  <ShowForTs>
+
+  `setupFn` declares a Typescript function that Wasp executes on the client
+  before everything else. It is expected to be asynchronous, and
+  Wasp will await its completion before rendering the page. The function takes no
+  arguments, and its return value is ignored.
+  </ShowForTs>
+
+  <ShowForJs>
+
+  `setupFn` declares a JavaScript function that Wasp executes on the client
+  before everything else. It is expected to be asynchronous, and
+  Wasp will await its completion before rendering the page. The function takes no
+  arguments, and its return value is ignored.
+  </ShowForJs>
+
+  You can use this function to perform any custom setup (e.g., setting up
+  client-side periodic jobs).
+
+  <Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+
+  ```js title="src/client/myClientSetupCode.js"
+  export default async function mySetupFunction() {
+    // Run some code
+  }
+  ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+  ```ts title="src/client/myClientSetupCode.ts"
+  export default async function mySetupFunction(): Promise<void> {
+    // Run some code
+  }
+  ```
+  </TabItem>
+  </Tabs>
