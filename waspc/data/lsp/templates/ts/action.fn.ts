@@ -1,6 +1,8 @@
 import { {{upperDeclName}} } from '@wasp/actions/types'
 
-{{#named?}}export {{/named?}}const {{name}}: {{upperDeclName}}<void, void> = async (args, context) => {
+type {{upperDeclName}}Payload = void
+type {{upperDeclName}}Result = void
+{{#named?}}export {{/named?}}const {{name}}: {{upperDeclName}}<{{upperDeclName}}Payload, {{upperDeclName}}Result> = async (args, context) => {
   // Implementation goes here
 }
 
