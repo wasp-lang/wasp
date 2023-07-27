@@ -6,7 +6,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Tailwind
 
-To enable support for Tailwind in your project, you need to add two config files—[`tailwind.config.cjs`](https://tailwindcss.com/docs/configuration#configuration-options) and `postcss.config.cjs`—to the root directory. With these files present, Wasp installs the necessary dependencies and copies your configuration to the generated project. You can then use [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) in your CSS and Tailwind classes on your React components.
+To enable support for Tailwind in your project, you need to add two config files — [`tailwind.config.cjs`](https://tailwindcss.com/docs/configuration#configuration-options) and `postcss.config.cjs` — to the root directory.
+
+With these files present, Wasp installs the necessary dependencies and copies your configuration to the generated project. You can then use [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) in your CSS and Tailwind classes on your React components.
 
 ```bash title="tree ." {13-14}
 .
@@ -32,7 +34,7 @@ If you can not use Tailwind after adding the required config files, make sure to
 ### Enabling Tailwind Step-by-Step
 
 :::caution
-Make sure to use the `.cjs` extension for these config files! If you name them with a `.js` extension, Wasp will not enable Tailwind integration.
+Make sure to use the `.cjs` extension for these config files, if you name them with a `.js` extension, Wasp will not detect them.
 :::
 
 1. Add `./tailwind.config.cjs`.
@@ -61,7 +63,7 @@ Make sure to use the `.cjs` extension for these config files! If you name them w
 
 3. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
 
-  ```css title="./src/client/Main.css {1-3}"
+  ```css title="./src/client/Main.css" {1-3}
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
