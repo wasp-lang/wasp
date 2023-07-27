@@ -1,0 +1,34 @@
+/*
+export function UsernameAndPasswordPill() {
+  return <Pill style={{
+    backgroundColor: "#fce7f3",
+  }} linkToPage="/docs/auth/username-and-pass">Username & Password</Pill>;
+}
+
+export function GithubPill() {
+  return <Pill style={{
+    backgroundColor: "#f1f5f9",
+  }} linkToPage="/docs/auth/github">Github</Pill>;
+}
+
+export function GooglePill() {
+  return <Pill style={{
+    backgroundColor: "#ecfccb",
+  }} linkToPage="/docs/auth/google">Google</Pill>;
+}
+*/
+:root {
+  --auth-pills-color: #333;
+  --auth-pills-email: #e0f2fe;
+  --auth-pills-github: #f1f5f9;
+  --auth-pills-google: #ecfccb;
+  --auth-pills-username-and-pass: #fce7f3;
+}
+
+:root[data-theme="dark"] {
+  --auth-pills-color: #fff;
+  --auth-pills-email: #0c4a6e;
+  --auth-pills-github: #334155;
+  --auth-pills-google: #365314;
+  --auth-pills-username-and-pass: #831843;
+}

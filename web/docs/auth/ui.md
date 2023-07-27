@@ -10,13 +10,11 @@ Below we cover all of the available UI components and how to use them.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
-## How Auth UI works in Wasp?
+## Overview
 
 After Wasp generates the UI components for your auth, you can use it as is, or customize it to your liking.
 
-Based on your `main.wasp` file on the authentication providers you enabled, the Auth UI will show the corresponding UI (form and buttons). 
-
-For example, if you enabled e-mail authentication:
+Based on the authentication providers you enabled in your `main.wasp` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -94,18 +92,18 @@ The form will automatically update to look like this:
 
 ![Auth UI](/img/authui/multiple_providers.png)
 
-Let's go though all of the available components and how to use them.
+Let's go through all of the available components and how to use them.
 
-## Auth components
+## Auth Components
 
 The following components are available for you to use in your app:
-1. [Login form](#1-login-form)
-2. [Signup form](#2-signup-form)
-3. [Forgot password form](#3-forgot-password-form)
-4. [Reset password form](#4-reset-password-form)
-5. [Verify email form](#5-verify-email-form)
+- [Login form](#1-login-form)
+- [Signup form](#2-signup-form)
+- [Forgot password form](#3-forgot-password-form)
+- [Reset password form](#4-reset-password-form)
+- [Verify email form](#5-verify-email-form)
 
-### 1. Login form
+### Login Form
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill /> and <GooglePill /> authentication.
 
@@ -129,7 +127,7 @@ page LoginPage {
 import { LoginForm } from '@wasp/auth/forms/Login'
 
 // Use it like this
-export export function LoginPage() {
+export function LoginPage() {
   return (
     <LoginForm />
   )
@@ -162,7 +160,7 @@ export function LoginPage() {
 
 It will automatically show the correct authentication providers based on your `main.wasp` file.
 
-### 2. Signup form
+### Signup Form
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill /> and <GooglePill /> authentication.
 
@@ -219,7 +217,7 @@ export function SignupPage() {
 
 It will automatically show the correct authentication providers based on your `main.wasp` file.
 
-### 3. Forgot password form
+### Forgot Password Form
 
 Used with <EmailPill /> authentication.
 
@@ -276,7 +274,7 @@ export function ForgotPasswordPage() {
 </TabItem>
 </Tabs>
 
-### 4. Reset password form
+### Reset Password Form
 
 Used with <EmailPill /> authentication.
 
@@ -333,7 +331,7 @@ export function ResetPasswordPage() {
 </TabItem>
 </Tabs>
 
-### 5. Verify email form
+### Verify Email Form
 
 Used with <EmailPill /> authentication.
 
@@ -399,13 +397,13 @@ Props you can pass to all of the forms:
 2. `logo` - path to your logo
 3. `socialLayout` - layout of the social buttons, which can be `vertical` or `horizontal`
 
-### 1. Customizing the colors
+### 1. Customizing the Colors
 
 We use [Stitches](https://stitches.dev/) to style the Auth UI. You can customize the styles by overriding the default theme tokens. 
 
 :::info List of all available tokens
 
-See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/react-app/src/stitches.config.js) which you can override.
+See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/react-app/src/stitches.config.js) which you can override.
 
 :::
 
@@ -468,7 +466,7 @@ export function LoginPage() {
 
 We recommend defining your appearance in a separate file and importing it into your components.
 
-### 2. Using your logo
+### 2. Using Your Logo
 
 You can add your logo to the Auth UI by passing the `logo` prop to any of the components.
 
@@ -507,7 +505,7 @@ export function LoginPage() {
 </TabItem>
 </Tabs>
 
-### 3. Social buttons layout
+### 3. Social Buttons Layout
 
 You can change the layout of the social buttons by passing the `socialLayout` prop to any of the components. It can be either `vertical` or `horizontal` (default).
 
@@ -550,7 +548,7 @@ We get this:
 
 ![Vertical social buttons](/img/authui/vertical_social_buttons.png)
 
-### Let's put everything together 🪄
+### Let's Put Everything Together 🪄
 
 If we provide the logo and custom colors:
 

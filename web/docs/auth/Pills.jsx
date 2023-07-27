@@ -1,11 +1,12 @@
 import React from "react";
+import './Pills.css';
 
 export function Pill({ children, linkToPage, style = {} }) {
   return <a href={linkToPage}
     style={{
-      padding: "0.2rem 0.5rem",
+      padding: "0.1rem 0.5rem",
       borderRadius: "0.375rem",
-      color: "#333",
+      color: "var(--auth-pills-color)",
       textDecoration: "none",
       display: "inline-block",
       ...style,
@@ -13,26 +14,34 @@ export function Pill({ children, linkToPage, style = {} }) {
   >{children}</a>;
 }
 
+/*
+:root {
+  --auth-pills-email: #e0f2fe;
+  --auth-pills-github: #f1f5f9;
+  --auth-pills-google: #ecfccb;
+  --auth-pills-username-and-pass: #fce7f3;
+}
+*/
 export function EmailPill() {
   return <Pill style={{
-    backgroundColor: "#e0f2fe ",
+    backgroundColor: "var(--auth-pills-email)",
   }} linkToPage="/docs/auth/email">Email</Pill>;
 }
 
 export function UsernameAndPasswordPill() {
   return <Pill style={{
-    backgroundColor: "#fce7f3",
+    backgroundColor: "var(--auth-pills-username-and-pass)",
   }} linkToPage="/docs/auth/username-and-pass">Username & Password</Pill>;
 }
 
 export function GithubPill() {
   return <Pill style={{
-    backgroundColor: "#f1f5f9",
+    backgroundColor: "var(--auth-pills-github)",
   }} linkToPage="/docs/auth/github">Github</Pill>;
 }
 
 export function GooglePill() {
   return <Pill style={{
-    backgroundColor: "#ecfccb",
+    backgroundColor: "var(--auth-pills-google)",
   }} linkToPage="/docs/auth/google">Google</Pill>;
 }
