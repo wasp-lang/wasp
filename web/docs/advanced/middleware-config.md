@@ -5,7 +5,7 @@ import { ShowForTs } from '@site/src/components/TsJsHelpers';
 
 Wasp comes with a minimal set of useful Express middleware in every application. While this is good for most users, we realize some may wish to add, modify, or remove some of these choices both globally, or on a per-`api`/path basis.
 
-## Default global middleware 🌍
+## Default Global Middleware 🌍
 
 Wasp's Express server has the following middleware by default:
 
@@ -37,7 +37,7 @@ You have three places where you can customize middleware:
 3. [per-path](#3-customize-per-path-middleware): this is helpful if you need to customize middleware for all methods under a given path.
     - It's helpful for things like "complex CORS requests" which may need to apply to both `OPTIONS` and `GET`, or to apply some middleware to a _set of `api` routes_.
 
-### Default middleware definitions
+### Default Middleware Definitions
 
 Below is the actual definitions of default middleware which you can override.
 
@@ -75,7 +75,7 @@ const defaultGlobalMiddleware: MiddlewareConfig = new Map([
 </TabItem>
 </Tabs>
 
-## 1. Customize global middleware
+## 1. Customize Global Middleware
 
 If you would like to modify the middleware for _all_ operations and APIs, you can do something like:
 
@@ -134,7 +134,7 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 </Tabs>
  
 
-## 2. Customize `api`-specific middleware
+## 2. Customize `api`-specific Middleware
 
 If you would like to modify the middleware for a single API, you can do something like:
 
@@ -213,7 +213,7 @@ router.post('/webhook/callback', webhookCallbackMiddleware, ...)
 ```
 :::
 
-## 3. Customize per-path middleware
+## 3. Customize Per-Path Middleware
 
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
 
