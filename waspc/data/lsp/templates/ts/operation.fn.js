@@ -1,3 +1,5 @@
+///...
+
 {{#named?}}export {{/named?}}const {{name}} = async (args, context) => {
   // Implementation goes here
 }
