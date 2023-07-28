@@ -131,26 +131,25 @@ handler request respond = withParsedArgs request respond scaffold
     scaffold args@Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath of
       Nothing -> respond $ Left $ makeInvalidParamsError "Invalid filepath: no extension"
       Just ext ->
-        getTemplatesFor pathToExtImport ext >>= \case
+        getTemplateFor pathToExtImport ext >>= \case
           Left err ->
             respond $ Left $ makeInvalidParamsError $ Text.pack err
-          Right templates -> renderAndWriteScaffoldTemplates args templates
+          Right template -> renderAndWriteScaffoldTemplate args template
 
-    renderAndWriteScaffoldTemplates :: Args -> TsTemplates -> ServerM ()
-    renderAndWriteScaffoldTemplates args@Args {..} templates = case pathToExtImport of
+    renderAndWriteScaffoldTemplate :: Args -> Mustache.Template -> ServerM ()
+    renderAndWriteScaffoldTemplate args@Args {..} template = case pathToExtImport of
       Inference.Decl _ declName : _ -> do
         let symbolData = case symbolName of
               ExtImportModule name -> ["default?" .= True, "named?" .= False, "name" .= name]
               ExtImportField name -> ["default?" .= False, "named?" .= True, "name" .= name]
         let templateData = object $ symbolData ++ ["upperDeclName" .= toUpperFirst declName]
 
-        let textToPrepend = renderTemplate (tmplBeginningOfFile templates) templateData
-        let textToAppend = renderTemplate (tmplEndOfFile templates) templateData
+        let rendered = renderTemplate template templateData
+        logM $ printf "[wasp.scaffold.ts-symbol]: rendered=%s" (show rendered)
 
         -- NOTE: we modify the file on disk instead of applying an edit through
         -- the LSP client. See "Current Limitations" above.
-        originalFileText <- liftIO $ Text.readFile (SP.fromAbsFile filepath)
-        liftIO $ Text.writeFile (SP.fromAbsFile filepath) $ textToPrepend <> originalFileText <> textToAppend
+        liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
 
         notifyClientOfFileChanges args
         respond $ Right Aeson.Null
@@ -194,20 +193,18 @@ hasTemplateForArgs Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath 
 
 -- | @getTemplateFor pathToExtImport extension@ finds the mustache template in
 -- @data/lsp/templates/ts@ and compiles it.
-getTemplatesFor :: MonadIO m => ExprPath -> String -> m (Either String TsTemplates)
-getTemplatesFor exprPath ext = runExceptT $ do
+getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
+getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir
   templateFile <- (templatesDir SP.</>) <$> templateFileFor exprPath ext
   templateExists <- liftIO $ doesFileExist templateFile
   if templateExists
     then do
-      templatesText <- liftIO $ Text.readFile $ SP.fromAbsFile templateFile
-      let compileTemplate name srcText = case Mustache.compileTemplate name srcText of
-            -- Note: 'error' is used here because all templates should compile succesfully.
-            Left err -> error $ printf "Compilation of template %s/%s failed: %s" (SP.fromAbsFile templateFile) name (show err)
-            Right template -> return template
-      let (beginningOfFileSrc, endOfFileSrc) = Text.breakOn "///..." templatesText
-      TsTemplates <$> compileTemplate "BOF" beginningOfFileSrc <*> compileTemplate "EOF" endOfFileSrc
+      compileResult <- liftIO $ Mustache.automaticCompile [SP.fromAbsDir templatesDir] (SP.fromAbsFile templateFile)
+      case compileResult of
+        -- Note: 'error' is used here because all templates should compile succesfully.
+        Left err -> error $ printf "Compilation of template %s failed: %s" (SP.fromAbsFile templateFile) (show err)
+        Right template -> return template
     else throwError $ printf "No scaffolding template for request: %s does not exist" (SP.fromAbsFile templateFile)
 
 -- | Renders a mustache template to text.
@@ -226,11 +223,6 @@ data TemplatesDir
 data Template
 
 type TemplateFile = SP.Path' (SP.Rel TemplatesDir) (SP.File Template)
-
-data TsTemplates = TsTemplates
-  { tmplBeginningOfFile :: !Mustache.Template,
-    tmplEndOfFile :: !Mustache.Template
-  }
 
 templatesDirInDataDir :: SP.Path' (SP.Rel Wasp.Data.DataDir) (SP.Dir TemplatesDir)
 templatesDirInDataDir = [SP.reldir|lsp/templates/ts|]

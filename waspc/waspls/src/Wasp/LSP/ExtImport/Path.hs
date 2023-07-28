@@ -20,6 +20,7 @@ import Control.Applicative ((<|>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Hashable (Hashable (hashWithSalt))
 import Data.List (isPrefixOf, stripPrefix)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
