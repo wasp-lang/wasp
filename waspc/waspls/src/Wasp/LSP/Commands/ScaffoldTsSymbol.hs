@@ -8,7 +8,7 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
     -- name to end of a particular file.
     --
     -- Mustache templates are used to write the code for the new function.
-    -- @templateForRequest@ chooses a template in @data/lsp/template/ts@ based
+    -- @templateForRequest@ chooses a template in @data/Lsp/template/ts@ based
     -- on the location of the external import and the extension of the file that
     -- the function will be appended to.
     --
@@ -192,7 +192,7 @@ hasTemplateForArgs Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath 
   Just ext -> isRight $ templateFileFor pathToExtImport ext
 
 -- | @getTemplateFor pathToExtImport extension@ finds the mustache template in
--- @data/lsp/templates/ts@ and compiles it.
+-- @data/Lsp/templates/ts@ and compiles it.
 getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir
@@ -225,7 +225,7 @@ data Template
 type TemplateFile = SP.Path' (SP.Rel TemplatesDir) (SP.File Template)
 
 templatesDirInDataDir :: SP.Path' (SP.Rel Wasp.Data.DataDir) (SP.Dir TemplatesDir)
-templatesDirInDataDir = [SP.reldir|lsp/templates/ts|]
+templatesDirInDataDir = [SP.reldir|Lsp/templates/ts|]
 
 getTemplatesDir :: IO (SP.Path' SP.Abs (SP.Dir TemplatesDir))
 getTemplatesDir = (SP.</> templatesDirInDataDir) <$> Wasp.Data.getAbsDataDirPath
