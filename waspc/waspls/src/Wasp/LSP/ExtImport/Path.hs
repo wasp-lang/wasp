@@ -19,7 +19,8 @@ where
 import Control.Applicative ((<|>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Hashable (Hashable (hashWithSalt))
-import Data.List (stripPrefix)
+import Data.List (isPrefixOf, stripPrefix)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
@@ -28,7 +29,7 @@ import qualified StrongPath.Path as SP
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (doesFileExist)
-import Wasp.Util.StrongPath (stripProperPrefix)
+import qualified Wasp.Util.StrongPath as SP
 
 data ExtensionlessExtFile
 
@@ -56,11 +57,18 @@ instance Hashable ExtFileCachePath where
 newtype WaspStyleExtFilePath = WaspStyleExtFilePath String deriving (Show, Eq)
 
 waspStylePathToCachePath :: WaspStyleExtFilePath -> Maybe ExtFileCachePath
-waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) = do
-  -- Removes the @, making it a path relative to src/, and remove the extension.
-  relFile <- P.parseRelFile =<< stripPrefix "@" waspStylePath
-  let (extensionLessFile, extType) = splitExtensionType relFile
-  return $ ExtFileCachePath (SP.fromPathRelFile extensionLessFile) extType
+waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) =
+  case stripPrefix "@" waspStylePath >>= SP.parseRelFile of
+    Nothing -> Nothing
+    Just relPath ->
+      Just $ case SP.splitRelExtension relPath of
+        Nothing -> ExtFileCachePath relPath DotAnyTS
+        Just (relPathWithoutExt, ext) ->
+          if useExactExtension
+            then ExtFileCachePath relPathWithoutExt (DotExact ext)
+            else ExtFileCachePath relPathWithoutExt (widenExtension ext)
+  where
+    useExactExtension = "@client" `isPrefixOf` waspStylePath
 
 absPathToCachePath :: LSP.MonadLsp c m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
 absPathToCachePath absFile = do
@@ -70,11 +78,11 @@ absPathToCachePath absFile = do
     Nothing -> pure Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) ->
       let srcDir = projectRootDir SP.</> srcDirInProjectRootDir
-       in case stripProperPrefix srcDir absFile of
+       in case SP.stripProperPrefix srcDir absFile of
             Nothing -> pure Nothing
-            Just relFile -> do
-              let (extensionLessFile, extType) = splitExtensionType $ SP.toPathRelFile relFile
-              pure $ Just $ ExtFileCachePath (SP.fromPathRelFile extensionLessFile) extType
+            Just relFile -> case SP.splitRelExtension relFile of
+              Nothing -> pure Nothing
+              Just (fileWithoutExt, ext) -> pure $ Just $ ExtFileCachePath fileWithoutExt (DotExact ext)
 
 cachePathToAbsPathWithoutExt :: LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))
 cachePathToAbsPathWithoutExt (ExtFileCachePath cachePath _) = do
@@ -136,18 +144,13 @@ data ExtensionType
     DotExact !String
   deriving (Show)
 
--- | Convert an extension (like @\".js\"@) to an 'ExtensionType'.
-extensionType :: String -> ExtensionType
-extensionType ".js" = DotTJS
-extensionType ".jsx" = DotTJSX
-extensionType ext = DotExact ext
-
--- | Split a path into a path with no extension and an extension type. If the
--- file has no extension, it gives it 'DotAnyTS' extension type.
-splitExtensionType :: P.Path b P.File -> (P.Path b P.File, ExtensionType)
-splitExtensionType file = case P.splitExtension file of
-  Nothing -> (file, DotAnyTS)
-  Just (file', ext) -> (file', extensionType ext)
+-- | Here, widening an extension means @.js@ and @.jsx@ extensions get converted
+-- to 'DotTJS' and 'DotTJSX', respectively, meaning they will compare equal to
+-- @.ts@ and @.tsx@ extensions.
+widenExtension :: String -> ExtensionType
+widenExtension ".js" = DotTJS
+widenExtension ".jsx" = DotTJSX
+widenExtension ext = DotExact ext
 
 -- | The extensions that each 'ExtensionType' represents.
 allowedExts :: ExtensionType -> [String]

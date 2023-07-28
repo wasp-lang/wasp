@@ -23,7 +23,7 @@ import Wasp.LSP.ExtImport.ExportsCache (ExtImportLookupResult (..), lookupExtImp
 import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath)
 import qualified Wasp.LSP.ExtImport.Path as ExtImport
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einLocation, einName), extImportAtLocation)
-import Wasp.LSP.ServerMonads (HandlerM)
+import Wasp.LSP.ServerMonads (HandlerM, logM)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.Syntax (lspRangeToSpan)
 import qualified Wasp.LSP.TypeInference as Inference
@@ -150,4 +150,6 @@ getScaffoldActionsForExtImport src extImport = do
                 _command = Just command,
                 _xdata = Nothing
               }
-        else return Nothing
+        else do
+          logM $ "[makeCodeAction] Ignoring scaffold action with no available template: " ++ show args
+          return Nothing
