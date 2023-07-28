@@ -120,10 +120,8 @@ instance ToJSON Args where
 instance FromJSON Args where
   parseJSON = withObject "Args" $ \v ->
     Args
-      <$> v
-      .: "symbolName"
-      <*> v
-      .: "pathToExtImport"
+      <$> v .: "symbolName"
+      <*> v .: "pathToExtImport"
       <*> ((maybe (fail "Could not parse filepath") pure . SP.parseAbsFile) =<< v .: "filepath")
 
 handler :: LSP.Handler ServerM 'LSP.WorkspaceExecuteCommand
