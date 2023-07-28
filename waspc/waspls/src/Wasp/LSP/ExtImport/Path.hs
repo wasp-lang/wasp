@@ -62,10 +62,10 @@ waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) =
     Just relPath ->
       Just $ case SP.splitRelExtension relPath of
         Nothing -> ExtFileCachePath relPath DotAnyTS
-        Just (withoutExt, ext) ->
+        Just (relPathWithoutExt, ext) ->
           if useExactExtension
-            then ExtFileCachePath withoutExt (DotExact ext)
-            else ExtFileCachePath withoutExt (widenExtension ext)
+            then ExtFileCachePath relPathWithoutExt (DotExact ext)
+            else ExtFileCachePath relPathWithoutExt (widenExtension ext)
   where
     useExactExtension = "@client" `isPrefixOf` waspStylePath
 
