@@ -70,6 +70,7 @@ import qualified Language.LSP.Types as LSP
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
+import qualified System.Directory as Dir
 import qualified Text.Mustache as Mustache
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule))
@@ -149,6 +150,9 @@ handler request respond = withParsedArgs request respond scaffold
 
         -- NOTE: we modify the file on disk instead of applying an edit through
         -- the LSP client. See "Current Limitations" above.
+
+        -- Create directory (and parent directories) if it doesn't exist.
+        liftIO $ Dir.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent filepath
         liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
 
         notifyClientOfFileChanges args

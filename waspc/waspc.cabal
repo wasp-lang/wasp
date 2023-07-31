@@ -400,6 +400,7 @@ library waspls
     , utf8-string
     , unordered-containers
     , waspc
+    , directory ^>= 1.3.6.0
 
 library cli-lib
   import: common-all
