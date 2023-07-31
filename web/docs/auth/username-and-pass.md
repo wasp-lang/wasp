@@ -263,25 +263,11 @@ That's it! We have set up username authentication in our app. 🎉
 
 Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [using auth docs](/docs/auth/overview).
 
+## Customizing the Auth Flow
 
-## Login and Signup Flows
-
-### Login
-
-![Auth UI](/img/authui/username/login.png)
-
-### Signup
-
-![Auth UI](/img/authui/username/signup.png)
+The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 
 Read more about the default username and password validation rules and how to override them in the [using auth docs](/docs/auth/overview).
-
-## Using Auth 
-
-To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](/docs/auth/overview).
-
-
-## Customizing the Auth Flow
 
 If you require more control in your authentication flow, you can achieve that in the following ways:
 1. Create your UI and use `signup` and `login` actions.
@@ -385,7 +371,7 @@ An action for signing up the user. This action does not log in the user, you sti
 It takes one argument:
 - `userFields: object` <Required />
 
-  Auth-related fields (either `username` or `email` and `password`) of the user entity which was declared in `auth`.
+  Auth-related fields (`username` and `password`) of the user entity which was declared in `auth`.
 
   :::info
   Wasp only stores the auth-related fields of the user entity. Adding extra fields to `userFields` will not have any effect.
@@ -516,7 +502,7 @@ export const signUp = async (args, context) => {
 ```wasp title="main.wasp"
 // ...
 
-action signup {
+action signupUser {
   fn: import { signUp } from "@server/auth/signup.js",
   entities: [User]
 }
@@ -546,6 +532,10 @@ export const signUp: SignupUser<SignupPayload, User> = async (args, context) => 
 ```
 </TabItem>
 </Tabs>
+
+## Using Auth 
+
+To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](/docs/auth/overview).
 
 ## Options Reference
 
@@ -606,8 +596,8 @@ psl=}
 
 Username & password auth requires that `userEntity` specified in `auth` contains:
 
-- `username` field of type `String`
-- `password` field of type `String`
+- `username` field of type `String` <Required />
+- `password` field of type `String` <Required />
 
 ### Fields in the `usernameAndPassword` dict
 
@@ -656,4 +646,4 @@ app myApp {
 `usernameAndPassword` dict doesn't have any options at the moment.
 :::
 
-You can read about the rest of the `auth` options in the [Using auth](/docs/auth/overview) section of the docs.
+You can read about the rest of the `auth` options in the [using auth](/docs/auth/overview) section of the docs.
