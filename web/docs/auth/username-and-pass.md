@@ -371,7 +371,10 @@ An action for signing up the user. This action does not log in the user, you sti
 It takes one argument:
 - `userFields: object` <Required />
 
-  Auth-related fields (`username` and `password`) of the user entity which was declared in `auth`.
+  It has the following fields:
+  - `username: string` <Required />
+
+  - `password: string` <Required />
 
   :::info
   Wasp only stores the auth-related fields of the user entity. Adding extra fields to `userFields` will not have any effect.
@@ -596,8 +599,8 @@ psl=}
 
 Username & password auth requires that `userEntity` specified in `auth` contains:
 
-- `username` field of type `String` <Required />
-- `password` field of type `String` <Required />
+- `username` field of type `String`
+- `password` field of type `String`
 
 ### Fields in the `usernameAndPassword` dict
 
