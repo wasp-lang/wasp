@@ -2,6 +2,8 @@
 title: Automatic CRUD
 ---
 
+import { ShowForTs } from '@site/src/components/TsJsHelpers';
+
 Writing similar [Queries and Actions](/docs/database/operations) sometimes gets tiresome, especially if they are really simple. This is where Automatic CRUD really shines!
 
 import ImgWithCaption from '../../blog/components/ImgWithCaption'
@@ -12,7 +14,7 @@ For some [Entity](/docs/database/entities), you can tell Wasp to automatically g
 This feature is currently in early preview and we are actively working on it. Read more about [our plans](/docs/language/features#crud-operations-on-top-of-entities) for CRUD operations.
 :::
 
-## Defining new CRUD operations
+## Overview
 
 Imagine we have a `Task` entity and we want to enable CRUD operations for it.
 
@@ -53,6 +55,8 @@ Here's what it looks like when visualized:
 <ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud_diagram.png" caption="Visualization of the Tasks crud declaration"/>
 
 We can now use the CRUD queries and actions we just specified in our client code.
+
+Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API reference](#api-reference)
 
 ## Example: simple TODO app
 
@@ -430,6 +434,307 @@ CRUD operations currently have a limited set of knowledge about the business log
 CRUD operations are a mechanism for getting a backend up and running quickly, but it depends on the information it can get from the Wasp app. The more information that it can pick up from your app, the more powerful it will be out of the box.
 
 We plan on supporting CRUD operations and growing them to become the easiest way to create your backend. Follow along on [this Github issue](https://github.com/wasp-lang/wasp/issues/1253) to see how we are doing.
+
+## Options Reference
+
+#### Which operations are supported?
+
+If we create CRUD operations for an entity named `Task`,
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // optional, defaults to false
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js", // optional
+    },
+    update: {},
+  },
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // optional, defaults to false
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js", // optional
+    },
+    update: {},
+  },
+}
+```
+
+</TabItem>
+</Tabs>
+
+Wasp will give you the following default implementations:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+**getAll** - returns all entities
+
+```js
+// ...
+
+// If the operation is not public, Wasp checks if an authenticated user
+// is making the request.
+
+return Task.findMany();
+```
+
+**get** - returns one entity by id field
+
+```js
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.findUnique({ where: { id: args.id } });
+```
+
+**create** - creates a new entity
+
+```js
+// ...
+return Task.create({ data: args.data });
+```
+
+**update** - updates an existing entity
+
+```js
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.update({ where: { id: args.id }, data: args.data });
+```
+
+**delete** - deletes an existing entity
+
+```js
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.delete({ where: { id: args.id } });
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+**getAll** - returns all entities
+
+```ts
+// ...
+
+// If the operation is not public, Wasp checks if an authenticated user
+// is making the request.
+
+return Task.findMany();
+```
+
+**get** - returns one entity by id field
+
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.findUnique({ where: { id: args.id } });
+```
+
+**create** - creates a new entity
+
+```ts
+// ...
+return Task.create({ data: args.data });
+```
+
+**update** - updates an existing entity
+
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.update({ where: { id: args.id }, data: args.data });
+```
+
+**delete** - deletes an existing entity
+
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.delete({ where: { id: args.id } });
+```
+
+</TabItem>
+</Tabs>
+
+:::info Current Limitations
+In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity.
+
+[In the future](#/docs/guides/crud#future-of-crud-operations-in-wasp), we are planning to add validation of action input, where only the data that the user is allowed to change will be saved.
+
+For now, the solution is to provide an override function. You can override the default implementation by using the `overrideFn` option and implementing the validation logic yourself.
+
+:::
+
+#### CRUD declaration
+
+The CRUD declaration works on top of an existing entity declaration. It is declared as follows:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // optional, defaults to false
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js", // optional
+    },
+    update: {},
+  },
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // optional, defaults to false
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js", // optional
+    },
+    update: {},
+  },
+}
+```
+
+</TabItem>
+</Tabs>
+
+It has the following fields:
+
+- `entity: Entity` - the entity to which the CRUD operations will be applied.
+- `operations: { [operationName]: CrudOperationOptions }` - the operations to be generated. The key is the name of the operation, and the value is the operation configuration.
+  - The possible values for `operationName` are:
+    - `getAll`
+    - `get`
+    - `create`
+    - `update`
+    - `delete`
+  - `CrudOperationOptions` can have the following fields:
+    - `isPublic: bool` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
+    - `overrideFn: ServerImport` - The import statement of the optional override implementation in Node.js.
+
+#### Defining the overrides
+
+Like with actions and queries, you can define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
+
+- `args` - The arguments of the operation i.e. the data that's sent from the client.
+- `context` - Context contains the `user` making the request and the `entities` object containing the entity that's being operated on.
+
+<ShowForTs>
+
+You can also import types for each of the functions you want to override from `@wasp/crud/{crud name}`. The available types are:
+
+- `GetAllQuery`
+- `GetQuery`
+- `CreateAction`
+- `UpdateAction`
+- `DeleteAction`
+
+If you have a CRUD named `Tasks`, you would import the types like this:
+
+```ts
+import type {
+  GetAllQuery,
+  GetQuery,
+  CreateAction,
+  UpdateAction,
+  DeleteAction,
+} from "@wasp/crud/Tasks";
+
+// Each of the types is a generic type, so you can use it like this:
+export const getAllOverride: GetAllQuery<Input, Output> = async (
+  args,
+  context
+) => {
+  // ...
+};
+```
+
+</ShowForTs>
+
+For a usage example, check the [above guide](#adding-crud-to-the-task-entity-).
+
+#### Using the CRUD operations in client code
+
+On the client, you import the CRUD operations from `@wasp/crud/{crud name}`. The names of the imports are the same as the names of the operations. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="SomePage.jsx"
+import { Tasks } from "@wasp/crud/Tasks";
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="SomePage.tsx"
+import { Tasks } from "@wasp/crud/Tasks";
+```
+
+</TabItem>
+</Tabs>
+
+You can then access the operations like this:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="SomePage.jsx"
+const { data } = Tasks.getAll.useQuery();
+const { data } = Tasks.get.useQuery({ id: 1 });
+const createAction = Tasks.create.useAction();
+const updateAction = Tasks.update.useAction();
+const deleteAction = Tasks.delete.useAction();
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="SomePage.tsx"
+const { data } = Tasks.getAll.useQuery();
+const { data } = Tasks.get.useQuery({ id: 1 });
+const createAction = Tasks.create.useAction();
+const updateAction = Tasks.update.useAction();
+const deleteAction = Tasks.delete.useAction();
+```
+
+</TabItem>
+</Tabs>
+
+All CRUD operations are implemented with [Queries and Actions](/docs/database/operations) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
 
 ---
 

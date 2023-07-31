@@ -9,7 +9,7 @@ While Entities enable help you define your app's data model and relationships, O
 There are two kinds of Operations: **Queries** and **Actions**. As their names suggest,
 Queries are meant for reading data, and Actions are meant for changing it (either by updating existing entries or creating new ones).
 
-### Queries
+## Queries
 
 You can use Queries to fetch data from the server. They shouldn't modify the server's state.
 
@@ -25,7 +25,7 @@ To create a Wasp Query, you must:
 
 After completing these two steps, you'll be able to use the Query from any point in your code.
 
-#### Declaring a Query in Wasp
+### Declaring a Query in Wasp
 
 We'll start by telling Wasp we wish to create a Query.
 
@@ -62,7 +62,7 @@ After declaring a Wasp Query, two crucial things happen:
 
 Generating two such functions ensures a uniform calling interface across the entire app (both client and server).
 
-#### Defining the Query's NodeJS implementation
+### Defining the Query's NodeJS implementation
 
 Now that we've declared the Query, all that's left is implementing it.
 The Query's implementation is a NodeJS function that takes two arguments (it can be an `async` function if you need to use the `await` keyword).
@@ -148,7 +148,7 @@ Annotating the Queries is optional, but highly recommended. Doing so enables **f
 </TabItem>
 </Tabs>
 
-#### Using the Query
+### Using the Query
 
 To use the Query, you can import it from `@wasp` and call it directly. As mentioned, the usage doesn't change depending on whether you're on the server or the client:
 
@@ -204,7 +204,7 @@ Wasp's `useQuery` hook accepts three arguments:
   [the default
   behavior](https://react-query.tanstack.com/guides/important-defaults) for
   this particular Query. If you want to change the global defaults, you can do
-  so in the [client setup function](#overriding-default-behaviour-for-queries).
+  so in the [client setup function](/docs/project/client-config.md#overriding-default-behaviour-for-queries).
 
 Wasp's `useQuery` hook behaves mostly the same as [_react-query_'s `useQuery` hook](https://react-query.tanstack.com/docs/api#usequery), the only difference being in not having to supply the key (Wasp does this automatically under the hood).
 
@@ -312,7 +312,7 @@ Notice how you don't need to annotate the Query's return value type: Wasp automa
 </TabItem>
 </Tabs>
 
-#### Error Handling
+### Error Handling
 
 For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
 Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
@@ -354,7 +354,7 @@ export const getAllTasks: GetAllTasks = async (args, context) => {
 If the status code is `4xx`, the client will receive a response object with the corresponding `.message` and `.data` fields and rethrow the error (with these fields included).
 To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
 
-#### Using Entities in Queries
+### Using Entities in Queries
 
 In most cases, resources used in Queries will be [Entities](#entity).
 To use an Entity in your Query, add it to the `query` declaration in Wasp:
@@ -444,7 +444,7 @@ Again, annotating the Queries is optional, but greatly improves **full-stack typ
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
-### Action
+## Actions
 
 Actions are very similar to Queries. So similar, in fact, we will only list the differences:
 
@@ -452,6 +452,8 @@ Actions are very similar to Queries. So similar, in fact, we will only list the 
 2. Actions don't need to be reactive so you can call them directly. Still, Wasp does provide a `useAction` React hook for adding extra behavior to the Action (e.g., optimistic updates).
    Read more about the [`useAction` hook](#the-useaction-hook) below.
 3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
+
+### Defining and Using Actions in Wasp
 
 Here's a declaration for an Action in Wasp:
 <Tabs groupId="js-ts">
@@ -628,7 +630,7 @@ const TaskPage = ({ id }: { id: number }) => {
 </TabItem>
 </Tabs>
 
-#### The `useAction` hook
+### The `useAction` hook
 
 When using Actions in components, you can enhance them with the help of the `useAction` hook. This hook comes bundled with Wasp, and you can use it to decorate Wasp Actions.
 In other words, the hook returns a function whose API matches the original Action while also doing something extra under the hood (depending on how you configure it).
@@ -796,7 +798,7 @@ const queryKey = getTasks.queryCacheKey;
 </TabItem>
 </Tabs>
 
-### Cache Invalidation
+## Cache Invalidation
 
 One of the trickiest parts of managing a web app's state is making sure the data returned by the Queries is up to date.
 Since Wasp uses _react-query_ for Query management, we must make sure to invalidate Queries (more specifically, their cached results managed by _react-query_) whenever they become stale.
@@ -814,7 +816,7 @@ On the other hand, this kind of automatic cache invalidation can become wasteful
 
 If you wish to optimistically set cache values after perfomring an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
 
-### Prisma Error Helpers
+## Prisma Error Helpers
 
 In your Operations, you may wish to handle general Prisma errors with HTTP-friendly responses. We have exposed two helper functions, `isPrismaError`, and `prismaErrorToHttpError`, for this purpose. As of now, we convert two specific Prisma errors (which we will continue to expand), with the rest being `500`. See the [source here](https://github.com/wasp-lang/wasp/blob/main/waspc/e2e-test/test-outputs/waspMigrate-golden/waspMigrate/.wasp/out/server/src/utils.js).
 
@@ -824,7 +826,7 @@ In your Operations, you may wish to handle general Prisma errors with HTTP-frien
 import { isPrismaError, prismaErrorToHttpError } from "@wasp/utils.js";
 ```
 
-##### Example of usage:
+#### Example of usage:
 
 ```js
 try {
