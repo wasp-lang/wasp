@@ -12,7 +12,7 @@ function generateLast24HoursData(projects) {
     const bucketStart = new Date(last24Hours.getTime() + i * 60 * 60 * 1000);
     const bucket = {
       date: bucketStart,
-      displayValue: bucketStart.getHours(),
+      displayValue: bucketStart.getHours() + 1,
       count: 0,
     };
     buckets.push(bucket);
@@ -37,10 +37,12 @@ function generateLast30DaysData(projects) {
   const now = new Date();
   const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   for (let i = 0; i < 30; i++) {
-    const bucketStart = new Date(last30Days.getTime() + i * 24 * 60 * 60 * 1000);
+    const bucketStart = new Date(
+      last30Days.getTime() + i * 24 * 60 * 60 * 1000
+    );
     const bucket = {
       date: bucketStart,
-      displayValue: bucketStart.getDate() + 1,
+      displayValue: bucketStart.getDate(),
       count: 0,
     };
     buckets.push(bucket);
@@ -57,13 +59,12 @@ function generateLast30DaysData(projects) {
       buckets[reverseBucketIndex].count++;
     }
   });
-  console.log(buckets);
   return buckets;
 }
 
 const verticalMargin = 50;
 const margins = {
-  left: 30,
+  left: 0,
 };
 
 export function BarChart({ projects, chartType, width, height }) {
@@ -108,14 +109,29 @@ export function BarChart({ projects, chartType, width, height }) {
           const barX = xScale(d.displayValue);
           const barY = yMax - barHeight;
           return (
-            <Bar
-              key={`bar-${d.date}`}
-              x={barX}
-              y={barY}
-              width={barWidth}
-              height={barHeight}
-              className="fill-pink-300"
-            />
+            d.count > 0 && (
+              <Group>
+                <Bar
+                  key={`bar-${d.date}`}
+                  x={barX}
+                  y={barY}
+                  width={barWidth}
+                  height={barHeight}
+                  className="fill-pink-300"
+                />
+
+                <text
+                  x={barX + barWidth / 2}
+                  y={yMax - barHeight}
+                  fill="black"
+                  fontSize={12}
+                  dy={"-.33em"}
+                  style={{ fontFamily: "arial", textAnchor: "middle" }}
+                >
+                  {d.count}
+                </text>
+              </Group>
+            )
           );
         })}
         <AxisBottom
@@ -126,18 +142,6 @@ export function BarChart({ projects, chartType, width, height }) {
             fill: "#333",
             fontSize: 11,
             textAnchor: "middle",
-          })}
-        />
-        <AxisLeft
-          scale={yScale.nice()}
-          numTicks={10}
-          top={0}
-          tickLabelProps={(e) => ({
-            fill: "#333",
-            fontSize: 10,
-            textAnchor: "end",
-            x: -12,
-            y: (yScale(e) ?? 0) + 3,
           })}
         />
       </Group>

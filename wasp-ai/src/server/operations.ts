@@ -233,7 +233,6 @@ function getDownloadStats(projects: Project[]) {
   const downloadedProjects = projectsAfterDownloadTracking.filter(
     (project) => project.zipDownloadedAt !== null
   );
-  console.log({ projectsAfterDownloadTracking, downloadedProjects });
   return {
     projectsDownloaded: downloadedProjects.length,
     downloadRatio:

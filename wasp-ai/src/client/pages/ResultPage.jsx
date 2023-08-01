@@ -545,8 +545,6 @@ function Feedback({ projectId }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    console.log(score, feedbackText, projectId)
-
     try {
       await createFeedback({ score, message: feedbackText, projectId })
     } catch (e) {

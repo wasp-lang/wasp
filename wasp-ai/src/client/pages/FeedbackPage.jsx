@@ -7,8 +7,6 @@ import { format } from "timeago.js";
 export function Feedback() {
   const { data: feedback, isLoading, error } = useQuery(getFeedback);
 
-  console.log(feedback)
-
   return (
     <>
       {isLoading && <p>Loading...</p>}
