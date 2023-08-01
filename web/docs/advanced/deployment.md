@@ -1,3 +1,0 @@
----
-title: Deploying a Project
----
