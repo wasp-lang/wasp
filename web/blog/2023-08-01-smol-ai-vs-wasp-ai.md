@@ -2,7 +2,7 @@
 title: 'Smol AI 🐣 vs. Wasp AI 🐝 - Which is the Better AI Junior Developer?'
 authors: [vinny]
 image: /img/smol-ai-vs-wasp-ai/smol-vs-wasp-banner.png
-tags: [wasp, ai, gpt, langchain, fullstack, node, react, agent]
+tags: [wasp, ai, gpt, smol, fullstack, node, react, agent, smol-developer]
 ---
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
