@@ -70,7 +70,7 @@ module.exports = {
         "project/client-config",
         "project/server-config",
         "project/public-files",
-        "project/dotenv",
+        "project/env-vars",
         "project/testing",
         "project/dependencies",
         "project/css-frameworks",
