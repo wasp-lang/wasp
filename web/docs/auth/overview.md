@@ -410,7 +410,7 @@ You can only disable the default validation for **Username & password** authenti
 This is a bug in Wasp that is being tracked [here](https://github.com/wasp-lang/wasp/issues/1358)
 :::
 
-To disable/enable default validations, or add your own, you can modify your custom signup function like so:
+To disable/enable default validations, or add your own, modify your custom signup function:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
