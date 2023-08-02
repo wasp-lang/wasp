@@ -382,7 +382,7 @@ export const updatePassword: UpdatePassword<UpdatePasswordPayload, User> = async
 
 ### Default validations
 
-We provide basic validations out of the box, which you can customize as shown below. 
+Wasp includes several basic validation mechanisms. If you need something extra, the [next section](#customizing-validations) shows how to customize them.
 
 Default validations depend on the auth method you use.
 
