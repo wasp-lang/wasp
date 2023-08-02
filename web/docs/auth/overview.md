@@ -460,7 +460,7 @@ The validation process stops on the first `validator` to return false. If enable
 :::
 
 ### Validation Error Handling
-When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed a class called `AuthError` for this purpose.
+When creating, updating, or deleting entities, you may wish to handle validation errors. Wasp exposes a class called `AuthError` for this purpose.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
