@@ -5,7 +5,7 @@ title: Using Auth
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
 import { Required } from "@site/src/components/Required";
 
-Auth is an important piece of each more advanced application. Wasp luckily provides authentication and authorization support out of the box 🙃
+Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box 🙃.
 
 Enabling it for your app is optional and can be done by configuring the `auth` field of the `app` declaration.  
 
