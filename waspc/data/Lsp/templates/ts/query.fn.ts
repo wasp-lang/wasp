@@ -1,8 +1,9 @@
 import { {{upperDeclName}} } from '@wasp/queries/types'
 
-type {{upperDeclName}}Payload = void
-type {{upperDeclName}}Result = void
-{{#named?}}export {{/named?}}const {{name}}: {{upperDeclName}}<{{upperDeclName}}Payload, {{upperDeclName}}Result> = async (args, context) => {
+type {{upperDeclName}}Input = void
+type {{upperDeclName}}Output = void
+
+{{#named?}}export {{/named?}}const {{name}}: {{upperDeclName}}<{{upperDeclName}}Input, {{upperDeclName}}Output> = async (args, context) => {
   // Implementation goes here
 }
 
