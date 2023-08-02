@@ -543,7 +543,7 @@ app MyApp {
 </TabItem>
 </Tabs>
 
-`app.auth` is a dictionary with following fields:
+`app.auth` is a dictionary with the following fields:
 
 #### `userEntity: entity` <Required />
 The entity representing the user. Its mandatory fields depend on your chosen auth method.
