@@ -110,7 +110,7 @@ page MainPage {
 You can only use `authRequired` if your app uses one of the [available auth methods](#available-auth-methods).
 :::
 
-If `authRequired` is set to `true`, the React component of the page (specified by `component` property) will be provided `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user](#accessing-the-logged-in-user) section.
+If `authRequired` is set to `true`, the page's React component (specified by the `component` property) receives the `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user section](#accessing-the-logged-in-user).
 
 ## Logout action
 
