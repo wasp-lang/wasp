@@ -149,6 +149,10 @@ You can get access to the `user` object both in the backend and on the frontend.
 
 ### On the client
 
+There are two ways to access the `user` object on the client:
+- the `user` prop 
+- the `useAuth` hook
+
 #### Using the `user` prop
 
 If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
@@ -275,6 +279,10 @@ export function Main() {
 ```
 </TabItem>
 </Tabs>
+
+:::tip
+Since the `user` prop is only available in a page's React component: use the `user` prop in the page's React component and the `useAuth` hook in any other React component.
+:::
 
 ### On the server
 
