@@ -107,7 +107,7 @@ page MainPage {
 </Tabs>
 
 :::caution Requires auth method
-`authRequired` can only be used if some auth method is enabled for the app.
+You can only use `authRequired` if your app uses one of the [available auth methods](#available-auth-methods).
 :::
 
 If `authRequired` is set to `true`, the React component of the page (specified by `component` property) will be provided `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user](#accessing-the-logged-in-user) section.
