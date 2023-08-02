@@ -280,7 +280,7 @@ export function Main() {
 
 #### Using the `context.user`
 
-When authentication is enabled, all [queries and actions](/docs/database/operations) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
+When authentication is enabled, all [queries and actions](/docs/database/operations) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
