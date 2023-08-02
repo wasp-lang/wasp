@@ -278,7 +278,12 @@ export function Stats() {
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
                         <Color value={getColorValue(stat.primaryColor)} />{" "}
-                        <span title={stat.description}>{stat.name}</span>{" "}
+                        <span
+                          title={stat.description}
+                          className="max-w-[250px] overflow-hidden overflow-ellipsis"
+                        >
+                          {stat.name}
+                        </span>{" "}
                         <span className="flex gap-1">
                           {stat.user && (
                             <span title={stat.user.email}>
