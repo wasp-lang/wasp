@@ -627,5 +627,5 @@ The route to which Wasp will send a successfully authenticated after a successfu
 The default value is `"/"`.
 
 :::note
-Automatic redirect on successful login only works when using the Wasp provided [`Signup` and `Login` forms](#high-level-api)
+Automatic redirect on successful login only works when using the Wasp-provided [`Signup` and `Login` forms](#high-level-api)
 :::
