@@ -405,7 +405,7 @@ Note that `email`s are stored in a **case-insensitive** manner.
 ### Customizing validations
 
 :::note
-Default validation can be disabled only for the **Username & password** auth method, but the custom validations can be added to both **Username & password** and **Email** auth methods.
+You can only disable the default validation for **Username & password** authentication, but you can add custom validations can to both **Username & password** and **Email** auth methods.
 
 This is a bug in Wasp that is being tracked [here](https://github.com/wasp-lang/wasp/issues/1358)
 :::
