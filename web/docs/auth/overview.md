@@ -388,17 +388,17 @@ Default validations depend on the auth method you use.
 
 #### Username & password
 
-If you use the [Username & password](docs/auth/username-and-pass) authentication, the default validations are:
-- `username`: non-empty
-- `password`: non-empty, at least 8 characters, and contains a number
+If you use [Username & password](/docs/auth/username-and-pass) authentication, the default validations are:
+- The `username` must not be empty
+- The `password` must not be empty, have at least 8 characters, and contain a number
 
 Note that `username`s are stored in a **case-sensitive** manner.
 
 #### Email
 
-If you use the [Email](docs/auth/email) authentication, the default validations are:
-- `email`: non-empty, valid e-mail address
-- `password`: non-empty, at least 8 characters, and contains a number
+If you use [Email](/docs/auth/email) authentication, the default validations are:
+- The `email` must not be empty and a valid email address
+- The `password` must not be empty, have at least 8 characters, and contain a number
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
