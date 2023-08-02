@@ -91,7 +91,6 @@ To add more pages, you can create another set of __page__ and __route__ declarat
 
 ```wasp title="main.wasp"
 route HelloRoute { path: "/hello/:name", to: HelloPage }
-
 page HelloPage {
   component: import Hello from "@client/HelloPage.jsx"
 }
@@ -102,7 +101,6 @@ page HelloPage {
 
 ```wasp title="main.wasp"
 route HelloRoute { path: "/hello/:name", to: HelloPage }
-
 page HelloPage {
   component: import Hello from "@client/HelloPage.tsx"
 }
@@ -119,26 +117,39 @@ When a user visits `/hello/their-name`, Wasp will render the component exported 
 ```jsx title="src/client/HelloPage.jsx"
 const HelloPage = (props) => {
   return (
-    <div>Hello {props.match.params.name}!</div>
+    <div>Here's {props.match.params.name}!</div>
   )
 }
 
 export default HelloPage
 ```
-
 </TabItem>
+<TabItem value="ts" label="TypeScript">
 
-<!-- TODO: TypeScript version -->
+```tsx title="src/client/HelloPage.tsx"
+import { RouteComponentProps } from 'react-router-dom'
 
+const HelloPage = (props: RouteComponentProps<{ name: string }>) => {
+  return (
+    <div>Here's {props.match.params.name}!</div>
+  )
+}
+
+export default HelloPage
+```
+</TabItem>
 </Tabs>
 
-Now you can visit `/hello/your-name` and see "Hello your-name!"
+Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 ## Cleaning Up
 
-Let's prepare for building the Todo app by cleaning up the project and removing files and code we won't need. Start by deleting `Main.css`, `waspLogo.png`, and `HelloPage.jsx` that we just created in the `src/client/` folder.
+Let's prepare for building the Todo app by cleaning up the project and removing files and code we won't need. Start by deleting `Main.css`, `waspLogo.png`, and `HelloPage.{jsx,tsx}` that we just created in the `src/client/` folder.
 
-Since we deleted `HelloPage.jsx`, we also need to remember to remove the `route` and `page` declarations we wrote for it. Your Wasp file should now look like this:
+Since we deleted `HelloPage.{jsx,tsx}`, we also need to remember to remove the `route` and `page` declarations we wrote for it. Your Wasp file should now look like this:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```wasp title="main.wasp"
 app TodoApp {
@@ -149,11 +160,28 @@ app TodoApp {
 }
 
 route RootRoute { path: "/", to: MainPage }
-
 page MainPage {
   component: import Main from "@client/MainPage.jsx"
 }
-````
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app TodoApp {
+  wasp: {
+    version: "^0.11.0"
+  },
+  title: "Todo app"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.tsx"
+}
+```
+</TabItem>
+</Tabs>
 
 Next, we'll remove most of the code from the `MainPage` component:
 
