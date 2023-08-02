@@ -9,7 +9,7 @@ You can configure the behavior of the server via the `server` field of `app` dec
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   // ...
@@ -22,7 +22,7 @@ app MyApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   // ...
@@ -166,7 +166,7 @@ Read more about [middleware config function](#middlewareconfigfn-serverimport) b
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   // ...
@@ -179,7 +179,7 @@ app MyApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   // ...
@@ -196,15 +196,9 @@ app MyApp {
 
 - #### `setupFn: ServerImport`
 
-  <ShowForTs>
-
-  `setupFn` declares a Typescript function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
-  </ShowForTs>
-
-  <ShowForJs>
   
-  `setupFn` declares a Javascript function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
-  </ShowForJs>
+
+  `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>Javascript</ShowForJs> function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
   It allows you to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
 
@@ -244,4 +238,4 @@ app MyApp {
 
 - #### `middlewareConfigFn: ServerImport`
 
-  The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See [Configuring Middleware](/docs/advanced/middleware-config#1-customize-global-middleware).
+  The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](/docs/advanced/middleware-config#1-customize-global-middleware).
