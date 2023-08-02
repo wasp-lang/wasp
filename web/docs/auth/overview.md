@@ -71,7 +71,7 @@ Wasp supports the following auth methods:
 
 <AuthMethodsGrid />
 
-Let's say we enabled the [Username & password](docs/auth/username-and-pass) authentication.
+Let's say we enabled the [Username & password](/docs/auth/username-and-pass) authentication.
 
 We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](/docs/database/operations) and we can decide what to do based on whether the user is logged in or not. 
 
