@@ -151,7 +151,7 @@ You can get access to the `user` object both in the backend and on the frontend.
 
 #### Using the `user` prop
 
-If `authRequired` is set to `true` for a `page` declaration, the React component of the page will be provided `user` object as a prop:
+If the page's declarations sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
