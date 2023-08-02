@@ -549,7 +549,7 @@ app MyApp {
 The entity that represents the user. The fields it should have depend on the auth method you use.
 
 #### `externalAuthEntity: entity`
-Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains the following configuration:
+Wasp requires you to set the field `auth.externalAuthEntity` for all authentication methods relying on an external authorizatino provider (e.g., Google). You also need to tweak the Entity referenced by `auth.userEntity`, as shown below.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
