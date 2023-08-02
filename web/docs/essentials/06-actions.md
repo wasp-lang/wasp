@@ -8,12 +8,12 @@ import Collapse from '@site/src/components/Collapse';
 
 In the previous section, we learned about using queries to fetch data and only briefly mentioned that actions can be used to update the database. Let's learn more about actions so we can add and update tasks in the database.
 
-We'll need to accomplish two things in order to add tasks:
+We have to create:
 
 1. A Wasp action that creates a new task.
 2. A React form that calls that action when the user creates a task.
 
-## Defining the Action
+## Creating a New Action
 
 Creating an action is very similar to creating a query.
 
@@ -48,7 +48,7 @@ action createTask {
 </TabItem>
 </Tabs>
 
-# Implementing an Action 
+### Implementing an Action 
 
 Let's now define a <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowForTs> function for our `createTask` action:
 
@@ -85,7 +85,7 @@ Once again, we've annotated the action with the generated `CreateTask` and `Task
 </Tabs>
 
 :::tip
-We put the function in a new file <ShowForJs>`src/server/actions.js`</ShowForJs><ShowForTs>`src/server/actions.ts`</ShowForTs>, but we could have put it anywhere we wanted! There are no limitations here, as long as the declaration in the Wasp file imports it correctly and the file is located within `src/server`.
+We put the function in a new file `src/server/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the declaration in the Wasp file imports it correctly and the file is located within `src/server`.
 :::
 
 ## Invoking the Action on the Client
@@ -165,7 +165,7 @@ Unlike queries, you call actions directly (i.e., without wrapping it with a hook
 
 <ShowForTs>
 
-Finally, because we've previously annotated the Action's backend implementation with the correct type, Wasp knows that the `createTask` action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` action returns a `Task`, but we don't need it.
+Finally, because we've previously annotated the Action's backend implementation with the correct type, Wasp knows that the `createTask` action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` action returns a `Task` but are not using it in this example.
 
 </ShowForTs>
 
@@ -224,9 +224,11 @@ const MainPage = () => {
 </TabItem>
 </Tabs>
 
-That's it!
+And now we have a form that creates new tasks.
 
-Try creating a "Build a Todo App in Wasp" task and see it appear in the list below. The task is created on the server and saved in the database. Try refreshing the page or opening it in another browser—you'll see the tasks are still there!
+Try creating a "Build a Todo App in Wasp" task and see it appear in the list below. The task is created on the server and saved in the database. 
+
+Try refreshing the page or opening it in another browser, you'll see the tasks are still there!
 
 <img alt="Todo App - creating new task"
      src={useBaseUrl('img/todo-app-new-task.png')}
@@ -236,18 +238,18 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 <br />
 
 :::note Automatic Query Invalidation
-When you create a new task, the list of tasks is automatically updated to display the new task, even though we have not written any code that would do that! These automatic updates are handles by code that Wasp generates.
+When you create a new task, the list of tasks is automatically updated to display the new task, even though we have not written any code that would do that! These automatic updates are handled by code that Wasp generates.
 
-When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed automatically updates it in the background. This means that **out of the box, Wasp will make sure that all your queries are kept in-sync with changes made by any actions**.
+When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed and automatically updates it in the background. This means that **out of the box, Wasp will make sure that all your queries are kept in-sync with changes made by any actions**.
 
-This behavior is convenient as a default, but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. The feature is tracked [here](https://github.com/wasp-lang/wasp/issues/63).
+This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked [here](https://github.com/wasp-lang/wasp/issues/63).
 :::
 
 ## A Second Action
 
 Our Todo app isn't finished if you can't mark a task as done! We'll create a new action to update a task's status and call it from React whenever a task's checkbox is toggled.
 
-Since we've already created one task together, try to create this one yourself! It should be an action named `updateTask` that takes a task `id` and an `isDone` in its arguments. You can check our implementation below.
+Since we've already created one task together, try to create this one yourself. It should be an action named `updateTask` that takes a task `id` and an `isDone` in its arguments. You can check our implementation below.
 
 <Collapse title="Solution">
 
@@ -406,5 +408,5 @@ const Task = ({ task }: { task: Task }) => {
 </TabItem>
 </Tabs>
 
-Awesome! Now we can check off this task ;)
+Awesome! Now we can check off this task 🙃  Let's add one more interesting feature to our app.
 
