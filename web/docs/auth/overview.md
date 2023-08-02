@@ -7,7 +7,7 @@ import { Required } from "@site/src/components/Required";
 
 Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box 🙃.
 
-Enabling it for your app is optional and can be done by configuring the `auth` field of the `app` declaration.  
+Enabling auth for your app is optional and can be done by configuring the `auth` field of the `app` declaration.  
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
