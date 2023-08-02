@@ -81,9 +81,9 @@ We will also have access to the `user` object in our frontend code, so we can sh
 
 ## Protecting a page with `authRequired`
 
-When you declare a `page` you can provide it with `authRequired` property.
+When declaring a page, you can set the `authRequired` property.
 
-If you set it to `true`, only authenticated users will be able to access this page. Unauthenticated users will be redirected to a route defined by `onAuthFailedRedirectTo` property within `app.auth`. 
+If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `app.auth.onAuthFailedRedirectTo` field.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
