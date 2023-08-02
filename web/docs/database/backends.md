@@ -270,9 +270,9 @@ app MyApp {
   Additional configuration for Prisma.
   It currently only supports a single field:
 
-- `clientPreviewFeatures : string`
+  - `clientPreviewFeatures : string`
 
-  Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+    Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
 
 ### CLI Commands for Seeding the Database
 
