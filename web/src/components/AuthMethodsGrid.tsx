@@ -36,7 +36,7 @@ export function AuthMethodsGrid() {
         ))}
       </div>
       <p className="auth-methods-info">
-        <small>Click on the auth method to see more details about it.</small>
+        <small>Click on each auth method for more details.</small>
       </p>
     </>
   );
