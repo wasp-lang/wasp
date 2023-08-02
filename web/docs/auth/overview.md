@@ -333,7 +333,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (args, cont
 </TabItem>
 </Tabs>
 
-To implement access control, each operation is responsible for checking `context.user` and acting accordingly - e.g. if `context.user` is `undefined` and the operation is private then user should be denied access to it.
+To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](/docs/advanced/web-sockets#websocketfn-function).
 
