@@ -2,6 +2,7 @@
 title: Client Config
 ---
 
+
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 You can configure the client using the `client` field inside the `app` declaration:
@@ -36,12 +37,29 @@ app MyApp {
 </Tabs>
 
 ## Root Component
+
+Wasp gives you the option to define a "wrapper" component for your React app.
+
+It can be used for a variety of purposes, but the most common ones are:
+- Defining a common layout for your application.
+- Setting up various providers that your application needs.
+
 ### Defining a Common Layout
 
-You can use it to define a common layout for your application:
+Let's define a common layout for your application:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.jsx",
+  }
+}
+```
 
 ```jsx title="src/client/Root.jsx"
 export default function Root({ children }) {
@@ -60,6 +78,16 @@ export default function Root({ children }) {
 ```
 </TabItem>
 <TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.tsx",
+  }
+}
+```
 
 ```tsx title="src/client/Root.tsx"
 export default function Root({ children }: { children: React.ReactNode }) {
@@ -82,10 +110,20 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
 ### Setting up a Provider
 
-Or, you can use it to set up various providers that your application needs:
+This is how to set up various providers that your application needs:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.jsx",
+  }
+}
+```
 
 ```jsx title="src/client/Root.jsx"
 import store from './store'
@@ -101,6 +139,16 @@ export default function Root({ children }) {
 ```
 </TabItem>
 <TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@client/Root.tsx",
+  }
+}
+```
 
 ```tsx title="src/client/Root.tsx"
 import store from './store'
@@ -124,19 +172,13 @@ Read more about the root component in the [options reference](#rootcomponent-cli
 
 ## Setup Function
 
-<ShowForTs>
-
-`setupFn` declares a Typescript function that Wasp executes on the client before everything else. 
-</ShowForTs>
-
-<ShowForJs>
-
-`setupFn` declares a JavaScript function that Wasp executes on the client before everything else.
-</ShowForJs>
+`setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp executes on the client before everything else. 
 
 ### Running Some Code
 
-Here's a dummy example of such a function:
+We can run any code we want in the setup function.
+
+For example, here's a setup function that logs a message every hour:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -167,13 +209,15 @@ export default async function mySetupFunction(): Promise<void> {
 
 ### Overriding Default Behaviour for Queries
 
-:::note
-You can change the options for a single Query using the `options` object, as described [here](/docs/database/operations).
+:::info
+You can change the options for a **single** Query using the `options` object, as described [here](/docs/database/operations). <!-- TODO: check if the link is correct after operations docs are merged -->
 :::
 
-Wasp's `useQuery` hook uses _react-query_'s `useQuery` hook under the hood. Since _react-query_ comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
 
-If you do need to change the global defaults, you can do so inside the client setup function. Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_'s `QueryClient` object:
+If you do need to change the global defaults, you can do so inside the client setup function.
+
+Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_'s `QueryClient` object:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -216,7 +260,7 @@ export default async function mySetupFunction(): Promise<void> {
 
 Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
-[_react-query_'s docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
+[react-query's docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
 
 Read more about the setup function in the [options reference](#setupfn-clientimport).
 
