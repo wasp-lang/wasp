@@ -614,7 +614,7 @@ The same `externalAuthEntity` can be used across different social login provider
 See [Google docs](/docs/auth/google) and [GitHub docs](/docs/auth/github) for more details.
 
 #### `methods: dict` <Required />
-A dictionary of auth methods that are enabled for the app.
+A dictionary of auth methods enabled for the app.
 
 <AuthMethodsGrid />
 
