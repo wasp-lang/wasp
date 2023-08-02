@@ -624,7 +624,7 @@ The path where an unauthenticated user will be redirected if they try to access 
 Check out these [essentials docs on auth](/docs/essentials/auth#adding-auth-to-the-project) to see an example of usage.
 
 #### `onAuthSucceededRedirectTo: String`
-The path where a successfully authenticated user will be sent upon successful login/signup.
+The route to which Wasp will send a successfully authenticated after a successful login/signup.
 The default value is `"/"`.
 
 :::note
