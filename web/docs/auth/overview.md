@@ -278,7 +278,7 @@ export function Main() {
 
 ### On the server
 
-#### Using the `context.user`
+#### Using the `context.user` object
 
 When authentication is enabled, all [queries and actions](/docs/database/operations) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
