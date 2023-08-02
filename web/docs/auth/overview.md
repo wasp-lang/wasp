@@ -546,7 +546,7 @@ app MyApp {
 `app.auth` is a dictionary with following fields:
 
 #### `userEntity: entity` <Required />
-The entity that represents the user. The fields it should have depend on the auth method you use.
+The entity representing the user. Its mandatory fields depend on your chosen auth method.
 
 #### `externalAuthEntity: entity`
 Wasp requires you to set the field `auth.externalAuthEntity` for all authentication methods relying on an external authorizatino provider (e.g., Google). You also need to tweak the Entity referenced by `auth.userEntity`, as shown below.
