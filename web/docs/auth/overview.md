@@ -12,7 +12,7 @@ Enabling auth for your app is optional and can be done by configuring the `auth`
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   //...
@@ -34,7 +34,7 @@ app MyApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   //...
@@ -88,7 +88,7 @@ If you set it to `true`, only authenticated users can access the page. Unauthent
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp
+```wasp title="main.wasp"
 page MainPage {
   component: import Main from "@client/pages/Main.jsx",
   authRequired: true
@@ -97,7 +97,7 @@ page MainPage {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp
+```wasp title="main.wasp"
 page MainPage {
   component: import Main from "@client/pages/Main.tsx",
   authRequired: true
@@ -500,8 +500,7 @@ try {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp
-app MyApp {
+```wasp title="main.wasp"
   title: "My app",
   //...
   auth: {
@@ -522,7 +521,7 @@ app MyApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   //...
@@ -555,7 +554,7 @@ Anytime an authentication method is used that relies on an external authorizatio
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp {4,14}
+```wasp {4,14} title="main.wasp"
 //...
   auth: {
     userEntity: User,
@@ -581,7 +580,7 @@ psl=}
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp {4,14}
+```wasp {4,14} title="main.wasp"
 //...
   auth: {
     userEntity: User,
