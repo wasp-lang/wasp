@@ -341,9 +341,8 @@ When using WebSockets, the `user` object is also available on the `socket.data` 
 
 ### Password hashing
 
-You don't need to worry about hashing the password yourself. Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp's middleware takes care of hashing it before storing it in the database.
-
-For example, if you need to update a user's password, you can do it safely via Prisma client, e.g. within an action:
+You don't need to worry about hashing the password yourself. Even when directly using the Prisma client and calling `create()` with a plain-text password, Wasp's middleware makes sure to hash the password before storing it in the database.
+For example, if you need to update a user's password, you can safely use the Prisma client to do so, e.g., inside an Action:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
