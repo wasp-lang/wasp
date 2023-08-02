@@ -10,7 +10,7 @@ export function AuthMethodsGrid() {
     },
     {
       title: "Username & Password",
-      description: "Simplest way to get started",
+      description: "The simplest way to get started",
       linkToDocs: "/docs/auth/username-and-pass",
     },
     {
