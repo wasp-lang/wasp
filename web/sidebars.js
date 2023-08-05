@@ -21,8 +21,8 @@ module.exports = {
         "essentials/entities",
         "essentials/queries",
         "essentials/actions",
-        "essentials/auth"
-      ]
+        "essentials/auth",
+      ],
     },
     {
       type: "category",
@@ -30,10 +30,19 @@ module.exports = {
       collapsed: false,
       items: [
         "database/entities",
-        "database/operations",
+        {
+          type: "category",
+          label: "Operations",
+          collapsed: false,
+          items: [
+            "database/operations/overview",
+            "database/operations/queries",
+            "database/operations/actions",
+          ],
+        },
         "database/crud",
         "database/backends",
-      ]
+      ],
     },
     {
       type: "category",
@@ -45,8 +54,8 @@ module.exports = {
         "advanced/web-sockets",
         "advanced/apis",
         "advanced/middleware-config",
-        "advanced/deployment"
-      ]
+        "advanced/deployment",
+      ],
     },
     {
       type: "category",
@@ -58,8 +67,8 @@ module.exports = {
         "auth/username-and-pass",
         "auth/email",
         "auth/github",
-        "auth/google"
-      ]
+        "auth/google",
+      ],
     },
     {
       type: "category",
@@ -74,18 +83,13 @@ module.exports = {
         "project/testing",
         "project/dependencies",
         "project/css-frameworks",
-      ]
+      ],
     },
     {
       type: "category",
       label: "Miscellaneous",
       collapsed: false,
-      items: [
-        "contributing",
-        "telemetry",
-        "vision",
-        "contact"
-      ]
-    }
+      items: ["contributing", "telemetry", "vision", "contact"],
+    },
   ],
 };
