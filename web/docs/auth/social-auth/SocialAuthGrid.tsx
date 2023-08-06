@@ -2,17 +2,17 @@ import React from "react";
 import "./SocialAuthGrid.css";
 
 export function SocialAuthGrid({
-  pagePart = "" // e.g. #overrides
+  pagePart = "", // e.g. #overrides
 }) {
   const authMethods = [
     {
       title: "Google",
-      description: "Users sign in with their Google account",
+      description: "Users sign in with their Google account.",
       linkToDocs: "/docs/auth/social-auth/google" + pagePart,
     },
     {
       title: "Github",
-      description: "Users sign in with their Github account",
+      description: "Users sign in with their Github account.",
       linkToDocs: "/docs/auth/social-auth/github" + pagePart,
     },
   ];
@@ -28,7 +28,7 @@ export function SocialAuthGrid({
         ))}
       </div>
       <p className="social-auth-info">
-        <small>Click on the auth method to see more details about it.</small>
+        <small>Click on each provider for more details.</small>
       </p>
     </>
   );

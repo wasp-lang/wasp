@@ -1,8 +1,9 @@
-When a user **signs in for the first time**, Wasp will create a new user account and link it to the chosen auth provider account for future logins.
+When a user **signs in for the first time**, Wasp creates a new user account and links it to the chosen auth provider account for future logins.
 
 Also, if the `userEntity` has:
-- a `username` field, Wasp will set it to a random username (e.g. `nice-blue-horse-14357`),
-- a `password` field, Wasp will set it to a random string
+
+- A `username` field. Wasp sets it to a random username (e.g. `nice-blue-horse-14357`).
+- A `password` field. Wasp sets it to a random string.
 
 This is a historical coupling between `auth` methods that will be removed over time.
 
