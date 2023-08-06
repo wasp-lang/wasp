@@ -3,29 +3,34 @@ title: Google
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import DefaultBehaviour from './_default-behaviour.md';
-import OverrideIntro from './_override-intro.md';
-import OverrideExampleIntro from './_override-example-intro.md';
-import UsingAuthNote from './_using-auth-note.md';
-import WaspFileStructureNote from './_wasp-file-structure-note.md';
-import UsernameGenerateExplanation from './_username-generate-explanation.md';
+import DefaultBehaviour from './\_default-behaviour.md';
+import OverrideIntro from './\_override-intro.md';
+import OverrideExampleIntro from './\_override-example-intro.md';
+import UsingAuthNote from './\_using-auth-note.md';
+import WaspFileStructureNote from './\_wasp-file-structure-note.md';
+import UsernameGenerateExplanation from './\_username-generate-explanation.md';
+import GetUserFieldsType from './\_getuserfields-type.md';
 
-Wasp supports Google authentication out of the box which can be useful for many apps. You allow users to authenticate using their existing Google accounts, simplifying the process and enhancing the user experience.
+Wasp supports Google Authentication out of the box.
+Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
 
-We will walk you through how to enable Google authentication, some of the default settings, and how to override them.
+Enabling it lets your users log in using their existing Google accounts, greatly simplifying the process and enhancing the user experience.
+
+Let's walk through enabling Google authentication, explain some of the default settings, and show how to override them.
 
 ## Setting up Google Auth
 
-We'll need to take the following steps to set up Google authentication:
-1. Enable Google authentication in the Wasp file
-1. Add the entities
-1. Create a Google OAuth app
-1. Add the routes and pages
-1. Use Auth UI components in our pages
+Enabling Google Authentication comes down to a series of steps:
+
+1. Enabling Google authentication in the Wasp file.
+1. Adding the necessary Entities.
+1. Creating a Google OAuth app.
+1. Adding the neccessary Routes and Pages
+1. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
-### 1. Add Google Auth to Your Wasp File
+### 1. Adding Google Auth to Your Wasp File
 
 To implement Google Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
 
@@ -39,18 +44,25 @@ app myApp {
   },
   title: "My App",
   auth: {
+    // highlight-next-line
     // 1. Specify the User entity
+    // highlight-next-line
     userEntity: User,
+    // highlight-next-line
     // 2. Specify the SocialLogin entity
+    // highlight-next-line
     externalAuthEntity: SocialLogin,
     methods: {
+      // highlight-next-line
       // 3. Enable Google Auth
+      // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -61,37 +73,49 @@ app myApp {
   },
   title: "My App",
   auth: {
+    // highlight-next-line
     // 1. Specify the User entity
+    // highlight-next-line
     userEntity: User,
+    // highlight-next-line
     // 2. Specify the SocialLogin entity
+    // highlight-next-line
     externalAuthEntity: SocialLogin,
     methods: {
+      // highlight-next-line
       // 3. Enable Google Auth
+      // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
-We have explained the `externalAuthEntity` and `userEntity` in the [social auth overview](/docs/auth/social-auth/overview#social-login-entity).
-### 2. Add the Entities
+`externalAuthEntity` and `userEntity` are explained in [the social auth overview](/docs/auth/social-auth/overview#social-login-entity).
+
+### 2. Adding the Entities
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```wasp title="main.wasp"
 // ...
+// highlight-next-line
 // 4. Define the User entity
+// highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
     externalAuthAssociations  SocialLogin[]
 psl=}
 
+// highlight-next-line
 // 5. Define the SocialLogin entity
+// highlight-next-line
 entity SocialLogin {=psl
   id          Int       @id @default(autoincrement())
   provider    String
@@ -102,20 +126,24 @@ entity SocialLogin {=psl
   @@unique([provider, providerId, userId])
 psl=}
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-
 ```wasp title="main.wasp"
 // ...
+// highlight-next-line
 // 4. Define the User entity
+// highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
     externalAuthAssociations  SocialLogin[]
 psl=}
 
+// highlight-next-line
 // 5. Define the SocialLogin entity
+// highlight-next-line
 entity SocialLogin {=psl
   id          Int       @id @default(autoincrement())
   provider    String
@@ -126,83 +154,85 @@ entity SocialLogin {=psl
   @@unique([provider, providerId, userId])
 psl=}
 ```
+
 </TabItem>
 </Tabs>
 
 ### 3. Create a Google OAuth App
 
-To use Google as an authentication method, you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
+To use Google as an authentication method, you'll first need to create a Google project and provide Wasp with your client key and secret. Here's how to do it:
 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
 2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
 
-  ![Google Console Screenshot 1](/img/integrations-google-1.jpg)
+![Google Console Screenshot 1](/img/integrations-google-1.jpg)
 
-  ![Google Console Screenshot 2](/img/integrations-google-2.jpg)
+![Google Console Screenshot 2](/img/integrations-google-2.jpg)
 
-3. Search for **OAuth** in the top bar, click on **OAuth consent screen**
+3. Search for **OAuth** in the top bar, click on **OAuth consent screen**.
 
-  ![Google Console Screenshot 3](/img/integrations-google-3.jpg)
+![Google Console Screenshot 3](/img/integrations-google-3.jpg)
 
-  - Select what type of app you want, we will go **External**
+- Select what type of app you want, we will go with **External**.
 
-    ![Google Console Screenshot 4](/img/integrations-google-4.jpg)
+  ![Google Console Screenshot 4](/img/integrations-google-4.jpg)
 
-  - Fill out applicable information on Page 1
+- Fill out applicable information on Page 1.
 
-    ![Google Console Screenshot 5](/img/integrations-google-5.jpg)
+  ![Google Console Screenshot 5](/img/integrations-google-5.jpg)
 
-  - On Page 2, Scopes, you should select `userinfo.profile`. You can optionally search for other things, like `email`.
+- On Page 2, Scopes, you should select `userinfo.profile`. You can optionally search for other things, like `email`.
 
-    ![Google Console Screenshot 6](/img/integrations-google-6.jpg)
+  ![Google Console Screenshot 6](/img/integrations-google-6.jpg)
 
-    ![Google Console Screenshot 7](/img/integrations-google-7.jpg)
+  ![Google Console Screenshot 7](/img/integrations-google-7.jpg)
 
-    ![Google Console Screenshot 8](/img/integrations-google-8.jpg)
+  ![Google Console Screenshot 8](/img/integrations-google-8.jpg)
 
-  - Add any test users you want on Page 3
+- Add any test users you want on Page 3.
 
-    ![Google Console Screenshot 9](/img/integrations-google-9.jpg)
+  ![Google Console Screenshot 9](/img/integrations-google-9.jpg)
 
-4. Next, click **Credentials**
+4. Next, click **Credentials**.
 
-  ![Google Console Screenshot 10](/img/integrations-google-10.jpg)
+![Google Console Screenshot 10](/img/integrations-google-10.jpg)
 
-  - Select **Create Credentials**
-  - Select **OAuth client ID**
+- Select **Create Credentials**.
+- Select **OAuth client ID**.
 
-    ![Google Console Screenshot 11](/img/integrations-google-11.jpg)
+  ![Google Console Screenshot 11](/img/integrations-google-11.jpg)
 
-  - Complete the form
+- Complete the form
 
-    ![Google Console Screenshot 12](/img/integrations-google-12.jpg)
+  ![Google Console Screenshot 12](/img/integrations-google-12.jpg)
 
-  - Under Authorized redirect URIs, put in: `http://localhost:3000/auth/login/google`
+- Under Authorized redirect URIs, put in: `http://localhost:3000/auth/login/google`
 
-    ![Google Console Screenshot 13](/img/integrations-google-13.jpg)
+  ![Google Console Screenshot 13](/img/integrations-google-13.jpg)
 
-    - Once you know on which URL(s) your API server will be deployed, also add those URL(s)
-      - For example: `https://someotherhost.com/auth/login/google`
-  - When you save, you can click the Edit icon and your credentials will be shown
+  - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
+    - For example: `https://someotherhost.com/auth/login/google`
 
-    ![Google Console Screenshot 14](/img/integrations-google-14.jpg)
+- When you save, you can click the Edit icon and your credentials will be shown.
+
+  ![Google Console Screenshot 14](/img/integrations-google-14.jpg)
 
 5. Copy your Client ID and Client secret as you will need them in the next step.
 
-### 4. Add Environment Variables
+### 4. Adding Environment Variables
 
-Add these environment variables to your `.env.server` file at the root of your project:
+Add these environment variables to the `.env.server` file at the root of your project (take their values from the previous step):
 
 ```bash title=".env.server"
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
-### 5. Add the Routes and Pages
+### 5. Adding the Necessary Routes and Pages
 
-Next, we need to define the routes and pages for the authentication pages.
+Let's define the necessary authentication Routes and Pages.
 
-Add the following to the `main.wasp` file:
+We can do it by adding the following code to the `main.wasp` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -216,6 +246,7 @@ page LoginPage {
   component: import { Login } from "@client/pages/auth.jsx"
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -228,6 +259,7 @@ page LoginPage {
   component: import { Login } from "@client/pages/auth.tsx"
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -239,7 +271,8 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](/docs/project/css-frameworks).
 :::
 
-Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
+Let's now create a `auth.{jsx,tsx}` file in the `client/pages`.
+It should have the following code:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -268,6 +301,7 @@ export function Layout({ children }) {
   );
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -295,18 +329,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 ```
+
 </TabItem>
 </Tabs>
 
-We imported the generated Auth UI component and used them in our pages. Read more about the Auth UI components [here](/docs/auth/ui).
+:::info Auth UI
+Our pages use an automatically-generated Auth UI component. Read more about Auth UI components [here](/docs/auth/ui).
+:::
 
 ### Conclusion
 
-Yay, now you set up Google Auth! 🎉 
+Yay, we've successfully set up Google Auth! 🎉
 
 ![Google Auth](/img/auth/google.png)
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with authentication. If you want to put some of the pages behind authentication, read the [using auth docs](/docs/auth/overview).
+Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
+To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](/docs/auth/overview).
 
 ## Default Behaviour
 
@@ -331,6 +369,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -350,6 +389,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -363,7 +403,7 @@ app myApp {
 
 <OverrideExampleIntro />
 
-Let's see that in action:
+Let's use this example to show both functions in action:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -398,22 +438,23 @@ psl=}
 ```
 
 ```js title=src/server/auth/google.js
-import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
+import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
 
 export const getUserFields = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername()
-  const displayName = args.profile.displayName
-  return { username, displayName }
-}
+  const username = await generateAvailableDictionaryUsername();
+  const displayName = args.profile.displayName;
+  return { username, displayName };
+};
 
 export function getConfig() {
   return {
-    clientID, // look up from env or elsewhere,
-    clientSecret, // look up from env or elsewhere,
-    scope: ['profile', 'email']
-  }
+    clientID, // look up from env or elsewhere
+    clientSecret, // look up from env or elsewhere
+    scope: ["profile", "email"],
+  };
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -447,23 +488,26 @@ psl=}
 ```
 
 ```ts title=src/server/auth/google.ts
-import type { GetUserFieldsFn } from '@wasp/types'
-import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
+import type { GetUserFieldsFn } from "@wasp/types";
+import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
 
 export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername()
-  const displayName = args.profile.displayName
-  return { username, displayName }
-}
+  const username = await generateAvailableDictionaryUsername();
+  const displayName = args.profile.displayName;
+  return { username, displayName };
+};
 
 export function getConfig() {
   return {
-    clientID, // look up from env or elsewhere,
-    clientSecret, // look up from env or elsewhere,
-    scope: ['profile', 'email']
-  }
+    clientID, // look up from env or elsewhere
+    clientSecret, // look up from env or elsewhere
+    scope: ["profile", "email"],
+  };
 }
 ```
+
+<GetUserFieldsType />
+
 </TabItem>
 </Tabs>
 
@@ -471,8 +515,16 @@ export function getConfig() {
 
 <UsingAuthNote />
 
-## Options Reference
+## API Reference
 
+Provider-specific behavior comes down to implementing two functions.
+
+- `configFn`
+- `getUserFieldsFn`
+
+The reference shows how to define both.
+
+For behavior common to all providers, check the general [API Reference](/docs/auth/social-auth/overview.md#api-reference).
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -496,6 +548,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -518,6 +571,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -525,65 +579,78 @@ The `google` dict has the following properties:
 
 - #### `configFn: ServerImport`
 
-  This function should return an object with the Client ID, Client Secret, and scope for the OAuth provider.
+  This function must return an object with the Client ID, the Client Secret, and the scope for the OAuth provider.
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-  
+
   ```js title=src/server/auth/google.js
   export function getConfig() {
     return {
-      clientID, // look up from env or elsewhere,
-      clientSecret, // look up from env or elsewhere,
-      scope: ['profile', 'email']
-    }
+      clientID, // look up from env or elsewhere
+      clientSecret, // look up from env or elsewhere
+      scope: ["profile", "email"],
+    };
   }
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
-  
+
   ```ts title=src/server/auth/google.ts
   export function getConfig() {
     return {
-      clientID, // look up from env or elsewhere,
-      clientSecret, // look up from env or elsewhere,
-      scope: ['profile', 'email']
-    }
+      clientID, // look up from env or elsewhere
+      clientSecret, // look up from env or elsewhere
+      scope: ["profile", "email"],
+    };
   }
   ```
+
   </TabItem>
   </Tabs>
 
 - #### `getUserFieldsFn: ServerImport`
 
-  This function should return the user fields to use when creating a new user.
-  
-  The `context` contains the `User` entity, and the `args` contain the Google profile information. You can use this information to generate a username, for example.
-  
-  Here is how you could generate a username based on the Google display name:
+  This function must return the user fields to use when creating a new user.
+
+  The `context` contains the `User` entity, and the `args` object contains the Google profile information.
+  You can do whatever you want with this information (e.g., generate a username).
+
+  Here is how to generate a username based on the Google display name:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-  
+
   ```js title=src/server/auth/google.js
-  import { generateAvailableUsername } from '@wasp/core/auth.js'
+  import { generateAvailableUsername } from "@wasp/core/auth.js";
 
   export const getUserFields = async (_context, args) => {
-    const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
-    return { username }
-  }
+    const username = await generateAvailableUsername(
+      args.profile.displayName.split(" "),
+      { separator: "." }
+    );
+    return { username };
+  };
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
-  
+
   ```ts title=src/server/auth/google.ts
-  import type { GetUserFieldsFn } from '@wasp/types'
-  import { generateAvailableUsername } from '@wasp/core/auth.js'
+  import type { GetUserFieldsFn } from "@wasp/types";
+  import { generateAvailableUsername } from "@wasp/core/auth.js";
 
   export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-    const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
-    return { username }
-  }
+    const username = await generateAvailableUsername(
+      args.profile.displayName.split(" "),
+      { separator: "." }
+    );
+    return { username };
+  };
   ```
+
+  <GetUserFieldsType />
+
   </TabItem>
   </Tabs>
 

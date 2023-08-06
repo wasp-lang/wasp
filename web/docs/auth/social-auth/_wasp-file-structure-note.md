@@ -1,4 +1,4 @@
-Structure of the `main.wasp` file we will end up with:
+Here's a skeleton of how our `main.wasp` should look like after we're done:
 
 ```wasp title="main.wasp"
 // Configuring the social authentication

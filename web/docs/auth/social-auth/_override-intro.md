@@ -1,7 +1,10 @@
-It is also possible to override the default behavior that Wasp provides for you. This allows you to create custom setups, such as allowing users to define a username rather than the default random username on the initial login.
+Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username rather instead of getting a randomly generated one.
 
-There are two mechanisms for overriding the default behavior:
+There are two mechanisms (functions) used for overriding the default behavior:
+
 - `getUserFieldsFn`
 - `configFn`
+
+Let's explore them in more detail.
 
 <!-- This snippet is used in google.md and github.md -->

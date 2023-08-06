@@ -1,3 +1,6 @@
-When a user logs in using a social login provider, the backend receives information about the user. Wasp provides a way to use this data through the `getUserFieldsFn` function. For instance, you can add a `displayName` property to your User entity and assign it using the details of the provider account.
+When a user logs in using a social login provider, the backend receives some data about the user.
+Wasp lets you access this data inside the `getUserFieldsFn` function.
 
-Wasp also allows you to customize the configuration of the providers' settings using the `configFn` function.
+For example, the User entity can include a `displayName` field which you can set based on the details received from the provider.
+
+Wasp also lets you customize the configuration of the providers' settings using the `configFn` function.
