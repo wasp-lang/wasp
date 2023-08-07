@@ -1,3 +1,7 @@
 Parse error at 1:36:
   Unexpected token: =
   Expected one of the following tokens instead: <identifier>
+
+Parse error at 1:37:
+  Unexpected token: }
+  Expected one of the following tokens instead: <identifier>,<eof>

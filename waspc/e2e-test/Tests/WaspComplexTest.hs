@@ -33,6 +33,7 @@ waspComplexTest = do
       <++> addQuery
       <++> addApi
       <++> addApiNamespace
+      <++> addCrud
       <++> sequence
         [ waspCliCompile
         ]
@@ -311,6 +312,33 @@ addEmailSender = do
           "      email: \"hello@itsme.com\"",
           "    },",
           "  },"
+        ]
+
+addCrud :: ShellCommandBuilder [ShellCommand]
+addCrud = do
+  sequence
+    [ appendToWaspFile taskEntityDecl,
+      appendToWaspFile crudDecl
+    ]
+  where
+    taskEntityDecl =
+      unlines
+        [ "entity Task {=psl",
+          "  id          Int     @id @default(autoincrement())",
+          "  description String",
+          "  isDone      Boolean @default(false)",
+          "psl=}"
+        ]
+    crudDecl =
+      unlines
+        [ "crud tasks {",
+          "  entity: Task,",
+          "  operations: {",
+          "    get: {},",
+          "    getAll: {},",
+          "    create: {},",
+          "  }",
+          "}"
         ]
 
 insertCodeIntoWaspFileAfterVersion :: String -> ShellCommandBuilder ShellCommand

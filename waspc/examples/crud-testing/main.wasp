@@ -1,0 +1,69 @@
+app crudTesting {
+  wasp: {
+    version: "^0.11.0"
+  },
+  head: [
+    "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"
+  ],
+  title: "crud-testing",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.tsx",
+  authRequired: true,
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@client/LoginPage.tsx",
+}
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { SignupPage } from "@client/SignupPage.tsx",
+}
+
+route DetailRoute { path: "/:id", to: DetailPage }
+page DetailPage {
+  component: import Main from "@client/DetailPage.tsx",
+  authRequired: true,
+}
+
+entity User {=psl
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String
+  tasks Task[]
+psl=}
+
+// TODO: validate the fields
+// Maybe delegate to Prisma
+entity Task {=psl
+  id Int @id @default(autoincrement())
+  title String
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+psl=}
+
+crud tasks {
+  entity: Task,
+  operations: {
+    get: {},
+    getAll: {
+      overrideFn: import { getAllTasks } from "@server/tasks.js",
+    },
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+    delete: {},
+  },
+}

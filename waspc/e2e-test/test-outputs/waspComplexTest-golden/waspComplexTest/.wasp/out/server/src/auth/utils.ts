@@ -20,7 +20,7 @@ export const authConfig = {
   successRedirectPath: "/",
 }
 
-export async function findUserBy<K extends keyof User>(where: { [key in K]: User[K] }): Promise<User> {
+export async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User> {
   return prisma.user.findUnique({ where });
 }
 

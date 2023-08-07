@@ -5,12 +5,14 @@ import config from './config.js'
 
 
 
+
 const startServer = async () => {
 
   const port = normalizePort(config.port)
   app.set('port', port)
 
   const server = http.createServer(app)
+
 
 
   server.listen(port)

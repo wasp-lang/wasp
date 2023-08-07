@@ -1,7 +1,7 @@
 import './Main.css';
 import React, { useEffect, FormEventHandler, FormEvent } from 'react';
-import logout from '@wasp/auth/logout.js';
-import useAuth from '@wasp/auth/useAuth.js';
+import logout from '@wasp/auth/logout';
+import useAuth from '@wasp/auth/useAuth';
 import { useQuery } from '@wasp/queries'; // Wasp uses a thin wrapper around react-query
 import getTasks from '@wasp/queries/getTasks';
 import createTask from '@wasp/actions/createTask';

@@ -52,19 +52,19 @@ isValidWaspIdentifier str = case L.lex str of
   [tok] | tokenKind tok == Identifier -> True
   _ -> False
 
-parseStatements :: String -> Either ParseError AST
+parseStatements :: String -> Either [ParseError] AST
 parseStatements = runParser CST.parseCST P.parseStatements
 
-parseExpression :: String -> Either ParseError Expr
+parseExpression :: String -> Either [ParseError] Expr
 parseExpression = runParser CST.parseCSTExpression P.parseExpression
 
 -- TODO: report multiple errors. Have to hunt down everywhere this return is
 -- used and figure out best way to handle list of ParseError
 runParser ::
   ([Token] -> ([CST.ParseError], [CST.SyntaxNode])) ->
-  (String -> [CST.SyntaxNode] -> Either ParseError a) ->
-  (String -> Either ParseError a)
+  (String -> [CST.SyntaxNode] -> Either [ParseError] a) ->
+  (String -> Either [ParseError] a)
 runParser cstParser astParser source =
   case cstParser (L.lex source) of
     ([], cst) -> astParser source cst
-    (cstErrors, _) -> Left $ head $ map (parseErrorFromCSTParseError source) cstErrors
+    (cstErrors, _) -> Left $ map (parseErrorFromCSTParseError source) cstErrors

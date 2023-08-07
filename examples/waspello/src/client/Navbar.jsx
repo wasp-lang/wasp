@@ -1,6 +1,6 @@
 import React from 'react'
 
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 
 import logo from './waspello-logo-navbar.svg'
 import './Navbar.css'

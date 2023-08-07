@@ -16,6 +16,7 @@ import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.App.EmailSender (EmailProvider)
+import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Job (Job, JobExecutor)
 import Wasp.AppSpec.Page (Page)
@@ -33,6 +34,7 @@ makeDeclType ''Job
 makeEnumType ''HttpMethod
 makeDeclType ''Api
 makeDeclType ''ApiNamespace
+makeDeclType ''Crud
 makeDeclType ''App
 
 {- ORMOLU_DISABLE -}
@@ -54,5 +56,6 @@ stdTypes =
   TD.addDeclType @Api $
   TD.addDeclType @ApiNamespace $
   TD.addEnumType @EmailProvider $
+  TD.addDeclType @Crud $
   TD.empty
 {- ORMOLU_ENABLE -}

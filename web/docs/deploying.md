@@ -32,12 +32,14 @@ In the above commands, we used an app basename of `my-wasp-app` and deployed it 
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
-:::caution
+:::tip Unique Name
 Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal as these commands run.
 :::
 
-:::note
-Fly has  [free allowances](https://fly.io/docs/about/pricing/#free-allowances) for up to 3 VMs. If you already have some apps deployed on their free Hobby Plan, you will need to add your credit card info before proceeding.
+:::caution A Note on Free Tiers 💳
+Fly has [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a fresh account is free), but all plans require you to add your credit card info before proceeding. If you don't, the deploy will fail!
+
+To do so, go to your [account's billing page](https://fly.io/dashboard/personal/billing).
 :::
 
 The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/). You can also run `wasp deploy fly cmd platform regions --context server`.
@@ -367,16 +369,100 @@ NOTE: Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variab
 
 ## Deploying to Railway ("freemium", all-in-one solution)
 
-Railway makes it easy to deploy your entire app -- database, server, and client -- on one platform. You can use the platform for free for a limited time (~21 days) per month. Upgrading to the `Developer` plan will only cost you a few dollays per month per service.
+Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app -- database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/plans) for more info.
 
-:::danger 🛑
-  Due to Railway's current proxy configuration, Google Auth will not currently work. If you're using Google Auth in your Wasp App, you can still deploy your back-end to Railway, but we suggest you [deploy your front-end to Netlify](#deploying-to-netlify)
+:::caution ✋
+  Due to Railway's current proxy configuration, client-side routing will not work correctly without some additional configuration, which is described in the toggle below. 
+  
+  If you prefer NOT to configure your client for Railway, another option is to deploy only your back-end there, while deploying your client to a seperate service such as [Netlify](#deploying-to-netlify)
+
+  <details>
+    <summary>
+      <em>Additional Configuration for Client-Side Routing</em>
+    </summary>
+    <div>
+
+1. Ensure your Wasp project is built by running `wasp build` in the project dir.
+2. Go to `/.wasp/build/web-app` and create 2 files:
+
+- Dockerfile: simply create a file named `Dockerfile` with the contents below (note, it's important to use `FROM nginx:1.19.10-alpine`, as using anything other than this version may throw a lot of exceptions on the server):
+```dockerfile
+FROM node:18-alpine AS builder
+
+# Examples of any ENV variables that build requires for react app to have
+ARG PORT
+ARG WASP_WEB_CLIENT_URL
+ARG REACT_APP_API_URL
+ARG API_URL
+
+ENV REACT_APP_PORT=$PORT
+ENV REACT_APP_WASP_WEB_CLIENT_URL=$WASP_WEB_CLIENT_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
+# Add a work directory
+WORKDIR /app
+
+COPY package.json .
+
+RUN npm install
+
+COPY . /app/
+
+RUN npm run build
+
+FROM nginx:1.19.10-alpine
+
+# Set working directory to nginx asset directory
+WORKDIR /usr/share/nginx/html
+
+# Remove default nginx static assets
+RUN rm -rf ./*
+
+COPY --from=builder /app/build .
+
+COPY .nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 3000
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+```
+- Create a file calle `.dockerignore` with the following contents:
+```
+node_modules
+```
+3. Create a new directory `/.nginx` inside the `web-app` dir.
+4. Create a file `nginx.conf` inside the `/.nginx` dir with the following contents:
+```
+server {
+   listen       8080;
+   server_name  localhost;
+
+   location / {
+       root   /usr/share/nginx/html;
+       index  index.html;
+       try_files $uri $uri/ /index.html;
+   }
+}
+```
+5. Make sure that the `client` service in Railway, which you will set up below, has env variable `PORT` set to `8080` (see the [Add Enviornment Variables](/docs/deploying#add-environment-variables) section below for more info).
+6. Optionally, you may need to disable `tsc` in the `/.wasp/build/web-app/package.json` file if Docker fails on deploy due to typing issues:
+```
+	"scripts": {
+		"start": "npm run validate-env && vite",
+		"build": "npm run validate-env && vite build",
+		"validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
+	},
+```
+7. Then continue to follow the instructions below to deploy your app to Railway.
+
+</div>
+  </details>
 :::
 
 To get started, follow these steps:
 
 1. [Generate deployable code](#generating-deployable-code) (`wasp build`)
-2. Sign up at [Railway.app](https://railway.app) (Tip! Sign up with your GitHub account for $5/month of usage free)
+2. Sign up at [Railway.app](https://railway.app) (Tip! Sign up with your GitHub account to be elligble for the free tier)
 3. Before creating a new project, install the [Railway CLI](#https://docs.railway.app/develop/cli#install) by running the following command in your terminal:
   ```shell
   curl -fsSL https://railway.app/install.sh | sh

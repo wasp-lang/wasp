@@ -1,6 +1,8 @@
 module Wasp.LSP.Diagnostic
-  ( waspErrorToDiagnostic,
-    concreteParseErrorToDiagnostic,
+  ( WaspDiagnostic (..),
+    MissingExtImportReason (..),
+    waspDiagnosticToLspDiagnostic,
+    clearMissingExtImportDiagnostics,
   )
 where
 
@@ -12,27 +14,63 @@ import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CPE
 import Wasp.Analyzer.Parser.Ctx (getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
+import Wasp.Analyzer.Parser.SourceRegion (sourceSpanToRegion)
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
-import Wasp.LSP.ServerM (ServerM, logM)
+import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath (WaspStyleExtFilePath))
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
-concreteParseErrorToDiagnostic :: String -> CPE.ParseError -> ServerM LSP.Diagnostic
+data WaspDiagnostic
+  = ParseDiagnostic !CPE.ParseError
+  | AnalyzerDiagnostic !W.AnalyzeError
+  | MissingExtImportDiagnostic !SourceSpan !MissingExtImportReason !WaspStyleExtFilePath
+  deriving (Eq, Show)
+
+data MissingExtImportReason = NoDefaultExport | NoNamedExport !String | NoFile
+  deriving (Eq, Show)
+
+showMissingImportReason :: MissingExtImportReason -> WaspStyleExtFilePath -> Text
+showMissingImportReason NoDefaultExport (WaspStyleExtFilePath tsFile) =
+  "No default export in " <> Text.pack tsFile
+showMissingImportReason (NoNamedExport name) (WaspStyleExtFilePath tsFile) =
+  "`" <> Text.pack name <> "` is not exported from " <> Text.pack tsFile
+showMissingImportReason NoFile (WaspStyleExtFilePath tsFile) =
+  "Module " <> Text.pack tsFile <> " does not exist"
+
+missingImportSeverity :: MissingExtImportReason -> LSP.DiagnosticSeverity
+missingImportSeverity _ = LSP.DsError
+
+waspDiagnosticToLspDiagnostic :: String -> WaspDiagnostic -> LSP.Diagnostic
+waspDiagnosticToLspDiagnostic src (ParseDiagnostic err) = concreteParseErrorToDiagnostic src err
+waspDiagnosticToLspDiagnostic _ (AnalyzerDiagnostic analyzeError) = waspErrorToDiagnostic analyzeError
+waspDiagnosticToLspDiagnostic src (MissingExtImportDiagnostic sourceSpan reason tsFile) =
+  let message = showMissingImportReason reason tsFile
+      severity = missingImportSeverity reason
+      region = sourceSpanToRegion src sourceSpan
+      range = waspSourceRegionToLspRange region
+   in LSP.Diagnostic
+        { _range = range,
+          _severity = Just severity,
+          _code = Nothing,
+          _source = Just "ts",
+          _message = message,
+          _tags = Nothing,
+          _relatedInformation = Nothing
+        }
+
+concreteParseErrorToDiagnostic :: String -> CPE.ParseError -> LSP.Diagnostic
 concreteParseErrorToDiagnostic src err =
   let message = Text.pack $ showConcreteParseError src err
       source = "parse"
       range = concreteErrorRange err
-   in logM ("[concreteParseErroToDiagnostic] _range=" ++ show range)
-        >> return
-          ( LSP.Diagnostic
-              { _range = range,
-                _severity = Nothing,
-                _code = Nothing,
-                _source = Just source,
-                _message = message,
-                _tags = Nothing,
-                _relatedInformation = Nothing
-              }
-          )
+   in LSP.Diagnostic
+        { _range = range,
+          _severity = Just LSP.DsError,
+          _code = Nothing,
+          _source = Just source,
+          _message = message,
+          _tags = Nothing,
+          _relatedInformation = Nothing
+        }
   where
     concreteErrorRange e = case CPE.errorSpan e of
       SourceSpan startOffset endOffset ->
@@ -53,7 +91,7 @@ waspErrorToDiagnostic err =
       range = waspErrorRange err
    in LSP.Diagnostic
         { _range = range,
-          _severity = Nothing,
+          _severity = Just LSP.DsError,
           _code = Nothing,
           _source = Just source,
           _message = message,
@@ -77,3 +115,9 @@ waspErrorRange :: W.AnalyzeError -> LSP.Range
 waspErrorRange err =
   let (_, W.Ctx rgn) = W.getErrorMessageAndCtx err
    in waspSourceRegionToLspRange rgn
+
+clearMissingExtImportDiagnostics :: [WaspDiagnostic] -> [WaspDiagnostic]
+clearMissingExtImportDiagnostics = filter (not . isMissingImportDiagnostic)
+  where
+    isMissingImportDiagnostic (MissingExtImportDiagnostic _ _ _) = True
+    isMissingImportDiagnostic _ = False

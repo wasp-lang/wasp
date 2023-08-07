@@ -32,7 +32,8 @@ instance Show Type where
     DeclType typeName -> typeName ++ " (declaration type)"
     EnumType typeName -> typeName ++ " (enum type)"
     DictType keyValueMap ->
-      let showEntry (k, v) = "  " ++ k ++ ": " ++ show v
+      let showEntry (k, DictRequired v) = "  " ++ k ++ ": " ++ show v
+          showEntry (k, DictOptional v) = "  " ++ k ++ "?: " ++ show v
        in case H.toList keyValueMap of
             [entry] -> "{" ++ showEntry entry ++ "}"
             entries -> "{\n" ++ intercalate ",\n" (map (("  " ++) . showEntry) entries) ++ "\n}"

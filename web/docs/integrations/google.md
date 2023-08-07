@@ -46,12 +46,18 @@ psl=}
 
 For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20) section of the docs.
 
+If you're adding a new entity to your `.wasp` file, make sure you migrate your database schema:
+```shell
+wasp db migrate-dev
+```
 
 You'll also need to add these environment variables to your `.env.server` file at the root of your project:
 
 ```bash title=".env.server"
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+JWT_SECRET=random-string-at-least-32-characters-long.
 ```
 We will cover how to get these values in the next section.
 

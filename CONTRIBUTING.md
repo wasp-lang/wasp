@@ -8,7 +8,7 @@ Wasp's compiler is built with Haskell and under the hood it generates a web appl
 
 ## Before you begin 
 
-- Check out the [**Getting Started**](https://wasp-lang.dev/docs) guide to get familiar with Wasp's fundamentals. Ideally, you'd also build an app from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/pick-a-tutorial) page to really get a feel for it!
+- Check out the [**Getting Started**](https://wasp-lang.dev/docs) guide to get familiar with Wasp's fundamentals. Ideally, you'd also build an app from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/tutorials/todo-app) page to really get a feel for it!
 - Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. More on this is below.
 - Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set!
 - Below you can find links to the good first issues. If you'd like to filter the issues on your own — please, use [this link](https://github.com/wasp-lang/wasp/issues)
@@ -35,7 +35,7 @@ Wasp is a language for developing full-stack web apps. This means there are plen
 
 ## Tutorials or Example apps
 
-Another great way to help is to create an app with Wasp! We have an [Examples](https://wasp-lang.dev/docs/examples) section on our website, as well as the [Tutorials](https://wasp-lang.dev/docs/pick-a-tutorial) page. Both of them can be improved and updated with your projects. 
+Another great way to help is to create an app with Wasp! We have an [Examples](https://wasp-lang.dev/docs/examples) section on our website, as well as the [Tutorials](https://wasp-lang.dev/docs/tutorials/todo-app) page. Both of them can be improved and updated with your projects. 
 
 All that's required is to create an app. And make a tutorial or a blog post to help other people reproduce your work. Some prominent examples are: [Waspello](https://wasp-lang.dev/blog/2021/12/02/waspello), [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau), [It Wasps on My Machine](https://wasp-lang.dev/blog/2022/09/05/dev-excuses-app-tutrial) and [To-Do app](https://wasp-lang.dev/docs/tutorials/todo-app).
 

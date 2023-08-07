@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
-import login from '@wasp/auth/login.js'
+import login from '@wasp/auth/login'
 
 import EmailAndPassForm from './Auth/EmailAndPassForm'
 import GoogleAuthButton from './Auth/GoogleAuthButton'

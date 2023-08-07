@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "example-app:start": "concurrently \"npm:example-app:start-db\" \"npm:example-app:start-app\" --kill-others-on-fail",
+    "example-app:start": "node start.js",
     "example-app:start-db": "npm run example-app:cleanup-db && cd ./examples/todoApp && cabal run wasp-cli start db",
     "example-app:start-app": "npm run example-app:wait-for-db && cd ./examples/todoApp && cabal run wasp-cli db migrate-dev && cabal run wasp-cli start",
     "example-app:wait-for-db": "sleep 5 && ./node_modules/.bin/wait-port 5432",
@@ -15,9 +15,9 @@
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.33.0",
-    "concurrently": "^8.0.1",
     "prisma": "^4.12.0",
-    "wait-port": "^1.0.4"
+    "wait-port": "^1.0.4",
+    "linebyline": "^1.3.0"
   },
   "dependencies": {
     "@prisma/client": "^4.12.0"

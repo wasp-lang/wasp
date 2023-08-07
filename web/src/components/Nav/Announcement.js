@@ -9,7 +9,8 @@ const Announcement = () => {
   let history = useHistory();
 
   const handleLink = () => {
-    history.push('/blog/2023/05/19/hackathon-2-review')
+    window.open('https://magic-app-generator.wasp-lang.dev/')
+    //history.push('/blog/2023/06/30/tutorial-jam')
     //history.push('/#signup')
 
     //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
@@ -39,7 +40,7 @@ const Announcement = () => {
         `}
       >
         <span className='item-center flex gap-2 px-3'>
-          <span>🏆 Wasp Hackathon 2.0 is Finished!</span>
+          <span>Try our GPT-Powered Web App Starter!</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
@@ -49,7 +50,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Check Out the Winners 🎉
+            Generate your app 🤖 →
           </span>
         </span>
       </div>

@@ -16,8 +16,9 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplateName (..),
-    getStarterTemplateNames,
+  ( StarterTemplate (..),
+    TemplateMetadata (..),
+    getStarterTemplates,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote (createProjectOnDiskFromRemoteTemplate)
@@ -30,9 +31,9 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either throwProjectCreationError return
-  starterTemplateNames <- liftIO getStarterTemplateNames
+  starterTemplates <- liftIO getStarterTemplates
 
-  newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplateNames
+  newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplates
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructions $ _absWaspProjectDir newProjectDescription
@@ -55,12 +56,12 @@ createProjectOnDisk
   NewProjectDescription
     { _projectName = projectName,
       _appName = appName,
-      _templateName = templateName,
+      _template = template,
       _absWaspProjectDir = absWaspProjectDir
     } = do
-    cliSendMessageC $ Msg.Start $ "Creating your project from the " ++ show templateName ++ " template..."
-    case templateName of
-      RemoteStarterTemplate remoteTemplateName ->
-        createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName remoteTemplateName
-      LocalStarterTemplate localTemplateName ->
-        liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName localTemplateName
+    cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
+    case template of
+      RemoteStarterTemplate TemplateMetadata {_path = remoteTemplatePath} ->
+        createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName remoteTemplatePath
+      LocalStarterTemplate TemplateMetadata {_path = localTemplatePath} ->
+        liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName localTemplatePath

@@ -1,5 +1,8 @@
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 
+const autoImportTabs = require("./src/remark/auto-import-tabs");
+const fileExtSwitcher = require("./src/remark/file-ext-switcher");
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: "Wasp",
@@ -151,6 +154,7 @@ module.exports = {
           sidebarCollapsible: true,
           // Please change this to your repo.
           editUrl: "https://github.com/wasp-lang/wasp/edit/main/web",
+          remarkPlugins: [autoImportTabs, fileExtSwitcher],
         },
         blog: {
           showReadingTime: true,
