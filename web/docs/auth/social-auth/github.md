@@ -176,7 +176,7 @@ width="400px"
 
 - For **Authorization callback URL**:
   - For development, put: `http://localhost:3000/auth/login/github`.
-  - Once you know on which URL your app will be deployed, you can create a new app with that URL instead e.g. `https://someotherhost.com/auth/login/github`..
+  - Once you know on which URL your app will be deployed, you can create a new app with that URL instead e.g. `https://someotherhost.com/auth/login/github`.
 
 4. Hit **Register application**.
 5. Hit **Generate a new client secret** on the next page.
