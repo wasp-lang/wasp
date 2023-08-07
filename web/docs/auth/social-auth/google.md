@@ -10,6 +10,7 @@ import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import UsernameGenerateExplanation from './\_username-generate-explanation.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
+import ApiReferenceIntro from './\_api-reference-intro.md';
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
@@ -32,7 +33,7 @@ Enabling Google Authentication comes down to a series of steps:
 
 ### 1. Adding Google Auth to Your Wasp File
 
-To implement Google Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
+Let's start by properly configuring the Auth object:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -45,11 +46,11 @@ app myApp {
   title: "My App",
   auth: {
     // highlight-next-line
-    // 1. Specify the User entity
+    // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
     userEntity: User,
     // highlight-next-line
-    // 2. Specify the SocialLogin entity
+    // 2. Specify the SocialLogin entity (we'll define it next)
     // highlight-next-line
     externalAuthEntity: SocialLogin,
     methods: {
@@ -74,11 +75,11 @@ app myApp {
   title: "My App",
   auth: {
     // highlight-next-line
-    // 1. Specify the User entity
+    // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
     userEntity: User,
     // highlight-next-line
-    // 2. Specify the SocialLogin entity
+    // 2. Specify the SocialLogin entity (we'll define it next)
     // highlight-next-line
     externalAuthEntity: SocialLogin,
     methods: {
@@ -99,6 +100,8 @@ app myApp {
 
 ### 2. Adding the Entities
 
+Let's now define the entities acting as `app.auth.userEntity` and `app.auth.externalAuthEntity`:
+
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
@@ -158,9 +161,9 @@ psl=}
 </TabItem>
 </Tabs>
 
-### 3. Create a Google OAuth App
+### 3. Creating a Google OAuth App
 
-To use Google as an authentication method, you'll first need to create a Google project and provide Wasp with your client key and secret. Here's how to do it:
+To use Google as an authentication method, you'll first need to create a Google project and provide Wasp with your client key and secret. Here's how you do it:
 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
 2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
@@ -232,7 +235,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 Let's define the necessary authentication Routes and Pages.
 
-We can do it by adding the following code to the `main.wasp` file:
+Add the following code to your `main.wasp` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -348,7 +351,7 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 ## Default Behaviour
 
-Add `google: {}` to your `auth.methods` dictionary to use it with default settings:
+Add `google: {}` to the `auth.methods` dictionary to use it with default settings:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -402,8 +405,6 @@ app myApp {
 ### Using the User's Provider Account Details
 
 <OverrideExampleIntro />
-
-Let's use this example to show both functions in action:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -517,14 +518,7 @@ export function getConfig() {
 
 ## API Reference
 
-Provider-specific behavior comes down to implementing two functions.
-
-- `configFn`
-- `getUserFieldsFn`
-
-The reference shows how to define both.
-
-For behavior common to all providers, check the general [API Reference](/docs/auth/social-auth/overview.md#api-reference).
+<ApiReferenceIntro />
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -614,7 +608,7 @@ The `google` dict has the following properties:
 
   This function must return the user fields to use when creating a new user.
 
-  The `context` contains the `User` entity, and the `args` object contains the Google profile information.
+  The `context` contains the `User` entity, and the `args` object contains Google profile information.
   You can do whatever you want with this information (e.g., generate a username).
 
   Here is how to generate a username based on the Google display name:
