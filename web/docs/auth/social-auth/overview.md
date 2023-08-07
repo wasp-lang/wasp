@@ -210,8 +210,8 @@ And implement the imported function.
 export const getUserFields = async (_context, _args) => {
   return {
     isSignupComplete: false,
-  };
-};
+  }
+}
 ```
 
 </TabItem>
@@ -242,13 +242,13 @@ app myApp {
 And implement the imported function:
 
 ```ts title=src/server/auth/google.ts
-import { GetUserFieldsFn } from "@wasp/types";
+import { GetUserFieldsFn } from '@wasp/types'
 
 export const getUserFields: GetUserFieldsFn = async (_context, _args) => {
   return {
     isSignupComplete: false,
-  };
-};
+  }
+}
 ```
 
 <GetUserFieldsType />
@@ -270,14 +270,14 @@ For example:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title=client/HomePage.jsx
-import useAuth from "@wasp/auth/useAuth";
-import { Redirect } from "react-router-dom";
+import useAuth from '@wasp/auth/useAuth'
+import { Redirect } from 'react-router-dom'
 
 export function HomePage() {
-  const { data: user } = useAuth();
+  const { data: user } = useAuth()
 
   if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />;
+    return <Redirect to="/edit-user-details" />
   }
 
   // ...
@@ -288,14 +288,14 @@ export function HomePage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title=client/HomePage.tsx
-import useAuth from "@wasp/auth/useAuth";
-import { Redirect } from "react-router-dom";
+import useAuth from '@wasp/auth/useAuth'
+import { Redirect } from 'react-router-dom'
 
 export function HomePage() {
-  const { data: user } = useAuth();
+  const { data: user } = useAuth()
 
   if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />;
+    return <Redirect to="/edit-user-details" />
   }
 
   // ...
@@ -335,12 +335,12 @@ import {
   SignInButton as GoogleSignInButton,
   signInUrl as googleSignInUrl,
   logoUrl as googleLogoUrl,
-} from "@wasp/auth/helpers/Google";
+} from '@wasp/auth/helpers/Google'
 import {
   SignInButton as GitHubSignInButton,
   signInUrl as gitHubSignInUrl,
   logoUrl as gitHubLogoUrl,
-} from "@wasp/auth/helpers/GitHub";
+} from '@wasp/auth/helpers/GitHub'
 
 export const LoginPage = () => {
   return (
@@ -351,8 +351,8 @@ export const LoginPage = () => {
       <a href={googleSignInUrl}>Sign in with Google</a>
       <a href={gitHubSignInUrl}>Sign in with GitHub</a>
     </>
-  );
-};
+  )
+}
 ```
 
 </TabItem>
@@ -363,12 +363,12 @@ import {
   SignInButton as GoogleSignInButton,
   signInUrl as googleSignInUrl,
   logoUrl as googleLogoUrl,
-} from "@wasp/auth/helpers/Google";
+} from '@wasp/auth/helpers/Google'
 import {
   SignInButton as GitHubSignInButton,
   signInUrl as gitHubSignInUrl,
   logoUrl as gitHubLogoUrl,
-} from "@wasp/auth/helpers/GitHub";
+} from '@wasp/auth/helpers/GitHub'
 
 export const LoginPage = () => {
   return (
@@ -379,8 +379,8 @@ export const LoginPage = () => {
       <a href={googleSignInUrl}>Sign in with Google</a>
       <a href={gitHubSignInUrl}>Sign in with GitHub</a>
     </>
-  );
-};
+  )
+}
 ```
 
 </TabItem>

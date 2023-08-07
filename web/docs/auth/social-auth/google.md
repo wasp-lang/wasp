@@ -281,14 +281,14 @@ It should have the following code:
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/pages/auth.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 export function Login() {
   return (
     <Layout>
       <LoginForm />
     </Layout>
-  );
+  )
 }
 
 // A layout component to center the content
@@ -301,7 +301,7 @@ export function Layout({ children }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -309,14 +309,14 @@ export function Layout({ children }) {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 export function Login() {
   return (
     <Layout>
       <LoginForm />
     </Layout>
-  );
+  )
 }
 
 // A layout component to center the content
@@ -329,7 +329,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -439,20 +439,20 @@ psl=}
 ```
 
 ```js title=src/server/auth/google.js
-import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
+import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
 
 export const getUserFields = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername();
-  const displayName = args.profile.displayName;
-  return { username, displayName };
-};
+  const username = await generateAvailableDictionaryUsername()
+  const displayName = args.profile.displayName
+  return { username, displayName }
+}
 
 export function getConfig() {
   return {
     clientID, // look up from env or elsewhere
     clientSecret, // look up from env or elsewhere
-    scope: ["profile", "email"],
-  };
+    scope: ['profile', 'email'],
+  }
 }
 ```
 
@@ -489,21 +489,21 @@ psl=}
 ```
 
 ```ts title=src/server/auth/google.ts
-import type { GetUserFieldsFn } from "@wasp/types";
-import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
+import type { GetUserFieldsFn } from '@wasp/types'
+import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
 
 export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername();
-  const displayName = args.profile.displayName;
-  return { username, displayName };
-};
+  const username = await generateAvailableDictionaryUsername()
+  const displayName = args.profile.displayName
+  return { username, displayName }
+}
 
 export function getConfig() {
   return {
     clientID, // look up from env or elsewhere
     clientSecret, // look up from env or elsewhere
-    scope: ["profile", "email"],
-  };
+    scope: ['profile', 'email'],
+  }
 }
 ```
 
@@ -583,8 +583,8 @@ The `google` dict has the following properties:
     return {
       clientID, // look up from env or elsewhere
       clientSecret, // look up from env or elsewhere
-      scope: ["profile", "email"],
-    };
+      scope: ['profile', 'email'],
+    }
   }
   ```
 
@@ -596,8 +596,8 @@ The `google` dict has the following properties:
     return {
       clientID, // look up from env or elsewhere
       clientSecret, // look up from env or elsewhere
-      scope: ["profile", "email"],
-    };
+      scope: ['profile', 'email'],
+    }
   }
   ```
 
@@ -616,31 +616,31 @@ The `google` dict has the following properties:
   <TabItem value="js" label="JavaScript">
 
   ```js title=src/server/auth/google.js
-  import { generateAvailableUsername } from "@wasp/core/auth.js";
+  import { generateAvailableUsername } from '@wasp/core/auth.js'
 
   export const getUserFields = async (_context, args) => {
     const username = await generateAvailableUsername(
-      args.profile.displayName.split(" "),
-      { separator: "." }
-    );
-    return { username };
-  };
+      args.profile.displayName.split(' '),
+      { separator: '.' }
+    )
+    return { username }
+  }
   ```
 
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
   ```ts title=src/server/auth/google.ts
-  import type { GetUserFieldsFn } from "@wasp/types";
-  import { generateAvailableUsername } from "@wasp/core/auth.js";
+  import type { GetUserFieldsFn } from '@wasp/types'
+  import { generateAvailableUsername } from '@wasp/core/auth.js'
 
   export const getUserFields: GetUserFieldsFn = async (_context, args) => {
     const username = await generateAvailableUsername(
-      args.profile.displayName.split(" "),
-      { separator: "." }
-    );
-    return { username };
-  };
+      args.profile.displayName.split(' '),
+      { separator: '.' }
+    )
+    return { username }
+  }
   ```
 
   <GetUserFieldsType />
