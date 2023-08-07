@@ -1,4 +1,5 @@
 import React from "react";
+import Link from '@docusaurus/Link';
 import "./SocialAuthGrid.css";
 
 export function SocialAuthGrid({
@@ -44,9 +45,9 @@ function AuthMethodBox({
   description: string;
 }) {
   return (
-    <a href={linkToDocs} className="auth-method-box">
+    <Link to={linkToDocs} className="auth-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
-    </a>
+    </Link>
   );
 }

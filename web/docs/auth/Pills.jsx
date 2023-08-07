@@ -1,8 +1,9 @@
 import React from "react";
 import './Pills.css';
+import Link from '@docusaurus/Link';
 
 export function Pill({ children, linkToPage, style = {} }) {
-  return <a href={linkToPage}
+  return <Link to={linkToPage}
     style={{
       padding: "0.1rem 0.5rem",
       borderRadius: "0.375rem",
@@ -11,7 +12,7 @@ export function Pill({ children, linkToPage, style = {} }) {
       display: "inline-block",
       ...style,
     }}
-  >{children}</a>;
+  >{children}</Link>;
 }
 
 /*
@@ -37,11 +38,11 @@ export function UsernameAndPasswordPill() {
 export function GithubPill() {
   return <Pill style={{
     backgroundColor: "var(--auth-pills-github)",
-  }} linkToPage="/docs/auth/github">Github</Pill>;
+  }} linkToPage="/docs/auth/social-auth/github">Github</Pill>;
 }
 
 export function GooglePill() {
   return <Pill style={{
     backgroundColor: "var(--auth-pills-google)",
-  }} linkToPage="/docs/auth/google">Google</Pill>;
+  }} linkToPage="/docs/auth/social-auth/google">Google</Pill>;
 }
