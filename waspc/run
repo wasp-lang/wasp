@@ -19,6 +19,7 @@ RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
 BUILD_CMD="cabal build all"
+INSTALL_CMD="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh && cabal install --overwrite-policy=always"
 BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
 TEST_CMD="cabal test"
 TEST_UNIT_CMD="cabal test waspc-test"
@@ -62,6 +63,9 @@ print_usage () {
     echo            "Commands:"
     print_usage_cmd "build" \
                     "Builds the project."
+
+    print_usage_cmd "install" \
+                    "Installs the project locally using cabal (runs '${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh' and 'cabal install')."
     print_usage_cmd "test" \
                     "Executes all tests (unit + e2e). Builds the project first if needed."
     print_usage_cmd "test:unit [pattern]" \
@@ -103,6 +107,9 @@ exitStatusToString () {
 case $COMMAND in
     build)
         echo_and_eval "$BUILD_CMD"
+        ;;
+    install)
+        echo_and_eval "$INSTALL_CMD"
         ;;
     ghcid)
         echo_and_eval "$GHCID_CMD"
