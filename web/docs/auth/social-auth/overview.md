@@ -390,6 +390,17 @@ If you need even more customization, you can create your custom components using
 
 ## API Reference
 
+### Fields in the `app.auth` Dictionary and Overrides
+
+For more information on:
+
+- Allowed fields in `app.auth`
+- `getUserFields` and `configFn` functions
+
+Check the provider-specific API References:
+
+<SocialAuthGrid pagePart="#api-reference" />
+
 ### The `externalAuthEntity` and Its Fields
 
 Using social login providers requires you to define _an External Auth Entity_ and declare it with the `app.auth.externalAuthEntity` field.
