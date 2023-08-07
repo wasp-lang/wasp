@@ -66,8 +66,16 @@ module.exports = {
         "auth/ui",
         "auth/username-and-pass",
         "auth/email",
-        "auth/github",
-        "auth/google"
+        {
+          type: "category",
+          label: "Social Auth",
+          collapsed: true,
+          items: [
+            "auth/social-auth/overview",
+            "auth/social-auth/github",
+            "auth/social-auth/google"
+          ]
+        },
       ]
     },
     {
