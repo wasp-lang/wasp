@@ -524,7 +524,7 @@ Provider-specific behavior comes down to implementing two functions.
 
 The reference shows how to define both.
 
-For behavior common to all providers, check the general [API Reference](/docs/auth/social-auth/overview.md#api-reference).
+For behavior common to all providers, check the general [API Reference](/docs/auth/social-auth/overview#api-reference).
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
