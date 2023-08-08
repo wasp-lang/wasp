@@ -55,10 +55,12 @@ module Wasp.LSP.Commands.ScaffoldTsSymbol
   )
 where
 
+import Control.Lens ((^.))
 import Control.Monad (void)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Log.Class (logM)
+import Control.Monad.Reader.Class (asks)
 import Data.Aeson (FromJSON, ToJSON (toJSON), object, parseJSON, withObject, (.:), (.=))
 import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
@@ -75,8 +77,13 @@ import qualified Text.Mustache as Mustache
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser.AST (ExtImportName (ExtImportField, ExtImportModule))
 import qualified Wasp.Data
+import Wasp.LSP.Analysis (publishDiagnostics)
 import Wasp.LSP.Commands.Command (Command (Command, commandHandler, commandName), makeInvalidParamsError, withParsedArgs)
+import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
+import Wasp.LSP.ExtImport.ExportsCache (refreshExportsOfFiles)
 import Wasp.LSP.ServerMonads (ServerM)
+import qualified Wasp.LSP.ServerMonads as ServerM
+import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.TypeInference (ExprPath, ExprPathStep (Decl, DictKey))
 import qualified Wasp.LSP.TypeInference as Inference
 import Wasp.Util (toUpperFirst)
@@ -153,7 +160,26 @@ handler request respond = withParsedArgs request respond scaffold
 
         -- Create directory (and parent directories) if it doesn't exist.
         liftIO $ Dir.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent filepath
-        liftIO $ Text.appendFile (SP.fromAbsFile filepath) rendered
+
+        -- If the file already exists, we want to add a blank line between the
+        -- file contents and the new text we're writing.
+        needsLeadingNewline <- liftIO $ Dir.doesFileExist (SP.fromAbsFile filepath)
+        let textToWrite =
+              if needsLeadingNewline
+                then "\n" <> rendered
+                else rendered
+        liftIO $ Text.appendFile (SP.fromAbsFile filepath) textToWrite
+
+        -- VSCode doesn't send a file change notification after we modify the file.
+        -- So we request here to update the export cache for the modified file.
+        ServerM.sendToReactor $ do
+          refreshExportsOfFiles [filepath]
+          -- Update diagnostics for the wasp file
+          updateMissingExtImportDiagnostics
+          ServerM.handler $
+            asks (^. State.waspFileUri) >>= \case
+              Just uri -> publishDiagnostics uri
+              Nothing -> pure ()
 
         notifyClientOfFileChanges args
         respond $ Right Aeson.Null
@@ -215,11 +241,14 @@ getTemplateFor exprPath ext = runExceptT $ do
 --
 -- This function is partial: if errors are encountered rendering the template,
 -- @error@ is returned.
+--
+-- Removes leading and trailing newlines, except it leaves a single trailing
+-- newline (or adds one if there wasn't already a trailing newline).
 renderTemplate :: Mustache.Template -> Aeson.Value -> Text
 renderTemplate template templateData =
   let (errs, text) = Mustache.checkedSubstituteValue template $ Mustache.toMustache templateData
    in if null errs
-        then text
+        then Text.dropAround (== '\n') text <> "\n"
         else error $ printf "Unexpected errors rendering template: " ++ show errs
 
 data TemplatesDir
