@@ -10,27 +10,34 @@ Wasp supports multiple database backends. We'll list and explain each one.
 
 ### SQLite
 
-The default database Wasp uses is [`SQLite`](https://www.sqlite.org/index.html).
+The default database Wasp uses is [SQLite](https://www.sqlite.org/index.html).
 
-SQLite is a great way for getting started with a new project because it doesn't require any configuration, but Wasp can only use it in development. Once you want to deploy your Wasp app to production, you'll need to switch to `PostgreSQL` and stick with it.
+SQLite is a great way for getting started with a new project because it doesn't require any configuration, but Wasp can only use it in development. Once you want to deploy your Wasp app to production, you'll need to switch to PostgreSQL and stick with it.
 
 Fortunately, migrating from SQLite to PostgreSQL is pretty simple, and we have [a guide](#migrating-from-sqlite-to-postgresql) to help you.
 
 ### PostgreSQL
 
-[PostgreSQL](https://www.postgresql.org/) is a real production database.
+[PostgreSQL](https://www.postgresql.org/) is the most advanced open source database and the fourth most popular database overall.
+It's been in active development for 20 years.
+Therefore, if you're looking for a battle-tested database, look no further.
 
-To use Wasp with PostgreSQL, you'll have to ensure a database instance is running during development. Wasp needs access to your database for commands such as `wasp start` or `wasp db ...` and expects to find a connection string in the `DATABASE_URL` environment variable.
+To use Wasp with PostgreSQL, you'll have to ensure a database instance is running during development. Wasp needs access to your database for commands such as `wasp start` or `wasp db migrate-dev` and expects to find a connection string in the `DATABASE_URL` environment variable.
 
 We cover all supported ways of connecting to a database in [the next section](#connecting-to-a-database).
 
 ### Migrating from SQLite to PostgreSQL
 
-To run your Wasp app in production, you'll need to switch from `SQLite` to `PostgreSQL`.
+To run your Wasp app in production, you'll need to switch from SQLite to PostgreSQL.
 
-1. Set `app.db.system` to `PostgreSQL`.
-2. Delete all old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
-3. Run `wasp start db` to start your new db running (or check the instructions above if you prefer using your own database). Leave it running, since we need it for the next step.
+1. Set the `app.db.system` fild to PostgreSQL.
+2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL:
+
+   ```bash
+   rm -r migrations/
+   ```
+
+3. Ensure your new database is running (check the [section on connecing to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
 5. That is it, you are all done!
 
@@ -48,12 +55,12 @@ The command `wasp start db` will start a default PostgreSQL dev database for you
 Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background.
 Also, make sure that:
 
-- You have Docker installed and in `PATH`.
+- You have [Docker installed](https://www.docker.com/get-started/) and in `PATH`.
 - The port `5432` isn't taken.
 
 ### Connecting to an existing database
 
-If, instead of using `wasp start db`, you'd rather spin up your own dev database (or connect to an external one), you'll need to tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string.
+If you want to spin up your own dev database (or connect to an external one), you can tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string.
 
 The easiest way to set the necessary `DATABASE_URL` environment variable is by adding it to the [.env.server](/docs/project/dotenv.md) file in the root dir of your Wasp project (if that file doesn't yet exist, create it).
 
@@ -125,7 +132,7 @@ app MyApp {
 Each seed function must be an async function that takes one argument, `prismaClient`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
 This is the same Prisma Client instance that Wasp uses internally and thus includes all of the usual features (e.g., password hashing).
 
-Since a seed function falls under server-side code, it can import other server-side functions. This is convenient because you'll normally want to seed the database using Actions.
+Since a seed function falls under server-side code, it can import other server-side functions. This is convenient because you might want to seed the database using Actions.
 
 Here's an example of a seed function that imports an Action:
 
@@ -133,23 +140,23 @@ Here's an example of a seed function that imports an Action:
 <TabItem value="js" label="JavaScript">
 
 ```js
-import { createTask } from "./actions.js";
+import { createTask } from './actions.js'
 
 export const devSeedSimple = async (prismaClient) => {
   const user = await createUser(prismaClient, {
-    username: "RiuTheDog",
-    password: "bark1234",
-  });
+    username: 'RiuTheDog',
+    password: 'bark1234',
+  })
 
   await createTask(
-    { description: "Chase the cat" },
+    { description: 'Chase the cat' },
     { user, entities: { Task: prismaClient.task } }
-  );
-};
+  )
+}
 
 async function createUser(prismaClient, data) {
-  const { password, ...newUser } = await prismaClient.user.create({ data });
-  return newUser;
+  const { password, ...newUser } = await prismaClient.user.create({ data })
+  return newUser
 }
 ```
 
@@ -157,30 +164,30 @@ async function createUser(prismaClient, data) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask } from "./actions.js";
-import { User } from "@wasp/entities";
-import { PrismaClient } from "@prisma/client";
+import { createTask } from './actions.js'
+import { User } from '@wasp/entities'
+import { PrismaClient } from '@prisma/client'
 
-type SanitizedUser = Omit<User, "password">;
+type SanitizedUser = Omit<User, 'password'>
 
 export const devSeedSimple = async (prismaClient: PrismaClient) => {
   const user = await createUser(prismaClient, {
-    username: "RiuTheDog",
-    password: "bark1234",
-  });
+    username: 'RiuTheDog',
+    password: 'bark1234',
+  })
 
   await createTask(
-    { description: "Chase the cat", isDone: false },
+    { description: 'Chase the cat', isDone: false },
     { user, entities: { Task: prismaClient.task } }
-  );
-};
+  )
+}
 
 async function createUser(
   prismaClient: PrismaClient,
-  data: Pick<User, "username" | "password">
+  data: Pick<User, 'username' | 'password'>
 ): Promise<SanitizedUser> {
-  const { password, ...newUser } = await prismaClient.user.create({ data });
-  return newUser;
+  const { password, ...newUser } = await prismaClient.user.create({ data })
+  return newUser
 }
 ```
 
@@ -256,8 +263,8 @@ app MyApp {
 
 - `system: DbSystem`
 
-  The database system Wasp should use. It can be either `PostgreSQL` or `SQLite`.
-  The default value for the field is `SQLite` (this default value also applies if the entire `db` field is left unset).
+  The database system Wasp should use. It can be either PostgreSQL or SQLite.
+  The default value for the field is SQLite (this default value also applies if the entire `db` field is left unset).
   Whenever you modify the `db.system` field, make sure to run `wasp db migrate-dev` to apply the changes.
 
 - `seeds: [ServerImport]`
@@ -265,12 +272,12 @@ app MyApp {
   Defines the seed functions you can use with the `wasp db seed` command to seed your database with initial data.
   Read the [Seeding section](#seeding-the-database) for more details.
 
-- `prisma: [PrismaOptions]`
+- `prisma: PrismaOptions`
 
   Additional configuration for Prisma.
   It currently only supports a single field:
 
-  - `clientPreviewFeatures : string`
+  - `clientPreviewFeatures : [string]`
 
     Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
 
