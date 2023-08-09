@@ -6,13 +6,12 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
 import BuildingTheWebClient from './\_building-the-web-client.md'
 
-You can deploy a Wasp project by generating the code and then deploying generated code manually. When a Wasp app is generated and built, it consists of three parts:
+We'll cover how to deploy your Wasp app manually to a variety of providers:
 
-- a Node.js server
-- a static client
-- and a PostgreSQL database.
-
-Anywhere where you can deploy Node.js apps or static apps, you can deploy your Wasp app. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/) and the database on [Neon](https://neon.tech/).
+- [Fly.io](#flyio)
+- [Netlify](#netlify)
+- [Railway](#railway)
+- [Heroku](#heroku)
 
 ## Deploying a Wasp App
 
@@ -209,7 +208,7 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 ## Netlify
 
-Netlify is a static hosting solution that is free for many use cases. You will need Netlify account and [Netlify CLI](https://docs.netlify.com/cli/get-started/) installed to follow these instructions.
+Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account and [Netlify CLI](https://docs.netlify.com/cli/get-started/) installed to follow these instructions.
 
 Make sure you are logged in with Netlify CLI. You can check if you are logged in with `netlify status`, and if you are not, you can log in with `netlify login`.
 
@@ -225,7 +224,7 @@ netlify deploy
 
 <small>
 
-Carefully follow the instructions i.e. do you want to create a new app or use existing one, team under which your app will reside etc.
+Carefully follow the instructions i.e. do you want to create a new app or use an existing one, the team under which your app will reside etc.
 
 </small>
 
@@ -264,7 +263,7 @@ Sign up with your GitHub account to be eligible for the free tier
 Let's create our Railway project:
 
 1. Go to your [Railway dashboard](https://railway.app/dashboard), click on **New Project**, and select `Provision PostgreSQL` from the dropdown menu.
-2. Once it initializes, right click on the **New** button in the top right corner and select **Empty Service**.
+2. Once it initializes, right-click on the **New** button in the top right corner and select **Empty Service**.
 3. Once it initializes, click on it, go to **Settings > General** and change the name to `server`
 4. Go ahead and create another empty service and name it `client`
 
@@ -327,10 +326,9 @@ cd web-app
 
 2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
 
-
-    ```shell
-    npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-    ```
+   ```shell
+   npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+   ```
 
 3. Next, we want to link this specific frontend directory to our project as well:
 
@@ -340,87 +338,90 @@ railway link
 
 4. We need to configure Railway's static hosting for our client.
 
+   :::info Setting Up Static Hosting
 
-    :::info Setting Up Static Hosting
+   Copy the `build` folder within the `web-app` directory to `dist`:
 
-    Copy the `build` folder within the `web-app` directory to `dist`:
-    ```shell
-    cp -r build dist
-    ```
+   ```shell
+   cp -r build dist
+   ```
 
-    We'll need to create the following files:
+   We'll need to create the following files:
 
-      - `Dockerfile` with:
-        ```Dockerfile title="Dockerfile"
-        FROM pierrezemb/gostatic
-        CMD [ "-fallback", "index.html" ]
-        COPY ./dist/ /srv/http/
-        ```
+   - `Dockerfile` with:
 
-      - `.dockerignore` with:
-        ```bash title=".dockerignore"
-        node_modules/
-        ```
+     ```Dockerfile title="Dockerfile"
+     FROM pierrezemb/gostatic
+     CMD [ "-fallback", "index.html" ]
+     COPY ./dist/ /srv/http/
+     ```
 
-    You'll need to repeat these steps **each time** you run `wasp build` as it will remove the `.wasp/build/web-app` directory.
+   - `.dockerignore` with:
+     ```bash title=".dockerignore"
+     node_modules/
+     ```
 
-    <details>
-    <summary>
-    Here's a useful shell script to do the process
-    </summary>
+   You'll need to repeat these steps **each time** you run `wasp build` as it will remove the `.wasp/build/web-app` directory.
 
-    If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
+   <details>
+   <summary>
+   Here's a useful shell script to do the process
+   </summary>
 
-    ```bash title="deploy_client.sh"
-    #!/usr/bin/env bash
+   If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
 
-    if [ -z "$REACT_APP_API_URL" ]
-    then
-      echo "REACT_APP_API_URL is not set"
-      exit 1
-    fi
+   ```bash title="deploy_client.sh"
+   #!/usr/bin/env bash
 
-    wasp build
-    cd .wasp/build/web-app
+   if [ -z "$REACT_APP_API_URL" ]
+   then
+     echo "REACT_APP_API_URL is not set"
+     exit 1
+   fi
 
-    npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
+   wasp build
+   cd .wasp/build/web-app
 
-    cp -r build dist
+   npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
 
-    dockerfile_contents=$(cat <<EOF
-    FROM pierrezemb/gostatic
-    CMD [ "-fallback", "index.html" ]
-    COPY ./dist/ /srv/http/
-    EOF
-    )
+   cp -r build dist
 
-    dockerignore_contents=$(cat <<EOF
-    node_modules/
-    EOF
-    )
+   dockerfile_contents=$(cat <<EOF
+   FROM pierrezemb/gostatic
+   CMD [ "-fallback", "index.html" ]
+   COPY ./dist/ /srv/http/
+   EOF
+   )
 
-    echo "$dockerfile_contents" > Dockerfile
-    echo "$dockerignore_contents" > .dockerignore
+   dockerignore_contents=$(cat <<EOF
+   node_modules/
+   EOF
+   )
 
-    railway up
-    ```
+   echo "$dockerfile_contents" > Dockerfile
+   echo "$dockerignore_contents" > .dockerignore
 
-    Make it executable with:
-    ```shell
-    chmod +x deploy_client.sh
-    ```
+   railway up
+   ```
 
-    You can run it with:
-    ```shell
-    REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
-    ```
+   Make it executable with:
 
-    </details>
-    :::
+   ```shell
+   chmod +x deploy_client.sh
+   ```
 
-4. Set the `PORT` environment variable to `8043` under the `Variables` tab.
+   You can run it with:
 
-5. Deploy the client and select `client` when prompted with `Select Service`:
+   ```shell
+   REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
+   ```
+
+   </details>
+   :::
+
+5. Set the `PORT` environment variable to `8043` under the `Variables` tab.
+
+6. Deploy the client and select `client` when prompted with `Select Service`:
 
 ```shell
 railway up
@@ -445,7 +446,7 @@ When you make updates and need to redeploy:
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we recommend using an alternative provider like [Fly.io](#deploying-to-flyio-free-recommended) for your first apps.
+As such, we recommend using an alternative provider like [Fly.io](#flyio) for your first apps.
 :::
 
 You will need Heroku account, `heroku` [CLI](https://devcenter.heroku.com/articles/heroku-cli) and `docker` CLI installed to follow these instructions.
@@ -458,13 +459,13 @@ Make sure you are logged in with `heroku` CLI. You can check if you are logged i
 You need to do this only once per Wasp app.
 :::
 
-Unless you already have a heroku app that you want to deploy to, let's create a new Heroku app:
+Unless you want to deploy to an existing Heroku app, let's create a new Heroku app:
 
 ```
 heroku create <app-name>
 ```
 
-Unless you have external Postgres database that you want to use, let's create new database on Heroku and attach it to our app:
+Unless you have an external Postgres database that you want to use, let's create a new database on Heroku and attach it to our app:
 
 ```
 heroku addons:create --app <app-name> heroku-postgresql:mini
@@ -474,7 +475,7 @@ heroku addons:create --app <app-name> heroku-postgresql:mini
 Heroku does not offer a free plan anymore and `mini` is their cheapest database instance - it costs $5/mo.
 :::
 
-Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it yourself.
+Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
 The `PORT` env var will also be provided by Heroku, so the only two left to set are the `JWT_SECRET` and `WASP_WEB_CLIENT_URL` env vars:
 

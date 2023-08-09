@@ -93,8 +93,7 @@ You can validate your ownership of mycoolapp.com by:
 
 2. You need to add the DNS records for your domain:
 
-
-    _This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command._
+   _This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command._
 
 3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
 
