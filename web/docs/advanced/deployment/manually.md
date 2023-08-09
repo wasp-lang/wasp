@@ -144,7 +144,7 @@ If your attempts to initiate a new app fail for whatever reason, then you can ru
     What does it look like when your DB is deployed correctly?
   </summary>
   <div>
-    <p>When your DB is deployed correctly, you will be able to view it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
+    <p>When your DB is deployed correctly, you'll see it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
     <img width="662" alt="image" src="/img/deploying/fly-db.png" />
   </div>
 </details>
