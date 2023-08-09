@@ -23,7 +23,6 @@ You can add the required credit card information on the [account's billing page]
 You will need the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/) installed on your machine before you can deploy to Fly.io.
 :::
 
-
 ### Deploying
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
@@ -52,6 +51,51 @@ Your app name must be unique across all of Fly or deployment will fail. Addition
 
 You can find the list of all available Fly regions [here](https://fly.io/docs/reference/regions/).
 Another way to see the same list is running `flyctl platform regions`.
+
+### Using a custom domain for your app
+
+Setting up a custom domain is a three-step process:
+
+1. You need to add your domain to your Fly client app. You can do this by running:
+  ```shell
+  wasp deploy fly cmd --context client certs create mycoolapp.com
+  ```
+
+  :::note Use Your Domain
+  Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section.
+  :::
+
+  This command will output the instructions to add the DNS records to your domain. It will look something like this:
+  ```shell-session
+  You can direct traffic to mycoolapp.com by:
+
+  1: Adding an A record to your DNS service which reads
+
+      A @ 66.241.1XX.154
+
+  You can validate your ownership of mycoolapp.com by:
+
+  2: Adding an AAAA record to your DNS service which reads:
+
+      AAAA @ 2a09:82XX:1::1:ff40
+  ```
+
+  2. You need to add the DNS records for your domain:
+  
+    _This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command._
+
+  3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
+
+  ```shell
+  wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+  ```
+
+  <small>
+
+  We need to do this to keep our CORS configuration up to date.
+  </small>
+
+That's it, your app should be available at `https://mycoolapp.com`! 🎉
 
 
 ## API Reference
