@@ -54,7 +54,7 @@ Another way to see the same list is running `flyctl platform regions`.
 `setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them. We need a database first, which we create with `create-db`, and it is automatically linked to your server.
 
 :::note
-We only run the `setup` and `create-db` steps once.
+The `setup` and `create-db` should only be executed once.
 :::
 
 You may notice after running `setup` you have a `fly-server.toml` and `fly-client.toml` in your Wasp project directory. Those are meant to be version controlled.
