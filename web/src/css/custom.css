@@ -27,19 +27,6 @@
   background-color: var(--custom-blog-list-background-color);
 }
 
-.pill {
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.pill.pill-username-password {
-  background-color: var(--auth-ui-username-password-bg);
-}
-
-.pill.pill-email {
-  background-color: var(--auth-ui-email-bg);
-}
-
 /* Highlight Prisma field types properly */
 .token.type-class-name {
   color: rgb(54, 172, 170);
@@ -96,8 +83,6 @@
 
   --ifm-col-spacing-vertical: 0.5rem;
   --docusaurus-highlighted-code-line-bg: #e8edf2;
-  --auth-ui-username-password-bg: #fee;
-  --auth-ui-email-bg: #eef;
 
   /* Docs */
   --ifm-menu-color: var(--ifm-color-gray-800);
@@ -113,8 +98,6 @@
   --custom-blog-card-timestamp-color: #a3a3a3;
   --custom-blog-card-background-color: black;
   --docusaurus-highlighted-code-line-bg: #dee6ed;
-  --auth-ui-username-password-bg: rgb(93, 57, 57);
-  --auth-ui-email-bg: rgb(71, 71, 112);
 
   /* Docs */
   --ifm-menu-color: var(--ifm-color-gray-200);
