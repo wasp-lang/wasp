@@ -3,12 +3,13 @@ title: Actions
 ---
 
 import { Required } from '@site/src/components/Required';
+import SuperjsonNote from './\_superjson-note.md';
 
 We'll explain what Actions are and how to use them. If you're looking for a detailed API specification, skip ahead to the [Options Reference](#options-reference).
 
-Actions are very similar to [Queries](/docs/database/operations/queries.md). The key difference is that Actions are meant to modify and add data, while Queries are only supposed to read it. Adding a comment to a blog post, liking a video, updating a product's price... These are some common examples of Actions.
+Actions are quite similar to [Queries](/docs/database/operations/queries.md), but with a key distinction: Actions are designed to modify and add data, while Queries are solely for reading data. Examples of Actions include adding a comment to a blog post, liking a video, or updating a product's price.
 
-Actions and Queries work hand-in-hand on keeping data caches fresh.
+Actions and Queries work together to keep data caches up-to-date.
 
 :::tip
 Actions are almost identical to Queries in terms of their API.
@@ -19,21 +20,21 @@ We instead recommend skipping ahead and only reading [the differences between Qu
 
 ## Working with Actions
 
-Actions are declared in Wasp and implemented in NodeJS. Wasp executes Actions within the server's context but also generates the code that lets you call them from anywhere in your code (client or server) via the same interface.
-In other words, you don't have to worry about building an HTTP API for the Action, handling the request on the server, or even handling and caching the responses on the client.
-Instead, simply focus on the business logic inside your Action and let Wasp take care of the rest!
+Actions are declared in Wasp and implemented in NodeJS. Wasp runs Actions within the server's context, but it also generates code that allows you to call them from anywhere in your code (either client or server) using the same interface.
 
-To create an Action, you must:
+This means you don't have to worry about building an HTTP API for the Action, managing server-side request handling, or even dealing with client-side response handling and caching.
+Instead, just focus on developing the business logic inside your Action, and let Wasp handle the rest!
+
+To create an Action, you need to:
 
 1. Declare the Action in Wasp using the `action` declaration.
-2. Define the Action's NodeJS implementation.
+2. Implement the Action's NodeJS functionality.
 
-After completing these two steps, you'll be able to use the Action from any point in your code.
+Once these two steps are completed, you can use the Action from anywhere in your code.
 
 ### Declaring Actions
 
-We'll start by telling Wasp we wish to create an Action using an `action` declaration.
-Let's declare two Actions, one for creating a task and another one for marking tasks as done:
+To create an Action in Wasp, we begin with an `action` declaration. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -81,18 +82,15 @@ If you want to know about all supported options for the `action` declaration, ta
 
 </small>
 
-Wasp Actions and their implementations don't need to (but can) have the same name. We'll keep the names identical to avoid confusion.
+The names of Wasp Actions and their implementations don't necessarily have to match. However, to avoid confusion, we'll keep them the same.
 
-:::info
-You might have noticed that we told Wasp to import Action implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `actions.{js,ts}` in the next section.
+<SuperjsonNote />
 
-It's a good idea to start with the high-level concept (i.e., the Action declaration in the Wasp file) and only then deal with the implementation details (i.e., the Action's implementation in JavaScript).
-:::
+After declaring a Wasp Action, two important things happen:
 
-After declaring a Wasp Action, two crucial things happen:
+- Wasp **generates a server-side NodeJS function** that shares its name with the Action.
 
-- Wasp **generates a server-side NodeJS function** that shares its name with the Action. This function's interface is identical to the client-side function from the previous point.
-- Wasp **generates a client-side JavaScript function** that shares its name with the Action (e.g., `createTask`).
+- Wasp **generates a client-side JavaScript function** that shares its name with the Action (e.g., `markTaskAsDone`).
   This function takes a single optional argument - an object containing any serializable data you wish to use inside the Action.
   Wasp will send this object over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Action's NodeJS implementation under the hood.
@@ -101,8 +99,7 @@ Generating these two functions ensures a uniform calling interface across the en
 
 ### Implementing Actions in Node
 
-Now that we've declared the Action, all that's left is implementing it.
-We've told Wasp to look for Actions' implementations in the file `src/server/actions.{js,ts}`, so that's where we should export them from.
+Now that we've declared the Action, what remains is to implement it. We've instructed Wasp to look for the Actions' implementations in the file `src/server/actions.{js,ts}`, so that's where we should export them from.
 
 Here's how you might implement the previously declared Actions `createTask` and `markTaskAsDone`:
 
@@ -111,12 +108,12 @@ Here's how you might implement the previously declared Actions `createTask` and 
 
 ```js title="src/server/actions.js"
 // our "database"
-let nextId = 4;
+let nextId = 4
 const tasks = [
-  { id: 1, description: "Buy some eggs", isDone: true },
-  { id: 2, description: "Make an omelette", isDone: false },
-  { id: 3, description: "Eat breakfast", isDone: false },
-];
+  { id: 1, description: 'Buy some eggs', isDone: true },
+  { id: 2, description: 'Make an omelette', isDone: false },
+  { id: 3, description: 'Eat breakfast', isDone: false },
+]
 
 // You don't need to use the arguments if you don't need them
 export const createTask = (args) => {
@@ -124,74 +121,70 @@ export const createTask = (args) => {
     id: nextId,
     isDone: false,
     description: args.description,
-  };
-  nextId += 1;
-  tasks.push(newTask);
-  return newTask;
-};
+  }
+  nextId += 1
+  tasks.push(newTask)
+  return newTask
+}
 
 // The 'args' object is something sent by the caller (most often from the client)
 export const markTaskAsDone = (args) => {
-  const task = tasks.find((task) => task.id === args.id);
+  const task = tasks.find((task) => task.id === args.id)
   if (!task) {
     // We'll show how to properly handle such errors later
-    return;
+    return
   }
-  task.isDone = true;
-};
+  task.isDone = true
+}
 ```
 
-:::tip
-Wasp uses [superjson](https://github.com/blitz-js/superjson) under the hood. In other words, you don't need to limit yourself to only sending and receiving JSON payloads.
-
-Send and receive any superjson-compatible payload (e.g., Dates, Sets, Lists, circular references, etc.) and let Wasp take care of the (de)serialization.
-:::
+<SuperjsonNote />
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/server/actions.ts"
-import { CreateTask, MarkTaskAsDone } from "@wasp/actions/types";
+import { CreateTask, MarkTaskAsDone } from '@wasp/actions/types'
 
 type Task = {
-  id: number;
-  description: string;
-  isDone: boolean;
-};
+  id: number
+  description: string
+  isDone: boolean
+}
 
 // our "database"
-let nextId = 4;
+let nextId = 4
 const tasks = [
-  { id: 1, description: "Buy some eggs", isDone: true },
-  { id: 2, description: "Make an omelette", isDone: false },
-  { id: 3, description: "Eat breakfast", isDone: false },
-];
+  { id: 1, description: 'Buy some eggs', isDone: true },
+  { id: 2, description: 'Make an omelette', isDone: false },
+  { id: 3, description: 'Eat breakfast', isDone: false },
+]
 
 // You don't need to use the arguments if you don't need them
-export const createTask: CreateTask<Pick<Task, "description">, Task> = (
+export const createTask: CreateTask<Pick<Task, 'description'>, Task> = (
   args
 ) => {
   const newTask = {
     id: nextId,
     isDone: false,
     description: args.description,
-  };
-  nextId += 1;
-  tasks.push(newTask);
-  return newTask;
-};
+  }
+  nextId += 1
+  tasks.push(newTask)
+  return newTask
+}
 
 // The 'args' object is something sent by the caller (most often from the client)
-export const markTaskAsDone: MarkTaskAsDone<Pick<Task, "id">, void> = (
+export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = (
   args
 ) => {
-  const task = tasks.find((task) => task.id === args.id);
+  const task = tasks.find((task) => task.id === args.id)
   if (!task) {
     // We'll show how to properly handle such errors later
-    return;
+    return
   }
-  task.isDone = true;
-};
+  task.isDone = true
+}
 ```
 
 Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
@@ -234,36 +227,30 @@ To use an Action, you can import it from `@wasp` and call it directly. As mentio
 <TabItem value="js" label="JavaScript">
 
 ```javascript
-import createTask from "@wasp/actions/createTask.js";
-import markTasAsDone from "@wasp/actions/markTasAsDone.js";
+import createTask from '@wasp/actions/createTask.js'
+import markTasAsDone from '@wasp/actions/markTasAsDone.js'
 
 // ...
 
-const newTask = await createTask({ description: "Learn TypeScript" });
-await markTasAsDone({ id: 1 });
+const newTask = await createTask({ description: 'Learn TypeScript' })
+await markTasAsDone({ id: 1 })
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```typescript
-import createTask from "@wasp/actions/createTask.js";
-import markTasAsDone from "@wasp/actions/markTasAsDone.js";
+import createTask from '@wasp/actions/createTask.js'
+import markTasAsDone from '@wasp/actions/markTasAsDone.js'
 
 // TypeScript automatically infers the return values and type-checks
 // the payloads.
-const newTask = await createTask({ description: "Keep learning TypeScript" });
-await markTasAsDone({ id: 1 });
+const newTask = await createTask({ description: 'Keep learning TypeScript' })
+await markTasAsDone({ id: 1 })
 ```
 
 </TabItem>
 </Tabs>
-
-:::caution
-Wasp will not stop you from importing a Action's NodeJS implementation from `./actions.{js,ts}` and calling it directly.
-
-However, it's best if you avoid doing so. Besides losing all useful features a Wasp Action provides (e.g., Entity injection), the raw Action will expect you to provide a context as a second argument (which is cumbersome).
-:::
 
 When using Actions on the client, you'll most likely want to use them inside a component:
 
@@ -271,19 +258,19 @@ When using Actions on the client, you'll most likely want to use them inside a c
 <TabItem value="js" label="JavaScript">
 
 ```jsx {4,25} title=src/client/pages/Task.jsx
-import React from "react";
-import { useQuery } from "@wasp/queries";
-import getTask from "@wasp/queries/getTask";
-import markTaskAsDone from "@wasp/actions/markTaskAsDone";
+import React from 'react'
+import { useQuery } from '@wasp/queries'
+import getTask from '@wasp/queries/getTask'
+import markTaskAsDone from '@wasp/actions/markTaskAsDone'
 
 export const TaskPage = ({ id }) => {
-  const { data: task } = useQuery(getTask, { id });
+  const { data: task } = useQuery(getTask, { id })
 
   if (!task) {
-    return <h1>"Loading"</h1>;
+    return <h1>"Loading"</h1>
   }
 
-  const { description, isDone } = task;
+  const { description, isDone } = task
   return (
     <div>
       <p>
@@ -292,33 +279,33 @@ export const TaskPage = ({ id }) => {
       </p>
       <p>
         <strong>Is done: </strong>
-        {isDone ? "Yes" : "No"}
+        {isDone ? 'Yes' : 'No'}
       </p>
       {isDone || (
         <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
       )}
     </div>
-  );
-};
+  )
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {4,25} title=src/client/pages/Task.tsx
-import React from "react";
-import { useQuery } from "@wasp/queries";
-import getTask from "@wasp/queries/getTask";
-import markTaskAsDone from "@wasp/actions/markTaskAsDone";
+import React from 'react'
+import { useQuery } from '@wasp/queries'
+import getTask from '@wasp/queries/getTask'
+import markTaskAsDone from '@wasp/actions/markTaskAsDone'
 
 export const TaskPage = ({ id }: { id: number }) => {
-  const { data: task } = useQuery(getTask, { id });
+  const { data: task } = useQuery(getTask, { id })
 
   if (!task) {
-    return <h1>"Loading"</h1>;
+    return <h1>"Loading"</h1>
   }
 
-  const { description, isDone } = task;
+  const { description, isDone } = task
   return (
     <div>
       <p>
@@ -327,14 +314,14 @@ export const TaskPage = ({ id }: { id: number }) => {
       </p>
       <p>
         <strong>Is done: </strong>
-        {isDone ? "Yes" : "No"}
+        {isDone ? 'Yes' : 'No'}
       </p>
       {isDone || (
         <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
       )}
     </div>
-  );
-};
+  )
+}
 ```
 
 </TabItem>
@@ -353,31 +340,31 @@ If you do want to pass additional error information to the client, you can const
 <TabItem value="js" label="JavaScript">
 
 ```js title=src/server/actions.js
-import HttpError from "@wasp/core/HttpError.js";
+import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (args, context) => {
   throw new HttpError(
     403, // status code
     "You can't do this!", // message
-    { foo: "bar" } // data
-  );
-};
+    { foo: 'bar' } // data
+  )
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title=src/server/actions.ts
-import { CreateTask } from "@wasp/actions/types";
-import HttpError from "@wasp/core/HttpError.js";
+import { CreateTask } from '@wasp/actions/types'
+import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask: CreateTask = async (args, context) => {
   throw new HttpError(
-    403, // status coce
+    403, // status code
     "You can't do this!", // message
-    { foo: "bar" } // data
-  );
-};
+    { foo: 'bar' } // data
+  )
+}
 ```
 
 </TabItem>
@@ -437,27 +424,27 @@ export const createTask = async (args, context) => {
       description: args.description,
       isDone: false,
     },
-  });
-  return newTask;
-};
+  })
+  return newTask
+}
 
 export const markTaskAsDone = async (args, context) => {
   await context.entities.Task.update({
     where: { id: args.id },
     data: { isDone: true },
-  });
-};
+  })
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/server/actions.ts"
-import { CreateTask, MarkTaskAsDone } from "@wasp/actions/types";
-import { Task } from "@wasp/entities";
+import { CreateTask, MarkTaskAsDone } from '@wasp/actions/types'
+import { Task } from '@wasp/entities'
 
 // The 'args' object is the payload sent by the caller (most often from the client)
-export const createTask: CreateTask<Pick<Task, "description">, Task> = async (
+export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
   args,
   context
 ) => {
@@ -466,19 +453,19 @@ export const createTask: CreateTask<Pick<Task, "description">, Task> = async (
       description: args.description,
       isDone: false,
     },
-  });
-  return newTask;
-};
+  })
+  return newTask
+}
 
-export const markTaskAsDone: MarkTaskAsDone<Pick<Task, "id">, void> = async (
+export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = async (
   args,
   context
 ) => {
   await context.entities.Task.update({
     where: { id: args.id },
     data: { isDone: true },
-  });
-};
+  })
+}
 ```
 
 Again, annotating the Actions is optional, but greatly improves **full-stack type safety**.
@@ -543,11 +530,10 @@ One of the trickiest parts of managing a web app's state is making sure the data
 Since Wasp uses _react-query_ for Query management, we must make sure to invalidate Queries (more specifically, their cached results managed by _react-query_) whenever they become stale.
 
 It's possible to invalidate the caches manually through several mechanisms _react-query_ provides (e.g., refetch, direct invalidation).
-However, since manual cache invalidation quickly becomes complex and error-prone, Wasp offers a quicker and a more effective solution to get you started: **automatic Entity-based Query cache invalidation**.
+However, since manual cache invalidation quickly becomes complex and error-prone, Wasp offers a faster and a more effective solution to get you started: **automatic Entity-based Query cache invalidation**.
 Because Actions can (and most often do) modify the state while Queries read it, Wasp invalidates a Query's cache whenever an Action that uses the same Entity is executed.
 
-For example, let's assume that Action `createTask` and Query `getTasks` both use Entity `Task`. If `createTask` is executed, `getTasks`'s cached result may no longer be up-to-date.
-Wasp will therefore invalidate it, making `getTasks` refetch data from the server, bringing it up to date again.
+For example, if the Action `createTask` and Query `getTasks` both use the Entity `Task`, executing `createTask` may cause the cached result of `getTasks` to become outdated. In response, Wasp will invalidate it, causing `getTasks` to refetch data from the server and update it.
 
 In practice, this means that Wasp keeps the Queries "fresh" without requiring you to think about cache invalidation.
 
@@ -557,13 +543,13 @@ If you wish to optimistically set cache values after performing an Action, you c
 
 ## Differences Between Queries and Actions
 
-Actions and Queries are two very similar concepts in Wasp. They even might appear to be doing the same thing, but Wasp treats them differently and using each construct carries certain semantic implications.
+Actions and Queries are two closely related concepts in Wasp. They might seem to perform similar tasks, but Wasp treats them differently, and each concept represents a different thing.
 
-Here's a rundown of all the differences between Queries and Actions:
+Here are the key differences between Queries and Actions:
 
-1. Actions can (and most often should) modify the server's state, while Queries are only allowed to read it. Wasp relies on you following this convention when performing cache invalidations, so it's important to stick to it.
-2. Actions don't need to be reactive so you can call them directly. Still, Wasp does provide a [`useAction` React hook](#the-useaction-hook) for adding extra behavior to the Action (e.g., optimistic updates).
-3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
+1. Actions can (and often should) modify the server's state, while Queries are only permitted to read it. Wasp relies on you adhering to this convention when performing cache invalidations, so it's crucial to follow it.
+2. Actions don't need to be reactive, so you can call them directly. However, Wasp does provide a [`useAction` React hook](#the-useaction-hook) for adding extra behavior to the Action (like optimistic updates).
+3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference lies in the declaration's name.
 
 ## Options Reference
 
@@ -594,10 +580,10 @@ query createFoo {
 }
 ```
 
-Makes the following import on both the server and the client:
+Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```js
-import createFoo from "@wasp/actions";
+import createFoo from '@wasp/actions'
 ```
 
 </TabItem>
@@ -612,16 +598,16 @@ query createFoo {
 }
 ```
 
-Makes the following imports available on both the server and the client:
+And also creates a type you can import on the server:
 
 ```ts
-import createFoo from "@wasp/actions";
+import createFoo from '@wasp/actions'
 ```
 
 As well as the following type import on the server:
 
 ```ts
-import type { CreateFoo } from "@wasp/actions/types";
+import type { CreateFoo } from '@wasp/actions/types'
 ```
 
 </TabItem>
@@ -634,12 +620,12 @@ Since both arguments are positional, you can name the parameters however you wan
 
 1. `args` (type depends on the Action)
 
-   An object containing all the arguments (i.e., payload) **passed to the Action by the caller** (e.g., filtering conditions).
+   An object containing the data **passed in when calling the Action** (e.g., filtering conditions).
    Check [the usage examples](#using-actions) to see how to pass this object to the Action.
 
 2. `context` (type depends on the Action)
 
-   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the `context` object.
+   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth-section](#todo-link-to-auth) to see how to use the `user` object.
 
 <ShowForTs>
 
@@ -647,7 +633,7 @@ Afer you [declare the Action](#declaring-actions), Wasp generates a generic type
 For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
 
 ```ts
-import { CreateSomething } from "@wasp/actions/types";
+import { CreateSomething } from '@wasp/actions/types'
 ```
 
 It expects two (optional) type arguments:
@@ -683,7 +669,7 @@ Expects to find a named export `createfoo` from the file `src/server/actions.js`
 ```js title=actions.js
 export const createFoo = (args, context) => {
   // implementation
-};
+}
 ```
 
 </TabItem>
@@ -761,14 +747,14 @@ Here's an example showing how to configure the Action `markTaskAsDone` that togg
 <TabItem value="js" label="JavaScript">
 
 ```jsx {3,9,10,11,12,13,14,15,16,34} title=src/client/pages/Task.jsx
-import React from "react";
-import { useQuery } from "@wasp/queries";
-import { useAction } from "@wasp/actions";
-import getTask from "@wasp/queries/getTask";
-import markTaskAsDone from "@wasp/actions/markTaskAsDone";
+import React from 'react'
+import { useQuery } from '@wasp/queries'
+import { useAction } from '@wasp/actions'
+import getTask from '@wasp/queries/getTask'
+import markTaskAsDone from '@wasp/actions/markTaskAsDone'
 
 const TaskPage = ({ id }) => {
-  const { data: task } = useQuery(getTask, { id });
+  const { data: task } = useQuery(getTask, { id })
   const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
     optimisticUpdates: [
       {
@@ -776,13 +762,13 @@ const TaskPage = ({ id }) => {
         updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
       },
     ],
-  });
+  })
 
   if (!task) {
-    return <h1>"Loading"</h1>;
+    return <h1>"Loading"</h1>
   }
 
-  const { description, isDone } = task;
+  const { description, isDone } = task
   return (
     <div>
       <p>
@@ -791,7 +777,7 @@ const TaskPage = ({ id }) => {
       </p>
       <p>
         <strong>Is done: </strong>
-        {isDone ? "Yes" : "No"}
+        {isDone ? 'Yes' : 'No'}
       </p>
       {isDone || (
         <button onClick={() => markTaskAsDoneOptimistically({ id })}>
@@ -799,10 +785,10 @@ const TaskPage = ({ id }) => {
         </button>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default TaskPage;
+export default TaskPage
 ```
 
 </TabItem>
@@ -810,7 +796,6 @@ export default TaskPage;
 
 ```jsx {2,4,8,12,13,14,15,16,17,18,19,37} title=src/client/pages/Task.js
 import React from "react";
-import { Task } from "@wasp/entities";
 import { useQuery } from "@wasp/queries";
 import { useAction, OptimisticUpdateDefinition } from "@wasp/actions";
 import getTask from "@wasp/queries/getTask";
@@ -871,18 +856,18 @@ If you decide to use _react-query_'s API directly, you will need access to Query
 <TabItem value="js" label="JavaScript">
 
 ```js
-import getTasks from "@wasp/queries/getTasks";
+import getTasks from '@wasp/queries/getTasks'
 
-const queryKey = getTasks.queryCacheKey;
+const queryKey = getTasks.queryCacheKey
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import getTasks from "@wasp/queries/getTasks";
+import getTasks from '@wasp/queries/getTasks'
 
-const queryKey = getTasks.queryCacheKey;
+const queryKey = getTasks.queryCacheKey
 ```
 
 </TabItem>

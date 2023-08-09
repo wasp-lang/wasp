@@ -4,6 +4,7 @@ title: Queries
 
 import { Required } from '@site/src/components/Required';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import SuperjsonNote from './\_superjson-note.md';
 
 We'll explain what Queries are and how to use them. If you're looking for a detailed API specification, skip ahead to the [Options Reference](#options-reference).
 
@@ -103,8 +104,8 @@ Generating these two functions ensures a uniform calling interface across the en
 
 ### Implementing Queries in Node
 
-Now that we've declared the Query, all that's left is implementing it.
-We've told Wasp to look for Queries' implementations in the file `src/server/queries.{js,ts}`, so that's where we should export them from.
+Now that we've declared the Query, what remains is to implement it.
+We've instructed Wasp to look for the Queries' implementations in the file `src/server/queries.{js,ts}`, so that's where we should export them from.
 
 Here's how you might implement the previously declared Queries `getAllTasks` and `getFilteredTasks`:
 
@@ -131,12 +132,7 @@ export const getFilteredTasks = (args) => {
 }
 ```
 
-:::tip
-Wasp uses [superjson](https://github.com/blitz-js/superjson) under the hood.
-This means you're not limited to only sending and receiving JSON payloads.
-
-You can send and receive any superjson-compatible payload (like Dates, Sets, Lists, circular references, etc.) and let Wasp handle the (de)serialization.
-:::
+<SuperjsonNote />
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
@@ -185,14 +181,8 @@ On the other hand, the Query `getFilteredTasks` expects an object of type `{ isD
 
 While annotating the Queries is optional, it's highly recommended. Doing so enables **full-stack type safety**. We'll explore what this means when we discuss calling the Query from the client.
 
-:::tip
-Wasp uses [superjson](https://github.com/blitz-js/superjson) under the hood.
-This means you're not limited to only sending and receiving JSON payloads.
+<SuperjsonNote />
 
-You can send and receive any superjson-compatible payload (like Dates, Sets, Lists, circular references, etc.) and let Wasp handle the (de)serialization.
-
-As long as you're annotating your Queries with the correct automatically generated types, TypeScript ensures your payloads are valid (i.e., Wasp knows how to serialize and deserialize them).
-:::
 </TabItem>
 </Tabs>
 
