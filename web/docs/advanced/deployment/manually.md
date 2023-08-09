@@ -26,52 +26,55 @@ Let's go through each of these steps.
 
 ### 1. Generating Deployable Code
 
-Run `wasp build` to generate deployable code for the whole app in the `.wasp/build/` directory.
+Running the command `wasp build` generates deployable code for the whole app in the `.wasp/build/` directory.
 
 ```
 wasp build
 ```
 
 :::caution PostgreSQL in production
-You will not be able to build the app if you are using SQLite as a database (which is a default database), you will have to [switch to PostgreSQL](#). <!-- TODO: update the link -->
+You won't be able to build the app if you are using SQLite as a database (which is the default database).
+You'll have to [switch to PostgreSQL](#) before deploying to production. <!-- TODO: update the link -->
 :::
 
-### 2. Deploying API Server
+### 2. Deploying the API Server (backend)
 
-In `.wasp/build`, a `Dockerfile` is describing an image for building the server.
+There's a Dockerfile that defines an image for building the server in the `.wasp/build` directory.
 
-To run the server in production, deploy this Docker image to some hosting provider, ensure that environment variables are correctly set, and that is it.
+To run the server in production, deploy this Docker image to a hosting provider and ensure it has access to correct environment variables (this varies depending on the provider).
+All necessary environment variables are listed in the next section.
 
 #### Environment Variables
 
-The server uses the following environment variables, so you need to ensure they are set on your hosting provider:
+Here are the environment variables your server requires to run:
 
 - `PORT`
 
-   The port number at which it will listen for requests, for example: `3001`
+  The server's HTTP port number. This is where the server listens for requests (e.g., `3001`).
 
 - `DATABASE_URL`
 
-   The URL of the Postgres database the app should use, for example:
-   `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`
+  The URL of the Postgres database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
 
 - `WASP_WEB_CLIENT_URL`
 
-   The URL of where the frontend app is running, for example: `https://<app-name>.netlify.app`), which is necessary for CORS
+  The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
+  The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
 
 - `JWT_SECRET`
 
-   You need this if you are using Wasp's `auth` feature. Set it to a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+  You only need this environment variable if you're using Wasp's `auth` features.
+  Set it to a random string at least 32 characters long (you can use an [online generator](https://djecrety.ir/)).
 
 <AddExternalAuthEnvVarsReminder />
 
-### 3. Deploying the Web Client
+### 3. Deploying the Web Client (frontend)
 
 <BuildingTheWebClient />
 
 The command above will build the web client and put it in the `build/` directory in the `web-app` directory.
 
-Since it's just a static client, you can deploy it to any static hosting provider.
+Since the app's frontend is just a bunch of static files, you can deploy it to any static hosting provider.
 
 ### 4. Deploying the Database
 
@@ -90,7 +93,8 @@ We'll cover a few different deployment providers below:
 :::tip We automated this process for you
 If you want to do all of the work below with one command, you can use the [Wasp CLI](/docs/advanced/deployment/cli#flyio).
 
-Wasp CLI deploys the server, the client and sets up a database. It also enables one command redeployment.
+Wasp CLI deploys the server, deploys the client, and sets up a database.
+It also gives you a way to redeploy (update) your app with a single command.
 :::
 
 Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
@@ -123,14 +127,14 @@ Next, run the launch command to set up a new app and create a `fly.toml` file:
 flyctl launch --remote-only
 ```
 
-This will ask a series of questions, including what region to deploy in and if you would like a database.
+This will ask you a series of questions, such as asking you to choose a region and whether you'd like a database.
 
-- Say **yes** to **Would you like to set up a Postgresql database now?**, and select **Development**, and Fly.io will set a `DATABASE_URL` for you.
-- Say **no** to **Would you like to deploy now?**, as well as any additional questions.
-  
-  We still need to set a few environment variables.
+- Say **yes** to **Would you like to set up a Postgresql database now?** and select **Development**. Fly.io will set a `DATABASE_URL` for you.
+- Say **no** to **Would you like to deploy now?** (and to any additional questions).
 
-:::info If the database setup fails
+  We still need to set up several environment variables.
+
+:::info What if the database setup fails?
 If your attempts to initiate a new app fail for whatever reason, then you can run `flyctl apps destroy <app-name>` before trying again.
 
 <details>
