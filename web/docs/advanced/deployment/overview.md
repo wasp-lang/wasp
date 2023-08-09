@@ -5,13 +5,13 @@ title: Overview
 import { DeploymentOptionsGrid } from './DeploymentOptionsGrid.tsx';
 
 Wasp apps are full-stack apps that consist of:
-- a Node.js server
-- a static client
-- and a PostgreSQL database. 
+- A Node.js server.
+- A static client.
+- A PostgreSQL database. 
 
-These parts of a Wasp app can be deployed **anywhere** where you can deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/) and the database on [Neon](https://neon.tech/).
+You can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
 
-To make things more convinent, we offer you one command deployment via the **Wasp CLI**, read more below.
+To make deploying as smooth as possible, Wasp also offers a single-command deployment through the **Wasp CLI**. Read more about deploying through the CLI [here](/docs/advanced/deployment/cli).
 
 <DeploymentOptionsGrid />
 
@@ -22,18 +22,21 @@ By default, Wasp generates a multi-stage Dockerfile.
 This file is used to build and run a Docker image with the Wasp-generated server code.
 It also runs any pending migrations.
 
-If you need to **customize this `Dockerfile`**, you may do so by adding a `Dockerfile` to your project root directory. If present, Wasp will append the contents of this file to the _bottom_ of our default Dockerfile.
+You can **add extra steps to this multi-stage `Dockerfile`** by creating your own `Dockerfile` in the project's root directory.
+If Wasp finds a Dockerfile in the project's root, it appends its contents at the _bottom_ of the default multi-stage Dockerfile.
 
-Since the last definition in a Dockerfile wins, you can override or continue from any existing build stages. You could also choose not to use any of our build stages and have your own custom Dockerfile used as-is.
+Since the last definition in a Dockerfile wins, you can override or continue from any existing build stages.
+You can also choose not to use any of our build stages and have your own custom Dockerfile used as-is.
 
-A few notes are in order:
-- if you override an intermediate build stage, no later build stages will be used unless you reproduce them below
-- the contents of the `Dockerfile` are dynamic, based on the features you use, and may change in future releases as well, so please verify the contents have not changed from time to time
-- be sure to supply an `ENTRYPOINT` in your final build stage or it will not have any effect
+A few things to keep in mind:
+
+- If you override an intermediate build stage, no later build stages will be used unless you reproduce them below.
+- The generated Dockerfile's content is dynamic and depends on which features your app uses. The content can also change in future releases, so please verify it from time to time.
+- Make sure to supply `ENTRYPOINT` in your final build stage. Your changes won't have any effect if you don't.
 
 Read more in the official Docker docs on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/).
 
-To see what your project's (potentially combined) `Dockerfile` will look like, run:
+To see what your project's (potentially combined) Dockerfile will look like, run:
 ```shell
 wasp dockerfile
 ```
