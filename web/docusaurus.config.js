@@ -98,7 +98,7 @@ module.exports = {
             },
             {
               label: "Todo app tutorial",
-              to: "docs/tutorials/todo-app",
+              to: "docs/essentials/create",
             },
             {
               label: "Reference",

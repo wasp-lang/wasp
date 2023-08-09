@@ -619,7 +619,7 @@ psl=}
 The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 :::
 
-See [Google docs](/docs/auth/google) and [GitHub docs](/docs/auth/github) for more details.
+See [Google docs](/docs/auth/social-auth/google) and [GitHub docs](/docs/auth/social-auth/github) for more details.
 
 #### `methods: dict` <Required />
 A dictionary of auth methods enabled for the app.

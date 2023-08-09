@@ -41,4 +41,4 @@ So, we’ve been able to build a full-stack application with a database and exte
 />
 
 
-P.S: now you're familiar with Wasp and can build full-stack apps, horaay! 🎉 How did it go? Was it fun? Drop us a message at our <DiscordLink />. Now it's time to look at [Todo App in Wasp](/docs/tutorials/todo-app) if you haven't already. It will introduce some additional concepts so you'd be able to become a true Wasp overlord! 
+P.S: now you're familiar with Wasp and can build full-stack apps, horaay! 🎉 How did it go? Was it fun? Drop us a message at our <DiscordLink />. Now it's time to look at [Todo App in Wasp](/docs/essentials/create) if you haven't already. It will introduce some additional concepts so you'd be able to become a true Wasp overlord! 

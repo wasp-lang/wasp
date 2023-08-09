@@ -16,12 +16,12 @@ export function AuthMethodsGrid() {
     {
       title: "Google",
       description: "Users sign in with their Google account",
-      linkToDocs: "/docs/auth/google",
+      linkToDocs: "/docs/auth/social-auth/google",
     },
     {
       title: "Github",
       description: "Users sign in with their Github account",
-      linkToDocs: "/docs/auth/github",
+      linkToDocs: "/docs/auth/social-auth/github",
     },
   ];
   return (

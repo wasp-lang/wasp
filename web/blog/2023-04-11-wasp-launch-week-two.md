@@ -92,7 +92,7 @@ It's Saturday, so you get two features for the price of one!
     caption="Adding a custom route handler at /foo/bar endpoint"
 />
 
-Although for typical CRUD you don't have to define an API since Wasp offers a typesafe RPC layer via [operations](/docs/tutorials/todo-app/03-listing-tasks#introducing-operations-queries-and-actions), sometimes you need extra flexibility (e.g. for implementing webhooks). Now you can easily do it, in a typical boilerplate-free Wasp style!
+Although for typical CRUD you don't have to define an API since Wasp offers a typesafe RPC layer via [operations](#), sometimes you need extra flexibility (e.g. for implementing webhooks). Now you can easily do it, in a typical boilerplate-free Wasp style! <!-- TODO: update the link -->
 
 ### Email sending: Wasp + Sendgrid/Mailgun/...
 

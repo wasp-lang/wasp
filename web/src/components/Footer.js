@@ -13,7 +13,7 @@ const docs = [
   },
   {
     text: 'Todo app tutorial',
-    url: '/docs/tutorials/todo-app'
+    url: '/docs/essentials/create'
   },
   {
     text: 'Language reference',
