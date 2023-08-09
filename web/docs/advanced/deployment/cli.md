@@ -13,11 +13,18 @@ Wasp supports automated deployment to the following providers:
 
 ## Fly.io
 
-:::note A Note on Free Tiers 💳
-Fly has [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a fresh account is free), but all plans require you to add your credit card info before proceeding. If you don't, the deployment will fail.
+### Prerequisites
 
-You can add the necessary credit card info on the [account's billing page](https://fly.io/dashboard/personal/billing).
+Fly provides [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a new account is free), but all plans require you to add your credit card information before you can proceed. If you don't, the deployment will fail.
+
+You can add the required credit card information on the [account's billing page](https://fly.io/dashboard/personal/billing).
+
+:::info Fly.io CLI
+You will need the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/) installed on your machine before you can deploy to Fly.io.
 :::
+
+
+### Deploying
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 ```shell
@@ -47,7 +54,7 @@ You can find the list of all available Fly regions [here](https://fly.io/docs/re
 Another way to see the same list is running `flyctl platform regions`.
 
 
-## Options Reference
+## API Reference
 
 ### Setup & Create DB
 

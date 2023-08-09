@@ -1,5 +1,3 @@
-import SlashWarning from './_slash-warning.md'
-
 To build the web app, position yourself in `.wasp/build/web-app` directory:
 
 ```
@@ -13,5 +11,3 @@ npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```
 
 where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
-
-<SlashWarning />

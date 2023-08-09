@@ -5,7 +5,6 @@ title: Deploying Manually
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
 import BuildingTheWebClient from './_building-the-web-client.md'
-import SlashWarning from './_slash-warning.md'
 
 You can deploy a Wasp project by generating the code and then deploying generated code manually. When a Wasp app is generated and built, it consists of three parts:
 - a Node.js server
@@ -70,7 +69,7 @@ The server uses the following environment variables, so you need to ensure they 
 
 <BuildingTheWebClient />
 
-The command above will build the web client (using Vite) and put it in the `build/` directory in the `web-app` directory.
+The command above will build the web client and put it in the `build/` directory in the `web-app` directory.
 
 Since it's just a static client, you can deploy it to any static hosting provider.
 
@@ -315,7 +314,6 @@ Let's deploy our server first:
     npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
     ```
 
-    <SlashWarning />
   3. Next, we want to link this specific frontend directory to our project as well:
   ```shell
   railway link 
