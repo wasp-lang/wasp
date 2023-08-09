@@ -4,6 +4,7 @@ module.exports = {
       type: "category",
       label: "Getting Started",
       collapsed: false,
+      collapsible: false,
       items: [
         "introduction/what-is-wasp",
         "introduction/getting-started",
@@ -14,6 +15,7 @@ module.exports = {
       type: "category",
       label: "Essentials",
       collapsed: false,
+      collapsible: false,
       items: [
         "essentials/create",
         "essentials/project-structure",
@@ -28,6 +30,7 @@ module.exports = {
       type: "category",
       label: "Data Model",
       collapsed: false,
+      collapsible: false,
       items: [
         "database/entities",
         "database/operations",
@@ -39,6 +42,7 @@ module.exports = {
       type: "category",
       label: "Advanced Features",
       collapsed: false,
+      collapsible: false,
       items: [
         "advanced/email",
         "advanced/jobs",
@@ -48,7 +52,7 @@ module.exports = {
         {
           type: "category",
           label: "Deployment",
-          collapsed: false,
+          collapsed: true,
           items: [
             "advanced/deployment/overview",
             "advanced/deployment/cli",
@@ -61,6 +65,7 @@ module.exports = {
       type: "category",
       label: "Authentication",
       collapsed: false,
+      collapsible: false,
       items: [
         "auth/overview",
         "auth/ui",
@@ -82,6 +87,7 @@ module.exports = {
       type: "category",
       label: "Project Setup",
       collapsed: false,
+      collapsible: false,
       items: [
         "project/starter-templates",
         "project/client-config",
@@ -97,6 +103,7 @@ module.exports = {
       type: "category",
       label: "Miscellaneous",
       collapsed: false,
+      collapsible: false,
       items: [
         "contributing",
         "telemetry",
