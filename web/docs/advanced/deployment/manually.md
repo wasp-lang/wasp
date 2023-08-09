@@ -16,11 +16,12 @@ Anywhere where you can deploy Node.js apps or static apps, you can deploy your W
 
 ## Deploying a Wasp App
 
-To deploy a Wasp application:
-1. We need to generate deployable code
-1. Deploy the API server (backend)
-1. Deploy the web client (frontend)
-1. Have a PostgreSQL database running
+Deploying a Wasp app comes down to the following:
+
+1. Generating deployable code.
+1. Deploying the API server (backend).
+1. Deploying the web client (frontend).
+1. Deploying a PostgreSQL database and keeping it running.
 
 Let's go through each of these steps.
 
