@@ -10,6 +10,7 @@ The command automates the manual deployment process and is the recommended way o
 ## Supported Providers
 
 Wasp supports automated deployment to the following providers:
+
 - [Fly.io](#flyio) - they offer 5$ free credit each month
 - Railway (coming soon, track it here [#1157](https://github.com/wasp-lang/wasp/pull/1157))
 
@@ -28,6 +29,7 @@ You will need the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/) i
 ### Deploying
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
+
 ```shell
 wasp deploy fly launch my-wasp-app mia
 ```
@@ -38,6 +40,7 @@ Please do not CTRL-C or exit your terminal while the commands are running.
 </small>
 
 Under the covers, this runs the equivalent of the following commands:
+
 ```shell
 wasp deploy fly setup my-wasp-app mia
 wasp deploy fly create-db mia
@@ -53,9 +56,8 @@ The basename is used to create all three app tiers, resulting in three separate 
 - `my-wasp-app-db`
 
 :::caution Unique Name
-Your app name must be unique across all of Fly or deployment will fail. 
+Your app name must be unique across all of Fly or deployment will fail.
 :::
-
 
 Read more about Fly.io regions [here](#flyio-regions).
 
@@ -64,46 +66,48 @@ Read more about Fly.io regions [here](#flyio-regions).
 Setting up a custom domain is a three-step process:
 
 1. You need to add your domain to your Fly client app. You can do this by running:
-  ```shell
-  wasp deploy fly cmd --context client certs create mycoolapp.com
-  ```
 
-  :::note Use Your Domain
-  Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section.
-  :::
+```shell
+wasp deploy fly cmd --context client certs create mycoolapp.com
+```
 
-  This command will output the instructions to add the DNS records to your domain. It will look something like this:
-  ```shell-session
-  You can direct traffic to mycoolapp.com by:
+:::note Use Your Domain
+Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section.
+:::
 
-  1: Adding an A record to your DNS service which reads
+This command will output the instructions to add the DNS records to your domain. It will look something like this:
 
-      A @ 66.241.1XX.154
+```shell-session
+You can direct traffic to mycoolapp.com by:
 
-  You can validate your ownership of mycoolapp.com by:
+1: Adding an A record to your DNS service which reads
 
-  2: Adding an AAAA record to your DNS service which reads:
+    A @ 66.241.1XX.154
 
-      AAAA @ 2a09:82XX:1::1:ff40
-  ```
+You can validate your ownership of mycoolapp.com by:
 
-  2. You need to add the DNS records for your domain:
-  
+2: Adding an AAAA record to your DNS service which reads:
+
+    AAAA @ 2a09:82XX:1::1:ff40
+```
+
+2. You need to add the DNS records for your domain:
+
+
     _This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command._
 
-  3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
+3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
 
-  ```shell
-  wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
-  ```
+```shell
+wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
 
   <small>
 
-  We need to do this to keep our CORS configuration up to date.
-  </small>
+We need to do this to keep our CORS configuration up to date.
+</small>
 
 That's it, your app should be available at `https://mycoolapp.com`! 🎉
-
 
 ## API Reference
 
@@ -116,12 +120,14 @@ wasp deploy fly launch <app-name> <region>
 ```
 
 It accepts the following arguments:
+
 - `<app-name>` - the name of your app <Required />
 - `<region>` - the region where your app will be deployed <Required />
 
-   Read how to find the available regions [here](#flyio-regions).
+  Read how to find the available regions [here](#flyio-regions).
 
 It gives you the same result as running the following commands:
+
 ```shell
 wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
@@ -145,10 +151,11 @@ wasp deploy fly setup <app-name> <region>
 ```
 
 It accepts the following arguments:
+
 - `<app-name>` - the name of your app <Required />
 - `<region>` - the region where your app will be deployed <Required />
 
-   Read how to find the available regions [here](#flyio-regions).
+  Read how to find the available regions [here](#flyio-regions).
 
 After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
 You should include these files in your version control.
@@ -168,9 +175,10 @@ wasp deploy fly create-db <region>
 ```
 
 It accepts the following arguments:
+
 - `<region>` - the region where your app will be deployed <Required />
 
-   Read how to find the available regions [here](#flyio-regions).
+  Read how to find the available regions [here](#flyio-regions).
 
 :::caution Execute Only Once
 You should only run `create-db` once per app. If you run it multiple times, it will create multiple databases, but your app needs only one.
@@ -185,12 +193,15 @@ wasp deploy fly deploy
 `deploy` pushes your client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
+
 ```shell
 wasp deploy fly deploy
 ```
+
 ### `cmd`
 
 If want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
+
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
@@ -205,6 +216,7 @@ Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
 </small>
 
 You can find the list of all available Fly regions by running:
+
 ```shell
 flyctl platform regions
 ```
@@ -220,6 +232,7 @@ wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...
 ### Mutliple Fly Organizations
 
 If you have multiple organizations, you can specify a `--org` option. For example:
+
 ```shell
 wasp deploy fly launch my-wasp-app mia --org hive
 ```

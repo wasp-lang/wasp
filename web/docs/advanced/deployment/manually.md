@@ -3,10 +3,11 @@ title: Deploying Manually
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import BuildingTheWebClient from './_building-the-web-client.md'
+import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
+import BuildingTheWebClient from './\_building-the-web-client.md'
 
 You can deploy a Wasp project by generating the code and then deploying generated code manually. When a Wasp app is generated and built, it consists of three parts:
+
 - a Node.js server
 - a static client
 - and a PostgreSQL database.
@@ -83,6 +84,7 @@ Any PostgreSQL database will do, as long as you set the `DATABASE_URL` env var c
 ## Different Providers
 
 We'll cover a few different deployment providers below:
+
 - Fly.io (server and database)
 - Netlify (client)
 - Railway (server, client and database)
@@ -109,11 +111,11 @@ Make sure you are logged in with `flyctl` CLI. You can check if you are logged i
 
 ### Set Up a Fly.io App
 
-:::info 
+:::info
 You need to do this only once per Wasp app.
 :::
 
-Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app. 
+Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
 After you have [built the app](#1-generating-deployable-code), position yourself in `.wasp/build/` directory:
 
@@ -191,17 +193,17 @@ flyctl ssh console
 
 ### Redeploying After Wasp Builds
 
-When you rebuild your Wasp app (with `wasp build`), it will remove your `.wasp/build/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments. 
+When you rebuild your Wasp app (with `wasp build`), it will remove your `.wasp/build/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
 
 While we will improve this process in the future, in the meantime, you have a few options:
 
 1. Copy the `fly.toml` file to a versioned directory, like your Wasp project dir.
 
-  From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
+From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
 
 1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after.
 
-  When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
@@ -228,6 +230,7 @@ Carefully follow the instructions i.e. do you want to create a new app or use ex
 </small>
 
 The final step is to run:
+
 ```shell
 netlify deploy --prod`
 ```
@@ -249,9 +252,9 @@ To get started, follow these steps:
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
 2. Create a [Railway](https://railway.app/) account
 
-  :::tip Free Tier
-  Sign up with your GitHub account to be eligible for the free tier
-  :::
+:::tip Free Tier
+Sign up with your GitHub account to be eligible for the free tier
+:::
 
 3. Install the [Railway CLI](https://docs.railway.app/develop/cli#installation)
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -272,7 +275,8 @@ Let's create our Railway project:
 #### Setup Domains
 
 We'll need the domains for both the `server` and `client` services:
-1. Go to the `server` instance's `Settings` tab, and click `Generate Domain`. 
+
+1. Go to the `server` instance's `Settings` tab, and click `Generate Domain`.
 2. Do the same under the `client`'s `Settings`.
 
 Copy the domains as we will need them later.
@@ -281,49 +285,62 @@ Copy the domains as we will need them later.
 
 Let's deploy our server first:
 
-  1. Move into your app's `.wasp/build/` directory:
-  ```shell
-  cd .wasp/build
-  ```
-  2. Link your app build to your newly created Railway project:
-  ```shell
-  railway link
-  ```
-  3. Go into the Railway dashboard and set up the required env variables:
+1. Move into your app's `.wasp/build/` directory:
 
-      Open the `Settings` and go to the `Variables` tab:
-      - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-      - add `WASP_WEB_CLIENT_URL` - enter the the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
-      - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+```shell
+cd .wasp/build
+```
 
-        <AddExternalAuthEnvVarsReminder />  
+2. Link your app build to your newly created Railway project:
 
-  4. Push and deploy the project:
-  ```shell
-  railway up
-  ```
-  Select `server` when prompted with `Select Service`.
+```shell
+railway link
+```
 
-  Railway will now locate the Dockerfile and deploy your server 👍
+3. Go into the Railway dashboard and set up the required env variables:
 
-#### Deploying the Client 
+   Open the `Settings` and go to the `Variables` tab:
 
-  1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
-  ```shell
-  cd web-app
-  ```
-  2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
+   - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
+   - add `WASP_WEB_CLIENT_URL` - enter the the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
+   - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+
+     <AddExternalAuthEnvVarsReminder />
+
+4. Push and deploy the project:
+
+```shell
+railway up
+```
+
+Select `server` when prompted with `Select Service`.
+
+Railway will now locate the Dockerfile and deploy your server 👍
+
+#### Deploying the Client
+
+1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
+
+```shell
+cd web-app
+```
+
+2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
+
 
     ```shell
     npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
     ```
 
-  3. Next, we want to link this specific frontend directory to our project as well:
-  ```shell
-  railway link 
-  ```
-  4. We need to configure Railway's static hosting for our client. 
-  
+3. Next, we want to link this specific frontend directory to our project as well:
+
+```shell
+railway link
+```
+
+4. We need to configure Railway's static hosting for our client.
+
+
     :::info Setting Up Static Hosting
 
     Copy the `build` folder within the `web-app` directory to `dist`:
@@ -344,7 +361,7 @@ Let's deploy our server first:
         ```bash title=".dockerignore"
         node_modules/
         ```
-    
+
     You'll need to repeat these steps **each time** you run `wasp build` as it will remove the `.wasp/build/web-app` directory.
 
     <details>
@@ -401,12 +418,13 @@ Let's deploy our server first:
     </details>
     :::
 
-  4. Set the `PORT` environment variable to `8043` under the `Variables` tab.
+4. Set the `PORT` environment variable to `8043` under the `Variables` tab.
 
-  5. Deploy the client and select `client` when prompted with `Select Service`:
-  ```shell
-  railway up
-  ```
+5. Deploy the client and select `client` when prompted with `Select Service`:
+
+```shell
+railway up
+```
 
 #### Conclusion
 
@@ -415,7 +433,9 @@ And now your Wasp should be deployed! 🐝 🚂 🚀
 Back in your [Railway dashboard](https://railway.app/dashboard), click on your project and you should see your newly deployed services: Postgres, Server, and Client.
 
 ### Updates & Redeploying
+
 When you make updates and need to redeploy:
+
 - run `wasp build` to rebuild your app
 - run `railway up` in the `.wasp/build` directory (server)
 - repeat all the steps in the `.wasp/build/web-app` directory (client)
@@ -434,7 +454,7 @@ Make sure you are logged in with `heroku` CLI. You can check if you are logged i
 
 ### Set Up a Heroku App
 
-:::info 
+:::info
 You need to do this only once per Wasp app.
 :::
 
@@ -449,6 +469,7 @@ Unless you have external Postgres database that you want to use, let's create ne
 ```
 heroku addons:create --app <app-name> heroku-postgresql:mini
 ```
+
 :::caution
 Heroku does not offer a free plan anymore and `mini` is their cheapest database instance - it costs $5/mo.
 :::
@@ -512,6 +533,7 @@ heroku container:release --app <app-name> web
 This is it, the backend is deployed at `https://<app-name>-XXXX.herokuapp.com` 🎉
 
 Find out the exact app URL with:
+
 ```shell
 heroku info --app <app-name>
 ```
