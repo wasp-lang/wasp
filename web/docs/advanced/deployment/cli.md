@@ -63,7 +63,7 @@ If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path
 
 After the setup, we run `deploy` which will push your client and server live.
 
-We run this single command each time you want to **update your app**.  So, to update your app with the latest changes, you run:
+Run this command whenever you want to **update your deployed app** with the latest changes:
 ```shell
 wasp deploy fly deploy
 ```
@@ -71,12 +71,12 @@ wasp deploy fly deploy
 :::note
 Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
 
-If you wish to build locally, you may supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
+If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
 :::
 
 ###  Environment Variables
 
-If you are deploying an app that requires any other environment variables (like social auth secrets), you will want to set your environment variables up like so:
+If you are deploying an app that requires any other environment variables (like social auth secrets), here's how to set them up:
 
 - During `launch`:
   ```
@@ -90,12 +90,12 @@ If you are deploying an app that requires any other environment variables (like 
 
 ### Running Fly Commands
 
-If you would like to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), you can run them like so:
+If want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
 
 ### Mutliple Fly Organizations
 
-If you have multiple orgs, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
+If you have multiple organizations, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
 

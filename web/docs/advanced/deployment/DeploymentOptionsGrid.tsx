@@ -26,7 +26,7 @@ export function DeploymentOptionsGrid() {
         ))}
       </div>
       <p className="deployment-methods-info">
-        <small>Click on the deployment method to see more details about it.</small>
+        <small>Click on each deployment method for more details.</small>
       </p>
     </>
   );

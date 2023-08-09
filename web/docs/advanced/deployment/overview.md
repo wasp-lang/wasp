@@ -15,10 +15,12 @@ To make things more convinent, we offer you one command deployment via the **Was
 
 <DeploymentOptionsGrid />
 
-Regardless of which type of deployment you go for (by hand or using the Wasp CLI), there are some common patterns we cover below.
+Regardless of how you choose to deploy your app (i.e., manually or using the Wasp CLI), you'll need to know about some common patterns covered below.
 
 ## Customizing the Dockerfile
-By default, Wasp will generate a multi-stage Dockerfile that is capable of building an image with your Wasp-generated server code and running it, along with any pending migrations.
+By default, Wasp generates a multi-stage Dockerfile.
+This file is used to build and run a Docker image with the Wasp-generated server code.
+It also runs any pending migrations.
 
 If you need to **customize this `Dockerfile`**, you may do so by adding a `Dockerfile` to your project root directory. If present, Wasp will append the contents of this file to the _bottom_ of our default Dockerfile.
 
@@ -36,4 +38,4 @@ To see what your project's (potentially combined) `Dockerfile` will look like, r
 wasp dockerfile
 ```
 
-Join our [Discord](https://discord.gg/rzdnErX) if you have any questions, or if the customization hook provided here is not sufficient for your needs.
+Join our [Discord](https://discord.gg/rzdnErX) if you have any questions, or if you need more customization than this hook provides.
