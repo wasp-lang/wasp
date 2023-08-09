@@ -1,7 +1,7 @@
 ---
 title: 'Build a real-time voting app with WebSockets, React & TypeScript 🔌⚡️'
 authors: [vinny]
-image: /img/websockets-app/websockets-resized.png
+image: /img/websockets-app/websockets-banner.png
 tags: [wasp, websockets, react, typescript, real-time, node, express]
 ---
 import Link from '@docusaurus/Link';
