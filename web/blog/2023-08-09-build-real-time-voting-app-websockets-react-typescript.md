@@ -1,8 +1,8 @@
 ---
-title: 'Build a real-time voting app with React, WebSockets, & TypeScript 🔌⚡️'
+title: 'Build a real-time voting app with WebSockets, React & TypeScript 🔌⚡️'
 authors: [vinny]
 image: /img/websockets-app/websockets-resized.png
-tags: [wasp, ai, gpt, langchain, fullstack, node, react, agent]
+tags: [wasp, websockets, react, typescript, real-time, node, express]
 ---
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
