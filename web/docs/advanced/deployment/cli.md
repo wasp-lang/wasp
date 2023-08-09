@@ -2,7 +2,8 @@
 title: Deploying with the Wasp CLI
 ---
 
-Wasp CLI supports deploying your full-stack application with a single command. It automates the process a regular user would need to do manually and is the recommended way of deploying Wasp apps.
+Wasp CLI can deploy your full-stack application with only a single command.
+The command automates the manual deployment process and is the recommended way of deploying Wasp apps.
 
 ## Supported Providers
 
@@ -15,7 +16,7 @@ Wasp supports automated deployment to the following providers:
 :::note A Note on Free Tiers 💳
 Fly has [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a fresh account is free), but all plans require you to add your credit card info before proceeding. If you don't, the deployment will fail.
 
-To do so, go to your [account's billing page](https://fly.io/dashboard/personal/billing).
+You can add the necessary credit card info on the [account's billing page](https://fly.io/dashboard/personal/billing).
 :::
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
@@ -30,19 +31,20 @@ wasp deploy fly create-db mia
 wasp deploy fly deploy
 ```
 
-In the above commands, we used an app basename of `my-wasp-app` and deployed it to the Miami, Florida (US) region (called `mia`).
+The commands above use the app basename `my-wasp-app` and deploy it to the _Miami, Florida (US) region_ (called `mia`).
 
-The basename is used to create all three app tiers, so you will have three components in your Fly dashboard:
+The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
 :::caution Unique Name
-Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal as these commands run.
+Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal while the commands are running.
 :::
 
-The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/). You can also run `flyctl platform regions`.
+You can find the list of all available Fly regions [here](https://fly.io/docs/reference/regions/).
+Another way to see the same list is running `flyctl platform regions`.
 
 
 ## Options Reference
