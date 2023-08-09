@@ -137,7 +137,7 @@ This will ask you a series of questions, such as asking you to choose a region a
   We still need to set up several environment variables.
 
 :::info What if the database setup fails?
-If your attempts to initiate a new app fail for whatever reason, then you can run `flyctl apps destroy <app-name>` before trying again.
+If your attempts to initiate a new app fail for whatever reason, then you should run `flyctl apps destroy <app-name>` before trying again. Fly does not allow you to create multiple apps with the same name.
 
 <details>
   <summary>
