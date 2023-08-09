@@ -2,6 +2,8 @@
 title: Deploying with the Wasp CLI
 ---
 
+import { Required } from '@site/src/components/Required';
+
 Wasp CLI can deploy your full-stack application with only a single command.
 The command automates the manual deployment process and is the recommended way of deploying Wasp apps.
 
@@ -30,6 +32,11 @@ Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) 
 wasp deploy fly launch my-wasp-app mia
 ```
 
+<small>
+
+Please do not CTRL-C or exit your terminal while the commands are running.
+</small>
+
 Under the covers, this runs the equivalent of the following commands:
 ```shell
 wasp deploy fly setup my-wasp-app mia
@@ -46,13 +53,13 @@ The basename is used to create all three app tiers, resulting in three separate 
 - `my-wasp-app-db`
 
 :::caution Unique Name
-Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal while the commands are running.
+Your app name must be unique across all of Fly or deployment will fail. 
 :::
 
-You can find the list of all available Fly regions [here](https://fly.io/docs/reference/regions/).
-Another way to see the same list is running `flyctl platform regions`.
 
-### Using a custom domain for your app
+Read more about Fly.io regions [here](#flyio-regions).
+
+### Using a Custom Domain For Your App
 
 Setting up a custom domain is a three-step process:
 
@@ -100,56 +107,125 @@ That's it, your app should be available at `https://mycoolapp.com`! 🎉
 
 ## API Reference
 
-### Setup & Create DB
+### `launch`
 
-`setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them. We need a database first, which we create with `create-db`, and it is automatically linked to your server.
+`launch` is a convenience command that runs `setup`, `create-db`, and `deploy` in sequence.
 
-:::note
-The `setup` and `create-db` should only be executed once.
-:::
+```shell
+wasp deploy fly launch <app-name> <region>
+```
+
+It accepts the following arguments:
+- `<app-name>` - the name of your app <Required />
+- `<region>` - the region where your app will be deployed <Required />
+
+   Read how to find the available regions [here](#flyio-regions).
+
+It gives you the same result as running the following commands:
+```shell
+wasp deploy fly setup <app-name> <region>
+wasp deploy fly create-db <region>
+wasp deploy fly deploy
+```
+
+#### Environment Variables
+
+If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
+
+```
+wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+### `setup`
+
+`setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them.
+
+```shell
+wasp deploy fly setup <app-name> <region>
+```
+
+It accepts the following arguments:
+- `<app-name>` - the name of your app <Required />
+- `<region>` - the region where your app will be deployed <Required />
+
+   Read how to find the available regions [here](#flyio-regions).
 
 After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
 You should include these files in your version control.
 
 If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 
-### Deploy
+:::caution Execute Only Once
+You should only run `setup` once per app. If you run it multiple times, it will create unnecessary apps on Fly.
+:::
 
-After the setup, we run `deploy` which will push your client and server live.
+### `create-db`
+
+`create-db` will create a new database for your app.
+
+```shell
+wasp deploy fly create-db <region>
+```
+
+It accepts the following arguments:
+- `<region>` - the region where your app will be deployed <Required />
+
+   Read how to find the available regions [here](#flyio-regions).
+
+:::caution Execute Only Once
+You should only run `create-db` once per app. If you run it multiple times, it will create multiple databases, but your app needs only one.
+:::
+
+### `deploy`
+
+```shell
+wasp deploy fly deploy
+```
+
+`deploy` pushes your client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 ```shell
 wasp deploy fly deploy
 ```
-
-:::note
-Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
-
-If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
-:::
-
-###  Environment Variables
-
-If you are deploying an app that requires any other environment variables (like social auth secrets), here's how to set them up:
-
-- During `launch`:
-  ```
-  wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
-  ```
-
-- After `launch`/`setup`:
-  ```
-  wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
-  ```
-
-### Running Fly Commands
+### `cmd`
 
 If want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
 
+### Fly.io Regions
+
+> Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
+
+<small>
+
+Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+</small>
+
+You can find the list of all available Fly regions by running:
+```shell
+flyctl platform regions
+```
+
+#### Environment Variables
+
+If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `secrets set` command:
+
+```
+wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+```
+
 ### Mutliple Fly Organizations
 
-If you have multiple organizations, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
+If you have multiple organizations, you can specify a `--org` option. For example:
+```shell
+wasp deploy fly launch my-wasp-app mia --org hive
+```
 
+### Building Locally
+
+Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
+
+If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
