@@ -62,7 +62,7 @@ The generated apps are full-stack and consist of front-end, back-end and databas
 
 This app does exactly what it says - makes sure that you water your plants on time! It comes with a fully functioning front-end, back-end and the database with `User` and `Plant` entities. It also features a [full-stack authentication](/blog/2023/04/12/auth-ui) (username & password) and a Tailwind-based design.
 
-The next step would be to add more advanced features, such as email reminders (via [Wasp email sending support](/docs/guides/sending-emails)) when it is time to water your plant.
+The next step would be to add more advanced features, such as email reminders (via [Wasp email sending support](/docs/advanced/email)) when it is time to water your plant.
 
 You can see and download the [entire source code](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c) and add more features and deploy the app yourself!
 

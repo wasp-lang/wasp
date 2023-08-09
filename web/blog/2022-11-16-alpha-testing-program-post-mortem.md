@@ -116,7 +116,7 @@ We were already aware that TypeScript support is an important feature, but didn�
 
 **The good parts**
 
-Testers’ favourite part was the batteries-included experience, particularly the [auth model](/docs/tutorials/todo-app/06-auth).
+Testers’ favourite part was the batteries-included experience, particularly the [auth model](/docs/essentials/auth).
 
 <ImgWithCaption
     alt="Feedback survey - the good parts"

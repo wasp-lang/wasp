@@ -129,7 +129,7 @@ page EmailVerificationPage {
 
 ### Email sender
 
-We'll use SendGrid in this guide to send our e-mails. You can use any of the supported email providers. Read more about setting up the email sender in the [email sender setup guide](/docs/guides/sending-emails).
+We'll use SendGrid in this guide to send our e-mails. You can use any of the supported email providers. Read more about setting up the email sender in the [email sender setup guide](/docs/advanced/email).
 
 To set up SendGrid to send emails, we will add the following to our `main.wasp` file:
 

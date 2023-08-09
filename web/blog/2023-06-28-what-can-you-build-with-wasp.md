@@ -37,7 +37,7 @@ If you're looking for a quick way to start your project, check out our [Ultimate
 
 **Source code**: https://github.com/vincanger/coverlettergpt
 
-**Wasp features used**: [Social login with Google + auth UI](/blog/2023/04/12/auth-ui), [email sending](http://localhost:3002/docs/guides/sending-emails)
+**Wasp features used**: [Social login with Google + auth UI](/blog/2023/04/12/auth-ui), [email sending](/docs/advanced/email)
 
 **UI Framework**: [Chakra UI](https://chakra-ui.com/)
 
@@ -55,7 +55,7 @@ Try it out and have fun or use it as an inspiration for your next project!
 
 **Try it out**: [amicus.work](https://www.amicus.work/)
 
-**Wasp features used**: [Authentication](https://wasp-lang.dev/docs/language/features#authentication--authorization), [email sending](http://localhost:3002/docs/guides/sending-emails), [async/cron jobs](https://wasp-lang.dev/docs/language/features#jobs)
+**Wasp features used**: [Authentication](https://wasp-lang.dev/docs/language/features#authentication--authorization), [email sending](/docs/advanced/email), [async/cron jobs](https://wasp-lang.dev/docs/language/features#jobs)
 
 **UI Framework**: [Material UI](https://mui.com/)
 

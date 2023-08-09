@@ -25,7 +25,7 @@ const VideoAndTutorial = () => {
             </div>
           </div>
 
-          <Link to='/docs/tutorials/todo-app'>
+          <Link to='/docs/essentials/create'>
             <div
               className={`
                 text-neutral-500 text-md

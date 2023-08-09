@@ -69,7 +69,7 @@ Ok, we’ve successfully set up a shared dev environment. It’s time to create 
 
 The ideal case would be to:<br/>
 1) Check out the language overview: https://wasp-lang.dev/docs/language/overview <br/>
-2) Follow a 20-minutes tutorial on how to build a To-Do app with Wasp: https://wasp-lang.dev/docs/tutorials/todo-app <br/>
+2) Follow a 20-minutes tutorial on how to build a To-Do app with Wasp: https://wasp-lang.dev/docs/essentials/create <br/>
 
 It may seem a bit inconvenient: why spend time on learning, when you already can start building something meaningful? The short answer is: time-saving. Wasp’s main point is to set you free from building time-consuming boilerplate. So even if you’ll spend half of an hour learning the basics –  you’ll still be able to outrun other hackathon participants. While they will be copy-pasting CRUD API methods – you’ll be building business logic.
 

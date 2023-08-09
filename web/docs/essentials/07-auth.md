@@ -38,7 +38,7 @@ wasp db migrate-dev
 
 ## Adding Auth to the Project
 
-Next, we want to tell Wasp that we want to use full-stack [authentication](/docs/auth/using-auth) in our app:
+Next, we want to tell Wasp that we want to use full-stack [authentication](/docs/auth/overview) in our app:
 
 ```wasp {7-16} title="main.wasp"
 app TodoApp {

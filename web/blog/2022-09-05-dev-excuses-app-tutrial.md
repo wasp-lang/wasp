@@ -137,7 +137,7 @@ We’ve added Tailwind to make our UI more pretty and Axios for making API reque
 
 Also, we’ve declared a database entity called `Excuse`, queries, and action. The `Excuse` entity consists of the entity’s ID and the text. 
 
-`Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs](https://wasp-lang.dev/docs/tutorials/todo-app/listing-tasks#introducing-operations-queries-and-actions). So let’s proceed with queries/actions. 
+`Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs](#). So let’s proceed with queries/actions. <!-- TODO: update the link -->
 
 
 **2) Create two files: “actions.js” and “queries.js” in the `src/server` folder.**
