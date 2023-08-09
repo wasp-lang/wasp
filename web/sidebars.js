@@ -45,7 +45,16 @@ module.exports = {
         "advanced/web-sockets",
         "advanced/apis",
         "advanced/middleware-config",
-        "advanced/deployment"
+        {
+          type: "category",
+          label: "Deployment",
+          collapsed: false,
+          items: [
+            "advanced/deployment/overview",
+            "advanced/deployment/cli",
+            "advanced/deployment/manually",
+          ]
+        },
       ]
     },
     {
