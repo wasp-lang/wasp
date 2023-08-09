@@ -57,7 +57,8 @@ Another way to see the same list is running `flyctl platform regions`.
 The `setup` and `create-db` should only be executed once.
 :::
 
-You may notice after running `setup` you have a `fly-server.toml` and `fly-client.toml` in your Wasp project directory. Those are meant to be version controlled.
+After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
+You should include these files in your version control.
 
 If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 
