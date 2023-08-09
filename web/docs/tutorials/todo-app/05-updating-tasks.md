@@ -67,11 +67,11 @@ Let's now define the Action's JavaScript implementation in `src/server/actions.t
 ```js title="src/server/actions.js"
 // ...
 
-export const updateTask = async ({ id, isDone }, context) => {
+export const updateTask = async (args, context) => {
   return context.entities.Task.update({
-    where: { id  },
+    where: { args.id },
     data: {
-      isDone: isDone,
+      isDone: args.isDone,
     },
   })
 }
@@ -89,13 +89,13 @@ import { CreateTask, UpdateTask } from "@wasp/actions/types"
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">
 
 export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
-  { id, isDone },
+  args,
   context
 ) => {
   return context.entities.Task.update({
-    where: { id  },
+    where: { args.id },
     data: {
-      isDone: isDone,
+      isDone: args.isDone,
     },
   })
 }
