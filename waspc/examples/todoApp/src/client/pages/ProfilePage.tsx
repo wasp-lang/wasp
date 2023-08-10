@@ -56,10 +56,17 @@ export const ProfilePage = ({
         <strong>{isEmailVerified ? 'verfied' : 'unverified'}</strong>.
       </div>
       <br />
-      <Link to="/task/:id" params={{ id: 1 }}>
-        Task 1
+      <Link to="/task/:id" params={{ id: 3 }}>
+        Task 3
       </Link>
-      <p>Route is {routes.TaskRoute({ id: 1 })}</p>
+      <p>
+        Route is{' '}
+        {routes.TaskRoute({
+          params: { id: 5 },
+          search: { google: 'true' },
+          hash: 'Miho',
+        })}
+      </p>
       <div>
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-4 place-items-center">
