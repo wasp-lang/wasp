@@ -69,7 +69,7 @@ const HowItWorks = () => {
 
               <Feature
                 title="Wasp CLI"
-                url="/docs/cli"
+                url="/docs/general/cli"
                 description="All the handy commands at your fingertips."
               />
 
