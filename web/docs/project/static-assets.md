@@ -2,9 +2,11 @@
 title: Static Asset Handling
 ---
 
+import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
+
 ## Importing Asset as URL
 
-Importing a static asset will return the resolved public URL when it is served:
+Importing a static asset (e.g. an image) will return its URL. For example:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -61,6 +63,6 @@ For example, if you have a file `favicon.ico` in the `public` directory, and you
 :::info Usage in client code
 Note that:
 
-- You should always reference public assets using root absolute path - for example, `public/icon.png` should be referenced in source code as `/icon.png`.
-- Assets in public **cannot be imported** from JavaScript.
+- You should always reference public assets using root absolute path - for example, `src/client/public/icon.png` should be referenced in source code as `/icon.png`.
+- Assets in the `public` directory **cannot be imported** from <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowForTs>.
 :::
