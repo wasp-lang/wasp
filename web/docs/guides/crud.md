@@ -220,7 +220,7 @@ export const MainPage = () => {
 }
 ```
 
-And here are the login and signup pages, where we are using Wasp's [Auth UI](/docs/guides/auth-ui) components:
+And here are the login and signup pages, where we are using Wasp's [Auth UI](/docs/auth/ui) components:
 
 ```jsx title="src/client/LoginPage.jsx"
 import { LoginForm } from '@wasp/auth/forms/Login'

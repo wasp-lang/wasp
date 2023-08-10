@@ -5,7 +5,7 @@ title: Querying the Database
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
-We want to know which tasks we need to do, so let's list them! The primary way of interacting with entities in Wasp is by using [queries and actions](/docs/database/operations), collectively known as _operations_.
+We want to know which tasks we need to do, so let's list them! The primary way of interacting with entities in Wasp is by using [queries and actions](/docs/database/operations/overview), collectively known as _operations_.
 
 Queries are used to read an entity, while actions are used to create, modify, and delete entities. Since we want to list the tasks, we'll want to use a query.
 

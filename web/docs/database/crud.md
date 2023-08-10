@@ -328,7 +328,7 @@ export const MainPage = () => {
 </TabItem>
 </Tabs>
 
-And here are the login and signup pages, where we are using Wasp's [Auth UI](/docs/auth/ui.ed) components:
+And here are the login and signup pages, where we are using Wasp's [Auth UI](/docs/auth/ui) components:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -742,7 +742,7 @@ const deleteAction = Tasks.delete.useAction()
 </TabItem>
 </Tabs>
 
-All CRUD operations are implemented with [Queries and Actions](/docs/database/operations) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
+All CRUD operations are implemented with [Queries and Actions](/docs/database/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
 
 ---
 

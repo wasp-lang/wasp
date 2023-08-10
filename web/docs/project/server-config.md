@@ -86,7 +86,7 @@ function addCustomRoute(app: Application) {
 
 ### Storing Some Values for Later Use
 
-In case you want to store some values for later use, or to be accessed by the [Operations](/docs/database/operations) you do that in the `setupFn` function.
+In case you want to store some values for later use, or to be accessed by the [Operations](/docs/database/operations/overview) you do that in the `setupFn` function.
 
 Dummy example of such function and its usage:
 
