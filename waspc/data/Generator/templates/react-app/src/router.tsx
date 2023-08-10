@@ -17,27 +17,6 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 {=/ isExternalAuthEnabled =}
 
-type Routes = 
-  {=# routes =}
-| {to: "{= urlPath =}", params{=^ urlParams =}?{=/ urlParams =}: {{=# urlParams =} {= . =}: string | number;{=/ urlParams =} }}
-  {=/ routes =}
-| never
-
-type RouterLinkProps = Parameters<typeof RouterLink>[0]
-
-export function Link({ to, params, children, ...restOfProps }: RouterLinkProps & Routes) {
-  const toWithParams = useMemo(() => {
-    return to.split('/').map((part) => {
-      if (part.startsWith(':')) {
-        const paramName = part.slice(1)
-        return params[paramName]
-      }
-      return part
-    }).join('/')
-  }, [to, params])
-  return <RouterLink to={toWithParams} {...restOfProps}>{children}</RouterLink>
-}
-
 const router = (
   <Router>
     {=# rootComponent.isDefined =}
@@ -64,3 +43,6 @@ const router = (
 )
 
 export default router
+
+export { Link } from './router/Link'
+export { routes } from './router/routes'

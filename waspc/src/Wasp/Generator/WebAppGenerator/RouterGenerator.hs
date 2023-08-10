@@ -51,7 +51,8 @@ instance ToJSON RouterTemplateData where
       ]
 
 data RouteTemplateData = RouteTemplateData
-  { _urlPath :: !String,
+  { _routeName :: !String,
+    _urlPath :: !String,
     _urlParams :: ![String],
     _targetComponent :: !String
   }
@@ -59,8 +60,10 @@ data RouteTemplateData = RouteTemplateData
 instance ToJSON RouteTemplateData where
   toJSON routeTD =
     object
-      [ "urlPath" .= _urlPath routeTD,
+      [ "name" .= _routeName routeTD,
+        "urlPath" .= _urlPath routeTD,
         "urlParams" .= _urlParams routeTD,
+        "hasUrlParams" .= (not . null $ _urlParams routeTD),
         "targetComponent" .= _targetComponent routeTD
       ]
 
@@ -90,8 +93,17 @@ instance ToJSON ExternalAuthProviderTemplateData where
         "authProviderEnabled" .= _authProviderEnabled externalProviderTD
       ]
 
-genRouter :: AppSpec -> Generator FileDraft
-genRouter spec = do
+genRouter :: AppSpec -> Generator [FileDraft]
+genRouter spec = sequence [
+      genRouterTsx spec,
+      genRoutesHelpers spec,
+      genFileCopy [relfile|src/router/Link.tsx|]
+  ]
+  where
+    genFileCopy = return . C.mkTmplFd
+
+genRouterTsx :: AppSpec -> Generator FileDraft
+genRouterTsx spec = do
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile $ [reldir|src|] </> routerPath)
@@ -99,6 +111,18 @@ genRouter spec = do
       (Just $ toJSON templateData)
   where
     routerPath = [relfile|router.tsx|]
+    templateData = createRouterTemplateData spec
+    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
+
+genRoutesHelpers :: AppSpec -> Generator FileDraft
+genRoutesHelpers spec = do
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile $ [reldir|src|] </> routerPath)
+      targetPath
+      (Just $ toJSON templateData)
+  where
+    routerPath = [relfile|router/routes.ts|]
     templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
@@ -136,9 +160,10 @@ createExternalAuthProviderTemplateData maybeAuth (method, provider) =
     }
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
-createRouteTemplateData spec namedRoute@(_, route) =
+createRouteTemplateData spec namedRoute@(name, route) =
   RouteTemplateData
-    { _urlPath = path,
+    { _routeName = name,
+      _urlPath = path,
       _urlParams = extractUrlParams path,
       _targetComponent = determineRouteTargetComponent spec namedRoute
     }
