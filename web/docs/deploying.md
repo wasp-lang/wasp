@@ -1,9 +1,10 @@
 ---
 title: Deploying
 ---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
+import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
 
 :::info
 Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly a bit bigger changes in the future.
@@ -13,11 +14,13 @@ If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzd
 ## Deploying with the Wasp CLI
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
+
 ```shell
 wasp deploy fly launch my-wasp-app mia
 ```
 
 Under the covers, this runs the equivalent of the following commands:
+
 ```shell
 wasp deploy fly setup my-wasp-app mia
 wasp deploy fly create-db mia
@@ -45,6 +48,7 @@ The list of available Fly regions can be found [here](https://fly.io/docs/refere
 ### Using a custom domain for your app
 
 Setting up a custom domain for your app is easy. First, you need to add your domain to Fly. You can do this by running:
+
 ```shell
 wasp deploy fly cmd --context client certs create mycoolapp.com
 ```
@@ -54,6 +58,7 @@ Make sure to replace `mycoolapp.com` with your domain in all of the commands men
 :::
 
 This command will output the instructions to add the DNS records to your domain. It will look something like this:
+
 ```shell-session
 You can direct traffic to mycoolapp.com by:
 
@@ -70,9 +75,10 @@ You can validate your ownership of mycoolapp.com by:
 
 Next, you need to add the DNS records for your domain. This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command.
 
-Finally, you need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app.  We need to do this to keep our CORS configuration up to date.
+Finally, you need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app. We need to do this to keep our CORS configuration up to date.
 
 You can do this by running:
+
 ```shell
 wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
@@ -100,6 +106,7 @@ Fly.io offers support for both locally built Docker containers and remotely buil
 #### Setting secrets
 
 If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:
+
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
@@ -108,14 +115,17 @@ wasp deploy fly cmd secrets list --context server
 If you are deploying an app that requires any other environment variables (like social auth secrets), you will want to set your environment variables up like so:
 
 During `launch`:
+
 ```
 wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
 After `launch`/`setup`:
+
 ```
 wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
 ```
+
 :::
 
 #### Multiple orgs
@@ -133,7 +143,9 @@ If you want to deploy your App completely **free** of charge, continue reading b
 If you prefer to host client and server on **one platform**, and don't mind paying a very small fee for extra features, we suggest following the guide on using [Railway as your provider](#deploying-to-railway-freemium-all-in-one-solution).
 
 ### Generating deployable code
+
 The following command generates deployable code for the whole app in the `.wasp/build/` directory:
+
 ```
 wasp build
 ```
@@ -147,7 +159,6 @@ You will not be able to build the app if you are using SQLite as a database (whi
 :::note
 Since Wasp's API server is a Node.js app, it can be deployed anywhere where Node.js apps can be deployed. Below, we provide instructions for deploying to a few hosting providers.
 :::
-
 
 In `.wasp/build/`, there is a `Dockerfile` describing an image for building the server.
 
@@ -287,6 +298,7 @@ Unless you have external Postgres database that you want to use, let's create ne
 ```
 heroku addons:create --app <app-name> heroku-postgresql:mini
 ```
+
 :::caution
 
 Heroku does not offer a free plan anymore and `mini` is their cheapest database instance - it costs $5/mo.
@@ -365,7 +377,7 @@ heroku logs --tail --app <app-name>
 If you wish to deploy an app leveraging Jobs that use pg-boss as the executor to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
 
 - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
-:::
+  :::
 
 ## Deploying web client (frontend)
 
@@ -382,9 +394,10 @@ Run
 ```
 npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```
+
 :::info NO SLASH
 Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
-✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
+✅ https://backend.example.com <br/>❌ https://backend.example.com/
 :::
 
 where <url_to_wasp_backend> is url of the wasp backend that you previously deployed, e.g. `https://wasp-test.fly.dev`.
@@ -416,9 +429,9 @@ NOTE: Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variab
 Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app -- database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/plans) for more info.
 
 :::caution ✋
-  Due to Railway's current proxy configuration, client-side routing will not work correctly without some additional configuration, which is described in the toggle below. 
-  
-  If you prefer NOT to configure your client for Railway, another option is to deploy only your back-end there, while deploying your client to a seperate service such as [Netlify](#deploying-to-netlify)
+Due to Railway's current proxy configuration, client-side routing will not work correctly without some additional configuration, which is described in the toggle below.
+
+If you prefer NOT to configure your client for Railway, another option is to deploy only your back-end there, while deploying your client to a seperate service such as [Netlify](#deploying-to-netlify)
 
   <details>
     <summary>
@@ -430,6 +443,7 @@ Railway is a simple and great way to host your server and database. It's also po
 2. Go to `/.wasp/build/web-app` and create 2 files:
 
 - Dockerfile: simply create a file named `Dockerfile` with the contents below (note, it's important to use `FROM nginx:1.19.10-alpine`, as using anything other than this version may throw a lot of exceptions on the server):
+
 ```dockerfile
 FROM node:18-alpine AS builder
 
@@ -470,12 +484,16 @@ EXPOSE 3000
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 ```
+
 - Create a file calle `.dockerignore` with the following contents:
+
 ```
 node_modules
 ```
+
 3. Create a new directory `/.nginx` inside the `web-app` dir.
 4. Create a file `nginx.conf` inside the `/.nginx` dir with the following contents:
+
 ```
 server {
    listen       8080;
@@ -488,8 +506,10 @@ server {
    }
 }
 ```
+
 5. Make sure that the `client` service in Railway, which you will set up below, has env variable `PORT` set to `8080` (see the [Add Enviornment Variables](/docs/deploying#add-environment-variables) section below for more info).
 6. Optionally, you may need to disable `tsc` in the `/.wasp/build/web-app/package.json` file if Docker fails on deploy due to typing issues:
+
 ```
 	"scripts": {
 		"start": "npm run validate-env && vite",
@@ -497,6 +517,7 @@ server {
 		"validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
 	},
 ```
+
 7. Then continue to follow the instructions below to deploy your app to Railway.
 
 </div>
@@ -507,10 +528,12 @@ To get started, follow these steps:
 
 1. [Generate deployable code](#generating-deployable-code) (`wasp build`)
 2. Sign up at [Railway.app](https://railway.app) (Tip! Sign up with your GitHub account to be elligble for the free tier)
-3. Before creating a new project, install the [Railway CLI](#https://docs.railway.app/develop/cli#install) by running the following command in your terminal:
-  ```shell
-  curl -fsSL https://railway.app/install.sh | sh
-  ```
+3. Before creating a new project, install the [Railway CLI](https://docs.railway.app/develop/cli#install) by running the following command in your terminal:
+
+```shell
+curl -fsSL https://railway.app/install.sh | sh
+```
+
 4. While still in the terminal, run `railway login` and a browser tab will open to authenticate you.
 
 #### Create New Project
@@ -535,68 +558,85 @@ Go ahead and create another empty service and name it (e.g. `client`).
 
 Now go back to your terminal and execute the following commands:
 
-  1. Move into your app's `.wasp/build/` directory, which was created when you ran `wasp build` previously:
-  ```shell
-  cd .wasp/build
-  ```
-  2. "Link" your app build to your newly created Railway project:
-  ```shell
-  railway link
-  ```
-  3. Push and deploy the project to railway (make sure you're in `.wasp/build`):
-  ```shell
-  railway up
-  ```
-  Select `server` when prompted with `Select Service`. Press enter.
-  Railway will now locate the Dockerfile and deploy your server 👍
+1. Move into your app's `.wasp/build/` directory, which was created when you ran `wasp build` previously:
 
-  When deployment is finished, you might see: `Deployment live at <url_to_wasp_backend>`. If not, go now to your [Railway dashboard](https://railway.app/dashboard) and in the server instance's `Settings` tab, click `Generate Domain`. Copy the new URL as we will need it for step 5! 📜
+```shell
+cd .wasp/build
+```
 
-  4. Next, change into your app's frontend build directory `.wasp/build/web-app`:
-  ```shell
-  cd web-app
-  ```
-  5. Create the production build, adding the URL from step 3:
-  ```shell
-  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-  ```
-  :::info NO SLASH
-  Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
-  ✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
-  :::
+2. "Link" your app build to your newly created Railway project:
 
-  6. Change into the `.wasp/build/web-app/build` directory:
-  ```shell
-  cd build 
-  ```
-  7. Next, we want to link this specific frontend directory to our project as well:
-  ```shell
-  railway link 
-  ```
-  8. Deploy the client and select `client` when prompted with `Select Service`:
-  ```shell
-  railway up
-  ```
-  9. Your apps are deployed 🧙‍♂️. Now it's time to add environment variables, so open the project in the browser
-  ```shell
-  railway open
-  ```
+```shell
+railway link
+```
+
+3. Push and deploy the project to railway (make sure you're in `.wasp/build`):
+
+```shell
+railway up
+```
+
+Select `server` when prompted with `Select Service`. Press enter.
+Railway will now locate the Dockerfile and deploy your server 👍
+
+When deployment is finished, you might see: `Deployment live at <url_to_wasp_backend>`. If not, go now to your [Railway dashboard](https://railway.app/dashboard) and in the server instance's `Settings` tab, click `Generate Domain`. Copy the new URL as we will need it for step 5! 📜
+
+4. Next, change into your app's frontend build directory `.wasp/build/web-app`:
+
+```shell
+cd web-app
+```
+
+5. Create the production build, adding the URL from step 3:
+
+```shell
+npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+```
+
+:::info NO SLASH
+Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
+✅ https://backend.example.com <br/>❌ https://backend.example.com/
+:::
+
+6. Change into the `.wasp/build/web-app/build` directory:
+
+```shell
+cd build
+```
+
+7. Next, we want to link this specific frontend directory to our project as well:
+
+```shell
+railway link
+```
+
+8. Deploy the client and select `client` when prompted with `Select Service`:
+
+```shell
+railway up
+```
+
+9. Your apps are deployed 🧙‍♂️. Now it's time to add environment variables, so open the project in the browser
+
+```shell
+railway open
+```
 
 #### Add Environment Variables
 
 Back in your [Railway dashboard](https://railway.app/dashboard), click on your project and you should see your newly deployed services: Postgres, Server, and Client.
 
-Now you're going to pass each service the correct [environment variables](#env-vars). To do this, you first need to tell Railway to generate public domains for client and server. 
+Now you're going to pass each service the correct [environment variables](#env-vars). To do this, you first need to tell Railway to generate public domains for client and server.
 
 Go to the server instance's `Settings` tab, and click `Generate Domain`. Do the same under the client's `Settings`.
 
-The Postgres database is already initialized with a domain, so click on the Postgres instance, go to the **Connect** tab and copy the `Postgres Connection URL`. 
+The Postgres database is already initialized with a domain, so click on the Postgres instance, go to the **Connect** tab and copy the `Postgres Connection URL`.
 
 Go back to your `server` instance and navigate to its `Variables` tab. Now add the copied Postgres URL as `DATABASE_URL`, as well as the client's domain as `WASP_WEB_CLIENT_URL`.
 
 <AddExternalAuthEnvVarsReminder />
  
-Next, copy the server's domain, move over to the client's `Variables` tab and add the generated server domain as a new variable called `REACT_APP_API_URL`. 
+Next, copy the server's domain, move over to the client's `Variables` tab and add the generated server domain as a new variable called `REACT_APP_API_URL`.
 
 <details>
   <summary>
@@ -618,12 +658,15 @@ Next, copy the server's domain, move over to the client's `Variables` tab and ad
 And now you should be deployed! 🐝 🚂 🚀
 
 #### Updates & Redeploying
+
 When you make updates and need to redeploy, just follow [steps 3-7](#deploy-to-services) above. Remember, you can connect or disconnect your app to any project in your Railway account by using `railway link` or `railway unlink` from within the app's directory.
 
 ## Customizing the Dockerfile
+
 By default, Wasp will generate a multi-stage Dockerfile that is capable of building an image with your Wasp-generated server code and running it, along with any pending migrations, as in the deployment scenario above. If you need to customize this Dockerfile, you may do so by adding a Dockerfile to your project root directory. If present, Wasp will append the contents of this file to the _bottom_ of our default Dockerfile.
 
 Since the last definition in a Dockerfile wins, you can override or continue from any existing build stages. You could also choose not to use any of our build stages and have your own custom Dockerfile used as-is. A few notes are in order:
+
 - if you override an intermediate build stage, no later build stages will be used unless you reproduce them below
 - the contents of the Dockerfile are dynamic, based on the features you use, and may change in future releases as well, so please verify the contents have not changed from time to time
 - be sure to supply an `ENTRYPOINT` in your final build stage or it will not have any effect

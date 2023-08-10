@@ -395,7 +395,7 @@ To prevent information leakage, the server won't forward these fields for any ot
 
 ### Using Entities in Queries
 
-In most cases, resources used in Queries will be [Entities](#entity).
+In most cases, resources used in Queries will be [Entities](/docs/data-model/entities.md).
 To use an Entity in your Query, add it to the `query` declaration in Wasp:
 
 <Tabs groupId="js-ts">
@@ -548,15 +548,15 @@ Since both arguments are positional, you can name the parameters however you wan
 1. `args` (type depends on the Query)
 
    An object containing the data **passed in when calling the query** (e.g., filtering conditions).
-   Check [the usage examples](#using-the-query) to see how to pass this object to the Query.
+   Check [the usage examples](#using-queries) to see how to pass this object to the Query.
 
 2. `context` (type depends on the Query)
 
-   An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](#todo-link-na-auth) to see how to use the `user` object.
+   An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](/docs/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
 
-Afer you [declare the query](#declaring-queries-in-wasp), Wasp generates a generic type you can use when defining its implementation.
+Afer you [declare the query](#declaring-queries), Wasp generates a generic type you can use when defining its implementation.
 For the Query declared as `getSomething`, the generated type is called `GetSomething`:
 
 ```ts

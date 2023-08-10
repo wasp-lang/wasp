@@ -373,7 +373,7 @@ export const createTask: CreateTask = async (args, context) => {
 
 ### Using Entities in Actions
 
-In most cases, resources used in Actions will be [Entities](#entity).
+In most cases, resources used in Actions will be [Entities](/docs/data-model/entities.md).
 To use an Entity in your Action, add it to the `action` declaration in Wasp:
 
 <Tabs groupId="js-ts">
@@ -540,7 +540,7 @@ In practice, this means that Wasp keeps the Queries "fresh" without requiring yo
 
 On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
-If you wish to optimistically set cache values after performing an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
+If you wish to optimistically set cache values after performing an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook-and-optimistic-updates). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
 
 ## Differences Between Queries and Actions
 
@@ -549,7 +549,7 @@ Actions and Queries are two closely related concepts in Wasp. They might seem to
 Here are the key differences between Queries and Actions:
 
 1. Actions can (and often should) modify the server's state, while Queries are only permitted to read it. Wasp relies on you adhering to this convention when performing cache invalidations, so it's crucial to follow it.
-2. Actions don't need to be reactive, so you can call them directly. However, Wasp does provide a [`useAction` React hook](#the-useaction-hook) for adding extra behavior to the Action (like optimistic updates).
+2. Actions don't need to be reactive, so you can call them directly. However, Wasp does provide a [`useAction` React hook](#the-useaction-hook-and-optimistic-updates) for adding extra behavior to the Action (like optimistic updates).
 3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference lies in the declaration's name.
 
 ## API Reference
@@ -626,7 +626,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
 2. `context` (type depends on the Action)
 
-   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth-section](#todo-link-to-auth) to see how to use the `user` object.
+   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth-section](/docs/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
 

@@ -30,6 +30,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -44,6 +45,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -69,6 +71,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -85,6 +88,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -97,11 +101,12 @@ Let's go through all of the available components and how to use them.
 ## Auth Components
 
 The following components are available for you to use in your app:
-- [Login form](#1-login-form)
-- [Signup form](#2-signup-form)
-- [Forgot password form](#3-forgot-password-form)
-- [Reset password form](#4-reset-password-form)
-- [Verify email form](#5-verify-email-form)
+
+- [Login form](#login-form)
+- [Signup form](#signup-form)
+- [Forgot password form](#forgot-password-form)
+- [Reset password form](#reset-password-form)
+- [Verify email form](#verify-email-form)
 
 ### Login Form
 
@@ -128,11 +133,10 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 // Use it like this
 export function LoginPage() {
-  return (
-    <LoginForm />
-  )
+  return <LoginForm />
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -150,11 +154,10 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 // Use it like this
 export function LoginPage() {
-  return (
-    <LoginForm />
-  )
+  return <LoginForm />
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -185,11 +188,10 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 
 // Use it like this
 export function SignupPage() {
-  return (
-    <SignupForm />
-  )
+  return <SignupForm />
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -207,11 +209,10 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 
 // Use it like this
 export function SignupPage() {
-  return (
-    <SignupForm />
-  )
+  return <SignupForm />
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -244,11 +245,10 @@ import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
 
 // Use it like this
 export function ForgotPasswordPage() {
-  return (
-    <ForgotPasswordForm />
-  )
+  return <ForgotPasswordForm />
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -266,11 +266,10 @@ import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
 
 // Use it like this
 export function ForgotPasswordPage() {
-  return (
-    <ForgotPasswordForm />
-  )
+  return <ForgotPasswordForm />
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -301,11 +300,10 @@ import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 
 // Use it like this
 export function ResetPasswordPage() {
-  return (
-    <ResetPasswordForm />
-  )
+  return <ResetPasswordForm />
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -323,11 +321,10 @@ import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 
 // Use it like this
 export function ResetPasswordPage() {
-  return (
-    <ResetPasswordForm />
-  )
+  return <ResetPasswordForm />
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -358,11 +355,10 @@ import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 
 // Use it like this
 export function VerifyEmailPage() {
-  return (
-    <VerifyEmailForm />
-  )
+  return <VerifyEmailForm />
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -380,26 +376,26 @@ import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 
 // Use it like this
 export function VerifyEmailPage() {
-  return (
-    <VerifyEmailForm />
-  )
+  return <VerifyEmailForm />
 }
 ```
+
 </TabItem>
 </Tabs>
 
 ## Customization 💅🏻
 
-You customize all of the available forms by passing props to them. 
+You customize all of the available forms by passing props to them.
 
 Props you can pass to all of the forms:
+
 1. `appearance` - customize the form colors (via design tokens)
 2. `logo` - path to your logo
 3. `socialLayout` - layout of the social buttons, which can be `vertical` or `horizontal`
 
 ### 1. Customizing the Colors
 
-We use [Stitches](https://stitches.dev/) to style the Auth UI. You can customize the styles by overriding the default theme tokens. 
+We use [Stitches](https://stitches.dev/) to style the Auth UI. You can customize the styles by overriding the default theme tokens.
 
 :::info List of all available tokens
 
@@ -433,6 +429,7 @@ export function LoginPage() {
   )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -461,6 +458,7 @@ export function LoginPage() {
   )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -486,6 +484,7 @@ export function LoginPage() {
   )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -502,6 +501,7 @@ export function LoginPage() {
   )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -526,6 +526,7 @@ export function LoginPage() {
   )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -541,6 +542,7 @@ export function LoginPage() {
   )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -572,14 +574,10 @@ import { authAppearance } from './appearance'
 import todoLogo from './todoLogo.png'
 
 export function LoginPage() {
-  return (
-    <LoginForm
-      appearance={appearance}
-      logo={todoLogo}
-    />
-  )
+  return <LoginForm appearance={appearance} logo={todoLogo} />
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -602,14 +600,10 @@ import { authAppearance } from './appearance'
 import todoLogo from './todoLogo.png'
 
 export function LoginPage() {
-  return (
-    <LoginForm
-      appearance={appearance}
-      logo={todoLogo}
-    />
-  )
+  return <LoginForm appearance={appearance} logo={todoLogo} />
 }
 ```
+
 </TabItem>
 </Tabs>
 
