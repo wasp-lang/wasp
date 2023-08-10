@@ -53,6 +53,9 @@ data-files:
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  Lsp/templates/**/*.js
+  Lsp/templates/**/*.ts
+  Lsp/templates/**/*.jsx
   packages/deploy/dist/**/*.js
   packages/deploy/package.json
   packages/deploy/package-lock.json
@@ -331,6 +334,8 @@ library
     Wasp.Util.IO
     Wasp.Util.Terminal
     Wasp.Util.FilePath
+    Wasp.Util.StrongPath
+    Wasp.Util.HashMap
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -344,6 +349,10 @@ library waspls
     Control.Monad.Log
     Control.Monad.Log.Class
     Wasp.LSP.Analysis
+    Wasp.LSP.CodeActions
+    Wasp.LSP.Commands
+    Wasp.LSP.Commands.Command
+    Wasp.LSP.Commands.ScaffoldTsSymbol
     Wasp.LSP.Completion
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
@@ -383,6 +392,7 @@ library waspls
     , strong-path
     , path
     , async ^>=2.2.4
+    , mustache ^>=2.3.2
     , unliftio-core
     , mtl
     , text
@@ -516,6 +526,7 @@ test-suite waspc-test
     Analyzer.Parser.CST.TraverseTest
     Analyzer.Parser.ParseErrorTest
     Analyzer.Parser.SourcePositionTest
+    Analyzer.Parser.SourceSpanTest
     Analyzer.ParserTest
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
@@ -577,6 +588,7 @@ test-suite waspls-test
   other-modules:
     Wasp.LSP.CompletionTest
     Wasp.LSP.DebouncerTest
+    Wasp.LSP.SyntaxTest
 
 test-suite cli-test
   import: common-all, common-exe

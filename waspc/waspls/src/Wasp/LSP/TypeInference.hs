@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Wasp.LSP.TypeInference
   ( -- * Inferred types for CST locations
     inferTypeAtLocation,
@@ -11,8 +13,11 @@ module Wasp.LSP.TypeInference
 where
 
 import Control.Monad (guard)
+import Data.Aeson (ToJSON)
+import Data.Aeson.Types (FromJSON)
 import Data.Foldable (find)
 import qualified Data.HashMap.Strict as M
+import GHC.Generics (Generic)
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
@@ -39,19 +44,23 @@ inferTypeAtLocation src location = findExprPathToLocation src location >>= findT
 -- }
 -- @
 --
--- The path to the cursor would be @[Decl "app", DictKey "auth", DictKey "usernameAndPassword"]@.
+-- The path to the cursor would be @[Decl "app" "todoApp", DictKey "auth", DictKey "usernameAndPassword"]@.
 type ExprPath = [ExprPathStep]
 
 data ExprPathStep
-  = -- | @Decl declType@. Enter a declaration of type @declType@.
-    Decl !String
+  = -- | @Decl declType declName@. Enter a declaration of type @declType@ named @declName@.
+    Decl !String !String
   | -- | @DictKey key@. Enter a dictionary *and* its key @key@.
     DictKey !String
   | -- | Enter a value inside a list.
     List
   | -- | @Tuple idx@. Enter the @idx@-th value inside of a tuple.
     Tuple !Int
-  deriving (Eq, Show)
+  deriving (Eq, Show, Generic)
+
+instance ToJSON ExprPathStep
+
+instance FromJSON ExprPathStep
 
 -- | This function only depends on the syntax to the left of the location, and
 -- tries to be as lenient as possible in finding paths.
@@ -68,8 +77,10 @@ findExprPathToLocation src location = reverse <$> go location
         S.Decl -> do
           typLoc <- find ((== S.DeclType) . T.kindAt) $ T.leftSiblings t
           let typ = lexemeAt src typLoc
+          nameLoc <- find ((== S.DeclName) . T.kindAt) $ T.leftSiblings t
+          let name = lexemeAt src nameLoc
           -- Stop recursion after finding a Decl
-          return [Decl typ]
+          return [Decl typ name]
         S.DictEntry -> case find ((== S.DictKey) . T.kindAt) $ T.leftSiblings t of
           Just keyLoc -> do
             -- There is a key to the left, so @t@ is the value for that key.
@@ -94,7 +105,7 @@ findExprPathToLocation src location = reverse <$> go location
 -- >>> findTypeForPath [Dict "app", Key "auth", Key "methods", Key "usernameAndPassword"]
 -- Just (Type.DictType { fields = M.fromList [("configFn", Type.DictOptional { dictEntryType = Type.ExtImportType })] })
 findTypeForPath :: ExprPath -> Maybe Type
-findTypeForPath (Decl declType : originalPath) = do
+findTypeForPath (Decl declType _ : originalPath) = do
   topType <- getDeclType declType stdTypes
   go (dtBodyType topType) originalPath
   where
@@ -102,7 +113,7 @@ findTypeForPath (Decl declType : originalPath) = do
     -- @parentType@.
     go :: Type -> ExprPath -> Maybe Type
     go typ [] = Just typ
-    go _ (Decl _ : _) = Nothing -- Can't follow a decl in the middle of a path.
+    go _ (Decl _ _ : _) = Nothing -- Can't follow a decl in the middle of a path.
     go typ (DictKey key : path) =
       case typ of
         Type.DictType fields -> do
