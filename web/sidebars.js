@@ -36,7 +36,7 @@ module.exports = {
         {
           type: 'category',
           label: 'Operations',
-          collapsed: false,
+          collapsed: true,
           items: [
             'database/operations/overview',
             'database/operations/queries',
@@ -112,6 +112,7 @@ module.exports = {
       type: 'category',
       label: 'Miscellaneous',
       collapsed: false,
+      collapsible: false,
       items: ['contributing', 'telemetry', 'vision', 'contact'],
     },
   ],
