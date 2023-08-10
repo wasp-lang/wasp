@@ -161,8 +161,11 @@ handler request respond = withParsedArgs request respond scaffold
         -- Create directory (and parent directories) if it doesn't exist.
         liftIO $ Dir.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent filepath
 
-        -- If the file already exists, we want to add a blank line between the
-        -- file contents and the new text we're writing.
+        -- To make sure there is exactly one blank line between the existing code
+        -- and the new code that is being scaffolded, we remove any newlines from
+        -- the end of the file and append the new code with a blank line before it.
+        --
+        -- If the file is empty (or doesn't exist), no blank line is added.
         existingContent <-
           ifM
             (liftIO $ Dir.doesFileExist $ SP.fromAbsFile filepath)
