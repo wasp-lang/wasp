@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.2
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
+
 ## 0.11.1
 
 ### 🎉 [New feature] Prisma client preview flags 
