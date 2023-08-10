@@ -109,8 +109,17 @@ module.exports = {
       ],
     },
     {
-      type: 'category',
-      label: 'Miscellaneous',
+      type: "category",
+      label: "General",
+      collapsed: false,
+      collapsible: false,
+      items: [
+        "general/language",
+      ]
+    },
+    {
+      type: "category",
+      label: "Miscellaneous",
       collapsed: false,
       collapsible: false,
       items: ['contributing', 'telemetry', 'vision', 'contact'],
