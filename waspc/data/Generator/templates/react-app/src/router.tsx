@@ -1,6 +1,6 @@
 {{={= =}=}}
-import React, { useMemo } from 'react'
-import { Route, Switch, BrowserRouter as Router, Link as RouterLink } from 'react-router-dom'
+import React from 'react'
+import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}

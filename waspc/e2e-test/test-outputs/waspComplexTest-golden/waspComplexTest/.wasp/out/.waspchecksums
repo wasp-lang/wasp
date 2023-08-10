@@ -907,7 +907,21 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "62a7ef6113d793ca0dbb8f490f6c6b047b310497b3658a3f8ecf1b916d8e595b"
+        "65b6db27ade2e3e4f111592d869b44320b1fe8872670714064a190ea78f279fd"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/Link.tsx"
+        ],
+        "75ab7d2e74d58fae3e7f48e5db2d4c34537a65740f77725735f615559ad930c4"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/routes.ts"
+        ],
+        "d8b28208da8f585418336591c2852766bc5324f882d4013d983cce7a3237426e"
     ],
     [
         [
@@ -984,7 +998,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "2afb85970e8a9ebd655c08de64e2d19fc929224dfb152d8afe721cb9239cc3ea"
+        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
     ],
     [
         [
