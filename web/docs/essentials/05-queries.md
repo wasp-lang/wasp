@@ -5,14 +5,14 @@ title: Querying the Database
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
-We want to admire our tasks, so let's list them! The primary way of interacting with entities in Wasp is using [queries and actions](/docs/database/operations), collectively known as _operations_.
+We want to know which tasks we need to do, so let's list them! The primary way of interacting with entities in Wasp is by using [queries and actions](/docs/database/operations/overview), collectively known as _operations_.
 
 Queries are used to read an entity, while actions are used to create, modify, and delete entities. Since we want to list the tasks, we'll want to use a query.
 
-To list tasks, we have two things to do:
+To list tasks we have to:
 
 1. Create a query that fetches tasks from the database.
-2. Update the main page to use that query and display the results.
+2. Update the `MainPage.{jsx,tsx}` to use that query and display the results.
 
 ## Defining the Query
 
@@ -54,7 +54,7 @@ query getTasks {
 }
 ```
 
-:::warning
+:::warning Importing Typescript files
 Even though you are using TypeScript and plan to implement this query in `src/server/queries.ts`, you still need to import it using a `.js` extension. Wasp internally uses `esnext` module resolution, which requires importing all files with a `.js` extension. This is only needed when importing `@server@` files.
 
 Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
@@ -243,4 +243,4 @@ With these changes, you should be seeing the text "No tasks" on the screen:
      style={{ border: "1px solid black" }}
 />
 
-Next, let's create some tasks!
+We'll create a form to add tasks in the next step 🪄

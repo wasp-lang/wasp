@@ -1,7 +1,6 @@
 ---
 title: Quick Start
 slug: /quick-start
-next: /tutorials/todo-app
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -16,7 +15,7 @@ To install Wasp on Linux / OSX / WSL(Win), open your terminal and run:
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
- ℹ️ Wasp requires `node` and will warn you if it is missing: check below for [more details](#requirements).
+ ℹ️ Wasp requires Node.js and will warn you if it is missing: check below for [more details](#requirements).
 
 Then, create a new app by running:
 
@@ -29,13 +28,13 @@ wasp start # Serves the web app.
 That's it :tada:! You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
 
 :::info
-Anything went wrong, or you have additional questions? Check [More Details](#more-details) section below!
+Anything went wrong, or do you have additional questions? Check [More Details](#more-details) section below!
 :::
 
 
 ### What next?
 
- - [ ] 👉 **Check out the [Todo App tutorial](tutorials/todo-app.md) , which will take you through all the core features of Wasp!** 👈
+ - [ ] 👉 **Check out the [Todo App tutorial](/docs/essentials/create), which will take you through all the core features of Wasp!** 👈
  - [ ] [Setup your editor](editor-setup) for working with Wasp.
  - [ ] Join us on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
  - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp-lang.dev/#signup . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
@@ -46,7 +45,7 @@ Anything went wrong, or you have additional questions? Check [More Details](#mor
 
 ### Requirements
 
-You must have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.2`).
+You must have Node.js (and NPM) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.2`).
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -56,24 +55,24 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
   </summary>
   <div>
 
-  Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or alternatively via [nvm install script](https://github.com/nvm-sh/nvm#install--update-script).
+  Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or via [nvm](https://github.com/nvm-sh/nvm#install--update-script) install script](https://github.com/nvm-sh/nvm#install--update-script).
 
-  Then, install a version of node that you need, e.g.:
+  Then, install a version of Node.js that you need, e.g.:
   ```shell
   nvm install 18
   ```
 
-  Finally, whenever you need to ensure a specific version of node is used, run e.g.
+  Finally, whenever you need to ensure a specific version of Node.js is used, run e.g.
   ```shell
   nvm use 18
   ```
-  to set the node version for the current shell session.
+  to set the Node.js version for the current shell session.
 
   You can run
   ```shell
   node -v
   ```
-  to check the version of node currently being used in this shell session.
+  to check the version of Node.js currently being used in this shell session.
 
   Check NVM repo for more details: https://github.com/nvm-sh/nvm .
 
@@ -126,7 +125,7 @@ To install from source, you need to clone the [wasp repo](https://github.com/was
 
 If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.
 
-Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more details on building.
+Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more details on building Wasp from source.
 
 </div>
   </TabItem>

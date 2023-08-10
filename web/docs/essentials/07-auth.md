@@ -4,14 +4,16 @@ title: Adding Authentication
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Most apps today require some sort of registration and login flows, so Wasp has first-class support for it. Let's add it to our Todo app! First, we'll create a Todo list for what needs to be done (luckily we have an app for this now 🙃).
+Most apps today require some sort of registration and login flow, so Wasp has first-class support for it. Let's add it to our Todo app!
+
+First, we'll create a Todo list for what needs to be done (luckily we have an app for this now 😄).
 
 - [ ] Create a `User` entity.
-- [ ] Tell Wasp to use username and password authentication.
+- [ ] Tell Wasp to use the username and password authentication.
 - [ ] Add login and signup pages.
 - [ ] Update the main page to require authentication.
 - [ ] Add a relation between `User` and `Task` entities.
-- [ ] Modify our queries and actions so that users can only see and modify their own tasks.
+- [ ] Modify our queries and actions so that users can only see and modify their tasks.
 - [ ] Add a logout button.
 
 ## Creating a User Entity
@@ -36,7 +38,7 @@ wasp db migrate-dev
 
 ## Adding Auth to the Project
 
-Next, we want to tell Wasp that we want to use full-stack [authentication](/docs/auth/using-auth) in our app:
+Next, we want to tell Wasp that we want to use full-stack [authentication](/docs/auth/overview) in our app:
 
 ```wasp {7-16} title="main.wasp"
 app TodoApp {
@@ -56,38 +58,59 @@ app TodoApp {
     onAuthFailedRedirectTo: "/login"
   }
 }
+
+// ...
 ```
 
 By doing this, Wasp will create:
 
-- Login and signup forms at `@wasp/auth/forms/Login` and `Wasp/auth/forms/Signup`.
+- [Auth UI](/docs/auth/ui) with login and signup forms.
 - A `logout()` action.
 - A React hook `useAuth()`.
-- `context.user` within queries and actions.
+- `context.user` for use in Queries and Actions.
 
-This is a very high-level API for auth which makes it easy to get started quickly, but is not very flexible. For more control over authentication (e.g. executing some custom code on the server during signup), check out the [lower-level auth API](/docs/auth/using-auth#lower-level-api).
-
-:::tip
-Wasp also supports authentication using Google, GitHub, and email, with more on the way!
+:::info
+Wasp also supports authentication using Google, GitHub, and email, with more on the way! <!-- TODO: link to auth methods -->
 :::
 
 ## Adding Login and Signup Pages
 
 Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```wasp title="main.wasp"
 // ...
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import Signup from "@client/SignupPage"
+  component: import Signup from "@client/SignupPage.jsx"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/LoginPage"
+  component: import Login from "@client/LoginPage.jsx"
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+// ...
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import Signup from "@client/SignupPage.tsx"
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import Login from "@client/LoginPage.tsx"
+}
+```
+</TabItem>
+</Tabs>
 
 Great, Wasp now knows these pages exist! Now, the React code for the pages:
 
@@ -226,11 +249,13 @@ const MainPage = ({ user }: { user: User }) => {
 </TabItem>
 </Tabs>
 
-Ok, time to test this out! Navigate to the main page (`/`) of the app. You'll get redirected to `/login`, where you'll be asked to authenticate. Since we just added users, you don't have an account yet. Go to the signup page and create one. You'll be sent back to the main page where you will now be able to see the todo list!
+Ok, time to test this out. Navigate to the main page (`/`) of the app. You'll get redirected to `/login`, where you'll be asked to authenticate.
 
-Let's checkout what the database looks like. Start the studio:
+Since we just added users, you don't have an account yet. Go to the signup page and create one. You'll be sent back to the main page where you will now be able to see the TODO list!
 
-```sh
+Let's check out what the database looks like. Start the Prisma Studio:
+
+```shell
 wasp db studio
 ```
 
@@ -239,13 +264,13 @@ wasp db studio
      style={{ border: "1px solid black" }}
 />
 
-We see there is a user and that its password is already hashed! Wasp takes care of all the tricky details of auth for us.
+We see there is a user and that its password is already hashed 🤯
 
-However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's work on that next!
+However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
 ## Defining a User-Task Relation
 
-First, let's define a one-to-many relation between users and tasks (check the [prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
+First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
 ```wasp {7,16-17} title="main.wasp"
 // ...
@@ -375,8 +400,8 @@ export const updateTask: UpdateTask<UpdateTaskPayload, { count: number }> = asyn
     throw new HttpError(401)
   }
   return context.entities.Task.updateMany({
-    where: { id: args.taskId, user: { id: context.user.id } },
-    data: { isDone: args.data.isDone }
+    where: { id, user: { id: context.user.id } },
+    data: { isDone }
   })
 }
 ```
@@ -387,7 +412,7 @@ export const updateTask: UpdateTask<UpdateTaskPayload, { count: number }> = asyn
 Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
 :::
 
-With these changes, each user should have their own list of tasks that only they can see and edit.
+With these changes, each user should have a list of tasks that only they can see and edit.
 
 Try playing around, adding a few users and some tasks for each of them. Then open the DB studio:
 
@@ -400,7 +425,7 @@ wasp db studio
      style={{ border: "1px solid black" }}
 />
 
-You will see that each user has their own tasks, just as we specified in our code!
+You will see that each user has their tasks, just as we specified in our code!
 
 ## Logout Button
 
@@ -449,17 +474,21 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 
 ## What's Next?
 
-You did it! You've followed along with this tutorial to create a basic Todo app with Wasp! You can find the complete code for the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp. 
 
-You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your own app! ✨
+You can find the complete code for the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+
+You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your app! ✨
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](/docs/project/starter-templates)!
-- Make a real-time app with [Web Sockets](/docs/advanced/web-sockets)!
+- Get a jump start on your next project with [Starter Templates](/docs/project/starter-templates)
+- Make a real-time app with [Web Sockets](/docs/advanced/web-sockets)
 
+:::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-Even better, if you would like to contribute or help building the feature, let us know! You can find more details on contributing [here](contributing.md).
+If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
+:::
 
 Oh, and do **subscribe to our newsletter: https://wasp-lang.dev/#signup**! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

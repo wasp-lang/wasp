@@ -4,7 +4,7 @@ title: Database Entities
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-[Entities](/docs/database/entities) are one of the most important concepts in Wasp and are how you define what gets stored in the database.
+Entities are one of the most important concepts in Wasp and are how you define what gets stored in the database.
 
 Since our Todo app is all about tasks, we will define a Task entity in the Wasp file:
 
@@ -18,7 +18,12 @@ entity Task {=psl
 psl=}
 ```
 
-Wasp uses [Prisma](https://www.prisma.io) as a database, so the definition of an entity is nearly the same as defining a [Prisma model](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model/) using the Prisma Schema Language (PSL) between `{=psl psl=}` tags.
+:::note
+Wasp uses [Prisma](https://www.prisma.io) as a way to talk to the database. You define entities by defining [Prisma models](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model/) using the Prisma Schema Language (PSL) between the `{=psl psl=}` tags.
+
+Read more in the [Entities](/docs/database/entities) section of the docs.
+:::
+
 
 To update the database schema to include this entity, stop the `wasp start` process, if its running, and run:
 
@@ -29,7 +34,7 @@ wasp db migrate-dev
 
 You'll need to do this any time you change an entity's definition. It instructs Prisma to create a new database migration and apply it to the database.
 
-To take a look at the the database and the new `Task` entity, run:
+To take a look at the database and the new `Task` entity, run:
 
 ```sh
 wasp db studio
@@ -42,4 +47,4 @@ This will open a new page in your browser to view and edit the data in your data
      style={{ border: "1px solid black" }}
 />
 
-Click on the `Task` entity and check out its field! We don't have any data in our database yet, but we are about to change that.
+Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
