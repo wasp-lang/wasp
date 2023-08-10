@@ -2,7 +2,7 @@
 title: Wasp Language (.wasp)
 ---
 
-Wasp language (what you write in .wasp files) is a declarative, statically typed, domain specific language (DSL).
+Wasp language (what you write in .wasp files) is a declarative, statically typed, domain-specific language (DSL).
 
 It is a quite simple language, closer to JSON, CSS or SQL than to e.g. Javascript or Python, since it is not a general programming language, but more of a configuration language.
 
@@ -27,11 +27,13 @@ page DashboardPage {
 In the example above we described a web app via three declarations: `app MyApp { ... }`, `route RootRoute { ... }` and `page DashboardPage { ... }`.
 
 Syntax for writing a declaration is `<declaration_type> <declaration_name> <declaration_body>`, where:
+
 - `<declaration_type>` is one of the declaration types offered by Wasp (`app`, `route`, ...)
 - `<declaration_name>` is an identifier chosen by you to name this specific declaration
 - `<declaration_body>` is the value/definition of the declaration itself, which has to match the specific declaration body type expected by the chosen declaration type.
 
 So, for `app` declaration above, we have:
+
 - declaration type `app`
 - declaration name `MyApp` (we could have used any other identifier, like `foobar`, `foo_bar`, or `hi3Ho`)
 - declaration body `{ title: "My app" }`, which is a dictionary with field `title` that has string value.
@@ -42,10 +44,11 @@ Each declaration has a meaning behind it that describes how your web app should 
 
 All the other types in Wasp language (primitive types (`string`, `number`), composite types (`dict`, `list`), enum types (`DbSystem`), ...) are used to define the declaration bodies.
 
-## Complete list of Wasp types
+## Complete List of Wasp Types
+
 Wasp's type system can be divided into two main categories of types: **fundamental types** and **domain types**.
 
-While fundamental types are here to be basic building blocks of a language, and are very similar to what you would see in other popular languages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
+While fundamental types are here to be basic building blocks of a a language, and are very similar to what you would see in other popular languages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
 
 - Fundamental types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/Type.hs))
   - Primitive types
@@ -86,5 +89,3 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **EmailProvider**
 
 You can find more details about each of the domain types, both regarding their body types and what they mean, in the corresponding doc pages covering their features.
-
-
