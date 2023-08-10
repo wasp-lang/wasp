@@ -113,7 +113,7 @@ module.exports = {
       label: 'General',
       collapsed: false,
       collapsible: false,
-      items: ['general/language'],
+      items: ['general/language', 'general/cli'],
     },
     {
       type: 'category',

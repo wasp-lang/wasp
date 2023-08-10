@@ -1,12 +1,13 @@
 ---
 title: CLI Reference
 ---
-This document describes the Wasp CLI commands, arguments, and options.
+This guide provides an overview of the Wasp CLI commands, arguments, and options.
 
 ## Overview
 
-The `wasp` command can be called from command line once [installed](/docs/quick-start).
-When called without arguments, it will display its command usage and help document:
+Once [installed](/docs/quick-start), you can use the wasp command from your command line.
+
+If you run the `wasp` command without any arguments, it will show you a list of available commands and their descriptions:
 
 ```
 USAGE
@@ -49,8 +50,10 @@ Newsletter: https://wasp-lang.dev/#signup
 
 ## Commands
 
-### Creating a new project
- - `wasp new` runs the interactive mode for creating a new Wasp project. It will ask you for the project name, and then for the template to use. It will use the template to generate the directory with the provided project-name.
+### Creating a New Project
+ - Use `wasp new` to start the interactive mode for setting up a new Wasp project.
+ 
+  This will prompt you to input the project name and to select a template. The chosen template will then be used to generate the project directory with the specified name.
 
    ```
    $ wasp new
@@ -69,7 +72,7 @@ Newsletter: https://wasp-lang.dev/#signup
         cd MyFirstProject
         wasp start
    ```
- - `wasp new <project-name>` creates new Wasp project from the default template skipping the interactive mode.
+ - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
 
    ```
    $ wasp new MyFirstProject
@@ -81,10 +84,10 @@ Newsletter: https://wasp-lang.dev/#signup
         cd MyFirstProject
         wasp start
    ```
-### In project
- - `wasp start` runs Wasp app in development mode. It opens a browser tab with your application running, and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
- - `wasp start db` starts the database for you. This can be very handy, since you don't need to spin up your own database or provide its connection URL to the Wasp app!
- - `wasp clean` deletes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. It is the Wasp equivalent to "try shutting it down and turning back on".
+### Project Commands
+ - `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
+ - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
+ - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
    ```
    $ wasp clean
@@ -93,11 +96,15 @@ Newsletter: https://wasp-lang.dev/#signup
    Deleted .wasp/ directory.
    ```
 
- - `wasp build` generates full web app code, ready for deployment. Use when deploying or ejecting. Generated code goes in the .wasp/build folder.
+ - `wasp build` generates the complete web app code, which is ready for [deployment](/docs/advanced/deployment/overview). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
 
- - `wasp deploy` makes it easy to get your app hosted on the web. Currently, Wasp offers support for [Fly.io](https://fly.io). Want another hosting provider? Let us know in Discord or make a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy)!
+ - `wasp deploy` makes it easy to get your app hosted on the web.
+ 
+  Currently, Wasp offers support for [Fly.io](https://fly.io). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+  
+  Read more about automatic deployment [here](/docs/advanced/deployment/cli).
 
- - `wasp telemetry` prints [telemetry](https://wasp-lang.dev/docs/telemetry) status.
+ - `wasp telemetry` displays the status of [telemetry](https://wasp-lang.dev/docs/telemetry).
 
    ```
    $ wasp telemetry
@@ -108,30 +115,30 @@ Newsletter: https://wasp-lang.dev/#signup
    Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details.
 
    ```
- - `wasp deps` prints the dependencies that Wasp uses in your project.
- - `wasp info` prints basic information about current Wasp project.
+ - `wasp deps` lists the dependencies that Wasp uses in your project.
+ - `wasp info` provides basic details about the current Wasp project.
 
-### Database
-Wasp has a set of commands for working with the database. They all start with `db` and mostly call prisma commands in the background.
+### Database Commands
+Wasp provides a suite of commands for managing the database. These commands all begin with `db` and primarily execute Prisma commands behind the scenes.
 
- - `wasp db migrate-dev` ensures dev database corresponds to the current state of schema (entities): it generates a new migration if there are changes in the schema and it applies any pending migration to the database.
-   - Supports a `--name foo` option for providing a migration name, as well as `--create-only` for creating an empty migration but not applying it.
+ - `wasp db migrate-dev` synchronizes the development database with the current state of the schema (entities). If there are any changes in the schema, it generates a new migration and applies any pending migrations to the database.
+   - The `--name foo` option allows you to specify a name for the migration, while the `--create-only` option lets you create an empty migration without applying it.
 
  - `wasp db studio` opens the GUI for inspecting your database.
 
 
 ### Bash Completion
 
-To setup Bash completion, execute `wasp completion` and follow the instructions.
+To set up Bash completion, run the `wasp completion` command and follow the instructions.
 
 
-### Other 
- - `wasp version` prints current version of CLI.
+### Miscellaneous Commands 
+ - `wasp version` displays the current version of the CLI.
 
    ```
    $ wasp version
 
-   0.2.0.1
+   0.11.1
    ```
  - `wasp uninstall` removes Wasp from your system.
 
