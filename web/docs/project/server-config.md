@@ -19,6 +19,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -32,6 +33,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -39,18 +41,18 @@ app MyApp {
 
   <ShowForTs>
 
-  `setupFn` declares a Typescript function that will be executed on server start.
-  </ShowForTs>
+`setupFn` declares a Typescript function that will be executed on server start.
+</ShowForTs>
 
   <ShowForJs>
 
-  `setupFn` declares a Javascript function that will be executed on server start.
-  </ShowForJs>
+`setupFn` declares a Javascript function that will be executed on server start.
+</ShowForJs>
 
 ### Adding a Custom Route
 
 As an example, adding a custom route would look something like:
-  
+
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
@@ -65,6 +67,7 @@ function addCustomRoute(app) {
   })
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -81,6 +84,7 @@ function addCustomRoute(app: Application) {
   })
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -116,6 +120,7 @@ export const someQuery = async (args, context) => {
   return queryDataFromSomeResource(args, someResource)
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -145,6 +150,7 @@ export const someQuery: SomeQuery<...> = async (args, context) => {
   return queryDataFromSomeResource(args, someResource)
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -161,7 +167,8 @@ Read more about [server setup function](#setupfn-serverimport) below.
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
 
 Read more about [middleware config function](#middlewareconfigfn-serverimport) below.
-## Options Reference
+
+## API Reference
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -176,6 +183,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -189,14 +197,13 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
 `app.server` is a dictionary with the following fields:
 
 - #### `setupFn: ServerImport`
-
-  
 
   `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>Javascript</ShowForJs> function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
@@ -212,6 +219,7 @@ app MyApp {
     await setUpSomeResource()
   }
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -221,8 +229,8 @@ app MyApp {
   export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
 
   export type ServerSetupFnContext = {
-    app: Application, // === express.Application
-    server: Server,   // === http.Server
+    app: Application // === express.Application
+    server: Server // === http.Server
   }
   ```
 
@@ -233,6 +241,7 @@ app MyApp {
     await setUpSomeResource()
   }
   ```
+
   </TabItem>
   </Tabs>
 

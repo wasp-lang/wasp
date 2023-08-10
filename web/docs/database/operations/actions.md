@@ -5,7 +5,7 @@ title: Actions
 import { Required } from '@site/src/components/Required';
 import SuperjsonNote from './\_superjson-note.md';
 
-We'll explain what Actions are and how to use them. If you're looking for a detailed API specification, skip ahead to the [Options Reference](#options-reference).
+We'll explain what Actions are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 
 Actions are quite similar to [Queries](/docs/database/operations/queries.md), but with a key distinction: Actions are designed to modify and add data, while Queries are solely for reading data. Examples of Actions include adding a comment to a blog post, liking a video, or updating a product's price.
 
@@ -15,7 +15,7 @@ Actions and Queries work together to keep data caches up-to-date.
 Actions are almost identical to Queries in terms of their API.
 Therefore, if you're already familiar with Queries, you might find reading the entire guide repetitive.
 
-We instead recommend skipping ahead and only reading [the differences between Queries and Actions](#differences-between-queries-and-actions), and consulting the [Options Reference](#options-reference) as needed.
+We instead recommend skipping ahead and only reading [the differences between Queries and Actions](#differences-between-queries-and-actions), and consulting the [API Reference](#api-reference) as needed.
 :::
 
 ## Working with Actions
@@ -78,7 +78,7 @@ Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/d
 
 <small>
 
-If you want to know about all supported options for the `action` declaration, take a look at the [Options reference](#options-reference).
+If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
 
 </small>
 
@@ -215,7 +215,7 @@ As long as you're annotating your Actions with correct automatically generated t
 
 <small>
 
-For a detailed explanation of the Action definition API (i.e., arguments and return values), check the [Options reference](#options-reference).
+For a detailed explanation of the Action definition API (i.e., arguments and return values), check the [API Reference](#api-reference).
 
 </small>
 
@@ -327,7 +327,7 @@ export const TaskPage = ({ id }: { id: number }) => {
 </TabItem>
 </Tabs>
 
-Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [Options Reference](#options-reference).
+Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
 
 ### Error Handling
 
@@ -551,7 +551,7 @@ Here are the key differences between Queries and Actions:
 2. Actions don't need to be reactive, so you can call them directly. However, Wasp does provide a [`useAction` React hook](#the-useaction-hook) for adding extra behavior to the Action (like optimistic updates).
 3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference lies in the declaration's name.
 
-## Options Reference
+## API Reference
 
 ### Declaring Actions in Wasp
 

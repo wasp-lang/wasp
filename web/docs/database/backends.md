@@ -204,13 +204,13 @@ Alternatively, run the command `wasp db seed <seed-name>` to choose a specific s
 wasp db seed devSeedSimple
 ```
 
-Check the [Options Reference](#cli-commands-for-seeding-the-database) for more details on these commands.
+Check the [API Reference](#cli-commands-for-seeding-the-database) for more details on these commands.
 
 :::tip
 You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
 :::
 
-## Options Reference
+## API Reference
 
 You can tell Wasp which database to use in the `app` declaration's `db` field:
 

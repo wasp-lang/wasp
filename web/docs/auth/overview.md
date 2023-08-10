@@ -58,7 +58,7 @@ app MyApp {
 
 <small>
 
-  Read more about the `auth` field options in the [Options Reference](#options-reference) section.
+  Read more about the `auth` field options in the [API Reference](#api-reference) section.
 
 </small>
 
@@ -504,7 +504,7 @@ try {
 </TabItem>
 </Tabs>
 
-## Options Reference
+## API Reference
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

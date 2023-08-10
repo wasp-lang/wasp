@@ -6,7 +6,7 @@ import { Required } from '@site/src/components/Required';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './\_superjson-note.md';
 
-We'll explain what Queries are and how to use them. If you're looking for a detailed API specification, skip ahead to the [Options Reference](#options-reference).
+We'll explain what Queries are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 
 You can use Queries to fetch data from the server. They shouldn't modify the server's state.
 Fetching all comments on a blog post, a list of users that liked a video, information about a single product based on its ID... All of these are perfect use cases for a Query.
@@ -15,7 +15,7 @@ Fetching all comments on a blog post, a list of users that liked a video, inform
 Queries are fairly similar to Actions in terms of their API.
 Therefore, if you're already familiar with Actions, you might find reading the entire guide repetitive.
 
-We instead recommend skipping ahead and only reading [the differences between Queries and Actions](/docs/database/operations/actions#differences-between-queries-and-actions), and consulting the [Options Reference](#options-reference) as needed.
+We instead recommend skipping ahead and only reading [the differences between Queries and Actions](/docs/database/operations/actions#differences-between-queries-and-actions), and consulting the [API Reference](#api-reference) as needed.
 :::
 
 ## Working with Queries
@@ -79,7 +79,7 @@ Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/d
 
 <small>
 
-If you want to know about all supported options for the `query` declaration, take a look at the [Options reference](#options-reference).
+If you want to know about all supported options for the `query` declaration, take a look at the [API Reference](#api-reference).
 
 </small>
 
@@ -188,7 +188,7 @@ While annotating the Queries is optional, it's highly recommended. Doing so enab
 
 <small>
 
-For a detailed explanation of the Query definition API (i.e., arguments and return values), check the [Options reference](#options-reference).
+For a detailed explanation of the Query definition API (i.e., arguments and return values), check the [API Reference](#api-reference).
 
 </small>
 
@@ -345,7 +345,7 @@ Notice how you don't need to annotate the Query's return value type. Wasp automa
 
 <small>
 
-For a detailed specification of the `useQuery` hook, check the [Options Reference](#options-reference).
+For a detailed specification of the `useQuery` hook, check the [API Reference](#api-reference).
 
 </small>
 
@@ -478,7 +478,7 @@ Again, annotating the Queries is optional, but greatly improves **full-stack typ
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
-## Options Reference
+## API Reference
 
 ### Declaring Queries
 

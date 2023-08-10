@@ -58,7 +58,7 @@ Here's what it looks like when visualized:
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
-Keep reading for an example of Automatic CRUD in action, or skip ahead for the [Options reference](#options-reference)
+Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API Reference](#api-reference)
 
 ## Example: A Simple TODO App
 
@@ -440,7 +440,7 @@ CRUD operations are a mechanism for getting a backend up and running quickly, bu
 
 We plan on supporting CRUD operations and growing them to become the easiest way to create your backend. Follow along on [this GitHub issue](https://github.com/wasp-lang/wasp/issues/1253) to see how we are doing.
 
-## Options Reference
+## API Reference
 
 CRUD declaration work on top of existing entity declaration. We'll fully explore the API using two examples:
 

@@ -2,7 +2,6 @@
 title: Client Config
 ---
 
-
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 You can configure the client using the `client` field inside the `app` declaration:
@@ -20,6 +19,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -33,6 +33,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -41,6 +42,7 @@ app MyApp {
 Wasp gives you the option to define a "wrapper" component for your React app.
 
 It can be used for a variety of purposes, but the most common ones are:
+
 - Defining a common layout for your application.
 - Setting up various providers that your application needs.
 
@@ -76,6 +78,7 @@ export default function Root({ children }) {
   )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -104,9 +107,9 @@ export default function Root({ children }: { children: React.ReactNode }) {
   )
 }
 ```
+
 </TabItem>
 </Tabs>
-
 
 ### Setting up a Provider
 
@@ -130,13 +133,10 @@ import store from './store'
 import { Provider } from 'react-redux'
 
 export default function Root({ children }) {
-  return (
-    <Provider store={store}>
-      {children}
-    </Provider>
-  )
+  return <Provider store={store}>{children}</Provider>
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -155,24 +155,21 @@ import store from './store'
 import { Provider } from 'react-redux'
 
 export default function Root({ children }: { children: React.ReactNode }) {
-  return (
-    <Provider store={store}>
-      {children}
-    </Provider>
-  )
+  return <Provider store={store}>{children}</Provider>
 }
 ```
+
 </TabItem>
 </Tabs>
 
 As long as you render the children, you can do whatever you want in your root
 component.
 
-Read more about the root component in the [options reference](#rootcomponent-clientimport).
+Read more about the root component in the [API Reference](#rootcomponent-clientimport).
 
 ## Setup Function
 
-`setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp executes on the client before everything else. 
+`setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp executes on the client before everything else.
 
 ### Running Some Code
 
@@ -185,25 +182,27 @@ For example, here's a setup function that logs a message every hour:
 
 ```js title="src/client/myClientSetupCode.js"
 export default async function mySetupFunction() {
-  let count = 1;
+  let count = 1
   setInterval(
     () => console.log(`You have been online for ${count++} hours.`),
-    1000 * 60 * 60,
+    1000 * 60 * 60
   )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/client/myClientSetupCode.ts"
 export default async function mySetupFunction(): Promise<void> {
-  let count = 1;
+  let count = 1
   setInterval(
     () => console.log(`You have been online for ${count++} hours.`),
-    1000 * 60 * 60,
+    1000 * 60 * 60
   )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -231,12 +230,13 @@ export default async function mySetupFunction() {
     defaultOptions: {
       queries: {
         staleTime: Infinity,
-      }
-    }
+      },
+    },
   })
   // ... some more setup
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -249,12 +249,13 @@ export default async function mySetupFunction(): Promise<void> {
     defaultOptions: {
       queries: {
         staleTime: Infinity,
-      }
-    }
+      },
+    },
   })
   // ... some more setup
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -262,10 +263,9 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
 
-Read more about the setup function in the [options reference](#setupfn-clientimport).
+Read more about the setup function in the [API Reference](#setupfn-clientimport).
 
-
-## Options Reference
+## API Reference
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -280,6 +280,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -293,6 +294,7 @@ app MyApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -317,9 +319,7 @@ Client has the following options:
   export default function Root({ children }) {
     return (
       <Provider store={store}>
-        <Layout>
-          {children}
-        </Layout>
+        <Layout>{children}</Layout>
       </Provider>
     )
   }
@@ -338,6 +338,7 @@ Client has the following options:
     )
   }
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -348,9 +349,7 @@ Client has the following options:
   export default function Root({ children }: { children: React.ReactNode }) {
     return (
       <Provider store={store}>
-        <Layout>
-          {children}
-        </Layout>
+        <Layout>{children}</Layout>
       </Provider>
     )
   }
@@ -369,10 +368,9 @@ Client has the following options:
     )
   }
   ```
+
   </TabItem>
   </Tabs>
-
-
 
 - #### `setupFn: ClientImport`
 
@@ -403,6 +401,7 @@ Client has the following options:
     // Run some code
   }
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -411,5 +410,6 @@ Client has the following options:
     // Run some code
   }
   ```
+
   </TabItem>
   </Tabs>
