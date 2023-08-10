@@ -86,7 +86,7 @@ import qualified Wasp.LSP.ServerMonads as ServerM
 import qualified Wasp.LSP.ServerState as State
 import Wasp.LSP.TypeInference (ExprPath, ExprPathStep (Decl, DictKey))
 import qualified Wasp.LSP.TypeInference as Inference
-import Wasp.Util (toUpperFirst)
+import Wasp.Util (ifM, toUpperFirst)
 import Wasp.Util.IO (doesFileExist)
 
 command :: Command
@@ -163,12 +163,16 @@ handler request respond = withParsedArgs request respond scaffold
 
         -- If the file already exists, we want to add a blank line between the
         -- file contents and the new text we're writing.
-        needsLeadingNewline <- liftIO $ Dir.doesFileExist (SP.fromAbsFile filepath)
+        existingContent <-
+          ifM
+            (liftIO $ Dir.doesFileExist $ SP.fromAbsFile filepath)
+            (liftIO $ Text.readFile $ SP.fromAbsFile filepath)
+            (pure "")
         let textToWrite =
-              if needsLeadingNewline
-                then "\n" <> rendered
-                else rendered
-        liftIO $ Text.appendFile (SP.fromAbsFile filepath) textToWrite
+              if Text.null existingContent
+                then rendered
+                else Text.dropWhileEnd (== '\n') existingContent <> "\n\n" <> rendered
+        liftIO $ Text.writeFile (SP.fromAbsFile filepath) textToWrite
 
         -- VSCode doesn't send a file change notification after we modify the file.
         -- So we request here to update the export cache for the modified file.
