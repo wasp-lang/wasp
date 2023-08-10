@@ -2,7 +2,7 @@
 title: Databases
 ---
 
-[Entities](/docs/database/entities.md), [Operations](/docs/database/operations/overview) and [Automatic CRUD](/docs/database/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
+[Entities](/docs/data-model/entities.md), [Operations](/docs/data-model/operations/overview) and [Automatic CRUD](/docs/data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
 ## Supported Database Backends
 

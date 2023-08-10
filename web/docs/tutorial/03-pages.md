@@ -1,12 +1,11 @@
 ---
-title: Pages & Routes
+title: 3. Pages & Routes
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 
-
-In the default `main.wasp` file created by `wasp new`, there is a __page__ and a __route__ declaration:
+In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -84,7 +83,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can create another set of __page__ and __route__ declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/web/). Let's test this out by adding a new page:
+To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/web/). Let's test this out by adding a new page:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -116,13 +115,12 @@ When a user visits `/hello/their-name`, Wasp will render the component exported 
 
 ```jsx title="src/client/HelloPage.jsx"
 const HelloPage = (props) => {
-  return (
-    <div>Here's {props.match.params.name}!</div>
-  )
+  return <div>Here's {props.match.params.name}!</div>
 }
 
 export default HelloPage
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -130,13 +128,12 @@ export default HelloPage
 import { RouteComponentProps } from 'react-router-dom'
 
 const HelloPage = (props: RouteComponentProps<{ name: string }>) => {
-  return (
-    <div>Here's {props.match.params.name}!</div>
-  )
+  return <div>Here's {props.match.params.name}!</div>
 }
 
 export default HelloPage
 ```
+
 </TabItem>
 </Tabs>
 
@@ -164,6 +161,7 @@ page MainPage {
   component: import Main from "@client/MainPage.jsx"
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -180,6 +178,7 @@ page MainPage {
   component: import Main from "@client/MainPage.tsx"
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -213,8 +212,8 @@ export default MainPage
 At this point, the main page should look like this:
 
 <img alt="Todo App - Hello World"
-     src={useBaseUrl('img/todo-app-hello-world.png')}
-     style={{ border: "1px solid black" }}
+src={useBaseUrl('img/todo-app-hello-world.png')}
+style={{ border: "1px solid black" }}
 />
 
 In the next section, we'll start implementing some features of the Todo app!

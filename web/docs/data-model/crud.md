@@ -10,7 +10,7 @@ If you have a lot of experience writing full-stack apps, you probably ended up d
 
 Wasp makes handling these boring bits easy by offering a higher-level concept called Automatic CRUD.
 
-With a single declaration, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](/docs/database/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
+With a single declaration, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](/docs/data-model/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
 
 :::caution Early preview
 This feature is currently in early preview and we are actively working on it. Read more about [our plans](/docs/language/features#crud-operations-on-top-of-entities) for CRUD operations.
@@ -692,7 +692,7 @@ export const getAllOverride: GetAllQuery<Input, Output> = async (
 
 </ShowForTs>
 
-For a usage example, check the [example guide](/docs/database/crud#adding-crud-to-the-task-entity-).
+For a usage example, check the [example guide](/docs/data-model/crud#adding-crud-to-the-task-entity-).
 
 #### Using the CRUD operations in client code
 
@@ -742,7 +742,7 @@ const deleteAction = Tasks.delete.useAction()
 </TabItem>
 </Tabs>
 
-All CRUD operations are implemented with [Queries and Actions](/docs/database/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
+All CRUD operations are implemented with [Queries and Actions](/docs/data-model/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
 
 ---
 

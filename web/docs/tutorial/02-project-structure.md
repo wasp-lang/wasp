@@ -1,5 +1,5 @@
 ---
-title: Project Structure
+title: 2. Project Structure
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -105,10 +105,10 @@ The default project uses JavaScript. In order to use TypeScript, you'll need to 
 
 This file uses three declaration types:
 
-- __app__: Top-level configuration information about your app.
+- **app**: Top-level configuration information about your app.
 
-- __route__: Describes which path each page should be accessible from.
+- **route**: Describes which path each page should be accessible from.
 
-- __page__: Defines a web page and the React component that will be rendered when the page is loaded.
+- **page**: Defines a web page and the React component that will be rendered when the page is loaded.
 
-In the next section, we'll explore how __route__ and __page__ work together to build your web app.
+In the next section, we'll explore how **route** and **page** work together to build your web app.

@@ -15,7 +15,7 @@ Fetching all comments on a blog post, a list of users that liked a video, inform
 Queries are fairly similar to Actions in terms of their API.
 Therefore, if you're already familiar with Actions, you might find reading the entire guide repetitive.
 
-We instead recommend skipping ahead and only reading [the differences between Queries and Actions](/docs/database/operations/actions#differences-between-queries-and-actions), and consulting the [API Reference](#api-reference) as needed.
+We instead recommend skipping ahead and only reading [the differences between Queries and Actions](/docs/data-model/operations/actions#differences-between-queries-and-actions), and consulting the [API Reference](#api-reference) as needed.
 :::
 
 ## Working with Queries

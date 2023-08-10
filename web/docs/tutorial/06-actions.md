@@ -1,5 +1,5 @@
 ---
-title: Modifying Data
+title: 6. Modifying Data
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -48,7 +48,7 @@ action createTask {
 </TabItem>
 </Tabs>
 
-### Implementing an Action 
+### Implementing an Action
 
 Let's now define a <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowForTs> function for our `createTask` action:
 
@@ -58,7 +58,7 @@ Let's now define a <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowF
 ```js title="src/server/actions.js"
 export const createTask = async (args, context) => {
   return context.entities.Task.create({
-    data: { description: args.description }
+    data: { description: args.description },
   })
 }
 ```
@@ -67,12 +67,15 @@ export const createTask = async (args, context) => {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/server/actions.ts"
-import { Task } from "@wasp/entities"
-import { CreateTask } from "@wasp/actions/types"
+import { Task } from '@wasp/entities'
+import { CreateTask } from '@wasp/actions/types'
 
-type CreateTaskPayload = Pick<Task, "description">
+type CreateTaskPayload = Pick<Task, 'description'>
 
-export const createTask: CreateTask<CreateTaskPayload, Task> = async (args, context) => {
+export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+  args,
+  context
+) => {
   return context.entities.Task.create({
     data: { description: args.description },
   })
@@ -96,9 +99,9 @@ First, let's define a form that the user can create new tasks with.
 <TabItem value="js" label="JavaScript">
 
 ```jsx {2} title="src/client/MainPage.jsx"
-import getTasks from "@wasp/queries/getTasks"
-import createTask from "@wasp/actions/createTask"
-import { useQuery } from "@wasp/queries"
+import getTasks from '@wasp/queries/getTasks'
+import createTask from '@wasp/actions/createTask'
+import { useQuery } from '@wasp/queries'
 
 // ...
 
@@ -111,7 +114,7 @@ const NewTaskForm = () => {
       target.reset()
       await createTask({ description })
     } catch (err) {
-      window.alert("Error: " + err.message)
+      window.alert('Error: ' + err.message)
     }
   }
 
@@ -128,11 +131,11 @@ const NewTaskForm = () => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {1,4} title="src/client/MainPage.tsx"
-import { FormEvent } from "react"
-import getTasks from "@wasp/queries/getTasks"
-import createTask from "@wasp/actions/createTask"
-import { useQuery } from "@wasp/queries"
-import { Task } from "@wasp/entities"
+import { FormEvent } from 'react'
+import getTasks from '@wasp/queries/getTasks'
+import createTask from '@wasp/actions/createTask'
+import { useQuery } from '@wasp/queries'
+import { Task } from '@wasp/entities'
 
 // ...
 
@@ -145,7 +148,7 @@ const NewTaskForm = () => {
       target.reset()
       await createTask({ description })
     } catch (err: any) {
-      window.alert("Error: " + err.message)
+      window.alert('Error: ' + err.message)
     }
   }
 
@@ -175,9 +178,9 @@ Now, we just need to add this form to the page component:
 <TabItem value="js" label="JavaScript">
 
 ```jsx {10} title="src/client/MainPage.tsx"
-import getTasks from "@wasp/queries/getTasks"
-import createTask from "@wasp/actions/createTask"
-import { useQuery } from "@wasp/queries"
+import getTasks from '@wasp/queries/getTasks'
+import createTask from '@wasp/actions/createTask'
+import { useQuery } from '@wasp/queries'
 
 const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -188,8 +191,8 @@ const MainPage = () => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
+      {isLoading && 'Loading...'}
+      {error && 'Error: ' + error}
     </div>
   )
 }
@@ -199,11 +202,11 @@ const MainPage = () => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {12} title="src/client/MainPage.tsx"
-import { FormEvent } from "react"
-import getTasks from "@wasp/queries/getTasks"
-import createTask from "@wasp/actions/createTask"
-import { useQuery } from "@wasp/queries"
-import { Task } from "@wasp/entities"
+import { FormEvent } from 'react'
+import getTasks from '@wasp/queries/getTasks'
+import createTask from '@wasp/actions/createTask'
+import { useQuery } from '@wasp/queries'
+import { Task } from '@wasp/entities'
 
 const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -214,8 +217,8 @@ const MainPage = () => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
+      {isLoading && 'Loading...'}
+      {error && 'Error: ' + error}
     </div>
   )
 }
@@ -226,13 +229,13 @@ const MainPage = () => {
 
 And now we have a form that creates new tasks.
 
-Try creating a "Build a Todo App in Wasp" task and see it appear in the list below. The task is created on the server and saved in the database. 
+Try creating a "Build a Todo App in Wasp" task and see it appear in the list below. The task is created on the server and saved in the database.
 
 Try refreshing the page or opening it in another browser, you'll see the tasks are still there!
 
 <img alt="Todo App - creating new task"
-     src={useBaseUrl('img/todo-app-new-task.png')}
-     style={{ border: "1px solid black" }}
+src={useBaseUrl('img/todo-app-new-task.png')}
+style={{ border: "1px solid black" }}
 />
 <br />
 <br />
@@ -292,7 +295,7 @@ The implementation on the server:
 
 export const updateTask = async ({ id, isDone }, context) => {
   return context.entities.Task.update({
-    where: { id  },
+    where: { id },
     data: {
       isDone: isDone,
     },
@@ -305,18 +308,18 @@ export const updateTask = async ({ id, isDone }, context) => {
 
 ```ts title="src/server/actions.ts"
 // highlight-next-line
-import { CreateTask, UpdateTask } from "@wasp/actions/types"
+import { CreateTask, UpdateTask } from '@wasp/actions/types'
 
 // ...
 
-type UpdateTaskPayload = Pick<Task, "id" | "isDone">
+type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
 
 export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
   { id, isDone },
   context
 ) => {
   return context.entities.Task.update({
-    where: { id  },
+    where: { id },
     data: {
       isDone: isDone,
     },
@@ -372,7 +375,7 @@ const Task = ({ task }) => {
 
 ```tsx {2,4,9-18,26} title="src/client/MainPage.tsx"
 // ...
-import { FormEvent, ChangeEvent } from "react"
+import { FormEvent, ChangeEvent } from 'react'
 // ...
 import updateTask from '@wasp/actions/updateTask'
 
@@ -386,7 +389,7 @@ const Task = ({ task }: { task: Task }) => {
         isDone: event.target.checked,
       })
     } catch (error: any) {
-      window.alert("Error while updating task: " + error.message)
+      window.alert('Error while updating task: ' + error.message)
     }
   }
 
@@ -408,5 +411,4 @@ const Task = ({ task }: { task: Task }) => {
 </TabItem>
 </Tabs>
 
-Awesome! Now we can check off this task 🙃  Let's add one more interesting feature to our app.
-
+Awesome! Now we can check off this task 🙃 Let's add one more interesting feature to our app.

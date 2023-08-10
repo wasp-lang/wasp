@@ -3,7 +3,7 @@ title: Custom HTTP API Endpoints
 ---
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
-In Wasp, the default client-server interaction mechanism is through [Operations](/docs/database/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
+In Wasp, the default client-server interaction mechanism is through [Operations](/docs/data-model/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
 
 ## How to create an API
 

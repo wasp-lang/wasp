@@ -1,5 +1,5 @@
 ---
-title: Adding Authentication
+title: 7. Adding Authentication
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -93,6 +93,7 @@ page LoginPage {
   component: import Login from "@client/LoginPage.jsx"
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -109,6 +110,7 @@ page LoginPage {
   component: import Login from "@client/LoginPage.tsx"
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -125,8 +127,8 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 const LoginPage = () => {
   return (
     <>
-      <LoginForm/>
-      <br/>
+      <LoginForm />
+      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
@@ -148,8 +150,8 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 const LoginPage = () => {
   return (
     <>
-      <LoginForm/>
-      <br/>
+      <LoginForm />
+      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
@@ -159,6 +161,7 @@ const LoginPage = () => {
 
 export default LoginPage
 ```
+
 </TabItem>
 </Tabs>
 
@@ -175,8 +178,8 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 const SignupPage = () => {
   return (
     <>
-      <SignupForm/>
-      <br/>
+      <SignupForm />
+      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
@@ -186,6 +189,7 @@ const SignupPage = () => {
 
 export default SignupPage
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -197,8 +201,8 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 const SignupPage = () => {
   return (
     <>
-      <SignupForm/>
-      <br/>
+      <SignupForm />
+      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
@@ -208,6 +212,7 @@ const SignupPage = () => {
 
 export default SignupPage
 ```
+
 </TabItem>
 </Tabs>
 
@@ -233,19 +238,21 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
 
 ```jsx {1} title="src/client/MainPage.jsx"
 const MainPage = ({ user }) => {
-    // Do something with the user
+  // Do something with the user
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {3} title="src/client/MainPage.tsx"
-import { User } from "@wasp/entities"
+import { User } from '@wasp/entities'
 
 const MainPage = ({ user }: { user: User }) => {
-    // Do something with the user
+  // Do something with the user
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -260,8 +267,8 @@ wasp db studio
 ```
 
 <img alt="Database demonstration - password hashing"
-     src={useBaseUrl('img/wasp_db_hash_demonstration.gif')}
-     style={{ border: "1px solid black" }}
+src={useBaseUrl('img/wasp_db_hash_demonstration.gif')}
+style={{ border: "1px solid black" }}
 />
 
 We see there is a user and that its password is already hashed 🤯
@@ -319,31 +326,32 @@ export const getTasks = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
-  return context.entities.Task.findMany(
-    { where: { user: { id: context.user.id } } }
-  )
+  return context.entities.Task.findMany({
+    where: { user: { id: context.user.id } },
+  })
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts {3,6} title="src/server/queries.ts"
-import { Task }  from "@wasp/entities"
-import { GetTasks } from "@wasp/queries/types"
+import { Task } from '@wasp/entities'
+import { GetTasks } from '@wasp/queries/types'
 import HttpError from '@wasp/core/HttpError.js'
 
-export const getTasks: GetTasks<void, Task[]>  = async (args, context) => {
+export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
-  return context.entities.Task.findMany(
-    { where: { user: { id: context.user.id } } }
-  )
+  return context.entities.Task.findMany({
+    where: { user: { id: context.user.id } },
+  })
 }
 ```
+
 </TabItem>
 </Tabs>
-
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -352,12 +360,14 @@ export const getTasks: GetTasks<void, Task[]>  = async (args, context) => {
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (args, context) => {
-  if (!context.user) { throw new HttpError(401) }
+  if (!context.user) {
+    throw new HttpError(401)
+  }
   return context.entities.Task.create({
     data: {
       description: args.description,
-      user: { connect: { id: context.user.id } }
-    }
+      user: { connect: { id: context.user.id } },
+    },
   })
 }
 
@@ -367,44 +377,52 @@ export const updateTask = async (args, context) => {
   }
   return context.entities.Task.updateMany({
     where: { id: args.id, user: { id: context.user.id } },
-    data: { isDone: args.isDone }
+    data: { isDone: args.isDone },
   })
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts {3,8-10,14,22-26} title="src/server/actions.ts"
-import { Task } from "@wasp/entities"
-import { CreateTask, UpdateTask } from "@wasp/actions/types"
+import { Task } from '@wasp/entities'
+import { CreateTask, UpdateTask } from '@wasp/actions/types'
 import HttpError from '@wasp/core/HttpError.js'
 
-type CreateTaskPayload = Pick<Task, "description">
+type CreateTaskPayload = Pick<Task, 'description'>
 
-export const createTask: CreateTask<CreateTaskPayload, Task> = async (args, context) => {
+export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+  args,
+  context
+) => {
   if (!context.user) {
     throw new HttpError(401)
   }
   return context.entities.Task.create({
     data: {
       description: args.description,
-      user: { connect: { id: context.user.id } }
-    }
+      user: { connect: { id: context.user.id } },
+    },
   })
 }
 
-type UpdateTaskPayload = Pick<Task, "id" | "isDone">
+type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
 
-export const updateTask: UpdateTask<UpdateTaskPayload, { count: number }> = async ({ id, isDone }, context) => {
+export const updateTask: UpdateTask<
+  UpdateTaskPayload,
+  { count: number }
+> = async ({ id, isDone }, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
   return context.entities.Task.updateMany({
     where: { id, user: { id: context.user.id } },
-    data: { isDone }
+    data: { isDone },
   })
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -421,8 +439,8 @@ wasp db studio
 ```
 
 <img alt="Database demonstration"
-     src={useBaseUrl('img/wasp_db_demonstration.gif')}
-     style={{ border: "1px solid black" }}
+src={useBaseUrl('img/wasp_db_demonstration.gif')}
+style={{ border: "1px solid black" }}
 />
 
 You will see that each user has their tasks, just as we specified in our code!
@@ -449,6 +467,7 @@ const MainPage = () => {
   )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -467,6 +486,7 @@ const MainPage = () => {
   )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -474,7 +494,7 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 
 ## What's Next?
 
-We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp. 
+We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp.
 
 You can find the complete code for the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 

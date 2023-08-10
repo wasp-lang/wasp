@@ -1,5 +1,5 @@
 ---
-title: Database Entities
+title: 4. Database Entities
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -21,12 +21,10 @@ psl=}
 :::note
 Wasp uses [Prisma](https://www.prisma.io) as a way to talk to the database. You define entities by defining [Prisma models](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model/) using the Prisma Schema Language (PSL) between the `{=psl psl=}` tags.
 
-Read more in the [Entities](/docs/database/entities) section of the docs.
+Read more in the [Entities](/docs/data-model/entities) section of the docs.
 :::
 
-
 To update the database schema to include this entity, stop the `wasp start` process, if its running, and run:
-
 
 ```sh
 wasp db migrate-dev
@@ -43,8 +41,8 @@ wasp db studio
 This will open a new page in your browser to view and edit the data in your database.
 
 <img alt="Todo App - Db studio showing Task schema"
-     src={useBaseUrl('img/todo-app-db-studio-task-entity.png')}
-     style={{ border: "1px solid black" }}
+src={useBaseUrl('img/todo-app-db-studio-task-entity.png')}
+style={{ border: "1px solid black" }}
 />
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.

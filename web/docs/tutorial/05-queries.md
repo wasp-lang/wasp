@@ -1,11 +1,11 @@
 ---
-title: Querying the Database
+title: 5. Querying the Database
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
-We want to know which tasks we need to do, so let's list them! The primary way of interacting with entities in Wasp is by using [queries and actions](/docs/database/operations/overview), collectively known as _operations_.
+We want to know which tasks we need to do, so let's list them! The primary way of interacting with entities in Wasp is by using [queries and actions](/docs/data-model/operations/overview), collectively known as _operations_.
 
 Queries are used to read an entity, while actions are used to create, modify, and delete entities. Since we want to list the tasks, we'll want to use a query.
 
@@ -20,7 +20,7 @@ We'll create a new query called `getTasks`. We'll need to declare the query in t
 
 ### Declaring a Query
 
-We need to add a __query__ declaration to `main.wasp` so that Wasp knows it exists:
+We need to add a **query** declaration to `main.wasp` so that Wasp knows it exists:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -89,8 +89,8 @@ export const getTasks = async (args, context) => {
 <TabItem value="ts" label="TypeScript">
 
 ```js title="src/server/queries.ts"
-import { Task }  from "@wasp/entities"
-import { GetTasks } from "@wasp/queries/types"
+import { Task } from '@wasp/entities'
+import { GetTasks } from '@wasp/queries/types'
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   return context.entities.Task.findMany({})
@@ -98,8 +98,9 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 ```
 
 Wasp automatically generates the types `GetTasks` and `Task` based the contents of `main.wasp`:
-  - `Task` is a type corresponding to the `Task` entity we've defined in `main.wasp`.
-  - `GetTasks` is a generic type Wasp automatically generated based the `getTasks` query we've defined in `main.wasp`.
+
+- `Task` is a type corresponding to the `Task` entity we've defined in `main.wasp`.
+- `GetTasks` is a generic type Wasp automatically generated based the `getTasks` query we've defined in `main.wasp`.
 
 You can use these types to specify the Query's input and output types. This query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
@@ -109,6 +110,7 @@ Annotating the queries is optional, but highly recommended because doing so enab
 </Tabs>
 
 Query function parameters:
+
 - `args`: `object`, arguments the query is given by the caller.
 - `context`: `object`, information provided by Wasp.
 
@@ -126,8 +128,8 @@ While we implement queries on the server, Wasp generates client-side functions t
 <TabItem value="js" label="JavaScript">
 
 ```jsx {1-2,5-14,17-36} title="src/client/MainPage.jsx"
-import getTasks from "@wasp/queries/getTasks"
-import { useQuery } from "@wasp/queries"
+import getTasks from '@wasp/queries/getTasks'
+import { useQuery } from '@wasp/queries'
 
 const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -136,8 +138,8 @@ const MainPage = () => {
     <div>
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
+      {isLoading && 'Loading...'}
+      {error && 'Error: ' + error}
     </div>
   )
 }
@@ -169,11 +171,10 @@ export default MainPage
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-
 ```tsx {1-3,6-15,18-37} title="src/client/MainPage.tsx"
-import getTasks from "@wasp/queries/getTasks"
-import { useQuery } from "@wasp/queries"
-import { Task } from "@wasp/entities"
+import getTasks from '@wasp/queries/getTasks'
+import { useQuery } from '@wasp/queries'
+import { Task } from '@wasp/entities'
 
 const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -182,8 +183,8 @@ const MainPage = () => {
     <div>
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
+      {isLoading && 'Loading...'}
+      {error && 'Error: ' + error}
     </div>
   )
 }
@@ -220,14 +221,14 @@ Most of this code is regular React, the only exception being the <ShowForJs>two<
 <ShowForJs>
 
 - `import getTasks from '@wasp/queries/getTasks'` - Imports the client-side query function.
-- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/database/operations#useQuery) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/data-model/operations#useQuery) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 
 </ShowForJs>
 
 <ShowForTs>
 
 - `import getTasks from '@wasp/queries/getTasks'` - Imports the client-side query function.
-- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/database/operations#useQuery) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/data-model/operations#useQuery) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 - `import { Task } from '@wasp/entities'` - The type for the task entity we defined in `main.wasp`.
 
 Notice how you don't need to annotate the type of the query's return value: Wasp uses the types you defined while implementing the query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
@@ -239,8 +240,8 @@ We could have called the query directly using `getTasks()`, but the `useQuery` h
 With these changes, you should be seeing the text "No tasks" on the screen:
 
 <img alt="Todo App - No Tasks"
-     src={useBaseUrl('img/todo-app-no-tasks.png')}
-     style={{ border: "1px solid black" }}
+src={useBaseUrl('img/todo-app-no-tasks.png')}
+style={{ border: "1px solid black" }}
 />
 
 We'll create a form to add tasks in the next step 🪄

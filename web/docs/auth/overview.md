@@ -73,7 +73,7 @@ Wasp supports the following auth methods:
 
 Let's say we enabled the [Username & password](/docs/auth/username-and-pass) authentication.
 
-We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](/docs/database/operations/overview) and we can decide what to do based on whether the user is logged in or not. 
+We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](/docs/data-model/operations/overview) and we can decide what to do based on whether the user is logged in or not. 
 
 We would also get the [Auth UI](/docs/auth/ui) generated for us. We can set up our login and signup pages where our users can **create their account** and **login**. We can then protect certain pages by setting `authRequired: true` for them. This will make sure that only logged-in users can access them.
 
@@ -288,7 +288,7 @@ Since the `user` prop is only available in a page's React component: use the `us
 
 #### Using the `context.user` object
 
-When authentication is enabled, all [queries and actions](/docs/database/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
+When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

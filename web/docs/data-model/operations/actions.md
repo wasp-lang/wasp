@@ -7,7 +7,7 @@ import SuperjsonNote from './\_superjson-note.md';
 
 We'll explain what Actions are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 
-Actions are quite similar to [Queries](/docs/database/operations/queries.md), but with a key distinction: Actions are designed to modify and add data, while Queries are solely for reading data. Examples of Actions include adding a comment to a blog post, liking a video, or updating a product's price.
+Actions are quite similar to [Queries](/docs/data-model/operations/queries.md), but with a key distinction: Actions are designed to modify and add data, while Queries are solely for reading data. Examples of Actions include adding a comment to a blog post, liking a video, or updating a product's price.
 
 Actions and Queries work together to keep data caches up-to-date.
 
@@ -703,7 +703,7 @@ In this case, the Action expects to receive an object with a `bar` field of type
 
 ### The `useAction` Hook and Optimistic Updates
 
-Make sure you understand how [Queries](/docs/database/operations/queries.md) and [Cache Invalidation](#cache-invalidation) work before reading this chapter.
+Make sure you understand how [Queries](/docs/data-model/operations/queries.md) and [Cache Invalidation](#cache-invalidation) work before reading this chapter.
 
 When using Actions in components, you can enhance them with the help of the `useAction` hook. This hook comes bundled with Wasp, and is used for decorating Wasp Actions.
 In other words, the hook returns a function whose API matches the original Action while also doing something extra under the hood (depending on how you configure it).
