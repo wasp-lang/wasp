@@ -370,6 +370,7 @@ library waspls
     Wasp.LSP.Server
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerMonads
+    Wasp.LSP.ServerMonads.HasProjectRootDir
     Wasp.LSP.ServerState
     Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax

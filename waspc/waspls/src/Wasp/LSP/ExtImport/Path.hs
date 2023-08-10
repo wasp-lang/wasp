@@ -21,11 +21,11 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Hashable (Hashable (hashWithSalt))
 import Data.List (isPrefixOf, stripPrefix)
 import GHC.Generics (Generic)
-import qualified Language.LSP.Server as LSP
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.LSP.ServerMonads.HasProjectRootDir (HasProjectRootDir (getProjectRootDir))
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (doesFileExist)
 import qualified Wasp.Util.StrongPath as SP
@@ -69,10 +69,10 @@ waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) =
   where
     useExactExtension = "@client" `isPrefixOf` waspStylePath
 
-absPathToCachePath :: LSP.MonadLsp c m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
+absPathToCachePath :: HasProjectRootDir m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
 absPathToCachePath absFile = do
   -- Makes the path relative to src/ and deletes the extension.
-  maybeProjectDir <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
+  maybeProjectDir <- getProjectRootDir
   case maybeProjectDir of
     Nothing -> pure Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) ->
@@ -83,16 +83,16 @@ absPathToCachePath absFile = do
               Nothing -> pure Nothing
               Just (fileWithoutExt, ext) -> pure $ Just $ ExtFileCachePath fileWithoutExt (DotExact ext)
 
-cachePathToAbsPathWithoutExt :: LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))
+cachePathToAbsPathWithoutExt :: HasProjectRootDir m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))
 cachePathToAbsPathWithoutExt (ExtFileCachePath cachePath _) = do
   -- Converts to an absolute path, but does not add any extension.
-  maybeProjectDir <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
+  maybeProjectDir <- getProjectRootDir
   case maybeProjectDir of
     Nothing -> return Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) -> do
       return $ Just $ projectRootDir SP.</> srcDirInProjectRootDir SP.</> cachePath
 
-cachePathToAbsPath :: forall m c a. LSP.MonadLsp c m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File a)))
+cachePathToAbsPath :: forall m a. (MonadIO m, HasProjectRootDir m) => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File a)))
 cachePathToAbsPath cp@(ExtFileCachePath _ extType) =
   cachePathToAbsPathWithoutExt cp >>= \case
     Nothing -> return Nothing
