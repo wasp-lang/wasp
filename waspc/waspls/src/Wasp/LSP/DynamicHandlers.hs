@@ -6,7 +6,7 @@ module Wasp.LSP.DynamicHandlers
 where
 
 import Control.Lens ((.~), (^.))
-import Control.Monad (forM_, (<=<))
+import Control.Monad ((<=<))
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
 import Data.List (isSuffixOf, stripPrefix)
@@ -103,14 +103,14 @@ sourceFilesChangedHandler msg = do
   let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
   logM $ "[watchSourceFilesHandler] Received file changes: " ++ show uris
   let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
-  forM_ fileUris $ \file -> sendToReactor $ do
-    -- Refresh export list for modified file
-    refreshExportsOfFiles [file]
-    -- Update diagnostics for the wasp file
+  sendToReactor $ do
+    -- Refresh export list for modified files
+    refreshExportsOfFiles fileUris
+    -- Update diagnostics for the wasp files
     updateMissingExtImportDiagnostics
     handler $
       asks (^. State.waspFileUri) >>= \case
         Just uri -> do
-          logM $ "[watchSourceFilesHandler] Updating missing diagnostics for " ++ show uri
+          logM $ "[watchSourceFilesHandler] Updating missing diagnostics for " ++ show fileUris
           publishDiagnostics uri
         Nothing -> pure ()
