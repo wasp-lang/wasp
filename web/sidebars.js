@@ -101,7 +101,7 @@ module.exports = {
         'project/starter-templates',
         'project/client-config',
         'project/server-config',
-        'project/public-files',
+        'project/static-assets',
         'project/env-vars',
         'project/testing',
         'project/dependencies',
