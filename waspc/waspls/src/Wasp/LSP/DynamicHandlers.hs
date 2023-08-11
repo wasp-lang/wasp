@@ -64,6 +64,11 @@ registerSourceFileWatcher = do
   -- not available in 3.16. We are limited to 3.16 because we use lsp-1.4.0.0.
   let tsJsGlobPattern = "**/*.{ts,tsx,js,jsx}"
   globPattern <-
+    -- NOTE: We use the workspace root, instead of the wasp root here, because
+    -- 1) The wasp root may not be known yet.
+    -- 2) Using the workspace root results only in the potential to consider
+    --    files that do not matter. Important files won't be missed (the workspace
+    --    root will necessarily contain the wasp root).
     LSP.getRootPath >>= \case
       Nothing -> do
         logM "Could not access projectRootDir when setting up source file watcher. Watching any TS/JS file instead of limiting to src/."
