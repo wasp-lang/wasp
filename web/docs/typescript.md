@@ -2,7 +2,11 @@
 title: TypeScript Support
 ---
 
+import OldDocsNote from '@site/docs/OldDocsNote'
+
 # Using Wasp with TypeScript
+
+<OldDocsNote />
 
 TypeScript is a programming language that brings static type analysis to JavaScript. It is a superset of JavaScript (i.e., all valid JavaScript programs are valid TypeScript programs) and compiles to JavaScript before running. TypeScript's type system detects common errors at build time (reducing the chance of runtime errors in production) and enables type-based auto-completion in IDEs.
 

@@ -12,12 +12,13 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
+    "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
     "remark": "remark",
     "remark:once": "npm run remark -- --quiet --frail --use remark-validate-links docs/"
   },
   "dependencies": {
     "@docusaurus/core": "2.4.0",
+    "@docusaurus/plugin-client-redirects": "^2.4.0",
     "@docusaurus/plugin-google-gtag": "2.4.0",
     "@docusaurus/preset-classic": "2.4.0",
     "@kodingdotninja/use-tailwind-breakpoint": "^0.0.5",

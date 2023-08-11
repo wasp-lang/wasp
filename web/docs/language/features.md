@@ -3,6 +3,9 @@ title: Features
 ---
 
 import SendingEmailsInDevelopment from '../_sendingEmailsInDevelopment.md'
+import OldDocsNote from '@site/docs/OldDocsNote'
+
+<OldDocsNote />
 
 ## App
 
