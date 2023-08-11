@@ -14,7 +14,7 @@ Jobs will:
 
 Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
 
-### Basic job definition and usage
+### Basic Job Definition and Usage
 
 To declare a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
 
@@ -78,7 +78,7 @@ And that is it! Your job will be executed by the job executor (pg-boss, in this 
 
 Note that in our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function.
 
-### Recurring jobs
+### Recurring Jobs
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
@@ -117,7 +117,7 @@ job mySpecialJob {
 
 In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
-### Fully specified example
+### Fully Specified Example
 Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
 
 <Tabs groupId="js-ts">

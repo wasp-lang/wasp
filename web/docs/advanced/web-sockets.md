@@ -3,6 +3,7 @@ title: Web Sockets
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { Required } from '@site/src/components/Required';
 
 Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](https://socket.io/) on the client and server. 
 
@@ -16,7 +17,7 @@ To get started, you need to:
 
 Let's go through setting up WebSockets step by step, starting with enabling WebSockets in your Wasp file.
 
-## Turn on WebSockets in your Wasp file
+## Turn On WebSockets in Your Wasp File
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 <Tabs groupId="js-ts">
@@ -48,7 +49,7 @@ app todoApp {
 </TabItem>
 </Tabs>
 
-## Defining the events handler
+## Defining the Events Handler
 Let's define the WebSockets server with all of the events and handler functions.
 
 <ShowForTs>
@@ -58,7 +59,7 @@ Check this out: we'll define the event types and payloads on the server, and the
 :::
 </ShowForTs>
 
-### `webSocketFn` function
+### `webSocketFn` Function
 On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function. The `context` object give you access to all of the entities from your Wasp app. 
 
 You can use this `io` object to register callbacks for all the regular [Socket.IO events](https://socket.io/docs/v4/server-api/).  Also, if a user is logged in, you will have a `socket.data.user` on the server.
@@ -134,7 +135,7 @@ interface SocketData extends WaspSocketData {}
 </TabItem>
 </Tabs>
 
-## Using the WebSocket on the client
+## Using the WebSocket On The Client
 
 <ShowForTs>
 
@@ -143,7 +144,7 @@ All the hooks we use are typed with the events and payloads you defined on the s
 :::
 </ShowForTs>
 
-### `useSocket` hook
+### `useSocket` Hook
 
 Client access to WebSockets is provided by the `useSocket` hook. It returns:
 - `socket: Socket` for sending and receiving events.
@@ -153,7 +154,7 @@ Client access to WebSockets is provided by the `useSocket` hook. It returns:
 
 All components using `useSocket` share the same underlying `socket`.
 
-### `useSocketListener` hook
+### `useSocketListener` Hook
 
 Additionally, there is a `useSocketListener: (event, callback) => void` hook which is used for registering event handlers. It takes care of unregistering the handler on unmount.
 
@@ -291,3 +292,44 @@ export const ChatPage = () => {
 ```
 </TabItem>
 </Tabs>
+
+## API Reference
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title=todoApp.wasp
+app todoApp {
+  // ...
+
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    autoConnect: true, // optional, default: true
+  },
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title=todoApp.wasp
+app todoApp {
+  // ...
+
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    autoConnect: true, // optional, default: true
+  },
+}
+```
+</TabItem>
+</Tabs>
+
+The `webSocket` dict has the following fields:
+
+- `fn: WebSocketFn` <Required />
+
+  The function that defines the WebSocket events and handlers.
+
+- `autoConnect: bool`
+
+  Whether to automatically connect to the WebSocket server. Default: `true`.
