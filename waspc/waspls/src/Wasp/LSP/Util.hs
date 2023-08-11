@@ -11,12 +11,12 @@ where
 import Control.Lens ((+~))
 import Control.Monad.Trans.Maybe (MaybeT (MaybeT))
 import Data.Function ((&))
-import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP hiding (line)
 import qualified Language.LSP.Types.Lens as LSP
 import qualified StrongPath as SP
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.SourceRegion as W
+import Wasp.LSP.ServerMonads.HasProjectRootDir (HasProjectRootDir (getProjectRootDir))
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util.StrongPath (stripProperPrefix)
 
@@ -46,11 +46,11 @@ anyP preds x = any ($ x) preds
 hoistMaybe :: Applicative m => Maybe a -> MaybeT m a
 hoistMaybe = MaybeT . pure
 
--- | @absFileInProjectRootDir file@ finds the path to @file@ if it is inside the
+-- | @getPathRelativeToProjectDir file@ finds the path to @file@ if it is inside the
 -- project root directory.
-getPathRelativeToProjectDir :: LSP.MonadLsp c m => SP.Path' SP.Abs (SP.File a) -> m (Maybe (SP.Path' (SP.Rel WaspProjectDir) (SP.File a)))
+getPathRelativeToProjectDir :: HasProjectRootDir m => SP.Path' SP.Abs (SP.File a) -> m (Maybe (SP.Path' (SP.Rel WaspProjectDir) (SP.File a)))
 getPathRelativeToProjectDir file = do
-  maybeProjectRootDir <- (>>= SP.parseAbsDir) <$> LSP.getRootPath
+  maybeProjectRootDir <- getProjectRootDir
   case maybeProjectRootDir of
     Nothing -> pure Nothing
     Just projectRootDir -> pure $ stripProperPrefix projectRootDir file

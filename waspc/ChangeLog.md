@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.11.2
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
+- waspls thought that importing `"@client/file.jsx"` could mean `"@client/file.tsx"`, which could hide some missing import diagnostics and cause go-to definition to jump to the wrong file.
+
+### 🎉 [New Feature] waspls Code Scaffolding
+
+When an external import is missing its implementation, waspls now offers a Code Action to quickly scaffold the missing JavaScript or TypeScript function:
+
+```wasp
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //  ERROR: `getTasks` is not exported from `src/server/queries.ts`
+  entities: [Task],
+}
+```
+
+Using the code action (pressing <kbd>Ctrl</kbd> + <kbd>.</kbd> or clicking the lightbulb 💡 icon in VSCode) will add the following code to `src/server/queries.ts`:
+
+```ts
+import { GetTasks } from '@wasp/queries/types'
+
+import GetTasksInput = void
+import GetTasksOutput = void
+
+export const getTasks: GetTasks<GetTasksInput, GetTasksOutput> = async (args, context) => {
+  // Implementation goes here
+}
+```
+
 ## 0.11.1
 
 ### 🎉 [New feature] Prisma client preview flags 
