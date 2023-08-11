@@ -70,7 +70,7 @@ By doing this, Wasp will create:
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using Google, GitHub, and email, with more on the way! <!-- TODO: link to auth methods -->
+Wasp also supports authentication using [Google](/docs/auth/social-auth/google), [GitHub](/docs/auth/social-auth/github), and [email](/docs/auth/email), with more on the way!
 :::
 
 ## Adding Login and Signup Pages

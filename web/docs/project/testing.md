@@ -14,22 +14,22 @@ Wasp enables you to quickly and easily write both unit tests and React component
   <summary>Included Libraries</summary>
   <div>
 
-  [`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support.
+[`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support.
 
-  [`@vitest/ui`](https://www.npmjs.com/package/@vitest/ui): A nice UI for seeing your test results.
+[`@vitest/ui`](https://www.npmjs.com/package/@vitest/ui): A nice UI for seeing your test results.
 
-  [`jsdom`](https://www.npmjs.com/package/jsdom): A web browser test environment for Node.js.
+[`jsdom`](https://www.npmjs.com/package/jsdom): A web browser test environment for Node.js.
 
-  [`@testing-library/react`](https://www.npmjs.com/package/@testing-library/react) / [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom): Testing helpers.
+[`@testing-library/react`](https://www.npmjs.com/package/@testing-library/react) / [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom): Testing helpers.
 
-  [`msw`](https://www.npmjs.com/package/msw): A server mocking library.
+[`msw`](https://www.npmjs.com/package/msw): A server mocking library.
 
   </div>
 </details>
 
 ### Writing Tests
 
-In order for Wasp to pick up your tests, they should be placed within the `src/client` directory and use an extension that matches [these glob patterns](https://vitest.dev/config#include). Some of the file names that Wasp will pick up as tests:
+For Wasp to pick up your tests, they should be placed within the `src/client` directory and use an extension that matches [these glob patterns](https://vitest.dev/config#include). Some of the file names that Wasp will pick up as tests:
 
 - `yourFile.test.ts`
 - `YourComponent.spec.jsx`
@@ -54,39 +54,44 @@ You should not run `wasp test` while `wasp start` is running. Both will try to c
 Wasp provides several functions to help you write React tests:
 
 - `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it. This is the function you should use to render components in your React component tests.
-  ```js
-  import { renderInContext } from '@wasp/test'
 
-  renderInContext(<MainPage />)
+  ```js
+  import { renderInContext } from "@wasp/test";
+
+  renderInContext(<MainPage />);
   ```
 
 - `mockServer`: Sets up the mock server and returns an object containing the `mockQuery` and `mockApi` utilities. This should be called outside of any test case, in each file that wants to use those helpers.
-    ```js
-    import { mockServer } from '@wasp/test'
 
-    const { mockQuery, mockApi } = mockServer()
-    ```
+  ```js
+  import { mockServer } from "@wasp/test";
+
+  const { mockQuery, mockApi } = mockServer();
+  ```
 
   - `mockQuery`: Takes a Wasp [query](/docs/data-model/operations/queries) to mock and the JSON data it should return.
+
     ```js
-    import getTasks from '@wasp/queries/getTasks'
-  
-    mockQuery(getTasks, [])
+    import getTasks from "@wasp/queries/getTasks";
+
+    mockQuery(getTasks, []);
     ```
+
     - Helpful when your component uses `useQuery`.
     - Behind the scenes, Wasp uses [`msw`](https://npmjs.com/package/msw) to create a server request handle that responds with the specified data.
     - Mock are cleared between each test.
 
   - `mockApi`: Similar to `mockQuery`, but for [APIs](/docs/advanced/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
-    ```js
-    import { HttpMethod } from '@wasp/types'
 
-    mockApi({ method: HttpMethod.Get, path: '/foor/bar' }, { res: 'hello' })
+    ```js
+    import { HttpMethod } from "@wasp/types";
+
+    mockApi({ method: HttpMethod.Get, path: "/foor/bar" }, { res: "hello" });
     ```
 
 ## Testing Your Server-Side Code
 
-Wasp currently does not provide a way to test your server-side code, but we will be adding support soon. You can track the progress at [this GitHub issue](https://github.com/waps-lang/wasp/issues/110) and express your interest by commenting.
+Wasp currently does not provide a way to test your server-side code, but we will be adding support soon. You can track the progress at [this GitHub issue](https://github.com/wasp-lang/wasp/issues/110) and express your interest by commenting.
 
 ## Examples
 
@@ -99,39 +104,39 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
 
 ```js title="src/client/helpers.js"
 export function areThereAnyTasks(tasks) {
-  return tasks.length === 0
+  return tasks.length === 0;
 }
 ```
 
 ```js title="src/client/helpers.test.js"
-import { test, expect } from 'vitest'
+import { test, expect } from "vitest";
 
-import { areThereAnyTasks } from './helpers'
+import { areThereAnyTasks } from "./helpers";
 
-test('areThereAnyTasks', () => {
-  expect(areThereAnyTasks([])).toBe(false)
-})
+test("areThereAnyTasks", () => {
+  expect(areThereAnyTasks([])).toBe(false);
+});
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/client/helpers.ts"
-import { Task } from '@wasp/entities'
+import { Task } from "@wasp/entities";
 
 export function areThereAnyTasks(tasks: Task[]): boolean {
-  return tasks.length === 0
+  return tasks.length === 0;
 }
 ```
 
 ```ts title="src/client/helpers.test.ts"
-import { test, expect } from 'vitest'
+import { test, expect } from "vitest";
 
-import { areThereAnyTasks } from './helpers'
+import { areThereAnyTasks } from "./helpers";
 
-test('areThereAnyTasks', () => {
-  expect(areThereAnyTasks([])).toBe(false)
-})
+test("areThereAnyTasks", () => {
+  expect(areThereAnyTasks([])).toBe(false);
+});
 ```
 
 </TabItem>
@@ -143,105 +148,111 @@ test('areThereAnyTasks', () => {
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/client/Todo.jsx"
-import { useQuery } from '@wasp/queries'
-import getTasks from '@wasp/queries/getTasks'
+import { useQuery } from "@wasp/queries";
+import getTasks from "@wasp/queries/getTasks";
 
 const Todo = (_props) => {
-  const { data: tasks } = useQuery(getTasks)
+  const { data: tasks } = useQuery(getTasks);
   return (
     <ul>
-      {tasks && tasks.map(task => (
-        <li key={task.id}>
-          <input type="checkbox" value={task.isDone} />
-          {task.description}
-        </li>
-      ))}
+      {tasks &&
+        tasks.map((task) => (
+          <li key={task.id}>
+            <input type="checkbox" value={task.isDone} />
+            {task.description}
+          </li>
+        ))}
     </ul>
-  )
-}
+  );
+};
 ```
 
 ```js title=src/client/Todo.test.jsx
-import { test, expect } from 'vitest'
-import { screen } from '@testing-library/react'
+import { test, expect } from "vitest";
+import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from '@wasp/test'
-import getTasks from '@wasp/queries/getTasks'
-import Todo from './Todo'
+import { mockServer, renderInContext } from "@wasp/test";
+import getTasks from "@wasp/queries/getTasks";
+import Todo from "./Todo";
 
-const { mockQuery } = mockServer()
+const { mockQuery } = mockServer();
 
-const mockTasks = [{
-  id: 1,
-  description: 'test todo 1',
-  isDone: true,
-  userId: 1
-}]
+const mockTasks = [
+  {
+    id: 1,
+    description: "test todo 1",
+    isDone: true,
+    userId: 1,
+  },
+];
 
-test('handles mock data', async () => {
-  mockQuery(getTasks, mockTasks)
+test("handles mock data", async () => {
+  mockQuery(getTasks, mockTasks);
 
-  renderInContext(<Todo />)
+  renderInContext(<Todo />);
 
-  await screen.findByText('test todo 1')
+  await screen.findByText("test todo 1");
 
-  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(screen.getByRole("checkbox")).toBeChecked();
 
-  screen.debug()
-})
+  screen.debug();
+});
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/client/Todo.tsx"
-import { useQuery } from '@wasp/queries'
-import getTasks from '@wasp/queries/getTasks'
+import { useQuery } from "@wasp/queries";
+import getTasks from "@wasp/queries/getTasks";
 
 const Todo = (_props: {}) => {
-  const { data: tasks } = useQuery(getTasks)
+  const { data: tasks } = useQuery(getTasks);
 
   return (
     <ul>
-      {tasks && tasks.map(task => (
-        <li key={task.id}>
-          <input type="checkbox" value={task.isDone} />
-          {task.description}
-        </li>
-      ))}
+      {tasks &&
+        tasks.map((task) => (
+          <li key={task.id}>
+            <input type="checkbox" value={task.isDone} />
+            {task.description}
+          </li>
+        ))}
     </ul>
-  )
-}
+  );
+};
 ```
 
 ```tsx title=src/client/Todo.test.tsx
-import { test, expect } from 'vitest'
-import { screen } from '@testing-library/react'
+import { test, expect } from "vitest";
+import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from '@wasp/test'
-import getTasks from '@wasp/queries/getTasks'
-import Todo from './Todo'
+import { mockServer, renderInContext } from "@wasp/test";
+import getTasks from "@wasp/queries/getTasks";
+import Todo from "./Todo";
 
-const { mockQuery } = mockServer()
+const { mockQuery } = mockServer();
 
-const mockTasks = [{
-  id: 1,
-  description: 'test todo 1',
-  isDone: true,
-  userId: 1
-}]
+const mockTasks = [
+  {
+    id: 1,
+    description: "test todo 1",
+    isDone: true,
+    userId: 1,
+  },
+];
 
-test('handles mock data', async () => {
-  mockQuery(getTasks, mockTasks)
+test("handles mock data", async () => {
+  mockQuery(getTasks, mockTasks);
 
-  renderInContext(<Todo />)
+  renderInContext(<Todo />);
 
-  await screen.findByText('test todo 1')
+  await screen.findByText("test todo 1");
 
-  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(screen.getByRole("checkbox")).toBeChecked();
 
-  screen.debug()
-})
+  screen.debug();
+});
 ```
 
 </TabItem>
@@ -253,115 +264,123 @@ test('handles mock data', async () => {
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/client/Todo.jsx"
-import api from '@wasp/api'
+import api from "@wasp/api";
 
 const Todo = (_props) => {
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState([]);
   useEffect(() => {
-    api.get('/tasks')
-      .then(res => res.json())
-      .then(tasks => setTasks(tasks))
-      .catch(err => window.alert(err))
-  })
+    api
+      .get("/tasks")
+      .then((res) => res.json())
+      .then((tasks) => setTasks(tasks))
+      .catch((err) => window.alert(err));
+  });
 
   return (
     <ul>
-      {tasks && tasks.map(task => (
-        <li key={task.id}>
-          <input type="checkbox" value={task.isDone} />
-          {task.description}
-        </li>
-      ))}
+      {tasks &&
+        tasks.map((task) => (
+          <li key={task.id}>
+            <input type="checkbox" value={task.isDone} />
+            {task.description}
+          </li>
+        ))}
     </ul>
-  )
-}
+  );
+};
 ```
 
 ```jsx title=src/client/Todo.test.jsx
-import { test, expect } from 'vitest'
-import { screen } from '@testing-library/react'
+import { test, expect } from "vitest";
+import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from '@wasp/test'
-import Todo from './Todo'
+import { mockServer, renderInContext } from "@wasp/test";
+import Todo from "./Todo";
 
-const { mockApi } = mockServer()
+const { mockApi } = mockServer();
 
-const mockTasks = [{
-  id: 1,
-  description: 'test todo 1',
-  isDone: true,
-  userId: 1
-}]
+const mockTasks = [
+  {
+    id: 1,
+    description: "test todo 1",
+    isDone: true,
+    userId: 1,
+  },
+];
 
-test('handles mock data', async () => {
-  mockApi('/tasks', { res: mockTasks })
+test("handles mock data", async () => {
+  mockApi("/tasks", { res: mockTasks });
 
-  renderInContext(<Todo />)
+  renderInContext(<Todo />);
 
-  await screen.findByText('test todo 1')
+  await screen.findByText("test todo 1");
 
-  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(screen.getByRole("checkbox")).toBeChecked();
 
-  screen.debug()
-})
+  screen.debug();
+});
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/client/Todo.tsx"
-import { Task } from '@wasp/entities'
-import api from '@wasp/api'
+import { Task } from "@wasp/entities";
+import api from "@wasp/api";
 
 const Todo = (_props: {}) => {
-  const [tasks, setTasks] = useState<Task>([])
+  const [tasks, setTasks] = useState<Task>([]);
   useEffect(() => {
-    api.get('/tasks')
-      .then(res => res.json() as Task[])
-      .then(tasks => setTasks(tasks))
-      .catch(err => window.alert(err))
-  })
+    api
+      .get("/tasks")
+      .then((res) => res.json() as Task[])
+      .then((tasks) => setTasks(tasks))
+      .catch((err) => window.alert(err));
+  });
 
   return (
     <ul>
-      {tasks && tasks.map(task => (
-        <li key={task.id}>
-          <input type="checkbox" value={task.isDone} />
-          {task.description}
-        </li>
-      ))}
+      {tasks &&
+        tasks.map((task) => (
+          <li key={task.id}>
+            <input type="checkbox" value={task.isDone} />
+            {task.description}
+          </li>
+        ))}
     </ul>
-  )
-}
+  );
+};
 ```
 
 ```tsx title=src/client/Todo.test.tsx
-import { test, expect } from 'vitest'
-import { screen } from '@testing-library/react'
+import { test, expect } from "vitest";
+import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from '@wasp/test'
-import Todo from './Todo'
+import { mockServer, renderInContext } from "@wasp/test";
+import Todo from "./Todo";
 
-const { mockApi } = mockServer()
+const { mockApi } = mockServer();
 
-const mockTasks = [{
-  id: 1,
-  description: 'test todo 1',
-  isDone: true,
-  userId: 1
-}]
+const mockTasks = [
+  {
+    id: 1,
+    description: "test todo 1",
+    isDone: true,
+    userId: 1,
+  },
+];
 
-test('handles mock data', async () => {
-  mockApi('/tasks', mockTasks)
+test("handles mock data", async () => {
+  mockApi("/tasks", mockTasks);
 
-  renderInContext(<Todo />)
+  renderInContext(<Todo />);
 
-  await screen.findByText('test todo 1')
+  await screen.findByText("test todo 1");
 
-  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(screen.getByRole("checkbox")).toBeChecked();
 
-  screen.debug()
-})
+  screen.debug();
+});
 ```
 
 </TabItem>

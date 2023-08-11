@@ -13,7 +13,7 @@ Wasp makes handling these boring bits easy by offering a higher-level concept ca
 With a single declaration, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](/docs/data-model/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
 
 :::caution Early preview
-This feature is currently in early preview and we are actively working on it. Read more about [our plans](/docs/language/features#crud-operations-on-top-of-entities) for CRUD operations.
+This feature is currently in early preview and we are actively working on it. Read more about [our plans](#future-of-crud-operations-in-wasp) for CRUD operations.
 :::
 
 ## Overview
@@ -62,7 +62,7 @@ Keep reading for an example of Automatic CRUD in action, or skip ahead for the [
 
 ## Example: A Simple TODO App
 
-Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](/docs/language/features#username-and-password) based auth.
+Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](/docs/auth/username-and-pass) based auth.
 
 <ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud-guide.gif" caption="We are building a simple tasks app with username based auth"/>
 

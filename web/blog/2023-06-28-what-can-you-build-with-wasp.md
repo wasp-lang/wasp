@@ -55,7 +55,7 @@ Try it out and have fun or use it as an inspiration for your next project!
 
 **Try it out**: [amicus.work](https://www.amicus.work/)
 
-**Wasp features used**: [Authentication](https://wasp-lang.dev/docs/language/features#authentication--authorization), [email sending](/docs/advanced/email), [async/cron jobs](https://wasp-lang.dev/docs/language/features#jobs)
+**Wasp features used**: [Authentication](/docs/auth/overview), [email sending](/docs/advanced/email), [async/cron jobs](/docs/advanced/jobs)
 
 **UI Framework**: [Material UI](https://mui.com/)
 
@@ -89,7 +89,7 @@ What's special about Description Generator is that it was recently sold , making
 
 **Source code**: https://github.com/vincanger/banger-tweet-bot
 
-**Wasp features used**:[Authentication](https://wasp-lang.dev/docs/language/features#authentication--authorization), [async/cron jobs](https://wasp-lang.dev/docs/language/features#jobs)
+**Wasp features used**:[Authentication](/docs/auth/overview), [async/cron jobs](/docs/advanced/jobs)
 
 **UI Framework**: [Tailwind](https://tailwindcss.com/)
 

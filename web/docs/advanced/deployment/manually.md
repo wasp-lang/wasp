@@ -34,7 +34,7 @@ wasp build
 
 :::caution PostgreSQL in production
 You won't be able to build the app if you are using SQLite as a database (which is the default database).
-You'll have to [switch to PostgreSQL](#) before deploying to production. <!-- TODO: update the link -->
+You'll have to [switch to PostgreSQL](/docs/data-model/backends#migrating-from-sqlite-to-postgresql) before deploying to production.
 :::
 
 ### 2. Deploying the API Server (backend)

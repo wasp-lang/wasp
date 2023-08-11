@@ -49,7 +49,7 @@ To check out the winning projects and see where devs found Wasp most helpful, ta
 
 ## 🔑 New auth method - GitHub! 🐙
 
-Next to [username/password](/docs/language/features#username-and-password) and [Google](/docs/language/features#google), **Wasp now also supports [GitHub](/docs/language/features#github)** as an authentication method!
+Next to [username/password](/docs/auth/username-and-pass) and [Google](/docs/auth/social-auth/google), **Wasp now also supports [GitHub](/docs/auth/social-auth/github)** as an authentication method!
 
 <ImgWithCaption
     alt="Support for GitHub auth in Wasp"
@@ -58,7 +58,7 @@ Next to [username/password](/docs/language/features#username-and-password) and [
 
 Putting the code above in your `main.wasp` file and specifying your GitHub env variables is all you need to do! Wasp will provide you with a full-stack GitHub authentication along with UI helpers (GitHub sign-up button) you can immediately use in your React component.
 
-For more details, check the docs [here](/docs/language/features#github).
+For more details, check the docs [here](/docs/auth/social-auth/github).
 
 ## 💬 Let's discuss - on GitHub Discussions!
 

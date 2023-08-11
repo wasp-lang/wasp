@@ -43,7 +43,7 @@ job mySpecialJob {
 </TabItem>
 </Tabs>
 
-Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-serverimport-optional) (or any other NodeJS code), you can submit work to be done:
+Then, in your [Operations](/docs/data-model/operations/overview) or [setupFn](/docs/project/server-config#setup-function) (or any other NodeJS code), you can submit work to be done:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
