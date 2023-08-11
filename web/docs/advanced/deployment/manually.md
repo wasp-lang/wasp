@@ -198,11 +198,11 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 1. Copy the `fly.toml` file to a versioned directory, like your Wasp project dir.
 
-From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
+  From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
 
 1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after.
 
-When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+  When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
@@ -251,9 +251,9 @@ To get started, follow these steps:
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
 2. Create a [Railway](https://railway.app/) account
 
-:::tip Free Tier
-Sign up with your GitHub account to be eligible for the free tier
-:::
+  :::tip Free Tier
+  Sign up with your GitHub account to be eligible for the free tier
+  :::
 
 3. Install the [Railway CLI](https://docs.railway.app/develop/cli#installation)
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -286,15 +286,15 @@ Let's deploy our server first:
 
 1. Move into your app's `.wasp/build/` directory:
 
-```shell
-cd .wasp/build
-```
+  ```shell
+  cd .wasp/build
+  ```
 
 2. Link your app build to your newly created Railway project:
 
-```shell
-railway link
-```
+  ```shell
+  railway link
+  ```
 
 3. Go into the Railway dashboard and set up the required env variables:
 
@@ -320,21 +320,21 @@ Railway will now locate the Dockerfile and deploy your server 👍
 
 1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
 
-```shell
-cd web-app
-```
+  ```shell
+  cd web-app
+  ```
 
 2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
 
-   ```shell
-   npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-   ```
+  ```shell
+  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+  ```
 
 3. Next, we want to link this specific frontend directory to our project as well:
 
-```shell
-railway link
-```
+  ```shell
+  railway link
+  ```
 
 4. We need to configure Railway's static hosting for our client.
 

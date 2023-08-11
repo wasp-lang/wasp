@@ -2,6 +2,8 @@
 title: Recurring Jobs
 ---
 
+import { Required } from '@site/src/components/Required.tsx'
+
 If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers."
 
 Jobs will:
@@ -16,6 +18,9 @@ Some examples where you may want to use a `job` on the server include sending an
 
 To declare a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
 
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
 ```wasp title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
@@ -24,9 +29,26 @@ job mySpecialJob {
   }
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@server/workers/bar.js"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-serverimport-optional) (or any other NodeJS code), you can submit work to be done:
-```js
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="someAction.js"
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 
 const submittedJob = await mySpecialJob.submit({ job: "args" })
@@ -36,6 +58,21 @@ console.log(await submittedJob.pgBoss.details())
 // It takes a number of seconds, Date, or ISO date string.
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="someAction.ts"
+import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+
+const submittedJob = await mySpecialJob.submit({ job: "args" })
+console.log(await submittedJob.pgBoss.details())
+
+// Or, if you'd prefer it to execute in the future, just add a .delay().
+// It takes a number of seconds, Date, or ISO date string.
+await mySpecialJob.delay(10).submit({ job: "args" })
+```
+</TabItem>
+</Tabs>
 
 And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`.
 
@@ -44,6 +81,9 @@ Note that in our example, `foo` takes an argument, but this does not always have
 ### Recurring jobs
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```wasp  {6-9} title="main.wasp"
 job mySpecialJob {
@@ -57,11 +97,31 @@ job mySpecialJob {
   }
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp  {6-9} title="main.wasp"
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@server/workers/bar.js"
+  },
+  schedule: {
+    cron: "0 * * * *",
+    args: {=json { "job": "args" } json=} // optional
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
 ### Fully specified example
 Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```wasp
 job mySpecialJob {
@@ -82,110 +142,239 @@ job mySpecialJob {
   entities: [Task],
 }
 ```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@server/workers/bar.js",
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 1 } json=}
+    }
+  },
+  schedule: {
+    cron: "*/5 * * * *",
+    args: {=json { "foo": "bar" } json=},
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 0 } json=}
+    }
+  },
+  entities: [Task],
+}
+```
+</TabItem>
+</Tabs>
+
+## API Reference
 
 ### Fields
 
-#### `executor: JobExecutor` (required)
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
-:::note Job executors
-Our jobs need job executors to handle the _scheduling, monitoring, and execution_.
+```wasp title="main.wasp"
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@server/workers/bar.js",
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 1 } json=}
+    }
+  },
+  schedule: {
+    cron: "*/5 * * * *",
+    args: {=json { "foo": "bar" } json=},
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 0 } json=}
+    }
+  },
+  entities: [Task],
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-Wasp allows you to choose which job executor will be used to execute a specific job that you define, which affects some of the finer details of how jobs will behave and how they can be further configured. Each job executor has its pros and cons, which we will explain in more detail below, so you can pick the one that best suits your needs.
-:::
+```wasp title="main.wasp"
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@server/workers/bar.js",
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 1 } json=}
+    }
+  },
+  schedule: {
+    cron: "*/5 * * * *",
+    args: {=json { "foo": "bar" } json=},
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 0 } json=}
+    }
+  },
+  entities: [Task],
+}
+```
+</TabItem>
+</Tabs>
 
-`PgBoss` is currently our only job executor, and is recommended for low-volume production use cases. It requires your `app.db.system` to be `PostgreSQL`.
+The `job` declaration has the following fields:
 
-We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
+-  `executor: JobExecutor` <Required />
 
-:::info
-Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details below for more information.
+  :::note Job executors
+  Our jobs need job executors to handle the _scheduling, monitoring, and execution_.
 
-<details>
+  Wasp allows you to choose which job executor will be used to execute a specific job that you define, which affects some of the finer details of how jobs will behave and how they can be further configured. Each job executor has its pros and cons, which we will explain in more detail below, so you can pick the one that best suits your needs.
+  :::
+
+  `PgBoss` is currently our only job executor, and is recommended for low-volume production use cases. It requires your `app.db.system` to be `PostgreSQL`.
+
+  We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
+
+  :::info
+  Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details below for more information.
+
+  <details>
   <summary>pg-boss details</summary>
 
-  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.4.2/README.md).
+    pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.4.2/README.md).
 
-  When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
+    When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
 
-  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
+    If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
-  ##### pg-boss considerations
-  - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
-    - Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
-  - The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `schedule` table in the `pgboss` schema of your database.
-    - If you remove a `schedule` from a job, you will need to do the above as well.
-  - If you wish to deploy to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
-- https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
+    ### pg-boss considerations
+    - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
+      - Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
+    - The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `schedule` table in the `pgboss` schema of your database.
+      - If you remove a `schedule` from a job, you will need to do the above as well.
+    - If you wish to deploy to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
+    - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 
-</details>
-:::
+  </details>
 
-####  `perform: dict` (required)
+  :::
 
-  - ##### `fn: ServerImport` (required)
-  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which may be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
+- `perform: dict` <Required />
 
-  ```js
-  export async function foo(args, context) {
-    // Can reference context.entities.Task, for example.
-  }
-  ```
+  - `fn: ServerImport` <Required />
 
-  - ##### `executorOptions: dict` (optional)
-  Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
+    An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which may be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
 
-    - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
+    <Tabs groupId="js-ts">
+    <TabItem value="js" label="JavaScript">
+    
+    ```js title="bar.js"
+    export async function foo(args, context) {
+      // Can reference context.entities.Task, for example.
+    }
+    ```
+    </TabItem>
+    <TabItem value="ts" label="TypeScript">
+    
+    ```ts title="bar.ts"
+    export async function foo(args, context) {
+      // Can reference context.entities.Task, for example.
+    }
+    ```
+    </TabItem>
+    </Tabs>
 
-#### `schedule: dict` (optional)
+  - `executorOptions: dict`
 
-  - ##### `cron: string` (required)
-  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#scheduling).
+    Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
 
-  _If you need help building cron expressions, Check out_ <em>[Crontab guru](https://crontab.guru/#0_*_*_*_*).</em>
+    - `pgBoss: JSON`
 
-  - ##### `args: JSON` (optional)
-  The arguments to pass to the `perform.fn` function when invoked.
+      See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
-  - ##### `executorOptions: dict` (optional)
-  Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
+- `schedule: dict`
 
-    - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
+  - `cron: string` <Required />
 
-#### `entities: [Entity]` (optional)
-A list of entities you wish to use inside your Job (similar to Queries and Actions).
+    A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#scheduling).
+
+    _If you need help building cron expressions, Check out_ <em>[Crontab guru](https://crontab.guru/#0_*_*_*_*).</em>
+
+  - `args: JSON`
+  
+    The arguments to pass to the `perform.fn` function when invoked.
+
+  - `executorOptions: dict`
+
+    Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
+
+    - `pgBoss: JSON`
+    
+      See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
+
+- `entities: [Entity]`
+  
+  A list of entities you wish to use inside your Job (similar to [Queries and Actions](/docs/data-model/operations/queries#using-entities-in-queries)).
 
 ### JavaScript API
 
-#### Invocation
-##### `import`
+- `import`
 
-```js
-import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
-```
+  <Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
 
-##### `submit(jobArgs, executorOptions)`
-- ###### `jobArgs: JSON` (optional)
-- ###### `executorOptions: JSON` (optional)
+  ```js title="someAction.js"
+  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
 
-Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
+  ```ts title="someAction.ts"
+  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  ```
+  </TabItem>
+  </Tabs>
 
-```js
-const submittedJob = await mySpecialJob.submit({ job: "args" })
-```
+- `submit(jobArgs, executorOptions)`
+  - `jobArgs: JSON`
+  - `executorOptions: JSON`
 
-##### `delay(startAfter)` (optional)
-- ###### `startAfter: int | string | Date` (required)
+  Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
 
-Delaying the invocation of the job handler. The delay can be one of:
-- Integer: number of seconds to delay. [Default 0]
-- String: ISO date string to run at.
-- Date: Date to run at.
+ <Tabs groupId="js-ts">
+ <TabItem value="js" label="JavaScript">
+ 
+  ```js title="someAction.js"
+  const submittedJob = await mySpecialJob.submit({ job: "args" })
+  ```
+ </TabItem>
+ <TabItem value="ts" label="TypeScript">
+ 
+  ```js title="someAction.ts"
+  const submittedJob = await mySpecialJob.submit({ job: "args" })
+  ```
+ </TabItem>
+ </Tabs>
 
-```js
-const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" }, { "retryLimit": 2 })
-```
+- `delay(startAfter)`
+  - `startAfter: int | string | Date` <Required />
+
+  Delaying the invocation of the job handler. The delay can be one of:
+    - Integer: number of seconds to delay. [Default 0]
+    - String: ISO date string to run at.
+    - Date: Date to run at.
+
+ <Tabs groupId="js-ts">
+ <TabItem value="js" label="JavaScript">
+ 
+  ```js title="someAction.js"
+  const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" }, { "retryLimit": 2 })
+  ```
+ </TabItem>
+ <TabItem value="ts" label="TypeScript">
+ 
+  ```ts title="someAction.ts"
+  const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" }, { "retryLimit": 2 })
+  ```
+ </TabItem>
+ </Tabs>
 
 #### Tracking
 The return value of `submit()` is an instance of `SubmittedJob`, which minimally contains:
