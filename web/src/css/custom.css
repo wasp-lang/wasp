@@ -27,19 +27,6 @@
   background-color: var(--custom-blog-list-background-color);
 }
 
-.pill {
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.pill.pill-username-password {
-  background-color: var(--auth-ui-username-password-bg);
-}
-
-.pill.pill-email {
-  background-color: var(--auth-ui-email-bg);
-}
-
 /* Highlight Prisma field types properly */
 .token.type-class-name {
   color: rgb(54, 172, 170);
@@ -96,8 +83,11 @@
 
   --ifm-col-spacing-vertical: 0.5rem;
   --docusaurus-highlighted-code-line-bg: #e8edf2;
-  --auth-ui-username-password-bg: #fee;
-  --auth-ui-email-bg: #eef;
+
+  /* Docs */
+  --ifm-menu-color: var(--ifm-color-gray-800);
+  --sidebar-category-color: var(--ifm-color-gray-600);
+  --sidebar-category-spacing: 2em;
 }
 
 :root[data-theme="dark"] {
@@ -108,6 +98,33 @@
   --custom-blog-card-timestamp-color: #a3a3a3;
   --custom-blog-card-background-color: black;
   --docusaurus-highlighted-code-line-bg: #dee6ed;
-  --auth-ui-username-password-bg: rgb(93, 57, 57);
-  --auth-ui-email-bg: rgb(71, 71, 112);
+
+  /* Docs */
+  --ifm-menu-color: var(--ifm-color-gray-200);
+}
+
+/******** DOCS SIDEBAR **********/
+
+/* remove background from sidebar items (except for active) */
+.menu__link:not(.menu__link--active), .menu__list-item-collapsible {
+  background: initial !important;
+}
+/* less opaque on hover/focus */
+.menu__link:hover:not(.menu__link--active):not(.menu__link--sublist), .menu__link:focus:not(.menu__link--active):not(.menu__link--sublist) {
+  opacity: 0.7;
+}
+
+.theme-doc-sidebar-item-category-level-1 {
+  margin-bottom: var(--sidebar-category-spacing);
+}
+
+.theme-doc-sidebar-item-category-level-1 > .menu__list {
+  /* remove indentation from 1st level categories */
+  padding-left: 0;
+}
+
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link {
+  color: var(--sidebar-category-color);
+  font-weight: bold;
+  font-size: var(--ifm-h6-font-size);
 }

@@ -710,7 +710,7 @@ You should see a login screen this time. Go ahead and first register a user, the
 
 Once logged in, you’ll see the same hardcoded poll data as in the previous example, because, again, we haven’t set up the [Socket.IO](http://Socket.IO) client on the frontend. But this time it should be much easier.
 
-Why? Well, besides less configuration, another nice benefit of working with [TypeScript with Wasp](https://wasp-lang.dev/docs/typescript#websocket-full-stack-type-support), is that you just have to define payload types with matching event names on the server, and those types will get exposed automatically on the client! 
+Why? Well, besides less configuration, another nice benefit of working with [TypeScript with Wasp](/docs/typescript#websocket-full-stack-type-support), is that you just have to define payload types with matching event names on the server, and those types will get exposed automatically on the client! 
 
 Let’s take a look at how that works now.
 

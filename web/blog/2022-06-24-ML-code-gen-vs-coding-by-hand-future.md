@@ -184,7 +184,7 @@ auth: {
     onAuthSucceededRedirectTo: "/dashboard"
   }
 ```
-Based on this, the computer/compiler could take care of all the stuff mentioned above, and then depending on the level of abstraction, provide some sort of interface (e.g. form components, or functions) to “hook” in with our own e.g. React/Node.js code (btw this is how it actually [works in Wasp](/docs/language/features#authentication--authorization)).
+Based on this, the computer/compiler could take care of all the stuff mentioned above, and then depending on the level of abstraction, provide some sort of interface (e.g. form components, or functions) to “hook” in with our own e.g. React/Node.js code (btw this is how it actually [works in Wasp](/docs/auth/overview)).
 
 We don’t need to care what exact packages or encryption methods are used beneath the hood - it is the responsibility we trust with the authors and maintainers of the abstraction layer, just like we trust that Python knows the best how to sum two numbers on the assembly level and that it is kept in sync with the latest advancements in the field. The same happens when we rely on the built-in data structures or count on the garbage collector to manage our program’s memory well.
 

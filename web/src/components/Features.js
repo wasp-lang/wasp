@@ -86,7 +86,7 @@ const Features = () => {
         <Feature
           Icon={Link2}
           title='RPC (Client <-> Server)'
-          url='/docs/language/features#queries-and-actions-aka-operations'
+          url='/docs/data-model/operations/overview'
           description={`
             Wasp provides a typesafe RPC layer that instantly brings your data models and server logic to the client.
           `}
@@ -95,7 +95,7 @@ const Features = () => {
         <Feature
           Icon={Send}
           title='Simple Deployment'
-          url='/docs/deploying'
+          url='/docs/advanced/deployment/overview'
           description={`
             Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
           `}
@@ -105,7 +105,7 @@ const Features = () => {
         <Feature
           Icon={Settings}
           title='Jobs'
-          url='/docs/language/features#jobs'
+          url='/docs/advanced/jobs'
           description={`
             Easily define, schedule and run specialized server tasks.
             Persistent, retryable, delayable.
@@ -115,7 +115,7 @@ const Features = () => {
         <Feature
           Icon={Mail}
           title='Email Sending'
-          url='/docs/guides/sending-emails'
+          url='/docs/advanced/email'
           description={`
             All you need to do is connect an email provider and you can send emails!
           `}
@@ -124,7 +124,7 @@ const Features = () => {
         <Feature
           Icon={Type}
           title='Full-stack Type Safety'
-          url='/docs/typescript'
+          url='/docs/tutorial/queries#implementing-a-query'
           description={`
             Full support for TypeScript with auto-generated types that span the whole stack.
           `}
@@ -133,7 +133,7 @@ const Features = () => {
         <Feature
           Icon={Grid}
           title='And More!'
-          url='/docs/language/features'
+          url='/docs'
           description={`
             Custom API routes, database seeding, optimistic updates, automatic cache invalidation on the client, ...
           `}

@@ -40,4 +40,3 @@ export function ShowForJs({ children }: Props) {
   const [jsTs] = useStorageSlot('docusaurus.tab.js-ts')
   return jsTs === 'js' && <MDXContent>{children}</MDXContent>
 }
-
