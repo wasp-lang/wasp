@@ -511,4 +511,4 @@ If you notice that some of the features you'd like to have are missing, or have 
 If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
 :::
 
-Oh, and do **subscribe to our newsletter: https://wasp-lang.dev/#signup**! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
+Oh, and do [**subscribe to our newsletter**](/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

@@ -221,14 +221,14 @@ Most of this code is regular React, the only exception being the <ShowForJs>two<
 <ShowForJs>
 
 - `import getTasks from '@wasp/queries/getTasks'` - Imports the client-side query function.
-- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/data-model/operations#useQuery) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 
 </ShowForJs>
 
 <ShowForTs>
 
 - `import getTasks from '@wasp/queries/getTasks'` - Imports the client-side query function.
-- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/data-model/operations#useQuery) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+- `import { useQuery } from '@wasp/queries'` - Imports Wasp's [useQuery](/docs/data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 - `import { Task } from '@wasp/entities'` - The type for the task entity we defined in `main.wasp`.
 
 Notice how you don't need to annotate the type of the query's return value: Wasp uses the types you defined while implementing the query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.

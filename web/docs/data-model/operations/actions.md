@@ -626,7 +626,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
 2. `context` (type depends on the Action)
 
-   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth-section](/docs/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
+   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](/docs/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
 
