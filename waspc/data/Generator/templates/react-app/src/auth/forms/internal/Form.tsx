@@ -48,6 +48,14 @@ export const FormInput = styled('input', {
   marginTop: '0.5rem',
 })
 
+export const FormError = styled('div', {
+  display: 'block',
+  fontSize: '$sm',
+  fontWeight: '500',
+  color: '$formErrorText',
+  marginTop: '0.5rem',
+})
+
 export const SubmitButton = styled('button', {
   display: 'flex',
   justifyContent: 'center',

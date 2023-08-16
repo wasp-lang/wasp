@@ -1,4 +1,6 @@
-import type { Router, Request } from "express"
+import type { Router, Request } from 'express'
+import type { User } from '../../entities'
+import type { Expand } from '../../universal/types'
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
@@ -17,3 +19,18 @@ export type InitData = {
 }
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
+
+export type AdditionalSignupFieldsConfig<
+    DisallowedFields extends keyof User,
+> = Expand<
+  Omit<
+    Partial<{
+      [key in keyof User]: {
+        get: (value: string) => unknown;
+        // Expected to throw an error if validation fails
+        validate: (value: string) => void;
+      };
+    }>,
+    DisallowedFields
+  >
+>;

@@ -136,7 +136,9 @@ npmDepsForWasp spec =
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
             ("@prisma/client", show prismaVersion),
             ("superjson", "^1.12.2"),
-            ("mitt", "3.0.0")
+            ("mitt", "3.0.0"),
+            -- Used for Auth UI
+            ("react-hook-form", "^7.45.4")
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec

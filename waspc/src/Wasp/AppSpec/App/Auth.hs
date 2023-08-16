@@ -6,6 +6,7 @@ module Wasp.AppSpec.App.Auth
     AuthMethods (..),
     ExternalAuthConfig (..),
     EmailAuthConfig (..),
+    SignupFlowCustomizationOptions (..),
     usernameAndPasswordConfig,
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
@@ -29,6 +30,7 @@ data Auth = Auth
   { userEntity :: Ref Entity,
     externalAuthEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
+    signupCustomization :: Maybe SignupFlowCustomizationOptions,
     onAuthFailedRedirectTo :: String,
     onAuthSucceededRedirectTo :: Maybe String
   }
@@ -59,6 +61,12 @@ data EmailAuthConfig = EmailAuthConfig
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig,
     allowUnverifiedLogin :: Maybe Bool
+  }
+  deriving (Show, Eq, Data)
+
+data SignupFlowCustomizationOptions = SignupFlowCustomizationOptions
+  { 
+    additionalFieldsFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 

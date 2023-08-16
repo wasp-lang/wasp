@@ -11,7 +11,7 @@ import StrongPath
     Rel,
     reldir,
     relfile,
-    (</>),
+    (</>), reldirP,
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -31,6 +31,7 @@ import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
@@ -125,11 +126,14 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+          "additionalSignupFieldsFn" .= extImportToImportJson [reldirP|../|] additionalSignupFieldsFn
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
+
+    additionalSignupFieldsFn = AS.Auth.signupCustomization auth >>= AS.Auth.additionalFieldsFn
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

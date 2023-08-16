@@ -18,5 +18,9 @@ export type { GetUserFieldsFn } from '../auth/providers/oauth/types';
 {=/ isExternalAuthEnabled =}
 
 {=# isEmailAuthEnabled =}
-export type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from '../auth/providers/email/types';
+export type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn, AdditionalSignupFieldsConfig } from '../auth/providers/email/types';
 {=/ isEmailAuthEnabled =}
+
+{=# isLocalAuthEnabled =}
+export type { AdditionalSignupFieldsConfig } from '../auth/providers/local/types';
+{=/ isLocalAuthEnabled =}

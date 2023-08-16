@@ -12,6 +12,9 @@ app crudTesting {
       usernameAndPassword: {},
     },
     onAuthFailedRedirectTo: "/login",
+    signupCustomization: {
+      additionalFieldsFn: import { getAdditionalFields } from "@server/auth.js",
+    },
   },
 }
 
@@ -41,6 +44,7 @@ entity User {=psl
   id Int @id @default(autoincrement())
   username String @unique
   password String
+  address String?
   tasks Task[]
 psl=}
 

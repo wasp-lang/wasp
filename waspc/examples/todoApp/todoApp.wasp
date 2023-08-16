@@ -41,6 +41,9 @@ app todoApp {
         allowUnverifiedLogin: false,
       },
     },
+    signupCustomization: {
+      additionalFieldsFn: import { getAdditionalFields } from "@server/auth/signup.js",
+    },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
@@ -79,6 +82,7 @@ entity User {=psl
     externalAuthAssociations  SocialLogin[]
     // Business logic
     tasks                     Task[]
+    address                   String?
 psl=}
 
 entity SocialLogin {=psl
