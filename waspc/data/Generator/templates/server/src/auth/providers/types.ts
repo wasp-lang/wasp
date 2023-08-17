@@ -20,21 +20,17 @@ export type InitData = {
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
-export type AdditionalSignupFieldsConfig<
-  ExistingUserFields extends keyof User,
-> = Expand<
-  Omit<
-    Partial<{ [key in keyof User]: AdditionalFieldDefinition }>,
-    ExistingUserFields
-  >
->
-
-type AdditionalFieldDefinition = {
-  get: (data: PossibleUserFields) => unknown;
-  // Expected to throw an error if validation fails
-  validate: (value: unknown) => void;
+export function createDefineAdditionalSignupFieldsFn<AlreadyIncludedUserFields extends keyof User>() {
+  return function defineFields(config: {
+    [key in keyof Partial<Omit<User, AlreadyIncludedUserFields>>]: FieldDefinition<Partial<Omit<User, AlreadyIncludedUserFields>>[key]>
+  }) {
+    return config
+  }
 }
 
-type PossibleUserFields = Partial<{
-  [key in keyof User]: unknown
-}>
+type FieldDefinition<T> = {
+  get: (data: Partial<{
+    [key in keyof User]: unknown
+  }>) => T | undefined;
+  validate: (value: T | undefined) => void;
+}

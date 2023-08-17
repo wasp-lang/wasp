@@ -12,7 +12,6 @@ import { isValidEmail } from '../core/auth/validators.js'
 import { emailSender } from '../email/index.js';
 import { Email } from '../email/core/types.js';
 {=/ isEmailAuthEnabled =}
-import { AdditionalSignupFieldsConfig } from './providers/types.js'
 {=# additionalSignupFieldsFn.isDefined =}
 {=& additionalSignupFieldsFn.importStatement =}
 {=/ additionalSignupFieldsFn.isDefined =}
@@ -22,7 +21,7 @@ import { AdditionalSignupFieldsConfig } from './providers/types.js'
 const _waspAdditionalSignupFieldsConfig = {= additionalSignupFieldsFn.importIdentifier =}
 {=/ additionalSignupFieldsFn.isDefined =}
 {=^ additionalSignupFieldsFn.isDefined =}
-const _waspAdditionalSignupFieldsConfig = (): AdditionalSignupFieldsConfig<never> => ({})
+const _waspAdditionalSignupFieldsConfig = {}
 {=/ additionalSignupFieldsFn.isDefined =}
 
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
@@ -234,9 +233,8 @@ function throwValidationError(message: string): void {
 
 
 export function validateAndGetAdditionalFields(data: unknown) {
-  const additionalFieldsDefinition = _waspAdditionalSignupFieldsConfig()
   const result: Record<string, any> = {};
-  for (const [field, options] of Object.entries(additionalFieldsDefinition)) {
+  for (const [field, options] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
     const value = options.get(data)
     validate(options, value)
     result[field] = value

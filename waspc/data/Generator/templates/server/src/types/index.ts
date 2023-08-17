@@ -18,9 +18,9 @@ export type { GetUserFieldsFn } from '../auth/providers/oauth/types';
 {=/ isExternalAuthEnabled =}
 
 {=# isEmailAuthEnabled =}
-export type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn, AdditionalSignupFieldsConfig } from '../auth/providers/email/types';
+export { type GetVerificationEmailContentFn, type GetPasswordResetEmailContentFn, defineAdditionalSignupFields } from '../auth/providers/email/types.js';
 {=/ isEmailAuthEnabled =}
 
 {=# isLocalAuthEnabled =}
-export type { AdditionalSignupFieldsConfig } from '../auth/providers/local/types';
+export { defineAdditionalSignupFields } from '../auth/providers/local/types.js';
 {=/ isLocalAuthEnabled =}

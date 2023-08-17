@@ -1,3 +1,3 @@
-import { AdditionalSignupFieldsConfig as AdditionalSignupFieldsConfigGeneric } from '../types'
+import { createDefineAdditionalSignupFieldsFn } from '../types.js'
 
-export type AdditionalSignupFieldsConfig = AdditionalSignupFieldsConfigGeneric<"username" | "password">
+export const defineAdditionalSignupFields = createDefineAdditionalSignupFieldsFn<"username" | "password">()

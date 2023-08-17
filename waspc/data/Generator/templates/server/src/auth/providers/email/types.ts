@@ -1,4 +1,4 @@
-import { AdditionalSignupFieldsConfig as AdditionalSignupFieldsConfigGeneric } from '../types'
+import { createDefineAdditionalSignupFieldsFn } from '../types.js'
 
 export type GetVerificationEmailContentFn = (params: { verificationLink: string }) => EmailContent;
 
@@ -14,4 +14,4 @@ export const tokenVerificationErrors = {
     TokenExpiredError: 'TokenExpiredError',
 };
 
-export type AdditionalSignupFieldsConfig = AdditionalSignupFieldsConfigGeneric<"email" | "password">
+export const defineAdditionalSignupFields = createDefineAdditionalSignupFieldsFn<"email" | "password">()

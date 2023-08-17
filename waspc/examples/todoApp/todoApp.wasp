@@ -42,7 +42,7 @@ app todoApp {
       },
     },
     signupCustomization: {
-      additionalFieldsFn: import { getAdditionalFields } from "@server/auth/signup.js",
+      additionalFieldsFn: import { fields } from "@server/auth/signup.js",
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"

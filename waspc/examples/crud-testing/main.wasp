@@ -13,7 +13,7 @@ app crudTesting {
     },
     onAuthFailedRedirectTo: "/login",
     signupCustomization: {
-      additionalFieldsFn: import { getAdditionalFields } from "@server/auth.js",
+      additionalFieldsFn: import { fields } from "@server/auth.js",
     },
   },
 }

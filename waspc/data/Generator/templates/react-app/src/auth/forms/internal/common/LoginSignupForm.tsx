@@ -145,6 +145,7 @@ export const LoginSignupForm = ({
     isLogin,
     onError: onErrorHandler,
     showEmailVerificationPending() {
+      hookForm.reset()
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
