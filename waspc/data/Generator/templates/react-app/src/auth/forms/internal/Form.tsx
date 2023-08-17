@@ -14,6 +14,7 @@ export const FormLabel = styled('label', {
   display: 'block',
   fontSize: '$sm',
   fontWeight: '500',
+  marginBottom: '0.5rem',
 })
 
 export const FormInput = styled('input', {
@@ -44,8 +45,7 @@ export const FormInput = styled('input', {
   paddingBottom: '0.375rem',
   paddingLeft: '0.75rem',
   paddingRight: '0.75rem',
-
-  marginTop: '0.5rem',
+  margin: 0,
 })
 
 export const FormError = styled('div', {

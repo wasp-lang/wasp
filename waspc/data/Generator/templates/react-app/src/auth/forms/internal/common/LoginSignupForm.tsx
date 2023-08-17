@@ -1,15 +1,13 @@
 {{={= =}=}}
-import { useContext, type FormEvent } from 'react'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
-import { styled } from '../../../../stitches.config'
-import config from '../../../../config.js'
 
 import { AuthContext } from '../../Auth'
 import { Form, FormInput, FormItemGroup, FormLabel, FormError, SubmitButton } from '../Form'
+import { AdditionalSignupFields } from '../../types'
 {=# isSocialAuthEnabled =}
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
-import { AdditionalSignupFields } from '../../types'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useHistory } from 'react-router-dom'
@@ -99,6 +97,15 @@ const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ isGitHubAuthEnabled =}
 
+{=!
+// Since we allow users to add additional fields to the signup form, we don't
+// know the exact shape of the form values. We are assuming that the form values
+// will be a flat object with string values.
+=}
+export type LoginSignupFormFields = {
+  [key: string]: string;
+}
+
 export const LoginSignupForm = ({
     state,
     socialButtonsDirection = 'horizontal',
@@ -123,7 +130,6 @@ export const LoginSignupForm = ({
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
   {=# isUsernameAndPasswordAuthEnabled =}
-  const hookForm = useForm<{ username: string; password: string }>()
   const { handleSubmit } = useUsernameAndPassword({
     isLogin,
     onError: onErrorHandler,
@@ -133,7 +139,6 @@ export const LoginSignupForm = ({
   });
   {=/ isUsernameAndPasswordAuthEnabled =}
   {=# isEmailAuthEnabled =}
-  const hookForm = useForm<{ email: string; password: string }>()
   const { handleSubmit } = useEmail({
     isLogin,
     onError: onErrorHandler,
@@ -151,7 +156,7 @@ export const LoginSignupForm = ({
     {=/ isEmailVerificationRequired =}
   });
   {=/ isEmailAuthEnabled =}
-  console.log(hookForm)
+  const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
   {=# isAnyPasswordBasedAuthEnabled =}
   async function onSubmit (data) {
