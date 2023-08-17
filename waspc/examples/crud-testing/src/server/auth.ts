@@ -4,22 +4,24 @@ export function getAdditionalFields() {
   return {
     address: {
       get: (data): string => {
-        if (typeof data.address !== "string") {
-          throw new Error("Address must be a string");
-        }
-        return data.address;
+        return ensureString(data.address, "Address is required");
       },
       validate: (value) => {
-        if (typeof value !== "string") {
-          throw new Error("Address must be a string");
-        }
-        if (!value) {
+        const address = ensureString(value, "Address is required");
+        if (!address) {
           throw new Error("Address is required");
         }
-        if (value.length < 5) {
+        if (address.length < 5) {
           throw new Error("Address must be at least 5 characters long");
         }
       },
     },
   } satisfies AdditionalSignupFieldsConfig;
+}
+
+function ensureString(value: unknown, message: string): string {
+  if (typeof value !== "string") {
+    throw new Error(message);
+  }
+  return value;
 }

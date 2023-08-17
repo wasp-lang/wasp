@@ -237,9 +237,9 @@ export function validateAndGetAdditionalFields(data: unknown) {
   const additionalFieldsDefinition = _waspAdditionalSignupFieldsConfig()
   const result: Record<string, any> = {};
   for (const [field, options] of Object.entries(additionalFieldsDefinition)) {
-    const value = data[field]
+    const value = options.get(data)
     validate(options, value)
-    result[field] = options.get(value)
+    result[field] = value
   }
   return result;
 
