@@ -3,10 +3,16 @@ import { AdditionalSignupFieldsConfig } from "@wasp/types";
 export function getAdditionalFields() {
   return {
     address: {
-      get: (value) => {
-        return value;
+      get: (data): string => {
+        if (typeof data.address !== "string") {
+          throw new Error("Address must be a string");
+        }
+        return data.address;
       },
       validate: (value) => {
+        if (typeof value !== "string") {
+          throw new Error("Address must be a string");
+        }
         if (!value) {
           throw new Error("Address is required");
         }

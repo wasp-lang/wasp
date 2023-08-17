@@ -21,16 +21,20 @@ export type InitData = {
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 export type AdditionalSignupFieldsConfig<
-    DisallowedFields extends keyof User,
+  ExistingUserFields extends keyof User,
 > = Expand<
   Omit<
-    Partial<{
-      [key in keyof User]: {
-        get: (value: string) => unknown;
-        // Expected to throw an error if validation fails
-        validate: (value: string) => void;
-      };
-    }>,
-    DisallowedFields
+    Partial<{ [key in keyof User]: AdditionalFieldDefinition }>,
+    ExistingUserFields
   >
->;
+>
+
+type AdditionalFieldDefinition = {
+  get: (data: PossibleUserFields) => unknown;
+  // Expected to throw an error if validation fails
+  validate: (value: unknown) => void;
+}
+
+type PossibleUserFields = Partial<{
+  [key in keyof User]: unknown
+}>

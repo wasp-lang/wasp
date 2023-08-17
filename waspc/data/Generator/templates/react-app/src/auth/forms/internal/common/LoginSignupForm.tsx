@@ -129,6 +129,8 @@ export const LoginSignupForm = ({
     setErrorMessage({ title: error.message, description: error.data?.data?.message })
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
+  const hookForm = useForm<LoginSignupFormFields>()
+  const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
   {=# isUsernameAndPasswordAuthEnabled =}
   const { handleSubmit } = useUsernameAndPassword({
     isLogin,
@@ -156,8 +158,6 @@ export const LoginSignupForm = ({
     {=/ isEmailVerificationRequired =}
   });
   {=/ isEmailAuthEnabled =}
-  const hookForm = useForm<LoginSignupFormFields>()
-  const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
   {=# isAnyPasswordBasedAuthEnabled =}
   async function onSubmit (data) {
     setIsLoading(true);
@@ -165,7 +165,6 @@ export const LoginSignupForm = ({
     setSuccessMessage(null);
     try {
       await handleSubmit(data);
-      hookForm.reset();
     } finally {
       setIsLoading(false);
     }
