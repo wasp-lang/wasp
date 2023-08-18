@@ -14,13 +14,12 @@ import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
 import qualified Data.HashMap.Strict as M
 import Data.List (find)
-import Data.Maybe (catMaybes, fromJust, mapMaybe)
-import qualified Language.LSP.Server as LSP
+import Data.Maybe (catMaybes, mapMaybe)
 import qualified StrongPath as SP
 import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule))
 import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath, absPathToCachePath, cachePathToAbsPath, tryGetTsconfigForAbsPath, waspStylePathToCachePath)
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einName, einPath), getAllExtImports)
-import Wasp.LSP.ServerMonads (HandlerM, ServerM, handler, modify)
+import Wasp.LSP.ServerMonads (HandlerM, ServerM, getProjectRootDir, handler, modify)
 import qualified Wasp.LSP.ServerState as State
 import qualified Wasp.TypeScript.Inspect.Exports as TS
 
@@ -45,10 +44,9 @@ refreshExportsOfFiles files = do
 
   cachePaths <- catMaybes <$> mapM absPathToCachePath files
 
-  LSP.getRootPath >>= \case
+  getProjectRootDir >>= \case
     Nothing -> pure ()
-    Just projectRootDirFilePath -> do
-      let projectRootDir = fromJust $ SP.parseAbsDir projectRootDirFilePath
+    Just projectRootDir -> do
       let exportRequests = mapMaybe (getExportRequestForFile projectRootDir) files
       response <- liftIO (TS.getExportsOfTsFiles exportRequests)
       -- Clear cache for all the files that were requested to be updated. This
