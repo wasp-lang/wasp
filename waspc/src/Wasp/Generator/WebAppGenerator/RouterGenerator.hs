@@ -94,11 +94,12 @@ instance ToJSON ExternalAuthProviderTemplateData where
       ]
 
 genRouter :: AppSpec -> Generator [FileDraft]
-genRouter spec = sequence [
-      genRouterTsx spec,
+genRouter spec =
+  sequence
+    [ genRouterTsx spec,
       genRoutesHelpers spec,
       genFileCopy [relfile|src/router/Link.tsx|]
-  ]
+    ]
   where
     genFileCopy = return . C.mkTmplFd
 
