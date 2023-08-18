@@ -233,7 +233,6 @@ function throwValidationError(message: string): void {
   throw new HttpError(422, 'Validation failed', { message })
 }
 
-
 export function validateAndGetAdditionalFields(data: unknown) {
   const result: Record<string, any> = {};
   for (const [field, options] of Object.entries(_waspAdditionalSignupFieldsConfig)) {

@@ -10,8 +10,9 @@ import StrongPath
     Path',
     Rel,
     reldir,
+    reldirP,
     relfile,
-    (</>), reldirP,
+    (</>),
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -29,9 +30,9 @@ import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of

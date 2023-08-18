@@ -65,8 +65,7 @@ data EmailAuthConfig = EmailAuthConfig
   deriving (Show, Eq, Data)
 
 data SignupFlowCustomizationOptions = SignupFlowCustomizationOptions
-  { 
-    additionalFields :: Maybe ExtImport
+  { additionalFields :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
