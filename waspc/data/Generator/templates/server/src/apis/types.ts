@@ -2,7 +2,7 @@
 
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 
-export { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
+export type { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
 
 import {
   {=# allEntities =}
