@@ -46,9 +46,9 @@ export function getSignupRoute({
         const additionalFields = validateAndGetAdditionalFields(userFields);
     
         const user = await createUser({
+            ...additionalFields,
             email: userFields.email,
             password: userFields.password,
-            ...additionalFields,
         });
 
         const verificationLink = await createEmailVerificationLink(user, clientRoute);

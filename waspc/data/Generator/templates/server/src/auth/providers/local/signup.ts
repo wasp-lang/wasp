@@ -9,9 +9,9 @@ export default handleRejection(async (req, res) => {
   const additionalFields = validateAndGetAdditionalFields(userFields)
 
   await createUser({
+    ...additionalFields,
     username: userFields.username,
     password: userFields.password,
-    ...additionalFields,
   })
 
   return res.json({ success: true })
