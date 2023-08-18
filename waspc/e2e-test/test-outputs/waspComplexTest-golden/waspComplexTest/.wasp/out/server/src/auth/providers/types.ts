@@ -1,4 +1,6 @@
-import type { Router, Request } from "express"
+import type { Router, Request } from 'express'
+import type { User } from '../../entities'
+import type { Expand } from '../../universal/types'
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
@@ -17,3 +19,28 @@ export type InitData = {
 }
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
+
+export function createDefineAdditionalSignupFieldsFn<
+  // Wasp already includes these fields in the signup process
+  ExistingFields extends keyof User,
+  PossibleAdditionalFields = Expand<
+    Partial<Omit<User, ExistingFields>>
+  >
+>() {
+  return function defineFields(config: {
+    [key in keyof PossibleAdditionalFields]: FieldDefinition<
+      PossibleAdditionalFields[key]
+    >
+  }) {
+    return config
+  }
+}
+
+type FieldDefinition<T> = {
+  get: (
+    data: Partial<{
+      [key in keyof User]: unknown
+    }>
+  ) => T | undefined
+  validate: (value: T | undefined) => void
+}

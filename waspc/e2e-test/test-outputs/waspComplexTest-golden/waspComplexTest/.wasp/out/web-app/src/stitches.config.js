@@ -12,6 +12,7 @@ export const {
       gray500: 'gainsboro',
       gray400: '#f0f0f0',
       red: '#FED7D7',
+      darkRed: '#fa3838',
       green: '#C6F6D5',
 
       brand: '$waspYellow',
@@ -23,6 +24,7 @@ export const {
 
       submitButtonText: 'black',
 
+      formErrorText: '$darkRed',
     },
     fontSizes: {
       sm: '0.875rem'

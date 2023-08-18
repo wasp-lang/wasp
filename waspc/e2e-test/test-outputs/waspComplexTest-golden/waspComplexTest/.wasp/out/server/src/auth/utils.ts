@@ -7,6 +7,11 @@ import { type User } from '../entities/index.js'
 import waspServerConfig from '../config.js';
 import { type Prisma } from '@prisma/client';
 
+import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
+const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
+  ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
+>
+
 type UserId = User['id']
 
 export const contextWithUserEntity = {
@@ -73,4 +78,22 @@ function rethrowPossiblePrismaError(e: unknown): void {
 
 function throwValidationError(message: string): void {
   throw new HttpError(422, 'Validation failed', { message })
+}
+
+export function validateAndGetAdditionalFields(data: unknown) {
+  const result: Record<string, any> = {};
+  for (const [field, options] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
+    const value = options.get(data)
+    validate(options, value)
+    result[field] = value
+  }
+  return result;
+
+  function validate(options, value) {
+    try {
+      options.validate(value)
+    } catch (e) {
+      throwValidationError(e.message)
+    }
+  }
 }

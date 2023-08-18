@@ -20,7 +20,6 @@ export type { GetUserFieldsFn } from '../auth/providers/oauth/types';
 {=# isEmailAuthEnabled =}
 export { type GetVerificationEmailContentFn, type GetPasswordResetEmailContentFn, defineAdditionalSignupFields } from '../auth/providers/email/types.js';
 {=/ isEmailAuthEnabled =}
-
 {=# isLocalAuthEnabled =}
 export { defineAdditionalSignupFields } from '../auth/providers/local/types.js';
 {=/ isLocalAuthEnabled =}
