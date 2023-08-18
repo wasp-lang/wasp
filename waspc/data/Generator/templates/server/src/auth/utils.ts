@@ -12,19 +12,19 @@ import { isValidEmail } from '../core/auth/validators.js'
 import { emailSender } from '../email/index.js';
 import { Email } from '../email/core/types.js';
 {=/ isEmailAuthEnabled =}
-{=# additionalSignupFieldsFn.isDefined =}
-{=& additionalSignupFieldsFn.importStatement =}
-{=/ additionalSignupFieldsFn.isDefined =}
+{=# additionalSignupFields.isDefined =}
+{=& additionalSignupFields.importStatement =}
+{=/ additionalSignupFields.isDefined =}
 
-{=# additionalSignupFieldsFn.isDefined =}
-const _waspAdditionalSignupFieldsConfig = {= additionalSignupFieldsFn.importIdentifier =}
-{=/ additionalSignupFieldsFn.isDefined =}
-{=^ additionalSignupFieldsFn.isDefined =}
+{=# additionalSignupFields.isDefined =}
+const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdentifier =}
+{=/ additionalSignupFields.isDefined =}
+{=^ additionalSignupFields.isDefined =}
 import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
 const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
   ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
 >
-{=/ additionalSignupFieldsFn.isDefined =}
+{=/ additionalSignupFields.isDefined =}
 
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 

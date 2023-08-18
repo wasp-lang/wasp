@@ -127,13 +127,13 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
           "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
-          "additionalSignupFieldsFn" .= extImportToImportJson [reldirP|../|] additionalSignupFieldsFn
+          "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
 
-    additionalSignupFieldsFn = AS.Auth.signupCustomization auth >>= AS.Auth.additionalFieldsFn
+    additionalSignupFields = AS.Auth.signupCustomization auth >>= AS.Auth.additionalFields
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
