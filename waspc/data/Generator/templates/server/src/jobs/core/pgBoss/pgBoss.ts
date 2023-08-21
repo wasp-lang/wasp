@@ -21,9 +21,10 @@ function createPgBoss() {
   return new PgBoss(pgBossNewOptions)
 }
 
-let resolvePgBossStarted, rejectPgBossStarted
+let resolvePgBossStarted: (boss: PgBoss) => void
+let rejectPgBossStarted: (boss: PgBoss) => void
 // Code that wants to access pg-boss must wait until it has been started.
-export const pgBossStarted = new Promise((resolve, reject) => {
+export const pgBossStarted = new Promise<PgBoss>((resolve, reject) => {
   resolvePgBossStarted = resolve
   rejectPgBossStarted = reject
 })
@@ -34,8 +35,10 @@ const PgBossStatus = {
   Starting: 'Starting',
   Started: 'Started',
   Error: 'Error'
-}
-let pgBossStatus = PgBossStatus.Unstarted
+} as const;
+type PgBossStatus = typeof PgBossStatus[keyof typeof PgBossStatus]
+
+let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
 
 /**
  * Prepares the target PostgreSQL database and begins job monitoring.
@@ -46,7 +49,7 @@ let pgBossStatus = PgBossStatus.Unstarted
  * After making this call, we can send pg-boss jobs and they will be persisted and acted upon.
  * This should only be called once during a server's lifetime.
  */
-export async function startPgBoss() {
+export async function startPgBoss(): Promise<void> {
   if (pgBossStatus !== PgBossStatus.Unstarted) { return }
   pgBossStatus = PgBossStatus.Starting
   console.log('Starting pg-boss...')
