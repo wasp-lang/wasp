@@ -29,7 +29,7 @@ import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
@@ -119,8 +119,7 @@ genJobExecutors spec = case getJobs spec of
     jobExecutorHelperFds :: [FileDraft]
     jobExecutorHelperFds =
       [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss/pgBoss.ts|],
-        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/Job.ts|],
-        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/SubmittedJob.ts|]
+        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/job.ts|]
       ]
 
     executorJobTemplateInServerTemplatesDir :: JobExecutor -> Path SP.System (Rel ServerTemplatesDir) File'
@@ -135,7 +134,6 @@ executorJobTemplateInJobsDir ::  String -> JobExecutor -> Path' (Rel JobsDir) Fi
 executorJobTemplateInJobsDir ext = getTemplateDir
   where 
     getTemplateDir PgBoss = fromJust $ SP.parseRelFile $ "core/pgBoss/pgBossJob" <> "." <> ext
-    getTemplateDir Simple = fromJust $ SP.parseRelFile $ "core/simpleJob" <> "." <> ext
 
 -- Path to destination files are the same as in templates dir.
 jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)

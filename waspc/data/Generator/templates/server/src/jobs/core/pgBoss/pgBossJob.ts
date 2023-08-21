@@ -1,7 +1,11 @@
-import { pgBossStarted } from "./pgBoss.js";
-import { Job, createJob as jobConstructor } from "../Job.js";
-import { SubmittedJob, createSubmittedJob } from "../SubmittedJob.js";
 import PgBoss from "pg-boss";
+import { pgBossStarted } from "./pgBoss.js";
+import {
+  Job,
+  createJob as jobConstructor,
+  SubmittedJob,
+  createSubmittedJob
+} from "../job.js";
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol("PgBoss");
 
@@ -150,7 +154,6 @@ export function createJob<
 
     // This tells pg-boss to run given worker function when job with that name is submitted.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
-    // TODO: type this properly
     await boss.work<Input, Output>(
       jobName,
       pgBossCallbackWrapper<Input, Output, Entities>(jobFn, entities)
@@ -183,7 +186,6 @@ export function createJob<
 function pgBossCallbackWrapper<Input, Output extends object, Entities>(
   // jobFn - The user-defined async job callback function.
   jobFn: Job<Input, Output, Entities>["jobFn"],
-  // TODO: figure this out
   // Entities used by job, passed into callback context.
   entities: Entities
 ) {

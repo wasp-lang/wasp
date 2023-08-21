@@ -9,7 +9,7 @@ const entities = {
   {=/ entities =}
 };
 
-export type {= typeName =}<Input, Output extends object> = (args: Input, context: {
+export type {= typeName =}<Input extends object, Output extends object> = (args: Input, context: {
   entities: typeof entities
 }) => Promise<Output> | void
 

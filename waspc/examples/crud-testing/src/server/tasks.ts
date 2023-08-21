@@ -24,9 +24,7 @@ export const getAllTasks = (async (args, context) => {
   });
   let i = 0;
   while (i < 3) {
-    const details = await result.pgBoss.details();
-    console.log(details?.data.name);
-    console.log(details?.output);
+    console.log(result);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     i++;
   }
