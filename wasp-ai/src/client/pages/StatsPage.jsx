@@ -103,6 +103,10 @@ export function Stats() {
       : [];
   }, [stats, stats?.projects, filterOutExampleApps, filterOutKnownUsers]);
 
+  const limitedFilteredStats = useMemo(() => {
+    return filteredStats.slice(0, 1000);
+  }, [filteredStats]);
+
   if (isLoading) {
     return <p>Loading</p>;
   }
@@ -271,7 +275,7 @@ export function Stats() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStats.map((stat) => (
+                  {limitedFilteredStats.map((stat) => (
                     <tr className="bg-white border-b" key={stat.id}>
                       <th
                         scope="row"
@@ -334,6 +338,11 @@ export function Stats() {
                   ))}
                 </tbody>
               </table>
+              {filteredStats.length > limitedFilteredStats.length && (
+                <div className="relative px-6 py-3 bg-gray-50 text-sm text-slate-500 text-center">
+                  Showing only the latest 1000 projects
+                </div>
+              )}
             </div>
           </>
         )}
