@@ -1,5 +1,6 @@
 {{={= =}=}}
 import prisma from '../dbClient.js'
+import { JSONValue } from '../_types/serialization.js'
 import { createJob } from './{= executorJobRelFP =}'
 {=& jobPerformFnImportStatement =}
 
@@ -9,7 +10,7 @@ const entities = {
   {=/ entities =}
 };
 
-export type {= typeName =}<Input extends object, Output extends object> = (args: Input, context: {
+export type {= typeName =}<Input extends JSONValue, Output extends JSONValue> = (args: Input, context: {
   entities: typeof entities
 }) => Promise<Output> | void
 

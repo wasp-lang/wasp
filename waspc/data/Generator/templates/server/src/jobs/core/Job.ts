@@ -13,7 +13,7 @@ export interface Job<Input, Output extends object, Entities> {
   submit(...args: any[]): Promise<SubmittedJob<Input, Output, Entities>>;
 }
 
-export function createJob<Input, Output extends object, Entities>(jobName: string, executorName: string | symbol): Job<Input, Output, Entities> {
+export function createJob<Input extends object, Output extends object, Entities>(jobName: string, executorName: string | symbol): Job<Input, Output, Entities> {
   return {
     jobName,
     executorName,
