@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.11.3
+
+### 🎉 [New Feature] Type-safe links
+
+Wasp now offers a way to link to pages in your app in a type-safe way. This means that you can't accidentally link to a page that doesn't exist, or pass the wrong arguments to a page.
+
+After you defined your routes:
+
+```wasp
+route TaskRoute { path: "/task/:id", to: TaskPage }
+```
+
+You can get the benefits of type-safe links by using the `Link` component from `@wasp/router`:
+
+```jsx
+import { Link } from '@wasp/router'
+
+export const TaskList = () => {
+  // ...
+
+  return (
+    <div>
+      {tasks.map((task) => (
+        <Link
+          key={task.id}
+          to="/task/:id"
+      {/* 👆 You must provide a valid path here */} 
+          params={{ id: task.id }}>
+      {/* 👆 All the params must also be passed in */}   
+                        
+          {task.description}
+        </Link>
+      ))}
+    </div>
+  )
+}
+```
+
+You can also get all the pages in your app with the `routes` object:
+
+```jsx
+import { routes } from '@wasp/router'
+
+const linkToTask = routes.TaskRoute({ params: { id: 1 } })
+```
+
 ## 0.11.2
 
 ### 🐞 Bug fixes / 🔧 small improvements
