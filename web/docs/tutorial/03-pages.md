@@ -139,6 +139,13 @@ export default HelloPage
 
 Now you can visit `/hello/johnny` and see "Here's johnny!"
 
+<ShowForTs>
+
+:::tip Type-safe links
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](/docs/advanced/links) for more details.
+:::
+</ShowForTs>
+
 ## Cleaning Up
 
 Let's prepare for building the Todo app by cleaning up the project and removing files and code we won't need. Start by deleting `Main.css`, `waspLogo.png`, and `HelloPage.{jsx,tsx}` that we just created in the `src/client/` folder.

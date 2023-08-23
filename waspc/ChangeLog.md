@@ -28,8 +28,7 @@ export const TaskList = () => {
           to="/task/:id"
       {/* 👆 You must provide a valid path here */} 
           params={{ id: task.id }}>
-      {/* 👆 All the params must also be passed in */}   
-                        
+      {/* 👆 All the params must be correctly passed in */}   
           {task.description}
         </Link>
       ))}
