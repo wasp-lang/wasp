@@ -97,7 +97,7 @@ genRouter :: AppSpec -> Generator [FileDraft]
 genRouter spec =
   sequence
     [ genRouterTsx spec,
-      genRoutesHelpers spec,
+      genFileCopy [relfile|src/router/linkHelpers.ts|],
       genFileCopy [relfile|src/router/Link.tsx|]
     ]
   where
@@ -112,18 +112,6 @@ genRouterTsx spec = do
       (Just $ toJSON templateData)
   where
     routerPath = [relfile|router.tsx|]
-    templateData = createRouterTemplateData spec
-    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
-
-genRoutesHelpers :: AppSpec -> Generator FileDraft
-genRoutesHelpers spec = do
-  return $
-    C.mkTmplFdWithDstAndData
-      (asTmplFile $ [reldir|src|] </> routerPath)
-      targetPath
-      (Just $ toJSON templateData)
-  where
-    routerPath = [relfile|router/routes.ts|]
     templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
@@ -217,10 +205,8 @@ relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]
 
 extractUrlParams :: String -> [String]
-extractUrlParams urlPath =
-  mapMaybe
-    ( \case
-        ':' : paramName -> Just paramName
-        _ -> Nothing
-    )
-    (splitOn "/" urlPath)
+extractUrlParams urlPath = mapMaybe getParamName $ splitOn "/" urlPath
+  where
+    getParamName urlSegment = case urlSegment of
+      ':' : paramName -> Just paramName
+      _anyOtherString -> Nothing

@@ -1,6 +1,7 @@
 {{={= =}=}}
 import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
+import { interpolatePath, type ParamValue, type Search } from './router/linkHelpers'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
@@ -16,6 +17,33 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 {=# isExternalAuthEnabled =}
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 {=/ isExternalAuthEnabled =}
+
+export type Routes = 
+  {=# routes =}
+{=# hasUrlParams =}
+| {to: "{= urlPath =}", params: {{=# urlParams =}{= . =}: ParamValue;{=/ urlParams =}}}
+{=/ hasUrlParams =}
+{=^ hasUrlParams =}
+| {to: "{= urlPath =}", params?: {}}
+{=/ hasUrlParams =}
+  {=/ routes =}
+| never
+
+type OptionalRouteOptions = {
+  search?: Search;
+  hash?: string;
+}
+
+export const routes = {
+  {=# routes =}
+  {=# hasUrlParams =}
+  {= name =}: (options: { params: {{=# urlParams =}{= . =}: ParamValue;{=/ urlParams =}} } & OptionalRouteOptions) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
+  {=/ hasUrlParams =}
+  {=^ hasUrlParams =}
+  {= name =}: (options?: OptionalRouteOptions) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),
+  {=/ hasUrlParams =}
+  {=/ routes =}
+}
 
 const router = (
   <Router>
@@ -45,4 +73,3 @@ const router = (
 export default router
 
 export { Link } from './router/Link'
-export { routes } from './router/routes'
