@@ -21,7 +21,7 @@ import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 export type Routes = 
   {=# routes =}
 {=# hasUrlParams =}
-| {to: "{= urlPath =}", params: {{=# urlParams =}{= . =}: ParamValue;{=/ urlParams =}}}
+| {to: "{= urlPath =}", params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
 {=/ hasUrlParams =}
 {=^ hasUrlParams =}
 | {to: "{= urlPath =}", params?: {}}
@@ -37,7 +37,7 @@ type OptionalRouteOptions = {
 export const routes = {
   {=# routes =}
   {=# hasUrlParams =}
-  {= name =}: (options: { params: {{=# urlParams =}{= . =}: ParamValue;{=/ urlParams =}} } & OptionalRouteOptions) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
+  {= name =}: (options: { params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}} } & OptionalRouteOptions) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
   {=/ hasUrlParams =}
   {=^ hasUrlParams =}
   {= name =}: (options?: OptionalRouteOptions) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),

@@ -8,8 +8,7 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (find)
-import Data.List.Extra (splitOn)
-import Data.Maybe (fromMaybe, mapMaybe)
+import Data.Maybe (fromMaybe)
 import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
 import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
@@ -29,6 +28,7 @@ import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
+import Wasp.Util.WebRouterPath (extractPathParams, Param (Required, Optional))
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -53,7 +53,7 @@ instance ToJSON RouterTemplateData where
 data RouteTemplateData = RouteTemplateData
   { _routeName :: !String,
     _urlPath :: !String,
-    _urlParams :: ![String],
+    _urlParams :: ![Param],
     _targetComponent :: !String
   }
 
@@ -62,7 +62,7 @@ instance ToJSON RouteTemplateData where
     object
       [ "name" .= _routeName routeTD,
         "urlPath" .= _urlPath routeTD,
-        "urlParams" .= _urlParams routeTD,
+        "urlParams" .= map mapPathParamToJson (_urlParams routeTD),
         "hasUrlParams" .= (not . null $ _urlParams routeTD),
         "targetComponent" .= _targetComponent routeTD
       ]
@@ -153,7 +153,7 @@ createRouteTemplateData spec namedRoute@(name, route) =
   RouteTemplateData
     { _routeName = name,
       _urlPath = path,
-      _urlParams = extractUrlParams path,
+      _urlParams = extractPathParams path,
       _targetComponent = determineRouteTargetComponent spec namedRoute
     }
   where
@@ -204,9 +204,6 @@ createPageTemplateData page =
 relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]
 
-extractUrlParams :: String -> [String]
-extractUrlParams urlPath = mapMaybe getParamName $ splitOn "/" urlPath
-  where
-    getParamName urlSegment = case urlSegment of
-      ':' : paramName -> Just paramName
-      _anyOtherString -> Nothing
+mapPathParamToJson :: Param -> Aeson.Value
+mapPathParamToJson (Required name) = object ["name" .= name, "isOptional" .= False]
+mapPathParamToJson (Optional name) = object ["name" .= name, "isOptional" .= True]

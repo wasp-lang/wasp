@@ -89,10 +89,13 @@ const MainPage = ({ user }: { user: User }) => {
               ) : (
                 <>
                   <div className="task__title">
-                    <Link to="/:id" params={{ id: task.id }}>
+                    <Link
+                      to="/:id/:something?"
+                      params={{ id: task.id, something: "else" }}
+                    >
                       Visit {task.title} at{" "}
                       {routes.DetailRoute({
-                        params: { id: task.id },
+                        params: { id: task.id, something: "else" },
                       })}
                     </Link>
                   </div>
