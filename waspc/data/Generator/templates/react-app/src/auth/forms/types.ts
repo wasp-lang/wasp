@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { createTheme } from '@stitches/react'
-import { useForm } from 'react-hook-form'
+import { UseFormReturn, RegisterOptions } from 'react-hook-form'
 import type { LoginSignupFormFields } from './internal/common/LoginSignupForm'
 
 export enum State {
@@ -24,6 +24,18 @@ export type ErrorMessage = {
   description?: string
 }
 
-export type AdditionalSignupFields = (
-  hookForm: ReturnType<typeof useForm<LoginSignupFormFields>>
+export type FormState = {
+  isLoading: boolean
+}
+
+export type AdditionalSignupFieldsRender = (
+  hookForm: UseFormReturn<LoginSignupFormFields>,
+  formState: FormState
 ) => React.ReactNode;
+
+export type AdditionalSignupFields = {
+  name: string;
+  label: string;
+  type: "input" | "textarea";
+  validations?: RegisterOptions<LoginSignupFormFields>
+}[]

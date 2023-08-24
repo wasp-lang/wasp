@@ -1,10 +1,10 @@
 {{={= =}=}}
 import { useContext } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, UseFormReturn } from 'react-hook-form'
 
 import { AuthContext } from '../../Auth'
-import { Form, FormInput, FormItemGroup, FormLabel, FormError, SubmitButton } from '../Form'
-import { AdditionalSignupFields } from '../../types'
+import { Form, FormInput, FormItemGroup, FormLabel, FormError, FormTextarea, SubmitButton } from '../Form'
+import type { AdditionalSignupFields, AdditionalSignupFieldsRender, FormState } from '../../types'
 {=# isSocialAuthEnabled =}
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
@@ -110,10 +110,12 @@ export const LoginSignupForm = ({
     state,
     socialButtonsDirection = 'horizontal',
     additionalSignupFields,
+    additionalSignupFieldsRender,
 }: {
     state: 'login' | 'signup'
     socialButtonsDirection?: 'horizontal' | 'vertical'
     additionalSignupFields?: AdditionalSignupFields
+    additionalSignupFieldsRender?: AdditionalSignupFieldsRender
 }) => {
   const {
     isLoading,
@@ -236,11 +238,77 @@ export const LoginSignupForm = ({
             />
             {errors.password && <FormError>{errors.password.message}</FormError>}
           </FormItemGroup>
-          {additionalSignupFields && additionalSignupFields(hookForm)}
+          <AdditionalFormFields
+            hookForm={hookForm}
+            formState={{ isLoading }}
+            additionalSignupFields={additionalSignupFields}
+            additionalSignupFieldsRender={additionalSignupFieldsRender}
+          />
           <FormItemGroup>
             <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
           </FormItemGroup>
         </Form>
       {=/ isAnyPasswordBasedAuthEnabled =}
   </>)
+}
+
+// If users define both additionalSignupFields and additionalSignupFieldsRender
+// we render both
+function AdditionalFormFields({
+  hookForm,
+  formState: { isLoading },
+  additionalSignupFields,
+  additionalSignupFieldsRender,
+}: {
+  hookForm: UseFormReturn<LoginSignupFormFields>;
+  formState: FormState;
+  additionalSignupFields: AdditionalSignupFields;
+  additionalSignupFieldsRender: AdditionalSignupFieldsRender;
+}) {
+  const {
+    register,
+    formState: { errors },
+  } = hookForm;
+
+  function renderField<ComponentType extends React.JSXElementConstructor<any>>(
+    field: AdditionalSignupFields[0],
+    // Ideally we would use ComponentType here, but it doesn't work with react-hook-form
+    Component: any,
+    props?: React.ComponentProps<ComponentType>
+  ) {
+    return (
+      <FormItemGroup key={field.name}>
+        <FormLabel>{field.label}</FormLabel>
+        <Component
+          {...register(field.name, field.validations)}
+          {...props}
+          disabled={isLoading}
+        />
+        {errors[field.name] && (
+          <FormError>{errors[field.name].message}</FormError>
+        )}
+      </FormItemGroup>
+    );
+  }
+
+  return (
+    <>
+      {additionalSignupFields && additionalSignupFields.map((field) => {
+        switch (field.type) {
+          case "input":
+            return renderField<typeof FormInput>(field, FormInput, {
+              type: "text",
+            });
+          case "textarea":
+            return renderField<typeof FormTextarea>(field, FormTextarea);
+          default:
+            throw new Error(
+              `Unsupported additional signup field type: ${field.type}`
+            );
+        }
+      })}
+      {additionalSignupFieldsRender &&
+        additionalSignupFieldsRender(hookForm, { isLoading })}
+    </>
+  );
 }
