@@ -130,9 +130,9 @@ data JobsDir
 jobsDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir JobsDir)
 jobsDirInServerTemplatesDir = srcDirInServerTemplatesDir SP.</> [reldir|jobs|]
 
-executorJobTemplateInJobsDir ::  String -> JobExecutor -> Path' (Rel JobsDir) File'
+executorJobTemplateInJobsDir :: String -> JobExecutor -> Path' (Rel JobsDir) File'
 executorJobTemplateInJobsDir ext = getTemplateDir
-  where 
+  where
     getTemplateDir PgBoss = fromJust $ SP.parseRelFile $ "core/pgBoss/pgBossJob" <> "." <> ext
 
 -- Path to destination files are the same as in templates dir.
