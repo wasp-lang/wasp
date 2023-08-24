@@ -88,7 +88,7 @@
             "file",
             "server/src/_types/serialization.ts"
         ],
-        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
+        "36fd974cd29cbb81e0bdc2f6cd42a840aa51cb51d9bdf4b2ab444fe737754a65"
     ],
     [
         [
@@ -163,51 +163,37 @@
     [
         [
             "file",
-            "server/src/jobs/MySpecialJob.js"
+            "server/src/jobs/MySpecialJob.ts"
         ],
-        "9bf6a5f7005d3ab4ca933fb239ef21f13ba68aef30d8767230d6cc03911ca0e1"
+        "108a4b30f36ef19d798e070a97fb035ed911c61f50d8dbba4d5ecc87682597bb"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/Job.js"
-        ],
-        "e0e5d5e802a29032bfc8426097950722ac0dc7931d08641c1c2b02c262e6cdcc"
-    ],
-    [
-        [
-            "file",
-            "server/src/jobs/core/SubmittedJob.js"
-        ],
-        "75753277b6bd2c1d2e9ea0e80a71c72c84fa18bb7d61da25d798b3ef247e06bd"
-    ],
-    [
-        [
-            "file",
-            "server/src/jobs/core/allJobs.js"
+            "server/src/jobs/core/allJobs.ts"
         ],
         "b5ddc268dfe8f1f7d96d775c1d8d407a647a45ed4937a87da7eb1eb50f9a4674"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/pgBoss/pgBoss.js"
+            "server/src/jobs/core/job.ts"
         ],
-        "9821963d90b39058285343834c70e6f825d3d7696c738fd95539614b5e7d7b94"
+        "5a344b1403e12ac2c079520808970a3394a7201a6bef78a0205067a13ccf502f"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/pgBoss/pgBossJob.js"
+            "server/src/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "ff6040d051c916eb080a2f2c37fd5135f588782387faeae51115d1a7abd1ad8b"
+        "87ffa7ea9d262b8821cfb65d7c14cfd50f5259727721da704a68192926a49387"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/simpleJob.js"
+            "server/src/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "36fe173d9f5128859196bfd3a661983df2d95eb34d165a469b840982b06cf59b"
+        "26b5ee6b9aa910cb1ed5ded68a5897ac34da508f182a3a160bbec91c310f79c1"
     ],
     [
         [

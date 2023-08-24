@@ -20,12 +20,6 @@ waspBuild/.wasp/build/server/src/core/HttpError.js
 waspBuild/.wasp/build/server/src/dbClient.ts
 waspBuild/.wasp/build/server/src/dbSeed/types.ts
 waspBuild/.wasp/build/server/src/entities/index.ts
-waspBuild/.wasp/build/server/src/jobs/core/Job.js
-waspBuild/.wasp/build/server/src/jobs/core/SubmittedJob.js
-waspBuild/.wasp/build/server/src/jobs/core/allJobs.js
-waspBuild/.wasp/build/server/src/jobs/core/pgBoss/pgBoss.js
-waspBuild/.wasp/build/server/src/jobs/core/pgBoss/pgBossJob.js
-waspBuild/.wasp/build/server/src/jobs/core/simpleJob.js
 waspBuild/.wasp/build/server/src/middleware/globalMiddleware.ts
 waspBuild/.wasp/build/server/src/middleware/index.ts
 waspBuild/.wasp/build/server/src/middleware/operations.ts

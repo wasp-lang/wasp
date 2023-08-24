@@ -13,7 +13,7 @@ export type Payload = void | SuperJSONValue;
 
 type PrimitiveJSONValue = string | number | boolean | undefined | null;
 
-type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject;
+export type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject;
 
 interface JSONArray extends Array<JSONValue> {
 }

@@ -21,12 +21,6 @@ waspCompile/.wasp/out/server/src/core/HttpError.js
 waspCompile/.wasp/out/server/src/dbClient.ts
 waspCompile/.wasp/out/server/src/dbSeed/types.ts
 waspCompile/.wasp/out/server/src/entities/index.ts
-waspCompile/.wasp/out/server/src/jobs/core/Job.js
-waspCompile/.wasp/out/server/src/jobs/core/SubmittedJob.js
-waspCompile/.wasp/out/server/src/jobs/core/allJobs.js
-waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
-waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
-waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js
 waspCompile/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspCompile/.wasp/out/server/src/middleware/index.ts
 waspCompile/.wasp/out/server/src/middleware/operations.ts
