@@ -28,7 +28,7 @@ import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
-import Wasp.Util.WebRouterPath (extractPathParams, Param (Required, Optional))
+import Wasp.Util.WebRouterPath (Param (Optional, Required), extractPathParams)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
