@@ -12,9 +12,10 @@ function createPgBoss() {
   if (process.env.PG_BOSS_NEW_OPTIONS) {
     try {
       pgBossNewOptions = JSON.parse(process.env.PG_BOSS_NEW_OPTIONS)
-    }
-    catch {
-      console.error("Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!")
+    } catch {
+      console.error(
+        'Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!'
+      )
     }
   }
 
@@ -34,9 +35,9 @@ const PgBossStatus = {
   Unstarted: 'Unstarted',
   Starting: 'Starting',
   Started: 'Started',
-  Error: 'Error'
-} as const;
-type PgBossStatus = typeof PgBossStatus[keyof typeof PgBossStatus]
+  Error: 'Error',
+} as const
+type PgBossStatus = (typeof PgBossStatus)[keyof typeof PgBossStatus]
 
 let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
 
@@ -45,16 +46,18 @@ let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
  * If the required database objects do not exist in the specified database,
  * `boss.start()` will automatically create them.
  * Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#start
- * 
+ *
  * After making this call, we can send pg-boss jobs and they will be persisted and acted upon.
  * This should only be called once during a server's lifetime.
  */
 export async function startPgBoss(): Promise<void> {
-  if (pgBossStatus !== PgBossStatus.Unstarted) { return }
+  if (pgBossStatus !== PgBossStatus.Unstarted) {
+    return
+  }
   pgBossStatus = PgBossStatus.Starting
   console.log('Starting pg-boss...')
 
-  boss.on('error', error => console.error(error))
+  boss.on('error', (error) => console.error(error))
   try {
     await boss.start()
   } catch (error) {

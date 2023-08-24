@@ -28,7 +28,12 @@ waspComplexTest = do
       <++> addClientSetup
       <++> addServerSetup
       <++> addGoogleAuth
+      <++> sequence
+        [ -- Prerequisite for jobs
+          setDbToPSQL
+        ]
       <++> addJob
+      <++> addTsJob
       <++> addAction
       <++> addQuery
       <++> addApi
@@ -95,8 +100,7 @@ addServerSetup = do
 addJob :: ShellCommandBuilder [ShellCommand]
 addJob = do
   sequence
-    [ setDbToPSQL,
-      appendToWaspFile jobDecl,
+    [ appendToWaspFile jobDecl,
       createFile jobFile "./src/server/jobs" "bar.js"
     ]
   where
@@ -114,6 +118,32 @@ addJob = do
       unlines
         [ "export const foo = async (args) => {",
           "  return 1",
+          "}"
+        ]
+
+addTsJob :: ShellCommandBuilder [ShellCommand]
+addTsJob = do
+  sequence
+    [ appendToWaspFile jobDecl,
+      createFile jobFile "./src/server/jobs" "returnHello.ts"
+    ]
+  where
+    jobDecl =
+      unlines
+        [ "job ReturnHelloJob {",
+          "  executor: PgBoss,",
+          "  perform: {",
+          "    fn: import { returnHello } from \"@server/jobs/returnHello.js\",",
+          "  },",
+          "  entities: [User],",
+          "}"
+        ]
+
+    jobFile =
+      unlines
+        [ "import { ReturnHelloJob } from '@wasp/jobs/ReturnHelloJob'",
+          "export const returnHello: ReturnHelloJob<{ name: string }, string> = async (args) => {",
+          "  return args.name",
           "}"
         ]
 

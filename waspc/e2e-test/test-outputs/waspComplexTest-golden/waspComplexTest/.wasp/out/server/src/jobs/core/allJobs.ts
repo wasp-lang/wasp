@@ -3,3 +3,4 @@
 // any schedules that are not referenced are still loaded by NodeJS.
 
 export { MySpecialJob } from '../MySpecialJob.js'
+export { ReturnHelloJob } from '../ReturnHelloJob.js'
