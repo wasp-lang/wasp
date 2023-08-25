@@ -25,18 +25,36 @@ interface PgBossSubmittedJob<
   }
 }
 
-type NonNullablePrimitive = Exclude<JSONValue, null | undefined>
+// Overrides the default pg-boss JobWithMetadata type to provide more
+// type safety.
+type PbBossDetails<
+  Input extends object,
+  Output extends JSONValue | void
+> = Omit<PgBoss.JobWithMetadata<Input>, "state" | "output"> & {
+  data: Input;
+} & (
+    | {
+        state: "completed";
+        output: JobOutputToMetadataOutput<Output>;
+      }
+    | {
+        state: "failed";
+        output: object;
+      }
+    | {
+        state: "created" | "retry" | "active" | "expired" | "cancelled";
+        output: null;
+      }
+  );
+
+
 // pg-boss wraps primitive values in an object with a `value` property.
 // https://github.com/timgit/pg-boss/blob/master/src/manager.js#L526
-type InferOutputShape<T> = T extends null | undefined | void
+type JobOutputToMetadataOutput<JobOutput> = JobOutput extends null | undefined | void | Function
   ? null
-  : T extends NonNullablePrimitive
-    ? { value: T }
-    : T
-interface PbBossDetails<Input extends object, Output extends JSONValue | void> extends PgBoss.JobWithMetadata<Input> {
-  data: Input
-  output: InferOutputShape<Output>
-}
+  : JobOutput extends object
+    ? JobOutput
+    : { value: JobOutput }
 
 export function createPgBossSubmittedJob<
   Input extends object,
