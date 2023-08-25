@@ -16,7 +16,7 @@ export interface Job<
   jobFn: (
     data: Input,
     context: { entities: Entities }
-  ) => Promise<Output> | void
+  ) => Promise<Output>
   delay(...args: any[]): Job<Input, Output, Entities>
   submit(...args: any[]): Promise<SubmittedJob<Input, Output, Entities>>
 }

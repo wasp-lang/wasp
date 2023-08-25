@@ -22,12 +22,17 @@ export const getAllTasks = (async (args, context) => {
   const result = await simplePrintJob.submit({
     name: "moje ime",
   });
-  let i = 0;
-  while (i < 3) {
-    console.log(await result.pgBoss.details());
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    i++;
+
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const details = await result.pgBoss.details();
+
+  if (details && details.state === "completed") {
+    console.log("Job completed with output:", details.output.tasks);
+  } else if (details) {
+    console.log("Job state and output", details.state, details.output);
   }
+
   return context.entities.Task.findMany({
     orderBy: { id: "desc" },
     select: {
