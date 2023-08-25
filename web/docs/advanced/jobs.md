@@ -2,81 +2,137 @@
 title: Recurring Jobs
 ---
 
-import { Required } from '@site/src/components/Required.tsx'
+import { Required } from '@site/src/components/Required'
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers."
+In typical web apps, users send a request to the server and receive a response containing some data. If the time to get the data is short, the app feels responsive and smooth. But what happens if the server needs to do some longer work before it can respond?
+
+For instance, sending an email or making a slow HTTP request to an external API. In such cases, you might want to execute the task in the background, without blocking the user's request.
+
+Wasp offers support for background jobs, and they are called `job`s.
 
 Jobs will:
   * persist between server restarts
   * can be retried if they fail
-  * can be delayed until the future
+  * can be delayed until a future time
   * can have a recurring schedule!
 
-Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
+## Using Jobs
 
-### Basic Job Definition and Usage
+### Job Definition and Usage
 
-To declare a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
+Let's write an example `job` that will print a message to the console and return a list of tasks from the database.
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+1. First, add a declaration to your `.wasp` file:
 
-```wasp title="main.wasp"
-job mySpecialJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@server/workers/bar.js"
+  <Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+
+  ```wasp title="main.wasp"
+  job mySpecialJob {
+    executor: PgBoss,
+    perform: {
+      fn: import { foo } from "@server/workers/bar.js"
+    },
+    entities: [Task],
   }
-}
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp"
-job mySpecialJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@server/workers/bar.js"
+  ```wasp title="main.wasp"
+  job mySpecialJob {
+    executor: PgBoss,
+    perform: {
+      fn: import { foo } from "@server/workers/bar.js"
+    },
+    entities: [Task],
   }
-}
-```
-</TabItem>
-</Tabs>
+  ```
+  </TabItem>
+  </Tabs>
 
-Then, in your [Operations](/docs/data-model/operations/overview) or [setupFn](/docs/project/server-config#setup-function) (or any other NodeJS code), you can submit work to be done:
+2. Then, implement the worker function:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
 
-```js title="someAction.js"
-import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  ```js title="bar.js"
+  export const foo = async ({ name }, context) => {
+    console.log(`Hello ${name}!`)
+    const tasks = await context.entities.Task.findMany({})
+    return { tasks }
+  }
+  ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
 
-const submittedJob = await mySpecialJob.submit({ job: "args" })
-console.log(await submittedJob.pgBoss.details())
+  ```ts title="bar.ts"
+  import type { MySpecialJob } from '@wasp/jobs/mySpecialJob'
+  import type { Task } from '@wasp/entities'
 
-// Or, if you'd prefer it to execute in the future, just add a .delay().
-// It takes a number of seconds, Date, or ISO date string.
-await mySpecialJob.delay(10).submit({ job: "args" })
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  type Input = { name: string; }
+  type Output = { tasks: Task[]; }
 
-```ts title="someAction.ts"
-import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
+    console.log(`Hello ${name}!`)
+    const tasks = await context.entities.Task.findMany({})
+    return { tasks }
+  }
+  ```
+  </TabItem>
+  </Tabs>
 
-const submittedJob = await mySpecialJob.submit({ job: "args" })
-console.log(await submittedJob.pgBoss.details())
+  :::info The worker function
+    The worker function must be an `async` function. It can return a value that will be saved as the job's result.
 
-// Or, if you'd prefer it to execute in the future, just add a .delay().
-// It takes a number of seconds, Date, or ISO date string.
-await mySpecialJob.delay(10).submit({ job: "args" })
-```
-</TabItem>
-</Tabs>
+    The worker function accepts two arguments:
+    - `args`: The data passed to the job when it's submitted.
+    - `context: { entities }`: The context object containing entities you put in the `job` declaration.
+  :::
 
-And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`.
+  <ShowForTs>
 
-Note that in our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function.
+  You probably noticed the `MySpecialJob` type. It's a generic type that enables you to type your `perform.fn` function and get
+  type safety for the `args` and return value. Read more about type-safe jobs in the [Javascript API section](#javascript-api).  
+  </ShowForTs>
+
+3. Finally, you can submit work to be done in your [Operations](/docs/data-model/operations/overview) or [setupFn](/docs/project/server-config#setup-function) (or any other NodeJS code):
+
+  <Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+
+  ```js title="someAction.js"
+  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+
+  const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
+
+  // Or, if you'd prefer it to execute in the future, just add a .delay().
+  // It takes a number of seconds, Date, or ISO date string.
+  await mySpecialJob
+    .delay(10)
+    .submit({ name: "Johnny" })
+  ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+  ```ts title="someAction.ts"
+  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+
+  const submittedJob = await mySpecialJob.submit({ job: "Tony" })
+
+  // Or, if you'd prefer it to execute in the future, just add a .delay().
+  // It takes a number of seconds, Date, or ISO date string.
+  await mySpecialJob
+    .delay(10)
+    .submit({ name: "Tony" })
+  ```
+  </TabItem>
+  </Tabs>
+
+And that is it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
+
+In our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function.
 
 ### Recurring Jobs
 
@@ -115,57 +171,12 @@ job mySpecialJob {
 </TabItem>
 </Tabs>
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
+In this example, you do _not_ need to invoke anything in <ShowForJs>JavaScript</ShowForJs><ShowForTs>Typescript</ShowForTs>. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
-### Fully Specified Example
-Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
+<!-- TODO: write this piece after we complete https://github.com/wasp-lang/wasp/issues/1412 -->
+<!-- ### Getting the Job's Result
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp
-job mySpecialJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@server/workers/bar.js",
-    executorOptions: {
-      pgBoss: {=json { "retryLimit": 1 } json=}
-    }
-  },
-  schedule: {
-    cron: "*/5 * * * *",
-    args: {=json { "foo": "bar" } json=},
-    executorOptions: {
-      pgBoss: {=json { "retryLimit": 0 } json=}
-    }
-  },
-  entities: [Task],
-}
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp
-job mySpecialJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@server/workers/bar.js",
-    executorOptions: {
-      pgBoss: {=json { "retryLimit": 1 } json=}
-    }
-  },
-  schedule: {
-    cron: "*/5 * * * *",
-    args: {=json { "foo": "bar" } json=},
-    executorOptions: {
-      pgBoss: {=json { "retryLimit": 0 } json=}
-    }
-  },
-  entities: [Task],
-}
-```
-</TabItem>
-</Tabs>
+When you submit a job, you get a `SubmittedJob` object back. It has a `jobId` field, which you can use to get the job's result. -->
 
 ## API Reference
 
@@ -260,24 +271,40 @@ The `job` declaration has the following fields:
 
   - `fn: ServerImport` <Required />
 
-    An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which may be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
+    - An `async` function that performs the work. Since Wasp executes jobs on the server, you must import it from `@server`.
+    - It receives the following arguments:
+      - `args: Input`: The data passed to the job when it's submitted.
+      - `context: { entities: Entities }`: The context object containing any declared entities.
+
+    Here's an example of a `perform.fn` function:
 
     <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
     
     ```js title="bar.js"
-    export async function foo(args, context) {
-      // Can reference context.entities.Task, for example.
+    export const foo = async ({ name }, context) => {
+      console.log(`Hello ${name}!`)
+      const tasks = await context.entities.Task.findMany({})
+      return { tasks }
     }
     ```
     </TabItem>
     <TabItem value="ts" label="TypeScript">
     
     ```ts title="bar.ts"
-    export async function foo(args, context) {
-      // Can reference context.entities.Task, for example.
+    import { MySpecialJob } from '@wasp/jobs/mySpecialJob'
+
+    type Input = { name: string; }
+    type Output = { tasks: Task[]; }
+
+    export const foo: MySpecialJob<Input, Output> = async (args, context) => {
+      console.log(`Hello ${name}!`)
+      const tasks = await context.entities.Task.findMany({})
+      return { tasks }
     }
     ```
+
+    Read more about type-safe jobs in the [Javascript API section](#javascript-api).  
     </TabItem>
     </Tabs>
 
@@ -315,7 +342,7 @@ The `job` declaration has the following fields:
 
 ### JavaScript API
 
-- `import`
+- Importing a `job`:
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -327,14 +354,23 @@ The `job` declaration has the following fields:
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="someAction.ts"
-  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  import { mySpecialJob, type MySpecialJob } from '@wasp/jobs/mySpecialJob.js'
   ```
+
+  :::info Type-safe jobs
+  Wasp generates a generic type for each `job` declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `@wasp/jobs/{jobName}` module. In the example above, the type is `MySpecialJob`.
+
+  The type takes two type arguments:
+  - `Input`: The type of the `args` argument of the `perform.fn` function.
+  - `Output`: The type of the return value of the `perform.fn` function.
+  :::
+
   </TabItem>
   </Tabs>
 
 - `submit(jobArgs, executorOptions)`
-  - `jobArgs: JSON`
-  - `executorOptions: JSON`
+  - `jobArgs: Input`
+  - `executorOptions: object`
 
   Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
 
@@ -365,28 +401,31 @@ The `job` declaration has the following fields:
  <TabItem value="js" label="JavaScript">
  
   ```js title="someAction.js"
-  const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" }, { "retryLimit": 2 })
+  const submittedJob = await mySpecialJob
+    .delay(10)
+    .submit({ job: "args" }, { "retryLimit": 2 })
   ```
  </TabItem>
  <TabItem value="ts" label="TypeScript">
  
   ```ts title="someAction.ts"
-  const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" }, { "retryLimit": 2 })
+  const submittedJob = await mySpecialJob
+    .delay(10)
+    .submit({ job: "args" }, { "retryLimit": 2 })
   ```
  </TabItem>
  </Tabs>
 
 #### Tracking
-The return value of `submit()` is an instance of `SubmittedJob`, which minimally contains:
-- `jobId`: A getter returning the UUID String ID for the job in that executor.
-- `jobName`: A getter returning the name of the job you used in your `.wasp` file.
-- `executorName`: A getter returning a Symbol of the name of the job executor.
+The return value of `submit()` is an instance of `SubmittedJob`, which has the following fields:
+- `jobId`: The ID for the job in that executor.
+- `jobName`: The name of the job you used in your `.wasp` file.
+- `executorName`: The Symbol of the name of the job executor.
   - For pg-boss, you can import a Symbol from: `import { PG_BOSS_EXECUTOR_NAME } from '@wasp/jobs/core/pgBoss/pgBossJob.js'` if you wish to compare against `executorName`.
 
 There are also some namespaced, job executor-specific objects.
 
 - For pg-boss, you may access: `pgBoss`
-  - **NOTE**: no arguments are necessary, as we already applied the `jobId` in the available functions.
   - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#getjobbyidid)
   - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
   - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
