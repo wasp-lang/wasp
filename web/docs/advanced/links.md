@@ -84,12 +84,12 @@ The `Link` component accepts the following props:
 - `params: { [name: string]: string | number }` <Required /> (if the path contains params)
 
   - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params..
+  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
 
 - `search: string[][] | Record<string, string> | string | URLSearchParams`
 
   - Any valid input for `URLSearchParams` constructor.
-  - For example, you can pass an object like this: `{ sortBy: 'date' }` and it will be converted to `?sortBy=date`.
+  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
 
 - `hash: string`
 - all other props that the `react-router-dom`'s [Link](https://v5.reactrouter.com/web/api/Link) component accepts
