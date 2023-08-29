@@ -12,7 +12,7 @@ app crudTesting {
       usernameAndPassword: {},
     },
     onAuthFailedRedirectTo: "/login",
-    signupCustomization: {
+    signup: {
       additionalFields: import { fields } from "@server/auth.js",
     },
   },

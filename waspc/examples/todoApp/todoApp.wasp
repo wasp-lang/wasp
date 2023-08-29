@@ -41,7 +41,7 @@ app todoApp {
         allowUnverifiedLogin: false,
       },
     },
-    signupCustomization: {
+    signup: {
       additionalFields: import { fields } from "@server/auth/signup.js",
     },
     onAuthFailedRedirectTo: "/login",

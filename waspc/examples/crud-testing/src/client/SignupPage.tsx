@@ -12,34 +12,24 @@ export const SignupPage = () => {
       <main>
         <h1>Signup</h1>
         <SignupForm
-          additionalFields={[
-            {
-              name: "address",
-              label: "Address",
-              type: "input",
-              validations: {
-                required: "Address is required",
-              },
-            },
-          ]}
-          // additionalFieldsRender={(
-          //   { register, formState: { errors } },
-          //   { isLoading }
-          // ) => (
-          //   <>
-          //     <FormItemGroup>
-          //       <FormLabel>Phone number</FormLabel>
-          //       <FormInput
-          //         {...register("phone", {
-          //           required: "Phone number is required",
-          //         })}
-          //         type="text"
-          //         disabled={isLoading}
-          //       />
-          //       {errors.phone && <FormError>{errors.phone.message}</FormError>}
-          //     </FormItemGroup>
-          //   </>
-          // )}
+          additionalFieldsRender={(
+            { register, formState: { errors } },
+            { isLoading }
+          ) => (
+            <>
+              <FormItemGroup>
+                <FormLabel>Phone number</FormLabel>
+                <FormInput
+                  {...register("phone", {
+                    required: "Phone number is required",
+                  })}
+                  type="text"
+                  disabled={isLoading}
+                />
+                {errors.phone && <FormError>{errors.phone.message}</FormError>}
+              </FormItemGroup>
+            </>
+          )}
         />
       </main>
     </div>

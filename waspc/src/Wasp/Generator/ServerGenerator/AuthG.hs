@@ -134,7 +134,7 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
 
-    additionalSignupFields = AS.Auth.signupCustomization auth >>= AS.Auth.additionalFields
+    additionalSignupFields = AS.Auth.signup auth >>= AS.Auth.additionalFields
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
