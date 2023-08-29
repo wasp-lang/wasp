@@ -1,7 +1,12 @@
 {{={= =}=}}
 import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
-import { interpolatePath, type ParamValue, type Search } from './router/linkHelpers'
+import { interpolatePath } from './router/linkHelpers'
+import type {
+  RouteDefinitionsToRoutes,
+  OptionalRouteOptions,
+  ParamValue,
+} from './router/types'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
@@ -24,33 +29,22 @@ export const routes = {
     to: "{= urlPath =}",
     component: {= targetComponent =},
     {=#  hasUrlParams =}
-    build: (options: { params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}} } & OptionalRouteOptions) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
+    build: (
+      options: {
+        params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}
+      } & OptionalRouteOptions,
+    ) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
     {=/ hasUrlParams =}
     {=^ hasUrlParams =}
-    build: (options?: OptionalRouteOptions) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),
+    build: (
+      options?: OptionalRouteOptions,
+    ) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),
     {=/ hasUrlParams =}
   },
   {=/ routes =}
 } as const;
 
-type OptionalRouteOptions = {
-  search?: Search;
-  hash?: string;
-};
-
-type RoutesInternal = typeof routes;
-
-type RouteToParams = {
-  [K in keyof RoutesInternal]: {
-    to: RoutesInternal[K]["to"];
-  } & (Parameters<RoutesInternal[K]["build"]>[0] extends {
-    params: infer Params;
-  }
-    ? { params: Params }
-    : { params?: never });
-};
-
-export type Routes = RouteToParams[keyof RouteToParams];
+export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 const router = (
   <Router>

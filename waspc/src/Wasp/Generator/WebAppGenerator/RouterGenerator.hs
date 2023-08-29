@@ -97,6 +97,7 @@ genRouter :: AppSpec -> Generator [FileDraft]
 genRouter spec =
   sequence
     [ genRouterTsx spec,
+      genFileCopy [relfile|src/router/types.ts|],
       genFileCopy [relfile|src/router/linkHelpers.ts|],
       genFileCopy [relfile|src/router/Link.tsx|]
     ]

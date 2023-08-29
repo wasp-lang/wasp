@@ -1,10 +1,4 @@
-export type ParamValue = string | number
-export type Params = { [name: string]: ParamValue }
-export type Search =
-  | string[][]
-  | Record<string, string>
-  | string
-  | URLSearchParams
+import type { Params, Search } from "./types";
 
 export function interpolatePath(
   path: string,
