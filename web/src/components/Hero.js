@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import React from 'react'
 import Link from '@docusaurus/Link'
 
 import './prismCustomization'
