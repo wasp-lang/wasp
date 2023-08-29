@@ -20,6 +20,7 @@ import waspLogo from '../../static/img/wasp-logo.png'
 import styles from './styles.module.css'
 import './index.css'
 import './preflight.css'
+import { DiscordCallout } from '../components/DiscordCallout'
 
 const Background = () => {
   return (
@@ -68,6 +69,7 @@ const Index = () => {
             <Newsletter />
             <Roadmap />
             <Faq />
+            <DiscordCallout />
           </div>
           {/* eof container */}
         </main>

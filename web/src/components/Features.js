@@ -1,11 +1,16 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import Link from '@docusaurus/Link'
 import classNames from 'classnames'
 import { Terminal, Layers, Coffee, Code, Unlock, Repeat, Send, Link2, Grid, ArrowRight, Globe, Settings, Mail, Type, Star } from 'react-feather'
 
+import { BreakPointHooks, breakpointsTailwind } from '@react-hooks-library/core'
+
 import SectionContainer from './Layouts/SectionContainer'
 
 import styles from '../pages/styles.module.css'
+
+
+const DaBoi = lazy(() => import('./DaBoi'))
 
 const Lang = () => (
   <>
@@ -60,15 +65,19 @@ const TextLink = ({ url, label }) => (
   </Link>
 )
 
-const Features = () => {
-  return (
-    <SectionContainer className='space-y-16 lg:py-18'>
-      <dl className='grid grid-cols-1 lg:grid-cols-4 md:gap-16 lg:gap-x-8 xl:gap-x-16'>
+const { useGreater } = BreakPointHooks(breakpointsTailwind)
 
+const Features = () => {
+
+  const isGreaterMd = useGreater('md')
+
+  return (
+    <SectionContainer className="space-y-16 lg:py-18">
+      <dl className="grid grid-cols-1 lg:grid-cols-3 md:gap-8 lg:gap-x-8 xl:gap-x-16">
         <Feature
           Icon={Star}
-          title='Open Source'
-          url='https://github.com/wasp-lang/wasp'
+          title="Open Source"
+          url="https://github.com/wasp-lang/wasp"
           description={`
             This is the way. Wasp is fully open-source and you're welcome to contribute!
           `}
@@ -76,8 +85,8 @@ const Features = () => {
 
         <Feature
           Icon={Unlock}
-          title='Full-stack Auth'
-          url='/blog/2023/04/12/auth-ui'
+          title="Full-stack Auth"
+          url="/blog/2023/04/12/auth-ui"
           description={`
             Add login with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
           `}
@@ -85,37 +94,55 @@ const Features = () => {
 
         <Feature
           Icon={Link2}
-          title='RPC (Client <-> Server)'
-          url='/docs/data-model/operations/overview'
+          title="RPC (Client <-> Server)"
+          url="/docs/data-model/operations/overview"
           description={`
             Wasp provides a typesafe RPC layer that instantly brings your data models and server logic to the client.
           `}
         />
 
-        <Feature
-          Icon={Send}
-          title='Simple Deployment'
-          url='/docs/advanced/deployment/overview'
-          description={`
-            Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
-          `}
-        />
+        <div className="self-center">
+          <Feature
+            Icon={Send}
+            title="Simple Deployment"
+            url="/docs/advanced/deployment/overview"
+            description={`
+              Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
+            `}
+          />
+        </div>
 
+        <div className="hidden lg:grid place-content-center">
+          <div
+            style={{
+              width: "300px",
+              height: "300px",
+            }}
+          >
+            {isGreaterMd && (
+              <Suspense fallback={null}>
+                <DaBoi height={300} width={300} />
+              </Suspense>
+            )}
+          </div>
+        </div>
 
-        <Feature
-          Icon={Settings}
-          title='Jobs'
-          url='/docs/advanced/jobs'
-          description={`
-            Easily define, schedule and run specialized server tasks.
-            Persistent, retryable, delayable.
-          `}
-        />
+        <div className="self-center">
+          <Feature
+            Icon={Settings}
+            title="Jobs"
+            url="/docs/advanced/jobs"
+            description={`
+              Easily define, schedule and run specialized server tasks.
+              Persistent, retryable, delayable.
+            `}
+          />
+        </div>
 
         <Feature
           Icon={Mail}
-          title='Email Sending'
-          url='/docs/advanced/email'
+          title="Email Sending"
+          url="/docs/advanced/email"
           description={`
             All you need to do is connect an email provider and you can send emails!
           `}
@@ -123,8 +150,8 @@ const Features = () => {
 
         <Feature
           Icon={Type}
-          title='Full-stack Type Safety'
-          url='/docs/tutorial/queries#implementing-a-query'
+          title="Full-stack Type Safety"
+          url="/docs/tutorial/queries#implementing-a-query"
           description={`
             Full support for TypeScript with auto-generated types that span the whole stack.
           `}
@@ -132,15 +159,15 @@ const Features = () => {
 
         <Feature
           Icon={Grid}
-          title='And More!'
-          url='/docs'
+          title="And More!"
+          url="/docs"
           description={`
             Custom API routes, database seeding, optimistic updates, automatic cache invalidation on the client, ...
           `}
         />
       </dl>
     </SectionContainer>
-  )
+  );
 }
 
 const FeaturesWithSkewedBorder = () => (

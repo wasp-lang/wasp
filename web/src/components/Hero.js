@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import Link from '@docusaurus/Link'
 
 import './prismCustomization'
@@ -188,7 +188,6 @@ entity Task {=psl ... psl=} // Your Prisma data model.
         </div> {/* EOF col-span-6 */}
 
       </div>
-
 
       {/* 1-min video */}
       {/*
