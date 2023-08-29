@@ -18,32 +18,39 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 {=/ isExternalAuthEnabled =}
 
-export type Routes = 
+export const routes = {
   {=# routes =}
-{=# hasUrlParams =}
-| {to: "{= urlPath =}", params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
-{=/ hasUrlParams =}
-{=^ hasUrlParams =}
-| {to: "{= urlPath =}", params?: {}}
-{=/ hasUrlParams =}
+  {= name =}: {
+    to: "{= urlPath =}",
+    component: {= targetComponent =},
+    {=#  hasUrlParams =}
+    build: (options: { params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}} } & OptionalRouteOptions) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
+    {=/ hasUrlParams =}
+    {=^ hasUrlParams =}
+    build: (options?: OptionalRouteOptions) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),
+    {=/ hasUrlParams =}
+  },
   {=/ routes =}
-| never
+} as const;
 
 type OptionalRouteOptions = {
   search?: Search;
   hash?: string;
-}
+};
 
-export const routes = {
-  {=# routes =}
-  {=# hasUrlParams =}
-  {= name =}: (options: { params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}} } & OptionalRouteOptions) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
-  {=/ hasUrlParams =}
-  {=^ hasUrlParams =}
-  {= name =}: (options?: OptionalRouteOptions) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),
-  {=/ hasUrlParams =}
-  {=/ routes =}
-}
+type RoutesInternal = typeof routes;
+
+type RouteToParams = {
+  [K in keyof RoutesInternal]: {
+    to: RoutesInternal[K]["to"];
+  } & (Parameters<RoutesInternal[K]["build"]>[0] extends {
+    params: infer Params;
+  }
+    ? { params: Params }
+    : { params?: never });
+};
+
+export type Routes = RouteToParams[keyof RouteToParams];
 
 const router = (
   <Router>
@@ -51,9 +58,14 @@ const router = (
     <{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}
     <Switch>
-      {=# routes =}
-      <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
-      {=/ routes =}
+      {Object.entries(routes).map(([routeKey, route]) => (
+        <Route
+          exact
+          key={routeKey}
+          path={route.to}
+          component={route.component}
+        />
+      ))}
       {=# isExternalAuthEnabled =}
       {=# externalAuthProviders =}
       {=# authProviderEnabled =}

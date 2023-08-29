@@ -1,7 +1,8 @@
 import "./Main.css";
 
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { Link } from "@wasp/router";
 
 import { tasks as tasksCrud } from "@wasp/crud/tasks";
 

@@ -94,7 +94,7 @@ const MainPage = ({ user }: { user: User }) => {
                       params={{ id: task.id, something: "else" }}
                     >
                       Visit {task.title} at{" "}
-                      {routes.DetailRoute({
+                      {routes.DetailRoute.build({
                         params: { id: task.id, something: "else" },
                       })}
                     </Link>
