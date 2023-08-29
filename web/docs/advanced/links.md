@@ -10,14 +10,14 @@ If you are using Typescript, you can use Wasp's custom `Link` component to creat
 
 After you defined a route:
 
-```wasp
+```wasp title="main.wasp"
 route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage { ... }
 ```
 
 You can get the benefits of type-safe links by using the `Link` component from `@wasp/router`:
 
-```jsx
+```jsx title="TaskList.tsx"
 import { Link } from '@wasp/router'
 
 export const TaskList = () => {
@@ -44,7 +44,7 @@ export const TaskList = () => {
 
 You can also pass `search` and `hash` props to the `Link` component:
 
-```tsx
+```tsx title="TaskList.tsx"
 <Link
   to="/task/:id"
   params={{ id: task.id }}
@@ -61,15 +61,15 @@ This will result in a link like this: `/task/1?sortBy=date#comments`. Check out 
 
 You can also get all the pages in your app with the `routes` object:
 
-```jsx
+```jsx title="TaskList.tsx"
 import { routes } from '@wasp/router'
 
-const linkToTask = routes.TaskRoute({ params: { id: 1 } })
+const linkToTask = routes.TaskRoute.build({ params: { id: 1 } })
 ```
 
 This will result in a link like this: `/task/1`.
 
-You can also pass `search` and `hash` props to the `routes.TaskRoute` function. Check out the [API Reference](#routes-object) for more details.
+You can also pass `search` and `hash` props to the `build` function. Check out the [API Reference](#routes-object) for more details.
 
 
 ## API Reference
@@ -99,32 +99,36 @@ The `Link` component accepts the following props:
 
 The `routes` object contains a function for each route in your app.
 
-```ts
+```ts title="router.tsx"
 export const routes = {
   // RootRoute has a path like "/"
-  RootRoute: (options?: {
-    search?: string[][] | Record<string, string> | string | URLSearchParams
-    hash?: string
-  }) => // ...
-
-  // DetailRoute has a path like "/task/:id/:something?"
-  DetailRoute: (
-    options: {
-      params: { id: ParamValue; something?: ParamValue; },
+  RootRoute: {
+    build: (options?: {
       search?: string[][] | Record<string, string> | string | URLSearchParams
       hash?: string
-    }
-  ) => // ...
+    }) => // ...
+  },
+
+  // DetailRoute has a path like "/task/:id/:something?"
+  DetailRoute: {
+    build: (
+      options: {
+        params: { id: ParamValue; something?: ParamValue; },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  }
 }
 ```
 
-The `params` object is required if the route contains params. The `search` and `hash` props are optional.
+The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
 
 You can use the `routes` object like this:
 
 ```tsx
 import { routes } from '@wasp/router'
 
-const linkToRoot = routes.RootRoute()
-const linkToTask = routes.DetailRoute({ params: { id: 1 } })
+const linkToRoot = routes.RootRoute.build()
+const linkToTask = routes.DetailRoute.build({ params: { id: 1 } })
 ```
