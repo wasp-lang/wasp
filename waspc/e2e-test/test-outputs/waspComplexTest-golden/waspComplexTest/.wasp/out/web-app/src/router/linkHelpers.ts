@@ -1,10 +1,4 @@
-export type ParamValue = string | number
-export type Params = { [name: string]: ParamValue }
-export type Search =
-  | string[][]
-  | Record<string, string>
-  | string
-  | URLSearchParams
+import type { Params, Search } from "./types";
 
 export function interpolatePath(
   path: string,
@@ -24,24 +18,27 @@ function interpolatePathParams(path: string, params: Params) {
   const startsWithSlash = path.startsWith("/");
   const interpolatedPath = path
     .split("/")
-    .map((part) => {
-      if (part.startsWith(":")) {
-        const paramName = getParamName(part);
-        return params[paramName];
-      }
-      return part;
-    })
-    // Drops empty strings
-    .filter(Boolean)
+    .map(getPathPartsMapper(params))
+    .filter(isValidPathPart)
     .join("/");
-  // Keeps leading slash if it was there
   return startsWithSlash ? `/${interpolatedPath}` : interpolatedPath;
 }
 
-// Gets param name from a string like:
-// :name -> name
-// :name? -> name
-function getParamName(paramString: string) {
+function getPathPartsMapper(params: Params) {
+  return function mapPathPart(part: string): string | number | undefined {
+    if (part.startsWith(":")) {
+      const paramName = extractParamNameFromPathPart(part);
+      return params[paramName];
+    }
+    return part;
+  }
+}
+
+function isValidPathPart(part: any): boolean {
+  return !!part;
+}
+
+function extractParamNameFromPathPart(paramString: string) {
   if (paramString.endsWith("?")) {
     return paramString.slice(1, -1);
   }

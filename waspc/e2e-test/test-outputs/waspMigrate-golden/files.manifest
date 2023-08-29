@@ -78,6 +78,7 @@ waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.tsx
 waspMigrate/.wasp/out/web-app/src/router/Link.tsx
 waspMigrate/.wasp/out/web-app/src/router/linkHelpers.ts
+waspMigrate/.wasp/out/web-app/src/router/types.ts
 waspMigrate/.wasp/out/web-app/src/storage.ts
 waspMigrate/.wasp/out/web-app/src/test/index.ts
 waspMigrate/.wasp/out/web-app/src/test/vitest/helpers.tsx

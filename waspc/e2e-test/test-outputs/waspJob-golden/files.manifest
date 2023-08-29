@@ -76,6 +76,7 @@ waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.tsx
 waspJob/.wasp/out/web-app/src/router/Link.tsx
 waspJob/.wasp/out/web-app/src/router/linkHelpers.ts
+waspJob/.wasp/out/web-app/src/router/types.ts
 waspJob/.wasp/out/web-app/src/storage.ts
 waspJob/.wasp/out/web-app/src/test/index.ts
 waspJob/.wasp/out/web-app/src/test/vitest/helpers.tsx

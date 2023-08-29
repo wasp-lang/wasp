@@ -907,7 +907,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "c355957684701f640fffcb14c1b86fade3b62b183a668a607ee7a7071ac1d715"
+        "1b167573635d206d53a8598ae39a81b140cd017c6c71ce13bf57c9a04b5b8160"
     ],
     [
         [
@@ -921,7 +921,14 @@
             "file",
             "web-app/src/router/linkHelpers.ts"
         ],
-        "664640d5ff57220861c2fec680c54e6fd7c2eebe5c847e818754e77aae9c2d4f"
+        "434af7f7200ec89c9b1ba1248841e1cbdee1767f58d81194147dcf1894da95d7"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/types.ts"
+        ],
+        "d4dc5ae24cf46c257c47f2e56e0111a026d4162c2954e187db0665d0189531cd"
     ],
     [
         [
@@ -998,7 +1005,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
+        "f1b31ca75b2b32c5b0441aec4fcd7f285c18346761ba1640761d6253d65e3580"
     ],
     [
         [

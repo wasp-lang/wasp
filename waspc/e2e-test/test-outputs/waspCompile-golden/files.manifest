@@ -73,6 +73,7 @@ waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.tsx
 waspCompile/.wasp/out/web-app/src/router/Link.tsx
 waspCompile/.wasp/out/web-app/src/router/linkHelpers.ts
+waspCompile/.wasp/out/web-app/src/router/types.ts
 waspCompile/.wasp/out/web-app/src/storage.ts
 waspCompile/.wasp/out/web-app/src/test/index.ts
 waspCompile/.wasp/out/web-app/src/test/vitest/helpers.tsx
