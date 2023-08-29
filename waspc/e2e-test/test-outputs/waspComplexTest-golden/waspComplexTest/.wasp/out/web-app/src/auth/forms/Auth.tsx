@@ -7,6 +7,7 @@ import {
   type CustomizationOptions,
   type ErrorMessage,
   type AdditionalSignupFields,
+  type AdditionalSignupFieldsRender,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { MessageError, MessageSuccess } from './internal/Message'
@@ -34,9 +35,12 @@ export const AuthContext = createContext({
   setSuccessMessage: (successMessage: string | null) => {},
 })
 
-function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additionalSignupFields }: {
+function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additionalSignupFields, additionalSignupFieldsRender }: {
     state: State;
-} & CustomizationOptions & { additionalSignupFields?: AdditionalSignupFields }) {
+} & CustomizationOptions & {
+  additionalSignupFields?: AdditionalSignupFields;
+  additionalSignupFieldsRender?: AdditionalSignupFieldsRender;
+}) {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +77,7 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
             state={state}
             socialButtonsDirection={socialButtonsDirection}
             additionalSignupFields={additionalSignupFields}
+            additionalSignupFieldsRender={additionalSignupFieldsRender}
           />
         )}
       </AuthContext.Provider>

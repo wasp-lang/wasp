@@ -17,7 +17,7 @@ export const FormLabel = styled('label', {
   marginBottom: '0.5rem',
 })
 
-export const FormInput = styled('input', {
+const commonInputStyles = {
   display: 'block',
   lineHeight: '1.5rem',
   fontSize: '$sm',
@@ -46,7 +46,11 @@ export const FormInput = styled('input', {
   paddingLeft: '0.75rem',
   paddingRight: '0.75rem',
   margin: 0,
-})
+}
+
+export const FormInput = styled('input', commonInputStyles)
+
+export const FormTextarea = styled('textarea', commonInputStyles)
 
 export const FormError = styled('div', {
   display: 'block',
