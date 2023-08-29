@@ -9,7 +9,7 @@ import { User } from "@wasp/entities";
 const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading } = tasksCrud.getAll.useQuery();
 
-  type Task = NonNullable<typeof tasks>[0];
+  type Task = NonNullable<typeof tasks>[number];
 
   const createTask = tasksCrud.create.useAction();
   const deleteTask = tasksCrud.delete.useAction();
