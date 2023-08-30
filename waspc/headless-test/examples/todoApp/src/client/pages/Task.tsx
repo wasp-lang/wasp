@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 
 import { useQuery } from '@wasp/queries'
 import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
@@ -8,7 +8,7 @@ import getTask from '@wasp/queries/getTask.js'
 import getTasks from '@wasp/queries/getTasks.js'
 import { Task } from '@wasp/entities'
 
-type TaskPayload = Pick<Task, "id" | "isDone">
+type TaskPayload = Pick<Task, 'id' | 'isDone'>
 
 const Todo = (props: any) => {
   const taskId = parseInt(props.match.params.id)
@@ -25,11 +25,12 @@ const Todo = (props: any) => {
       {
         getQuerySpecifier: () => [getTasks],
         updateQuery: (updatedTask, oldTasks) =>
-          oldTasks && oldTasks.map(task =>
+          oldTasks &&
+          oldTasks.map((task) =>
             task.id === updatedTask.id ? { ...task, ...updatedTask } : task
           ),
-      } as OptimisticUpdateDefinition<TaskPayload, Task[]>
-    ]
+      } as OptimisticUpdateDefinition<TaskPayload, Task[]>,
+    ],
   })
 
   if (!task) return <div>Task with id {taskId} does not exist.</div>
@@ -53,11 +54,13 @@ const Todo = (props: any) => {
           <div> id: {task.id} </div>
           <div> description: {task.description} </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
-          <button onClick={() => toggleIsDone(task)}>Mark as {task.isDone ? 'undone' : 'done'}</button>
+          <button onClick={() => toggleIsDone(task)}>
+            Mark as {task.isDone ? 'undone' : 'done'}
+          </button>
         </>
       )}
       <br />
-      <Link to='/'>Go to dashboard</Link>
+      <Link to="/">Go to dashboard</Link>
     </>
   )
 }

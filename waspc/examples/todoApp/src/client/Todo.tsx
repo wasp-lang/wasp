@@ -1,5 +1,5 @@
 import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 
 import { useQuery } from '@wasp/queries'
 import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
@@ -138,7 +138,9 @@ const TaskView = ({ task }: { task: Task }) => {
         />
       </td>
       <td>
-        <Link to={`/task/${task.id}`}> {task.description} </Link>
+        <Link to="/task/:id" params={{ id: task.id }}>
+          {task.description}
+        </Link>
       </td>
     </tr>
   )
