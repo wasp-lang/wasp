@@ -61,7 +61,7 @@ export const ProfilePage = ({
       </Link>
       <p>
         Route is{' '}
-        {routes.TaskRoute({
+        {routes.TaskRoute.build({
           params: { id: 5 },
           search: { google: 'true' },
           hash: 'Miho',
