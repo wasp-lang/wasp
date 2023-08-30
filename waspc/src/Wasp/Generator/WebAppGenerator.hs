@@ -252,13 +252,13 @@ genSrcDir spec =
       genFileCopy [relfile|api.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|storage.ts|],
-      genRouter spec,
       getIndexTs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
     <++> genAuth spec
     <++> genWebSockets spec
+    <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 

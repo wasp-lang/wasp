@@ -34,7 +34,7 @@ page SignupPage {
   component: import { SignupPage } from "@client/SignupPage.tsx",
 }
 
-route DetailRoute { path: "/:id", to: DetailPage }
+route DetailRoute { path: "/:id/:something?", to: DetailPage }
 page DetailPage {
   component: import Main from "@client/DetailPage.tsx",
   authRequired: true,

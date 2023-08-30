@@ -584,7 +584,7 @@ query createFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```js
-import createFoo from '@wasp/actions'
+import createFoo from '@wasp/actions/createFoo'
 ```
 
 </TabItem>
