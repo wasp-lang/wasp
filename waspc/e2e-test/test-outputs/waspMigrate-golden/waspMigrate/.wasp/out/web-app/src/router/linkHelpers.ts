@@ -15,23 +15,21 @@ export function interpolatePath(
 }
 
 function interpolatePathParams(path: string, params: Params) {
-  const startsWithSlash = path.startsWith("/");
-  const interpolatedPath = path
-    .split("/")
-    .map(getPathPartsMapper(params))
-    .filter(isValidPathPart)
-    .join("/");
-  return startsWithSlash ? `/${interpolatedPath}` : interpolatedPath;
-}
-
-function getPathPartsMapper(params: Params) {
-  return function mapPathPart(part: string): string | number | undefined {
+  function mapPathPart(part: string) {
     if (part.startsWith(":")) {
       const paramName = extractParamNameFromPathPart(part);
       return params[paramName];
     }
     return part;
   }
+
+  const interpolatedPath = path
+    .split("/")
+    .map(mapPathPart)
+    .filter(isValidPathPart)
+    .join("/");
+    
+  return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
 
 function isValidPathPart(part: any): boolean {
