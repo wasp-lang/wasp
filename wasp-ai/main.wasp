@@ -7,7 +7,11 @@ app waspAi {
     "<meta property=\"og:title\" content=\"GPT Web App Generator ✨\">",
     "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and the Wasp full-stack framework.\">",
     "<meta property=\"og:type\" content=\"website\">",
-    "<meta property=\"og:image\" content=\"/cover.png\">"
+    "<meta property=\"og:image\" content=\"https://magic-app-generator.wasp-lang.dev/twitter.png\">",
+    "<meta name=\"twitter:image\" content=\"https://magic-app-generator.wasp-lang.dev/twitter.png\" />",
+    "<meta name=\"twitter:image:width\" content=\"800\" />",
+    "<meta name=\"twitter:image:height\" content=\"400\" />",
+    "<meta name=\"twitter:card\" content=\"summary_large_image\" />",
   ],
   dependencies: [
     ("prismjs", "^1.29.0"),
