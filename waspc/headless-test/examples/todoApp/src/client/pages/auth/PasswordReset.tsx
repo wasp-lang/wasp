@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 
 import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 import appearance from './appearance'

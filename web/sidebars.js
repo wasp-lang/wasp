@@ -107,6 +107,7 @@ module.exports = {
         'advanced/web-sockets',
         'advanced/apis',
         'advanced/middleware-config',
+        'advanced/links',
       ],
     },
     {

@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, routes } from '@wasp/router'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
-import { useSocket, useSocketListener, ServerToClientPayload } from '@wasp/webSocket'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+} from '@wasp/webSocket'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -14,7 +18,9 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
-  const [messages, setMessages] = useState<ServerToClientPayload<'chatMessage'>[]>([])
+  const [messages, setMessages] = useState<
+    ServerToClientPayload<'chatMessage'>[]
+  >([])
   const { socket, isConnected } = useSocket()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -22,7 +28,9 @@ export const ProfilePage = ({
     fetchCustomRoute()
   }, [])
 
-  useSocketListener('chatMessage', (msg) => setMessages((priorMessages) => [msg, ...priorMessages]))
+  useSocketListener('chatMessage', (msg) =>
+    setMessages((priorMessages) => [msg, ...priorMessages])
+  )
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,7 +56,17 @@ export const ProfilePage = ({
         <strong>{isEmailVerified ? 'verfied' : 'unverified'}</strong>.
       </div>
       <br />
-      <Link to="/">Go to dashboard</Link>
+      <Link to="/task/:id" params={{ id: 3 }}>
+        Task 3
+      </Link>
+      <p>
+        Route is{' '}
+        {routes.TaskRoute.build({
+          params: { id: 5 },
+          search: { google: 'true' },
+          hash: 'Miho',
+        })}
+      </p>
       <div>
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-4 place-items-center">

@@ -3,6 +3,7 @@ title: 7. Adding Authentication
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { ShowForTs } from '@site/src/components/TsJsHelpers';
 
 Most apps today require some sort of registration and login flow, so Wasp has first-class support for it. Let's add it to our Todo app!
 
@@ -215,6 +216,14 @@ export default SignupPage
 
 </TabItem>
 </Tabs>
+
+<ShowForTs>
+
+:::tip Type-safe links
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](/docs/advanced/links) for more details.
+:::
+</ShowForTs>
+
 
 ## Update the Main Page to Require Auth
 
