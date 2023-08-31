@@ -10,7 +10,7 @@ export type ServerSetupFnContext = {
 }
 
 export type { Application } from 'express'
-export { Server } from 'http'
+export type { Server } from 'http'
 
 export type { GetUserFieldsFn } from '../auth/providers/oauth/types';
 
