@@ -218,6 +218,8 @@ export function SignupPage() {
 
 It will automatically show the correct authentication providers based on your `main.wasp` file.
 
+Read more about [customizing the signup form](#customizing-the-signup-form) below.
+
 ### Forgot Password Form
 
 Used with <EmailPill /> authentication.
@@ -612,3 +614,154 @@ We get a form looking like this:
 <div style={{ textAlign: 'center' }}>
   <img src="/img/authui/custom_login.gif" alt="Custom login form" />
 </div>
+
+## Customizing the Signup Form
+
+Sometimes you want to include **extra fields** in your signup form, like first name and last name.
+
+In Wasp, in this case:
+- You need to define the new backend fields
+- You need to customize the `SignupForm`
+
+Other times, you might need to add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
+
+Let's see how to do both.
+
+### 1. Defining Extra Backend Fields
+
+If we want to **save** some extra fields in our signup process, we need to tell our backend they exist. We'll define them in the `server/auth/signup.{js,ts}` file.
+
+When you define the fields, you define an object where the keys represent the field name, and the values are objects which we'll define below. Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file.
+
+First, we add the `auth.signup.additionalFields` field in our `main.wasp` file:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp" {9-11}
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth/signup.js",
+    },
+  },
+}
+```
+
+Then we'll export the `fields` object from the `server/auth/signup.js` file:
+
+```ts title="server/auth/signup.js"
+import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
+
+export const fields = defineAdditionalSignupFields({
+  address: {
+    get: (data) => {
+      return data.address
+    },
+    validate: (address) => {
+      if (!address) {
+        throw new Error("Address is required")
+      }
+      if (address.length < 5) {
+        throw new Error("Address must be at least 5 characters long")
+      }
+    },
+  },
+})
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp" {9-11}
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth/signup.js",
+    },
+  },
+}
+```
+
+Then we'll export the `fields` object from the `server/auth/signup.ts` file:
+
+```ts title="server/auth/signup.ts"
+import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
+
+export const fields = defineAdditionalSignupFields({
+  address: {
+    get: (data) => {
+      return data.address as string | undefined
+    },
+    validate: (address) => {
+      if (!address) {
+        throw new Error("Address is required")
+      }
+      if (address.length < 5) {
+        throw new Error("Address must be at least 5 characters long")
+      }
+    },
+  },
+})
+```
+</TabItem>
+</Tabs>
+
+Read more about the fields in the [API Reference](#signup-fields-customization).
+
+### 2. Customizing the Signup Component
+
+#### Adding Extra Fields
+
+When you pass in an array of extra fields to the `SignupForm`, it will automatically add them to the form. The elements of the array can be either objects or render functions.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```tsx title="client/SignupPage.jsx"
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="client/SignupPage.tsx"
+```
+</TabItem>
+</Tabs>
+
+#### Adding Arbitrary UI
+
+Instead of passing in an array of extra fields, you can pass in a render function which will receive the `react-hook-form` object and the form state object as arguments. You can use them to render arbitrary UI elements.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```tsx title="client/SignupPage.jsx"
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="client/SignupPage.tsx"
+```
+</TabItem>
+</Tabs>
+
+## API Reference
+
+### Signup Fields Customization
+
+TODO: write this
+### `SignupForm` Customization
+
+TODO: write this
+
