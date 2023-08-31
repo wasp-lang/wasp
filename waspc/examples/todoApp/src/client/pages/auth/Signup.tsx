@@ -26,7 +26,7 @@ const Signup = () => {
               appearance={appearance}
               logo={todoLogo}
               socialLayout="horizontal"
-              additionalFields={({ register, formState: { errors } }) => (
+              additionalFieldsRender={({ register, formState: { errors } }) => (
                 <FormItemGroup>
                   <FormLabel>Address</FormLabel>
                   <FormInput
