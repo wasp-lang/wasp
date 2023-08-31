@@ -234,7 +234,7 @@ module.exports = {
           },
           {
             from: '/docs/tutorials/todo-app',
-            to: '/docs/tutorial/project-structure',
+            to: '/docs/tutorial/create',
           },
         ],
       },
