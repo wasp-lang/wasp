@@ -655,7 +655,7 @@
             "file",
             "web-app/src/auth/forms/Auth.tsx"
         ],
-        "ea26963f0ba204013f5c1691a8990e17189f4350496f240887bfad8acaf760c7"
+        "fc6c204f73999f556eab441772e66dd4dbd433bd69aa2c9e64e713fb2921a886"
     ],
     [
         [
@@ -669,7 +669,7 @@
             "file",
             "web-app/src/auth/forms/Signup.tsx"
         ],
-        "7e56db82ce9653ce2e8c43fa1849b9eb1f4707cf76ef14e6977a13850b78cfee"
+        "a38124a9a250a603ef6d04dbcb46c04084ace676e9de5fc31f229405d87f47d4"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "web-app/src/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "034e301742e3f7e58fbd728d44ce7b92ffad204ff7ec14806778387fc9d2039c"
+        "f211f57dca3f10f08a3e618d27bf8006d26f6832bb7e40f8a22ae44f2d42531e"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "web-app/src/auth/forms/types.ts"
         ],
-        "64ee2fafb049c3ea701de05b8eddab4b18a5658fd61215c9ddbf182aa427645c"
+        "992ca4b2c8e30536636143c556e6bdcc5d5d0d86c1eb2e119171e25d5c33b4e3"
     ],
     [
         [
