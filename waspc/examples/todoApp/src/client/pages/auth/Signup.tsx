@@ -7,12 +7,7 @@ import { getTotalTaskCountMessage } from './helpers'
 
 import appearance from './appearance'
 import todoLogo from '../../todoLogo.png'
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from '@wasp/auth/forms/internal/Form'
+import { FormItemGroup } from '@wasp/auth/forms/internal/Form'
 
 const Signup = () => {
   const { data: numTasks } = useQuery(getNumTasks)
@@ -26,20 +21,22 @@ const Signup = () => {
               appearance={appearance}
               logo={todoLogo}
               socialLayout="horizontal"
-              additionalFieldsRender={({ register, formState: { errors } }) => (
-                <FormItemGroup>
-                  <FormLabel>Address</FormLabel>
-                  <FormInput
-                    {...register('address', {
-                      required: 'Address is required',
-                    })}
-                    type="text"
-                  />
-                  {errors.address && (
-                    <FormError>{errors.address.message as string}</FormError>
-                  )}
-                </FormItemGroup>
-              )}
+              additionalFields={[
+                {
+                  name: 'address',
+                  type: 'input',
+                  label: 'Address',
+                  validations: {
+                    required: 'Address is required',
+                  },
+                },
+                () => (
+                  <FormItemGroup className="text-sm text-gray-500">
+                    👉 Don't forget to press the button below to submit the
+                    form.
+                  </FormItemGroup>
+                ),
+              ]}
             />
             <br />
             <span className="text-sm font-medium text-gray-900">

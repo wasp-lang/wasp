@@ -3,8 +3,21 @@ import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
 
 import { AuthContext } from '../../Auth'
-import { Form, FormInput, FormItemGroup, FormLabel, FormError, FormTextarea, SubmitButton } from '../Form'
-import type { AdditionalSignupFields, AdditionalSignupFieldsRender, FormState } from '../../types'
+import {
+  Form,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+  FormError,
+  FormTextarea,
+  SubmitButton,
+} from '../Form'
+import type {
+  AdditionalSignupFields,
+  AdditionalSignupField,
+  AdditionalSignupFieldRenderFn,
+  FormState,
+} from '../../types'
 {=# isSocialAuthEnabled =}
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
@@ -110,12 +123,10 @@ export const LoginSignupForm = ({
     state,
     socialButtonsDirection = 'horizontal',
     additionalSignupFields,
-    additionalSignupFieldsRender,
 }: {
     state: 'login' | 'signup'
     socialButtonsDirection?: 'horizontal' | 'vertical'
     additionalSignupFields?: AdditionalSignupFields
-    additionalSignupFieldsRender?: AdditionalSignupFieldsRender
 }) => {
   const {
     isLoading,
@@ -242,7 +253,6 @@ export const LoginSignupForm = ({
             hookForm={hookForm}
             formState={{ isLoading }}
             additionalSignupFields={additionalSignupFields}
-            additionalSignupFieldsRender={additionalSignupFieldsRender}
           />
           <FormItemGroup>
             <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
@@ -252,18 +262,14 @@ export const LoginSignupForm = ({
   </>)
 }
 
-// If users define both additionalSignupFields and additionalSignupFieldsRender
-// we render both
 function AdditionalFormFields({
   hookForm,
   formState: { isLoading },
   additionalSignupFields,
-  additionalSignupFieldsRender,
 }: {
   hookForm: UseFormReturn<LoginSignupFormFields>;
   formState: FormState;
   additionalSignupFields: AdditionalSignupFields;
-  additionalSignupFieldsRender: AdditionalSignupFieldsRender;
 }) {
   const {
     register,
@@ -271,7 +277,7 @@ function AdditionalFormFields({
   } = hookForm;
 
   function renderField<ComponentType extends React.JSXElementConstructor<any>>(
-    field: AdditionalSignupFields[0],
+    field: AdditionalSignupField,
     // Ideally we would use ComponentType here, but it doesn't work with react-hook-form
     Component: any,
     props?: React.ComponentProps<ComponentType>
@@ -291,24 +297,40 @@ function AdditionalFormFields({
     );
   }
 
+  if (areAdditionalFieldsRenderFn(additionalSignupFields)) {
+    return additionalSignupFields(hookForm, { isLoading })
+  }
+
   return (
-    <>
-      {additionalSignupFields && additionalSignupFields.map((field) => {
-        switch (field.type) {
-          case "input":
-            return renderField<typeof FormInput>(field, FormInput, {
-              type: "text",
-            });
-          case "textarea":
-            return renderField<typeof FormTextarea>(field, FormTextarea);
-          default:
-            throw new Error(
-              `Unsupported additional signup field type: ${field.type}`
-            );
-        }
-      })}
-      {additionalSignupFieldsRender &&
-        additionalSignupFieldsRender(hookForm, { isLoading })}
-    </>
-  );
+    additionalSignupFields &&
+    additionalSignupFields.map((field) => {
+      if (isFieldRenderFn(field)) {
+        return field(hookForm, { isLoading })
+      }
+      switch (field.type) {
+        case 'input':
+          return renderField<typeof FormInput>(field, FormInput, {
+            type: 'text',
+          })
+        case 'textarea':
+          return renderField<typeof FormTextarea>(field, FormTextarea)
+        default:
+          throw new Error(
+            `Unsupported additional signup field type: ${field.type}`
+          )
+      }
+    })
+  )
+}
+
+function isFieldRenderFn(
+  additionalSignupField: AdditionalSignupField | AdditionalSignupFieldRenderFn
+): additionalSignupField is AdditionalSignupFieldRenderFn {
+  return typeof additionalSignupField === 'function'
+}
+
+function areAdditionalFieldsRenderFn(
+  additionalSignupFields: AdditionalSignupFields
+): additionalSignupFields is AdditionalSignupFieldRenderFn {
+  return typeof additionalSignupFields === 'function'
 }

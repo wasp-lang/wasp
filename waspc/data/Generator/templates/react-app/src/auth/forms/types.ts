@@ -28,14 +28,18 @@ export type FormState = {
   isLoading: boolean
 }
 
-export type AdditionalSignupFieldsRender = (
+export type AdditionalSignupFieldRenderFn = (
   hookForm: UseFormReturn<LoginSignupFormFields>,
   formState: FormState
-) => React.ReactNode;
+) => React.ReactNode
 
-export type AdditionalSignupFields = {
-  name: string;
-  label: string;
-  type: "input" | "textarea";
+export type AdditionalSignupField = {
+  name: string
+  label: string
+  type: 'input' | 'textarea'
   validations?: RegisterOptions<LoginSignupFormFields>
-}[]
+}
+
+export type AdditionalSignupFields =
+  | (AdditionalSignupField | AdditionalSignupFieldRenderFn)[]
+  | AdditionalSignupFieldRenderFn

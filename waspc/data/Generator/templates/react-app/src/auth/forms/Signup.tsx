@@ -1,13 +1,16 @@
 import Auth from './Auth'
-import { type CustomizationOptions, State, AdditionalSignupFields, AdditionalSignupFieldsRender } from './types'
+import {
+  type CustomizationOptions,
+  type AdditionalSignupFields,
+  State,
+} from './types'
 
 export function SignupForm({
   appearance,
   logo,
   socialLayout,
   additionalFields,
-  additionalFieldsRender,
-}: CustomizationOptions & { additionalFields?: AdditionalSignupFields; additionalFieldsRender?: AdditionalSignupFieldsRender }) {
+}: CustomizationOptions & { additionalFields?: AdditionalSignupFields; }) {
   return (
     <Auth
       appearance={appearance}
@@ -15,7 +18,6 @@ export function SignupForm({
       socialLayout={socialLayout}
       state={State.Signup}
       additionalSignupFields={additionalFields}
-      additionalSignupFieldsRender={additionalFieldsRender}
     />
   )
 }
