@@ -1,4 +1,4 @@
-import { defineAdditionalSignupFields } from '@wasp/types/index.js'
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
 
 export const fields = defineAdditionalSignupFields({
   address: {

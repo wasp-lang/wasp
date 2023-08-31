@@ -38,7 +38,8 @@ genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
   Just auth ->
     sequence
-      [ genCoreAuth auth,
+      [ genIndexTs spec,
+        genCoreAuth auth,
         genAuthMiddleware spec auth,
         genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
@@ -135,6 +136,17 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
 
     additionalSignupFields = AS.Auth.signup auth >>= AS.Auth.additionalFields
+
+genIndexTs :: AppSpec -> Generator FileDraft
+genIndexTs spec = return $ C.mkTmplFdWithData [relfile|src/auth/index.ts|] (Just tmplData)
+  where
+    tmplData = object [
+        "isEmailAuthEnabled" .= isEmailAuthEnabled,
+        "isLocalAuthEnabled" .= isLocalAuthEnabled
+      ]
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled <$> maybeAuth
+    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled <$> maybeAuth
+    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

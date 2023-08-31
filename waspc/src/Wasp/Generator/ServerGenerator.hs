@@ -393,12 +393,10 @@ genExportedTypesDir spec =
     tmplData =
       object
         [ "isExternalAuthEnabled" .= isExternalAuthEnabled,
-          "isEmailAuthEnabled" .= isEmailAuthEnabled,
-          "isLocalAuthEnabled" .= isLocalAuthEnabled
+          "isEmailAuthEnabled" .= isEmailAuthEnabled
         ]
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
-    isLocalAuthEnabled = AS.App.Auth.isUsernameAndPasswordAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
