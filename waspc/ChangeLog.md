@@ -2,9 +2,6 @@
 
 ## 0.11.3
 
-### 🐞 Bug fixes
-- Fixes API types exports for TypeScript users
-
 ### 🎉 [New Feature] Type-safe links
 
 Wasp now offers a way to link to pages in your app in a type-safe way. This means that you can't accidentally link to a page that doesn't exist, or pass the wrong arguments to a page.
@@ -48,11 +45,12 @@ import { routes } from '@wasp/router'
 const linkToTask = routes.TaskRoute({ params: { id: 1 } })
 ```
 
-## 0.11.2
+### 🐞 Bug fixes
+- Fixes API types exports for TypeScript users.
+- Default .gitignore that comes with new Wasp project (`wasp new`) is now more aggressive when ignoring .env files, ensuring they don't get committed by accident (wrong name, wrong location, ...).
 
-### 🐞 Bug fixes / 🔧 small improvements
-- Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
-- waspls thought that importing `"@client/file.jsx"` could mean `"@client/file.tsx"`, which could hide some missing import diagnostics and cause go-to definition to jump to the wrong file.
+
+## 0.11.2
 
 ### 🎉 [New Feature] waspls Code Scaffolding
 
@@ -79,6 +77,11 @@ export const getTasks: GetTasks<GetTasksInput, GetTasksOutput> = async (args, co
   // Implementation goes here
 }
 ```
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
+- waspls thought that importing `"@client/file.jsx"` could mean `"@client/file.tsx"`, which could hide some missing import diagnostics and cause go-to definition to jump to the wrong file.
+
 
 ## 0.11.1
 
