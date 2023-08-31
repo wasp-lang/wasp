@@ -38,8 +38,7 @@ genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
   Just auth ->
     sequence
-      [ genIndexTs spec,
-        genCoreAuth auth,
+      [ genCoreAuth auth,
         genAuthMiddleware spec auth,
         genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
@@ -48,6 +47,7 @@ genAuth spec = case maybeAuth of
         genProvidersIndex auth,
         genFileCopy [relfile|auth/providers/types.ts|]
       ]
+      <++> genIndexTs auth
       <++> genLocalAuth auth
       <++> genOAuthAuth spec auth
       <++> genEmailAuth spec auth
@@ -137,16 +137,20 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
 
     additionalSignupFields = AS.Auth.signup auth >>= AS.Auth.additionalFields
 
-genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ C.mkTmplFdWithData [relfile|src/auth/index.ts|] (Just tmplData)
+genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
+genIndexTs auth =
+  return $
+    if isEmailAuthEnabled || isLocalAuthEnabled
+      then [C.mkTmplFdWithData [relfile|src/auth/index.ts|] (Just tmplData)]
+      else []
   where
-    tmplData = object [
-        "isEmailAuthEnabled" .= isEmailAuthEnabled,
-        "isLocalAuthEnabled" .= isLocalAuthEnabled
-      ]
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled <$> maybeAuth
-    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled <$> maybeAuth
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    tmplData =
+      object
+        [ "isEmailAuthEnabled" .= isEmailAuthEnabled,
+          "isLocalAuthEnabled" .= isLocalAuthEnabled
+        ]
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
+    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
