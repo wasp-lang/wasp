@@ -2,6 +2,9 @@
 
 ## 0.11.3
 
+### 🐞 Bug fixes
+- Fixes API types exports for TypeScript users
+
 ### 🎉 [New Feature] Type-safe links
 
 Wasp now offers a way to link to pages in your app in a type-safe way. This means that you can't accidentally link to a page that doesn't exist, or pass the wrong arguments to a page.
