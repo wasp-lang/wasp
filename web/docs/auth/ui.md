@@ -3,6 +3,7 @@ title: Auth UI
 ---
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "./Pills";
+import { Required } from "@site/src/components/Required";
 
 To make using authentication in your app as easy as possible, Wasp generates the server-side code but also the client-side UI for you. It enables you to quickly get the login, signup, password reset and email verification flows in your app.
 
@@ -129,11 +130,11 @@ page LoginPage {
 ```
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "@wasp/auth/forms/Login";
 
 // Use it like this
 export function LoginPage() {
-  return <LoginForm />
+  return <LoginForm />;
 }
 ```
 
@@ -150,11 +151,11 @@ page LoginPage {
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "@wasp/auth/forms/Login";
 
 // Use it like this
 export function LoginPage() {
-  return <LoginForm />
+  return <LoginForm />;
 }
 ```
 
@@ -184,11 +185,11 @@ page SignupPage {
 ```
 
 ```tsx title="client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { SignupForm } from "@wasp/auth/forms/Signup";
 
 // Use it like this
 export function SignupPage() {
-  return <SignupForm />
+  return <SignupForm />;
 }
 ```
 
@@ -205,11 +206,11 @@ page SignupPage {
 ```
 
 ```tsx title="client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { SignupForm } from "@wasp/auth/forms/Signup";
 
 // Use it like this
 export function SignupPage() {
-  return <SignupForm />
+  return <SignupForm />;
 }
 ```
 
@@ -243,11 +244,11 @@ page RequestPasswordResetPage {
 ```
 
 ```tsx title="client/ForgotPasswordPage.jsx"
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
 
 // Use it like this
 export function ForgotPasswordPage() {
-  return <ForgotPasswordForm />
+  return <ForgotPasswordForm />;
 }
 ```
 
@@ -264,11 +265,11 @@ page RequestPasswordResetPage {
 ```
 
 ```tsx title="client/ForgotPasswordPage.tsx"
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
 
 // Use it like this
 export function ForgotPasswordPage() {
-  return <ForgotPasswordForm />
+  return <ForgotPasswordForm />;
 }
 ```
 
@@ -298,11 +299,11 @@ page PasswordResetPage {
 ```
 
 ```tsx title="client/ResetPasswordPage.jsx"
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
 
 // Use it like this
 export function ResetPasswordPage() {
-  return <ResetPasswordForm />
+  return <ResetPasswordForm />;
 }
 ```
 
@@ -319,11 +320,11 @@ page PasswordResetPage {
 ```
 
 ```tsx title="client/ResetPasswordPage.tsx"
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
 
 // Use it like this
 export function ResetPasswordPage() {
-  return <ResetPasswordForm />
+  return <ResetPasswordForm />;
 }
 ```
 
@@ -353,11 +354,11 @@ page EmailVerificationPage {
 ```
 
 ```tsx title="client/VerifyEmailPage.jsx"
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
 
 // Use it like this
 export function VerifyEmailPage() {
-  return <VerifyEmailForm />
+  return <VerifyEmailForm />;
 }
 ```
 
@@ -374,11 +375,11 @@ page EmailVerificationPage {
 ```
 
 ```tsx title="client/VerifyEmailPage.tsx"
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
 
 // Use it like this
 export function VerifyEmailPage() {
-  return <VerifyEmailForm />
+  return <VerifyEmailForm />;
 }
 ```
 
@@ -411,16 +412,16 @@ See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/re
 ```js title="client/appearance.js"
 export const authAppearance = {
   colors: {
-    brand: '#5969b8', // blue
-    brandAccent: '#de5998', // pink
-    submitButtonText: 'white',
+    brand: "#5969b8", // blue
+    brandAccent: "#de5998", // pink
+    submitButtonText: "white",
   },
-}
+};
 ```
 
 ```jsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
-import { authAppearance } from './appearance'
+import { LoginForm } from "@wasp/auth/forms/Login";
+import { authAppearance } from "./appearance";
 
 export function LoginPage() {
   return (
@@ -428,7 +429,7 @@ export function LoginPage() {
       // Pass the appearance object to the form
       appearance={authAppearance}
     />
-  )
+  );
 }
 ```
 
@@ -436,20 +437,20 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="client/appearance.ts"
-import type { CustomizationOptions } from '@wasp/auth/forms/types'
+import type { CustomizationOptions } from "@wasp/auth/forms/types";
 
-export const authAppearance: CustomizationOptions['appearance'] = {
+export const authAppearance: CustomizationOptions["appearance"] = {
   colors: {
-    brand: '#5969b8', // blue
-    brandAccent: '#de5998', // pink
-    submitButtonText: 'white',
+    brand: "#5969b8", // blue
+    brandAccent: "#de5998", // pink
+    submitButtonText: "white",
   },
-}
+};
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
-import { authAppearance } from './appearance'
+import { LoginForm } from "@wasp/auth/forms/Login";
+import { authAppearance } from "./appearance";
 
 export function LoginPage() {
   return (
@@ -457,7 +458,7 @@ export function LoginPage() {
       // Pass the appearance object to the form
       appearance={authAppearance}
     />
-  )
+  );
 }
 ```
 
@@ -474,8 +475,8 @@ You can add your logo to the Auth UI by passing the `logo` prop to any of the co
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
-import Logo from './logo.png'
+import { LoginForm } from "@wasp/auth/forms/Login";
+import Logo from "./logo.png";
 
 export function LoginPage() {
   return (
@@ -483,7 +484,7 @@ export function LoginPage() {
       // Pass in the path to your logo
       logo={Logo}
     />
-  )
+  );
 }
 ```
 
@@ -491,8 +492,8 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
-import Logo from './logo.png'
+import { LoginForm } from "@wasp/auth/forms/Login";
+import Logo from "./logo.png";
 
 export function LoginPage() {
   return (
@@ -500,7 +501,7 @@ export function LoginPage() {
       // Pass in the path to your logo
       logo={Logo}
     />
-  )
+  );
 }
 ```
 
@@ -517,7 +518,7 @@ If we pass in `vertical`:
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "@wasp/auth/forms/Login";
 
 export function LoginPage() {
   return (
@@ -525,7 +526,7 @@ export function LoginPage() {
       // Pass in the socialLayout prop
       socialLayout="vertical"
     />
-  )
+  );
 }
 ```
 
@@ -533,7 +534,7 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "@wasp/auth/forms/Login";
 
 export function LoginPage() {
   return (
@@ -541,7 +542,7 @@ export function LoginPage() {
       // Pass in the socialLayout prop
       socialLayout="vertical"
     />
-  )
+  );
 }
 ```
 
@@ -562,21 +563,21 @@ If we provide the logo and custom colors:
 ```ts title="client/appearance.js"
 export const appearance = {
   colors: {
-    brand: '#5969b8', // blue
-    brandAccent: '#de5998', // pink
-    submitButtonText: 'white',
+    brand: "#5969b8", // blue
+    brandAccent: "#de5998", // pink
+    submitButtonText: "white",
   },
-}
+};
 ```
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "@wasp/auth/forms/Login";
 
-import { authAppearance } from './appearance'
-import todoLogo from './todoLogo.png'
+import { authAppearance } from "./appearance";
+import todoLogo from "./todoLogo.png";
 
 export function LoginPage() {
-  return <LoginForm appearance={appearance} logo={todoLogo} />
+  return <LoginForm appearance={appearance} logo={todoLogo} />;
 }
 ```
 
@@ -584,25 +585,25 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="client/appearance.ts"
-import type { CustomizationOptions } from '@wasp/auth/forms/types'
+import type { CustomizationOptions } from "@wasp/auth/forms/types";
 
-export const appearance: CustomizationOptions['appearance'] = {
+export const appearance: CustomizationOptions["appearance"] = {
   colors: {
-    brand: '#5969b8', // blue
-    brandAccent: '#de5998', // pink
-    submitButtonText: 'white',
+    brand: "#5969b8", // blue
+    brandAccent: "#de5998", // pink
+    submitButtonText: "white",
   },
-}
+};
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "@wasp/auth/forms/Login";
 
-import { authAppearance } from './appearance'
-import todoLogo from './todoLogo.png'
+import { authAppearance } from "./appearance";
+import todoLogo from "./todoLogo.png";
 
 export function LoginPage() {
-  return <LoginForm appearance={appearance} logo={todoLogo} />
+  return <LoginForm appearance={appearance} logo={todoLogo} />;
 }
 ```
 
@@ -617,9 +618,10 @@ We get a form looking like this:
 
 ## Customizing the Signup Form
 
-Sometimes you want to include **extra fields** in your signup form, like first name and last name.
+Sometimes you want to include **extra fields** in your signup process, like first name and last name.
 
 In Wasp, in this case:
+
 - You need to define the new backend fields
 - You need to customize the `SignupForm`
 
@@ -629,9 +631,9 @@ Let's see how to do both.
 
 ### 1. Defining Extra Backend Fields
 
-If we want to **save** some extra fields in our signup process, we need to tell our backend they exist. We'll define them in the `server/auth/signup.{js,ts}` file.
+If we want to **save** some extra fields in our signup process, we need to tell our backend they exist.
 
-When you define the fields, you define an object where the keys represent the field name, and the values are objects which we'll define below. Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file.
+We do that by defining an object where the keys represent the field name, and the values are objects with the field details. Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file.
 
 First, we add the `auth.signup.additionalFields` field in our `main.wasp` file:
 
@@ -662,19 +664,20 @@ import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
 export const fields = defineAdditionalSignupFields({
   address: {
     get: (data) => {
-      return data.address
+      return data.address;
     },
     validate: (address) => {
       if (!address) {
-        throw new Error("Address is required")
+        throw new Error("Address is required");
       }
       if (address.length < 5) {
-        throw new Error("Address must be at least 5 characters long")
+        throw new Error("Address must be at least 5 characters long");
       }
     },
   },
-})
+});
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -702,66 +705,453 @@ import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
 export const fields = defineAdditionalSignupFields({
   address: {
     get: (data) => {
-      return data.address as string | undefined
+      return data.address as string | undefined;
     },
     validate: (address) => {
       if (!address) {
-        throw new Error("Address is required")
+        throw new Error("Address is required");
       }
       if (address.length < 5) {
-        throw new Error("Address must be at least 5 characters long")
+        throw new Error("Address must be at least 5 characters long");
       }
     },
   },
-})
+});
 ```
+
 </TabItem>
 </Tabs>
 
+<small>
+
 Read more about the fields in the [API Reference](#signup-fields-customization).
+</small>
+
+Now that we defined the fields, Wasp knows how to:
+
+1. Validate the data sent from the client
+2. Save the data to the database
+
+Next, let's see how to customize the UI to include those fields.
 
 ### 2. Customizing the Signup Component
 
-#### Adding Extra Fields
+You can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
 
-When you pass in an array of extra fields to the `SignupForm`, it will automatically add them to the form. The elements of the array can be either objects or render functions.
+#### Using a List of Extra Fields
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+When you pass in a list of extra fields to the `SignupForm`, they are added to the form one by one, in the order you pass them in.
 
-```tsx title="client/SignupPage.jsx"
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+Inside the list, there can be either **objects** or **render functions** (you can combine them):
 
-```tsx title="client/SignupPage.tsx"
-```
-</TabItem>
-</Tabs>
-
-#### Adding Arbitrary UI
-
-Instead of passing in an array of extra fields, you can pass in a render function which will receive the `react-hook-form` object and the form state object as arguments. You can use them to render arbitrary UI elements.
+1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
+2. Render functions receive the `react-hook-form` object and the form state object as arguments, and they can use them to render arbitrary UI elements.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/SignupPage.jsx"
+```jsx title="client/SignupPage.jsx"
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import {
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+} from "@wasp/auth/forms/internal/Form";
+
+export const SignupPage = () => {
+  return (
+    <SignupForm
+      additionalFields={[
+        {
+          name: "address",
+          label: "Address",
+          type: "input",
+          validations: {
+            required: "Address is required",
+          },
+        },
+        (form, state) => {
+          return (
+            <FormItemGroup>
+              <FormLabel>Phone Number</FormLabel>
+              <FormInput
+                {...form.register("phoneNumber", {
+                  required: "Phone number is required",
+                })}
+                disabled={state.isLoading}
+              />
+              {form.formState.errors.phoneNumber && (
+                <FormError>
+                  {form.formState.errors.phoneNumber.message}
+                </FormError>
+              )}
+            </FormItemGroup>
+          );
+        },
+      ]}
+    />
+  );
+};
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/SignupPage.tsx"
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import {
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+} from "@wasp/auth/forms/internal/Form";
+
+export const SignupPage = () => {
+  return (
+    <SignupForm
+      additionalFields={[
+        {
+          name: "address",
+          label: "Address",
+          type: "input",
+          validations: {
+            required: "Address is required",
+          },
+        },
+        (form, state) => {
+          return (
+            <FormItemGroup>
+              <FormLabel>Phone Number</FormLabel>
+              <FormInput
+                {...form.register("phoneNumber", {
+                  required: "Phone number is required",
+                })}
+                disabled={state.isLoading}
+              />
+              {form.formState.errors.phoneNumber && (
+                <FormError>
+                  {form.formState.errors.phoneNumber.message}
+                </FormError>
+              )}
+            </FormItemGroup>
+          );
+        },
+      ]}
+    />
+  );
+};
 ```
+
 </TabItem>
 </Tabs>
+
+<small>
+
+Read more about the extra fields in the [API Reference](#signupform-customization).
+</small>
+
+#### Using a Single Render Function
+
+Instead of passing in a list of extra fields, you can pass in a render function which will receive the `react-hook-form` object and the form state object as arguments. You can use them to render arbitrary UI elements.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="client/SignupPage.jsx"
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import { FormItemGroup } from "@wasp/auth/forms/internal/Form";
+
+export const SignupPage = () => {
+  return (
+    <SignupForm
+      additionalFields={(form, state) => {
+        const username = form.watch("username");
+        return (
+          username && (
+            <FormItemGroup>
+              Hello there <strong>{username}</strong> 👋
+            </FormItemGroup>
+          )
+        );
+      }}
+    />
+  );
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="client/SignupPage.tsx"
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import { FormItemGroup } from "@wasp/auth/forms/internal/Form";
+
+export const SignupPage = () => {
+  return (
+    <SignupForm
+      additionalFields={(form, state) => {
+        const username = form.watch("username");
+        return (
+          username && (
+            <FormItemGroup>
+              Hello there <strong>{username}</strong> 👋
+            </FormItemGroup>
+          )
+        );
+      }}
+    />
+  );
+};
+```
+
+</TabItem>
+</Tabs>
+
+<small>
+
+Read more about the render function in the [API Reference](#signupform-customization).
+</small>
 
 ## API Reference
 
 ### Signup Fields Customization
 
-TODO: write this
+If you want to add extra fields to the signup process, the backend needs to know how to save them to the database. You do that by defining the `auth.signup.additionalFields` field in your `main.wasp` file.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp" {9-11}
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth/signup.js",
+    },
+  },
+}
+```
+
+Then we'll export the `fields` object from the `server/auth/signup.js` file:
+
+```ts title="server/auth/signup.js"
+import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
+
+export const fields = defineAdditionalSignupFields({
+  address: {
+    get: (data) => {
+      return data.address;
+    },
+    validate: (address) => {
+      if (!address) {
+        throw new Error("Address is required");
+      }
+      if (address.length < 5) {
+        throw new Error("Address must be at least 5 characters long");
+      }
+    },
+  },
+});
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp" {9-11}
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth/signup.js",
+    },
+  },
+}
+```
+
+Then you define the `fields` object from the `server/auth/signup.ts` file:
+
+```ts title="server/auth/signup.ts"
+import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
+
+export const fields = defineAdditionalSignupFields({
+  address: {
+    get: (data) => {
+      return data.address as string | undefined;
+    },
+    validate: (address) => {
+      if (!address) {
+        throw new Error("Address is required");
+      }
+      if (address.length < 5) {
+        throw new Error("Address must be at least 5 characters long");
+      }
+    },
+  },
+});
+```
+
+</TabItem>
+</Tabs>
+
+The `fields` object is an object where the keys represent the field name, and the values are objects with the field details.
+
+The field details object has the following properties:
+
+- `get` <Required />
+
+  - a function which receives the data sent from the client and returns the value of the field
+
+- `validate` <Required />
+  - a function which receives the value of the field and throws an error if the value is invalid
+
 ### `SignupForm` Customization
 
-TODO: write this
+To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
 
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="client/SignupPage.jsx"
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import {
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+} from "@wasp/auth/forms/internal/Form";
+
+export const SignupPage = () => {
+  return (
+    <SignupForm
+      additionalFields={[
+        {
+          name: "address",
+          label: "Address",
+          type: "input",
+          validations: {
+            required: "Address is required",
+          },
+        },
+        (form, state) => {
+          return (
+            <FormItemGroup>
+              <FormLabel>Phone Number</FormLabel>
+              <FormInput
+                {...form.register("phoneNumber", {
+                  required: "Phone number is required",
+                })}
+                disabled={state.isLoading}
+              />
+              {form.formState.errors.phoneNumber && (
+                <FormError>
+                  {form.formState.errors.phoneNumber.message}
+                </FormError>
+              )}
+            </FormItemGroup>
+          );
+        },
+      ]}
+    />
+  );
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="client/SignupPage.tsx"
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import {
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+} from "@wasp/auth/forms/internal/Form";
+
+export const SignupPage = () => {
+  return (
+    <SignupForm
+      additionalFields={[
+        {
+          name: "address",
+          label: "Address",
+          type: "input",
+          validations: {
+            required: "Address is required",
+          },
+        },
+        (form, state) => {
+          return (
+            <FormItemGroup>
+              <FormLabel>Phone Number</FormLabel>
+              <FormInput
+                {...form.register("phoneNumber", {
+                  required: "Phone number is required",
+                })}
+                disabled={state.isLoading}
+              />
+              {form.formState.errors.phoneNumber && (
+                <FormError>
+                  {form.formState.errors.phoneNumber.message}
+                </FormError>
+              )}
+            </FormItemGroup>
+          );
+        },
+      ]}
+    />
+  );
+};
+```
+
+</TabItem>
+</Tabs>
+
+The extra fields can be either **objects** or **render functions** (you can combine them):
+
+1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
+
+   The objects have the following properties:
+
+   - `name` <Required />
+     - the name of the field
+   - `label` <Required />
+
+     - the label of the field (used in the UI)
+
+   - `type` <Required />
+
+     - the type of the field, which can be `input` or `textarea`
+
+   - `validations`
+     - an object with the validation rules for the field. The keys are the validation names, and the values are the validation error messages. Read more about the available validation rules in the [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
+
+2. Render functions receive the `react-hook-form` object and the form state as arguments, and they can use them to render arbitrary UI elements.
+
+   The render function has the following signature:
+
+   ```ts
+   (form: UseFormReturn, state: FormState) => React.ReactNode;
+   ```
+
+   - `form` <Required />
+
+     - the `react-hook-form` object, read more about it in the [react-hook-form docs](https://react-hook-form.com/api/useform)
+     - you need to use the `form.register` function to register your fields
+
+   - `state` <Required />
+
+     - the form state object which has the following properties:
+       - `isLoading: boolean`
+         - whether the form is currently submitting
