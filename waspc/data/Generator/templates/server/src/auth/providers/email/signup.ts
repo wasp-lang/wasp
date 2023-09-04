@@ -43,7 +43,7 @@ export function getSignupRoute({
             await deleteUser(existingUser);
         }
 
-        const additionalFields = validateAndGetAdditionalFields(userFields);
+        const additionalFields = await validateAndGetAdditionalFields(userFields);
     
         const user = await createUser({
             ...additionalFields,

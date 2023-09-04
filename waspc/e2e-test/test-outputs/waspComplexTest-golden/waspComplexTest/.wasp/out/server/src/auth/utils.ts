@@ -80,20 +80,17 @@ function throwValidationError(message: string): void {
   throw new HttpError(422, 'Validation failed', { message })
 }
 
-export function validateAndGetAdditionalFields(data: unknown) {
+export async function validateAndGetAdditionalFields(data: {
+  [key: string]: unknown
+}) {
   const result: Record<string, any> = {};
-  for (const [field, options] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
-    const value = options.get(data)
-    validate(options, value)
-    result[field] = value
-  }
-  return result;
-
-  function validate(options, value) {
+  for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
     try {
-      options.validate(value)
+      const value = await getFieldValue(data)
+      result[field] = value
     } catch (e) {
       throwValidationError(e.message)
     }
   }
+  return result;
 }

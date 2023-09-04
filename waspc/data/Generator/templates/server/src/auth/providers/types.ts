@@ -28,7 +28,7 @@ export function createDefineAdditionalSignupFieldsFn<
   >
 >() {
   return function defineFields(config: {
-    [key in keyof PossibleAdditionalFields]: FieldDefinition<
+    [key in keyof PossibleAdditionalFields]: FieldGetter<
       PossibleAdditionalFields[key]
     >
   }) {
@@ -36,11 +36,6 @@ export function createDefineAdditionalSignupFieldsFn<
   }
 }
 
-type FieldDefinition<T> = {
-  get: (
-    data: Partial<{
-      [key in keyof User]: unknown
-    }>
-  ) => T | undefined
-  validate: (value: T | undefined) => void
-}
+type FieldGetter<T> = (
+  data: { [key: string]: unknown }
+) => Promise<T | undefined> | T | undefined

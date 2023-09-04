@@ -6,7 +6,7 @@ import { validateAndGetAdditionalFields } from '../../utils.js'
 export default handleRejection(async (req, res) => {
   const userFields = req.body || {}
 
-  const additionalFields = validateAndGetAdditionalFields(userFields)
+  const additionalFields = await validateAndGetAdditionalFields(userFields)
 
   await createUser({
     ...additionalFields,

@@ -1,12 +1,13 @@
 import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
 
 export const fields = defineAdditionalSignupFields({
-  address: {
-    get: (data) => data.address as string | undefined,
-    validate: (value) => {
-      if (!value || value.length < 5) {
-        throw new Error('Address is required')
-      }
-    },
+  address: (data) => {
+    if (typeof data.address !== 'string') {
+      throw new Error('Address is required.')
+    }
+    if (data.address.length < 10) {
+      throw new Error('Address must be at least 10 characters long.')
+    }
+    return data.address
   },
 })

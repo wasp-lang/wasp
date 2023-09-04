@@ -9,16 +9,16 @@ import {
 export const SignupPage = () => {
   return (
     <SignupForm
-      additionalFields={(form, state) => {
-        const username = form.watch('username')
-        return (
-          username && (
-            <FormItemGroup>
-              Hello there <strong>{username}</strong> 👋
-            </FormItemGroup>
-          )
-        )
-      }}
+      additionalFields={[
+        {
+          name: 'address',
+          label: 'Address',
+          type: 'input',
+          validations: {
+            required: 'Address is required'
+          }
+        }
+      ]}
     />
   )
 }

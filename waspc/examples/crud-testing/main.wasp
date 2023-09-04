@@ -16,6 +16,9 @@ app crudTesting {
       additionalFields: import { fields } from "@server/auth.js",
     },
   },
+  dependencies: [
+    ("valibot", "^0.13.1")
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }
