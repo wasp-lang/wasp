@@ -1,5 +1,74 @@
 # Changelog
 
+## 0.11.4
+
+### 🎉 [New Feature] Signup Fields Customization
+
+We added an API for extending the default signup form with custom fields. This allows you to add fields like `age`, `address`, etc. to your signup form.
+
+You first need to define the `auth.signup.additionalFields` property in your `.wasp` file:
+```wasp
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth.js",
+    },
+  },
+}
+```
+
+Then, you need to define the `fields` object in your `auth.js` file:
+```js
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+export const fields = defineAdditionalSignupFields({
+  address: (data) => {
+    // Validate the address field
+    if (typeof data.address !== 'string') {
+      throw new Error('Address is required.')
+    }
+    if (data.address.length < 10) {
+      throw new Error('Address must be at least 10 characters long.')
+    }
+    // Return the address field
+    return data.address
+  },
+})
+```
+
+Finally, you can extend the `SignupForm` component on the client:
+```jsx
+import { SignupForm } from "@wasp/auth/forms/Signup";
+
+export const SignupPage = () => {
+  return (
+    <div className="container">
+      <main>
+        <h1>Signup</h1>
+        <SignupForm
+          additionalFields={[
+            {
+              name: "address",
+              label: "Address",
+              type: "input",
+              validations: {
+                required: "Address is required",
+              },
+            },
+          ]}
+        />
+      </main>
+    </div>
+  );
+};
+```
+
 ## 0.11.3
 
 ### 🎉 [New Feature] Type-safe links
