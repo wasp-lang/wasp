@@ -17,7 +17,7 @@ app crudTesting {
     },
   },
   dependencies: [
-    ("valibot", "^0.13.1")
+    ("zod", "^3.22.2")
   ]
 }
 

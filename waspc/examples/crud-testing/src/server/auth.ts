@@ -1,17 +1,18 @@
-import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import * as z from 'zod'
 
 export const fields = defineAdditionalSignupFields({
-  address: async (data) => {
-    const address = data.address;
-    await waitOneSecond();
-    if (typeof address !== "string") {
-      throw new Error("Address is required");
+  address: (data) => {
+    const AddressSchema = z
+      .string({
+        required_error: 'Address is required',
+        invalid_type_error: 'Address must be a string',
+      })
+      .min(10, 'Address must be at least 10 characters long');
+    const result = AddressSchema.safeParse(data.address);
+    if (result.success === false) {
+      throw new Error(result.error.issues[0].message);
     }
-    if (address.length < 5) {
-      throw new Error("Address must be at least 5 characters long");
-    }
-    return address;
+    return result.data;
   },
-});
-
-const waitOneSecond = () => new Promise((resolve) => setTimeout(resolve, 1000));
+})
