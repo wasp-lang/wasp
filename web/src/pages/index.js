@@ -16,10 +16,12 @@ import Newsletter from '../components/Newsletter'
 import Faq from '../components/Faq'
 import Footer from '../components/Footer'
 
-import waspLogo from '../../static/img/wasp-logo.png'
+import waspCoverPhoto from '../../static/img/wasp_twitter_cover.png'
 import styles from './styles.module.css'
 import './index.css'
 import './preflight.css'
+
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 const Background = () => {
   return (
@@ -36,6 +38,8 @@ const LightsTwo = () => (
 );
 
 const Index = () => {
+  const { siteConfig } = useDocusaurusContext();
+  const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`;
   return (
     <div className='twLandingPage'>
       <Head>
@@ -43,12 +47,12 @@ const Index = () => {
         <meta property='og:type' content='website' />
         <meta property='og:url' content='https://wasp-lang.dev/' />
         <meta property='og:description' content='Develop full-stack web apps without boilerplate.' />
-        <meta property='og:image' content={waspLogo} />
+        <meta property='og:image' content={coverPhotoAbsoluteUrl} />
         {/* twitter */}
         <meta property='twitter:card' content='summary_large_image' />
         <meta property='twitter:url' content='https://wasp-lang.dev/' />
         <meta property='twitter:title' content='Develop full-stack web apps without boilerplate.' />
-        <meta property='twitter:image' content={waspLogo} />
+        <meta property='twitter:image' content={coverPhotoAbsoluteUrl} />
 
         <script id="wasp-langdev-2392a8eb" src="https://letsask.ai/widget.js"></script>
       </Head>
