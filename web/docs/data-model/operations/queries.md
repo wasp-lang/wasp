@@ -510,7 +510,7 @@ query getFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```js
-import getFoo from '@wasp/queries'
+import getFoo from '@wasp/queries/getFoo'
 ```
 
 </TabItem>

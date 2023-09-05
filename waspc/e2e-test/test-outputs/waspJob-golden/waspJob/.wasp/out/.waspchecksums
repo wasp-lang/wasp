@@ -249,7 +249,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "1fd50e251e340a5bc8c51369766e8c889cf892cdbe6593b4d58a6ee585b6d2cc"
+        "1958cfc3e3b5f59490168797e4b8dcdc38f32346e734f90df3fb6baa264b36b5"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "web-app/src/ext-src/MainPage.jsx"
         ],
-        "7244c106359f088fdcc0d4a76ee63277f1cea63cbe7aac5e5c39a17df693b1e2"
+        "8ee7fe1352719facadf0935eb45df8661ba13015277ea80be5a9200c66a31bde"
     ],
     [
         [
@@ -506,9 +506,30 @@
     [
         [
             "file",
-            "web-app/src/router.jsx"
+            "web-app/src/router.tsx"
         ],
-        "c1188ee948f821f5e3e7e741f54b503afffe4bdb24b8f528c32aee0990cf5457"
+        "79192ef1e636c2573815ca7151cf8e3a76ebb00a0b0ee3e804cbb60cba5f7197"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/Link.tsx"
+        ],
+        "7b6214295d59d8dffbd61b82f9dab2b080b2d7ebe98cc7d9f9e8c229f99a890d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/linkHelpers.ts"
+        ],
+        "c296ed5e7924ad1173f4f0fb4dcce053cffd5812612069b5f62d1bf9e96495cf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/types.ts"
+        ],
+        "7f08b262987c17f953c4b95814631a7aaac82eb77660bcb247ef7bf866846fe1"
     ],
     [
         [
@@ -529,7 +550,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "a0576215b0786c6e082b8a83f6418a3acb084bfb673a152baad8e8a7fc46fcae"
+        "a38e55c9999a87ab497538bcad7c880f32a4d27f2227ae326cb76eb0848b89e9"
     ],
     [
         [
@@ -578,7 +599,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
+        "f1b31ca75b2b32c5b0441aec4fcd7f285c18346761ba1640761d6253d65e3580"
     ],
     [
         [

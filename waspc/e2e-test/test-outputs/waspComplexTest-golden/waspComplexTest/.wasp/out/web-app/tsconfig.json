@@ -4,7 +4,9 @@
     // Temporary loosen the type checking until we can address all the errors.
     "jsx": "preserve",
     "allowJs": true,
-    "strict": false
+    "strict": false,
+    // Allow importing pages with the .tsx extension.
+    "allowImportingTsExtensions": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

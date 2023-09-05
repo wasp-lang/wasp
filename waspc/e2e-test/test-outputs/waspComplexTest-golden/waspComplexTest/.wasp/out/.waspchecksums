@@ -123,7 +123,7 @@
             "file",
             "server/src/apis/types.ts"
         ],
-        "68417d37842d9186a6a9d942d65f8a18f2da8c0a9cf8a0dd5f1a4b087f6d4e20"
+        "858df39f218f37d2500f8ea9847e6ff7a2e1b58214bbe717fe6b48651e7fc6a6"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "04e01e653bd889436903843cf1dae0a6ba0ecbc1c369beef0e90fae4d0c21127"
+        "0044d2263b936cbc20a278afa4aa61cd9d85821325f490b3cee8bbfb068ed836"
     ],
     [
         [
@@ -753,7 +753,7 @@
             "file",
             "web-app/src/auth/types.ts"
         ],
-        "b6572845796b4217c142b855fc72652d5dfd67fd317b0ed5487fa70ba3d92219"
+        "0d37136807f6d196015d07b65ab56280ae5f56cac9be84992318886550ce4ad3"
     ],
     [
         [
@@ -802,7 +802,7 @@
             "file",
             "web-app/src/ext-src/MainPage.jsx"
         ],
-        "7244c106359f088fdcc0d4a76ee63277f1cea63cbe7aac5e5c39a17df693b1e2"
+        "8ee7fe1352719facadf0935eb45df8661ba13015277ea80be5a9200c66a31bde"
     ],
     [
         [
@@ -905,9 +905,30 @@
     [
         [
             "file",
-            "web-app/src/router.jsx"
+            "web-app/src/router.tsx"
         ],
-        "ba66454c9f0ca79ed5bc6af694b5b9f748db75cf82309f2600c78069a3b9d0f7"
+        "1b167573635d206d53a8598ae39a81b140cd017c6c71ce13bf57c9a04b5b8160"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/Link.tsx"
+        ],
+        "7b6214295d59d8dffbd61b82f9dab2b080b2d7ebe98cc7d9f9e8c229f99a890d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/linkHelpers.ts"
+        ],
+        "c296ed5e7924ad1173f4f0fb4dcce053cffd5812612069b5f62d1bf9e96495cf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/types.ts"
+        ],
+        "7f08b262987c17f953c4b95814631a7aaac82eb77660bcb247ef7bf866846fe1"
     ],
     [
         [
@@ -935,7 +956,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "a0576215b0786c6e082b8a83f6418a3acb084bfb673a152baad8e8a7fc46fcae"
+        "a38e55c9999a87ab497538bcad7c880f32a4d27f2227ae326cb76eb0848b89e9"
     ],
     [
         [
@@ -984,7 +1005,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
+        "f1b31ca75b2b32c5b0441aec4fcd7f285c18346761ba1640761d6253d65e3580"
     ],
     [
         [

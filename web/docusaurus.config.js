@@ -231,7 +231,11 @@ module.exports = {
           {
             from: '/docs/integrations/css-frameworks',
             to: '/docs/project/css-frameworks',
-          }
+          },
+          {
+            from: '/docs/tutorials/todo-app',
+            to: '/docs/tutorial/create',
+          },
         ],
       },
     ],

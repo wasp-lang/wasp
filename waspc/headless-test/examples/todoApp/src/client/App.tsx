@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 
 import logout from '@wasp/auth/logout'
 import useAuth from '@wasp/auth/useAuth'
