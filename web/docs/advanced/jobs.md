@@ -5,25 +5,23 @@ title: Recurring Jobs
 import { Required } from '@site/src/components/Required'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-In typical web apps, users send requests to the server and receive responses containing some data. When the server responds quickly, the app feels responsive and smooth. But what happens if the server needs time to do some extra work before to process the request?
+In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth. However, if the server needs extra time to complete a task before responding to the request, such as sending an email or making a slow HTTP request to an external API, it's best to perform these tasks in the background to avoid making the user wait.
 
-For instance, sending an email or making a slow HTTP request to an external API. In such cases, you might want to execute the task in the background, without blocking the user's request.
+Wasp offers support for background jobs, and they are called simply Jobs.
 
-Wasp offers support for background jobs, and they are called `job`s.
-
-Jobs will:
-  * persist between server restarts
-  * can be retried if they fail
-  * can be delayed until a future time
-  * can have a recurring schedule!
+Some details about them:
+  - Jobs persist between server restarts.
+  - They can be retried if they fail.
+  - They can be delayed until a future time.
+  - They can have a recurring schedule.
 
 ## Using Jobs
 
 ### Job Definition and Usage
 
-Let's write an example `job` that will print a message to the console and return a list of tasks from the database.
+Let's write an example Job that will print a message to the console and return a list of tasks from the database.
 
-1. Start by creating a `job` declaration in your `.wasp` file:
+1. Start by creating a Job declaration in your `.wasp` file:
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -88,7 +86,7 @@ Let's write an example `job` that will print a message to the console and return
 
     The worker function accepts two arguments:
     - `args`: The data passed into the job when it's submitted.
-    - `context: { entities }`: The context object containing entities you put in the `job` declaration.
+    - `context: { entities }`: The context object containing entities you put in the Job declaration.
   :::
 
   <ShowForTs>
@@ -228,17 +226,15 @@ job mySpecialJob {
 </TabItem>
 </Tabs>
 
-The `job` declaration has the following fields:
+The Job declaration has the following fields:
 
 -  `executor: JobExecutor` <Required />
 
   :::note Job executors
   Our jobs need job executors to handle the _scheduling, monitoring, and execution_.
 
-  Wasp allows you to choose which job executor will be used to execute a specific job that you define, which affects some of the finer details of how jobs will behave and how they can be further configured. Each job executor has its pros and cons, which we will explain in more detail below, so you can pick the one that best suits your needs.
-  :::
-
   `PgBoss` is currently our only job executor, and is recommended for low-volume production use cases. It requires your `app.db.system` to be `PostgreSQL`.
+  :::
 
   We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
@@ -250,7 +246,7 @@ The `job` declaration has the following fields:
 
     pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.4.2/README.md).
 
-    When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
+    When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your Job identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
 
     If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
@@ -341,7 +337,7 @@ The `job` declaration has the following fields:
 
 ### JavaScript API
 
-- Importing a `job`:
+- Importing a Job:
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -357,7 +353,7 @@ The `job` declaration has the following fields:
   ```
 
   :::info Type-safe jobs
-  Wasp generates a generic type for each `job` declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `@wasp/jobs/{jobName}` module. In the example above, the type is `MySpecialJob`.
+  Wasp generates a generic type for each Job declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `@wasp/jobs/{jobName}` module. In the example above, the type is `MySpecialJob`.
 
   The type takes two type arguments:
   - `Input`: The type of the `args` argument of the `perform.fn` function.
