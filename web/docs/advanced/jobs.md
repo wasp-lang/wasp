@@ -5,7 +5,7 @@ title: Recurring Jobs
 import { Required } from '@site/src/components/Required'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-In typical web apps, users send a request to the server and receive a response containing some data. If the time to get the data is short, the app feels responsive and smooth. But what happens if the server needs to do some longer work before it can respond?
+In typical web apps, users send requests to the server and receive responses containing some data. When the server responds quickly, the app feels responsive and smooth. But what happens if the server needs time to do some extra work before to process the request?
 
 For instance, sending an email or making a slow HTTP request to an external API. In such cases, you might want to execute the task in the background, without blocking the user's request.
 
@@ -23,7 +23,7 @@ Jobs will:
 
 Let's write an example `job` that will print a message to the console and return a list of tasks from the database.
 
-1. First, add a declaration to your `.wasp` file:
+1. Start by creating a `job` declaration in your `.wasp` file:
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -52,7 +52,7 @@ Let's write an example `job` that will print a message to the console and return
   </TabItem>
   </Tabs>
 
-2. Then, implement the worker function:
+2. After declaring the Job, implement its worker function:
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -84,20 +84,19 @@ Let's write an example `job` that will print a message to the console and return
   </Tabs>
 
   :::info The worker function
-    The worker function must be an `async` function. It can return a value that will be saved as the job's result.
+    The worker function must be an `async` function. The function's return value represents the Job's result.
 
     The worker function accepts two arguments:
-    - `args`: The data passed to the job when it's submitted.
+    - `args`: The data passed into the job when it's submitted.
     - `context: { entities }`: The context object containing entities you put in the `job` declaration.
   :::
 
   <ShowForTs>
 
-  You probably noticed the `MySpecialJob` type. It's a generic type that enables you to type your `perform.fn` function and get
-  type safety for the `args` and return value. Read more about type-safe jobs in the [Javascript API section](#javascript-api).  
+  `MySpecialJob`  is a generic type Wasp generates to help you  correctly type the Job's worker function, ensuring type information about the function's arguments and return value. Read more about type-safe jobs in the [Javascript API section](#javascript-api).
   </ShowForTs>
 
-3. Finally, you can submit work to be done in your [Operations](/docs/data-model/operations/overview) or [setupFn](/docs/project/server-config#setup-function) (or any other NodeJS code):
+3. After successfully defining the job, you can submit work to be done in your [Operations](/docs/data-model/operations/overview) or [setupFn](/docs/project/server-config#setup-function) (or any other NodeJS code):
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -130,9 +129,9 @@ Let's write an example `job` that will print a message to the console and return
   </TabItem>
   </Tabs>
 
-And that is it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
+And that'is it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
 
-In our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function.
+In our example, `foo` takes an argument, but passing arguments to jobs is not a requirement. It depends on how you've implemented your worker function.
 
 ### Recurring Jobs
 
@@ -171,7 +170,7 @@ job mySpecialJob {
 </TabItem>
 </Tabs>
 
-In this example, you do _not_ need to invoke anything in <ShowForJs>JavaScript</ShowForJs><ShowForTs>Typescript</ShowForTs>. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
+In this example, you _don't_ need to invoke anything in <ShowForJs>JavaScript</ShowForJs><ShowForTs>Typescript</ShowForTs>. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
 <!-- TODO: write this piece after we complete https://github.com/wasp-lang/wasp/issues/1412 -->
 <!-- ### Getting the Job's Result
@@ -271,7 +270,7 @@ The `job` declaration has the following fields:
 
   - `fn: ServerImport` <Required />
 
-    - An `async` function that performs the work. Since Wasp executes jobs on the server, you must import it from `@server`.
+    - An `async` function that performs the work. Since Wasp executes Jobs on the server, you must import it from `@server`.
     - It receives the following arguments:
       - `args: Input`: The data passed to the job when it's submitted.
       - `context: { entities: Entities }`: The context object containing any declared entities.
@@ -372,7 +371,7 @@ The `job` declaration has the following fields:
   - `jobArgs: Input`
   - `executorOptions: object`
 
-  Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
+  Submits a Job to be executed by an executor, optionally passing in a JSON job argument your job handler function receives, and executor-specific submit options.
 
  <Tabs groupId="js-ts">
  <TabItem value="js" label="JavaScript">
