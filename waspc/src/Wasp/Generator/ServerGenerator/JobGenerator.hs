@@ -65,7 +65,7 @@ genJob (jobName, job) =
             -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
-            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir "js" (J.executor job)),
+            "jobExecutorRelativePath" .= toFilePath (executorJobTemplateInJobsDir "js" (J.executor job)),
             "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job)
           ]
     )
@@ -131,9 +131,7 @@ jobsDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir JobsDir)
 jobsDirInServerTemplatesDir = srcDirInServerTemplatesDir SP.</> [reldir|jobs|]
 
 executorJobTemplateInJobsDir :: String -> JobExecutor -> Path' (Rel JobsDir) File'
-executorJobTemplateInJobsDir ext = getTemplateDir
-  where
-    getTemplateDir PgBoss = fromJust $ SP.parseRelFile $ "core/pgBoss/pgBossJob" <> "." <> ext
+executorJobTemplateInJobsDir ext PgBoss = fromJust $ SP.parseRelFile $ "core/pgBoss/pgBossJob" <> "." <> ext
 
 -- Path to destination files are the same as in templates dir.
 jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)

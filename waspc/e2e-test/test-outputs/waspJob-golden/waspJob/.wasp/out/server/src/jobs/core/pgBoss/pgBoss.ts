@@ -30,14 +30,12 @@ export const pgBossStarted = new Promise<PgBoss>((resolve, reject) => {
   rejectPgBossStarted = reject
 })
 
-// Ensure pg-boss can only be started once during a server's lifetime.
-const PgBossStatus = {
-  Unstarted: 'Unstarted',
-  Starting: 'Starting',
-  Started: 'Started',
-  Error: 'Error',
-} as const
-type PgBossStatus = (typeof PgBossStatus)[keyof typeof PgBossStatus]
+enum PgBossStatus {
+  Unstarted = 'Unstarted',
+  Starting = 'Starting',
+  Started = 'Started',
+  Error = 'Error',
+}
 
 let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
 
@@ -51,6 +49,7 @@ let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
  * This should only be called once during a server's lifetime.
  */
 export async function startPgBoss(): Promise<void> {
+  // Ensure pg-boss can only be started once during a server's lifetime.
   if (pgBossStatus !== PgBossStatus.Unstarted) {
     return
   }

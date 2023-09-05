@@ -36,7 +36,7 @@ type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
 }
 
-type PrismaDelegate = {
+export type PrismaDelegate = {
   "Task": typeof prisma.task,
 }
 

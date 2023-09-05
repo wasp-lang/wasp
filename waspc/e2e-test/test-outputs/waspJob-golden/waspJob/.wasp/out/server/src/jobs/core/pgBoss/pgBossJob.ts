@@ -1,138 +1,10 @@
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
-import {
-  Job,
-  createJob as jobConstructor,
-  SubmittedJob,
-  createSubmittedJob,
-} from '../job.js'
+import { Job, SubmittedJob } from '../job.js'
 import { JSONValue } from '../../../_types/serialization.js'
+import { PrismaDelegate } from '../../../_types/index.js'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
-
-/**
- * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
- */
-interface PgBossSubmittedJob<
-  Input extends object,
-  Output extends JSONValue | void,
-  Entities
-> extends SubmittedJob<Input, Output, Entities> {
-  pgBoss: {
-    cancel: () => ReturnType<PgBoss['cancel']>
-    resume: () => ReturnType<PgBoss['resume']>
-    details: () => Promise<PbBossDetails<Input, Output> | null>
-  }
-}
-
-// Overrides the default pg-boss JobWithMetadata type to provide more
-// type safety.
-type PbBossDetails<
-  Input extends object,
-  Output extends JSONValue | void
-> = Omit<PgBoss.JobWithMetadata<Input>, "state" | "output"> & {
-  data: Input;
-} & (
-    | {
-        state: "completed";
-        output: JobOutputToMetadataOutput<Output>;
-      }
-    | {
-        state: "failed";
-        output: object;
-      }
-    | {
-        state: "created" | "retry" | "active" | "expired" | "cancelled";
-        output: null;
-      }
-  );
-
-
-// pg-boss wraps primitive values in an object with a `value` property.
-// https://github.com/timgit/pg-boss/blob/master/src/manager.js#L526
-type JobOutputToMetadataOutput<JobOutput> = JobOutput extends null | undefined | void | Function
-  ? null
-  : JobOutput extends object
-    ? JobOutput
-    : { value: JobOutput }
-
-export function createPgBossSubmittedJob<
-  Input extends object,
-  Output extends JSONValue | void,
-  Entities
->(
-  boss: PgBoss,
-  job: Job<Input, Output, Entities>,
-  jobId: SubmittedJob<Input, Output, Entities>['jobId']
-) {
-  return {
-    ...createSubmittedJob(job, jobId),
-    pgBoss: {
-      cancel: () => boss.cancel(jobId),
-      resume: () => boss.resume(jobId),
-      // TODO: figure this out
-      details: () => boss.getJobById(jobId) as any,
-    },
-  } satisfies PgBossSubmittedJob<Input, Output, Entities>
-}
-
-/**
- * This is an interface repesenting a job that can be submitted to pg-boss.
- * It is not yet submitted until the caller invokes `submit()` on an instance.
- * The caller can make as many calls to `submit()` as they wish.
- */
-interface PgBossJob<Input extends object, Output extends JSONValue | void, Entities>
-  extends Job<Input, Output, Entities> {
-  defaultJobOptions: Parameters<PgBoss['send']>[2]
-  startAfter: number | string | Date
-  delay: (
-    startAfter: number | string | Date
-  ) => PgBossJob<Input, Output, Entities>
-  submit: (
-    jobArgs: Input,
-    jobOptions?: Parameters<PgBoss['send']>[2]
-  ) => Promise<PgBossSubmittedJob<Input, Output, Entities>>
-}
-
-export function createPgBossJob<
-  Input extends object,
-  Output extends JSONValue | void,
-  Entities
->(
-  // jobName - The name of the Job. This is what will show up in the pg-boss DB tables.
-  jobName: string,
-  // defaultJobOptions - Default options passed to `boss.send()`.
-  defaultJobOptions: Parameters<PgBoss['send']>[2],
-  // startAfter - Defers job execution
-  // * - number: Seconds to delay starting the job [Default: 0]
-  // * - string: Start after a UTC Date time string in 8601 format
-  // * - Date: Start after a Date object
-  startAfter: number | string | Date = undefined
-): PgBossJob<Input, Output, Entities> {
-  return {
-    ...jobConstructor(jobName, PG_BOSS_EXECUTOR_NAME),
-    defaultJobOptions,
-    startAfter,
-    delay(startAfter: number | string | Date) {
-      return createPgBossJob(jobName, defaultJobOptions, startAfter)
-    },
-    async submit(
-      // jobArgs - The job arguments supplied by the user for their perform callback.
-      jobArgs: Input,
-      // jobOptions - pg-boss specific options for `boss.send()`, which can override
-      // their defaultJobOptions.
-      jobOptions: Parameters<PgBoss['send']>[2]
-    ) {
-      const boss = await pgBossStarted
-      const jobId = await boss.send(jobName, jobArgs, {
-        ...defaultJobOptions,
-        ...(startAfter && { startAfter }),
-        ...jobOptions,
-      })
-      return createPgBossSubmittedJob(boss, this, jobId)
-    },
-  }
-}
 
 /**
  * Creates an instance of PgBossJob and initializes the PgBoss executor by registering this job function.
@@ -142,7 +14,7 @@ export function createPgBossJob<
 export function createJob<
   Input extends object,
   Output extends JSONValue | void,
-  Entities
+  Entities extends Partial<PrismaDelegate>
 >({
   jobName,
   jobFn,
@@ -153,7 +25,7 @@ export function createJob<
   // jobName - The user-defined job name in their .wasp file.
   jobName: Parameters<PgBoss['schedule']>[0]
   // jobFn - The user-defined async job callback function.
-  jobFn: Job<Input, Output, Entities>['jobFn']
+  jobFn: JobFn<Input, Output, Entities>
   // defaultJobOptions - pg-boss specific options for `boss.send()` applied to every `submit()` invocation,
   // which can overriden in that call.
   defaultJobOptions: PgBoss.Schedule['options']
@@ -202,7 +74,75 @@ export function createJob<
     }
   })
 
-  return createPgBossJob<Input, Output, Entities>(jobName, defaultJobOptions)
+  return new PgBossJob<Input, Output>(jobName, defaultJobOptions)
+}
+
+export type JobFn<
+  Input extends object,
+  Output extends JSONValue | void,
+  Entities extends Partial<PrismaDelegate>
+> = (data: Input, context: { entities: Entities }) => Promise<Output>
+
+/**
+ * This is an interface repesenting a job that can be submitted to pg-boss.
+ * It is not yet submitted until the caller invokes `submit()` on an instance.
+ * The caller can make as many calls to `submit()` as they wish.
+ */
+class PgBossJob<
+  Input extends object,
+  Output extends JSONValue | void,
+> extends Job {
+  public defaultJobOptions: Parameters<PgBoss['send']>[2]
+  public startAfter: number | string | Date
+  constructor(
+    jobName: string,
+    defaultJobOptions: Parameters<PgBoss['send']>[2],
+    startAfter?: number | string | Date
+  ) {
+    super(jobName, PG_BOSS_EXECUTOR_NAME)
+    this.defaultJobOptions = defaultJobOptions
+    this.startAfter = startAfter
+  }
+  delay(startAfter: number | string | Date) {
+    return new PgBossJob<Input, Output>(this.jobName, this.defaultJobOptions, startAfter)
+  }
+  async submit(jobArgs: Input, jobOptions: Parameters<PgBoss['send']>[2] = {}) {
+    const boss = await pgBossStarted
+    const jobId = await (boss.send as any)(this.jobName, jobArgs, {
+      ...this.defaultJobOptions,
+      ...(this.startAfter && { startAfter: this.startAfter }),
+      ...jobOptions,
+    })
+    return new PgBossSubmittedJob<Input, Output>(boss, this, jobId)
+  }
+}
+
+/**
+ * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
+ */
+class PgBossSubmittedJob<
+  Input extends object,
+  Output extends JSONValue | void,
+> extends SubmittedJob {
+  public pgBoss: {
+    cancel: () => ReturnType<PgBoss['cancel']>
+    resume: () => ReturnType<PgBoss['resume']>
+    details: () => Promise<PbBossDetails<Input, Output> | null>
+  }
+
+  constructor(
+    boss: PgBoss,
+    job: PgBossJob<Input, Output>,
+    jobId: SubmittedJob['jobId']
+  ) {
+    super(job, jobId)
+    this.pgBoss = {
+      cancel: () => boss.cancel(jobId),
+      resume: () => boss.resume(jobId),
+      // Coarcing here since pg-boss typings are not precise enough.
+      details: () => boss.getJobById(jobId) as Promise<PbBossDetails<Input, Output> | null>,
+    }
+  }
 }
 
 /**
@@ -212,10 +152,10 @@ export function createJob<
 function pgBossCallbackWrapper<
   Input extends object,
   Output extends JSONValue | void,
-  Entities
+  Entities extends Partial<PrismaDelegate>
 >(
   // jobFn - The user-defined async job callback function.
-  jobFn: Job<Input, Output, Entities>['jobFn'],
+  jobFn: JobFn<Input, Output, Entities>,
   // Entities used by job, passed into callback context.
   entities: Entities
 ) {
@@ -224,3 +164,37 @@ function pgBossCallbackWrapper<
     return jobFn(args.data, context)
   }
 }
+
+// Overrides the default pg-boss JobWithMetadata type to provide more
+// type safety.
+type PbBossDetails<
+  Input extends object,
+  Output extends JSONValue | void
+> = Omit<PgBoss.JobWithMetadata<Input>, 'state' | 'output'> & {
+  data: Input
+} & (
+    | {
+        state: 'completed'
+        output: JobOutputToMetadataOutput<Output>
+      }
+    | {
+        state: 'failed'
+        output: object
+      }
+    | {
+        state: 'created' | 'retry' | 'active' | 'expired' | 'cancelled'
+        output: null
+      }
+  )
+
+// pg-boss wraps primitive values in an object with a `value` property.
+// https://github.com/timgit/pg-boss/blob/master/src/manager.js#L526
+type JobOutputToMetadataOutput<JobOutput> = JobOutput extends
+  | null
+  | undefined
+  | void
+  | Function
+  ? null
+  : JobOutput extends object
+  ? JobOutput
+  : { value: JobOutput }
