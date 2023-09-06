@@ -625,7 +625,7 @@ Read more about the `fields` object in the [API Reference](#signup-fields-custom
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity. 
 
-The field function will receive the data sent from the client and it needs to return the value of the field. If the field is invalid, the function should throw an error.
+The field function will receive the data sent from the client and it needs to return the value that will be saved into the database. If the field is invalid, the function should throw an error.
 
 :::info Using Validation Libraries
 
