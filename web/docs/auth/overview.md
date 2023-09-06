@@ -510,16 +510,16 @@ Sometimes you want to include **extra fields** in your signup process, like firs
 
 In Wasp, in this case:
 
-- You need to define the new backend fields
-- You need to customize the `SignupForm`
+- you need to define the fields that you want saved in the database,
+- you need to customize the `SignupForm`.
 
 Other times, you might need to add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
 Let's see how to do both.
 
-### 1. Defining Extra Backend Fields
+### 1. Defining Extra Fields
 
-If we want to **save** some extra fields in our signup process, we need to tell our backend they exist.
+If we want to **save** some extra fields in our signup process, we need to tell our app they exist.
 
 We do that by defining an object where the keys represent the field name, and the values are functions that receive the data sent from the client and return the value of the field.
 
@@ -694,6 +694,15 @@ Now that we defined the fields, Wasp knows how to:
 Next, let's see how to customize [Auth UI](/docs/auth/ui) to include those fields.
 
 ### 2. Customizing the Signup Component
+
+:::tip Using Custom Signup Component
+
+If you are not using Wasp's Auth UI, you can skip this section. Just make sure to include the extra fields in your custom signup form.
+
+Read more about using the signup actions for:
+- email auth [here](/docs/auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions -->
+- username & password auth [here](/docs/auth/username-and-pass#customizing-the-auth-flow)
+:::
 
 If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
 
@@ -1021,7 +1030,7 @@ Read more about the signup process customization API in the [Signup Fields Custo
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the backend needs to know how to save them to the database. You do that by defining the `auth.signup.additionalFields` field in your `main.wasp` file.
+If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.signup.additionalFields` field in your `main.wasp` file.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
