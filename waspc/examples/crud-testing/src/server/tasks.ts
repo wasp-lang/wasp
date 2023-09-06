@@ -28,6 +28,7 @@ export const getAllTasks = (async (args, context) => {
   const details = await result.pgBoss.details();
 
   if (details && details.state === "completed") {
+    console.log("Job started with data:", details.data);
     console.log("Job completed with output:", details.output.tasks);
   } else if (details) {
     console.log("Job state and output", details.state, details.output);

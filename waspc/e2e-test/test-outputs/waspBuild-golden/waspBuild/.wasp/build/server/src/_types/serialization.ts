@@ -12,13 +12,13 @@ export type Payload = void | SuperJSONValue
 // We changed the code as little as possible to make future comparisons easier.
 export type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject
 
+export interface JSONObject {
+  [key: string]: JSONValue
+}
+
 type PrimitiveJSONValue = string | number | boolean | undefined | null
 
 interface JSONArray extends Array<JSONValue> {}
-
-interface JSONObject {
-  [key: string]: JSONValue
-}
 
 type SerializableJSONValue =
   | Symbol

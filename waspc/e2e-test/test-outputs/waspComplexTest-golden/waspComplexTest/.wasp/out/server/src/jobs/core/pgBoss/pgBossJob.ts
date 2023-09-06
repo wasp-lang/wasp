@@ -1,7 +1,7 @@
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
-import { JSONValue } from '../../../_types/serialization.js'
+import type { JSONValue, JSONObject } from '../../../_types/serialization.js'
 import { PrismaDelegate } from '../../../_types/index.js'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
@@ -12,7 +12,7 @@ export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
  * functions, we will override the previous calls.
  */
 export function createJob<
-  Input extends object,
+  Input extends JSONObject,
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 >({
@@ -78,7 +78,7 @@ export function createJob<
 }
 
 export type JobFn<
-  Input extends object,
+  Input extends JSONObject,
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 > = (data: Input, context: { entities: Entities }) => Promise<Output>
@@ -89,11 +89,11 @@ export type JobFn<
  * The caller can make as many calls to `submit()` as they wish.
  */
 class PgBossJob<
-  Input extends object,
+  Input extends JSONObject,
   Output extends JSONValue | void,
 > extends Job {
-  public defaultJobOptions: Parameters<PgBoss['send']>[2]
-  public startAfter: number | string | Date
+  public readonly defaultJobOptions: Parameters<PgBoss['send']>[2]
+  public readonly startAfter: number | string | Date
   constructor(
     jobName: string,
     defaultJobOptions: Parameters<PgBoss['send']>[2],
@@ -121,13 +121,13 @@ class PgBossJob<
  * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
  */
 class PgBossSubmittedJob<
-  Input extends object,
+  Input extends JSONObject,
   Output extends JSONValue | void,
 > extends SubmittedJob {
-  public pgBoss: {
-    cancel: () => ReturnType<PgBoss['cancel']>
-    resume: () => ReturnType<PgBoss['resume']>
-    details: () => Promise<PbBossDetails<Input, Output> | null>
+  public readonly pgBoss: {
+    readonly cancel: () => ReturnType<PgBoss['cancel']>
+    readonly resume: () => ReturnType<PgBoss['resume']>
+    readonly details: () => Promise<PgBossDetails<Input, Output> | null>
   }
 
   constructor(
@@ -140,7 +140,7 @@ class PgBossSubmittedJob<
       cancel: () => boss.cancel(jobId),
       resume: () => boss.resume(jobId),
       // Coarcing here since pg-boss typings are not precise enough.
-      details: () => boss.getJobById(jobId) as Promise<PbBossDetails<Input, Output> | null>,
+      details: () => boss.getJobById(jobId) as Promise<PgBossDetails<Input, Output> | null>,
     }
   }
 }
@@ -150,7 +150,7 @@ class PgBossSubmittedJob<
  * the `data` property so the arguments passed into the job are the exact same as those received.
  */
 function pgBossCallbackWrapper<
-  Input extends object,
+  Input extends JSONObject,
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 >(
@@ -167,8 +167,8 @@ function pgBossCallbackWrapper<
 
 // Overrides the default pg-boss JobWithMetadata type to provide more
 // type safety.
-type PbBossDetails<
-  Input extends object,
+type PgBossDetails<
+  Input extends JSONObject,
   Output extends JSONValue | void
 > = Omit<PgBoss.JobWithMetadata<Input>, 'state' | 'output'> & {
   data: Input

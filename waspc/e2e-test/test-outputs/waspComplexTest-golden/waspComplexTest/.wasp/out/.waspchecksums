@@ -95,7 +95,7 @@
             "file",
             "server/src/_types/serialization.ts"
         ],
-        "6593202c77a9ce754c2305081d26f33063adad12f9447a65f0c641cc1589ed30"
+        "73dc983c9a02cab8e2f189f1ddedd9cdcd47bf403c9dc56efba8be895b6980a1"
     ],
     [
         [
@@ -354,14 +354,14 @@
             "file",
             "server/src/jobs/MySpecialJob.ts"
         ],
-        "ba9d60bce1da0589f0d1847a937e779cee562fd4a2acfb0819a8a952e4558a3b"
+        "f75ff9a6f207fdb8adc94843d78ef0f7504588f8bdb686347692ece3284d9aa8"
     ],
     [
         [
             "file",
             "server/src/jobs/ReturnHelloJob.ts"
         ],
-        "ca370e9dad3e2c193aad69269a5ce914f3d0c42b7053abab904f2bd7a480bc97"
+        "d3d5cf184c0d984ea9ed4f6e461f9ff2058cfdffe51738fc66f64c33abc1306a"
     ],
     [
         [
@@ -375,7 +375,7 @@
             "file",
             "server/src/jobs/core/job.ts"
         ],
-        "7d86d224e4c86574cb9273520f6de7e57a9f69df9d1f25fcae7413611e0eecba"
+        "7d80e3e3b3f25b8cf9d8f7f995caf075cc1e0c536cf8a78077d6433cae1d7407"
     ],
     [
         [
@@ -389,7 +389,7 @@
             "file",
             "server/src/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "750fe7e8f926944a1507983afb5c7f8afe8983b3492297a8102979e31e6abaf1"
+        "0c325dee2af51e9bade83183c6175c33123f7f7ff1f2a58e489c2b3a203e9403"
     ],
     [
         [
