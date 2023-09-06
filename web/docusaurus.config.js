@@ -140,6 +140,8 @@ module.exports = {
       //   We should enable it if we start doing versioning.
       // contextualSearch: true
     },
+    image: "img/wasp_twitter_cover.png",
+    metadata: [{ name: "twitter:card", content: "summary_large_image" }],
   },
   presets: [
     [
