@@ -551,7 +551,7 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll export the `fields` object from the `server/auth/signup.js` file:
+Then we'll define and export the `fields` object from the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.js"
 import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
