@@ -236,10 +236,14 @@ function throwValidationError(message: string): void {
 export async function validateAndGetAdditionalFields(data: {
   [key: string]: unknown
 }) {
+  const {
+    password: _password,
+    ...sanitizedData
+  } = data;
   const result: Record<string, any> = {};
   for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
     try {
-      const value = await getFieldValue(data)
+      const value = await getFieldValue(sanitizedData)
       result[field] = value
     } catch (e) {
       throwValidationError(e.message)

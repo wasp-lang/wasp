@@ -521,7 +521,12 @@ Let's see how to do both.
 
 If we want to **save** some extra fields in our signup process, we need to tell our app they exist.
 
-We do that by defining an object where the keys represent the field name, and the values are functions that receive the data sent from the client and return the value of the field.
+We do that by defining an object where the keys represent the field name, and the values are functions that receive the data sent from the client* and return the value of the field.
+
+<small>
+
+\* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
+</small>
 
 First, we add the `auth.signup.additionalFields` field in our `main.wasp` file:
 
@@ -700,7 +705,7 @@ Next, let's see how to customize [Auth UI](/docs/auth/ui) to include those field
 If you are not using Wasp's Auth UI, you can skip this section. Just make sure to include the extra fields in your custom signup form.
 
 Read more about using the signup actions for:
-- email auth [here](/docs/auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions -->
+- email auth [here](/docs/auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
 - username & password auth [here](/docs/auth/username-and-pass#customizing-the-auth-flow)
 :::
 
@@ -1111,11 +1116,14 @@ export const fields = defineAdditionalSignupFields({
 </TabItem>
 </Tabs>
 
-The `fields` object is an object where the keys represent the field name, and the values are functions which receive the data sent from the client and return the value of the field.
+The `fields` object is an object where the keys represent the field name, and the values are functions which receive the data sent from the client* and return the value of the field.
 
 If the field value is invalid, the function should throw an error.
 
-The field details object has the following properties:
+<small>
+
+\* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
+</small>
 
 ### `SignupForm` Customization
 
