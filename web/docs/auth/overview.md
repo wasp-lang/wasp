@@ -1102,7 +1102,7 @@ export const fields = defineAdditionalSignupFields({
 </TabItem>
 </Tabs>
 
-The `fields` object is an object where the keys represent the field name, and the values are functions which receives the data sent from the client and return the value of the field.
+The `fields` object is an object where the keys represent the field name, and the values are functions which receive the data sent from the client and return the value of the field.
 
 If the field value is invalid, the function should throw an error.
 
