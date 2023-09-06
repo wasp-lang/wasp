@@ -5,15 +5,15 @@ title: Recurring Jobs
 import { Required } from '@site/src/components/Required'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth. However, if the server needs extra time to complete a task before responding to the request, such as sending an email or making a slow HTTP request to an external API, it's best to perform these tasks in the background to avoid making the user wait.
+In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth.
 
-Wasp offers support for background jobs, and they are called simply Jobs.
+What if the server needs extra time to complete some tasks before responding to the request? This might mean sending an email or making a slow HTTP request to an external API. Then, it's best to perform these tasks in the background to spare the user from waiting.
 
-Some details about them:
-  - Jobs persist between server restarts.
-  - They can be retried if they fail.
-  - They can be delayed until a future time.
-  - They can have a recurring schedule.
+Wasp supports background jobs that can help you with this:
+  - Jobs persist between server restarts,
+  - Jobs can be retried if they fail,
+  - Jobs can be delayed until a future time,
+  - Jobs can have a recurring schedule.
 
 ## Using Jobs
 
@@ -177,7 +177,7 @@ When you submit a job, you get a `SubmittedJob` object back. It has a `jobId` fi
 
 ## API Reference
 
-### Fields
+### Declaring Jobs
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
