@@ -18,5 +18,5 @@ export type { GetUserFieldsFn } from '../auth/providers/oauth/types';
 {=/ isExternalAuthEnabled =}
 
 {=# isEmailAuthEnabled =}
-export type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from '../auth/providers/email/types.js';
+export type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from '../auth/providers/email/types';
 {=/ isEmailAuthEnabled =}
