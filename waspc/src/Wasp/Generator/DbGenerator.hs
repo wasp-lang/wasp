@@ -8,7 +8,8 @@ module Wasp.Generator.DbGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromMaybe, maybeToList)
+import Data.List (intercalate)
+import Data.Maybe (fromMaybe, mapMaybe, maybeToList)
 import Data.Text (Text, pack)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -68,7 +69,8 @@ genPrismaSchema spec = do
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaClientOutputDir" .= makeEnvVarField Wasp.Generator.DbGenerator.Common.prismaClientOutputDirEnvVar,
-            "prismaPreviewFeatures" .= prismaPreviewFeatures
+            "prismaPreviewFeatures" .= prismaPreviewFeatures,
+            "dbExtensions" .= dbExtensions
           ]
 
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
@@ -77,6 +79,29 @@ genPrismaSchema spec = do
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
+    dbExtensions = showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
+
+    showDbExtensions :: [AS.Db.PrismaDbExtension] -> String
+    -- [extension, extension],  use intercalate
+    showDbExtensions extensions = "[" <> intercalate ", " (map showDbExtension extensions) <> "]"
+      where
+        showDbExtension :: AS.Db.PrismaDbExtension -> String
+        -- If there is only the name field -> name
+        -- If there are other fields (map, schema, version) -> name(map: "map", schema: "schema", version: "version")
+        showDbExtension
+          AS.Db.PrismaDbExtension
+            { AS.Db.name = name,
+              AS.Db.version = version,
+              AS.Db.map = extensionMap,
+              AS.Db.schema = schema
+            } = name <> (if null otherFields then "" else "(" <> otherFields <> ")")
+            where
+              otherFields = unwords $ mapMaybe (\(fieldName, fieldValue) -> (\v -> fieldName <> ": " <> show v) <$> fieldValue) otherFieldsList
+              otherFieldsList =
+                [ ("map", extensionMap),
+                  ("schema", schema),
+                  ("version", version)
+                ]
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
@@ -186,7 +211,7 @@ genPrismaClients spec projectRootDir =
     generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientsIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
+        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = not . null $ getEntities spec
