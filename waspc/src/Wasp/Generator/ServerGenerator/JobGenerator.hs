@@ -29,7 +29,7 @@ import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
@@ -42,9 +42,12 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Util (toUpperFirst)
 
 genJobs :: AppSpec -> Generator [FileDraft]
-genJobs spec = return $ genAllJobImports spec : (genJob <$> getJobs spec)
+genJobs spec = case getJobs spec of
+  [] -> return []
+  jobs -> return $ genAllJobImports spec : (genJob <$> jobs)
 
 genJob :: (String, Job) -> FileDraft
 genJob (jobName, job) =
@@ -54,6 +57,7 @@ genJob (jobName, job) =
     ( Just $
         object
           [ "jobName" .= jobName,
+            "typeName" .= toUpperFirst jobName,
             "jobPerformFnName" .= jobPerformFnName,
             "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
             -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
@@ -61,13 +65,13 @@ genJob (jobName, job) =
             -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
-            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job)),
+            "jobExecutorRelativePath" .= toFilePath (executorJobTemplateInJobsDir "js" (J.executor job)),
             "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job)
           ]
     )
   where
-    tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
-    dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
+    tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.ts|]
+    dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".ts")
     (jobPerformFnImportStatement, jobPerformFnName) = getJsImportStmtAndIdentifier relPathFromJobsDirToServerSrcDir $ (J.fn . J.perform) job
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
@@ -85,8 +89,8 @@ genJob (jobName, job) =
 -- even if they are not referenced by user code. This ensures schedules are started, etc.
 genAllJobImports :: AppSpec -> FileDraft
 genAllJobImports spec =
-  let tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|core/_allJobs.js|]
-      dstFile = jobsDirInServerRootDir SP.</> [relfile|core/allJobs.js|]
+  let tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|core/_allJobs.ts|]
+      dstFile = jobsDirInServerRootDir SP.</> [relfile|core/allJobs.ts|]
    in C.mkTmplFdWithDstAndData
         tmplFile
         dstFile
@@ -101,8 +105,10 @@ genAllJobImports spec =
         [ "name" .= jobName
         ]
 
-genJobExecutors :: Generator [FileDraft]
-genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
+genJobExecutors :: AppSpec -> Generator [FileDraft]
+genJobExecutors spec = case getJobs spec of
+  [] -> return []
+  _someJobs -> return $ jobExecutorFds ++ jobExecutorHelperFds
   where
     jobExecutorFds :: [FileDraft]
     jobExecutorFds = genJobExecutor <$> jobExecutors
@@ -112,22 +118,20 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
 
     jobExecutorHelperFds :: [FileDraft]
     jobExecutorHelperFds =
-      [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss/pgBoss.js|],
-        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/Job.js|],
-        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/SubmittedJob.js|]
+      [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss/pgBoss.ts|],
+        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/job.ts|]
       ]
+
+    executorJobTemplateInServerTemplatesDir :: JobExecutor -> Path SP.System (Rel ServerTemplatesDir) File'
+    executorJobTemplateInServerTemplatesDir = (jobsDirInServerTemplatesDir SP.</>) . executorJobTemplateInJobsDir "ts"
 
 data JobsDir
 
 jobsDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir JobsDir)
 jobsDirInServerTemplatesDir = srcDirInServerTemplatesDir SP.</> [reldir|jobs|]
 
-executorJobTemplateInServerTemplatesDir :: JobExecutor -> Path SP.System (Rel ServerTemplatesDir) File'
-executorJobTemplateInServerTemplatesDir = (jobsDirInServerTemplatesDir SP.</>) . executorJobTemplateInJobsDir
-
-executorJobTemplateInJobsDir :: JobExecutor -> Path' (Rel JobsDir) File'
-executorJobTemplateInJobsDir PgBoss = [relfile|core/pgBoss/pgBossJob.js|]
-executorJobTemplateInJobsDir Simple = [relfile|core/simpleJob.js|]
+executorJobTemplateInJobsDir :: String -> JobExecutor -> Path' (Rel JobsDir) File'
+executorJobTemplateInJobsDir ext PgBoss = fromJust $ SP.parseRelFile $ "core/pgBoss/pgBossJob" <> "." <> ext
 
 -- Path to destination files are the same as in templates dir.
 jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)

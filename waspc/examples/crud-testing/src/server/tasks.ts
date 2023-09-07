@@ -1,6 +1,7 @@
 import HttpError from "@wasp/core/HttpError.js";
 import type { GetQuery, GetAllQuery, CreateAction } from "@wasp/crud/tasks";
 import { Task, User } from "@wasp/entities";
+import { simplePrintJob } from "@wasp/jobs/simplePrintJob.js";
 
 export const getTask = (async (args, context) => {
   return context.entities.Task.findUnique({
@@ -18,6 +19,21 @@ export const getTask = (async (args, context) => {
 >;
 
 export const getAllTasks = (async (args, context) => {
+  const result = await simplePrintJob.submit({
+    name: "moje ime",
+  });
+
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const details = await result.pgBoss.details();
+
+  if (details && details.state === "completed") {
+    console.log("Job started with data:", details.data);
+    console.log("Job completed with output:", details.output.tasks);
+  } else if (details) {
+    console.log("Job state and output", details.state, details.output);
+  }
+
   return context.entities.Task.findMany({
     orderBy: { id: "desc" },
     select: {

@@ -69,6 +69,49 @@ export const SignupPage = () => {
 };
 ```
 
+### 🎉 [New Feature] Added Typescript support for Jobs
+
+Now you can type your async jobs better and receive all the benefits of Typescript. When you define a job, Wasp will generate a generic type which you can use to type your job function:
+
+```wasp
+job simplePrintJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { simplePrint } from "@server/jobs.js",
+  },
+  entities: [Task]
+}
+```
+
+```typescript
+import { SimplePrintJob } from "@wasp/jobs/simplePrintJob";
+import { Task } from "@wasp/entities";
+
+export const simplePrint: SimplePrintJob<
+  { name: string },
+  { tasks: Task[] }
+> = async (args, context) => {
+  //        👆 args are typed e.g. { name: string }
+  //                👆 context is typed e.g. { entitites: { Task: ... } }
+  const tasks = await context.entities.Task.findMany({});
+  return {
+    tasks,
+  };
+};
+```
+
+When you use the job, you can pass the arguments and receive the result with the correct types:
+
+```typescript
+import { simplePrintJob } from "@wasp/jobs/simplePrintJob.js";
+
+...
+const job = await simplePrintJob.submit({ name: "John" })
+...
+const result = await result.pgBoss.details()
+//      👆 result is typed e.g. { tasks: Task[] }
+```
+
 ## 0.11.3
 
 ### 🎉 [New Feature] Type-safe links

@@ -18,7 +18,10 @@ app crudTesting {
   },
   dependencies: [
     ("zod", "^3.22.2")
-  ]
+  ],
+  db: {
+    system: PostgreSQL
+  }
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -73,4 +76,15 @@ crud tasks {
     update: {},
     delete: {},
   },
+}
+
+job simplePrintJob {
+  executor: PgBoss,
+  schedule: {
+    cron: "* * * * *",
+  },
+  perform: {
+    fn: import { simplePrint } from "@server/jobs.js",
+  },
+  entities: [Task]
 }
