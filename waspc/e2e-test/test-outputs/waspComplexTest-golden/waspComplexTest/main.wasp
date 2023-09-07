@@ -65,6 +65,14 @@ job MySpecialJob {
   }
 }
 
+job ReturnHelloJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { returnHello } from "@server/jobs/returnHello.js",
+  },
+  entities: [User],
+}
+
 action MySpecialAction {
   fn: import { foo } from "@server/actions/bar.js",
   entities: [User],

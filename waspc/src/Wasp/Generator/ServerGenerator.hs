@@ -85,7 +85,7 @@ genServer spec =
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genJobExecutors
+    <++> genJobExecutors spec
     <++> genPatches spec
     <++> genUniversalDir
     <++> genEnvValidationScript
