@@ -513,7 +513,7 @@ In Wasp, in this case:
 - you need to define the fields that you want saved in the database,
 - you need to customize the `SignupForm`.
 
-Other times, you might need to add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
+Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
 Let's see how to do both.
 
