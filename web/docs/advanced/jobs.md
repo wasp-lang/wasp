@@ -7,7 +7,7 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth.
 
-What if the server needs extra time to complete some tasks before responding to the request? This might mean sending an email or making a slow HTTP request to an external API. Then, it's best to perform these tasks in the background to spare the user from waiting.
+What if the server needs extra time to fully process the request? This might mean sending an email or making a slow HTTP request to an external API. In that case, it's a good idea to respond to the user as soon as possible and do the remaining work in the background.
 
 Wasp supports background jobs that can help you with this:
   - Jobs persist between server restarts,
