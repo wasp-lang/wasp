@@ -90,10 +90,11 @@ export type JobFn<
  */
 class PgBossJob<
   Input extends JSONObject,
-  Output extends JSONValue | void,
+  Output extends JSONValue | void
 > extends Job {
   public readonly defaultJobOptions: Parameters<PgBoss['send']>[2]
   public readonly startAfter: number | string | Date
+
   constructor(
     jobName: string,
     defaultJobOptions: Parameters<PgBoss['send']>[2],
@@ -104,7 +105,11 @@ class PgBossJob<
     this.startAfter = startAfter
   }
   delay(startAfter: number | string | Date) {
-    return new PgBossJob<Input, Output>(this.jobName, this.defaultJobOptions, startAfter)
+    return new PgBossJob<Input, Output>(
+      this.jobName,
+      this.defaultJobOptions,
+      startAfter
+    )
   }
   async submit(jobArgs: Input, jobOptions: Parameters<PgBoss['send']>[2] = {}) {
     const boss = await pgBossStarted
@@ -122,7 +127,7 @@ class PgBossJob<
  */
 class PgBossSubmittedJob<
   Input extends JSONObject,
-  Output extends JSONValue | void,
+  Output extends JSONValue | void
 > extends SubmittedJob {
   public readonly pgBoss: {
     readonly cancel: () => ReturnType<PgBoss['cancel']>
@@ -140,7 +145,8 @@ class PgBossSubmittedJob<
       cancel: () => boss.cancel(jobId),
       resume: () => boss.resume(jobId),
       // Coarcing here since pg-boss typings are not precise enough.
-      details: () => boss.getJobById(jobId) as Promise<PgBossDetails<Input, Output> | null>,
+      details: () =>
+        boss.getJobById(jobId) as Promise<PgBossDetails<Input, Output> | null>,
     }
   }
 }

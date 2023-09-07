@@ -6,6 +6,7 @@
 export class Job {
   public readonly jobName: string
   public readonly executorName: string | symbol
+
   constructor(jobName: string, executorName: string | symbol) {
     this.jobName = jobName
     this.executorName = executorName
@@ -19,6 +20,7 @@ export class Job {
 export class SubmittedJob {
   public readonly job: Job
   public readonly jobId: string
+
   constructor(job: Job, jobId: string) {
     this.job = job
     this.jobId = jobId
