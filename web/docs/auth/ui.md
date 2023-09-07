@@ -3,7 +3,6 @@ title: Auth UI
 ---
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "./Pills";
-import { Required } from "@site/src/components/Required";
 
 To make using authentication in your app as easy as possible, Wasp generates the server-side code but also the client-side UI for you. It enables you to quickly get the login, signup, password reset and email verification flows in your app.
 
@@ -130,11 +129,11 @@ page LoginPage {
 ```
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 // Use it like this
 export function LoginPage() {
-  return <LoginForm />;
+  return <LoginForm />
 }
 ```
 
@@ -151,11 +150,11 @@ page LoginPage {
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 // Use it like this
 export function LoginPage() {
-  return <LoginForm />;
+  return <LoginForm />
 }
 ```
 
@@ -185,11 +184,11 @@ page SignupPage {
 ```
 
 ```tsx title="client/SignupPage.jsx"
-import { SignupForm } from "@wasp/auth/forms/Signup";
+import { SignupForm } from '@wasp/auth/forms/Signup'
 
 // Use it like this
 export function SignupPage() {
-  return <SignupForm />;
+  return <SignupForm />
 }
 ```
 
@@ -206,11 +205,11 @@ page SignupPage {
 ```
 
 ```tsx title="client/SignupPage.tsx"
-import { SignupForm } from "@wasp/auth/forms/Signup";
+import { SignupForm } from '@wasp/auth/forms/Signup'
 
 // Use it like this
 export function SignupPage() {
-  return <SignupForm />;
+  return <SignupForm />
 }
 ```
 
@@ -219,7 +218,7 @@ export function SignupPage() {
 
 It will automatically show the correct authentication providers based on your `main.wasp` file.
 
-Read more about [customizing the signup form](#customizing-the-signup-form) below.
+Read more about customizing the signup process like adding additional fields or extra UI in the [Using Auth](/docs/auth/overview#customizing-the-signup-process) section.
 
 ### Forgot Password Form
 
@@ -244,11 +243,11 @@ page RequestPasswordResetPage {
 ```
 
 ```tsx title="client/ForgotPasswordPage.jsx"
-import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
+import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
 
 // Use it like this
 export function ForgotPasswordPage() {
-  return <ForgotPasswordForm />;
+  return <ForgotPasswordForm />
 }
 ```
 
@@ -265,11 +264,11 @@ page RequestPasswordResetPage {
 ```
 
 ```tsx title="client/ForgotPasswordPage.tsx"
-import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
+import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
 
 // Use it like this
 export function ForgotPasswordPage() {
-  return <ForgotPasswordForm />;
+  return <ForgotPasswordForm />
 }
 ```
 
@@ -299,11 +298,11 @@ page PasswordResetPage {
 ```
 
 ```tsx title="client/ResetPasswordPage.jsx"
-import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
+import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 
 // Use it like this
 export function ResetPasswordPage() {
-  return <ResetPasswordForm />;
+  return <ResetPasswordForm />
 }
 ```
 
@@ -320,11 +319,11 @@ page PasswordResetPage {
 ```
 
 ```tsx title="client/ResetPasswordPage.tsx"
-import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
+import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 
 // Use it like this
 export function ResetPasswordPage() {
-  return <ResetPasswordForm />;
+  return <ResetPasswordForm />
 }
 ```
 
@@ -354,11 +353,11 @@ page EmailVerificationPage {
 ```
 
 ```tsx title="client/VerifyEmailPage.jsx"
-import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
+import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 
 // Use it like this
 export function VerifyEmailPage() {
-  return <VerifyEmailForm />;
+  return <VerifyEmailForm />
 }
 ```
 
@@ -375,11 +374,11 @@ page EmailVerificationPage {
 ```
 
 ```tsx title="client/VerifyEmailPage.tsx"
-import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
+import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 
 // Use it like this
 export function VerifyEmailPage() {
-  return <VerifyEmailForm />;
+  return <VerifyEmailForm />
 }
 ```
 
@@ -412,16 +411,16 @@ See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/re
 ```js title="client/appearance.js"
 export const authAppearance = {
   colors: {
-    brand: "#5969b8", // blue
-    brandAccent: "#de5998", // pink
-    submitButtonText: "white",
+    brand: '#5969b8', // blue
+    brandAccent: '#de5998', // pink
+    submitButtonText: 'white',
   },
-};
+}
 ```
 
 ```jsx title="client/LoginPage.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { authAppearance } from "./appearance";
+import { LoginForm } from '@wasp/auth/forms/Login'
+import { authAppearance } from './appearance'
 
 export function LoginPage() {
   return (
@@ -429,7 +428,7 @@ export function LoginPage() {
       // Pass the appearance object to the form
       appearance={authAppearance}
     />
-  );
+  )
 }
 ```
 
@@ -437,20 +436,20 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="client/appearance.ts"
-import type { CustomizationOptions } from "@wasp/auth/forms/types";
+import type { CustomizationOptions } from '@wasp/auth/forms/types'
 
-export const authAppearance: CustomizationOptions["appearance"] = {
+export const authAppearance: CustomizationOptions['appearance'] = {
   colors: {
-    brand: "#5969b8", // blue
-    brandAccent: "#de5998", // pink
-    submitButtonText: "white",
+    brand: '#5969b8', // blue
+    brandAccent: '#de5998', // pink
+    submitButtonText: 'white',
   },
-};
+}
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { authAppearance } from "./appearance";
+import { LoginForm } from '@wasp/auth/forms/Login'
+import { authAppearance } from './appearance'
 
 export function LoginPage() {
   return (
@@ -458,7 +457,7 @@ export function LoginPage() {
       // Pass the appearance object to the form
       appearance={authAppearance}
     />
-  );
+  )
 }
 ```
 
@@ -475,8 +474,8 @@ You can add your logo to the Auth UI by passing the `logo` prop to any of the co
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import Logo from "./logo.png";
+import { LoginForm } from '@wasp/auth/forms/Login'
+import Logo from './logo.png'
 
 export function LoginPage() {
   return (
@@ -484,7 +483,7 @@ export function LoginPage() {
       // Pass in the path to your logo
       logo={Logo}
     />
-  );
+  )
 }
 ```
 
@@ -492,8 +491,8 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import Logo from "./logo.png";
+import { LoginForm } from '@wasp/auth/forms/Login'
+import Logo from './logo.png'
 
 export function LoginPage() {
   return (
@@ -501,7 +500,7 @@ export function LoginPage() {
       // Pass in the path to your logo
       logo={Logo}
     />
-  );
+  )
 }
 ```
 
@@ -518,7 +517,7 @@ If we pass in `vertical`:
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 export function LoginPage() {
   return (
@@ -526,7 +525,7 @@ export function LoginPage() {
       // Pass in the socialLayout prop
       socialLayout="vertical"
     />
-  );
+  )
 }
 ```
 
@@ -534,7 +533,7 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 export function LoginPage() {
   return (
@@ -542,7 +541,7 @@ export function LoginPage() {
       // Pass in the socialLayout prop
       socialLayout="vertical"
     />
-  );
+  )
 }
 ```
 
@@ -563,21 +562,21 @@ If we provide the logo and custom colors:
 ```ts title="client/appearance.js"
 export const appearance = {
   colors: {
-    brand: "#5969b8", // blue
-    brandAccent: "#de5998", // pink
-    submitButtonText: "white",
+    brand: '#5969b8', // blue
+    brandAccent: '#de5998', // pink
+    submitButtonText: 'white',
   },
-};
+}
 ```
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
-import { authAppearance } from "./appearance";
-import todoLogo from "./todoLogo.png";
+import { authAppearance } from './appearance'
+import todoLogo from './todoLogo.png'
 
 export function LoginPage() {
-  return <LoginForm appearance={appearance} logo={todoLogo} />;
+  return <LoginForm appearance={appearance} logo={todoLogo} />
 }
 ```
 
@@ -585,25 +584,25 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="client/appearance.ts"
-import type { CustomizationOptions } from "@wasp/auth/forms/types";
+import type { CustomizationOptions } from '@wasp/auth/forms/types'
 
-export const appearance: CustomizationOptions["appearance"] = {
+export const appearance: CustomizationOptions['appearance'] = {
   colors: {
-    brand: "#5969b8", // blue
-    brandAccent: "#de5998", // pink
-    submitButtonText: "white",
+    brand: '#5969b8', // blue
+    brandAccent: '#de5998', // pink
+    submitButtonText: 'white',
   },
-};
+}
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from '@wasp/auth/forms/Login'
 
-import { authAppearance } from "./appearance";
-import todoLogo from "./todoLogo.png";
+import { authAppearance } from './appearance'
+import todoLogo from './todoLogo.png'
 
 export function LoginPage() {
-  return <LoginForm appearance={appearance} logo={todoLogo} />;
+  return <LoginForm appearance={appearance} logo={todoLogo} />
 }
 ```
 
