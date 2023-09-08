@@ -2,6 +2,8 @@
 title: Databases
 ---
 
+import { Required } from '@site/src/components/Required'
+
 [Entities](/docs/data-model/entities.md), [Operations](/docs/data-model/operations/overview) and [Automatic CRUD](/docs/data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
 ## Supported Database Backends
@@ -140,23 +142,23 @@ Here's an example of a seed function that imports an Action:
 <TabItem value="js" label="JavaScript">
 
 ```js
-import { createTask } from './actions.js'
+import { createTask } from "./actions.js";
 
 export const devSeedSimple = async (prismaClient) => {
   const user = await createUser(prismaClient, {
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+    username: "RiuTheDog",
+    password: "bark1234",
+  });
 
   await createTask(
-    { description: 'Chase the cat' },
+    { description: "Chase the cat" },
     { user, entities: { Task: prismaClient.task } }
-  )
-}
+  );
+};
 
 async function createUser(prismaClient, data) {
-  const { password, ...newUser } = await prismaClient.user.create({ data })
-  return newUser
+  const { password, ...newUser } = await prismaClient.user.create({ data });
+  return newUser;
 }
 ```
 
@@ -164,30 +166,30 @@ async function createUser(prismaClient, data) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask } from './actions.js'
-import { User } from '@wasp/entities'
-import { PrismaClient } from '@prisma/client'
+import { createTask } from "./actions.js";
+import { User } from "@wasp/entities";
+import { PrismaClient } from "@prisma/client";
 
-type SanitizedUser = Omit<User, 'password'>
+type SanitizedUser = Omit<User, "password">;
 
 export const devSeedSimple = async (prismaClient: PrismaClient) => {
   const user = await createUser(prismaClient, {
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+    username: "RiuTheDog",
+    password: "bark1234",
+  });
 
   await createTask(
-    { description: 'Chase the cat', isDone: false },
+    { description: "Chase the cat", isDone: false },
     { user, entities: { Task: prismaClient.task } }
-  )
-}
+  );
+};
 
 async function createUser(
   prismaClient: PrismaClient,
-  data: Pick<User, 'username' | 'password'>
+  data: Pick<User, "username" | "password">
 ): Promise<SanitizedUser> {
-  const { password, ...newUser } = await prismaClient.user.create({ data })
-  return newUser
+  const { password, ...newUser } = await prismaClient.user.create({ data });
+  return newUser;
 }
 ```
 
@@ -280,6 +282,33 @@ app MyApp {
   - `clientPreviewFeatures : [string]`
 
     Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+
+  - `dbExtensions: DbExtension[]`
+
+    It allows you to define PostgreSQL extensions that should be enabled for your database. Read more about [PostgreSQL extensions in Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/postgresql-extensions).
+
+    For each extension you define a dict with the following fields:
+
+    - `name: string` <Required />
+
+      The name of the extension as you would put in the Prisma file.
+
+      ```prisma
+      extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+      //              👆 Extension name
+      ```
+
+    - `map: string`
+
+      > This is the database name of the extension. If this argument is not specified, the name of the extension in the Prisma schema must match the database name.
+
+    - `schema: string`
+
+      > This is the name of the schema in which to activate the extension's objects. If this argument is not specified, the current default object creation schema is used.
+
+    - `version: string`
+
+      > This is the version of the extension to activate. If this argument is not specified, the value given in the extension's control file is used.
 
 ### CLI Commands for Seeding the Database
 
