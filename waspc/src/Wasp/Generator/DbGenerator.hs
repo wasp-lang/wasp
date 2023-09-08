@@ -46,6 +46,7 @@ import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
+import Data.Functor ((<&>))
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -81,23 +82,26 @@ genPrismaSchema spec = do
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
     dbExtensions = showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
+    -- We want to show db extensions in the following format:
+    -- [first_ext, some_other(map: "name", schema: "schema", version: "1.0.0")]
     showDbExtensions :: [AS.Db.PrismaDbExtension] -> String
-    -- [extension, extension],  use intercalate
     showDbExtensions extensions = "[" <> intercalate ", " (map showDbExtension extensions) <> "]"
       where
         showDbExtension :: AS.Db.PrismaDbExtension -> String
-        -- If there is only the name field -> name
-        -- If there are other fields (map, schema, version) -> name(map: "map", schema: "schema", version: "version")
         showDbExtension
           AS.Db.PrismaDbExtension
             { AS.Db.name = name,
               AS.Db.version = version,
               AS.Db.map = extensionMap,
               AS.Db.schema = schema
-            } = name <> (if null otherFields then "" else "(" <> otherFields <> ")")
+            } = if null fields then name else name <> "(" <> fields <> ")"
             where
-              otherFields = unwords $ mapMaybe (\(fieldName, fieldValue) -> (\v -> fieldName <> ": " <> show v) <$> fieldValue) otherFieldsList
-              otherFieldsList =
+              fields = unwords $ mapMaybe showField possibleFields
+
+              showField :: (String, Maybe String) -> Maybe String
+              showField (fieldName, maybeFieldValue) = maybeFieldValue <&> \fieldValue -> fieldName <> ": " <> show fieldValue
+
+              possibleFields =
                 [ ("map", extensionMap),
                   ("schema", schema),
                   ("version", version)
