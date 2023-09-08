@@ -8,26 +8,28 @@ app pgVectorExample {
     ("react-hook-form", "^7.43.1"),
     ("@nextui-org/react", "^2.1.10"),
     ("framer-motion", "^10.16.4"),
-    ("pgvector", "0.1.5")
+    ("pgvector", "0.1.5"),
+    ("cheerio", "1.0.0-rc.12"),
+    ("axios", "^1.4.0")
   ],
   client: {
     rootComponent: import { Layout } from "@client/Layout.tsx",
   },
   db: {
     system: PostgreSQL,
-    // prisma: {
-    //   clientPreviewFeatures: ["postgresqlExtensions"],
-    //   dbExtensions: [{
-    //     name: "pgvector",
-    //     map: "vector"
-    //   }]
-    // }
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"],
+      dbExtensions: [{
+        name: "pgvector",
+        map: "vector"
+      }]
+    }
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { Main } from "@client/MainPage.tsx"
+  component: import { Main } from "@client/pages/MainPage.tsx"
 }
 
 action embedDocument {
@@ -42,6 +44,11 @@ query getDocuments {
 
 action searchDocuments {
   fn: import { searchDocuments } from "@server/documents.js",
+  entities: [Document]
+}
+
+action deleteDocument {
+  fn: import { deleteDocument } from "@server/documents.js",
   entities: [Document]
 }
 

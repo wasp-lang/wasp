@@ -1,11 +1,13 @@
 import { EmbedDocument } from "@wasp/actions/types";
 import { GetDocuments } from "@wasp/queries/types";
 import { SearchDocuments } from "@wasp/actions/types";
+import { DeleteDocument } from "@wasp/actions/types";
 import { Document } from "@wasp/entities";
 import prisma from "@wasp/dbClient.js";
 // @ts-ignore
 import { toSql } from "pgvector/utils";
 import openai from "openai";
+import { scrapeUrl } from "./scrape.js";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY env var is not set");
@@ -16,8 +18,8 @@ const api = new openai.OpenAI({
 });
 
 type EmbedDocumentInput = {
-  title: string;
-  content: string;
+  url: string;
+  selector?: string;
 };
 type EmbedDocumentOutput = {
   success: boolean;
@@ -27,7 +29,10 @@ export const embedDocument: EmbedDocument<
   EmbedDocumentInput,
   EmbedDocumentOutput
 > = async (args) => {
-  const { title, content } = args;
+  const { url, selector } = args;
+
+  // Scrape url to get the title and content
+  const { title, content } = await scrapeUrl(url, selector);
 
   // Embed with OpenAI
   const apiResult = await api.embeddings.create({
@@ -77,31 +82,39 @@ export const searchDocuments: SearchDocuments<
   });
   const embedding = toSql(apiResult.data[0].embedding);
 
-  const result = await prisma.$queryRaw`
+  const result = (await prisma.$queryRaw`
     SELECT "id", "title", "content", "embedding" <=> ${embedding}::vector AS "score"
     FROM "Document"
-    ORDER BY "embedding" <=> ${embedding}::vector
+    ORDER BY "embedding" <-> ${embedding}::vector
     LIMIT 10;
-  `;
-
-  return (result as {
+  `) as {
     id: string;
     title: string;
     content: string;
     score: number;
-  }[]).map(
-    (result: {
-      id: string;
-      title: string;
-      content: string;
-      score: number;
-    }) => ({
-      document: {
-        id: result.id,
-        title: result.title,
-        content: result.content,
-      },
-      score: result.score,
-    })
-  );
+  }[];
+
+  return result.map((result) => ({
+    document: {
+      id: result.id,
+      title: result.title,
+      content: result.content,
+    },
+    score: result.score,
+  }));
+};
+
+type DeleteDocumentInput = {
+  id: string;
+};
+type DeleteDocumentOutput = void;
+
+export const deleteDocument: DeleteDocument<
+  DeleteDocumentInput,
+  DeleteDocumentOutput
+> = async (args, context) => {
+  const { id } = args;
+  await context.entities.Document.delete({
+    where: { id },
+  });
 };
