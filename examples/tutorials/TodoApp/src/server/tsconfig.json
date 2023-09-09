@@ -15,7 +15,7 @@
     //
     // The relative path to the generated web app's root directory. This must be
     // set to define the "paths" option.
-    "baseUrl": "../../.wasp/out/server/",
+    "baseUrl": "@src/.wasp/out/server/",
     "paths": {
       // Resolve all "@wasp" imports to the generated source code.
       "@wasp/*": [
@@ -34,7 +34,7 @@
     },
     // Correctly resolve types: https://www.typescriptlang.org/tsconfig#typeRoots
     "typeRoots": [
-      "../../.wasp/out/server/node_modules/@types"
+      "@src/.wasp/out/server/node_modules/@types"
     ],
     // Since this TS config is used only for IDE support and not for
     // compilation, the following directory doesn't exist. We need to specify
