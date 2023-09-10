@@ -65,6 +65,8 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 :warning: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
+:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars in your `~/.zshrc`.
+
 ### Test
 ```
 cabal test
