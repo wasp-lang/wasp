@@ -10,7 +10,8 @@ app pgVectorExample {
     ("framer-motion", "^10.16.4"),
     ("pgvector", "0.1.5"),
     ("cheerio", "1.0.0-rc.12"),
-    ("axios", "^1.4.0")
+    ("axios", "^1.4.0"),
+    ("react-markdown", "^8.0.7")
   ],
   client: {
     rootComponent: import { Layout } from "@client/Layout.tsx",
@@ -37,6 +38,11 @@ action embedDocument {
   entities: [Document],
 }
 
+action getScrapeCandidates {
+  fn: import { getScrapeCandidates } from "@server/documents.js",
+  entities: [Document],
+}
+
 query getDocuments {
   fn: import { getDocuments } from "@server/documents.js",
   entities: [Document]
@@ -44,6 +50,11 @@ query getDocuments {
 
 action searchDocuments {
   fn: import { searchDocuments } from "@server/documents.js",
+  entities: [Document]
+}
+
+action askDocuments {
+  fn: import { askDocuments } from "@server/documents.js",
   entities: [Document]
 }
 
@@ -55,6 +66,9 @@ action deleteDocument {
 entity Document {=psl
   id String @id @default(uuid())
   title String
+  url String @unique
   content String
   embedding Unsupported("vector(1536)")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 psl=}

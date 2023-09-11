@@ -8,8 +8,7 @@ module Wasp.Generator.DbGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.List (intercalate)
-import Data.Maybe (fromMaybe, mapMaybe, maybeToList)
+import Data.Maybe (fromMaybe, maybeToList)
 import Data.Text (Text, pack)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -17,6 +16,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import qualified Wasp.Generator.DbGenerator.Prisma as Prisma
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
@@ -46,7 +46,6 @@ import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
-import Data.Functor ((<&>))
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -80,32 +79,7 @@ genPrismaSchema spec = do
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
-    dbExtensions = showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
-
-    -- We want to show db extensions in the following format:
-    -- [first_ext, some_other(map: "name", schema: "schema", version: "1.0.0")]
-    showDbExtensions :: [AS.Db.PrismaDbExtension] -> String
-    showDbExtensions extensions = "[" <> intercalate ", " (map showDbExtension extensions) <> "]"
-      where
-        showDbExtension :: AS.Db.PrismaDbExtension -> String
-        showDbExtension
-          AS.Db.PrismaDbExtension
-            { AS.Db.name = name,
-              AS.Db.version = version,
-              AS.Db.map = extensionMap,
-              AS.Db.schema = schema
-            } = if null fields then name else name <> "(" <> fields <> ")"
-            where
-              fields = unwords $ mapMaybe showField possibleFields
-
-              showField :: (String, Maybe String) -> Maybe String
-              showField (fieldName, maybeFieldValue) = maybeFieldValue <&> \fieldValue -> fieldName <> ": " <> show fieldValue
-
-              possibleFields =
-                [ ("map", extensionMap),
-                  ("schema", schema),
-                  ("version", version)
-                ]
+    dbExtensions = Prisma.showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =

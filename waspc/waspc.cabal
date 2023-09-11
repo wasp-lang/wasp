@@ -239,6 +239,7 @@ library
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
+    Wasp.Generator.DbGenerator.Prisma
     Wasp.Generator.DockerGenerator
     Wasp.Generator.ExternalCodeGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
