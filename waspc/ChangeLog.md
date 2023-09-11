@@ -26,8 +26,6 @@ app todoApp {
 
 This will add the necessary Prisma configuration to your `schema.prisma` file. Keep in mind that your database needs to support the extension you want to use. For example, if you want to use the `pgvector` extension, you need to install it in your database first.
 
-
-
 ### 🎉 [New Feature] Added Typescript support for Jobs
 
 Now you can type your async jobs better and receive all the benefits of Typescript. When you define a job, Wasp will generate a generic type which you can use to type your job function:

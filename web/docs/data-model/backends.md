@@ -212,6 +212,59 @@ Check the [API Reference](#cli-commands-for-seeding-the-database) for more detai
 You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
 :::
 
+## Prisma Configuration
+
+Wasp uses [Prisma](https://www.prisma.io/) to interact with the database. Prisma is a "Next-generation Node.js and TypeScript ORM" that provides a type-safe API for working with your database.
+
+### Prisma Preview Features
+
+Prisma is still in active development and some of its features are not yet stable. To use them, you have to enable them in the `app.db.prisma.clientPreviewFeatures` field: 
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"]
+    }
+  }
+}
+```
+
+<small>
+
+Read more about Prisma preview features in the [Prisma docs](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+</small>
+
+### PostgreSQL Extensions
+
+PostgreSQL supports [extensions](https://www.postgresql.org/docs/current/contrib.html) that add additional functionality to the database. For example, the [hstore](https://www.postgresql.org/docs/13/hstore.html) extension adds support for storing key-value pairs in a single column.
+
+To use PostgreSQL extensions with Prisma, you have to enable them in the `app.db.prisma.dbExtensions` field:
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"]
+      dbExtensions: [
+        { name: "hstore", schema: "myHstoreSchema" },
+        { name: "pg_trgm" },
+        { name: "postgis", version: "2.1" },
+      ]
+    }
+  }
+}
+```
+
+<small>
+
+Read more about PostgreSQL configuration in Wasp in the [API Reference](#the-appdb-field).
+</small>
+
 ## API Reference
 
 You can tell Wasp which database to use in the `app` declaration's `db` field:
@@ -276,12 +329,30 @@ app MyApp {
 
 - `prisma: PrismaOptions`
 
-  Additional configuration for Prisma.
-  It currently only supports a single field:
+  Additional configuration for Prisma. 
+  
+  ```wasp title="main.wasp"
+  app MyApp {
+    // ...
+    db: {
+      // ...
+      prisma: {
+        clientPreviewFeatures: ["postgresqlExtensions"],
+        dbExtensions: [
+          { name: "hstore", schema: "myHstoreSchema" },
+          { name: "pg_trgm" },
+          { name: "postgis", version: "2.1" },
+        ]
+      }
+    }
+  }
+  ```
+  
+  It's a dictionary with the following fields:
 
   - `clientPreviewFeatures : [string]`
 
-    Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+    Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features), like for example, `"postgresqlExtensions"`.
 
   - `dbExtensions: DbExtension[]`
 
@@ -291,23 +362,26 @@ app MyApp {
 
     - `name: string` <Required />
 
-      The name of the extension as you would put in the Prisma file.
+      The name of the extension you would normally put in the Prisma file.
 
-      ```prisma
+      ```prisma title="schema.prisma"
       extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
       //              👆 Extension name
       ```
 
     - `map: string`
 
+      It sets the `map` argument of the extension. Explanation for the field from the Prisma docs:
       > This is the database name of the extension. If this argument is not specified, the name of the extension in the Prisma schema must match the database name.
 
     - `schema: string`
 
+      It sets the `schema` argument of the extension. Explanation for the field from the Prisma docs:
       > This is the name of the schema in which to activate the extension's objects. If this argument is not specified, the current default object creation schema is used.
 
     - `version: string`
 
+      It sets the `version` argument of the extension. Explanation for the field from the Prisma docs:
       > This is the version of the extension to activate. If this argument is not specified, the value given in the extension's control file is used.
 
 ### CLI Commands for Seeding the Database
