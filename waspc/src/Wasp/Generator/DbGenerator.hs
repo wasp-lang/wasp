@@ -16,7 +16,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import qualified Wasp.Generator.DbGenerator.Prisma as Prisma
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
@@ -33,6 +32,7 @@ import Wasp.Generator.DbGenerator.Common
     prismaClientOutputDirEnvVar,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
+import qualified Wasp.Generator.DbGenerator.Prisma as Prisma
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import Wasp.Generator.Monad
@@ -189,7 +189,7 @@ genPrismaClients spec projectRootDir =
     generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientsIfEntitiesExist
       | entitiesExist =
-        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
+          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = not . null $ getEntities spec
