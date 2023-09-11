@@ -19,7 +19,7 @@ showDbExtensions extensions = "[" <> intercalate ", " (map showDbExtension exten
           AS.Db.schema = schema
         } = if null fields then name else name <> "(" <> fields <> ")"
         where
-          fields = unwords $ mapMaybe showField possibleFields
+          fields = intercalate ", " $ mapMaybe showField possibleFields
 
           showField :: (String, Maybe String) -> Maybe String
           showField (fieldName, maybeFieldValue) = maybeFieldValue <&> \fieldValue -> fieldName <> ": " <> show fieldValue
