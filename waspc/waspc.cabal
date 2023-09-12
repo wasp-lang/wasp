@@ -323,6 +323,7 @@ library
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
+    Wasp.Psl.Generator.Extensions
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
@@ -553,6 +554,7 @@ test-suite waspc-test
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
+    Psl.Generator.ExtensionsTest
     Psl.Parser.ModelTest
     Test.Util
     Util.FibTest
