@@ -3,6 +3,9 @@
 datasource db {
   provider = "{= datasourceProvider =}"
   url      = {=& datasourceUrl =}
+  {=# dbExtensions =}
+  extensions = {=& . =}
+  {=/ dbExtensions =}
 }
 
 generator client {

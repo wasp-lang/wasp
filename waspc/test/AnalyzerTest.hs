@@ -68,7 +68,8 @@ spec_Analyzer = do
                 "    system: PostgreSQL,",
                 "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ],",
                 "    prisma: {",
-                "      clientPreviewFeatures: [\"extendedWhereUnique\"]",
+                "      clientPreviewFeatures: [\"extendedWhereUnique\"],",
+                "      dbExtensions: [{ name: \"pg_trgm\", version: \"1.0.0\" }]",
                 "    }",
                 "  },",
                 "  emailSender: {",
@@ -190,7 +191,8 @@ spec_Analyzer = do
                             Db.prisma =
                               Just
                                 Db.PrismaOptions
-                                  { clientPreviewFeatures = Just ["extendedWhereUnique"]
+                                  { clientPreviewFeatures = Just ["extendedWhereUnique"],
+                                    dbExtensions = Just [Db.PrismaDbExtension {Db.name = "pg_trgm", Db.version = Just "1.0.0", Db.map = Nothing, Db.schema = Nothing}]
                                   }
                           },
                     App.emailSender =

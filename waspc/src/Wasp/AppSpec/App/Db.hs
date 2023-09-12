@@ -4,6 +4,7 @@ module Wasp.AppSpec.App.Db
   ( Db (..),
     DbSystem (..),
     PrismaOptions (..),
+    PrismaDbExtension (..),
   )
 where
 
@@ -21,6 +22,15 @@ data DbSystem = PostgreSQL | SQLite
   deriving (Show, Eq, Data)
 
 data PrismaOptions = PrismaOptions
-  { clientPreviewFeatures :: Maybe [String]
+  { clientPreviewFeatures :: Maybe [String],
+    dbExtensions :: Maybe [PrismaDbExtension]
+  }
+  deriving (Show, Eq, Data)
+
+data PrismaDbExtension = PrismaDbExtension
+  { name :: String,
+    map :: Maybe String,
+    version :: Maybe String,
+    schema :: Maybe String
   }
   deriving (Show, Eq, Data)
