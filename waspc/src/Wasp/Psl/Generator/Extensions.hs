@@ -1,6 +1,5 @@
-module Wasp.Generator.DbGenerator.Prisma where
+module Wasp.Psl.Generator.Extensions where
 
-import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe)
 import qualified Wasp.AppSpec.App.Db as AS.Db
@@ -13,16 +12,17 @@ showDbExtensions extensions = "[" <> intercalate ", " (map showDbExtension exten
     showDbExtension :: AS.Db.PrismaDbExtension -> String
     showDbExtension
       AS.Db.PrismaDbExtension
-        { AS.Db.name = name,
+        { AS.Db.name = extensionName,
           AS.Db.version = version,
           AS.Db.map = extensionMap,
           AS.Db.schema = schema
-        } = if null fields then name else name <> "(" <> fields <> ")"
+        } = extensionName <> (if null fields then "" else "(" <> fields <> ")")
         where
           fields = intercalate ", " $ mapMaybe showField possibleFields
 
           showField :: (String, Maybe String) -> Maybe String
-          showField (fieldName, maybeFieldValue) = maybeFieldValue <&> \fieldValue -> fieldName <> ": " <> show fieldValue
+          showField (_, Nothing) = Nothing
+          showField (name, Just value) = Just $ name <> ": " <> show value
 
           possibleFields =
             [ ("map", extensionMap),

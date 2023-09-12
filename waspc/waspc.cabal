@@ -239,7 +239,6 @@ library
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
-    Wasp.Generator.DbGenerator.Prisma
     Wasp.Generator.DockerGenerator
     Wasp.Generator.ExternalCodeGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
@@ -324,6 +323,7 @@ library
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
+    Wasp.Psl.Generator.Extensions
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
@@ -542,7 +542,6 @@ test-suite waspc-test
     FilePath.ExtraTest
     Fixtures
     Generator.DbGeneratorTest
-    Generator.DbGenerator.PrismaTest
     Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
@@ -555,6 +554,7 @@ test-suite waspc-test
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
+    Psl.Generator.ExtensionsTest
     Psl.Parser.ModelTest
     Test.Util
     Util.FibTest

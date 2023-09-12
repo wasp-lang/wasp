@@ -1,8 +1,8 @@
-module Generator.DbGenerator.PrismaTest where
+module Psl.Generator.ExtensionsTest where
 
 import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import Wasp.Generator.DbGenerator.Prisma (showDbExtensions)
+import Wasp.Psl.Generator.Extensions (showDbExtensions)
 
 spec_DbGeneratorPrisma :: Spec
 spec_DbGeneratorPrisma = do

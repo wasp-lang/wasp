@@ -101,7 +101,6 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
     Right _ -> do
       envVars <- getAllEnvVars
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-      -- if head args == "generate" then error $ command ++ " " ++ show args ++ " " ++ show envVars else pure ()
       runProcessAsJob nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
