@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { signup } from '../../../email/actions/signup'
 import { login } from '../../../email/actions/login'
 
@@ -15,25 +14,20 @@ export function useEmail({
   isLogin: boolean
   isEmailVerificationRequired: boolean
 }) {
-  const [emailFieldVal, setEmailFieldVal] = useState('')
-  const [passwordFieldVal, setPasswordFieldVal] = useState('')
-
-  async function handleSubmit() {
+  async function handleSubmit(data) {
     try {
       if (isLogin) {
-        await login({ email: emailFieldVal, password: passwordFieldVal })
+        await login(data)
         onLoginSuccess()
       } else {
-        await signup({ email: emailFieldVal, password: passwordFieldVal })
+        await signup(data)
         if (isEmailVerificationRequired) {
           showEmailVerificationPending()
         } else {
-          await login({ email: emailFieldVal, password: passwordFieldVal })
+          await login(data)
           onLoginSuccess()
         }
       }
-      setEmailFieldVal('')
-      setPasswordFieldVal('')
     } catch (err: unknown) {
       onError(err as Error)
     }
@@ -41,9 +35,5 @@ export function useEmail({
 
   return {
     handleSubmit,
-    emailFieldVal,
-    passwordFieldVal,
-    setEmailFieldVal,
-    setPasswordFieldVal,
   }
 }

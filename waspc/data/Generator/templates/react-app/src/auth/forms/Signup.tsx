@@ -1,17 +1,23 @@
 import Auth from './Auth'
-import { type CustomizationOptions, State } from './types'
+import {
+  type CustomizationOptions,
+  type AdditionalSignupFields,
+  State,
+} from './types'
 
 export function SignupForm({
   appearance,
   logo,
   socialLayout,
-}: CustomizationOptions) {
+  additionalFields,
+}: CustomizationOptions & { additionalFields?: AdditionalSignupFields; }) {
   return (
     <Auth
       appearance={appearance}
       logo={logo}
       socialLayout={socialLayout}
       state={State.Signup}
+      additionalSignupFields={additionalFields}
     />
   )
 }

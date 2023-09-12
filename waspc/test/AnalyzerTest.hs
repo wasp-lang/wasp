@@ -50,6 +50,9 @@ spec_Analyzer = do
                 "    userEntity: User,",
                 "    methods: { usernameAndPassword: {} },",
                 "    onAuthFailedRedirectTo: \"/\",",
+                "    signup: {",
+                "      additionalFields: import { fields } from \"@server/auth/signup.js\",",
+                "    },",
                 "  },",
                 "  dependencies: [",
                 "    (\"redux\", \"^4.0.5\")",
@@ -135,6 +138,12 @@ spec_Analyzer = do
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
                             Auth.externalAuthEntity = Nothing,
+                            Auth.signup =
+                              Just $
+                                Auth.SignupOptions
+                                  { Auth.additionalFields =
+                                      Just $ ExtImport (ExtImportField "fields") (fromJust $ SP.parseRelFileP "auth/signup.js")
+                                  },
                             Auth.methods =
                               Auth.AuthMethods
                                 { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,

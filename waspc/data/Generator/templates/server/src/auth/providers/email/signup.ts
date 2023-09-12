@@ -11,6 +11,7 @@ import {
     isEmailResendAllowed,
 } from "../../utils.js";
 import { GetVerificationEmailContentFn } from './types.js';
+import { validateAndGetAdditionalFields } from '../../utils.js'
 
 export function getSignupRoute({
     fromField,
@@ -41,8 +42,11 @@ export function getSignupRoute({
             }
             await deleteUser(existingUser);
         }
+
+        const additionalFields = await validateAndGetAdditionalFields(userFields);
     
         const user = await createUser({
+            ...additionalFields,
             email: userFields.email,
             password: userFields.password,
         });
