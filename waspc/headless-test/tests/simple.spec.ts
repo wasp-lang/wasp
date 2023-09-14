@@ -12,6 +12,14 @@ test.describe("signup and login", () => {
 
   test.describe.configure({ mode: "serial" });
 
+  test("social button renders", async ({ page }) => {
+    await page.goto("/signup");
+
+    await page.waitForSelector("text=Create a new account");
+
+    await expect(page.locator("a[href='http://localhost:3001/auth/google/login']")).toBeVisible();
+  });
+
   test("can sign up", async ({ page }) => {
     await page.goto("/signup");
 
@@ -19,7 +27,7 @@ test.describe("signup and login", () => {
 
     await page.locator("input[type='email']").fill(randomEmail);
     await page.locator("input[type='password']").fill(password);
-    await page.getByText("Sign up").click();
+    await page.locator("button").click();
 
     await expect(page).toHaveURL("/profile");
   });
