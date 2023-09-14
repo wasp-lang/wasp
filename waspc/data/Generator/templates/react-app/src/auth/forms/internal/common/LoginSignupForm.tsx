@@ -1,10 +1,23 @@
 {{={= =}=}}
-import { useContext, type FormEvent } from 'react'
-import { styled } from '../../../../stitches.config'
-import config from '../../../../config.js'
+import { useContext } from 'react'
+import { useForm, UseFormReturn } from 'react-hook-form'
 
 import { AuthContext } from '../../Auth'
-import { Form, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
+import {
+  Form,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+  FormError,
+  FormTextarea,
+  SubmitButton,
+} from '../Form'
+import type {
+  AdditionalSignupFields,
+  AdditionalSignupField,
+  AdditionalSignupFieldRenderFn,
+  FormState,
+} from '../../types'
 {=# isSocialAuthEnabled =}
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
@@ -97,12 +110,23 @@ const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ isGitHubAuthEnabled =}
 
+{=!
+// Since we allow users to add additional fields to the signup form, we don't
+// know the exact shape of the form values. We are assuming that the form values
+// will be a flat object with string values.
+=}
+export type LoginSignupFormFields = {
+  [key: string]: string;
+}
+
 export const LoginSignupForm = ({
     state,
     socialButtonsDirection = 'horizontal',
+    additionalSignupFields,
 }: {
-    state: 'login' | 'signup',
-    socialButtonsDirection?: 'horizontal' | 'vertical';
+    state: 'login' | 'signup'
+    socialButtonsDirection?: 'horizontal' | 'vertical'
+    additionalSignupFields?: AdditionalSignupFields
 }) => {
   const {
     isLoading,
@@ -110,16 +134,19 @@ export const LoginSignupForm = ({
     setSuccessMessage,
     setIsLoading,
   } = useContext(AuthContext)
-  const cta = state === 'login' ? 'Log in' : 'Sign up';
+  const isLogin = state === 'login'
+  const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}
   const history = useHistory();
   const onErrorHandler = (error) => {
     setErrorMessage({ title: error.message, description: error.data?.data?.message })
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
+  const hookForm = useForm<LoginSignupFormFields>()
+  const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
   {=# isUsernameAndPasswordAuthEnabled =}
-  const { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal } = useUsernameAndPassword({
-    isLogin: state === 'login',
+  const { handleSubmit } = useUsernameAndPassword({
+    isLogin,
     onError: onErrorHandler,
     onSuccess() {
       history.push('{= onAuthSucceededRedirectTo =}')
@@ -127,10 +154,11 @@ export const LoginSignupForm = ({
   });
   {=/ isUsernameAndPasswordAuthEnabled =}
   {=# isEmailAuthEnabled =}
-  const { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal } = useEmail({
-    isLogin: state === 'login',
+  const { handleSubmit } = useEmail({
+    isLogin,
     onError: onErrorHandler,
     showEmailVerificationPending() {
+      hookForm.reset()
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
@@ -145,13 +173,12 @@ export const LoginSignupForm = ({
   });
   {=/ isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
-  async function onSubmit (event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function onSubmit (data) {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit();
+      await handleSubmit(data);
     } finally {
       setIsLoading(false);
     }
@@ -184,45 +211,126 @@ export const LoginSignupForm = ({
         </OrContinueWith>
       {=/ areBothSocialAndPasswordBasedAuthEnabled =}
       {=# isAnyPasswordBasedAuthEnabled =}
-        <Form onSubmit={onSubmit}>
+        <Form onSubmit={hookFormHandleSubmit(onSubmit)}>
           {=# isUsernameAndPasswordAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Username</FormLabel>
             <FormInput
+              {...register('username', {
+                required: 'Username is required',
+              })}
               type="text"
-              required
-              value={usernameFieldVal}
-              onChange={e => setUsernameFieldVal(e.target.value)}
               disabled={isLoading}
             />
+            {errors.username && <FormError>{errors.username.message}</FormError>}
           </FormItemGroup>
           {=/ isUsernameAndPasswordAuthEnabled =}
           {=# isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>E-mail</FormLabel>
             <FormInput
+              {...register('email', {
+                required: 'Email is required',
+              })}
               type="email"
-              required
-              value={emailFieldVal}
-              onChange={e => setEmailFieldVal(e.target.value)}
               disabled={isLoading}
             />
+            {errors.email && <FormError>{errors.email.message}</FormError>}
           </FormItemGroup>
           {=/ isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
             <FormInput
+              {...register('password', {
+                required: 'Password is required',
+              })}
               type="password"
-              required
-              value={passwordFieldVal}
-              onChange={e => setPasswordFieldVal(e.target.value)}
               disabled={isLoading}
             />
+            {errors.password && <FormError>{errors.password.message}</FormError>}
           </FormItemGroup>
+          <AdditionalFormFields
+            hookForm={hookForm}
+            formState={{ isLoading }}
+            additionalSignupFields={additionalSignupFields}
+          />
           <FormItemGroup>
             <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
           </FormItemGroup>
         </Form>
       {=/ isAnyPasswordBasedAuthEnabled =}
   </>)
+}
+
+function AdditionalFormFields({
+  hookForm,
+  formState: { isLoading },
+  additionalSignupFields,
+}: {
+  hookForm: UseFormReturn<LoginSignupFormFields>;
+  formState: FormState;
+  additionalSignupFields: AdditionalSignupFields;
+}) {
+  const {
+    register,
+    formState: { errors },
+  } = hookForm;
+
+  function renderField<ComponentType extends React.JSXElementConstructor<any>>(
+    field: AdditionalSignupField,
+    // Ideally we would use ComponentType here, but it doesn't work with react-hook-form
+    Component: any,
+    props?: React.ComponentProps<ComponentType>
+  ) {
+    return (
+      <FormItemGroup key={field.name}>
+        <FormLabel>{field.label}</FormLabel>
+        <Component
+          {...register(field.name, field.validations)}
+          {...props}
+          disabled={isLoading}
+        />
+        {errors[field.name] && (
+          <FormError>{errors[field.name].message}</FormError>
+        )}
+      </FormItemGroup>
+    );
+  }
+
+  if (areAdditionalFieldsRenderFn(additionalSignupFields)) {
+    return additionalSignupFields(hookForm, { isLoading })
+  }
+
+  return (
+    additionalSignupFields &&
+    additionalSignupFields.map((field) => {
+      if (isFieldRenderFn(field)) {
+        return field(hookForm, { isLoading })
+      }
+      switch (field.type) {
+        case 'input':
+          return renderField<typeof FormInput>(field, FormInput, {
+            type: 'text',
+          })
+        case 'textarea':
+          return renderField<typeof FormTextarea>(field, FormTextarea)
+        default:
+          throw new Error(
+            `Unsupported additional signup field type: ${field.type}`
+          )
+      }
+    })
+  )
+}
+
+function isFieldRenderFn(
+  additionalSignupField: AdditionalSignupField | AdditionalSignupFieldRenderFn
+): additionalSignupField is AdditionalSignupFieldRenderFn {
+  return typeof additionalSignupField === 'function'
+}
+
+function areAdditionalFieldsRenderFn(
+  additionalSignupFields: AdditionalSignupFields
+): additionalSignupFields is AdditionalSignupFieldRenderFn {
+  return typeof additionalSignupFields === 'function'
 }

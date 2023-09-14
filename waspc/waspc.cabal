@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.11.1
+version:        0.11.4
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -53,6 +53,9 @@ data-files:
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
   Cli/templates/skeleton/src/.waspignore
+  Lsp/templates/**/*.js
+  Lsp/templates/**/*.ts
+  Lsp/templates/**/*.jsx
   packages/deploy/dist/**/*.js
   packages/deploy/package.json
   packages/deploy/package-lock.json
@@ -343,6 +346,7 @@ library
     Wasp.Psl.Ast.Model
     Wasp.Psl.Format
     Wasp.Psl.Generator.Model
+    Wasp.Psl.Generator.Extensions
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
@@ -357,6 +361,9 @@ library
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.Terminal
+    Wasp.Util.StrongPath
+    Wasp.Util.HashMap
+    Wasp.Util.WebRouterPath
     Wasp.Version
     Wasp.WaspignoreFile
 
@@ -367,6 +374,10 @@ library waspls
     Control.Monad.Log
     Control.Monad.Log.Class
     Wasp.LSP.Analysis
+    Wasp.LSP.CodeActions
+    Wasp.LSP.Commands
+    Wasp.LSP.Commands.Command
+    Wasp.LSP.Commands.ScaffoldTsSymbol
     Wasp.LSP.Completion
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
@@ -384,6 +395,7 @@ library waspls
     Wasp.LSP.Server
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerMonads
+    Wasp.LSP.ServerMonads.HasProjectRootDir
     Wasp.LSP.ServerState
     Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
@@ -406,6 +418,7 @@ library waspls
     , strong-path
     , path
     , async ^>=2.2.4
+    , mustache ^>=2.3.2
     , unliftio-core
     , mtl
     , text
@@ -413,6 +426,7 @@ library waspls
     , utf8-string
     , unordered-containers
     , waspc
+    , directory ^>= 1.3.6.0
 
 library cli-lib
   import: common-all
@@ -544,6 +558,7 @@ test-suite waspc-test
     Analyzer.Parser.CST.TraverseTest
     Analyzer.Parser.ParseErrorTest
     Analyzer.Parser.SourcePositionTest
+    Analyzer.Parser.SourceSpanTest
     Analyzer.ParserTest
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
@@ -567,6 +582,7 @@ test-suite waspc-test
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
+    Psl.Generator.ExtensionsTest
     Psl.Parser.ModelTest
     Test.Util
     Util.FibTest
@@ -606,6 +622,7 @@ test-suite waspls-test
   other-modules:
     Wasp.LSP.CompletionTest
     Wasp.LSP.DebouncerTest
+    Wasp.LSP.SyntaxTest
 
 test-suite cli-test
   import: common-all, common-exe

@@ -1,4 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Wasp.LSP.ServerMonads
   ( -- * LSP Server Monads
@@ -36,21 +38,26 @@ module Wasp.LSP.ServerMonads
     sendToReactor,
     logM,
     modify,
+    getProjectRootDir,
   )
 where
 
 import Control.Concurrent.STM (TVar, atomically, modifyTVar, readTVarIO, writeTChan)
 import Control.Lens ((^.))
+import Control.Monad ((<=<))
 import Control.Monad.IO.Unlift (MonadUnliftIO)
 import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Reader (MonadReader (ask), ReaderT (ReaderT), asks, runReaderT)
 import Control.Monad.Trans (MonadIO (liftIO))
 import Language.LSP.Server (LspM, MonadLsp)
 import qualified Language.LSP.Server as LSP
+import qualified Language.LSP.Types as LSP
+import qualified StrongPath as SP
 import qualified System.Log.Logger as L
 import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerState (ServerState, reactorIn)
+import Wasp.LSP.ServerMonads.HasProjectRootDir (HasProjectRootDir (getProjectRootDir))
+import Wasp.LSP.ServerState (ServerState, reactorIn, waspFileUri)
 
 -- | \"Reader LSP monad\": The LSP monad with a 'ReaderT' for extra state. Use
 -- the type aliases 'ServerM' and 'HandlerM' instead of using this type directly.
@@ -98,6 +105,14 @@ sendToReactor act = do
   env <- LSP.getLspEnv
   rin <- handler $ asks (^. reactorIn)
   liftIO $ atomically $ writeTChan rin $ ReactorAction $ LSP.runLspT env $ runRLspM stateTVar act
+
+instance HasProjectRootDir HandlerM where
+  -- Returns the folder that contains the active .wasp file, which is assumed
+  -- to be the root of the wasp project.
+  getProjectRootDir = fmap SP.parent . ((SP.parseAbsDir <=< LSP.uriToFilePath) =<<) <$> asks (^. waspFileUri)
+
+instance HasProjectRootDir ServerM where
+  getProjectRootDir = handler getProjectRootDir
 
 runRLspM ::
   s ->

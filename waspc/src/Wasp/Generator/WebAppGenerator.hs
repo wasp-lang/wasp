@@ -136,7 +136,9 @@ npmDepsForWasp spec =
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
             ("@prisma/client", show prismaVersion),
             ("superjson", "^1.12.2"),
-            ("mitt", "3.0.0")
+            ("mitt", "3.0.0"),
+            -- Used for Auth UI
+            ("react-hook-form", "^7.45.4")
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec
@@ -250,13 +252,13 @@ genSrcDir spec =
       genFileCopy [relfile|api.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|storage.ts|],
-      genRouter spec,
       getIndexTs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
     <++> genAuth spec
     <++> genWebSockets spec
+    <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 

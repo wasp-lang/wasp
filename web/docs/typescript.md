@@ -2,13 +2,17 @@
 title: TypeScript Support
 ---
 
+import OldDocsNote from '@site/docs/OldDocsNote'
+
 # Using Wasp with TypeScript
+
+<OldDocsNote />
 
 TypeScript is a programming language that brings static type analysis to JavaScript. It is a superset of JavaScript (i.e., all valid JavaScript programs are valid TypeScript programs) and compiles to JavaScript before running. TypeScript's type system detects common errors at build time (reducing the chance of runtime errors in production) and enables type-based auto-completion in IDEs.
 
 This document assumes you are familiar with TypeScript and primarily focuses on how to use it with Wasp. To learn more about TypeScript itself, we recommend reading [the official docs](https://www.typescriptlang.org/docs/).
 
-The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](https://wasp-lang.dev/docs/language/features).
+The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](/docs/language/features).
 
 Besides allowing you to write your code in TypeScript, Wasp also supports:
 

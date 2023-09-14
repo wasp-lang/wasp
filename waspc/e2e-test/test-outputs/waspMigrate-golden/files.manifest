@@ -26,12 +26,6 @@ waspMigrate/.wasp/out/server/src/core/HttpError.js
 waspMigrate/.wasp/out/server/src/dbClient.ts
 waspMigrate/.wasp/out/server/src/dbSeed/types.ts
 waspMigrate/.wasp/out/server/src/entities/index.ts
-waspMigrate/.wasp/out/server/src/jobs/core/Job.js
-waspMigrate/.wasp/out/server/src/jobs/core/SubmittedJob.js
-waspMigrate/.wasp/out/server/src/jobs/core/allJobs.js
-waspMigrate/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
-waspMigrate/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
-waspMigrate/.wasp/out/server/src/jobs/core/simpleJob.js
 waspMigrate/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspMigrate/.wasp/out/server/src/middleware/index.ts
 waspMigrate/.wasp/out/server/src/middleware/operations.ts
@@ -75,7 +69,10 @@ waspMigrate/.wasp/out/web-app/src/queries/core.js
 waspMigrate/.wasp/out/web-app/src/queries/index.d.ts
 waspMigrate/.wasp/out/web-app/src/queries/index.js
 waspMigrate/.wasp/out/web-app/src/queryClient.js
-waspMigrate/.wasp/out/web-app/src/router.jsx
+waspMigrate/.wasp/out/web-app/src/router.tsx
+waspMigrate/.wasp/out/web-app/src/router/Link.tsx
+waspMigrate/.wasp/out/web-app/src/router/linkHelpers.ts
+waspMigrate/.wasp/out/web-app/src/router/types.ts
 waspMigrate/.wasp/out/web-app/src/storage.ts
 waspMigrate/.wasp/out/web-app/src/test/index.ts
 waspMigrate/.wasp/out/web-app/src/test/vitest/helpers.tsx

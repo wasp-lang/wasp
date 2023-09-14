@@ -1,7 +1,7 @@
 app waspComplexTest {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.11.1"
+    version: "^0.11.4"
   },
   auth: {
     userEntity: User,
@@ -63,6 +63,14 @@ job MySpecialJob {
   perform: {
     fn: import { foo } from "@server/jobs/bar.js"
   }
+}
+
+job ReturnHelloJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { returnHello } from "@server/jobs/returnHello.js",
+  },
+  entities: [User],
 }
 
 action MySpecialAction {

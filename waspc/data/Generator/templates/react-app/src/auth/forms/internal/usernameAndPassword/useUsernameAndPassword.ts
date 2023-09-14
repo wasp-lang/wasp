@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import signup from '../../../signup'
 import login from '../../../login'
 
@@ -11,21 +10,13 @@ export function useUsernameAndPassword({
   onSuccess: () => void
   isLogin: boolean
 }) {
-  const [usernameFieldVal, setUsernameFieldVal] = useState('')
-  const [passwordFieldVal, setPasswordFieldVal] = useState('')
-
-  async function handleSubmit() {
+  async function handleSubmit(data) {
     try {
       if (!isLogin) {
-        await signup({
-          username: usernameFieldVal,
-          password: passwordFieldVal,
-        })
+        await signup(data)
       }
-      await login(usernameFieldVal, passwordFieldVal)
+      await login(data.username, data.password)
 
-      setUsernameFieldVal('')
-      setPasswordFieldVal('')
       onSuccess()
     } catch (err: unknown) {
       onError(err as Error)
@@ -34,9 +25,5 @@ export function useUsernameAndPassword({
 
   return {
     handleSubmit,
-    usernameFieldVal,
-    passwordFieldVal,
-    setUsernameFieldVal,
-    setPasswordFieldVal,
   }
 }

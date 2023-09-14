@@ -98,7 +98,7 @@ module.exports = {
             },
             {
               label: "Todo app tutorial",
-              to: "docs/tutorials/todo-app",
+              to: "docs/tutorial/create",
             },
             {
               label: "Reference",
@@ -140,6 +140,8 @@ module.exports = {
       //   We should enable it if we start doing versioning.
       // contextualSearch: true
     },
+    image: "img/wasp_twitter_cover.png",
+    metadata: [{ name: "twitter:card", content: "summary_large_image" }],
   },
   presets: [
     [
@@ -153,7 +155,7 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           sidebarCollapsible: true,
           // Please change this to your repo.
-          editUrl: "https://github.com/wasp-lang/wasp/edit/main/web",
+          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           remarkPlugins: [autoImportTabs, fileExtSwitcher],
         },
         blog: {
@@ -162,7 +164,7 @@ module.exports = {
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
-          editUrl: "https://github.com/wasp-lang/wasp/edit/main/web/blog",
+          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
         },
         theme: {
           customCss: [require.resolve("./src/css/custom.css")],
@@ -184,5 +186,60 @@ module.exports = {
         },
       };
     },
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            from: '/docs/guides/auth-ui',
+            to: '/docs/auth/ui',
+          },
+          {
+            from: '/docs/deploying',
+            to: '/docs/advanced/deployment/overview',
+          },
+          {
+            from: '/docs/guides/username-password',
+            to: '/docs/auth/username-and-pass',
+          },
+          {
+            from: '/docs/guides/websockets',
+            to: '/docs/advanced/web-sockets',
+          },
+          {
+            from: '/docs/guides/testing',
+            to: '/docs/project/testing',
+          },
+          {
+            from: '/docs/guides/middleware-customization',
+            to: '/docs/advanced/middleware-config',
+          },
+          {
+            from: '/docs/guides/email-auth',
+            to: '/docs/auth/email'
+          },
+          {
+            from: '/docs/guides/crud',
+            to: '/docs/data-model/crud',
+          },
+          {
+            from: '/docs/integrations/google',
+            to: '/docs/auth/social-auth/google',
+          },
+          {
+            from: '/docs/integrations/github',
+            to: '/docs/auth/social-auth/github',
+          },
+          {
+            from: '/docs/integrations/css-frameworks',
+            to: '/docs/project/css-frameworks',
+          },
+          {
+            from: '/docs/tutorials/todo-app',
+            to: '/docs/tutorial/create',
+          },
+        ],
+      },
+    ],
   ],
 };

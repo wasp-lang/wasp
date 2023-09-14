@@ -88,14 +88,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "9e8542f1b36712bbf3d633400377fed4da6fd15e69394ae521935c33cbdbbe36"
+        "aa5f2c417b5732f732241362fb456b8d068a270d245d692e6530defbb035e778"
     ],
     [
         [
             "file",
             "server/src/_types/serialization.ts"
         ],
-        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
+        "73dc983c9a02cab8e2f189f1ddedd9cdcd47bf403c9dc56efba8be895b6980a1"
     ],
     [
         [
@@ -123,14 +123,14 @@
             "file",
             "server/src/apis/types.ts"
         ],
-        "68417d37842d9186a6a9d942d65f8a18f2da8c0a9cf8a0dd5f1a4b087f6d4e20"
+        "858df39f218f37d2500f8ea9847e6ff7a2e1b58214bbe717fe6b48651e7fc6a6"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "12291f83f685eeb81a8c082961120d4bddb91985092eb142964e554a21d3384c"
+        "86504ede1daeca35cc93f665ca8ac2fdf46ecaff02f6d3a7810a14d2bc71e16a"
     ],
     [
         [
@@ -179,14 +179,14 @@
             "file",
             "server/src/auth/providers/types.ts"
         ],
-        "9859bf91e0abe0aaadf7b8c74c573607f6085a5414071836cef6ba84b2bebb69"
+        "323555d76755fe32b21084f063caf931faabcb5937c279cc706bbecad3361d43"
     ],
     [
         [
             "file",
             "server/src/auth/utils.ts"
         ],
-        "b611de9a6b546f6f1cec4497a4cb525150399131dfba32b53ba34afb04e62e96"
+        "1cfb0c8095ba0ed7686229b22e8a9edd971526d50660f88d2cbb988af9b5af30"
     ],
     [
         [
@@ -331,6 +331,13 @@
     [
         [
             "file",
+            "server/src/ext-src/jobs/returnHello.ts"
+        ],
+        "d10f5cd03a04f6db430b74f98834a3f128ed2c4663828d05ca04d1fccf3a0f0f"
+    ],
+    [
+        [
+            "file",
             "server/src/ext-src/myServerSetupCode.js"
         ],
         "a5819016c8dd9e370e9ce89cd636a33c6eafa55f8fa38f31c3af453526f77cc2"
@@ -345,51 +352,44 @@
     [
         [
             "file",
-            "server/src/jobs/MySpecialJob.js"
+            "server/src/jobs/MySpecialJob.ts"
         ],
-        "9bf6a5f7005d3ab4ca933fb239ef21f13ba68aef30d8767230d6cc03911ca0e1"
+        "f75ff9a6f207fdb8adc94843d78ef0f7504588f8bdb686347692ece3284d9aa8"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/Job.js"
+            "server/src/jobs/ReturnHelloJob.ts"
         ],
-        "e0e5d5e802a29032bfc8426097950722ac0dc7931d08641c1c2b02c262e6cdcc"
+        "d3d5cf184c0d984ea9ed4f6e461f9ff2058cfdffe51738fc66f64c33abc1306a"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/SubmittedJob.js"
+            "server/src/jobs/core/allJobs.ts"
         ],
-        "75753277b6bd2c1d2e9ea0e80a71c72c84fa18bb7d61da25d798b3ef247e06bd"
+        "10a3ef50675a8de2d6c86b4677471c673a2f89f01670ec9e9c98e1dd3754f167"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/allJobs.js"
+            "server/src/jobs/core/job.ts"
         ],
-        "b5ddc268dfe8f1f7d96d775c1d8d407a647a45ed4937a87da7eb1eb50f9a4674"
+        "c10df70eb886d6cd132b8a0b4f619dc500bbd4ec3174ef156cdad41be8cce021"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/pgBoss/pgBoss.js"
+            "server/src/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "9821963d90b39058285343834c70e6f825d3d7696c738fd95539614b5e7d7b94"
+        "4ca3ab19aa84a0ac4f62f6d9b3ee2304fd41ab6649320473d975ae438e3c3cfd"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/pgBoss/pgBossJob.js"
+            "server/src/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "ff6040d051c916eb080a2f2c37fd5135f588782387faeae51115d1a7abd1ad8b"
-    ],
-    [
-        [
-            "file",
-            "server/src/jobs/core/simpleJob.js"
-        ],
-        "36fe173d9f5128859196bfd3a661983df2d95eb34d165a469b840982b06cf59b"
+        "700b83862734d7ee752f685381de30fa730580fb950fbc61d168f51d1fe44bb4"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "04e01e653bd889436903843cf1dae0a6ba0ecbc1c369beef0e90fae4d0c21127"
+        "0044d2263b936cbc20a278afa4aa61cd9d85821325f490b3cee8bbfb068ed836"
     ],
     [
         [
@@ -536,7 +536,7 @@
             "file",
             "web-app/.env"
         ],
-        "d9649485a674ce3c6b8d668a1253cde3bd8695cb3d2d3a6b7c573a3e2805c7ec"
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
@@ -578,7 +578,7 @@
             "file",
             "web-app/package.json"
         ],
-        "fc5d4d8e4a3ed36972eac6891122dfd3d8edb4074a8df041162dcb38bb6f6d2d"
+        "7857f3a9fc85cd39f16dbd9362bccc5e5662b5b216da45b843ebca6bba4142b5"
     ],
     [
         [
@@ -655,7 +655,7 @@
             "file",
             "web-app/src/auth/forms/Auth.tsx"
         ],
-        "d40cf940a499fdd4b137dcf9f3cd4fbe0bbab4b7c44eb7819b41daeaa861050b"
+        "fc6c204f73999f556eab441772e66dd4dbd433bd69aa2c9e64e713fb2921a886"
     ],
     [
         [
@@ -669,14 +669,14 @@
             "file",
             "web-app/src/auth/forms/Signup.tsx"
         ],
-        "cacd5348e84d42bc142f6c6e00051a8e86f6b17eb037b2772772f073925bf570"
+        "a38124a9a250a603ef6d04dbcb46c04084ace676e9de5fc31f229405d87f47d4"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/internal/Form.tsx"
         ],
-        "ce6b409fda73d88e762b27aef7038618961e61e6ef8e5f66912325ab88a8223e"
+        "b9b21954b919f173b751c0078aed8303cc15d88df9e9874228efcae7976f26cd"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "web-app/src/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "c92bab325f51159c3d1bb285c7e807acbb85069c5b16afc3a35fbd0121c91b6a"
+        "f211f57dca3f10f08a3e618d27bf8006d26f6832bb7e40f8a22ae44f2d42531e"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "web-app/src/auth/forms/types.ts"
         ],
-        "c4066fbd39ec20a3d43be9f9d5762d555dbc006057579ac168a67b2678918a13"
+        "992ca4b2c8e30536636143c556e6bdcc5d5d0d86c1eb2e119171e25d5c33b4e3"
     ],
     [
         [
@@ -753,7 +753,7 @@
             "file",
             "web-app/src/auth/types.ts"
         ],
-        "b6572845796b4217c142b855fc72652d5dfd67fd317b0ed5487fa70ba3d92219"
+        "0d37136807f6d196015d07b65ab56280ae5f56cac9be84992318886550ce4ad3"
     ],
     [
         [
@@ -802,7 +802,7 @@
             "file",
             "web-app/src/ext-src/MainPage.jsx"
         ],
-        "7244c106359f088fdcc0d4a76ee63277f1cea63cbe7aac5e5c39a17df693b1e2"
+        "8ee7fe1352719facadf0935eb45df8661ba13015277ea80be5a9200c66a31bde"
     ],
     [
         [
@@ -905,16 +905,37 @@
     [
         [
             "file",
-            "web-app/src/router.jsx"
+            "web-app/src/router.tsx"
         ],
-        "ba66454c9f0ca79ed5bc6af694b5b9f748db75cf82309f2600c78069a3b9d0f7"
+        "1b167573635d206d53a8598ae39a81b140cd017c6c71ce13bf57c9a04b5b8160"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/Link.tsx"
+        ],
+        "7b6214295d59d8dffbd61b82f9dab2b080b2d7ebe98cc7d9f9e8c229f99a890d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/linkHelpers.ts"
+        ],
+        "c296ed5e7924ad1173f4f0fb4dcce053cffd5812612069b5f62d1bf9e96495cf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/types.ts"
+        ],
+        "7f08b262987c17f953c4b95814631a7aaac82eb77660bcb247ef7bf866846fe1"
     ],
     [
         [
             "file",
             "web-app/src/stitches.config.js"
         ],
-        "7de37836b80021870f286ff14d275e2ca7a1c2aa113ba5a5624ed0c77e178f76"
+        "f238234a9db89d6a34c7a8c7c948a58c011da8e167ff94d72e7c6808beb4e177"
     ],
     [
         [
@@ -935,7 +956,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "a0576215b0786c6e082b8a83f6418a3acb084bfb673a152baad8e8a7fc46fcae"
+        "a38e55c9999a87ab497538bcad7c880f32a4d27f2227ae326cb76eb0848b89e9"
     ],
     [
         [
@@ -984,7 +1005,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
+        "f1b31ca75b2b32c5b0441aec4fcd7f285c18346761ba1640761d6253d65e3580"
     ],
     [
         [

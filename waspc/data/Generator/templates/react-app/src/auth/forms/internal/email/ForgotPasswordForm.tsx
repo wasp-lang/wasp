@@ -1,21 +1,21 @@
+import { useContext } from 'react'
+import { useForm } from 'react-hook-form'
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
-import { useState, useContext, FormEvent } from 'react'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton } from '../Form'
+import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
 import { AuthContext } from '../../Auth'
 
 export const ForgotPasswordForm = () => {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<{ email: string }>()
   const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
-  const [email, setEmail] = useState('')
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const onSubmit = async (data) => {
     setIsLoading(true)
     setErrorMessage(null)
     setSuccessMessage(null)
     try {
-      await requestPasswordReset({ email })
+      await requestPasswordReset(data)
+      reset()
       setSuccessMessage('Check your email for a password reset link.')
-      setEmail('')
     } catch (error) {
       setErrorMessage({
         title: error.message,
@@ -28,16 +28,17 @@ export const ForgotPasswordForm = () => {
 
   return (
     <>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={handleSubmit(onSubmit)}>
         <FormItemGroup>
           <FormLabel>E-mail</FormLabel>
           <FormInput
+            {...register('email', {
+              required: 'Email is required',
+            })}
             type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
           />
+          {errors.email && <FormError>{errors.email.message}</FormError>}
         </FormItemGroup>
         <FormItemGroup>
           <SubmitButton type="submit" disabled={isLoading}>

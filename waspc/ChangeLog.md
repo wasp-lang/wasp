@@ -1,5 +1,223 @@
 # Changelog
 
+## 0.11.4
+
+### 🎉 [New Feature] Signup Fields Customization
+
+We added an API for extending the default signup form with custom fields. This allows you to add fields like `age`, `address`, etc. to your signup form.
+
+You first need to define the `auth.signup.additionalFields` property in your `.wasp` file:
+```wasp
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth.js",
+    },
+  },
+}
+```
+
+Then, you need to define the `fields` object in your `auth.js` file:
+```js
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+export const fields = defineAdditionalSignupFields({
+  address: (data) => {
+    // Validate the address field
+    if (typeof data.address !== 'string') {
+      throw new Error('Address is required.')
+    }
+    if (data.address.length < 10) {
+      throw new Error('Address must be at least 10 characters long.')
+    }
+    // Return the address field
+    return data.address
+  },
+})
+```
+
+Finally, you can extend the `SignupForm` component on the client:
+```jsx
+import { SignupForm } from "@wasp/auth/forms/Signup";
+
+export const SignupPage = () => {
+  return (
+    <div className="container">
+      <main>
+        <h1>Signup</h1>
+        <SignupForm
+          additionalFields={[
+            {
+              name: "address",
+              label: "Address",
+              type: "input",
+              validations: {
+                required: "Address is required",
+              },
+            },
+          ]}
+        />
+      </main>
+    </div>
+  );
+};
+```
+### 🎉 [New Feature] Support for PostgreSQL Extensions
+
+Wasp now supports PostgreSQL extensions! You can enable them in your `main.wasp` file:
+
+```wasp
+app todoApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"],
+      dbExtensions: [{
+        name: "pgvector",
+        // map: "vector", (optional)
+        // schema: "public", (optional)
+        // version: "0.1.0", (optiona)
+      }]
+    }
+  }
+}
+```
+
+This will add the necessary Prisma configuration to your `schema.prisma` file. Keep in mind that your database needs to support the extension you want to use. For example, if you want to use the `pgvector` extension, you need to install it in your database first.
+
+### 🎉 [New Feature] Added Typescript support for Jobs
+
+Now you can type your async jobs better and receive all the benefits of Typescript. When you define a job, Wasp will generate a generic type which you can use to type your job function:
+
+```wasp
+job simplePrintJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { simplePrint } from "@server/jobs.js",
+  },
+  entities: [Task]
+}
+```
+
+```typescript
+import { SimplePrintJob } from "@wasp/jobs/simplePrintJob";
+import { Task } from "@wasp/entities";
+
+export const simplePrint: SimplePrintJob<
+  { name: string },
+  { tasks: Task[] }
+> = async (args, context) => {
+  //        👆 args are typed e.g. { name: string }
+  //                👆 context is typed e.g. { entitites: { Task: ... } }
+  const tasks = await context.entities.Task.findMany({});
+  return {
+    tasks,
+  };
+};
+```
+
+When you use the job, you can pass the arguments and receive the result with the correct types:
+
+```typescript
+import { simplePrintJob } from "@wasp/jobs/simplePrintJob.js";
+
+...
+const job = await simplePrintJob.submit({ name: "John" })
+...
+const result = await result.pgBoss.details()
+//      👆 result is typed e.g. { tasks: Task[] }
+```
+
+## 0.11.3
+
+### 🎉 [New Feature] Type-safe links
+
+Wasp now offers a way to link to pages in your app in a type-safe way. This means that you can't accidentally link to a page that doesn't exist, or pass the wrong arguments to a page.
+
+After you defined your routes:
+
+```wasp
+route TaskRoute { path: "/task/:id", to: TaskPage }
+```
+
+You can get the benefits of type-safe links by using the `Link` component from `@wasp/router`:
+
+```jsx
+import { Link } from '@wasp/router'
+
+export const TaskList = () => {
+  // ...
+
+  return (
+    <div>
+      {tasks.map((task) => (
+        <Link
+          key={task.id}
+          to="/task/:id"
+      {/* 👆 You must provide a valid path here */} 
+          params={{ id: task.id }}>
+      {/* 👆 All the params must be correctly passed in */}   
+          {task.description}
+        </Link>
+      ))}
+    </div>
+  )
+}
+```
+
+You can also get all the pages in your app with the `routes` object:
+
+```jsx
+import { routes } from '@wasp/router'
+
+const linkToTask = routes.TaskRoute({ params: { id: 1 } })
+```
+
+### 🐞 Bug fixes
+- Fixes API types exports for TypeScript users.
+- Default .gitignore that comes with new Wasp project (`wasp new`) is now more aggressive when ignoring .env files, ensuring they don't get committed by accident (wrong name, wrong location, ...).
+
+
+## 0.11.2
+
+### 🎉 [New Feature] waspls Code Scaffolding
+
+When an external import is missing its implementation, waspls now offers a Code Action to quickly scaffold the missing JavaScript or TypeScript function:
+
+```wasp
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //  ERROR: `getTasks` is not exported from `src/server/queries.ts`
+  entities: [Task],
+}
+```
+
+Using the code action (pressing <kbd>Ctrl</kbd> + <kbd>.</kbd> or clicking the lightbulb 💡 icon in VSCode) will add the following code to `src/server/queries.ts`:
+
+```ts
+import { GetTasks } from '@wasp/queries/types'
+
+import GetTasksInput = void
+import GetTasksOutput = void
+
+export const getTasks: GetTasks<GetTasksInput, GetTasksOutput> = async (args, context) => {
+  // Implementation goes here
+}
+```
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
+- waspls thought that importing `"@client/file.jsx"` could mean `"@client/file.tsx"`, which could hide some missing import diagnostics and cause go-to definition to jump to the wrong file.
+
+
 ## 0.11.1
 
 ### 🎉 [New feature] Prisma client preview flags 

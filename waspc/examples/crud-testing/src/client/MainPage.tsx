@@ -1,13 +1,17 @@
 import "./Main.css";
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, routes } from "@wasp/router";
+import logout from "@wasp/auth/logout";
 
 import { tasks as tasksCrud } from "@wasp/crud/tasks";
-import { User, Task } from "@wasp/entities";
+import { User } from "@wasp/entities";
 
 const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading } = tasksCrud.getAll.useQuery();
+
+  type Task = NonNullable<typeof tasks>[number];
+
   const createTask = tasksCrud.create.useAction();
   const deleteTask = tasksCrud.delete.useAction();
   const updateTask = tasksCrud.update.useAction();
@@ -42,7 +46,7 @@ const MainPage = ({ user }: { user: User }) => {
     setEditTaskTitle("");
   }
 
-  function handleStartEditing(task: Task) {
+  function handleStartEditing(task: { id: number; title: string }) {
     setIsEditing(task.id);
     setEditTaskTitle(task.title);
   }
@@ -86,8 +90,14 @@ const MainPage = ({ user }: { user: User }) => {
               ) : (
                 <>
                   <div className="task__title">
-                    <Link to={`/${task.id}`}>
-                      {JSON.stringify(task, null, 2)}
+                    <Link
+                      to="/:id/:something?"
+                      params={{ id: task.id, something: "else" }}
+                    >
+                      Visit {task.title} at{" "}
+                      {routes.DetailRoute.build({
+                        params: { id: task.id, something: "else" },
+                      })}
                     </Link>
                   </div>
                   <button onClick={() => handleTaskDelete(task)}>Delete</button>
@@ -113,6 +123,7 @@ const MainPage = ({ user }: { user: User }) => {
             Create task
           </button>
         </form>
+        <button onClick={logout}>Logout</button>
       </main>
     </div>
   );

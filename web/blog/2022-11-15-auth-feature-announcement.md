@@ -113,4 +113,4 @@ export default Login
 
 ## Epilogue
 
-No need to move off the grid out of frustration when adding authentication and social login to your web app. [Here](https://github.com/shayneczyzewski/authExample) is a complete, minimal example if you want to jump right in, and [here](https://wasp-lang.dev/docs/language/features#authentication--authorization) are the full docs for more info. With just a few simple steps above, we've added authentication with best practices baked into our app so we can move on to solving problems that add value to our users!
+No need to move off the grid out of frustration when adding authentication and social login to your web app. [Here](https://github.com/shayneczyzewski/authExample) is a complete, minimal example if you want to jump right in, and [here](/docs/auth/overview) are the full docs for more info. With just a few simple steps above, we've added authentication with best practices baked into our app so we can move on to solving problems that add value to our users!
