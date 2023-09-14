@@ -9,6 +9,7 @@ import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
+import System.IO (hFlush, hPutStr, stderr, stdout)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -56,6 +57,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
+        ["max-test"] -> Command.Call.MaxTest
+        ["max-test2"] -> Command.Call.MaxTest2
+        ["max-test3"] -> Command.Call.MaxTest3
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
@@ -84,6 +88,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
+    Command.Call.MaxTest -> doMaxTest
+    Command.Call.MaxTest2 -> doMaxTest2
+    Command.Call.MaxTest3 -> doMaxTest3
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
@@ -155,6 +162,28 @@ printUsage =
       ]
 {- ORMOLU_ENABLE -}
 
+doMaxTest :: IO ()
+doMaxTest = do
+  putStrLn "Max test!"
+  hPutStr stderr "Max test whoopsie doopsie"
+  waitForever
+  where
+    waitForever = threadDelay 1000000 >> waitForever
+
+doMaxTest2 :: IO ()
+doMaxTest2 = do
+  putStrLn "Max test!"
+  hPutStr stderr "Max test whoopsie doopsie"
+
+doMaxTest3 :: IO ()
+doMaxTest3 = do
+  putStrLn "Max test!"
+  hFlush stdout
+  hPutStr stderr "Max test whoopsie doopsie"
+  waitForever
+  where
+    waitForever = threadDelay 1000000 >> waitForever
+
 printVersion :: IO ()
 printVersion = do
   putStrLn $
@@ -169,6 +198,8 @@ printVersion = do
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
+
+  hPutStr stderr "Whoopsie oopsie"
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()

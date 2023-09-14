@@ -17,6 +17,7 @@ module Wasp.Cli.Common
 where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
+import System.IO (hFlush, stdout)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Wasp.Generator.Common
 import Wasp.Project (WaspProjectDir)
@@ -53,10 +54,16 @@ extSharedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExtern
 extSharedCodeDirInWaspProjectDir = [reldir|src/shared|]
 
 waspSays :: String -> IO ()
-waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
+waspSays what = do
+  putStrLn $ Term.applyStyles [Term.Yellow] what
+  hFlush stdout
 
 waspWarns :: String -> IO ()
-waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
+waspWarns what = do
+  putStrLn $ Term.applyStyles [Term.Magenta] what
+  hFlush stdout
 
 waspScreams :: String -> IO ()
-waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what
+waspScreams what = do
+  putStrLn $ Term.applyStyles [Term.Red] what
+  hFlush stdout

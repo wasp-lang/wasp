@@ -26,7 +26,9 @@ start = do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
+  liftIO $ putStrLn "Is this being printed?"
+
+  cliSendMessageC $ Msg.Info "Starting compilation and setup phase. Hold tight..."
 
   warnings <- compile
 

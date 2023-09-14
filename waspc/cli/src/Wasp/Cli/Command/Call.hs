@@ -10,6 +10,9 @@ data Call
   | Db Arguments -- db args
   | Build
   | Version
+  | MaxTest
+  | MaxTest2
+  | MaxTest3
   | Telemetry
   | Deps
   | Dockerfile
