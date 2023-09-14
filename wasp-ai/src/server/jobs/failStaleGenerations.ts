@@ -1,15 +1,13 @@
 import { getNowInUTC } from "../utils.js";
 import { log } from "./utils.js";
+import type { FailStaleAppsJobs } from "@wasp/jobs/failStaleAppsJobs.js";
 
-export async function failStaleGenerations(
-  _args: void,
-  context: {
-    entities: {
-      Project: any;
-      Log: any;
-    };
+export const failStaleGenerations: FailStaleAppsJobs<
+  {},
+  {
+    success: boolean;
   }
-) {
+> = async (_args, context) => {
   // If a generation has been in progress for > 5 minutes, it fails it
   log("Failing stale generations");
   const { Project, Log } = context.entities;
@@ -33,7 +31,7 @@ export async function failStaleGenerations(
         logs: {
           select: {
             id: true,
-          }
+          },
         },
       },
     });
@@ -62,4 +60,4 @@ export async function failStaleGenerations(
       success: false,
     };
   }
-}
+};

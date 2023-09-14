@@ -1,18 +1,15 @@
 import { generateAppJob } from "@wasp/jobs/generateAppJob.js";
+import type { CheckPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { log } from "./utils.js";
 
 const maxProjectsInProgress = process.env.MAX_PROJECTS_IN_PROGRESS
   ? parseInt(process.env.MAX_PROJECTS_IN_PROGRESS, 10)
   : 7;
 
-export async function checkForPendingApps(
-  _args: void,
-  context: {
-    entities: {
-      Project: any;
-    };
-  }
-) {
+export const checkForPendingApps: CheckPendingAppsJob<{}, void> = async (
+  _args,
+  context
+) => {
   log("Checking for pending apps");
   const { Project } = context.entities;
 
@@ -30,4 +27,4 @@ export async function checkForPendingApps(
   for (const app of appsToGenerate) {
     generateAppJob.submit({ appId: app.id });
   }
-}
+};

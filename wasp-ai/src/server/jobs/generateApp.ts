@@ -1,19 +1,19 @@
 import { spawn } from "child_process";
 import { Mutex } from "async-mutex";
 import { log } from "./utils.js";
+import { GenerateAppJob } from "@wasp/jobs/generateAppJob.js";
 
 const appGenerationResults: Record<string, any> = {};
 
-export async function generateApp(
-  args: { appId: string },
-  context: {
-    entities: {
-      Project: any;
-      Log: any;
-      File: any;
-    };
+export const generateApp: GenerateAppJob<
+  { appId: string },
+  {
+    success: boolean;
   }
-) {
+> = async (
+  args,
+  context,
+) => {
   log("Generating app");
   const appId = args.appId;
 
@@ -51,12 +51,12 @@ export async function generateApp(
       break;
     default:
       throw new Error(`Unknown creativity level: ${project.creativityLevel}`);
-  };
+  }
 
   // { auth: 'UsernameAndPassword', primaryColor: string, defaultGptTemperature: number }
   const projectConfig = {
     primaryColor: project.primaryColor,
-    defaultGptTemperature
+    defaultGptTemperature,
   };
 
   const stdoutMutex = new Mutex();
@@ -182,4 +182,4 @@ export async function generateApp(
   });
 
   return { success: true };
-}
+};
