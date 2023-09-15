@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.5
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug in Auth UI imports that prevented users from using the social login buttons.
+
 ## 0.11.4
 
 ### 🎉 [New Feature] Signup Fields Customization
