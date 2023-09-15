@@ -423,6 +423,7 @@ library cli-lib
     , optparse-applicative ^>=0.17.0.0
     , path
     , path-io
+    , pretty-simple ^>= 4.1.2.0
     , process
     , strong-path
     , text
@@ -465,6 +466,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
