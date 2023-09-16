@@ -37,6 +37,8 @@ import ELK from "elkjs/lib/elk.bundled.js";
 
 import logo from "./assets/logo.png";
 
+import { socket } from "./socket";
+
 const elk = new ELK();
 
 // Elk has a *huge* amount of options to configure. To see everything you can
@@ -109,50 +111,20 @@ type Data = {
 };
 
 export default function App() {
-  const data: Data = {
-    pages: [
-      {
-        id: "page-1",
-        name: "Home",
-        flowsInto: ["action-1", "query-1"],
-      },
-      {
-        id: "page-2",
-        name: "Profile",
-        flowsInto: ["action-2"],
-      },
-      {
-        id: "page-3",
-        name: "Contact",
-        flowsInto: [],
-      },
-    ],
-    queries: [
-      {
-        id: "query-1",
-        name: "getUsers",
-        flowsInto: ["entity-1"],
-      },
-    ],
-    actions: [
-      {
-        id: "action-1",
-        name: "createUser",
-        flowsInto: ["entity-1"],
-      },
-      {
-        id: "action-2",
-        name: "deleteUser",
-        flowsInto: ["entity-1"],
-      },
-    ],
-    entities: [
-      {
-        id: "entity-1",
-        name: "User",
-      },
-    ],
-  };
+  const [data, setData] = useState<Data | null>(null);
+
+  function onData(data: string) {
+    console.log("data", data);
+    setData(JSON.parse(data) as Data);
+  }
+
+  useEffect(() => {
+    socket.on("data", onData);
+    return () => {
+      socket.off("data", onData);
+    };
+  }, []);
+
   return (
     <div className="h-full">
       <Navbar position="static">
@@ -189,7 +161,13 @@ export default function App() {
         </NavbarContent>
       </Navbar>
       <div className="flow-container">
-        <Flow data={data} />
+        {data ? (
+          <Flow data={data} />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-2xl text-gray-500">Loading...</p>
+          </div>
+        )}
       </div>
     </div>
   );
