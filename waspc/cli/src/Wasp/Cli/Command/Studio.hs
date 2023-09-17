@@ -4,6 +4,7 @@ module Wasp.Cli.Command.Studio
 where
 
 import Control.Arrow ()
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
@@ -23,10 +24,11 @@ import qualified Wasp.AppSpec.Operation as Operation
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Cli.Common as Common
+import qualified Wasp.Project.Studio
 
 studio :: Command ()
 studio = do
@@ -124,6 +126,11 @@ studio = do
   let waspStudioDataJsonFilePath = generatedProjectDir </> [relfile|.wasp-studio-data.json|]
   liftIO $
     BSL.writeFile (SP.toFilePath waspStudioDataJsonFilePath) (encodePretty appInfoJson)
+
+  result <- liftIO $ do
+    Wasp.Project.Studio.startStudio $ SP.toFilePath waspStudioDataJsonFilePath
+
+  either (throwError . CommandError "Studio command failed") return result
   where
     getLinkedEntitiesData spec entityRefs =
       ( map

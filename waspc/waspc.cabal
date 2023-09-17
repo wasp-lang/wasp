@@ -62,6 +62,9 @@ data-files:
   packages/ts-inspect/dist/**/*.js
   packages/ts-inspect/package.json
   packages/ts-inspect/package-lock.json
+  packages/studio/dist/**/*.js
+  packages/studio/package.json
+  packages/studio/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -320,6 +323,7 @@ library
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.WebApp
+    Wasp.Project.Studio
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
