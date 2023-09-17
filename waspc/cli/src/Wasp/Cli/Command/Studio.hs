@@ -6,7 +6,6 @@ where
 import Control.Arrow ()
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy as BSL
 import Data.Maybe (fromMaybe, isJust)
@@ -14,14 +13,14 @@ import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import StrongPath.Operations ()
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
-import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.Job as AS.Job
 import Wasp.AppSpec.Operation (Operation (..))
-import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Operation as Operation
+import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
@@ -44,10 +43,11 @@ studio = do
         object
           [ "pages"
               .= map
-                ( \(name, _page) ->
+                ( \(name, page) ->
                     object
-                      [ "name" .= name
-                      -- "operations" .= [] -- TODO: Add operations that page uses.
+                      [ "name" .= name,
+                        "authRequired" .= AS.Page.authRequired page
+                        -- "operations" .= [] -- TODO: Add operations that page uses. Not easy.
                       ]
                 )
                 (AS.getPages appSpec),
@@ -64,19 +64,29 @@ studio = do
                       ]
                 )
                 (AS.getRoutes appSpec),
+            "apis"
+              .= map
+                ( \(name, api) ->
+                    object
+                      [ "name" .= name,
+                        "httpRoute"
+                          .= let (method, path) = AS.Api.httpRoute api
+                              in object
+                                   [ "method" .= show method,
+                                     "path" .= path
+                                   ],
+                        "auth" .= AS.Api.auth api,
+                        "entities" .= getLinkedEntitiesData appSpec (AS.Api.entities api)
+                      ]
+                )
+                (AS.getApis appSpec),
             "jobs"
               .= map
                 ( \(name, job) ->
                     object
                       [ "name" .= name,
                         "schedule" .= (AS.Job.cron <$> AS.Job.schedule job),
-                        "entities"
-                          .= ( map
-                                 ( \(entityName, _entity) ->
-                                     object ["name" .= entityName]
-                                 )
-                                 $ getJobEntities appSpec job
-                             )
+                        "entities" .= getLinkedEntitiesData appSpec (AS.Job.entities job)
                       ]
                 )
                 (AS.getJobs appSpec),
@@ -89,12 +99,8 @@ studio = do
                           _op@(ActionOp _ _) -> "action",
                         "name" .= Operation.getName operation,
                         "entities"
-                          .= ( map
-                                 ( \(entityName, _entity) ->
-                                     object ["name" .= entityName]
-                                 )
-                                 $ getOperationEntities appSpec operation
-                             )
+                          .= getLinkedEntitiesData appSpec (Operation.getEntities operation),
+                        "auth" .= Operation.getAuth operation
                       ]
                 )
                 (AS.getOperations appSpec),
@@ -112,7 +118,6 @@ studio = do
                   "auth" .= getAuthInfo appSpec app,
                   "db" .= getDbInfo app
                 ]
-                -- TODO: Add APIs.
                 -- TODO: Add CRUDs.
           ]
 
@@ -120,12 +125,16 @@ studio = do
   liftIO $
     BSL.writeFile (SP.toFilePath waspStudioDataJsonFilePath) (encodePretty appInfoJson)
   where
-    getOperationEntities :: AS.AppSpec -> AS.Operation.Operation -> [(String, AS.Entity.Entity)]
-    getOperationEntities spec operation =
-      AS.resolveRef spec <$> fromMaybe [] (Operation.getEntities operation)
+    getLinkedEntitiesData spec entityRefs =
+      ( map
+          ( \(entityName, _entity) ->
+              object ["name" .= entityName]
+          )
+          $ resolveEntities spec entityRefs
+      )
 
-    getJobEntities spec job =
-      AS.resolveRef spec <$> fromMaybe [] (AS.Job.entities job)
+    resolveEntities spec entityRefs =
+      AS.resolveRef spec <$> fromMaybe [] entityRefs
 
     getDbInfo app = do
       db <- AS.App.db app
