@@ -138,7 +138,7 @@ export default function Flow({ data }: { data: Data }) {
         createEntityNode(
           entity.name,
           entity.name,
-          entity.name === data.app.auth.userEntity.name,
+          entity.name === data.app.auth?.userEntity.name,
           entity
         )
       ),
