@@ -1,0 +1,7 @@
+{
+  "name": "wasp-studio",
+  "scripts": {
+    "install-deps": "npm install --prefix ./wasp-studio-client && npm install --prefix ./wasp-studio-server",
+    "build": "npm run install-deps && npm run --prefix ./wasp-studio-client copy && npm run --prefix ./wasp-studio-server build"
+  }
+}

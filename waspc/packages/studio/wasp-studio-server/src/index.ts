@@ -6,16 +6,20 @@ import FastifyStatic from "@fastify/static";
 import cors from "@fastify/cors";
 import { Command } from "commander";
 
+function getUrlFromRelativePathToCwd(path: string) {
+  return new URL(path, `file://${process.cwd()}/`);
+}
+
 const program = new Command();
 // Parse --file option
 program
-  .requiredOption("-f, --file <path>", "Path to data file")
-  .requiredOption("-p, --public <path>", "Path to the public folder")
+  .requiredOption("-d, --data-file <path>", "Path to data file")
+  // .requiredOption("-p, --public-dir <path>", "Path to the public folder")
   .parse(process.argv);
 
 const options = program.opts<{
-  file: string;
-  public: string;
+  dataFile: string;
+  // publicDir: string;
 }>();
 
 const fastify = Fastify({
@@ -31,10 +35,11 @@ fastify.register(cors, {
   origin: true,
 });
 fastify.register(FastifyStatic, {
-  root: new URL(options.public, import.meta.url).pathname,
+  root: new URL("./public", import.meta.url).pathname,
 });
-
-const pathToDataFile = new URL(options.file, import.meta.url);
+2;
+// const pathToDataFile = new URL(options.file, import.meta.url);
+const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);
 function readFile() {
   return fs.readFileSync(pathToDataFile, "utf8");
 }

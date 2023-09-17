@@ -7,7 +7,7 @@
   "scripts": {
     "start": "tsc --noEmit && ts-node -r dotenv/config ./src/index.ts",
     "dev": "nodemon ./src/index.ts",
-    "bundle": "rollup -c rollup.config.js && cp -r ./public ../wasp-studio"
+    "build": "tsc && cp -r ./public ./dist/public"
   },
   "keywords": [],
   "author": "",
