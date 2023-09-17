@@ -414,6 +414,7 @@ library cli-lib
     , filepath
     , time
     , aeson
+    , aeson-pretty
     , mtl
     , async
     , exceptions
