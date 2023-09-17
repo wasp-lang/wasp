@@ -63,6 +63,9 @@ data-files:
   packages/ts-inspect/package.json
   packages/ts-inspect/package-lock.json
   packages/studio/dist/**/*.js
+  packages/studio/dist/**/*.html
+  packages/studio/dist/**/*.css
+  packages/studio/dist/**/*.png
   packages/studio/package.json
   packages/studio/package-lock.json
 data-dir: data/

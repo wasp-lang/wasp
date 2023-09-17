@@ -4,7 +4,6 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Link,
   Button,
 } from "@nextui-org/react";
 import "reactflow/dist/style.css";
@@ -56,16 +55,17 @@ export default function App() {
             </Link>
           </NavbarItem>
         </NavbarContent> */}
-        <NavbarContent justify="end">
-          {/* <NavbarItem className="hidden lg:flex">
-            <Link href="#">Login</Link>
-          </NavbarItem> */}
+        {/* <NavbarContent justify="end">
           <NavbarItem>
-            <Button as={Link} color="primary" href="#" variant="flat">
-              Close the Studio
+            <Button
+              onClick={() => window.close()}
+              color="primary"
+              variant="flat"
+            >
+              Reset View
             </Button>
           </NavbarItem>
-        </NavbarContent>
+        </NavbarContent> */}
       </Navbar>
       <div className="flow-container">
         <Suspense fallback={<Loading />}>

@@ -6,14 +6,6 @@ import {
   useState,
 } from "react";
 import { Data } from "./types";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/react";
 import ReactFlow, {
   Background,
   Node,
@@ -102,7 +94,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 export default function Flow({ data }: { data: Data }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onClose } = useDisclosure();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const [nodes, setNodes] = useNodesState([]);
@@ -126,27 +118,63 @@ export default function Flow({ data }: { data: Data }) {
   const onLayout = useCallback(() => {
     const initialNodes: Node[] = [
       // ASSUMPTION: The names are of everything is unique.
-      createAppNode(data.app.name, data.app.name, data.app),
-      ...data.pages.map((page) => createPageNode(page.name, page.name, page)),
+      createAppNode(
+        generateId(data.app.name, "app"),
+        data.app.name,
+        data.app,
+        selectedNode
+      ),
+      ...data.pages.map((page) =>
+        createPageNode(
+          generateId(page.name, "page"),
+          page.name,
+          page,
+          selectedNode
+        )
+      ),
       ...data.operations
         .filter((operation) => operation.type === "query")
-        .map((query) => createQueryNode(query.name, query.name, query)),
+        .map((query) =>
+          createQueryNode(
+            generateId(query.name, "query"),
+            query.name,
+            query,
+            selectedNode
+          )
+        ),
       ...data.operations
         .filter((operation) => operation.type === "action")
-        .map((action) => createActionNode(action.name, action.name, action)),
+        .map((action) =>
+          createActionNode(
+            generateId(action.name, "action"),
+            action.name,
+            action,
+            selectedNode
+          )
+        ),
       ...data.entities.map((entity) =>
         createEntityNode(
-          entity.name,
+          generateId(entity.name, "entity"),
           entity.name,
           entity.name === data.app.auth?.userEntity.name,
-          entity
+          entity,
+          selectedNode
         )
       ),
       ...data.routes.map((route) =>
-        createRouteNode(route.name, route.path, route)
+        createRouteNode(
+          generateId(route.path, "route"),
+          route.path,
+          route,
+          selectedNode
+        )
       ),
-      ...data.apis.map((api) => createApiNode(api.name, api.name, api)),
-      ...data.jobs.map((job) => createJobNode(job.name, job.name, job)),
+      ...data.apis.map((api) =>
+        createApiNode(generateId(api.name, "api"), api.name, api, selectedNode)
+      ),
+      ...data.jobs.map((job) =>
+        createJobNode(generateId(job.name, "job"), job.name, job, selectedNode)
+      ),
       // {
       //   id: "operations",
       //   type: "group",
@@ -158,23 +186,64 @@ export default function Flow({ data }: { data: Data }) {
     ];
 
     const initialEdges: Edge[] = [
-      ...data.entities.map((entity) => createEdge(entity.name, data.app.name)),
-      ...data.routes.map((route) => createEdge(route.name, route.toPage.name)),
+      ...data.entities.map((entity) =>
+        createEdge(
+          generateId(entity.name, "entity"),
+          generateId(data.app.name, "app"),
+          selectedNode
+        )
+      ),
+      ...data.routes.map((route) =>
+        createEdge(
+          generateId(route.path, "route"),
+          generateId(route.toPage.name, "page"),
+          selectedNode
+        )
+      ),
       ...data.operations.flatMap((operation) =>
         operation.entities.map((entity) =>
-          createEdge(operation.name, entity.name)
+          // ASSUMPTION: operation.type is either "query" or "action"
+          createEdge(
+            generateId(operation.name, operation.type),
+            generateId(entity.name, "entity"),
+            selectedNode
+          )
         )
       ),
       ...data.apis.flatMap((api) =>
-        api.entities.map((entity) => createEdge(api.name, entity.name))
+        api.entities.map((entity) =>
+          createEdge(
+            generateId(api.name, "api"),
+            generateId(entity.name, "entity"),
+            selectedNode
+          )
+        )
       ),
       ...data.jobs.flatMap((job) =>
-        job.entities.map((entity) => createEdge(job.name, entity.name))
+        job.entities.map((entity) =>
+          createEdge(
+            generateId(job.name, "job"),
+            generateId(entity.name, "entity"),
+            selectedNode
+          )
+        )
       ),
-      ...data.routes.map((route) => createEdge(data.app.name, route.name)),
+      ...data.routes.map((route) =>
+        createEdge(
+          generateId(data.app.name, "app"),
+          generateId(route.path, "route"),
+          selectedNode
+        )
+      ),
     ];
 
-    getLayoutedElements(initialNodes, initialEdges).then((result) => {
+    const [filteredNodes, filteredEdges] = filterNodesAndEdges(
+      initialNodes,
+      initialEdges,
+      selectedNode
+    );
+
+    getLayoutedElements(filteredNodes, filteredEdges).then((result) => {
       if (!result) {
         return;
       }
@@ -189,12 +258,18 @@ export default function Flow({ data }: { data: Data }) {
 
       window.requestAnimationFrame(() => fitView());
     });
-  }, [data, setNodes, setEdges, fitView]);
+  }, [data, setNodes, setEdges, fitView, selectedNode]);
 
   // Calculate the initial layout on mount.
   useLayoutEffect(() => {
     onLayout();
   }, [onLayout]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      fitView();
+    }, 100);
+  }, [fitView, selectedNode]);
 
   // const onNodesChange: OnNodesChange = useCallback(
   //   (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -217,9 +292,14 @@ export default function Flow({ data }: { data: Data }) {
         fitView
         nodeTypes={nodeTypes}
         onNodeClick={(_event, node) => {
+          if (node.id === selectedNode?.id) {
+            setSelectedNode(null);
+            return;
+          }
           setSelectedNode(node);
-          onOpen();
+          // onOpen();
         }}
+        elevateNodesOnSelect={true}
       >
         <Background
           style={{
@@ -230,7 +310,7 @@ export default function Flow({ data }: { data: Data }) {
         {/* <Controls /> */}
       </ReactFlow>
 
-      <Modal size="lg" isOpen={isOpen} onClose={onClose}>
+      {/* <Modal size="lg" isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           {() => (
             <>
@@ -243,17 +323,11 @@ export default function Flow({ data }: { data: Data }) {
                 </pre>
               </ModalBody>
               <ModalFooter>
-                {/* <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
-                </Button> */}
               </ModalFooter>
             </>
           )}
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </div>
   );
 }
@@ -262,8 +336,48 @@ function getNodeHeight(node: Node) {
   if (node.type === "apiNode") {
     return 100;
   }
-  if (node.type === "jobNode") {
+  if (node.type === "jobNode" && node.data.schedule) {
+    return 100;
+  }
+  if (node.type === "appNode") {
     return 100;
   }
   return 50;
+}
+
+function generateId(name: string, type: string): string {
+  return `${type}:${name}`;
+}
+
+function filterNodesAndEdges(
+  nodes: Node[],
+  edges: Edge[],
+  selectedNode: Node | null
+): [Node[], Edge[]] {
+  if (!selectedNode) {
+    return [nodes, edges];
+  }
+
+  // Filter out only the nodes and edges that are reachable from the selected
+  // node.
+
+  const reachableNodes = new Set<string>();
+  const reachableEdges = new Set<string>();
+
+  const queue = [selectedNode.id];
+  while (queue.length > 0) {
+    const nodeId = queue.shift()!;
+    reachableNodes.add(nodeId);
+    edges.forEach((edge) => {
+      if (edge.source === nodeId) {
+        reachableEdges.add(edge.id);
+        queue.push(edge.target);
+      }
+    });
+  }
+
+  const filteredNodes = nodes.filter((node) => reachableNodes.has(node.id));
+  const filteredEdges = edges.filter((edge) => reachableEdges.has(edge.id));
+
+  return [filteredNodes, filteredEdges];
 }

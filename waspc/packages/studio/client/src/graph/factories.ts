@@ -10,7 +10,12 @@ type AnyData = {
   [key: string]: unknown;
 };
 
-export function createPageNode(id: string, name: string, data: AnyData) {
+export function createPageNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     type: "pageNode",
@@ -19,10 +24,16 @@ export function createPageNode(id: string, name: string, data: AnyData) {
     // sourcePosition: Position.Right,
     targetPosition: Position.Left,
     // type: "input",
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
-export function createActionNode(id: string, name: string, data: AnyData) {
+export function createActionNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     data: { label: name, ...data },
@@ -30,10 +41,16 @@ export function createActionNode(id: string, name: string, data: AnyData) {
     sourcePosition: Position.Right,
     // targetPosition: Position.Left,
     type: "actionNode",
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
-export function createQueryNode(id: string, name: string, data: AnyData) {
+export function createQueryNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     data: { label: name, ...data },
@@ -41,10 +58,16 @@ export function createQueryNode(id: string, name: string, data: AnyData) {
     sourcePosition: Position.Right,
     // targetPosition: Position.Left,
     type: "queryNode",
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
-export function createRouteNode(id: string, name: string, data: AnyData) {
+export function createRouteNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     data: { label: name, ...data },
@@ -52,6 +75,7 @@ export function createRouteNode(id: string, name: string, data: AnyData) {
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
     type: "routeNode",
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
@@ -59,7 +83,8 @@ export function createEntityNode(
   id: string,
   name: string,
   isUserEntity: boolean,
-  data: AnyData
+  data: AnyData,
+  selectedNode: Node | null
 ) {
   return {
     id,
@@ -68,33 +93,51 @@ export function createEntityNode(
     type: "entityNode",
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
+    selected: selectedNode?.id === id,
     // style: {
     //   backgroundColor: `#fde047`,
     // },
   } satisfies Node;
 }
 
-export function createApiNode(id: string, name: string, data: AnyData) {
+export function createApiNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     type: "apiNode",
     sourcePosition: Position.Right,
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
-export function createJobNode(id: string, name: string, data: AnyData) {
+export function createJobNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     type: "jobNode",
     sourcePosition: Position.Right,
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
-export function createAppNode(id: string, name: string, data: AnyData) {
+export function createAppNode(
+  id: string,
+  name: string,
+  data: AnyData,
+  selectedNode: Node | null
+) {
   return {
     id,
     data: { label: name, ...data },
@@ -102,15 +145,20 @@ export function createAppNode(id: string, name: string, data: AnyData) {
     type: "appNode",
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
+    selected: selectedNode?.id === id,
   } satisfies Node;
 }
 
-export function createEdge(source: string, target: string, label?: string) {
+export function createEdge(
+  source: string,
+  target: string,
+  selectedNode: Node | null
+) {
   return {
     id: `${source}-${target}`,
     source,
     target,
     animated: true,
-    label,
+    selected: selectedNode?.id === source || selectedNode?.id === target,
   } satisfies Edge;
 }

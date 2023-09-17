@@ -8,7 +8,7 @@ export const EntityNode = ({
 }: NodeProps) => (
   <div
     className={`
-    py-3 px-6 rounded bg-yellow-900 text-white
+    py-3 px-6 rounded bg-yellow-900 text-white text-center
     ${data.isUserEntity ? "border-3 border-yellow-300" : ""}
   `}
   >

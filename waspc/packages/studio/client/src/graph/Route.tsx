@@ -6,7 +6,7 @@ export const RouteNode = ({
   sourcePosition = Position.Left,
   targetPosition = Position.Right,
 }: NodeProps) => (
-  <div className="py-3 px-6 rounded bg-rose-900 text-white">
+  <div className="py-3 px-6 rounded bg-rose-900 text-white text-center">
     <Handle
       type="target"
       position={targetPosition}
@@ -25,7 +25,7 @@ export const RouteNode = ({
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
+          d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59"
         />
       </svg>
     </div>
