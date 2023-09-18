@@ -13,6 +13,7 @@ import Data.Maybe (fromMaybe, isJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import StrongPath.Operations ()
+import qualified System.Directory as Dir
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.App as AS.App
@@ -33,10 +34,6 @@ import qualified Wasp.Project.Studio
 studio :: Command ()
 studio = do
   InWaspProject waspDir <- require
-
-  let generatedProjectDir =
-        waspDir </> Common.dotWaspDirInWaspProjectDir
-          </> Common.generatedCodeDirInDotWaspDir
 
   appSpec <- analyze waspDir
   let (appName, app) = ASV.getApp appSpec
@@ -123,9 +120,14 @@ studio = do
                 -- TODO: Add CRUDs.
           ]
 
+  let generatedProjectDir =
+        waspDir </> Common.dotWaspDirInWaspProjectDir
+          </> Common.generatedCodeDirInDotWaspDir
+
   let waspStudioDataJsonFilePath = generatedProjectDir </> [relfile|.wasp-studio-data.json|]
-  liftIO $
-    BSL.writeFile (SP.toFilePath waspStudioDataJsonFilePath) (encodePretty appInfoJson)
+  liftIO $ do
+    Dir.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent waspStudioDataJsonFilePath
+    BSL.writeFile (SP.fromAbsFile waspStudioDataJsonFilePath) (encodePretty appInfoJson)
 
   result <- liftIO $ do
     Wasp.Project.Studio.startStudio $ SP.toFilePath waspStudioDataJsonFilePath
