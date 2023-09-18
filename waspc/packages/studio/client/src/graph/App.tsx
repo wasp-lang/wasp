@@ -37,16 +37,17 @@ export const AppNode = ({
     />
     <div className="flex justify-center flex-col items-center mt-2 gap-2">
       <div className="text-xs bg-foreground text-background rounded px-1">
-        <span>{data.db.system}</span>
+        <span>{data.db?.system || "SQLite"}</span>
       </div>
-      {data.auth.methods.map((method: string) => (
-        <div
-          className="text-xs bg-foreground text-background rounded px-1"
-          key={method}
-        >
-          <span>Auth: {method}</span>
-        </div>
-      ))}
+      {data.auth &&
+        data.auth.methods.map((method: string) => (
+          <div
+            className="text-xs bg-foreground text-background rounded px-1"
+            key={method}
+          >
+            <span>Auth: {method}</span>
+          </div>
+        ))}
     </div>
   </div>
 );
