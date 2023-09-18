@@ -7,7 +7,7 @@
   "scripts": {
     "start": "tsc --noEmit && ts-node -r dotenv/config ./src/index.ts",
     "dev": "nodemon ./src/index.ts",
-    "build": "npm --prefix ./client run copy && tsc && cp -r ./public ./dist/public"
+    "build": "npm --prefix ./client install && npm --prefix ./client run copy && tsc && cp -r ./public ./dist/public"
   },
   "keywords": [],
   "author": "",
