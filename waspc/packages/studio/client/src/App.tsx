@@ -1,11 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Button,
-} from "@nextui-org/react";
+import { Navbar, NavbarBrand } from "@nextui-org/react";
 import "reactflow/dist/style.css";
 
 import logo from "./assets/logo.png";

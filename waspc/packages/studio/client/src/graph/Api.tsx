@@ -1,11 +1,9 @@
-import { Button } from "@nextui-org/react";
 import { Handle, NodeProps, Position } from "reactflow";
 
 export const ApiNode = ({
   data,
   sourcePosition = Position.Right,
   isConnectable,
-  selected,
 }: NodeProps) => (
   <div
     className={`
