@@ -422,14 +422,16 @@ textarea.card-composer-textarea {
 
 .list-card-title {
   display: block;
-  margin: 0 0 4px;
-
+  margin: 0;
   font-size: 14px;
   font-weight: 400;
-  line-height: 20px;
-
+  line-height: 1.5; /* Adjust as needed */
   cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
+
 
 .card-add-button {
   margin-right: 5px;
