@@ -20,6 +20,7 @@ data Call
   | WaspLS
   | Deploy Arguments -- deploy cmd passthrough args
   | Test Arguments -- "client" | "server", then test cmd passthrough args
+  | UseRecipe Arguments -- pass through args
   | Unknown Arguments -- all args
 
 type Arguments = [String]

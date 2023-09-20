@@ -5,6 +5,7 @@ module Wasp.Cli.Interactive
     askToChoose,
     askForRequiredInput,
     Option (..),
+    ChooserConfig (..),
   )
 where
 
@@ -49,19 +50,26 @@ instance Option [Char] where
   showOption = id
   showOptionDescription = const Nothing
 
+data ChooserConfig = ChooserConfig
+  { hasDefaultOption :: Bool
+  }
+
 askForRequiredInput :: String -> IO String
 askForRequiredInput = repeatIfNull . askForInput
 
-askToChoose :: forall o. Option o => String -> NonEmpty o -> IO o
-askToChoose _ (singleOption :| []) = return singleOption
-askToChoose question options = do
+askToChoose :: forall o. Option o => String -> NonEmpty o -> ChooserConfig -> IO o
+askToChoose _ (singleOption :| []) _ = return singleOption
+askToChoose question options config = do
   putStrLn $ Term.applyStyles [Term.Bold] question
   putStrLn showIndexedOptions
   answer <- prompt
   getOptionMatchingAnswer answer & maybe printErrorAndAskAgain return
   where
     getOptionMatchingAnswer :: String -> Maybe o
-    getOptionMatchingAnswer "" = Just defaultOption
+    getOptionMatchingAnswer "" =
+      if hasDefaultOption config
+        then Just defaultOption
+        else Nothing
     getOptionMatchingAnswer answer =
       getOptionByIndex answer <|> getOptionByName answer
 
@@ -77,7 +85,7 @@ askToChoose question options = do
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
       putStrLn $ Term.applyStyles [Term.Red] "Invalid selection, write the name or the index of the option."
-      askToChoose question options
+      askToChoose question options config
 
     showIndexedOptions :: String
     showIndexedOptions = intercalate "\n" $ showIndexedOption <$> zip [1 ..] (NE.toList options)
@@ -85,7 +93,7 @@ askToChoose question options = do
         showIndexedOption (idx, option) =
           Term.applyStyles [Term.Yellow] indexPrefix
             <> Term.applyStyles [Term.Bold] (showOption option)
-            <> (if isDefaultOption option then " (default)" else "")
+            <> renderDefaultOption option
             <> showDescription option (length indexPrefix)
           where
             indexPrefix = showIndex idx <> " "
@@ -95,6 +103,12 @@ askToChoose question options = do
         showDescription option indentLength = case showOptionDescription option of
           Just description -> "\n" <> replicate indentLength ' ' <> description
           Nothing -> ""
+
+    renderDefaultOption :: o -> String
+    renderDefaultOption option =
+      if hasDefaultOption config && isDefaultOption option
+        then " (default)"
+        else ""
 
     defaultOption :: o
     defaultOption = NE.head options

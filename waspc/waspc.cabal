@@ -53,6 +53,7 @@ data-files:
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  Cli/recipes/**/*.cjs
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
   Lsp/templates/**/*.jsx
@@ -475,6 +476,9 @@ library cli-lib
     Wasp.Cli.Command.Test
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
+    Wasp.Cli.Command.UseRecipe
+    Wasp.Cli.Command.UseRecipe.Auth
+    Wasp.Cli.Command.UseRecipe.Tailwind
     Wasp.Cli.Common
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message

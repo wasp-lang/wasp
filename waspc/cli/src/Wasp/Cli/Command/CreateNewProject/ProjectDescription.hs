@@ -85,7 +85,11 @@ obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
     availableTemplates
     (liftIO askForTemplateName)
   where
-    askForTemplateName = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
+    askForTemplateName =
+      Interactive.askToChoose
+        "Choose a starter template"
+        (fromList availableTemplates)
+        Interactive.ChooserConfig {Interactive.hasDefaultOption = True}
 
 -- Common logic
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
