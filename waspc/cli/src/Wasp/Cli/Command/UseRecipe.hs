@@ -22,23 +22,24 @@ instance Interactive.Option Recipe where
 
 useRecipe :: [String] -> Command ()
 useRecipe _args = do
-  InWaspProject _waspProjectDir <- require
+  InWaspProject waspProjectDir <- require
 
-  recipe <- liftIO selectRecipe
+  let recipes =
+        [ Recipe
+            { recipeName = "tailwind",
+              execute = useTailwind waspProjectDir
+            },
+          Recipe
+            { recipeName = "auth",
+              execute = useAuth
+            }
+        ]
+
+  recipe <- liftIO $ selectRecipe recipes
 
   execute recipe
   where
-    recipes =
-      [ Recipe
-          { recipeName = "tailwind",
-            execute = useTailwind
-          },
-        Recipe
-          { recipeName = "auth",
-            execute = useAuth
-          }
-      ]
-    selectRecipe =
+    selectRecipe recipes =
       Interactive.askToChoose
         "What do you want to use?"
         (fromList recipes)

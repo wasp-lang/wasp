@@ -479,6 +479,7 @@ library cli-lib
     Wasp.Cli.Command.UseRecipe
     Wasp.Cli.Command.UseRecipe.Auth
     Wasp.Cli.Command.UseRecipe.Tailwind
+    Wasp.Cli.Command.UseRecipe.Common
     Wasp.Cli.Common
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message
