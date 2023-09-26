@@ -480,6 +480,11 @@ library cli-lib
     Wasp.Cli.Command.UseRecipe.Auth
     Wasp.Cli.Command.UseRecipe.Tailwind
     Wasp.Cli.Command.UseRecipe.Common
+    Wasp.Cli.Command.UseRecipe.Auth.Common
+    Wasp.Cli.Command.UseRecipe.Auth.Email
+    Wasp.Cli.Command.UseRecipe.Auth.Local
+    Wasp.Cli.Command.UseRecipe.Auth.Social
+    Wasp.Cli.Command.UseRecipe.EmailSender
     Wasp.Cli.Common
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message

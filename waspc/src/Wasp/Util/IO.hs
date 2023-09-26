@@ -12,6 +12,7 @@ module Wasp.Util.IO
     removeFile,
     isDirectoryEmpty,
     writeFileFromText,
+    appendToFile,
   )
 where
 
@@ -111,3 +112,6 @@ isDirectoryEmpty :: Path' Abs (Dir d) -> IO Bool
 isDirectoryEmpty dirPath = do
   (files, dirs) <- listDirectory dirPath
   return $ null files && null dirs
+
+appendToFile :: Path' Abs (File f) -> String -> IO ()
+appendToFile = P.appendFile . SP.fromAbsFile

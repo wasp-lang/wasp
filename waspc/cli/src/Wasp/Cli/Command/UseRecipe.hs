@@ -5,11 +5,13 @@ import Data.List.NonEmpty (fromList)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.UseRecipe.Auth (useAuth)
+import Wasp.Cli.Command.UseRecipe.EmailSender (useEmailSender)
 import Wasp.Cli.Command.UseRecipe.Tailwind (useTailwind)
 import qualified Wasp.Cli.Interactive as Interactive
 
 data Recipe = Recipe
   { recipeName :: String,
+    recipeDescription :: String,
     execute :: Command ()
   }
 
@@ -18,20 +20,27 @@ instance Show Recipe where
 
 instance Interactive.Option Recipe where
   showOption = show
-  showOptionDescription _ = Nothing
+  showOptionDescription = Just . recipeDescription
 
 useRecipe :: [String] -> Command ()
 useRecipe _args = do
-  InWaspProject waspProjectDir <- require
+  InWaspProject _ <- require
 
   let recipes =
         [ Recipe
-            { recipeName = "tailwind",
-              execute = useTailwind waspProjectDir
+            { recipeName = "Tailwind",
+              recipeDescription = "Add support for Tailwind CSS",
+              execute = useTailwind
             },
           Recipe
-            { recipeName = "auth",
+            { recipeName = "Auth",
+              recipeDescription = "Add authentication to your app",
               execute = useAuth
+            },
+          Recipe
+            { recipeName = "Email sender",
+              recipeDescription = "Set up an email sender",
+              execute = useEmailSender
             }
         ]
 
