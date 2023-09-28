@@ -32,7 +32,19 @@ We cover all supported ways of connecting to a database in [the next section](#c
 
 To run your Wasp app in production, you'll need to switch from SQLite to PostgreSQL.
 
-1. Set the `app.db.system` fild to PostgreSQL.
+1. Set the `app.db.system` field to PostgreSQL.
+   
+```wasp title=main.wasp
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    system: PostgreSQL,
+    // ...
+  }
+}
+```
+
 2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL:
 
    ```bash
