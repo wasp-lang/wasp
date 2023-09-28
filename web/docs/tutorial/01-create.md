@@ -35,7 +35,7 @@ We've also set up an in-browser dev environment for you on Gitpod which allows y
 
 ## Creating a Project
 
-To setup a new Wasp proejct, run the following command in your terminal
+To setup a new Wasp project, run the following command in your terminal
 
 ```sh
 $ wasp new TodoApp
