@@ -1,4 +1,4 @@
----
+head <meta name="interkassa-verification" content="197b83dca6981e9d91d7dbe95a9a42e8" />---
 title: Quick Start
 slug: /quick-start
 ---
