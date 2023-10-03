@@ -89,7 +89,6 @@ const MainPage = () => {
         localStorage.removeItem("appDetails");
       }
     } catch (error) {
-      alert(error.message)
       console.error(error);
     }
   }, []);
