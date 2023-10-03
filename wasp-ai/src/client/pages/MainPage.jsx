@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { useHistory } from "react-router-dom";
 import { MyDropdown } from "../components/Dropdown";
@@ -7,12 +7,14 @@ import { Header } from "../components/Header";
 import { availableColors } from "../components/Color";
 import { Faq } from "../components/Faq";
 import { exampleIdeas } from "../examples";
-import { PiMagicWandDuotone } from "react-icons/pi";
+import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
 import { readReferrerFromLocalStorage } from "../storage";
+import { MyDialog } from "../components/Dialog";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
+  const [isGhModalOpen, setIsGhModalOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
     message: "Waiting for instructions",
@@ -68,12 +70,51 @@ const MainPage = () => {
 
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
 
+  useEffect(() => {
+    try {
+      const appDetails = JSON.parse(localStorage.getItem("appDetails"));
+      const appNum = JSON.parse(localStorage.getItem("appNum"));
+      if (!appNum) {
+        localStorage.setItem("appNum", 0);
+      }
+      if (appNum === 2) {
+        setIsGhModalOpen(true);
+      }
+      if (appDetails) {
+        setAppName(appDetails.appName);
+        setAppDesc(appDetails.appDesc);
+        setAppPrimaryColor(availableColors.find((color) => color.name === appDetails.appPrimaryColor));
+        setAppAuthMethod(availableAuthMethods.find((method) => method.value === appDetails.appAuthMethod));
+        setCreativityLevel(availableCreativityLevels.find((level) => level.value === appDetails.appCreativityLevel));
+        localStorage.removeItem("appDetails");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   async function startGenerating(event) {
     event.preventDefault();
+
+    try {
+      const appNum = JSON.parse(localStorage.getItem("appNum"))
+      localStorage.setItem("appNum", appNum + 1)
+      localStorage.setItem("appDetails", JSON.stringify({
+        appName,
+        appDesc,
+        appPrimaryColor: appPrimaryColor.name,
+        appAuthMethod: appAuthMethod.value,
+        appCreativityLevel: creativityLevel.value,
+      }));
+    } catch (error) {
+      console.error(error)
+    }
+
     setCurrentStatus({
       status: "idle",
       message: "Starting...",
     });
+
     try {
       const referrer = readReferrerFromLocalStorage(); 
       const appId = await startGeneratingNewApp({
@@ -109,6 +150,8 @@ const MainPage = () => {
   return (
     <div className="container">
       <Header currentStatus={currentStatus} isStatusVisible={true} />
+
+      <GhModal isGhModalOpen={isGhModalOpen} setIsGhModalOpen={setIsGhModalOpen} />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-6 flex flex-col gap-3">
@@ -209,3 +252,33 @@ The simpler and more specific the app is, the better the generated app will be."
   );
 };
 export default MainPage;
+
+export function GhModal({ isGhModalOpen, setIsGhModalOpen }) {
+  return (
+    <MyDialog isOpen={isGhModalOpen} onClose={() => setIsGhModalOpen(false)} title={<span>With Great Power Comes Great Responsibility! 🧙</span>}>
+      <div className="mt-6 space-y-5">
+        <p className="text-base leading-relaxed text-gray-500">
+          We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
+        </p>
+
+        <p className="text-base leading-relaxed text-gray-500">
+          But you can still show your support by starring us on GitHub:
+        </p>
+        <a
+          href="https://github.com/wasp-lang/wasp"
+          target="_blank"
+          className="flex items-center justify-center underline text-pink-600 "
+        >
+          <div className="py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
+            <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on GitHub{" "}
+            <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
+          </div>
+        </a>
+        <p className="text-base leading-relaxed text-gray-500">
+          This helps spread the word, so we can keep making Mage better.
+        </p>
+        <p className="text-base leading-relaxed text-gray-500">We'd very much appreciate it! 🧙</p>
+      </div>
+    </MyDialog>
+  )
+}

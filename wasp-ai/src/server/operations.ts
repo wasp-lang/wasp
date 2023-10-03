@@ -8,6 +8,7 @@ import {
   GetAppGenerationResult,
   GetStats,
   GetFeedback,
+  GetNumProjects,
 } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
@@ -222,6 +223,12 @@ export const getStats = (async (_args, context) => {
     downloadStats,
   };
 }) satisfies GetStats<{}>;
+
+export const getNumProjects = (async (_args, context) => {
+  const { Project } = context.entities;
+  const numProjects = await Project.count();
+  return numProjects;
+}) satisfies GetNumProjects<{}>;
 
 function getDownloadStats(projects: Project[]) {
   const projectsAfterDownloadTracking = projects.filter(
