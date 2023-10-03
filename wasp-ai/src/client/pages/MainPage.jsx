@@ -71,49 +71,51 @@ const MainPage = () => {
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
 
   useEffect(() => {
-    const appDetails = JSON.parse(localStorage.getItem("appDetails"));
-    const appNum = JSON.parse(localStorage.getItem("appNum"));
-    if (!appNum) { 
-      localStorage.setItem("appNum", 0); 
-    }
-    if (appNum === 2) { 
-      setIsGhModalOpen(true);
-    }
-    if (appDetails) {
-      setAppName(appDetails.appName);
-      setAppDesc(appDetails.appDesc);
-      setAppPrimaryColor(
-        availableColors.find((color) => color.name === appDetails.appPrimaryColor)
-      );
-      setAppAuthMethod(
-        availableAuthMethods.find(
-          (method) => method.value === appDetails.appAuthMethod
-        )
-      );
-      setCreativityLevel(
-        availableCreativityLevels.find(
-          (level) => level.value === appDetails.appCreativityLevel
-        )
-      );
-      localStorage.removeItem("appDetails");
+    try {
+      const appDetails = JSON.parse(localStorage.getItem("appDetails"));
+      const appNum = JSON.parse(localStorage.getItem("appNum"));
+      if (!appNum) {
+        localStorage.setItem("appNum", 0);
+      }
+      if (appNum === 2) {
+        setIsGhModalOpen(true);
+      }
+      if (appDetails) {
+        setAppName(appDetails.appName);
+        setAppDesc(appDetails.appDesc);
+        setAppPrimaryColor(availableColors.find((color) => color.name === appDetails.appPrimaryColor));
+        setAppAuthMethod(availableAuthMethods.find((method) => method.value === appDetails.appAuthMethod));
+        setCreativityLevel(availableCreativityLevels.find((level) => level.value === appDetails.appCreativityLevel));
+        localStorage.removeItem("appDetails");
+      }
+    } catch (error) {
+      alert(error.message)
+      console.error(error);
     }
   }, []);
 
   async function startGenerating(event) {
     event.preventDefault();
-    const appNum = JSON.parse(localStorage.getItem("appNum"))
-    localStorage.setItem("appNum", appNum + 1)
-    localStorage.setItem("appDetails", JSON.stringify({
-      appName,
-      appDesc,
-      appPrimaryColor: appPrimaryColor.name,
-      appAuthMethod: appAuthMethod.value,
-      appCreativityLevel: creativityLevel.value,
-    }));
+
+    try {
+      const appNum = JSON.parse(localStorage.getItem("appNum"))
+      localStorage.setItem("appNum", appNum + 1)
+      localStorage.setItem("appDetails", JSON.stringify({
+        appName,
+        appDesc,
+        appPrimaryColor: appPrimaryColor.name,
+        appAuthMethod: appAuthMethod.value,
+        appCreativityLevel: creativityLevel.value,
+      }));
+    } catch (error) {
+      console.error(error)
+    }
+
     setCurrentStatus({
       status: "idle",
       message: "Starting...",
     });
+
     try {
       const referrer = readReferrerFromLocalStorage(); 
       const appId = await startGeneratingNewApp({
