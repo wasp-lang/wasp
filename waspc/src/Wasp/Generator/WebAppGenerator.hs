@@ -62,7 +62,6 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
-      genFileCopy [relfile|vite.config.ts|],
       genFileCopy [relfile|src/test/vitest/setup.ts|],
       genFileCopy [relfile|src/test/vitest/helpers.tsx|],
       genFileCopy [relfile|src/test/index.ts|],
@@ -70,7 +69,8 @@ genWebApp spec = do
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      genIndexHtml spec
+      genIndexHtml spec,
+      genViteConfig spec
     ]
     <++> genSrcDir spec
     <++> return extClientCodeFileDrafts
@@ -322,3 +322,9 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
     shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
     tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]
+
+genViteConfig :: AppSpec -> Generator FileDraft
+genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = C.asTmplFile [relfile|vite.config.ts|]
+    tmplData = object ["isCustomViteConfigUsed" .= AS.isCustomViteConfigUsed spec]

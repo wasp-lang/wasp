@@ -17,6 +17,7 @@ import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator.ConfigFile as G.CF
+import qualified Wasp.Generator.WebAppGenerator.Vite as G.Vite
 import Wasp.Project.Common (CompileError, WaspProjectDir)
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
@@ -63,6 +64,8 @@ constructAppSpec waspDir options decls = do
   let devDbUrl = makeDevDatabaseUrl waspDir decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
+
+  let isCustomViteConfigUsed = G.Vite.checkIfCustomViteConfigUsed externalClientCodeFiles
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
@@ -76,7 +79,8 @@ constructAppSpec waspDir options decls = do
             AS.isBuild = CompileOptions.isBuild options,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
-            AS.devDatabaseUrl = devDbUrl
+            AS.devDatabaseUrl = devDbUrl,
+            isCustomViteConfigUsed = isCustomViteConfigUsed
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec

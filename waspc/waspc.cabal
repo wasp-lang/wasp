@@ -307,6 +307,7 @@ library
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WebAppGenerator.CrudG
+    Wasp.Generator.WebAppGenerator.Vite
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
     Wasp.NodePackageFFI

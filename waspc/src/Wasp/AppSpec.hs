@@ -75,7 +75,8 @@ data AppSpec = AppSpec
     configFiles :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
-    devDatabaseUrl :: Maybe String
+    devDatabaseUrl :: Maybe String,
+    isCustomViteConfigUsed :: Bool
   }
 
 -- TODO: Make this return "Named" declarations?
