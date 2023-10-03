@@ -30,6 +30,7 @@ app waspAi {
     ("@visx/responsive", "3.0.0"),
     ("@visx/gradient", "3.0.0"),
     ("@visx/axis", "3.2.0"),
+    ("js-confetti", "0.11.0")
   ],
   client: {
     rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
@@ -41,13 +42,17 @@ app waspAi {
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
+      gitHub: {
+        configFn: import { getGitHubAuthConfig } from "@server/auth.js",
+        getUserFieldsFn: import { getGitHubUserFields } from "@server/auth.js",
+      },
       google: {
         configFn: import { getGoogleAuthConfig } from "@server/auth.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
-      }
+        getUserFieldsFn: import { getGoogleUserFields } from "@server/auth.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/stats"
+    onAuthSucceededRedirectTo: "/"
   }
 }
 
@@ -115,6 +120,13 @@ query getStats {
   ]
 }
 
+query getNumProjects {
+  fn: import { getNumProjects } from "@server/operations.js",
+  entities: [
+    Project
+  ]
+}
+
 entity User {=psl
   id Int @id @default(autoincrement())
 
@@ -131,6 +143,7 @@ entity SocialLogin {=psl
 
   userId Int
   user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 psl=}
 
 entity Project {=psl

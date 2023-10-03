@@ -22,13 +22,19 @@ import {
   PiLaptopDuotone,
   PiDownloadDuotone,
   PiCheckDuotone,
-  PiChatBold
-} from "react-icons/pi";
+  PiGithubLogoDuotone,
+  PiStarDuotone,
+} from 'react-icons/pi';
 import { RxQuestionMarkCircled } from "react-icons/rx";
+import JSConfetti from 'js-confetti';
+import getNumProjects from "@wasp/queries/getNumProjects";
+
+const jsConfetti = new JSConfetti();
 
 export const ResultPage = () => {
   const { appId } = useParams();
   const [generationDone, setGenerationDone] = useState(false);
+  const [isStarRepoOpen, setIsStarRepoOpen] = useState(false);
   const {
     data: appGenerationResult,
     isError,
@@ -65,6 +71,12 @@ export const ResultPage = () => {
   useEffect(() => {
     setGenerationDone(false);
   }, [appId]);
+
+  useEffect(() => {
+    if (currentStatus.status === "success") {
+      setIsStarRepoOpen(true);
+    }
+  }, [currentStatus])
 
   const logs = appGenerationResult?.project?.logs.map((log) => log.content);
 
@@ -205,6 +217,7 @@ export const ResultPage = () => {
         currentStatus={currentStatus}
         isStatusVisible={!!appGenerationResult?.project}
       />
+      <StarOurRepoModal isStarRepoOpen={isStarRepoOpen} setIsStarRepoOpen={setIsStarRepoOpen} appGenerationResult={appGenerationResult}/>
 
       {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
@@ -392,6 +405,87 @@ function getCardinalNumber(number) {
     return `${number}th`;
   }
 }
+
+export function StarOurRepoModal({ isStarRepoOpen, setIsStarRepoOpen, appGenerationResult }) {
+  const [tokens, setTokens] = useState(0)
+  const { data: numTotalProjects } = useQuery(getNumProjects, {}, { enabled: isStarRepoOpen })
+
+  const tokenNumberStr = appGenerationResult?.project?.logs?.filter(log => log.content.toLowerCase().includes("tokens usage") === true)[0]?.content.split(':')[1]?.trim()
+
+  useEffect(() => {
+    if (!!tokenNumberStr) {
+      const num = tokenNumberStr.slice(1, -1) * 1000
+      setTokens(num)
+    }
+  }, [tokenNumberStr])
+
+  useEffect(() => {
+    if (isStarRepoOpen) {
+      jsConfetti.addConfetti({
+        emojis: ['🐝'],
+        emojiSize: 120,
+      })
+    }
+  }, [isStarRepoOpen])
+  return (
+    <MyDialog isOpen={isStarRepoOpen} onClose={() => setIsStarRepoOpen(false)} title={<span>Your App is Ready! 🎉</span>}>
+      <div className="mt-6 space-y-5">
+        <p className="text-base leading-relaxed text-gray-500">
+          We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
+        </p>
+        <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
+          {/* <caption>Fun Stats</caption> */}
+          <tr>
+            <td className="p-2 text-gray-600"> Number of tokens your app used: </td>
+            <td className="p-2 text-gray-600">
+              {" "}
+              <FormattedText>{tokens.toLocaleString(2) ?? "~22k"}</FormattedText>{" "}
+            </td>
+          </tr>
+          <tr>
+            <td className="p-2 text-gray-600"> Cost to generate your app: </td>
+            <td className="p-2 text-gray-600">
+              {" "}
+              <FormattedText>{tokens ? `$${((tokens / 1000) * 0.004).toFixed(2)}` : "~ $0.50"}</FormattedText>{" "}
+            </td>
+          </tr>
+          {numTotalProjects && (
+            <tr className="p-2 text-gray-600">
+              <td className="p-2 text-gray-600"> Total number of apps generated with Mage: </td>
+              <td className="p-2 text-gray-600">
+                {" "}
+                <FormattedText>{numTotalProjects.toLocaleString()}</FormattedText>{" "}
+              </td>
+            </tr>
+          )}
+        </table>
+        <p className="text-base leading-relaxed text-gray-500">
+          But you can still show your support by starring us on GitHub:
+        </p>
+        <a
+          href="https://github.com/wasp-lang/wasp"
+          target="_blank"
+          className="flex items-center justify-center underline text-pink-600 "
+        >
+          <div className="py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
+            <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on GitHub{" "}
+            <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
+          </div>
+        </a>
+        <p className="text-base leading-relaxed text-gray-500">
+          This helps spread the word, so we can keep making Mage better.
+        </p>
+        <p className="text-base leading-relaxed text-gray-500">We'd very much appreciate it! 🧙</p>
+      </div>
+    </MyDialog>
+  )
+}
+
+function FormattedText({ children }) {
+  return (
+    <span className='py-1 px-2 font-semibold text-pink-800 rounded'>{children}</span>
+  )
+} 
 
 export default function RunTheAppModal({ disabled, onDownloadZip }) {
   const [showModal, setShowModal] = useState(false);

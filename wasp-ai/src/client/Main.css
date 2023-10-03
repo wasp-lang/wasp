@@ -18,6 +18,9 @@ body {
 .button.light-blue {
   @apply bg-sky-200 text-sky-600 hover:bg-sky-100
 }
+.button.amber{
+  @apply bg-amber-400 text-slate-900 hover:bg-amber-300
+}
 .button.sm {
   @apply text-sm py-2 px-4;
 }
