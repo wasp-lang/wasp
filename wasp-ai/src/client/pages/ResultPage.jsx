@@ -421,7 +421,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     const logText = appGenerationResult?.project?.logs?.find((log) => /tokens usage/i.test(log.content))?.content;
     const tokenNumberStr = logText ? logText.split(":")[1]?.trim() : null;
     if (tokenNumberStr) {
-      const num =  Number(tokenNumberStr.replace(/[\s~k]/gi, '')) * 1000;
+      const num =  parseInt(tokenNumberStr.replace(/[\s~k]/gi, '')) * 1000;
       if (num.toString().match(/^[0-9]+$/)) {
         setNumTokensSpent(num);
       } 
@@ -447,7 +447,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
         <p className="text-base leading-relaxed text-gray-500">
           We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
         </p>
-        {numTokensSpent && (
+        {numTokensSpent ? (
           <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
             <tbody>
               <tr>
@@ -477,7 +477,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
               )}
             </tbody>
           </table>
-        )}
+        ) : null}
         <p className="text-base leading-relaxed text-gray-500">
           But you can still show your support by starring us on GitHub:
         </p>
