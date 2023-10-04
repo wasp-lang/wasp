@@ -42,10 +42,6 @@ app waspAi {
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
-      gitHub: {
-        configFn: import { getGitHubAuthConfig } from "@server/auth.js",
-        getUserFieldsFn: import { getGitHubUserFields } from "@server/auth.js",
-      },
       google: {
         configFn: import { getGoogleAuthConfig } from "@server/auth.js",
         getUserFieldsFn: import { getGoogleUserFields } from "@server/auth.js",

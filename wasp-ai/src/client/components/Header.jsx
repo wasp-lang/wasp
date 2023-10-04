@@ -12,3 +12,4 @@ export function Header({ currentStatus, isStatusVisible }) {
       )}
     </div>
   );
+}
