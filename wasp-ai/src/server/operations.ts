@@ -225,9 +225,7 @@ export const getStats = (async (_args, context) => {
 }) satisfies GetStats<{}>;
 
 export const getNumProjects = (async (_args, context) => {
-  const { Project } = context.entities;
-  const numProjects = await Project.count();
-  return numProjects;
+  return context.entities.Project.count();
 }) satisfies GetNumProjects<{}>;
 
 function getDownloadStats(projects: Project[]) {

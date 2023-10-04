@@ -13,19 +13,3 @@ export const getGoogleAuthConfig = () => {
     scope: ["profile", "email"],
   };
 };
-
-
-export const getGitHubUserFields: GetUserFieldsFn = async (_context, args) => {
-  // NOTE: if we don't want to access users' emails, we can use scope ["user:read"]
-  // instead of ["user"] and access args.profile.username instead
-  const email = args.profile.emails[0].value;
-  return { email };
-};
-
-export function getGitHubAuthConfig() {
-  return {
-    clientID: process.env.GITHUB_CLIENT_ID, // look up from env or elsewhere
-    clientSecret: process.env.GITHUB_CLIENT_SECRET, // look up from env or elsewhere
-    scope: ["user"],
-  };
-}
