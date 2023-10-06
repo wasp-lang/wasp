@@ -9,6 +9,7 @@ where
 import Data.Aeson (object, (.=))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import Data.Maybe (fromJust)
 import StrongPath
   ( Dir,
     File',
@@ -20,6 +21,7 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.App (App (webSocket))
@@ -28,6 +30,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
@@ -36,6 +39,7 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
+import qualified Wasp.Generator.ExternalCodeGenerator.Common as ECC
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.JsImport (jsImportToImportJson)
@@ -48,12 +52,17 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
+import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as EC
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.Generator.WebSocket as AS.WS
+import Wasp.JsImport
+  ( JsImport,
+    JsImportName (JsImportModule),
+    makeJsImport,
+  )
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Vite (makeCustomViteConfigJsImport)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -331,3 +340,15 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
     tmplFile = C.asTmplFile [relfile|vite.config.ts|]
     tmplData =
       object ["customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec)]
+
+    makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport
+    makeCustomViteConfigJsImport pathToConfig = makeJsImport importPath importName
+      where
+        importPath = C.toViteImportPath $ fromJust $ SP.relFileToPosix pathToConfigInSrc
+        pathToConfigInSrc =
+          SP.castRel $
+            C.webAppSrcDirInWebAppRootDir
+              </> EC.extClientCodeDirInWebAppSrcDir
+              </> ECC.castRelPathFromSrcToGenExtCodeDir pathToConfig
+
+        importName = JsImportModule "customViteConfig"
