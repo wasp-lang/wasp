@@ -38,6 +38,7 @@ import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
@@ -52,6 +53,7 @@ import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Project.Vite (makeCustomViteConfigJsImport)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -327,4 +329,5 @@ genViteConfig :: AppSpec -> Generator FileDraft
 genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = C.asTmplFile [relfile|vite.config.ts|]
-    tmplData = object ["isCustomViteConfigUsed" .= AS.isCustomViteConfigUsed spec]
+    tmplData =
+      object ["customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec)]

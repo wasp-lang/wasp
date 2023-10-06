@@ -311,6 +311,7 @@ spec_AppSpecValid = do
           AS.userDockerfileContents = Nothing,
           AS.configFiles = [],
           AS.devDatabaseUrl = Nothing
+          AS.customViteConfigPath = Nothing
         }
 
     basicPage =

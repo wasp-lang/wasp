@@ -3,12 +3,13 @@
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
-{=# isCustomViteConfigUsed =}
-import _waspUserProvidedConfig from "./src/ext-src/vite.config";
-{=/ isCustomViteConfigUsed =}
-{=^ isCustomViteConfigUsed =}
+{=# customViteConfig.isDefined =}
+{=& customViteConfig.importStatement =}
+const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
+{=/ customViteConfig.isDefined =}
+{=^ customViteConfig.isDefined =}
 const _waspUserProvidedConfig = {};
-{=/ isCustomViteConfigUsed =}
+{=/ customViteConfig.isDefined =}
 
 const defaultViteConfig = {
   plugins: [react()],
