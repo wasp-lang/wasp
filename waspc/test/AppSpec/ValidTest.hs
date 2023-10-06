@@ -310,7 +310,7 @@ spec_AppSpecValid = do
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.configFiles = [],
-          AS.devDatabaseUrl = Nothing
+          AS.devDatabaseUrl = Nothing,
           AS.customViteConfigPath = Nothing
         }
 
