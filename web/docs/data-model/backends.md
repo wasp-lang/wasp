@@ -304,7 +304,7 @@ fly proxy stop 5432
 
 ---
 
-You can paste this information directly into your GitHub documentation for your project.
+
      ```
 
 :::tip
