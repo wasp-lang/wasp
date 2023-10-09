@@ -373,6 +373,13 @@
     [
         [
             "file",
+            "web-app/src/ext-src/vite.config.ts"
+        ],
+        "797dfb8022557b5ce5ce856daca01911974497f9ccf656f5920e5b42a986f4f8"
+    ],
+    [
+        [
+            "file",
             "web-app/src/ext-src/waspLogo.png"
         ],
         "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
@@ -557,6 +564,6 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "9ce7a02885972b7b3359e774d6e0f9067481ef03227a5aec284f894c59d4b03a"
+        "ba22ae0b9027a2a4d3cd2689e9a9e1caff526b96dfab5e7f0f58f194dff830d9"
     ]
 ]

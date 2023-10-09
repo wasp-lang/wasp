@@ -118,6 +118,7 @@ waspComplexTest/.wasp/out/web-app/src/ext-src/Main.css
 waspComplexTest/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/web-app/src/ext-src/myClientSetupCode.js
 waspComplexTest/.wasp/out/web-app/src/ext-src/vite-env.d.ts
+waspComplexTest/.wasp/out/web-app/src/ext-src/vite.config.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspComplexTest/.wasp/out/web-app/src/index.tsx
 waspComplexTest/.wasp/out/web-app/src/logo.png
@@ -156,6 +157,7 @@ waspComplexTest/src/client/MainPage.jsx
 waspComplexTest/src/client/myClientSetupCode.js
 waspComplexTest/src/client/tsconfig.json
 waspComplexTest/src/client/vite-env.d.ts
+waspComplexTest/src/client/vite.config.ts
 waspComplexTest/src/client/waspLogo.png
 waspComplexTest/src/server/actions/bar.js
 waspComplexTest/src/server/apiNamespaces.ts

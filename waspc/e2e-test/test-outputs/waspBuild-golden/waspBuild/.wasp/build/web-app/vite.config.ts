@@ -2,7 +2,8 @@
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
-const _waspUserProvidedConfig = {};
+import customViteConfig from './src/ext-src/vite.config'
+const _waspUserProvidedConfig = customViteConfig
 
 const defaultViteConfig = {
   plugins: [react()],
