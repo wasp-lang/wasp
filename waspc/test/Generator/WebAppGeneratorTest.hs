@@ -55,7 +55,8 @@ spec_WebAppGenerator = do
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
             AS.configFiles = [],
-            AS.devDatabaseUrl = Nothing
+            AS.devDatabaseUrl = Nothing,
+            AS.customViteConfigPath = Nothing
           }
 
   describe "genWebApp" $ do

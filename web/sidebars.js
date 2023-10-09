@@ -84,6 +84,7 @@ module.exports = {
         'project/testing',
         'project/dependencies',
         'project/css-frameworks',
+        'project/custom-vite-config',
       ],
     },
     {

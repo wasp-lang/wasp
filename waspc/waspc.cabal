@@ -320,6 +320,7 @@ library
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.WebApp
+    Wasp.Project.Vite
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
