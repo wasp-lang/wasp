@@ -13,6 +13,8 @@ Vite config customization can be useful for things like:
 - Customising the dev server.
 - Customising the build process.
 
+Be careful with making changes to the Vite config, as it can break the Wasp's client build process. Check out the default Vite config [here](https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/react-app/vite.config.ts) to see what you can change.
+
 ## Examples
 
 Below are some examples of how you can customize the Vite config.
