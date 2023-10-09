@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.11.6
+
+### 🎉 [New Feature] Enable Customising the Vite Config
+
+You can now customise the Vite config for your client app. This allows you to add plugins, change the dev server settings and more.
+
+By adding a `vite.config.ts` or `vite.config.js` to your `client` directory, you can customise the Vite config. For example, you change the dev server behaviour
+not to open the browser automatically:
+
+```ts
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  server: {
+    open: false,
+  },
+})
+```
+
+⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+
 ## 0.11.5
 
 ### 🐞 Bug fixes / 🔧 small improvements
