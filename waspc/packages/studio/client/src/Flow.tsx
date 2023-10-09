@@ -63,8 +63,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     },
     children: nodes.map((node: Node) => ({
       ...node,
-      // Hardcode a width and height for elk to use when layouting.
-      width: Math.max(150, node.data?.label?.length * 13),
+      // Guess the width and height of the node based on the label.
+      width: getNodeWidth(node),
       height: getNodeHeight(node),
     })),
     edges: edges,
@@ -94,7 +94,6 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 export default function Flow({ data }: { data: Data }) {
-  // const { isOpen, onClose } = useDisclosure();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const [nodes, setNodes] = useNodesState([]);
@@ -103,7 +102,6 @@ export default function Flow({ data }: { data: Data }) {
   const nodeTypes = useMemo(
     () => ({
       pageNode: PageNode,
-      // operationNode: OperationNode,
       entityNode: EntityNode,
       queryNode: QueryNode,
       actionNode: ActionNode,
@@ -175,14 +173,6 @@ export default function Flow({ data }: { data: Data }) {
       ...data.jobs.map((job) =>
         createJobNode(generateId(job.name, "job"), job.name, job, selectedNode)
       ),
-      // {
-      //   id: "operations",
-      //   type: "group",
-      //   data: {
-      //     label: "Operations",
-      //   },
-      //   position: { x: 0, y: 0 },
-      // },
     ];
 
     const initialEdges: Edge[] = [
@@ -271,15 +261,6 @@ export default function Flow({ data }: { data: Data }) {
     }, 100);
   }, [fitView, selectedNode]);
 
-  // const onNodesChange: OnNodesChange = useCallback(
-  //   (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-  //   []
-  // );
-  // const onEdgesChange: OnEdgesChange = useCallback(
-  //   (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-  //   []
-  // );
-
   useEffect(() => {
     fitView();
   }, [fitView]);
@@ -297,7 +278,6 @@ export default function Flow({ data }: { data: Data }) {
             return;
           }
           setSelectedNode(node);
-          // onOpen();
         }}
         elevateNodesOnSelect={true}
       >
@@ -307,27 +287,7 @@ export default function Flow({ data }: { data: Data }) {
           }}
           color={`#444`}
         />
-        {/* <Controls /> */}
       </ReactFlow>
-
-      {/* <Modal size="lg" isOpen={isOpen} onClose={onClose}>
-        <ModalContent>
-          {() => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                {selectedNode?.data?.label}
-              </ModalHeader>
-              <ModalBody>
-                <pre>
-                  {JSON.stringify(selectedNode?.data, null, 2) || "No data"}
-                </pre>
-              </ModalBody>
-              <ModalFooter>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal> */}
     </div>
   );
 }
@@ -340,9 +300,28 @@ function getNodeHeight(node: Node) {
     return 100;
   }
   if (node.type === "appNode") {
-    return 100;
+    const authMethods = node.data.auth?.methods ?? [];
+    return 100 + authMethods.length * 50;
   }
   return 50;
+}
+
+function getNodeWidth(node: Node) {
+  const textCandidates = [
+    node.data?.label,
+    node.data?.name,
+    node.data?.path,
+    node.data?.schedule,
+    // Auth methods
+    ...(node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ??
+      []),
+  ]
+    .filter(Boolean)
+    .map((text) => text.length);
+
+  const longestText = Math.max(...textCandidates);
+  const width = Math.max(150, longestText * 10 + 40);
+  return width;
 }
 
 function generateId(name: string, type: string): string {

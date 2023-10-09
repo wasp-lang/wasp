@@ -11,15 +11,12 @@ function getUrlFromRelativePathToCwd(path: string) {
 }
 
 const program = new Command();
-// Parse --file option
 program
   .requiredOption("-d, --data-file <path>", "Path to data file")
-  // .requiredOption("-p, --public-dir <path>", "Path to the public folder")
   .parse(process.argv);
 
 const options = program.opts<{
   dataFile: string;
-  // publicDir: string;
 }>();
 
 const fastify = Fastify({
@@ -37,8 +34,7 @@ fastify.register(cors, {
 fastify.register(FastifyStatic, {
   root: new URL("./public", import.meta.url).pathname,
 });
-2;
-// const pathToDataFile = new URL(options.file, import.meta.url);
+
 const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);
 function readFile() {
   return fs.readFileSync(pathToDataFile, "utf8");

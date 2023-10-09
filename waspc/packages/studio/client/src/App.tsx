@@ -1,29 +1,20 @@
-import { useState, useEffect, lazy, Suspense } from "react";
-import { Navbar, NavbarBrand } from "@nextui-org/react";
+import { lazy, Suspense } from "react";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+} from "@nextui-org/react";
 import "reactflow/dist/style.css";
 
 import logo from "./assets/logo.png";
 
-import { socket } from "./socket";
-import { Data } from "./types";
-// import { Flow } from "./Flow";
+import { useSocket } from "./socket";
 
 const Flow = lazy(() => import("./Flow"));
 
 export default function App() {
-  const [data, setData] = useState<Data | null>(null);
-
-  function onData(data: string) {
-    console.log("data", data);
-    setData(JSON.parse(data) as Data);
-  }
-
-  useEffect(() => {
-    socket.on("data", onData);
-    return () => {
-      socket.off("data", onData);
-    };
-  }, []);
+  const { data, isConnected } = useSocket();
 
   return (
     <div className="h-full">
@@ -32,34 +23,23 @@ export default function App() {
           <img src={logo} alt="logo" className="w-8 h-8" />
           <p className="font-bold text-inherit ml-4">{data?.app.name}</p>
         </NavbarBrand>
-        {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
+        <NavbarContent justify="end">
           <NavbarItem>
-            <Link color="foreground" href="#">
-              Features
-            </Link>
+            <div className="text-sm p-2 w-35">
+              {isConnected ? (
+                /* Green dot */ <span className="flex items-center">
+                  Connected
+                  <span className="w-2 h-2 bg-green-500 rounded-full inline-block ml-2"></span>
+                </span>
+              ) : (
+                /* Red dot */ <span className="flex items-center">
+                  Connecting
+                  <span className="w-2 h-2 bg-yellow-500 rounded-full inline-block ml-2"></span>
+                </span>
+              )}
+            </div>
           </NavbarItem>
-          <NavbarItem isActive>
-            <Link href="#" aria-current="page">
-              Customers
-            </Link>
-          </NavbarItem>
-          <NavbarItem>
-            <Link color="foreground" href="#">
-              Integrations
-            </Link>
-          </NavbarItem>
-        </NavbarContent> */}
-        {/* <NavbarContent justify="end">
-          <NavbarItem>
-            <Button
-              onClick={() => window.close()}
-              color="primary"
-              variant="flat"
-            >
-              Reset View
-            </Button>
-          </NavbarItem>
-        </NavbarContent> */}
+        </NavbarContent>
       </Navbar>
       <div className="flow-container">
         <Suspense fallback={<Loading />}>

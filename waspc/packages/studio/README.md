@@ -1,29 +1,44 @@
-# Typescript Starter
+# Wasp Studio
 
-Use this starter to create a new Typescript project.
+Wasp Studio has two components:
+- the server
+- the client
 
-It uses:
-- Typescript 5
-- SWC for compiling
-- `ts-node` for running
-- `nodemon` for watching and restarting
+To develop the studio, you need to run both of them. First, run the server, then the client.
 
-Run the following commands to get started:
+### Server
+
+Install dependencies:
 
 ```bash
-npx giget gh:infomiho/typescript-starter my-project
-cd my-project
 npm install
 ```
 
-## Running in dev
-    
+Running the server for some data file:
+
+```bash
+npm run dev -- -- -d <path_to_data_file>
+```
+
+For example, running the server with the data file from the `examples` directory:
+
+```bash
+npm run dev -- -- -d ../../examples/crud-testing/.wasp/out/.wasp-studio-data.json
+```
+
+### Client
+
+Install dependencies:
+
+```bash
+cd client
+npm install
+```
+
+Running the client:
+
 ```bash
 npm run dev
 ```
 
-## Running in production
-
-```bash
-npm run start
-```
+Then open `http://localhost:5173` in your browser.
