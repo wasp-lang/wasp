@@ -1,7 +1,9 @@
-name: CI
+name: WASPC-CI
 
 on:
   push:
+    paths:
+      - "waspc/**"
     branches:
       - main
       - release
