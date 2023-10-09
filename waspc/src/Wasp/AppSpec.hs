@@ -37,6 +37,7 @@ import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
@@ -78,7 +79,8 @@ data AppSpec = AppSpec
     configFiles :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
-    devDatabaseUrl :: Maybe String
+    devDatabaseUrl :: Maybe String,
+    customViteConfigPath :: Maybe (Path' (Rel SourceExternalCodeDir) File')
   }
 
 -- TODO: Make this return "Named" declarations?
