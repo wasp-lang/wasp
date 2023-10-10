@@ -28,6 +28,13 @@ export const PageNode = ({
         />
       </svg>
     </div>
-    <div className="font-bold">{data?.label}</div>
+    <div className="font-bold">
+      {data?.label}
+      {data.authRequired ? (
+        <span className="ml-1" role="img" aria-label="Auth Required">
+          🔒
+        </span>
+      ) : null}
+    </div>
   </div>
 );

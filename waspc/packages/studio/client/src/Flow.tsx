@@ -292,8 +292,7 @@ function getNodeWidth(node: Node) {
     node.data?.path,
     node.data?.schedule,
     // Auth methods
-    ...(node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ??
-      []),
+    ...getAuthMethods(node),
   ]
     .filter(Boolean)
     .map((text) => text.length);
@@ -305,4 +304,13 @@ function getNodeWidth(node: Node) {
 
 function generateId(name: string, type: string): string {
   return `${type}:${name}`;
+}
+
+function getAuthMethods(node: Node) {
+  if (node.type !== "appNode") {
+    return [];
+  }
+  return (
+    node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ?? []
+  );
 }

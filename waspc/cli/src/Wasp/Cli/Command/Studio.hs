@@ -30,6 +30,8 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Project.Studio
+import qualified Wasp.Message as Msg
+import Wasp.Cli.Command.Message (cliSendMessageC)
 
 studio :: Command ()
 studio = do
@@ -129,18 +131,26 @@ studio = do
     Dir.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent waspStudioDataJsonFilePath
     BSL.writeFile (SP.fromAbsFile waspStudioDataJsonFilePath) (encodePretty appInfoJson)
 
+  cliSendMessageC . Msg.Info $
+    unlines
+      [ "✨ Starting Wasp Studio ✨",
+        "",
+        "➜ Open in your browser: http://localhost:4000",
+        "",
+        "Wasp Studio visualises your app and lets you understand how different parts of your app are connected."
+      ]
+
   result <- liftIO $ do
     Wasp.Project.Studio.startStudio $ SP.toFilePath waspStudioDataJsonFilePath
 
   either (throwError . CommandError "Studio command failed") return result
   where
     getLinkedEntitiesData spec entityRefs =
-      ( map
-          ( \(entityName, _entity) ->
-              object ["name" .= entityName]
-          )
-          $ resolveEntities spec entityRefs
-      )
+      map
+        ( \(entityName, _entity) ->
+            object ["name" .= entityName]
+        )
+        $ resolveEntities spec entityRefs
 
     resolveEntities spec entityRefs =
       AS.resolveRef spec <$> fromMaybe [] entityRefs
