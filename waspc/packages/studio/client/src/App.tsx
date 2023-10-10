@@ -7,9 +7,8 @@ import {
 } from "@nextui-org/react";
 import "reactflow/dist/style.css";
 
-import logo from "./assets/logo.png";
-
 import { useSocket } from "./socket";
+import { Logo } from "./Logo";
 
 const Flow = lazy(() => import("./Flow"));
 
@@ -20,7 +19,7 @@ export default function App() {
     <div className="h-full">
       <Navbar position="static">
         <NavbarBrand>
-          <img src={logo} alt="logo" className="w-8 h-8" />
+          <Logo className="w-8 h-8" />
           <p className="font-bold text-inherit ml-4">{data?.app.name}</p>
         </NavbarBrand>
         <NavbarContent justify="end">

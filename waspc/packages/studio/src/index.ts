@@ -51,6 +51,7 @@ fastify.ready((err) => {
   fastify.io.on("connection", (socket) => {
     console.log("Client connected");
     socket.emit("data", data);
+
     socket.on("disconnect", () => {
       console.log("Client disconnected");
     });

@@ -21,9 +21,7 @@ export function createPageNode(
     type: "pageNode",
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
-    // sourcePosition: Position.Right,
     targetPosition: Position.Left,
-    // type: "input",
     selected: selectedNode?.id === id,
   } satisfies Node;
 }
@@ -39,7 +37,6 @@ export function createActionNode(
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
-    // targetPosition: Position.Left,
     type: "actionNode",
     selected: selectedNode?.id === id,
   } satisfies Node;
@@ -56,7 +53,6 @@ export function createQueryNode(
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
-    // targetPosition: Position.Left,
     type: "queryNode",
     selected: selectedNode?.id === id,
   } satisfies Node;
@@ -94,9 +90,6 @@ export function createEntityNode(
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-    // style: {
-    //   backgroundColor: `#fde047`,
-    // },
   } satisfies Node;
 }
 

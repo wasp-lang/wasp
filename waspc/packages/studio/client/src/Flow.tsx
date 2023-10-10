@@ -63,7 +63,6 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     },
     children: nodes.map((node: Node) => ({
       ...node,
-      // Guess the width and height of the node based on the label.
       width: getNodeWidth(node),
       height: getNodeHeight(node),
     })),
@@ -81,8 +80,6 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
         return {
           nodes: layoutedGraph.children.map((node) => ({
             ...node,
-            // React Flow expects a position property on the node instead of `x`
-            // and `y` fields.
             position: { x: node.x, y: node.y },
           })),
 
@@ -94,7 +91,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 export default function Flow({ data }: { data: Data }) {
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  // NOTE: This is not used. But it might be useful in the future.
+  const [selectedNode] = useState<Node | null>(null);
 
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -227,13 +225,7 @@ export default function Flow({ data }: { data: Data }) {
       ),
     ];
 
-    const [filteredNodes, filteredEdges] = filterNodesAndEdges(
-      initialNodes,
-      initialEdges,
-      selectedNode
-    );
-
-    getLayoutedElements(filteredNodes, filteredEdges).then((result) => {
+    getLayoutedElements(initialNodes, initialEdges).then((result) => {
       if (!result) {
         return;
       }
@@ -267,20 +259,7 @@ export default function Flow({ data }: { data: Data }) {
 
   return (
     <div style={{ height: "100%" }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        fitView
-        nodeTypes={nodeTypes}
-        onNodeClick={(_event, node) => {
-          if (node.id === selectedNode?.id) {
-            setSelectedNode(null);
-            return;
-          }
-          setSelectedNode(node);
-        }}
-        elevateNodesOnSelect={true}
-      >
+      <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
         <Background
           style={{
             backgroundColor: `hsl(var(--nextui-background)`,
@@ -326,37 +305,4 @@ function getNodeWidth(node: Node) {
 
 function generateId(name: string, type: string): string {
   return `${type}:${name}`;
-}
-
-function filterNodesAndEdges(
-  nodes: Node[],
-  edges: Edge[],
-  selectedNode: Node | null
-): [Node[], Edge[]] {
-  if (!selectedNode) {
-    return [nodes, edges];
-  }
-
-  // Filter out only the nodes and edges that are reachable from the selected
-  // node.
-
-  const reachableNodes = new Set<string>();
-  const reachableEdges = new Set<string>();
-
-  const queue = [selectedNode.id];
-  while (queue.length > 0) {
-    const nodeId = queue.shift()!;
-    reachableNodes.add(nodeId);
-    edges.forEach((edge) => {
-      if (edge.source === nodeId) {
-        reachableEdges.add(edge.id);
-        queue.push(edge.target);
-      }
-    });
-  }
-
-  const filteredNodes = nodes.filter((node) => reachableNodes.has(node.id));
-  const filteredEdges = edges.filter((edge) => reachableEdges.has(edge.id));
-
-  return [filteredNodes, filteredEdges];
 }
