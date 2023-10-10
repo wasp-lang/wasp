@@ -215,12 +215,9 @@ export const getStats = (async (_args, context) => {
     },
   });
 
-  const downloadStats = getDownloadStats(projects);
-
   return {
     projects,
     latestProjectsWithLogs,
-    downloadStats,
   };
 }) satisfies GetStats<{}>;
 
@@ -229,20 +226,3 @@ export const getNumProjects = (async (_args, context) => {
   const numProjects = await Project.count();
   return numProjects;
 }) satisfies GetNumProjects<{}>;
-
-function getDownloadStats(projects: Project[]) {
-  const projectsAfterDownloadTracking = projects.filter(
-    (project) =>
-      // This is the time of the first recorded download (after we rolled out download tracking).
-      project.createdAt > new Date("2023-07-14 10:36:45.12") &&
-      project.status === "success"
-  );
-  const downloadedProjects = projectsAfterDownloadTracking.filter(
-    (project) => project.zipDownloadedAt !== null
-  );
-  return {
-    projectsDownloaded: downloadedProjects.length,
-    downloadRatio:
-      downloadedProjects.length / projectsAfterDownloadTracking.length,
-  };
-}
