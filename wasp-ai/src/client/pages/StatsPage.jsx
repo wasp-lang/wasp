@@ -68,7 +68,7 @@ export function Stats() {
   }, [stats, stats?.projects, filterOutExampleApps, filterOutKnownUsers]);
 
   const limitedFilteredProjects = useMemo(() => {
-    return filteredStats.slice(0, 1000);
+    return filteredProjects.slice(0, 1000);
   }, [filteredProjects]);
 
   if (isLoading) {
@@ -252,8 +252,8 @@ export function Stats() {
                         {format(project.createdAt)}
                       </td>
                       <td className="px-6 py-4">
-                        {getWaitingInQueueDuration(project)} &rarr;{" "}
-                        {getDuration(project)}
+                        {getWaitingInQueueDuration(project, logsByProjectId)}{" "}
+                        &rarr; {getDuration(project, logsByProjectId)}
                       </td>
                       <td
                         className={`px-6 py-4 creativity-${project.creativityLevel}`}
