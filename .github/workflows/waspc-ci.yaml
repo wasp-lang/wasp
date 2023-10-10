@@ -7,7 +7,9 @@ on:
     branches:
       - main
       - release
-  pull_request: { }
+  pull_request:
+    paths:
+      - "waspc/**"
   create: { tags: [v*] }
   schedule:
     # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
