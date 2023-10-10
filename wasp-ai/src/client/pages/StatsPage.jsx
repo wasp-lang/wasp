@@ -298,7 +298,9 @@ function getDownloadStats(projects) {
   return {
     projectsDownloaded: downloadedProjects.length,
     downloadRatio:
-      downloadedProjects.length / projectsAfterDownloadTracking.length,
+      projectsAfterDownloadTracking.length > 0
+        ? downloadedProjects.length / projectsAfterDownloadTracking.length
+        : 0,
   };
 }
 
