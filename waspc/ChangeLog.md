@@ -21,6 +21,10 @@ export default defineConfig({
 
 ⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
 
+### 🚧 [Experimental Feature] Wasp Studio
+
+Running `wasp studio` in the root of your project starts Wasp Studio which visualises your application and shows you the relationships between pieces of your app. It is an experimental feature which is not yet fully ready, but we are working on it and will be adding more features to it in the future.
+
 ## 0.11.5
 
 ### 🐞 Bug fixes / 🔧 small improvements
