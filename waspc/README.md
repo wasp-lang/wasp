@@ -11,17 +11,17 @@ If you would like to make your first contribution, here is a handy checklist we 
 - [ ] Read [Quick overview](#quick-overview).
 - [ ] Compile the project successfully and get todoApp example running (follow [Basics](#basics)).
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
-- [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediatelly propose a plan of action and ask questions.
+- [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediately propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find smth for you together.
 - [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) and [Branching and merging strategy](#branching-and-merging-strategy) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
 
 
 ## Quick overview
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
+Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles its own code into them.
 
 You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
 
-Main result of building the project is `wasp` executable (also reffered to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
+Main result of building the project is `wasp` executable (also referred to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
 
 `wasp` executable takes `.wasp` files and `ext/` dir as input and generates a web app from them.
 
@@ -95,9 +95,9 @@ cabal run wasp-cli start
 ```
 to run web app in development mode.
 
-If you are doing this for the very first time, it might take a minutes or so to download and install npm dependencies.
+If you are doing this for the very first time, it might take a minute or so to download and install npm dependencies.
 
-When done, new tab in your browser should open and you will see a Todo App!
+When done, a new tab in your browser should open and you will see a Todo App!
 NOTE: Reload page if blank.
 
 
@@ -108,7 +108,7 @@ NOTE: Reload page if blank.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
+4. If you did a bug fix, added a new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
 5. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
 6. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
@@ -145,10 +145,10 @@ Wasp compiler code is split into 2 basic layers: Analyzer (frontend) and Generat
 Wasp file(s) are analyzed by Analyzer, where they are first parsed, then typechecked, and then evaluated into a central IR (Intermediate Representation), which is `AppSpec` (`src/Wasp/AppSpec.hs`).
 Check `src/Wasp/Analyzer.hs` for more details.
 
-AppSpec is passed to the Generator, which based on it decides how to generate a web app.
+AppSpec is passed to the Generator, which decides how to generate a web app.
 Output of Generator is a list of FileDrafts, where each FileDraft explains how to create a file on the disk.
 Therefore, Generator doesn't generate anything itself, instead it provides instructions (FileDrafts) on how to generate the web app.
-FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`).
+FileDrafts use mustache templates a lot (they can be found in `data/Generator/templates`).
 
 Generator is split into three generators, for the three main parts of the web app: WebAppGenerator, ServerGenerator and DbGenerator.
 
@@ -221,7 +221,7 @@ Cool thing is that we can organize tests this way however we want and also mix d
 
 Tests are normally split in files of course, so we need to import those all the way up to the main test file, however we organize our test groups/trees.
 
-In order to avoid need for manual organization and importing of test files described above, we are using [tasty-discover](https://hackage.haskell.org/package/tasty-discover) which does this for us.
+In order to avoid the need for manual organization and importing of test files described above, we are using [tasty-discover](https://hackage.haskell.org/package/tasty-discover) which does this for us.
 It automatically detects files containing tests and organizes them for us into a test tree (and also takes care of importing).
 This means we only need to create a file, write tests in it and that is it.
 Test functions however do need to be prefixed with special prefix to indicate which type of test are they: spec_ for Hspec, prop_ for QuickCheck and similar.
@@ -241,7 +241,7 @@ We additionally use **doctest** for testing code examples in documentation.
 
 All tests go into `test/` directory.
 This is convention for Haskell, opposite to mixing them with source code as in Javascript for example.
-Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
+Not only that, but Haskell build tools don't have good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
 
 Tests are run with `cabal test`. They include both unit tests, and end-to-end tests of basic CLI commands.
 
@@ -256,10 +256,10 @@ To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2
 
 Besides unit tests, we have e2e tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
 
-This means that when you make a change in your code that modifies the generated code, e2e tests will fail while showing a diff between the new generated code and the previous (golden) one.
+This means that when you make a change in your code that modifies the generated code, e2e tests will fail while showing a diff between the newly generated code and the previous (golden) one.
 This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. If you notice something unexpected or weird, you have an opportunity to fix it.
 Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass. Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
-Easiest way to do this is to go to `e2e-test/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
+The easiest way to do this is to go to `e2e-test/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
 
 Instead of doing this manually, you can also use convenient command from the `./run` script:
 ```
@@ -334,7 +334,7 @@ All Wasp development should be done on feature branches. They form the basis of 
   - This is the default branch to target for any Wasp feature branches.
 - `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website.
   - When doing a full release, which means making a new release based on what we have currently on `main`, we do the following:
-    1. Update `main` branch by merging `release` into it. There might be conflicts but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
+    1. Update `main` branch by merging `release` into it. There might be conflicts, but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
     2. Update `release` branch to this new `main` by merging `main` into it. There will be no conflicts since we already resolved all of them in the previous step.
 
 How do I know where I want to target my PR, to `release` or `main`?
@@ -353,7 +353,7 @@ During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
 
-If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
+If you put `[skip ci]` in the commit message, that commit will be ignored by Github Actions.
 
 We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
 
@@ -387,9 +387,9 @@ Making a test release, especially "Release Candidate" release is useful when you
 If doing this, steps are the following:
 1. You can do it from whatever branch you want, probably you will be doing it from `main`.
 2. You will want to use a version name that indicates you are doing test, probably you will want to add `-rc` at the end.
-   So for example: `./new-release 0.7.0-rc`. Release script will throw some warnings which you should accept.
+   So, for example: `./new-release 0.7.0-rc`. Release script will throw some warnings which you should accept.
 3. Once draft release is created on Github, you should mark it in their UI as pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. This is the crucial step that differentiates test release from the proper release.
-4. Since our wasp installer by default installs the latest release from Github, it will skip this release we made, because it is pre-release, which is great, it is what we wanted. Instead, you can install it by using the `-v` flag of wasp installer! That way user's don't get in touch with it, but we can install and use it normally.
+4. Since our wasp installer by default installs the latest release from Github, it will skip this release we made, because it is pre-release, which is great, it is what we wanted. Instead, you can install it by using the `-v` flag of wasp installer! That way users don't get in touch with it, but we can install and use it normally.
 
 
 ## Documentation
@@ -409,9 +409,9 @@ We are documenting best practices related to Haskell in our [Haskell Handbook](h
 ##### Grammar
 When writing a comment, we prefer starting it with a capital letter.
 
-If it starts with a capital letter, it must end with a punctuation.
+If it starts with a capital letter, it must end with punctuation.
 
-If it doesn't start with a capital letter, it shouldn't end with a punctuation.
+If it doesn't start with a capital letter, it shouldn't end with punctuation.
 
 ##### TODO / NOTE
 
