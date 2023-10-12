@@ -1,0 +1,9 @@
+app Test {
+  dependencies: [
+    ("wasp-compiler")
+  ]
+}
+
+api testApi {
+  httpRoute: (GET)
+}

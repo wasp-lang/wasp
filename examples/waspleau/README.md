@@ -1,26 +1,23 @@
 # Waspleau
 
-Welcome to the Waspleau example! This is a small Wasp project that will allow you to setup an easy Dashboard that pulls in data via [Jobs](https://wasp-lang.dev/docs/language/features#jobs) and stores them in the database.
+Welcome to the Waspleau example! This is a small Wasp project that tracks status of wasp-lang/wasp repo via a nice looking dashboard.
+It pulls in data via [Jobs](https://wasp-lang.dev/docs/language/features#jobs) and stores them in the database.
 
-The deployed version of this example can be found at https://waspleau.netlify.app/
+This example project can serve as a good starting point for building your own dashboard with Wasp, that regularly pulls in external data by using Jobs Wasp feature.
 
-## Step 1
+The deployed version of this example can be found at https://waspleau.netlify.app/ .
 
-Clone this repo
+## Running in development
 
-## Step 2
-
-Update ext/workers with whatever you want to track, add them to main.wasp as a `job`, and optionally import and use them in `serverSetup.js` (or other server-side code).
-
-## Step 3 (with PostgreSQL running)
-
-`NODE_ENV=development DATABASE_URL="postgresql://postgres@localhost/waspleau-dev" wasp db migrate-dev`
-
-## Step 4
-
-`NODE_ENV=development DATABASE_URL="postgresql://postgres@localhost/waspleau-dev" wasp start`
+1. `wasp start db` to run the development database.
+2. `wasp start` to run the app.
+3. You might need to do `wasp db migrate-dev` if running the app for the first time or after db changes -> keep an eye out for warning from Wasp.
 
 This will start your background workers as Wasp Jobs and present a dashboard UI that will auto-refresh every minute.
+
+## Modifying the example to track the data of your choice
+
+Update ext/workers with whatever you want to track, add them to main.wasp as a `job`, and optionally import and use them in `serverSetup.js` (or other server-side code).
 
 Note: As you develop your own workers, keep in mind each time you save a file in the project it will automatically reload everything, including restarting your server, which may re-submit or terminate running `job`s.
 

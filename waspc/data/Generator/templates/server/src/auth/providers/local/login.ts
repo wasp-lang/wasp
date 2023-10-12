@@ -1,13 +1,13 @@
 {{={= =}=}}
-import { verifyPassword } from '../../../core/auth.js'
+import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth.js'
 import { handleRejection } from '../../../utils.js'
 
-import { findUserBy, createAuthToken, throwInvalidCredentialsError } from '../../utils.js'
+import { findUserBy, createAuthToken } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
   const args = req.body || {}
 
-  const user = await findUserBy<'username'>({ username: args.username })
+  const user = await findUserBy({ username: args.username })
   if (!user) {
     throwInvalidCredentialsError()
   }

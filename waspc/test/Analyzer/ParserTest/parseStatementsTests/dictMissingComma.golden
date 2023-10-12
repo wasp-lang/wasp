@@ -1,3 +1,15 @@
 Parse error at 3:3:
   Unexpected token: b
   Expected one of the following tokens instead: '}',','
+
+Parse error at 3:4:
+  Unexpected token: :
+  Expected one of the following tokens instead: <identifier>
+
+Parse error at 3:6:
+  Unexpected token: 2
+  Expected one of the following tokens instead: <identifier>,<eof>
+
+Parse error at 4:1:
+  Unexpected token: }
+  Expected one of the following tokens instead: <eof>

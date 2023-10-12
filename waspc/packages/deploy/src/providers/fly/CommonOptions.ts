@@ -2,6 +2,7 @@ export interface CommonOptions {
 	waspExe: string;
 	waspProjectDir: string;
 	flyTomlDir?: string;
+	org?: string;
 }
 
 export interface DbOptions {
@@ -12,4 +13,9 @@ export interface DbOptions {
 
 export interface LocalBuildOptions {
 	buildLocally: boolean;
+}
+
+export interface SecretsOptions {
+	serverSecret: string[];
+	clientSecret: string[];
 }

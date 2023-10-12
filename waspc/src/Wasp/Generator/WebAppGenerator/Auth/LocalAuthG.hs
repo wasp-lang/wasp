@@ -26,12 +26,12 @@ genActions auth
 
 -- | Generates file with signup function to be used by Wasp developer.
 genLocalSignupAction :: Generator FileDraft
-genLocalSignupAction = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/signup.js|]) tmplData
+genLocalSignupAction = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/signup.ts|]) tmplData
   where
     tmplData = object ["signupPath" .= serverSignupUrl localAuthProvider]
 
 -- | Generates file with login function to be used by Wasp developer.
 genLocalLoginAction :: Generator FileDraft
-genLocalLoginAction = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/login.js|]) tmplData
+genLocalLoginAction = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/login.ts|]) tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]

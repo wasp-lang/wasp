@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.10.0"
+    version: "^0.11.0"
   },
   title: "ToDo App",
   // head: [],
@@ -8,6 +8,10 @@ app todoApp {
     ("@tailwindcss/forms", "^0.5.3"),
     ("@tailwindcss/typography", "^0.5.7")
   ],
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    // autoConnect: false
+  },
   auth: {
     userEntity: User,
     // externalAuthEntity: SocialLogin,
@@ -37,11 +41,15 @@ app todoApp {
         allowUnverifiedLogin: false,
       },
     },
+    signup: {
+      additionalFields: import { fields } from "@server/auth/signup.js",
+    },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
   server: {
-    setupFn: import setup from "@server/serverSetup.js"
+    setupFn: import setup from "@server/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@server/serverSetup.js",
   },
   client: {
     rootComponent: import { App } from "@client/App.tsx",
@@ -74,6 +82,7 @@ entity User {=psl
     externalAuthAssociations  SocialLogin[]
     // Business logic
     tasks                     Task[]
+    address                   String?
 psl=}
 
 entity SocialLogin {=psl
@@ -153,8 +162,15 @@ query getTasks {
 
 api fooBar {
   fn: import { fooBar } from "@server/apis.js",
+  middlewareConfigFn: import { fooBarMiddlewareFn } from "@server/apis.js",
   entities: [Task],
-  httpRoute: (GET, "/foo/bar")
+  // ALL here let's our CORS work. If we did GET, we would need an apiNamespace over it with CORS.
+  httpRoute: (ALL, "/foo/bar")
+}
+
+apiNamespace bar {
+  middlewareConfigFn: import { barNamespaceMiddlewareFn } from "@server/apis.js",
+  path: "/bar"
 }
 
 api barBaz {
@@ -162,6 +178,13 @@ api barBaz {
   auth: false,
   entities: [Task],
   httpRoute: (GET, "/bar/baz")
+}
+
+api webhookCallback {
+  fn: import { webhookCallback } from "@server/apis.js",
+  middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@server/apis.js",
+  httpRoute: (POST, "/webhook/callback"),
+  auth: false
 }
 
 query getNumTasks {

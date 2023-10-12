@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New ProjectName Arguments -- project name, new args
+  = New Arguments
   | Start
   | StartDb
   | Clean
@@ -14,6 +14,7 @@ data Call
   | Deps
   | Dockerfile
   | Info
+  | Studio
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
   | BashCompletionListCommands
@@ -21,7 +22,5 @@ data Call
   | Deploy Arguments -- deploy cmd passthrough args
   | Test Arguments -- "client" | "server", then test cmd passthrough args
   | Unknown Arguments -- all args
-
-type ProjectName = String
 
 type Arguments = [String]

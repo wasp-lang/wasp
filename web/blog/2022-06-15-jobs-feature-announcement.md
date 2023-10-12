@@ -90,7 +90,7 @@ However, we will also continue to expand the number of job execution runtimes we
 
 If you are a regular reader of this blog (thank you, you deserve a raise! 😊), you may recall we created an example app of a metrics dashboard called [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau) that used workers in the background to make periodic HTTP calls for data. In that example, we didn’t yet have access to recurring jobs in Wasp, so we used Bull for scheduled jobs instead. To set up our queue-related logic we had to have this huge `setupFn` wiring it all up; but now, we can remove all that code and simply use jobs instead! Here is what the new DSL looks like:
 
-```js title=main.wasp
+```wasp title=main.wasp
 // A cron job for fetching GitHub stats
 job getGithubStats {
   executor: PgBoss,
@@ -144,7 +144,7 @@ For those interested, check out the [full diff here](https://github.com/wasp-lan
 
 ## Looks neat! What’s next?
 
-First off, please check out our docs for Jobs: [https://wasp-lang.dev/docs/language/features#jobs](https://wasp-lang.dev/docs/language/features#jobs) There, you will find all the info you need to start using them. Next, if you want to see the code for this example in full, you can find it here: [https://github.com/wasp-lang/wasp/tree/release/examples/waspleau](https://github.com/wasp-lang/wasp/tree/release/examples/waspleau)
+First off, please check out our docs for [Jobs](/docs/advanced/jobs). There, you will find all the info you need to start using them. Next, if you want to see the code for this example in full, you can find it here: [https://github.com/wasp-lang/wasp/tree/release/examples/waspleau](https://github.com/wasp-lang/wasp/tree/release/examples/waspleau)
 
 In the future, we plan to add more job executors, including support for polyglot workers (imagine running your Python ML function from Wasp!). We are also open to any other ideas on how jobs can become more useful to you (like client-side access to server-side jobs, or client-side jobs using similar abstractions?). Let us know what you think!
 

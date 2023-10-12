@@ -4,20 +4,24 @@ import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } fr
 import prisma from "../dbClient.js"
 import { type User } from "../entities"
 import { type _Entity } from "./taggedEntities"
+import { type Payload } from "./serialization";
 
 export * from "./taggedEntities"
+export * from "./serialization"
 
-export type Query<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
+export type Query<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
-export type Action<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
+export type Action<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
-export type AuthenticatedQuery<Entities extends _Entity[], Input, Output> = 
+export type AuthenticatedQuery<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
-export type AuthenticatedAction<Entities extends _Entity[], Input, Output> = 
+export type AuthenticatedAction<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
-type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
+type AuthenticatedOperation<Entities extends _Entity[], Input extends Payload, Output extends Payload> = (
   args: Input,
   context: ContextWithUser<Entities>,
 ) => Output | Promise<Output>
@@ -57,9 +61,10 @@ type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
 }
 
-type PrismaDelegate = {
+export type PrismaDelegate = {
   "User": typeof prisma.user,
   "SocialLogin": typeof prisma.socialLogin,
+  "Task": typeof prisma.task,
 }
 
 type Context<Entities extends _Entity[]> = Expand<{

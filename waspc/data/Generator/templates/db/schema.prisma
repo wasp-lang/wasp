@@ -3,11 +3,17 @@
 datasource db {
   provider = "{= datasourceProvider =}"
   url      = {=& datasourceUrl =}
+  {=# dbExtensions =}
+  extensions = {=& . =}
+  {=/ dbExtensions =}
 }
 
 generator client {
   provider = "prisma-client-js"
   output = {=& prismaClientOutputDir =}
+  {=# prismaPreviewFeatures =}
+  previewFeatures = {=& . =}
+  {=/ prismaPreviewFeatures =}
 }
 
 {=# modelSchemas =}

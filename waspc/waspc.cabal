@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.10.2
+version:        0.11.6
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -49,9 +49,25 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/new/.gitignore
-  Cli/templates/new/.wasproot
-  Cli/templates/new/src/.waspignore
+  Cli/templates/basic/.gitignore
+  Cli/templates/basic/.wasproot
+  Cli/templates/basic/src/.waspignore
+  Cli/templates/basic/main.wasp
+  Lsp/templates/**/*.js
+  Lsp/templates/**/*.ts
+  Lsp/templates/**/*.jsx
+  packages/deploy/dist/**/*.js
+  packages/deploy/package.json
+  packages/deploy/package-lock.json
+  packages/ts-inspect/dist/**/*.js
+  packages/ts-inspect/package.json
+  packages/ts-inspect/package-lock.json
+  packages/studio/dist/**/*.js
+  packages/studio/dist/**/*.html
+  packages/studio/dist/**/*.css
+  packages/studio/dist/**/*.png
+  packages/studio/package.json
+  packages/studio/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -106,7 +122,7 @@ library
     , exceptions            ^>= 0.10.4
     , split                 ^>= 0.2.3
     , conduit-extra         ^>= 1.3.5
-    , process               ^>= 1.6.13
+    , process               ^>= 1.6.17
     , cryptohash-sha256     ^>= 0.11.102
     , mustache              ^>= 2.3.2
     , parsec                ^>= 3.1.14
@@ -185,6 +201,8 @@ library
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
+    Wasp.AppSpec.ApiNamespace
+    Wasp.AppSpec.Crud
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Auth.PasswordReset
@@ -195,6 +213,7 @@ library
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
+    Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Ref
@@ -250,6 +269,8 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
+    Wasp.Generator.Crud
+    Wasp.Generator.Crud.Routes
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -268,6 +289,8 @@ library
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.WebSocketG
+    Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
@@ -275,6 +298,7 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
+    Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
     Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
     Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
     Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
@@ -287,7 +311,11 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebSocket
+    Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
+    Wasp.Node.Version
+    Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -297,17 +325,27 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
+    Wasp.Project.WebApp
+    Wasp.Project.Studio
+    Wasp.Project.Vite
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
+    Wasp.Psl.Generator.Extensions
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Util
     Wasp.SemanticVersion
+    Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
+    Wasp.Util.FilePath
+    Wasp.Util.StrongPath
+    Wasp.Util.HashMap
+    Wasp.Util.WebRouterPath
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -318,16 +356,36 @@ library waspls
   import: common-all
   hs-source-dirs: waspls/src
   exposed-modules:
-    Wasp.LSP.Server
-  other-modules:
-    Wasp.LSP.ServerState
-    Wasp.LSP.ServerConfig
-    Wasp.LSP.ServerM
-    Wasp.LSP.Handlers
-    Wasp.LSP.Diagnostic
+    Control.Monad.Log
+    Control.Monad.Log.Class
+    Wasp.LSP.Analysis
+    Wasp.LSP.CodeActions
+    Wasp.LSP.Commands
+    Wasp.LSP.Commands.Command
+    Wasp.LSP.Commands.ScaffoldTsSymbol
     Wasp.LSP.Completion
-    Wasp.LSP.Util
+    Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.DictKeyCompletion
+    Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.Debouncer
+    Wasp.LSP.Diagnostic
+    Wasp.LSP.DynamicHandlers
+    Wasp.LSP.ExtImport.Diagnostic
+    Wasp.LSP.ExtImport.ExportsCache
+    Wasp.LSP.ExtImport.Path
+    Wasp.LSP.ExtImport.Syntax
+    Wasp.LSP.GotoDefinition
+    Wasp.LSP.Handlers
+    Wasp.LSP.Reactor
+    Wasp.LSP.Server
+    Wasp.LSP.ServerConfig
+    Wasp.LSP.ServerMonads
+    Wasp.LSP.ServerMonads.HasProjectRootDir
+    Wasp.LSP.ServerState
+    Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
+    Wasp.LSP.TypeInference
+    Wasp.LSP.Util
   build-depends:
       base
     , aeson
@@ -338,11 +396,22 @@ library waspls
     , lens ^>=5.1
     , lsp ^>=1.4.0.0
     , lsp-types ^>=1.4.0.1
+    , stm ^>=2.5.1.0
+    , stm-containers ^>=1.2
+    , hashable ^>=1.3.5.0
+    , unordered-containers
+    , strong-path
+    , path
+    , async ^>=2.2.4
+    , mustache ^>=2.3.2
+    , unliftio-core
     , mtl
     , text
     , transformers ^>=0.5.6.2
     , utf8-string
+    , unordered-containers
     , waspc
+    , directory ^>= 1.3.6.0
 
 library cli-lib
   import: common-all
@@ -353,6 +422,7 @@ library cli-lib
     , filepath
     , time
     , aeson
+    , aeson-pretty
     , mtl
     , async
     , exceptions
@@ -362,6 +432,7 @@ library cli-lib
     , optparse-applicative ^>=0.17.0.0
     , path
     , path-io
+    , pretty-simple ^>= 4.1.2.0
     , process
     , strong-path
     , text
@@ -370,10 +441,15 @@ library cli-lib
     , waspc
     , waspls
     , unliftio ^>= 0.2.20
+    , bytestring ^>= 0.10.12
+    , tar ^>=0.5.1.1
+    , zlib ^>=0.6.3.0
+    , temporary ^>=1.3
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
+    Wasp.Cli.Archive
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
@@ -382,6 +458,14 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
+    Wasp.Cli.Command.CreateNewProject.Common
+    Wasp.Cli.Command.CreateNewProject.ProjectDescription
+    Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
@@ -391,6 +475,8 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Studio
+    Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
@@ -404,6 +490,8 @@ library cli-lib
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message
     Wasp.Cli.Message
+    Wasp.Cli.Interactive
+    Wasp.Cli.GithubRepo
 
 executable wasp-cli
   import: common-all, common-exe
@@ -453,12 +541,14 @@ test-suite waspc-test
     Analyzer.Parser.CST.TraverseTest
     Analyzer.Parser.ParseErrorTest
     Analyzer.Parser.SourcePositionTest
+    Analyzer.Parser.SourceSpanTest
     Analyzer.ParserTest
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
     Analyzer.TypeCheckerTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
     Fixtures
@@ -471,20 +561,50 @@ test-suite waspc-test
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
+    Generator.CrudTest
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
+    Psl.Generator.ExtensionsTest
     Psl.Parser.ModelTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest
     UtilTest
     Util.Diff
+    Util.FilePathTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest
     JsImportTest
+
+test-suite waspls-test
+  import: common-all, common-exe
+  type: exitcode-stdio-1.0
+  hs-source-dirs: waspls/test
+  main-is: TastyDiscoverDriver.hs
+  build-tool-depends:
+    tasty-discover:tasty-discover
+  build-depends:
+    , base
+    , waspc
+    , waspls
+    , lens                  ^>=5.1
+    , lsp                   ^>=1.4.0.0
+    , lsp-types             ^>=1.4.0.1
+    , mtl
+    , QuickCheck            ^>= 2.14
+    , tasty                 ^>= 1.4.2
+    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
+    , tasty-hspec           >= 1.1 && < 1.1.7
+    , tasty-golden          ^>= 2.3.5
+    , bytestring
+    , filepath
+  other-modules:
+    Wasp.LSP.CompletionTest
+    Wasp.LSP.DebouncerTest
+    Wasp.LSP.SyntaxTest
 
 test-suite cli-test
   import: common-all, common-exe

@@ -65,6 +65,8 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 :warning: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
+:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars in your `~/.zshrc`.
+
 ### Test
 ```
 cabal test
@@ -205,9 +207,11 @@ alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 ```
 
 ### Typescript packages
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_deploy_package_to_data_dir.sh`.
+Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
 
-During normal local development you can treat `packages/deploy` as a regular TS project and develop against it in a standalone manner. However, if you want to test it as part of the Wasp CLI, you can make use of this same script locally. Just manually invoke it before you run something like `cabal run wasp-cli deploy fly ...` in a wasp project so the local data directory is up to date.
+`waspc`, while implemented in Haskell, for some of its functionality on TypeScript code (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
+
+To make these packages available to `waspc` in development, run `./run wasp-packages:compile`. When any changes are made to these packages, run the same command again.
 
 ## Tests
 For tests we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
@@ -357,6 +361,7 @@ NOTE: If building of your commit is suddenly taking much longer time, it might b
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
 ### Typical Release Process
+- Ensure that all starter templates in `starter` repo are working with the version of Wasp we are about to release and upgrade their version of Wasp to the new one.
 - ChangeLog.md and version in waspc.cabal should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing ChangeLog.md a bit even if all the data is already there. Also check that ChangeLog has correction version of wasp specified.
 - If you modified ChangeLog.md or waspc.cabal, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).

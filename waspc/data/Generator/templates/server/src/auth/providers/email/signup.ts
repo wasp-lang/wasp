@@ -11,6 +11,7 @@ import {
     isEmailResendAllowed,
 } from "../../utils.js";
 import { GetVerificationEmailContentFn } from './types.js';
+import { validateAndGetAdditionalFields } from '../../utils.js'
 
 export function getSignupRoute({
     fromField,
@@ -30,7 +31,7 @@ export function getSignupRoute({
         
         userFields.email = userFields.email.toLowerCase();
 
-        const existingUser  = await findUserBy<'email'>({ email: userFields.email });
+        const existingUser  = await findUserBy({ email: userFields.email });
         // User already exists and is verified - don't leak information
         if (existingUser && existingUser.isEmailVerified) {
             await doFakeWork();
@@ -41,8 +42,14 @@ export function getSignupRoute({
             }
             await deleteUser(existingUser);
         }
+
+        const additionalFields = await validateAndGetAdditionalFields(userFields);
     
-        const user = await createUser(userFields);
+        const user = await createUser({
+            ...additionalFields,
+            email: userFields.email,
+            password: userFields.password,
+        });
 
         const verificationLink = await createEmailVerificationLink(user, clientRoute);
         try {

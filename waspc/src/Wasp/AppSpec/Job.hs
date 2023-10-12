@@ -30,7 +30,7 @@ data Job = Job
 
 instance IsDecl Job
 
-data JobExecutor = Simple | PgBoss
+data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded)
 
 data Perform = Perform
@@ -73,6 +73,5 @@ scheduleExecutorOptionsJson job = do
   executorOptionsJson (executor job) (executorOptions (s :: Schedule))
 
 executorOptionsJson :: JobExecutor -> Maybe ExecutorOptions -> Maybe JSON
-executorOptionsJson Simple (Just ExecutorOptions {simple = Just json}) = Just json
 executorOptionsJson PgBoss (Just ExecutorOptions {pgBoss = Just json}) = Just json
 executorOptionsJson _ _ = Nothing

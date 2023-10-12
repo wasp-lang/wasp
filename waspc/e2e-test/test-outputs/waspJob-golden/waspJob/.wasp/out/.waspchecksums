@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "adc80bda2d164f54eeab5b3f18bdf57f4e277ef18de5127ca78a742ea782c55d"
+        "33830187439118a2922c175a6556ac8294102e5e120ee3a5a314a4b63ede3490"
     ],
     [
         [
@@ -81,7 +81,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "ab483e1b9552d943a44baa1bbfc2d0b31f231a0fc5c945e12e9b3aa6980b6f8d"
+        "b6b5d08ff823cf66d47932167a4008307acb53cef2e409f26621e8b268ba8008"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "73dc983c9a02cab8e2f189f1ddedd9cdcd47bf403c9dc56efba8be895b6980a1"
     ],
     [
         [
@@ -95,14 +102,14 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "2b2dba0828a9283901ed7132f5c51c119acef4fff739736e50c02b0f09b192db"
+        "a994ed1f89011c04014deb57a2c26d09c216491caac9269380a7c14d1718b313"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+        "86504ede1daeca35cc93f665ca8ac2fdf46ecaff02f6d3a7810a14d2bc71e16a"
     ],
     [
         [
@@ -156,65 +163,72 @@
     [
         [
             "file",
-            "server/src/jobs/MySpecialJob.js"
+            "server/src/jobs/MySpecialJob.ts"
         ],
-        "9bf6a5f7005d3ab4ca933fb239ef21f13ba68aef30d8767230d6cc03911ca0e1"
+        "f75ff9a6f207fdb8adc94843d78ef0f7504588f8bdb686347692ece3284d9aa8"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/Job.js"
-        ],
-        "e0e5d5e802a29032bfc8426097950722ac0dc7931d08641c1c2b02c262e6cdcc"
-    ],
-    [
-        [
-            "file",
-            "server/src/jobs/core/SubmittedJob.js"
-        ],
-        "75753277b6bd2c1d2e9ea0e80a71c72c84fa18bb7d61da25d798b3ef247e06bd"
-    ],
-    [
-        [
-            "file",
-            "server/src/jobs/core/allJobs.js"
+            "server/src/jobs/core/allJobs.ts"
         ],
         "b5ddc268dfe8f1f7d96d775c1d8d407a647a45ed4937a87da7eb1eb50f9a4674"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/pgBoss/pgBoss.js"
+            "server/src/jobs/core/job.ts"
         ],
-        "9821963d90b39058285343834c70e6f825d3d7696c738fd95539614b5e7d7b94"
+        "c10df70eb886d6cd132b8a0b4f619dc500bbd4ec3174ef156cdad41be8cce021"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/pgBoss/pgBossJob.js"
+            "server/src/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "ff6040d051c916eb080a2f2c37fd5135f588782387faeae51115d1a7abd1ad8b"
+        "4ca3ab19aa84a0ac4f62f6d9b3ee2304fd41ab6649320473d975ae438e3c3cfd"
     ],
     [
         [
             "file",
-            "server/src/jobs/core/simpleJob.js"
+            "server/src/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "36fe173d9f5128859196bfd3a661983df2d95eb34d165a469b840982b06cf59b"
+        "700b83862734d7ee752f685381de30fa730580fb950fbc61d168f51d1fe44bb4"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/globalMiddleware.ts"
+        ],
+        "5ecfd79481386c7ba17747a6d786166c8a7f95e331462d15303e1abf7cd031b7"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/index.ts"
+        ],
+        "e658719309f9375f389c5d8d416fc27f9c247049e61188b3e01df954bcec15a4"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/operations.ts"
+        ],
+        "864c7492c27f6da1e67645fbc358dc803a168852bfd24f2c4dd13fccf6917b07"
     ],
     [
         [
             "file",
             "server/src/queries/types.ts"
         ],
-        "c7090ed370d3ae047b4219f5f2ed8ada929cda42229c5a74a5bf578de5f9ceea"
+        "276f022c04936bfe75d593fe8426a0aaf43a0e9c085042ad1b6560ad23041031"
     ],
     [
         [
             "file",
             "server/src/routes/index.js"
         ],
-        "7fb59b1d6c05570ca1d42d5dbf5868160844165f04e1c75e4be7c372965063fb"
+        "c34f77a96150414957386f5645c9becb12725c9f231aaaa8db798e3564bd75ce"
     ],
     [
         [
@@ -228,14 +242,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "29faf0c794094c17733a6f09ae2a9c7eddab234d51b36f1518c1fb89cb9bfbb8"
+        "e28a2e72f8a0cedbfba8c6acfbc36b9ae35db9005aa26484d88ef7e7688efa5b"
     ],
     [
         [
             "file",
             "server/src/types/index.ts"
         ],
-        "1fd50e251e340a5bc8c51369766e8c889cf892cdbe6593b4d58a6ee585b6d2cc"
+        "1958cfc3e3b5f59490168797e4b8dcdc38f32346e734f90df3fb6baa264b36b5"
     ],
     [
         [
@@ -270,7 +284,7 @@
             "file",
             "web-app/.env"
         ],
-        "b267ea48e5ff257c153b4f84102104eec7af8a46827aae6e76fc42c83934cfc0"
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
@@ -312,7 +326,7 @@
             "file",
             "web-app/package.json"
         ],
-        "a106a1312e7a5f68b07eac0842c8e274aa42aad5ed0cdddc0104fe3c27b6f0c9"
+        "adcc3a24462553bd66d4c14f43cd351512d28c249d96d3cd3e1e6dad834770fd"
     ],
     [
         [
@@ -368,7 +382,14 @@
             "file",
             "web-app/src/api.ts"
         ],
-        "ebe9b49e262c56942f61d48082905cd3715d2da6bee945f7f7201dd1641720f9"
+        "93118387834981574ce1773d33275308e68ef8ca87408a35be8931c44a8889bf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/api/events.ts"
+        ],
+        "7220e570cfb823028ad6c076cbcf033d217acfb88537bcac47020f1085757044"
     ],
     [
         [
@@ -396,7 +417,7 @@
             "file",
             "web-app/src/ext-src/MainPage.jsx"
         ],
-        "7244c106359f088fdcc0d4a76ee63277f1cea63cbe7aac5e5c39a17df693b1e2"
+        "8ee7fe1352719facadf0935eb45df8661ba13015277ea80be5a9200c66a31bde"
     ],
     [
         [
@@ -404,6 +425,13 @@
             "web-app/src/ext-src/vite-env.d.ts"
         ],
         "d677883c270ee71acc9bfd95c824650b541036599427a8ffc0ad33323d08e61d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/ext-src/vite.config.ts"
+        ],
+        "797dfb8022557b5ce5ce856daca01911974497f9ccf656f5920e5b42a986f4f8"
     ],
     [
         [
@@ -417,7 +445,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "7f1ee2834d45d4fe451e0eff699245e5de3a82a9d82a9931538cac75c2210e1f"
+        "d10c443130afd9848fcfa631424590784e70dc1c66a8b7a9a8c1dfa9dd7ad5df"
     ],
     [
         [
@@ -485,16 +513,37 @@
     [
         [
             "file",
-            "web-app/src/router.jsx"
+            "web-app/src/router.tsx"
         ],
-        "103724de16eb74300d9fab366bf73401ffd6bf9018394044c1d4ade22731868e"
+        "79192ef1e636c2573815ca7151cf8e3a76ebb00a0b0ee3e804cbb60cba5f7197"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/Link.tsx"
+        ],
+        "7b6214295d59d8dffbd61b82f9dab2b080b2d7ebe98cc7d9f9e8c229f99a890d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/linkHelpers.ts"
+        ],
+        "c296ed5e7924ad1173f4f0fb4dcce053cffd5812612069b5f62d1bf9e96495cf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/router/types.ts"
+        ],
+        "7f08b262987c17f953c4b95814631a7aaac82eb77660bcb247ef7bf866846fe1"
     ],
     [
         [
             "file",
             "web-app/src/storage.ts"
         ],
-        "1e35eb73e486c8f926337a8c8ddfc392639de3718bf28fdc3073b0ca97c864f7"
+        "e9e2a4a02d48bea1597fcdc00592e3d975eea7fa6e0545cf087da9429c5f4979"
     ],
     [
         [
@@ -508,7 +557,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "a0576215b0786c6e082b8a83f6418a3acb084bfb673a152baad8e8a7fc46fcae"
+        "a38e55c9999a87ab497538bcad7c880f32a4d27f2227ae326cb76eb0848b89e9"
     ],
     [
         [
@@ -557,20 +606,20 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
+        "f1b31ca75b2b32c5b0441aec4fcd7f285c18346761ba1640761d6253d65e3580"
     ],
     [
         [
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "c40d0614fda5b8a746a1ba2e3be8e2370140c0167851ac77881cd53bb5647cdd"
+        "30fed1f6aa4710deb690d1ae47628066f34afda7b633f0c696fafcda9e2dbc1e"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "0ab8b3892a5d5d25b85646ef30e8b2487904415021912e68670fab316b2ecf2d"
+        "ba22ae0b9027a2a4d3cd2689e9a9e1caff526b96dfab5e7f0f58f194dff830d9"
     ]
 ]

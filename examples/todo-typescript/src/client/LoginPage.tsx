@@ -4,7 +4,6 @@ import { LoginForm } from "@wasp/auth/forms/Login";
 export function LoginPage() {
   return (
     <main>
-      <h1>Login</h1>
       {/** Wasp has built-in auth forms & flows, which you can customize or opt-out of, if you wish :)
        * https://wasp-lang.dev/docs/guides/auth-ui
        */}

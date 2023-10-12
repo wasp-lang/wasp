@@ -1,0 +1,21 @@
+app streaming {
+  wasp: {
+    version: "^0.11.5"
+  },
+  title: "streaming"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
+
+api streamingText {
+  httpRoute: (GET, "/api/streaming-test"),
+  fn: import { getText } from "@server/streaming.js",
+}
+
+apiNamespace defaultMiddleware {
+  path: "/api",
+  middlewareConfigFn: import { getMiddlewareConfig } from "@server/streaming.js",
+}

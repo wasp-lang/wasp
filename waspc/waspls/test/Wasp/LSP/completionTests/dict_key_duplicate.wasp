@@ -1,0 +1,14 @@
+//! test/completion
+app todoApp {
+  wasp: {
+    version: "^0.10.5", 
+  },
+  title: "todo!",
+}
+
+// we suggest all keys of a dictionary, even when some are already used  
+route MainRoute { path: "/", | }
+                             ^
+page MainPage {
+  component: import { MainPage } from "@client/MainPage.jsx",
+}

@@ -9,6 +9,7 @@ module Wasp.AppSpec
     refName,
     getActions,
     getQueries,
+    getOperations,
     getApis,
     getEntities,
     getPages,
@@ -18,6 +19,8 @@ module Wasp.AppSpec
     doesConfigFileExist,
     asAbsWaspProjectDirFile,
     getApp,
+    getApiNamespaces,
+    getCruds,
   )
 where
 
@@ -27,13 +30,18 @@ import Data.Text (Text)
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
+import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
+import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Job (Job)
+import Wasp.AppSpec.Operation (Operation)
+import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -71,7 +79,8 @@ data AppSpec = AppSpec
     configFiles :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
-    devDatabaseUrl :: Maybe String
+    devDatabaseUrl :: Maybe String,
+    customViteConfigPath :: Maybe (Path' (Rel SourceExternalCodeDir) File')
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -88,8 +97,19 @@ getQueries = getDecls
 getActions :: AppSpec -> [(String, Action)]
 getActions = getDecls
 
+getOperations :: AppSpec -> [Operation]
+getOperations spec =
+  map (uncurry AS.Operation.QueryOp) (getQueries spec)
+    <> map (uncurry AS.Operation.ActionOp) (getActions spec)
+
 getApis :: AppSpec -> [(String, Api)]
 getApis = getDecls
+
+getApiNamespaces :: AppSpec -> [(String, ApiNamespace)]
+getApiNamespaces = getDecls
+
+getCruds :: AppSpec -> [(String, Crud)]
+getCruds = getDecls
 
 getEntities :: AppSpec -> [(String, Entity)]
 getEntities = getDecls
@@ -112,10 +132,13 @@ resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =
   fromMaybe
     ( error $
-        "Failed to resolve declaration reference: " ++ refName ref ++ "."
+        "Failed to resolve declaration reference: "
+          ++ refName ref
+          ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst) $ getDecls spec
+    $ find ((== refName ref) . fst) $
+      getDecls spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =

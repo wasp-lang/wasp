@@ -13,11 +13,9 @@ import System.Directory
     removeDirectoryRecursive,
   )
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common
-  ( findWaspProjectRootDirFromCwd,
-  )
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
@@ -35,7 +33,7 @@ import Wasp.Project (CompileError, CompileWarning)
 -- Very similar to 'compile'.
 build :: Command ()
 build = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  InWaspProject waspProjectDir <- require
   let buildDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.buildDirInDotWaspDir

@@ -23,6 +23,13 @@ class FlyCommand extends Command {
 	addLocalBuildOption(): this {
 		return this.option('--build-locally', 'build Docker containers locally instead of remotely', false);
 	}
+	addSecretsOptions(): this {
+		function collect(value: string, previous: string[]) {
+			return previous.concat([value]);
+		}
+		return this.option('--server-secret <serverSecret>', 'secret to set on the server app (of form FOO=BAR)', collect, [])
+			.option('--client-secret <clientSecret>', 'secret to set on the client app (of form FOO=BAR)', collect, []);
+	}
 }
 
 const flyLaunchCommand = makeFlyLaunchCommand();
@@ -53,6 +60,7 @@ export function addFlyCommand(program: Command): void {
 		cmd.addOption(new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)').hideHelp().makeOptionMandatory())
 			.addOption(new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir').hideHelp().makeOptionMandatory())
 			.option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
+			.option('--org <org>', 'Fly org to use (with commands that support it)')
 			.hook('preAction', ensureFlyReady)
 			.hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)
 			.hook('preAction', ensureWaspDirLooksRight);
@@ -71,6 +79,7 @@ function makeFlyLaunchCommand(): Command {
 		.addRegionArgument()
 		.addDbOptions()
 		.addLocalBuildOption()
+		.addSecretsOptions()
 		.action(launchFn);
 }
 
@@ -79,6 +88,7 @@ function makeFlySetupCommand(): Command {
 		.description('Set up a new app on Fly.io (this does not deploy it)')
 		.addBasenameArgument()
 		.addRegionArgument()
+		.addSecretsOptions()
 		.action(setupFn);
 }
 

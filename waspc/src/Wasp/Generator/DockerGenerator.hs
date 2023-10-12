@@ -19,7 +19,6 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.Common
   ( ProjectRootDir,
     ServerRootDir,
-    latestMajorNodeVersion,
   )
 import Wasp.Generator.DbGenerator.Common
   ( PrismaDbSchema,
@@ -30,6 +29,7 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
+import Wasp.Node.Version (latestMajorNodeVersion)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (getEnvVarDefinition)
 

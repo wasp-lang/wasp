@@ -22,6 +22,7 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import Wasp.Project.Vite (findCustomViteConfigPath)
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -31,16 +32,16 @@ analyzeWaspProject ::
   IO (Either [CompileError] AS.AppSpec)
 analyzeWaspProject waspDir options = runExceptT $ do
   waspFilePath <- ExceptT $ Control.Arrow.left pure <$> findWaspFile waspDir
-  declarations <- ExceptT $ Control.Arrow.left pure <$> analyzeWaspFileContent waspFilePath
+  declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
   ExceptT $ constructAppSpec waspDir options declarations
 
-analyzeWaspFileContent :: Path' Abs File' -> IO (Either CompileError [AS.Decl])
+analyzeWaspFileContent :: Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFileContent waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
   let declsOrAnalyzeError = Analyzer.analyze waspFileContent
   return $
     Control.Arrow.left
-      (showCompilerErrorForTerminal (waspFilePath, waspFileContent) . getErrorMessageAndCtx)
+      (map (showCompilerErrorForTerminal (waspFilePath, waspFileContent) . getErrorMessageAndCtx))
       declsOrAnalyzeError
 
 constructAppSpec ::
@@ -51,8 +52,10 @@ constructAppSpec ::
 constructAppSpec waspDir options decls = do
   externalServerCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
-  externalClientCodeFiles <-
-    ExternalCode.readFiles (CompileOptions.externalClientCodeDirPath options)
+
+  let externalClientCodeDirPath = CompileOptions.externalClientCodeDirPath options
+  externalClientCodeFiles <- ExternalCode.readFiles externalClientCodeDirPath
+
   externalSharedCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalSharedCodeDirPath options)
   maybeMigrationsDir <- findMigrationsDir waspDir
@@ -61,6 +64,8 @@ constructAppSpec waspDir options decls = do
   let devDbUrl = makeDevDatabaseUrl waspDir decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
+
+  let customViteConfigPath = findCustomViteConfigPath externalClientCodeFiles
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
@@ -74,7 +79,8 @@ constructAppSpec waspDir options decls = do
             AS.isBuild = CompileOptions.isBuild options,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
-            AS.devDatabaseUrl = devDbUrl
+            AS.devDatabaseUrl = devDbUrl,
+            AS.customViteConfigPath = customViteConfigPath
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec
@@ -86,5 +92,6 @@ findWaspFile waspDir = do
   return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
-      ".wasp" `isSuffixOf` toFilePath path
+      ".wasp"
+        `isSuffixOf` toFilePath path
         && (length (toFilePath path) > length (".wasp" :: String))

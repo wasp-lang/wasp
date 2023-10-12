@@ -15,6 +15,7 @@ module Wasp.Analyzer.Parser.CST.Traverse
     -- * Traversal operations
 
     -- | See the section on composition functions on how to compose these.
+    top,
     bottom,
     down,
     up,
@@ -47,6 +48,7 @@ module Wasp.Analyzer.Parser.CST.Traverse
     widthAt,
     offsetAt,
     offsetAfter,
+    spanAt,
     parentKind,
     nodeAt,
     parentNode,
@@ -74,6 +76,7 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Maybe (isJust)
 import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
 import Wasp.Analyzer.Parser.SourceOffset (SourceOffset)
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (SourceSpan))
 import Wasp.Util.Control.Monad (untilM)
 
 -- | An in-progress traversal through some tree @f@.
@@ -134,6 +137,9 @@ pipe ops = foldl' (>=>) Just ops
 -- used for essentially the same purpose in this library.
 (&?) :: Maybe Traversal -> (Traversal -> Maybe Traversal) -> Maybe Traversal
 t &? op = t >>= op
+
+top :: Traversal -> Traversal
+top t = maybe t top $ t & up
 
 -- | Move down the tree to the deepest left-most leaf
 bottom :: Traversal -> Traversal
@@ -234,20 +240,18 @@ right t = case tRightSiblings t of
 next :: Traversal -> Maybe Traversal
 next t
   | hasChildren t = untilM (not . hasChildren) down t
-  | hasAncestors t = case untilM hasRightSiblings up t of
+  | otherwise = case untilM hasRightSiblings up t of
       Nothing -> Nothing
       Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
-  | otherwise = Nothing
 
 -- | Move to the previous node in a tree. This is 'next', but moves left instead
 -- of right.
 previous :: Traversal -> Maybe Traversal
 previous t
   | hasChildren t = untilM (not . hasChildren) down t
-  | hasAncestors t = case untilM hasLeftSiblings up t of
+  | otherwise = case untilM hasLeftSiblings up t of
       Nothing -> Nothing
       Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
-  | otherwise = Nothing
   where
     rightMostSibling = untilM (not . hasRightSiblings) right
 
@@ -266,6 +270,10 @@ offsetAt t = tlCurrentOffset (currentLevel t)
 -- | Get the offset of the end of the current node in the source text.
 offsetAfter :: Traversal -> SourceOffset
 offsetAfter t = offsetAt t + widthAt t
+
+-- | Get the 'SourceSpan' of the current node in the source text.
+spanAt :: Traversal -> SourceSpan
+spanAt t = SourceSpan (offsetAt t) (offsetAfter t)
 
 -- | Get the "SyntaxKind" of the parent of the current position.
 --

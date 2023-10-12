@@ -28,6 +28,7 @@ import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
+import Wasp.Util.WebRouterPath (Param (Optional, Required), extractPathParams)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -50,14 +51,19 @@ instance ToJSON RouterTemplateData where
       ]
 
 data RouteTemplateData = RouteTemplateData
-  { _urlPath :: !String,
+  { _routeName :: !String,
+    _urlPath :: !String,
+    _urlParams :: ![Param],
     _targetComponent :: !String
   }
 
 instance ToJSON RouteTemplateData where
   toJSON routeTD =
     object
-      [ "urlPath" .= _urlPath routeTD,
+      [ "name" .= _routeName routeTD,
+        "urlPath" .= _urlPath routeTD,
+        "urlParams" .= map mapPathParamToJson (_urlParams routeTD),
+        "hasUrlParams" .= (not . null $ _urlParams routeTD),
         "targetComponent" .= _targetComponent routeTD
       ]
 
@@ -87,15 +93,26 @@ instance ToJSON ExternalAuthProviderTemplateData where
         "authProviderEnabled" .= _authProviderEnabled externalProviderTD
       ]
 
-genRouter :: AppSpec -> Generator FileDraft
-genRouter spec = do
+genRouter :: AppSpec -> Generator [FileDraft]
+genRouter spec =
+  sequence
+    [ genRouterTsx spec,
+      genFileCopy [relfile|src/router/types.ts|],
+      genFileCopy [relfile|src/router/linkHelpers.ts|],
+      genFileCopy [relfile|src/router/Link.tsx|]
+    ]
+  where
+    genFileCopy = return . C.mkTmplFd
+
+genRouterTsx :: AppSpec -> Generator FileDraft
+genRouterTsx spec = do
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile $ [reldir|src|] </> routerPath)
       targetPath
       (Just $ toJSON templateData)
   where
-    routerPath = [relfile|router.jsx|]
+    routerPath = [relfile|router.tsx|]
     templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
@@ -133,11 +150,15 @@ createExternalAuthProviderTemplateData maybeAuth (method, provider) =
     }
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
-createRouteTemplateData spec namedRoute@(_, route) =
+createRouteTemplateData spec namedRoute@(name, route) =
   RouteTemplateData
-    { _urlPath = AS.Route.path route,
+    { _routeName = name,
+      _urlPath = path,
+      _urlParams = extractPathParams path,
       _targetComponent = determineRouteTargetComponent spec namedRoute
     }
+  where
+    path = AS.Route.path route
 
 -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
 determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
@@ -151,7 +172,8 @@ determineRouteTargetComponent spec (_, route) =
     targetPage =
       fromMaybe
         ( error $
-            "Can't find page with name '" ++ targetPageName
+            "Can't find page with name '"
+              ++ targetPageName
               ++ "', pointed to by route '"
               ++ AS.Route.path route
               ++ "'"
@@ -182,3 +204,7 @@ createPageTemplateData page =
 
 relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]
+
+mapPathParamToJson :: Param -> Aeson.Value
+mapPathParamToJson (Required name) = object ["name" .= name, "isOptional" .= False]
+mapPathParamToJson (Optional name) = object ["name" .= name, "isOptional" .= True]

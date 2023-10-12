@@ -62,7 +62,6 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
 		}
 	} catch (e) {
 		// Ignore any errors while checking. Commands requiring a valid region will still fail if invalid, just not as nicely.
-		console.error(e);
 		waspSays('Unable to validate region before calling flyctl.');
 	}
 }

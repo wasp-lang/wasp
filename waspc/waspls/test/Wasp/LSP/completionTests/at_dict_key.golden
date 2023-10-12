@@ -1,0 +1,3 @@
+Completion items:
+  label={"path"} kind={CiField} detail={":: string"} insertText={"path: "}
+  label={"to"} kind={CiField} detail={":: page (declaration type)"} insertText={"to: "}

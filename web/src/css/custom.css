@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -15,13 +15,11 @@
  * Issue on Tailwind's repo: https://github.com/tailwindlabs/tailwindcss/discussions/2984
  */
 @layer base {
-    html {
-        -webkit-tap-highlight-color: transparent;
-        -webkit-font-smoothing: auto;
-    }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: auto;
+  }
 }
-
-
 
 /* Docusaurus stuff */
 
@@ -29,10 +27,18 @@
   background-color: var(--custom-blog-list-background-color);
 }
 
+/* Highlight Prisma field types properly */
+.token.type-class-name {
+  color: rgb(54, 172, 170);
+}
+.token.annotation {
+  color: rgb(116, 116, 116) !important;
+}
+
 /* You can override the default Infima variables here. */
 :root {
   /* Our custom values */
-  --custom-background-color: #FDFDFD;
+  --custom-background-color: #fdfdfd;
   --custom-background-color-diff: #f4f4f4;
   --custom-shadow-lw: 0 3px 5px 0px rgba(0, 0, 0, 0.1);
   --custom-border-radius: 3px;
@@ -42,14 +48,18 @@
   --ifm-h3-font-size: 1.3rem;
 
   /* Blog */
-  --custom-blog-list-background-color: #fbf7e5;
+  /**
+   * TODO(matija): this is a separate value from the background color on the landing page (in custom.css)
+   * Shall we unify that?
+   **/
+  --custom-blog-list-background-color: #f5f5f5;
   --custom-blog-card-timestamp-color: #737373;
   --custom-blog-card-background-color: white;
 
   /* Infima overrides */
   --ifm-container-width-xl: 1280px;
-  --ifm-font-family-base: 'Inter';
-  --ifm-color-primary: #BF9900; /* wasp color (ffcc00) darkened by 25% */
+  --ifm-font-family-base: "Inter";
+  --ifm-color-primary: #bf9900; /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
   --ifm-color-primary-darker: rgb(31, 165, 136);
   --ifm-color-primary-darkest: rgb(26, 136, 112);
@@ -72,14 +82,49 @@
   --ifm-h2-font-size: 2rem;
 
   --ifm-col-spacing-vertical: 0.5rem;
+  --docusaurus-highlighted-code-line-bg: #e8edf2;
+
+  /* Docs */
+  --ifm-menu-color: var(--ifm-color-gray-800);
+  --sidebar-category-color: var(--ifm-color-gray-600);
+  --sidebar-category-spacing: 2em;
 }
 
-:root[data-theme='dark'] {
-  --custom-background-color-diff: #2A2A2A;
+:root[data-theme="dark"] {
+  --custom-background-color-diff: #2a2a2a;
 
   /* Blog */
   --custom-blog-list-background-color: var(--ifm-background-color);
   --custom-blog-card-timestamp-color: #a3a3a3;
   --custom-blog-card-background-color: black;
+  --docusaurus-highlighted-code-line-bg: #dee6ed;
+
+  /* Docs */
+  --ifm-menu-color: var(--ifm-color-gray-200);
 }
 
+/******** DOCS SIDEBAR **********/
+
+/* remove background from sidebar items (except for active) */
+.menu__link:not(.menu__link--active), .menu__list-item-collapsible {
+  background: initial !important;
+}
+/* less opaque on hover/focus */
+.menu__link:hover:not(.menu__link--active):not(.menu__link--sublist), .menu__link:focus:not(.menu__link--active):not(.menu__link--sublist) {
+  opacity: 0.7;
+}
+
+.theme-doc-sidebar-item-category-level-1 {
+  margin-bottom: var(--sidebar-category-spacing);
+}
+
+.theme-doc-sidebar-item-category-level-1 > .menu__list {
+  /* remove indentation from 1st level categories */
+  padding-left: 0;
+}
+
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link {
+  color: var(--sidebar-category-color);
+  font-weight: bold;
+  font-size: var(--ifm-h6-font-size);
+}

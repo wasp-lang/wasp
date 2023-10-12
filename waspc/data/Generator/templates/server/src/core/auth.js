@@ -6,8 +6,8 @@ import { randomInt } from 'node:crypto'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
+import HttpError from '../core/HttpError.js'
 import config from '../config.js'
-import { throwInvalidCredentialsError } from '../auth/utils.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -28,36 +28,39 @@ const auth = handleRejection(async (req, res, next) => {
 
   if (authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7, authHeader.length)
-
-    let userIdFromToken
-    try {
-      userIdFromToken = (await verify(token)).id
-    } catch (error) {
-      if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
-        throwInvalidCredentialsError()
-      } else {
-        throw error
-      }
-    }
-
-    const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
-    if (!user) {
-      throwInvalidCredentialsError()
-    }
-
-    // TODO: This logic must match the type in types/index.ts (if we remove the
-    // password field from the object here, we must to do the same there).
-    // Ideally, these two things would live in the same place:
-    // https://github.com/wasp-lang/wasp/issues/965
-    const { password, ...userView } = user
-
-    req.user = userView
+    req.user = await getUserFromToken(token)
   } else {
     throwInvalidCredentialsError()
   }
 
   next()
 })
+
+export async function getUserFromToken(token) {
+  let userIdFromToken
+  try {
+    userIdFromToken = (await verify(token)).id
+  } catch (error) {
+    if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
+      throwInvalidCredentialsError()
+    } else {
+      throw error
+    }
+  }
+
+  const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
+  if (!user) {
+    throwInvalidCredentialsError()
+  }
+
+  // TODO: This logic must match the type in types/index.ts (if we remove the
+  // password field from the object here, we must to do the same there).
+  // Ideally, these two things would live in the same place:
+  // https://github.com/wasp-lang/wasp/issues/965
+  const { password, ...userView } = user
+
+  return userView
+}
 
 const SP = new SecurePassword()
 
@@ -119,6 +122,10 @@ async function findAvailableUsername(potentialUsernames) {
   }
 
   return availableUsernames[0]
+}
+
+export function throwInvalidCredentialsError(message) {
+  throw new HttpError(401, 'Invalid credentials', { message })
 }
 
 export default auth

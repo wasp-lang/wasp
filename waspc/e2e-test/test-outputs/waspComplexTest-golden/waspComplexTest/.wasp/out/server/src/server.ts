@@ -9,6 +9,7 @@ import { ServerSetupFn, ServerSetupFnContext } from './types'
 import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
 import './jobs/core/allJobs.js'
 
+
 const startServer = async () => {
   await startPgBoss()
 
@@ -19,6 +20,7 @@ const startServer = async () => {
 
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
   await (mySetupFunction as ServerSetupFn)(serverSetupFnContext)
+
 
   server.listen(port)
 

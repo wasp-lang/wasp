@@ -48,7 +48,7 @@ To honor the tradition of demonstrating UIs using Todo apps, We'll show you how 
 Before looking at our todo app in action, let's see how we've implemented it in Wasp.
 
 These are the relevant declarations in our `.wasp` file:
-```javascript title=main.wasp
+```wasp title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -157,7 +157,7 @@ function Task({ id, isDone, description }) {
   )
 }
 ```
-Those are all the changes we need, the rest of the code (i.e., `main.wasp`, `queries.js` and `actions.js`) remains the same. We won't describe the API in detail, but if you're curious, everything is covered by [our official docs](/docs/language/features#the-useaction-hook).
+Those are all the changes we need, the rest of the code (i.e., `main.wasp`, `queries.js` and `actions.js`) remains the same. We won't describe the API in detail, but if you're curious, everything is covered by [our official docs](/docs/data-model/operations/actions#the-useaction-hook-and-optimistic-updates).
 
 Finally, let's see how this version of the app looks in action:
 

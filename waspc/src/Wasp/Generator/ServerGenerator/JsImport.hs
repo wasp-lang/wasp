@@ -10,6 +10,7 @@ import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.JsImport
   ( JsImport,
+    JsImportAlias,
     JsImportIdentifier,
     JsImportStatement,
   )
@@ -28,6 +29,14 @@ getJsImportStmtAndIdentifier ::
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
+
+getAliasedJsImportStmtAndIdentifier ::
+  JsImportAlias ->
+  Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
+  EI.ExtImport ->
+  (JsImportStatement, JsImportIdentifier)
+getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToExtCodeDir =
+  JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToExtCodeDir
 
 extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->

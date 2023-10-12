@@ -20,7 +20,6 @@ export async function launch(basename: string, region: string, options: LaunchOp
 	try {
 		await setup(basename, region, options);
 	} catch (e) {
-		console.error(e);
 		waspSays(`There was an error running "${getCommandHelp(flySetupCommand)}". Please review the error and try again (if appropriate).`);
 		exit(1);
 	}
@@ -28,7 +27,6 @@ export async function launch(basename: string, region: string, options: LaunchOp
 	try {
 		await createDb(region, options);
 	} catch (e) {
-		console.error(e);
 		waspSays(`There was an error running "${getCommandHelp(createFlyDbCommand)}". Please review the error and try again (if appropriate).`);
 		exit(1);
 	}
@@ -37,7 +35,6 @@ export async function launch(basename: string, region: string, options: LaunchOp
 		const deployOptions: DeployOptions = { ...options, skipBuild: true };
 		await deploy(deployOptions);
 	} catch (e) {
-		console.error(e);
 		waspSays(`There was an error running "${getCommandHelp(flyDeployCommand)}". Please review the error and try again (if appropriate).`);
 		exit(1);
 	}

@@ -38,7 +38,7 @@ Simple Wasp config file in which you describe the high-level details of your web
 
 app todoApp {
   title: "ToDo App",  // visible in the browser tab
-  wasp: { version: "^0.10.0" },
+  wasp: { version: "^0.11.0" },
   auth: { // full-stack auth out-of-the-box
     userEntity: User, methods: { email: {...} }
   }
@@ -94,9 +94,8 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 
 Currently, Wasp is in beta, with most features flushed out and working well.
 However, there are still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
-As Wasp grows further, it should allow the development of web apps of increasing complexity!
 
-While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma. We might yet change that as time goes on, taking trends into account, but for now, this is serving us well to develop Wasp.
+While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma.
 
 # Contributing
 
@@ -116,3 +115,13 @@ You can also:
 # Careers
 
 Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672) page for a list of currently opened positions!
+
+# Sponsors
+
+<a href="https://github.com/michelwaechter"><img src="https://github.com/michelwaechter.png" width="50px" alt="michelwaechter" /></a> - Our first sponsor ever! Thanks so much Michel ❤️ , from the whole Wasp Team, for bravely going where nobody has been before :)!
+
+<a href="https://github.com/shayneczyzewski"><img src="https://github.com/shayneczyzewski.png" width="50px" alt="shayneczyzewski" /></a> - Thanks Shayne, for all the contributions you did so far and for your continuous support!
+
+<a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a> - Big thanks Mariano for being one of our first sponsors and believing in us ❤️!
+
+<a href="https://github.com/haseeb-heaven"><img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" /></a> - We are thankful for your support Heaven in this early stage of Wasp :)!

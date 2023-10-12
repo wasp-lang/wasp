@@ -1,0 +1,1 @@
+require("../prism/wasp")(Prism);

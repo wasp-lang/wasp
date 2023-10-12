@@ -28,6 +28,11 @@ export async function createDb(region: string, options: CreateDbOptions): Promis
 		'--initial-cluster-size', options.initialClusterSize,
 		'--volume-size', options.volumeSize,
 	];
+
+	if (deploymentInfo.options.org) {
+		createArgs.push('--org', deploymentInfo.options.org);
+	}
+
 	await $`flyctl postgres create ${createArgs}`;
 	await $`flyctl postgres attach ${deploymentInfo.dbName} -a ${deploymentInfo.serverName}`;
 

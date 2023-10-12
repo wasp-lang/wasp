@@ -1,0 +1,26 @@
+{
+  "name": "headless-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "example-app:start": "node start.js",
+    "example-app:start-db": "npm run example-app:cleanup-db && cd ./examples/todoApp && cabal run wasp-cli start db",
+    "example-app:start-app": "npm run example-app:wait-for-db && npm run example-app:prepare-env && cd ./examples/todoApp && cabal run wasp-cli db migrate-dev && cabal run wasp-cli start",
+    "example-app:wait-for-db": "sleep 5 && ./node_modules/.bin/wait-port 5432",
+    "example-app:prepare-env": "cp ./examples/todoApp/sample.env.server ./examples/todoApp/.env.server",
+    "example-app:cleanup-db": "(docker container rm $(docker container ls -f name=^wasp-dev-db-todoApp- -q) -f || true) && docker volume rm $(docker volume ls -f name=^wasp-dev-db-todoApp- -q) -f || true"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.33.0",
+    "prisma": "^4.12.0",
+    "wait-port": "^1.0.4",
+    "linebyline": "^1.3.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.12.0"
+  }
+}

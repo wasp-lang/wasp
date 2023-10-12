@@ -12,7 +12,7 @@ export async function resetPassword(
     const { token, password } = args;
     try {
         const { id: userId } = await verifyToken(token);
-        const user = await findUserBy<'id'>({ id: userId });
+        const user = await findUserBy({ id: userId });
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }

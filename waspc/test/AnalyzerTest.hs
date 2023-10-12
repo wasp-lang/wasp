@@ -50,6 +50,9 @@ spec_Analyzer = do
                 "    userEntity: User,",
                 "    methods: { usernameAndPassword: {} },",
                 "    onAuthFailedRedirectTo: \"/\",",
+                "    signup: {",
+                "      additionalFields: import { fields } from \"@server/auth/signup.js\",",
+                "    },",
                 "  },",
                 "  dependencies: [",
                 "    (\"redux\", \"^4.0.5\")",
@@ -63,7 +66,11 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL,",
-                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ]",
+                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ],",
+                "    prisma: {",
+                "      clientPreviewFeatures: [\"extendedWhereUnique\"],",
+                "      dbExtensions: [{ name: \"pg_trgm\", version: \"1.0.0\" }]",
+                "    }",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -131,6 +138,12 @@ spec_Analyzer = do
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
                             Auth.externalAuthEntity = Nothing,
+                            Auth.signup =
+                              Just $
+                                Auth.SignupOptions
+                                  { Auth.additionalFields =
+                                      Just $ ExtImport (ExtImportField "fields") (fromJust $ SP.parseRelFileP "auth/signup.js")
+                                  },
                             Auth.methods =
                               Auth.AuthMethods
                                 { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,
@@ -152,7 +165,8 @@ spec_Analyzer = do
                               Just $
                                 ExtImport
                                   (ExtImportField "setupServer")
-                                  (fromJust $ SP.parseRelFileP "bar.js")
+                                  (fromJust $ SP.parseRelFileP "bar.js"),
+                            Server.middlewareConfigFn = Nothing
                           },
                     App.client =
                       Just
@@ -173,7 +187,13 @@ spec_Analyzer = do
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")
                                     (fromJust $ SP.parseRelFileP "dbSeeds.js")
-                                ]
+                                ],
+                            Db.prisma =
+                              Just
+                                Db.PrismaOptions
+                                  { clientPreviewFeatures = Just ["extendedWhereUnique"],
+                                    dbExtensions = Just [Db.PrismaDbExtension {Db.name = "pg_trgm", Db.version = Just "1.0.0", Db.map = Nothing, Db.schema = Nothing}]
+                                  }
                           },
                     App.emailSender =
                       Just
@@ -185,7 +205,8 @@ spec_Analyzer = do
                                   { EmailSender.email = "test@test.com",
                                     EmailSender.name = Just "Test"
                                   }
-                          }
+                          },
+                    App.webSocket = Nothing
                   }
               )
             ]
@@ -304,7 +325,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
               ]
       takeDecls @Route <$> analyze source
-        `shouldBe` Left (TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage")
+        `shouldBe` Left [TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage"]
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
@@ -400,7 +421,8 @@ isAnalyzerOutputTypeError :: Either AnalyzeError a -> Bool
 isAnalyzerOutputTypeError (Left (TypeError _)) = True
 isAnalyzerOutputTypeError _ = False
 
-errorMessageShouldBe :: Either AnalyzeError a -> (Ctx, String) -> Expectation
+errorMessageShouldBe :: Either [AnalyzeError] a -> (Ctx, String) -> Expectation
 errorMessageShouldBe analyzeResult (c, msg) = case analyzeResult of
   Right _ -> error "Test failed: expected AnalyzerError."
-  Left e -> getErrorMessageAndCtx e `shouldBe` (msg, c)
+  Left [e] -> getErrorMessageAndCtx e `shouldBe` (msg, c)
+  Left errs -> length errs `shouldBe` 1

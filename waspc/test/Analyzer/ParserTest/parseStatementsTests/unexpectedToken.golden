@@ -1,3 +1,11 @@
 Parse error at 1:6-18:
   Unexpected token: "Declaration"
   Expected one of the following tokens instead: <identifier>
+
+Parse error at 1:20:
+  Unexpected token: {
+  Expected one of the following tokens instead: <identifier>,<eof>
+
+Parse error at 1:21:
+  Unexpected token: }
+  Expected one of the following tokens instead: <eof>

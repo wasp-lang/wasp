@@ -10,6 +10,7 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
  - How many people and how often: tried to install Wasp, use Wasp, have built a Wasp app, or have deployed one?
  - How many projects are created with Wasp?
 
+
 ## When and what is sent?
 
  - Information is sent via HTTPS request when `wasp` CLI command is invoked.
@@ -22,10 +23,14 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
      "project_hash": "6d7e561d62b955d1",
      // True if command was `wasp build`, false otherwise.
      "is_build": true,
-     // Only specific deploy keywords.
+     // Captures `wasp deploy ...` args, but only those from the limited, pre-defined list of keywords.
+     // Those are "fly", "setup", "create-db", "deploy" and "cmd". Everything else is ommited.
      "deploy_cmd_args": "fly;deploy",
      "wasp_version": "0.1.9.1",
-     "os": "linux"
+     "os": "linux",
+     // "CI" if running on CI, and whatever is the content of "WASP_TELEMETRY_CONTEXT" env var.
+     // We use this to track when execution is happening in some special context, like on Gitpod, Replit or similar.
+     "context": "CI"
    }
    ```
    
@@ -40,7 +45,10 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
 
 ## Opting out
 
-You can opt-out of telemetry by setting the `WASP_TELEMETRY_DISABLE` environment variable to any value, e.g.:
+You sharing the telemetry data with us means a lot to us, since it helps us understand how popular Wasp is, how it is being used, how the changes we are doing affect usage, how many new vs old users there are, and just in general how Wasp is doing. We look at these numbers every morning and they drive us to make Wasp better.
+
+However, if you wish to opt-out of telemetry, we understand!
+You can do so by setting the `WASP_TELEMETRY_DISABLE` environment variable to any value, e.g.:
 
 ```
 export WASP_TELEMETRY_DISABLE=1

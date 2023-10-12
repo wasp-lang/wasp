@@ -1,0 +1,5 @@
+Parse error at 3:5-21:
+  Tuple only contains 1 values, but it must contain at least 2 values
+
+Parse error at 8:14-18:
+  Tuple only contains 1 values, but it must contain at least 2 values

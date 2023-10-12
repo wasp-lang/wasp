@@ -173,7 +173,7 @@ Let's begin by creating the data models. Wasp uses Prisma under the hood to comm
 
 I had to first declare all of the entities I needed with Prisma PSL in the Wasp config file.
 
-```jsx
+```wasp
 entity Phrase {=psl
   id Int @id @default(autoincrement())
   group String
@@ -228,7 +228,7 @@ Let’s now look at what I needed to do to get the data flowing from the backend
 
 First, I declared a query in my Wasp config file:
 
-```c
+```wasp
 app phraseTutor {
   ...
 }
@@ -265,7 +265,7 @@ Let’s also add support for Google auth for our app. It involves declaring you 
 
 We declare it to the Wasp file by adding the `google` key under `auth`:
 
-```jsx
+```wasp
 app phraseTutor {
   ...
   auth: {

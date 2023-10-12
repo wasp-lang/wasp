@@ -12,6 +12,19 @@ import { isValidEmail } from '../core/auth/validators.js'
 import { emailSender } from '../email/index.js';
 import { Email } from '../email/core/types.js';
 {=/ isEmailAuthEnabled =}
+{=# additionalSignupFields.isDefined =}
+{=& additionalSignupFields.importStatement =}
+{=/ additionalSignupFields.isDefined =}
+
+{=# additionalSignupFields.isDefined =}
+const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdentifier =}
+{=/ additionalSignupFields.isDefined =}
+{=^ additionalSignupFields.isDefined =}
+import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
+const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
+  ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
+>
+{=/ additionalSignupFields.isDefined =}
 
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
@@ -26,7 +39,7 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findUserBy<K extends keyof {= userEntityUpper =}>(where: { [key in K]: {= userEntityUpper =}[K] }): Promise<{= userEntityUpper =}> {
+export async function findUserBy(where: Prisma.{= userEntityUpper =}WhereUniqueInput): Promise<{= userEntityUpper =}> {
   return prisma.{= userEntityLower =}.findUnique({ where });
 }
 
@@ -206,10 +219,6 @@ function validate(args: unknown, validators: { validates: string, message: strin
 }
 {=/ isEmailAuthEnabled =}
 
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
-}
-
 function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
@@ -222,4 +231,23 @@ function rethrowPossiblePrismaError(e: unknown): void {
 
 function throwValidationError(message: string): void {
   throw new HttpError(422, 'Validation failed', { message })
+}
+
+export async function validateAndGetAdditionalFields(data: {
+  [key: string]: unknown
+}) {
+  const {
+    password: _password,
+    ...sanitizedData
+  } = data;
+  const result: Record<string, any> = {};
+  for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
+    try {
+      const value = await getFieldValue(sanitizedData)
+      result[field] = value
+    } catch (e) {
+      throwValidationError(e.message)
+    }
+  }
+  return result;
 }

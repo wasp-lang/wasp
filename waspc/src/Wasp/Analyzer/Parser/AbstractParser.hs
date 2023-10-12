@@ -9,6 +9,7 @@ module Wasp.Analyzer.Parser.AbstractParser
 where
 
 import Control.Arrow (Arrow (first))
+import Control.Monad (join)
 import Control.Monad.Except (throwError)
 import Control.Monad.State.Strict (gets)
 import Data.Maybe (catMaybes)
@@ -41,7 +42,7 @@ type NodesPartialParser a = [SyntaxNode] -> ParserM (a, [SyntaxNode])
 
 -- | @parseStatements sourceString syntax@ tries to convert a concrete syntax
 -- tree into an AST.
-parseStatements :: String -> [SyntaxNode] -> Either ParseError AST
+parseStatements :: String -> [SyntaxNode] -> Either [ParseError] AST
 parseStatements source syntax = runParserM source $ coerceProgram syntax
 
 -- | @parseExpression sourceString syntax@ tries to convert a concrete syntax
@@ -52,21 +53,26 @@ parseStatements source syntax = runParserM source $ coerceProgram syntax
 --
 -- This should never cause any issues: correct output from the CST parser will
 -- not have any extra nodes (besides trivia nodes).
-parseExpression :: String -> [SyntaxNode] -> Either ParseError Expr
+parseExpression :: String -> [SyntaxNode] -> Either [ParseError] Expr
 parseExpression source syntax = case runParserM source $ coerceExpr syntax of
-  Left err -> Left err
+  Left errs -> Left errs
   Right (WithCtx _ expr, _) -> Right expr
 
--- | Try to turn CST into top-level AST.
+-- | Try to turn CST into top-level 'AST'. Recovers from errors occuring inside
+-- each statement node. Statements with errors are not included in the returned
+-- 'AST'.
 coerceProgram :: NodesParser AST
 coerceProgram [] = return $ AST.AST []
-coerceProgram (SyntaxNode S.Program _ children : _) = AST.AST . catMaybes <$> mapM coerceStmt children
+coerceProgram (SyntaxNode S.Program _ children : _) =
+  AST.AST . catMaybes
+    <$> mapM (fmap join . nodeParserRecover coerceStmt) children
 coerceProgram (SyntaxNode kind width _ : remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceProgram remaining
   | otherwise = unexpectedNode kind "in root"
 
 -- | Try to turn CST into Stmt AST. Returns @Nothing@ if the given node is a
--- trivia node.
+-- trivia node. If parsing the node throws an error, the error is recovered from
+-- and 'Nothing' is returned.
 coerceStmt :: NodeParser (Maybe (WithCtx Stmt))
 coerceStmt (SyntaxNode S.Decl _ children) = do
   startPos <- gets pstateStartPos
@@ -120,15 +126,20 @@ coerceDict syntax = do
         )
   return $ AST.Dict entries
 
+-- | Parse the comma-separated list of entries in a dictioanry. Recovers from
+-- errors that occur within each entry. If an error occurs while parsing an
+-- entry, that entry is not included in the returned list.
 coerceEntries :: NodesPartialParser [(Identifier, WithCtx Expr)]
 coerceEntries [] = return ([], [])
 coerceEntries (n@(SyntaxNode kind width children) : remaining)
-  | kind == S.DictEntry = (first . (:)) <$> coerceEntry children <*> coerceEntries remaining
+  | kind == S.DictEntry = first . mcons <$> coerceEntry children <*> coerceEntries remaining
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceEntries remaining
   | otherwise = return ([], n : remaining)
 
-coerceEntry :: NodesParser (Identifier, WithCtx Expr)
-coerceEntry syntax = do
+-- | Parse a dictionary entry. If parsing throws an error, the error is recovered
+-- from and 'Nothing' is returned.
+coerceEntry :: NodesParser (Maybe (Identifier, WithCtx Expr))
+coerceEntry = nodesParserRecover $ \syntax -> do
   (dictKey, _, expr) <-
     runNodesPartialParser syntax $
       sequence3
@@ -164,13 +175,18 @@ coerceTuple syntax = do
     (x1 : x2 : xs) -> return $ AST.Tuple (x1, x2, xs)
     _ -> throwError $ TupleTooFewValues (SourceRegion startPos endPos) (length values)
 
+-- | Parse a list of comma-separated expressions. Recovers from errors within
+-- each value in the list. Values with parse errors are not included in the
+-- returned list of expressions.
 coerceValues :: NodesPartialParser [WithCtx Expr]
 coerceValues [] = return ([], [])
 coerceValues (n@(SyntaxNode kind width _) : remaining)
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceValues remaining
   | S.syntaxKindIsExpr kind = do
-      expr <- runNodesPartialParser [n] coerceExpr
-      first (expr :) <$> coerceValues remaining
+      -- Recovers without consuming any nodes: this is ok because 'runNodesPartialParser'
+      -- will consume all the nodes in that case.
+      mbExpr <- runNodesPartialParser [n] $ nodesPartialParserRecoverAt (const True) coerceExpr
+      first (mbExpr `mcons`) <$> coerceValues remaining
   | otherwise = return ([], n : remaining)
 
 coerceExtImport :: NodesParser Expr
@@ -282,6 +298,39 @@ coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
       return (lexeme, remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
+
+-- | Try running a 'NodeParser'. If the parser throws an error, reset state to
+-- before the parser was ran, use the node, and return 'Nothing'.
+nodeParserRecover :: NodeParser a -> NodeParser (Maybe a)
+nodeParserRecover parser node =
+  try (parser node) >>= \case
+    Right a -> return $ Just a
+    Left _ -> advance (S.snodeWidth node) >> return Nothing
+
+-- | Try running a 'NodesParser'. If the parser throws an error, reset state to
+-- before the parser was ran, use all of the nodes, and return 'Nothing'.
+nodesParserRecover :: NodesParser a -> NodesParser (Maybe a)
+nodesParserRecover parser nodes =
+  try (parser nodes) >>= \case
+    Right a -> return $ Just a
+    Left _ -> advance (sum $ map S.snodeWidth nodes) >> return Nothing
+
+-- | Try running a 'NodesPartialParser'. If the parser throws an error, reset state to
+-- before the parser was ran, and use the nodes until the given condition is true
+-- on the next unused node.
+nodesPartialParserRecoverAt :: (SyntaxKind -> Bool) -> NodesPartialParser a -> NodesPartialParser (Maybe a)
+nodesPartialParserRecoverAt cond parser nodes =
+  try (parser nodes) >>= \case
+    Right (a, remaining) -> return (Just a, remaining)
+    Left _ -> do
+      let (use, remaining) = break (cond . S.snodeKind) nodes
+      advance $ sum $ map S.snodeWidth use
+      return (Nothing, remaining)
+
+-- | @mbX `mcons` xs@ conses a value to a list if the value exists.
+mcons :: Maybe a -> [a] -> [a]
+mcons (Just x) xs = x : xs
+mcons Nothing xs = xs
 
 -- | Alias for 'pstatePos'
 pstateStartPos :: ParseState -> SourcePosition

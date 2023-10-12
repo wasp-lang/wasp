@@ -1,0 +1,11 @@
+/.wasp/
+
+# We ignore env files recognized and used by Wasp.
+.env.server
+.env.client
+
+# To be extra safe, we by default ignore any files with `.env` extension in them.
+# If this is too agressive for you, consider allowing specific files with `!` operator,
+# or modify/delete these two lines.
+*.env
+*.env.*

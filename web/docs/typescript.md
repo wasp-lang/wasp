@@ -2,13 +2,17 @@
 title: TypeScript Support
 ---
 
+import OldDocsNote from '@site/docs/OldDocsNote'
+
 # Using Wasp with TypeScript
+
+<OldDocsNote />
 
 TypeScript is a programming language that brings static type analysis to JavaScript. It is a superset of JavaScript (i.e., all valid JavaScript programs are valid TypeScript programs) and compiles to JavaScript before running. TypeScript's type system detects common errors at build time (reducing the chance of runtime errors in production) and enables type-based auto-completion in IDEs.
 
 This document assumes you are familiar with TypeScript and primarily focuses on how to use it with Wasp. To learn more about TypeScript itself, we recommend reading [the official docs](https://www.typescriptlang.org/docs/).
 
-The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](https://wasp-lang.dev/docs/language/features).
+The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](/docs/language/features).
 
 Besides allowing you to write your code in TypeScript, Wasp also supports:
 
@@ -35,7 +39,7 @@ Our scaffolding already includes TypeScript, so migrating your project to TypeSc
 
 Let's first assume your Wasp file contains the following definitions:
 
-```c title=main.wasp
+```wasp title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -103,7 +107,7 @@ You don't need to change anything inside the `.wasp` file.
 
 Even when you use TypeScript, and your file is called `queries.ts`, you still need to import it using the `.js` extension:
 
-```c
+```wasp
 query getTaskInfo {
   fn: import { getTaskInfo } from "@server/queries.js",
   entities: [Task]
@@ -166,7 +170,7 @@ The mentioned type safety mechanisms also apply here: changing the task entity i
 
 Wasp automatically generates the appropriate types for all Operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
 
-```c title=main.wasp
+```wasp title=main.wasp
 // ...
 
 query GetTaskInfo {
@@ -219,8 +223,8 @@ Everything described above applies to Actions as well.
 
 If don't want to define a new type for the Query's return value, the new `satisfies` keyword will allow TypeScript to infer it automatically:
 ```typescript
-const getFoo = ((_args, context) => {
-  const foos = context.entities.Foo.findMany()
+const getFoo = (async (_args, context) => {
+  const foos = await context.entities.Foo.findMany()
   return {
     foos,
     message: "Here are some foos!",
@@ -292,7 +296,7 @@ export const TaskInfo = () => {
 
 Assuming the following action definition in your `.wasp` file
 
-```typescript title=main.wasp
+```wasp title=main.wasp
 action addTask {
   fn: import { addTask } from "@server/actions.js"
   entities: [Task]
@@ -389,4 +393,129 @@ and use it to type your seed function like this:
 
 ```ts
 export const devSeedSimple: DbSeedFn = async (prismaClient) => { ... }
+```
+
+## CRUD operations on entities
+
+For a specific [Entity](/docs/language/features#entity), you can tell Wasp to automatically instantiate server-side logic ([Queries](/docs/language/features#query) and [Actions](/docs/language/features#action)) for creating, reading, updating and deleting such entities. 
+
+Read more about CRUD operations in Wasp [here](/docs/language/features#crud-operations).
+
+### Using types for CRUD operations overrides
+
+If you writing the override implementation in Typescript, you'll have access to generated types. The overrides are functions that take the following arguments:
+- `args` - The arguments of the operation i.e. the data that's sent from the client.
+- `context` - Context containing the `user` making the request and the `entities` object containing the entity that's being operated on.
+
+You can types for each of the functions you want to override from `@wasp/crud/{crud name}`. The types that are available are:
+- `GetAllQuery`
+- `GetQuery`
+- `CreateAction`
+- `UpdateAction`
+- `DeleteAction`
+
+If you have a CRUD named `Tasks`, you would import the types like this:
+```ts
+import type { GetAllQuery, GetQuery, CreateAction, UpdateAction, DeleteAction } from '@wasp/crud/Tasks'
+
+// Each of the types is a generic type, so you can use it like this:
+export const getAllOverride: GetAllQuery<Input, Output> = async (args, context) => {
+  // ...
+}
+```
+
+## WebSocket full-stack type support
+
+
+Defining event names with the matching payload types on the server makes those types exposed automatically on the client. This helps you avoid mistakes when emitting events or handling them.
+
+### Defining the events handler
+On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function, which contains all entities you defined in your Wasp app. You can type the `webSocketFn` function like this: 
+
+```ts title=src/server/webSocket.ts
+import type { WebSocketDefinition, WaspSocketData } from '@wasp/webSocket'
+
+// Using the generic WebSocketDefinition type to define the WebSocket function.
+type WebSocketFn = WebSocketDefinition<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>
+
+interface ServerToClientEvents {
+  // The type for the payload of the "chatMessage" event.
+  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+}
+
+interface ClientToServerEvents {
+  // The type for the payload of the "chatMessage" event.
+  chatMessage: (msg: string) => void;
+}
+
+interface InterServerEvents {}
+
+interface SocketData extends WaspSocketData {}
+
+// Use the WebSocketFn to type the webSocketFn function.
+export const webSocketFn: WebSocketFn = (io, context) => {
+  io.on('connection', (socket) => {
+    socket.on('chatMessage', async (msg) => {
+      io.emit('chatMessage', { ... })
+    })
+  })
+}
+```
+
+### Using the WebSocket on the client
+
+After you have defined the WebSocket function on the server, you can use it on the client. The `useSocket` hook will give you the `socket` instance and the `isConnected` boolean. The `socket` instance is typed with the types you defined on the server.
+
+The `useSocketListener` hook will give you a type-safe event handler. The event name and its payload type are defined on the server.
+
+You can additonally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
+
+```tsx title=src/client/ChatPage.tsx
+import React, { useState } from 'react'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+  ClientToServerPayload,
+} from '@wasp/webSocket'
+
+export const ChatPage = () => {
+  const [messageText, setMessageText] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ClientToServerPayload<'chatMessage'>
+  >('')
+
+  const [messages, setMessages] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ServerToClientPayload<'chatMessage'>[]
+  >([])
+
+  // The "socket" instance is typed with the types you defined on the server.
+  const { socket, isConnected } = useSocket()
+
+  // This is a type-safe event handler: "chatMessage" event and its payload type
+  // are defined on the server.
+  useSocketListener('chatMessage', logMessage)
+
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
+    // ...
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // This is a type-safe event emitter: "chatMessage" event and its payload type
+    // are defined on the server.
+    socket.emit('chatMessage', messageText)
+    setMessageText('')
+  }
+
+  return (
+    ...
+  )
+}
 ```

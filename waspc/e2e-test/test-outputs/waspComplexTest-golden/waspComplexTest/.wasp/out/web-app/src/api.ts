@@ -1,6 +1,8 @@
 import axios, { type AxiosError } from 'axios'
+
 import config from './config'
 import { storage } from './storage'
+import { apiEventsEmitter } from './api/events'
 
 const api = axios.create({
   baseURL: config.apiUrl,
@@ -10,20 +12,26 @@ const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
 
 let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 
-export function setAuthToken (token: string): void {
+export function setAuthToken(token: string): void {
   authToken = token
   storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
+  apiEventsEmitter.emit('authToken.set')
+}
+
+export function getAuthToken(): string | undefined {
+  return authToken
 }
 
 export function clearAuthToken(): void {
   authToken = undefined
   storage.remove(WASP_APP_AUTH_TOKEN_NAME)
+  apiEventsEmitter.emit('authToken.clear')
 }
 
 export function removeLocalUserData(): void {
   authToken = undefined
-
   storage.clear()
+  apiEventsEmitter.emit('authToken.clear')
 }
 
 api.interceptors.request.use((request) => {
@@ -38,6 +46,23 @@ api.interceptors.response.use(undefined, (error) => {
     clearAuthToken()
   }
   return Promise.reject(error)
+})
+
+// This handler will run on other tabs (not the active one calling API functions),
+// and will ensure they know about auth token changes.
+// Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
+// "Note: This won't work on the same page that is making the changes — it is really a way
+// for other pages on the domain using the storage to sync any changes that are made."
+window.addEventListener('storage', (event) => {
+  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
+    if (!!event.newValue) {
+      authToken = event.newValue
+      apiEventsEmitter.emit('authToken.set')
+    } else {
+      authToken = undefined
+      apiEventsEmitter.emit('authToken.clear')
+    }
+  }
 })
 
 /**

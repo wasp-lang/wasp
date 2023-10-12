@@ -1,7 +1,10 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
-import SyntaxHighlighter from 'react-syntax-highlighter'
-import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
+
+import './prismCustomization'
+
+import CodeHighlight from './CodeHighlight'
+
 import { Terminal, ArrowUpRight, Play, BookOpen, Grid, Layout, Trello   } from 'react-feather'
 
 // Terminal, BookOpen, Grid, Layout, Trello, FileText 
@@ -35,7 +38,7 @@ const ActionButtons = () => (
         `}
       >
         <Terminal size={16} />
-        <span>{'wasp new <app>'}</span>
+        <span>{'Get Started'}</span>
       </button>
     </Link>
 
@@ -52,7 +55,7 @@ const ActionButtons = () => (
         `}
       >
         <BookOpen size={16} />
-        <span>Quick Guide</span>
+        <span>Documentation</span>
       </button>
     </Link>
   </div>
@@ -174,20 +177,12 @@ entity Task {=psl ... psl=} // Your Prisma data model.
                 <div className='bg-yellow-500 h-2 w-2 rounded-full' />
               </div>
             </div>
-
             {/* Editor body */}
             <div className='w-full text-sm shadow-2xl rounded-b-md'>
-              <SyntaxHighlighter
-                language="javascript"
-                style={atomOneLight}
-                customStyle={{
-                  borderBottomLeftRadius: '10px',
-                  borderBottomRightRadius: '10px',
-                  paddingLeft: '15px',
-                }}
-              >
-                {codeString}
-              </SyntaxHighlighter>
+              <CodeHighlight
+                language='wasp'
+                source={codeString}
+              />
             </div> {/* EOF code block wrapper */}
           </div> {/* EOF wrapper of header + code */}
         </div> {/* EOF col-span-6 */}

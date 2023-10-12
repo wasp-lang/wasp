@@ -1,7 +1,8 @@
 import { createTask } from './actions.js'
 import type { DbSeedFn } from '@wasp/dbSeed/types.js'
+import { PrismaClient } from '@prisma/client/index.js'
 
-async function createUser (prismaClient, data) {
+async function createUser (prismaClient: PrismaClient, data: any) {
   const { password, ...newUser } = await prismaClient.user.create({ data })
   return newUser
 }

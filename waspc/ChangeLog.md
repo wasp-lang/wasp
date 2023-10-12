@@ -1,5 +1,512 @@
 # Changelog
 
+## 0.11.6
+
+### 🎉 [New Feature] Enable Customising the Vite Config
+
+You can now customise the Vite config for your client app. This allows you to add plugins, change the dev server settings and more.
+
+By adding a `vite.config.ts` or `vite.config.js` to your `client` directory, you can customise the Vite config. For example, you change the dev server behaviour
+not to open the browser automatically:
+
+```ts
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  server: {
+    open: false,
+  },
+})
+```
+
+⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+
+### 🚧 [Experimental Feature] Wasp Studio
+
+Running `wasp studio` in the root of your project starts Wasp Studio which visualises your application and shows you the relationships between pieces of your app. It is an experimental feature which is not yet fully ready, but we are working on it and will be adding more features to it in the future.
+
+## 0.11.5
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug in Auth UI imports that prevented users from using the social login buttons.
+
+## 0.11.4
+
+### 🎉 [New Feature] Signup Fields Customization
+
+We added an API for extending the default signup form with custom fields. This allows you to add fields like `age`, `address`, etc. to your signup form.
+
+You first need to define the `auth.signup.additionalFields` property in your `.wasp` file:
+```wasp
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth.js",
+    },
+  },
+}
+```
+
+Then, you need to define the `fields` object in your `auth.js` file:
+```js
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+export const fields = defineAdditionalSignupFields({
+  address: (data) => {
+    // Validate the address field
+    if (typeof data.address !== 'string') {
+      throw new Error('Address is required.')
+    }
+    if (data.address.length < 10) {
+      throw new Error('Address must be at least 10 characters long.')
+    }
+    // Return the address field
+    return data.address
+  },
+})
+```
+
+Finally, you can extend the `SignupForm` component on the client:
+```jsx
+import { SignupForm } from "@wasp/auth/forms/Signup";
+
+export const SignupPage = () => {
+  return (
+    <div className="container">
+      <main>
+        <h1>Signup</h1>
+        <SignupForm
+          additionalFields={[
+            {
+              name: "address",
+              label: "Address",
+              type: "input",
+              validations: {
+                required: "Address is required",
+              },
+            },
+          ]}
+        />
+      </main>
+    </div>
+  );
+};
+```
+### 🎉 [New Feature] Support for PostgreSQL Extensions
+
+Wasp now supports PostgreSQL extensions! You can enable them in your `main.wasp` file:
+
+```wasp
+app todoApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"],
+      dbExtensions: [{
+        name: "pgvector",
+        // map: "vector", (optional)
+        // schema: "public", (optional)
+        // version: "0.1.0", (optiona)
+      }]
+    }
+  }
+}
+```
+
+This will add the necessary Prisma configuration to your `schema.prisma` file. Keep in mind that your database needs to support the extension you want to use. For example, if you want to use the `pgvector` extension, you need to install it in your database first.
+
+### 🎉 [New Feature] Added Typescript support for Jobs
+
+Now you can type your async jobs better and receive all the benefits of Typescript. When you define a job, Wasp will generate a generic type which you can use to type your job function:
+
+```wasp
+job simplePrintJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { simplePrint } from "@server/jobs.js",
+  },
+  entities: [Task]
+}
+```
+
+```typescript
+import { SimplePrintJob } from "@wasp/jobs/simplePrintJob";
+import { Task } from "@wasp/entities";
+
+export const simplePrint: SimplePrintJob<
+  { name: string },
+  { tasks: Task[] }
+> = async (args, context) => {
+  //        👆 args are typed e.g. { name: string }
+  //                👆 context is typed e.g. { entitites: { Task: ... } }
+  const tasks = await context.entities.Task.findMany({});
+  return {
+    tasks,
+  };
+};
+```
+
+When you use the job, you can pass the arguments and receive the result with the correct types:
+
+```typescript
+import { simplePrintJob } from "@wasp/jobs/simplePrintJob.js";
+
+...
+const job = await simplePrintJob.submit({ name: "John" })
+...
+const result = await result.pgBoss.details()
+//      👆 result is typed e.g. { tasks: Task[] }
+```
+
+## 0.11.3
+
+### 🎉 [New Feature] Type-safe links
+
+Wasp now offers a way to link to pages in your app in a type-safe way. This means that you can't accidentally link to a page that doesn't exist, or pass the wrong arguments to a page.
+
+After you defined your routes:
+
+```wasp
+route TaskRoute { path: "/task/:id", to: TaskPage }
+```
+
+You can get the benefits of type-safe links by using the `Link` component from `@wasp/router`:
+
+```jsx
+import { Link } from '@wasp/router'
+
+export const TaskList = () => {
+  // ...
+
+  return (
+    <div>
+      {tasks.map((task) => (
+        <Link
+          key={task.id}
+          to="/task/:id"
+      {/* 👆 You must provide a valid path here */} 
+          params={{ id: task.id }}>
+      {/* 👆 All the params must be correctly passed in */}   
+          {task.description}
+        </Link>
+      ))}
+    </div>
+  )
+}
+```
+
+You can also get all the pages in your app with the `routes` object:
+
+```jsx
+import { routes } from '@wasp/router'
+
+const linkToTask = routes.TaskRoute({ params: { id: 1 } })
+```
+
+### 🐞 Bug fixes
+- Fixes API types exports for TypeScript users.
+- Default .gitignore that comes with new Wasp project (`wasp new`) is now more aggressive when ignoring .env files, ensuring they don't get committed by accident (wrong name, wrong location, ...).
+
+
+## 0.11.2
+
+### 🎉 [New Feature] waspls Code Scaffolding
+
+When an external import is missing its implementation, waspls now offers a Code Action to quickly scaffold the missing JavaScript or TypeScript function:
+
+```wasp
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //  ERROR: `getTasks` is not exported from `src/server/queries.ts`
+  entities: [Task],
+}
+```
+
+Using the code action (pressing <kbd>Ctrl</kbd> + <kbd>.</kbd> or clicking the lightbulb 💡 icon in VSCode) will add the following code to `src/server/queries.ts`:
+
+```ts
+import { GetTasks } from '@wasp/queries/types'
+
+import GetTasksInput = void
+import GetTasksOutput = void
+
+export const getTasks: GetTasks<GetTasksInput, GetTasksOutput> = async (args, context) => {
+  // Implementation goes here
+}
+```
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
+- waspls thought that importing `"@client/file.jsx"` could mean `"@client/file.tsx"`, which could hide some missing import diagnostics and cause go-to definition to jump to the wrong file.
+
+
+## 0.11.1
+
+### 🎉 [New feature] Prisma client preview flags 
+Wasp now allows you to enable desired `previewFeatures` for the Prisma client:
+```
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    // ...
+    prisma: {
+      clientPreviewFeatures: ["extendedWhereUnique"]
+    }
+  }
+}
+```
+Read all about Prisma preview features in [the official docs](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+
+## v0.11.0
+
+### 🎉 Big new features 🎉 
+- Automatic CRUD backend generation
+- Public folder support
+- Type safe WebSocket support
+- Go to definition for imports in Wasp file
+
+Check below for details on each of them!
+
+### ⚠️ Breaking changes
+- Wasp's **signup action** `import signup from '@wasp/auth/signup` now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
+  This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age` or `address`).
+  Instead, those should be set in the separate step after signup, or via a custom signup action of your own.
+- Wasp now uses **React 18**! Check the following upgrade guide for details: https://react.dev/blog/2022/03/08/react-18-upgrade-guide .
+  The most obvious difference you might notice is that your `useEffect` hooks run twice on component mount.
+  This is due to the React 18's StrictMode, and it happens only during development, so it doesn't change the behaviour of your app in production.
+  For more details on StrictMode, check https://react.dev/reference/react/StrictMode .
+- Updated most of the npm dependencies that Wasp app is generated with (e.g. axios), so you will also need to update those that both you and Wasp use.
+  Wasp will inform you about this with a warning/error message during compilation so just follow instructions.
+
+### 🎉 [New feature] Public directory support
+Wasp now supports a `public` directory in the `client` directory!
+
+```
+main.wasp
+src/
+├── client/
+|   ├── public/  # <-- NEW!
+|   |   ├── favicon.ico
+|   |   └── robots.txt
+|   └── ...
+└── ...
+```
+
+All the files in this directory will be copied as they are to the `public` directory in the build folder.
+This is useful for adding static assets to your project, like favicons, robots.txt, etc.
+
+### 🎉 [New feature] Type safe WebSocket support
+
+Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more.
+What's more, Wasp's WebSockets support full-stack type safety, so you can be sure that your client and server are communicating with strongly typed events.
+
+Enable WebSockets in your project by adding the following to your `main.wasp` file:
+
+```
+app todoApp {
+  // ...
+
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    autoConnect: true, // optional, default: true
+  },
+}
+```
+
+Then implement it on the server with optional types:
+```typescript
+import type { WebSocketDefinition } from '@wasp/webSocket'
+
+export const webSocketFn: WebSocketFn = (io, context) => {
+  io.on('connection', (socket) => {
+    // ...
+  })
+}
+
+type WebSocketFn = WebSocketDefinition<
+  ClientToServerEvents,
+  ServerToClientEvents
+>
+
+interface ServerToClientEvents {
+  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+}
+
+interface ClientToServerEvents {
+  chatMessage: (msg: string) => void;
+}
+```
+
+And use it on the client with automatic type inference:
+```typescript
+import React, { useState } from 'react'
+import {
+  useSocket,
+  useSocketListener,
+  ServerToClientPayload,
+} from '@wasp/webSocket'
+
+export const ChatPage = () => {
+  const [messageText, setMessageText] = useState<
+    // We are using a helper type to get the payload type for the "chatMessage" event.
+    ClientToServerPayload<'chatMessage'>
+  >('')
+  const [messages, setMessages] = useState<
+    ServerToClientPayload<'chatMessage'>[]
+  >([])
+  // The "socket" instance is typed with the types you defined on the server.
+  const { socket, isConnected } = useSocket()
+
+  // This is a type-safe event handler: "chatMessage" event and its payload type
+  // are defined on the server.
+  useSocketListener('chatMessage', logMessage)
+
+  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
+    setMessages((priorMessages) => [msg, ...priorMessages])
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // This is a type-safe event emitter: "chatMessage" event and its payload type
+    // are defined on the server.
+    socket.emit('chatMessage', messageText)
+    // ...
+  }
+
+  // ...
+}
+```
+
+### 🎉 [New feature] Automatic CRUD backend generation
+You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
+
+Example of a `Task` entity with automatic CRUD:
+
+```
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // by default only logged in users can perform operations
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+    delete: {},
+  },
+}
+```
+
+This gives us the following operations: `getAll`, `get`, `create`, `update` and `delete`, which we can use in our client like this:
+
+```typescript
+import { Tasks } from '@wasp/crud/Tasks'
+import { useState } from 'react'
+
+export const MainPage = () => {
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
+  const createTask = Tasks.create.useAction()
+  // ...
+
+  function handleCreateTask() {
+    createTask({ description: taskDescription, isDone: false })
+    setTaskDescription('')
+  }
+
+  // ...
+}
+```
+
+### 🎉 [New feature] IDE tooling improvements
+
+#### Go to definition from wasp file + detection of invalid imports
+
+```
+query getRecipes {
+  fn: import { getRecipes } from "@server/recipe.js",  // <- You can now click on this import!
+  entities: [Recipe],
+}
+```
+
+Wasp language server just got smarter regarding imports in wasp file!
+1. If there is no file to which import points, error is reported.
+2. If file doesn't contain symbol that we are importing, error is reported.
+3. Clicking on import statement now takes you to the code that is being imported.
+
+We have more ideas in this direction on the way though!
+A bit of a sneak peek of what is coming soon: if Wasp recognizes file / symbol is missing, it will offer to scaffold the code for you!
+
+#### Autocompletion for dictionary keys
+
+```
+app RecipeApp {
+  title: "My Recipes",
+  wasp: { version: "^0.10.0" },
+  auth: {
+    methods: { usernameAndPassword: {} },
+    █       // <- your cursor
+  }
+}
+```
+
+As per popular request, Wasp language server now recognizes when you are in dictionary and will offer possible key values for autocompletion!
+For instance, in the code example above, it will offer completions such as `onAuthFailedRedirectTo`, `userEntity`, ... .
+It will also show their types.
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
+- Wasp starter templates now show description.
+- Wasp CLI now correctly exits with exit code 1 after compiler bug crash.
+- Added extra type info to middleware customization fn.
+- Upgraded most of the dependencies (with react-router and prisma upgrades coming soon).
+- Wasp CLI now always shows a nice error message when database is not accessible.
+- We now ensure that User entity's username field must have `unique` attribute.
+- Improved how Wasp CLI detects wrong/missing node + the error message it prints.
+
+
+## v0.10.6
+
+### Bug fixes
+- `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
+
+### More `wasp deploy fly` options
+`wasp deploy fly` now supports a `--org` option, as well as setting secrets during `launch`.
+
+## v0.10.5
+
+### Bug fixes
+- Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
+- Wasp now renders only the first route that matches the current path in the browser. 
+
+### Express middleware customization
+We now offer the ability to customize Express middleware:
+- globally (impacting all actions, queries, and apis by default)
+- on a per-api basis
+- on a per-path basis (groups of apis)
+
+
+### Interactive new project creation
+We now offer an interactive way to create a new project. You can run `wasp new` and follow the prompts to create a new project. This is the recommended way to create a new project. It will ask you for the project name and to choose one of the starter templates.
+
+## v0.10.4
+
+### Bug fixes
+- Adds missing import for HttpError which prevent auth from working properly.
+
+## v0.10.3
+- Fixed a bug with circular imports in JS code which prevented database seeding from working properly.
+
 ## v0.10.2
 
 ### Bug fixes
@@ -17,7 +524,7 @@
 - We changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
     - `import { LoginForm } from '@wasp/auth/forms/Login'`
     - `import { SignupForm } from '@wasp/auth/Signup'`
-- We renamed `useAuth.js` to `useAuth.ts` and you should import it like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension)
+- We changed some of the extensions on Wasp-provided imports from `.js` to `.ts`. For example `useAuth.js` is now `useAuth.ts`. Therefore, you should import them like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension). Some other affected imports are `@wasp/auth/login.js`, `@wasp/auth/logout.js`, and similar.
 - We changed the type arguments for `useQuery` and `useAction` hooks. They now take two arguments (the `Error` type argument was removed):
   - `Input` - This type argument specifies the type for the **request's payload**.
   - `Output` - This type argument specifies the type for the **resposne's payload**.
@@ -66,7 +573,7 @@ export const TaskInfo = () => {
 ```
 The same feature is available for Actions.
 
-### Payloads compatible with Superjson 
+### Payloads compatible with Superjson
 Client and the server can now communicate with richer payloads.
 
 Return a Superjson-compatible object from your Operation:

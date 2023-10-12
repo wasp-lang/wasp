@@ -1,0 +1,74 @@
+app pgVectorExample {
+  wasp: {
+    version: "^0.11.3"
+  },
+  title: "PG Vector Example",
+  dependencies: [
+    ("openai", "^4.5.0"),
+    ("react-hook-form", "^7.45.4"),
+    ("@nextui-org/react", "^2.1.10"),
+    ("framer-motion", "^10.16.4"),
+    ("pgvector", "0.1.5"),
+    ("cheerio", "1.0.0-rc.12"),
+    ("axios", "^1.4.0"),
+    ("react-markdown", "^8.0.7")
+  ],
+  client: {
+    rootComponent: import { Layout } from "@client/Layout.tsx",
+  },
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"],
+      dbExtensions: [{
+        name: "pgvector",
+        map: "vector"
+      }]
+    }
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { Main } from "@client/pages/MainPage.tsx"
+}
+
+action embedDocument {
+  fn: import { embedDocument } from "@server/documents.js",
+  entities: [Document],
+}
+
+action getScrapeCandidates {
+  fn: import { getScrapeCandidates } from "@server/documents.js",
+  entities: [Document],
+}
+
+query getDocuments {
+  fn: import { getDocuments } from "@server/documents.js",
+  entities: [Document]
+}
+
+action searchDocuments {
+  fn: import { searchDocuments } from "@server/documents.js",
+  entities: [Document]
+}
+
+action askDocuments {
+  fn: import { askDocuments } from "@server/documents.js",
+  entities: [Document]
+}
+
+action deleteDocument {
+  fn: import { deleteDocument } from "@server/documents.js",
+  entities: [Document]
+}
+
+entity Document {=psl
+  id String @id @default(uuid())
+  title String
+  url String @unique
+  content String
+  embedding Unsupported("vector(1536)")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+psl=}

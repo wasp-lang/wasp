@@ -32,7 +32,7 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getApis)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -44,9 +44,7 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
-    latestMajorNodeVersion,
     makeJsonWithEntityData,
-    nodeVersionRange,
     prismaVersion,
   )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -58,13 +56,16 @@ import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
+import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
@@ -84,12 +85,13 @@ genServer spec =
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genJobExecutors
+    <++> genJobExecutors spec
     <++> genPatches spec
     <++> genUniversalDir
     <++> genEnvValidationScript
     <++> genExportedTypesDir spec
     <++> genApis spec
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -125,7 +127,7 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
+              "nodeVersionRange" .= show NodeVersion.nodeVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -165,7 +167,8 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEmail spec,
+          ++ depsRequiredByEmail spec
+          ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
@@ -173,11 +176,13 @@ npmDepsForWasp spec =
             ("prisma", show prismaVersion),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^4.8.4"),
+            ("typescript", "^5.1.0"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
+            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1"),
+            ("@types/uuid", "^9.0.0"),
+            ("@types/cors", "^2.8.5")
           ]
     }
 
@@ -215,6 +220,8 @@ genSrcDir spec =
     <++> genAuth spec
     <++> genEmailSender spec
     <++> genDbSeed spec
+    <++> genMiddleware spec
+    <++> genWebSockets spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -245,11 +252,13 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
-              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
+              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
@@ -258,24 +267,30 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  return
-    [ C.mkTmplFdWithDstAndData
-        (C.asTmplFile [relfile|src/routes/index.js|])
-        (C.asServerFile [relfile|src/routes/index.js|])
-        ( Just $
-            object
-              [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
-                "areThereAnyCustomApiRoutes" .= (not . null $ getApis spec)
-              ]
-        )
-    ]
+  sequence [genRoutesIndex spec]
+
+genRoutesIndex :: AppSpec -> Generator FileDraft
+genRoutesIndex spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/index.js|])
+      (C.asServerFile [relfile|src/routes/index.js|])
+      (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+          "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+          "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
+        ]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
 genTypesAndEntitiesDirs spec =
   return
     [ entitiesIndexFileDraft,
       taggedEntitiesFileDraft,
+      serializationFileDraft,
       typesIndexFileDraft
     ]
   where
@@ -289,6 +304,9 @@ genTypesAndEntitiesDirs spec =
         [relfile|src/_types/taggedEntities.ts|]
         [relfile|src/_types/taggedEntities.ts|]
         (Just $ object ["entities" .= allEntities])
+    serializationFileDraft =
+      C.mkSrcTmplFd
+        [relfile|_types/serialization.ts|]
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/_types/index.ts|]
@@ -372,7 +390,45 @@ genExportedTypesDir spec =
     [ C.mkTmplFdWithData [relfile|src/types/index.ts|] (Just tmplData)
     ]
   where
-    tmplData = object ["isExternalAuthEnabled" .= isExternalAuthEnabled, "isEmailAuthEnabled" .= isEmailAuthEnabled]
+    tmplData =
+      object
+        [ "isExternalAuthEnabled" .= isExternalAuthEnabled,
+          "isEmailAuthEnabled" .= isEmailAuthEnabled
+        ]
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genMiddleware :: AppSpec -> Generator [FileDraft]
+genMiddleware spec =
+  sequence
+    [ return $ C.mkTmplFd [relfile|src/middleware/index.ts|],
+      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData),
+      genOperationsMiddleware spec
+    ]
+  where
+    tmplData =
+      object
+        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData
+        ]
+
+    globalMiddlewareConfigFnTmplData :: Aeson.Value
+    globalMiddlewareConfigFnTmplData =
+      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+          globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
+          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
+       in object
+            [ "isDefined" .= isJust maybeGlobalMidlewareConfigFnImports,
+              "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
+              "importAlias" .= globalMiddlewareConfigFnAlias
+            ]
+
+genOperationsMiddleware :: AppSpec -> Generator FileDraft
+genOperationsMiddleware spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/middleware/operations.ts|])
+      (C.asServerFile [relfile|src/middleware/operations.ts|])
+      (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

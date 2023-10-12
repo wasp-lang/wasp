@@ -7,6 +7,11 @@ import { type User } from '../entities/index.js'
 import waspServerConfig from '../config.js';
 import { type Prisma } from '@prisma/client';
 
+import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
+const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
+  ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
+>
+
 type UserId = User['id']
 
 export const contextWithUserEntity = {
@@ -20,7 +25,7 @@ export const authConfig = {
   successRedirectPath: "/",
 }
 
-export async function findUserBy<K extends keyof User>(where: { [key in K]: User[K] }): Promise<User> {
+export async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User> {
   return prisma.user.findUnique({ where });
 }
 
@@ -61,10 +66,6 @@ export async function doFakeWork() {
 }
 
 
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
-}
-
 function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
@@ -77,4 +78,23 @@ function rethrowPossiblePrismaError(e: unknown): void {
 
 function throwValidationError(message: string): void {
   throw new HttpError(422, 'Validation failed', { message })
+}
+
+export async function validateAndGetAdditionalFields(data: {
+  [key: string]: unknown
+}) {
+  const {
+    password: _password,
+    ...sanitizedData
+  } = data;
+  const result: Record<string, any> = {};
+  for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
+    try {
+      const value = await getFieldValue(sanitizedData)
+      result[field] = value
+    } catch (e) {
+      throwValidationError(e.message)
+    }
+  }
+  return result;
 }

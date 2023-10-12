@@ -1,0 +1,13 @@
+//! test/completion
+app todoApp {
+  wasp: {
+    version: "^0.10.5", 
+  },
+  title: "todo!",
+}
+
+route MainRoute { path: "/", to: | }
+                                 ^
+page MainPage {
+  component: import { MainPage } from "@client/MainPage.jsx",
+}

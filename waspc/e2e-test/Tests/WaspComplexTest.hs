@@ -28,10 +28,17 @@ waspComplexTest = do
       <++> addClientSetup
       <++> addServerSetup
       <++> addGoogleAuth
+      <++> sequence
+        [ -- Prerequisite for jobs
+          setDbToPSQL
+        ]
       <++> addJob
+      <++> addTsJob
       <++> addAction
       <++> addQuery
       <++> addApi
+      <++> addApiNamespace
+      <++> addCrud
       <++> sequence
         [ waspCliCompile
         ]
@@ -93,8 +100,7 @@ addServerSetup = do
 addJob :: ShellCommandBuilder [ShellCommand]
 addJob = do
   sequence
-    [ setDbToPSQL,
-      appendToWaspFile jobDecl,
+    [ appendToWaspFile jobDecl,
       createFile jobFile "./src/server/jobs" "bar.js"
     ]
   where
@@ -112,6 +118,32 @@ addJob = do
       unlines
         [ "export const foo = async (args) => {",
           "  return 1",
+          "}"
+        ]
+
+addTsJob :: ShellCommandBuilder [ShellCommand]
+addTsJob = do
+  sequence
+    [ appendToWaspFile jobDecl,
+      createFile jobFile "./src/server/jobs" "returnHello.ts"
+    ]
+  where
+    jobDecl =
+      unlines
+        [ "job ReturnHelloJob {",
+          "  executor: PgBoss,",
+          "  perform: {",
+          "    fn: import { returnHello } from \"@server/jobs/returnHello.js\",",
+          "  },",
+          "  entities: [User],",
+          "}"
+        ]
+
+    jobFile =
+      unlines
+        [ "import { ReturnHelloJob } from '@wasp/jobs/ReturnHelloJob'",
+          "export const returnHello: ReturnHelloJob<{ name: string }, string> = async (args) => {",
+          "  return args.name",
           "}"
         ]
 
@@ -246,8 +278,8 @@ addApi = do
       unlines
         [ "api fooBar {",
           "  fn: import { fooBar } from \"@server/apis.js\",",
-          "  httpRoute: (GET, \"/foo/bar\")",
-          "  // implicit auth:true",
+          "  httpRoute: (GET, \"/foo/bar\"),",
+          "  middlewareConfigFn: import { fooBarMiddlewareFn } from \"@server/apis.js\"",
           "}",
           "api fooBaz {",
           "  fn: import { fooBaz } from \"@server/apis.js\",",
@@ -259,12 +291,39 @@ addApi = do
     apiFile =
       unlines
         [ "import { FooBar, FooBaz } from '@wasp/apis/types'",
+          "import { MiddlewareConfigFn } from '@wasp/middleware'",
           "export const fooBar: FooBar = (req, res, context) => {",
           "  res.set('Access-Control-Allow-Origin', '*')",
           "  res.json({ msg: 'Hello, context.user.username!' })",
           "}",
           "export const fooBaz: FooBaz = (req, res, context) => {",
           "  res.json({ msg: 'Hello, stranger!' })",
+          "}",
+          "export const fooBarMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {",
+          "  return middlewareConfig",
+          "}"
+        ]
+
+addApiNamespace :: ShellCommandBuilder [ShellCommand]
+addApiNamespace = do
+  sequence
+    [ appendToWaspFile apiNamespaceDecl,
+      createFile apiNamespaceFile "./src/server" "apiNamespaces.ts"
+    ]
+  where
+    apiNamespaceDecl =
+      unlines
+        [ "apiNamespace fooBarNamespace {",
+          "  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from \"@server/apiNamespaces.js\",",
+          "  path: \"/bar\"",
+          "}"
+        ]
+
+    apiNamespaceFile =
+      unlines
+        [ "import { MiddlewareConfigFn } from '@wasp/middleware'",
+          "export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {",
+          "  return middlewareConfig",
           "}"
         ]
 
@@ -283,6 +342,33 @@ addEmailSender = do
           "      email: \"hello@itsme.com\"",
           "    },",
           "  },"
+        ]
+
+addCrud :: ShellCommandBuilder [ShellCommand]
+addCrud = do
+  sequence
+    [ appendToWaspFile taskEntityDecl,
+      appendToWaspFile crudDecl
+    ]
+  where
+    taskEntityDecl =
+      unlines
+        [ "entity Task {=psl",
+          "  id          Int     @id @default(autoincrement())",
+          "  description String",
+          "  isDone      Boolean @default(false)",
+          "psl=}"
+        ]
+    crudDecl =
+      unlines
+        [ "crud tasks {",
+          "  entity: Task,",
+          "  operations: {",
+          "    get: {},",
+          "    getAll: {},",
+          "    create: {},",
+          "  }",
+          "}"
         ]
 
 insertCodeIntoWaspFileAfterVersion :: String -> ShellCommandBuilder ShellCommand

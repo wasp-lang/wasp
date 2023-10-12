@@ -41,7 +41,8 @@ spec_WebAppGenerator = do
                       AS.App.auth = Nothing,
                       AS.App.dependencies = Nothing,
                       AS.App.head = Nothing,
-                      AS.App.emailSender = Nothing
+                      AS.App.emailSender = Nothing,
+                      AS.App.webSocket = Nothing
                     }
               ],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
@@ -54,7 +55,8 @@ spec_WebAppGenerator = do
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
             AS.configFiles = [],
-            AS.devDatabaseUrl = Nothing
+            AS.devDatabaseUrl = Nothing,
+            AS.customViteConfigPath = Nothing
           }
 
   describe "genWebApp" $ do
@@ -80,7 +82,7 @@ spec_WebAppGenerator = do
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",
                       "index.tsx",
-                      "router.jsx"
+                      "router.tsx"
                     ]
                 ]
 
