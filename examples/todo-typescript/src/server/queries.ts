@@ -10,5 +10,6 @@ export const getTasks = ((_args, context) => {
 
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
+    orderBy: { id: "asc" },
   });
 }) satisfies GetTasks<void, Task[]>;
