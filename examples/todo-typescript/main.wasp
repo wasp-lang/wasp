@@ -7,7 +7,10 @@ app TodoTypescript {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
+      //google: {}, //https://wasp-lang.dev/docs/integrations/google
+      //gitHub: {}, //https://wasp-lang.dev/docs/integrations/github
+      //email: {} //https://wasp-lang.dev/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
   }
@@ -24,11 +27,11 @@ entity User {=psl
 psl=}
 
 entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    user        User?   @relation(fields: [userId], references: [id])
-    userId      Int?
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  user        User   @relation(fields: [userId], references: [id])
+  userId      Int
 psl=}
 
 route RootRoute { path: "/", to: MainPage }
@@ -65,4 +68,9 @@ action createTask {
 action updateTask {
   fn: import { updateTask } from "@server/actions.js",
   entities: [Task]
+}
+
+action deleteTasks {
+  fn: import { deleteTasks } from "@server/actions.js",
+  entities: [Task],
 }
