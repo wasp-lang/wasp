@@ -220,6 +220,93 @@ wasp db seed devSeedSimple
 
 Check the [API Reference](#cli-commands-for-seeding-the-database) for more details on these commands.
 
+
+## Seeding the Production Database on Fly.io
+
+To seed the production database on Fly.io, follow these steps:
+
+Certainly! Here's the information you provided in a formatted and organized manner for your GitHub documentation:
+
+---
+
+## Getting the DB Name and Password
+
+### Retrieve the DB Name:
+
+To obtain the DB name, use the following command:
+
+```bash
+fly postgres connect -a <app_name>
+```
+
+Replace `<app_name>` with the name of your Wasp app. After connecting to the database, run:
+
+```bash
+\l
+```
+
+The DB name will be displayed in the list of databases.
+
+### Retrieve the DB Password:
+
+To get the DB password, run the following command:
+
+```bash
+fly ssh console -a <app_name>
+```
+
+Once connected to the database server, execute:
+
+```bash
+echo $OPERATOR_PASSWORD
+```
+
+### Setting the Database URL in `.env.server`
+
+The database URL should be set in the `.env.server` file, specific to the production environment. Format the URL as follows:
+
+```bash
+DATABASE_URL=postgres://postgres:<password>@localhost:5432/<db_name>
+```
+
+Replace `<password>` with the DB password obtained in the previous step and `<db_name>` with the DB name obtained earlier.
+
+## Opening a Tunnel to the Production DB
+
+To open a tunnel to the production DB, run:
+
+```bash
+fly proxy 5432 -a <app_name>
+```
+
+Replace `<app_name>` with your Wasp app's name. This command creates a tunnel on port 5432 that forwards traffic to the production DB.
+
+## Running the Wasp DB Seed Command
+
+To seed the production database, execute:
+
+```bash
+wasp db seed
+```
+
+This command will run the seed functions defined in your Wasp app.
+
+## Cleanup
+
+After seeding the database, remember to:
+
+1. Remove the `DATABASE_URL` variable from the local `.env.server` file.
+2. Close the tunnel using the following command:
+
+```bash
+fly proxy stop 5432
+```
+
+---
+
+
+     ```
+
 :::tip
 You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
 :::
