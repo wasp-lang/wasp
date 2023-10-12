@@ -41,32 +41,35 @@ You'll have to [switch to PostgreSQL](/docs/data-model/backends#migrating-from-s
 
 There's a Dockerfile that defines an image for building the server in the `.wasp/build` directory.
 
-To run the server in production, deploy this Docker image to a hosting provider and ensure it has access to correct environment variables (this varies depending on the provider).
+To run the server in production, deploy this Docker image to a hosting provider and ensure required environment variables on the provider are correctly set up (mechanism of setting these up is specific per provider).
 All necessary environment variables are listed in the next section.
 
 #### Environment Variables
 
-Here are the environment variables your server requires to run:
+Here are the environment variables your server will be looking for:
 
-- `PORT`
-
-  The server's HTTP port number. This is where the server listens for requests (e.g., `3001`).
-
-- `DATABASE_URL`
+- `DATABASE_URL` (required)
 
   The URL of the Postgres database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
 
-- `WASP_WEB_CLIENT_URL`
+- `WASP_WEB_CLIENT_URL` (required)
 
   The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
   The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
 
-- `JWT_SECRET`
+- `JWT_SECRET` (required if using Wasp Auth)
 
   You only need this environment variable if you're using Wasp's `auth` features.
   Set it to a random string at least 32 characters long (you can use an [online generator](https://djecrety.ir/)).
 
+- `PORT` (optional)
+
+  The server's HTTP port number. This is where the server listens for requests (default: `3001`).
+
+
 <AddExternalAuthEnvVarsReminder />
+
+While these are the general instructions on how to deploy the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
 
 ### 3. Deploying the Web Client (frontend)
 
@@ -78,7 +81,7 @@ Since the app's frontend is just a bunch of static files, you can deploy it to a
 
 ### 4. Deploying the Database
 
-Any PostgreSQL database will do, as long as you set the `DATABASE_URL` env var correctly and ensure that the database is accessible from the server.
+Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
 
 ## Different Providers
 
@@ -89,7 +92,9 @@ We'll cover a few different deployment providers below:
 - Railway (server, client and database)
 - Heroku (server and database)
 
-## Fly.io
+## Fly.io (server and database)
+
+We will show how to deploy Wasp server and provision a database for it on Fly.io.
 
 :::tip We automated this process for you
 If you want to do all of the work below with one command, you can use the [Wasp CLI](/docs/advanced/deployment/cli#flyio).
@@ -206,7 +211,9 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
-## Netlify
+## Netlify (client)
+
+We will show how to deploy Wasp client on Netlify.
 
 Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account and [Netlify CLI](https://docs.netlify.com/cli/get-started/) installed to follow these instructions.
 
@@ -240,7 +247,9 @@ That is it! Your client should be live at `https://<app-name>.netlify.app` ✨
 Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment (e.g., Fly.io or Heroku).
 :::
 
-## Railway
+## Railway (server, client and database)
+
+We will show how to deploy Wasp client, Wasp server, and provision a database on Railway.
 
 Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app: database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/plans) for more info.
 
@@ -441,7 +450,9 @@ When you make updates and need to redeploy:
 - run `railway up` in the `.wasp/build` directory (server)
 - repeat all the steps in the `.wasp/build/web-app` directory (client)
 
-## Heroku
+## Heroku (server and database)
+
+We will show how to deploy Wasp server and provision a database for it on Heroku.
 
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
