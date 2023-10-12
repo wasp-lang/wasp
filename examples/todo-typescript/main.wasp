@@ -1,6 +1,6 @@
 app TodoTypescript {
   wasp: {
-    version: "^0.10.0"
+    version: "^0.11.0"
   },
   title: "ToDo TypeScript",
 
@@ -68,4 +68,9 @@ action createTask {
 action updateTask {
   fn: import { updateTask } from "@server/actions.js",
   entities: [Task]
+}
+
+action deleteTasks {
+  fn: import { deleteTasks } from "@server/actions.js",
+  entities: [Task],
 }
