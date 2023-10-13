@@ -1,0 +1,45 @@
+app whereDoWeEat {
+  wasp: {
+    version: "^0.11.6"
+  },
+  title: "where-do-we-eat",
+  client: {
+    rootComponent: import { Layout } from "@client/Layout.jsx",
+  },
+  auth: {
+    userEntity: User,
+    onAuthFailedRedirectTo: "/login",
+    methods: {
+      usernameAndPassword: {}
+    }
+  },
+  dependencies: [
+    ("flowbite", "1.6.6"),
+    ("flowbite-react", "0.4.9")
+  ],
+  webSocket: {
+    fn: import { webSocketFn } from "@server/ws-server.js",
+  }
+}
+
+entity User {=psl
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  password String
+psl=}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.tsx",
+  authRequired: true
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@client/pages/LoginPage.jsx"
+}
+
+route RegisterRoute { path: "/signup", to: RegisterPage }
+page RegisterPage {
+  component: import { SignupPage } from "@client/pages/SignupPage.jsx"
+}
