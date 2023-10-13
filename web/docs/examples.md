@@ -25,7 +25,7 @@ The full list of examples can be found [here](https://github.com/wasp-lang/wasp/
 ## Waspleau (Realtime Statistics Dashboard)
   - **Features**: Cron [Jobs](language/features#jobs), [Server Setup](language/features#server-configuration)
   - Source code: [GitHub](https://github.com/wasp-lang/wasp/tree/main/examples/waspleau)
-  - Hosted at [https://waspleau.netlify.app/](https://waspleau.netlify.app/)
+  - Hosted at [https://waspleau-app-client.fly.dev/](https://waspleau-app-client.fly.dev/)
    <p align='center'>
 <img src={useBaseUrl('img/waspleau.png')} width='75%'/>
 </p>
