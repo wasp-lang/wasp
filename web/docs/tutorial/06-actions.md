@@ -130,7 +130,7 @@ const NewTaskForm = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx {1,4,9-28} title="src/client/MainPage.tsx"
+```tsx {1,3,9-28} title="src/client/MainPage.tsx"
 import { FormEvent } from 'react'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'

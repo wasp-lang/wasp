@@ -57,7 +57,7 @@ The default Wasp file generated via `wasp new` on the previous page looks like:
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.11.0" // Pins the version of Wasp to use.
+    version: "^0.11.6" // Pins the version of Wasp to use.
   },
   title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }

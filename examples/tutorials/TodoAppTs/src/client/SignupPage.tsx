@@ -3,7 +3,7 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
-    <div style={{maxWidth: "400px", margin: "0 auto"}}>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <SignupForm />
       <br />
       <span>

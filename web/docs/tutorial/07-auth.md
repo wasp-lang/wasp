@@ -122,7 +122,6 @@ Great, Wasp now knows these pages exist! Now, the React code for the pages:
 
 ```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
-
 import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
@@ -145,7 +144,6 @@ export default LoginPage
 
 ```tsx title="src/client/LoginPage.tsx"
 import { Link } from 'react-router-dom'
-
 import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
@@ -173,7 +171,6 @@ The Signup page is very similar to the login one:
 
 ```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
-
 import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
@@ -196,7 +193,6 @@ export default SignupPage
 
 ```tsx title="src/client/SignupPage.tsx"
 import { Link } from 'react-router-dom'
-
 import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
@@ -287,7 +283,7 @@ However, you will notice that if you try logging in as different users and creat
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp {7,16-17} title="main.wasp"
+```wasp {7,14-15} title="main.wasp"
 // ...
 
 entity User {=psl
@@ -296,8 +292,6 @@ entity User {=psl
     password String
     tasks    Task[]
 psl=}
-
-// ...
 
 entity Task {=psl
     id          Int     @id @default(autoincrement())
