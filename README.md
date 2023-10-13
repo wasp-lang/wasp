@@ -21,7 +21,7 @@ curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 
 Then, close this repo and start the database with:
 ```bash
-./run_db.sh
+./custom-db/run_db.sh
 ```
 Follow the instructions in the script.
 
@@ -29,6 +29,11 @@ Fill the env variables in `.env.server`:
 ```
 OPENAI_API_KEY=<your_key>
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
+```
+
+Migrate the database with:
+```bash
+wasp db migrate-dev
 ```
 
 Then, start the server with:
