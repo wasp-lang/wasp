@@ -98,7 +98,7 @@ First, let's define a form that the user can create new tasks with.
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx {2} title="src/client/MainPage.jsx"
+```jsx {2,7-26} title="src/client/MainPage.jsx"
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
 import { useQuery } from '@wasp/queries'
@@ -130,7 +130,7 @@ const NewTaskForm = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx {1,4} title="src/client/MainPage.tsx"
+```tsx {1,4,9-28} title="src/client/MainPage.tsx"
 import { FormEvent } from 'react'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
@@ -339,7 +339,7 @@ Now, we can call `updateTask` from the React component:
 
 ```jsx {2,7-16,24} title="src/client/MainPage.jsx"
 // ...
-import updateTask from "@wasp/actions/updateTask"
+import updateTask from '@wasp/actions/updateTask'
 
 // ...
 
@@ -350,8 +350,8 @@ const Task = ({ task }) => {
         id: task.id,
         isDone: event.target.checked,
       })
-    } catch (error: any) {
-      window.alert("Error while updating task: " + error.message)
+    } catch (error) {
+      window.alert('Error while updating task: ' + error.message)
     }
   }
 

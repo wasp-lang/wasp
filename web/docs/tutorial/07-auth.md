@@ -127,13 +127,13 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <LoginForm />
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -150,13 +150,13 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <LoginForm />
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -178,13 +178,13 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <SignupForm />
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -201,13 +201,13 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <SignupForm />
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -223,7 +223,6 @@ export default SignupPage
 Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](/docs/advanced/links) for more details.
 :::
 </ShowForTs>
-
 
 ## Update the Main Page to Require Auth
 
@@ -292,10 +291,10 @@ First, let's define a one-to-many relation between users and tasks (check the [P
 // ...
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    username    String  @unique
-    password    String
-    tasks       Task[]
+    id       Int     @id @default(autoincrement())
+    username String  @unique
+    password String
+    tasks    Task[]
 psl=}
 
 // ...
@@ -328,7 +327,7 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js {1,4} title="src/server/queries.js"
+```js {1,4-6} title="src/server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -344,7 +343,7 @@ export const getTasks = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts {3,6} title="src/server/queries.ts"
+```ts {3,6-8,10} title="src/server/queries.ts"
 import { Task } from '@wasp/entities'
 import { GetTasks } from '@wasp/queries/types'
 import HttpError from '@wasp/core/HttpError.js'
@@ -365,7 +364,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js {1,4,8,14,17,18} title="src/server/actions.js"
+```js {1,4-6,10,16-18} title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (args, context) => {
@@ -394,7 +393,7 @@ export const updateTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts {3,8-10,14,22-26} title="src/server/actions.ts"
+```ts {3,11-13,17,28-30,32} title="src/server/actions.ts"
 import { Task } from '@wasp/entities'
 import { CreateTask, UpdateTask } from '@wasp/actions/types'
 import HttpError from '@wasp/core/HttpError.js'
