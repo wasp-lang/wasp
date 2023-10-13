@@ -4,6 +4,8 @@ This is an example real-time, Websockets app built with Wasp in TypeScript to sh
 
 [![wasp websockets app](image.png)](https://www.youtube.com/watch?v=Twy-2P0Co6M)
 
+You can try out a deployed version of the app here: https://websockets-client-production.up.railway.app/
+
 This app also includes Wasp's integrated auth and a voting system (again, neat!).
 
 ## Running the app
