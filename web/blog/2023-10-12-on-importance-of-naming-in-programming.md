@@ -1,5 +1,5 @@
 ---
-title: "On Importance of Naming in Programming"
+title: "On the Importance of Naming in Programming"
 authors: [martinsos]
 image: /img/on-importance-of-naming-in-programming/variables-naming-pet-white.png
 tags: [programming, clean-code]
