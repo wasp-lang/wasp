@@ -3,7 +3,7 @@ title: 7. Adding Authentication
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 Most apps today require some sort of registration and login flow, so Wasp has first-class support for it. Let's add it to our Todo app!
 
@@ -498,7 +498,16 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 
 We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp.
 
-You can find the complete code for the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+<ShowForJs>
+
+You can find the complete code for the JS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+
+</ShowForJs>
+<ShowForTs>
+
+You can find the complete code for the TS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
+
+</ShowForTs>
 
 You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your app! ✨
 
