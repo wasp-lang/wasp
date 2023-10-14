@@ -11,7 +11,6 @@ tags: [career, web-development, tutorial, learning]
 
 ![Project Overview](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/9g5owahcqzhpo331wol3.png)
 
-
 In this article, we want to emphasize the importance of coding challenges by giving you the skills you’ll need to pass a common junior-level interview challenge: building a full-stack CRUD app (which we will use the [Wasp framework](https://wasp-lang.dev/) and it’s stack — React, Node and Prisma to do so). The application focuses on making a web app for trading and rating Pokémon based on their Experience Points (XP), using the [PokéAPI](https://pokeapi.co/) to get the data that we need.
 
 We will also discuss the important factors that recruiters look for when hiring new developers, such as code quality, readability, stack and architectural choices and a more modern approach to AI use in code generation. It's a helpful read if you want to improve your coding skills and succeed in the hiring process!
@@ -24,18 +23,17 @@ You can find the deployed version of the app [here](https://client-production-55
 
 In this article, I'll be using the [Wasp Framework](https://github.com/wasp-lang/wasp). It provides a great way to start a project with its AI app generator and a really awesome developer experience for when you want to create a full-stack web application with all batteries included, front-end, back-end, and database.
 
-I'm currently a member of the Wasp team and since it’s also an open-source project, you can contribute too! 
+I'm currently a member of the Wasp team and since it’s also an open-source project, you can contribute too!
 
 The easiest way to show your support is just to star our repo! 🐝 But it would be greatly appreciated if you could take a look at our repository (for contributions or to simply test the product) too!
 
-{% cta https://www.github.com/wasp-lang/wasp %} ⭐️ Give Wasp Framework a Star! ⭐️  {% endcta %}
+{% cta https://www.github.com/wasp-lang/wasp %} ⭐️ Give Wasp Framework a Star! ⭐️ {% endcta %}
 
 ## Introduction
 
 Currently, in the world of tech recruitment, coding challenges have become a common way to test candidates' technical skills and problem-solving abilities. In this blog post, we will discuss the importance of coding challenges in the hiring process and create one ourselves using the [Wasp Framework](https://wasp-lang.dev/), so you can improve your results when faced with a coding challenge!
 
 For this to work, we will simulate a junior-level role challenge and take it on ourselves. Generally, we have some time to do this (usually a week or so) but, to make things fair, I’m going to set my timer to 4 hours, in order to forcefully make some mistakes and put myself under pressure.
-
 
 ![Here’s my stats in the end 👀.](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/y1xi4nn6n0pfjgkfhai6.png)
 
@@ -56,8 +54,8 @@ We will implement a web app where the user must be able to do the following:
 - Register the current state of the sides as a Trade
 - See a history of all trades that were registered
 - Get real-time information on the status of the trade:
-    - If the total sum of the experience points of each Pokémon on any side has a 10% difference than the other side, it's unfair (users can still register it though)
-    - Otherwise, it's a fair trade
+  - If the total sum of the experience points of each Pokémon on any side has a 10% difference than the other side, it's unfair (users can still register it though)
+  - Otherwise, it's a fair trade
 
 With this challenges, recruiters want to evaluate a few things of the current skills of a candidate:
 
@@ -70,11 +68,9 @@ We’ll talk generally about all of those things on this article, but, I’ll le
 
 To make this challenge possible, we'll use the [PokéAPI](https://pokeapi.co/)'s endpoints to fetch Pokémon's data and XP value. Here’s a preview of how this is gonna end-up looking like (consider this your prototype, if you’re coding along):
 
-
 ![Project image](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ypcq702ai4m74xqlapso.png)
 
 ![Project image](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/adyu5ltg9kbrjf92lo3y.png)
-
 
 In those images, we can clearly see a trade area, the ability to insert Pokémons and register some trades!
 
@@ -89,7 +85,6 @@ So, first and foremost, let's go to the [Wasp's GPT app generator](https://usema
 After opening up the web page, I started to describe the basic functionalities of the application. I tried not to be very specific (which is generally not recommended for AI generation), but the purpose of that is to check if the AI can give us a great start even with an imperfect prompt. Here is the prompt I used:
 
 > Generate a web app where users can choose Pokémon for two sides: Trade Area A and Trade Area B. After choosing, the web app evaluates if the trade is fair or unfair based on the sum of experience points of both sides (a 10% difference or higher is considered unfair). Users can also register the trades to their history and view this history on a profile page.
-> 
 
 With this prompt, the AI was able to generate this [result](https://usemage.ai/result/c7793841-8733-4346-a248-6cdb405a9cf1):
 
@@ -100,20 +95,20 @@ The result contains some impressive things and the Wasp framework makes web app 
 This method is what enables Wasp to create the whole project using an AI generator (which is exactly what we are doing here) while maintaining consistency and quality. The generator examines the prompt and produces code for components, routes, actions, and queries based on the necessities of the user. Now, let's check some of the created code and structure and evaluate them:
 
 - The front-end ✅:
-    - It generated a Login and Signup route and pages (which is excellent, for reference, so excellent that I only made some minor style changes to those; it was working out of the box!) ✅
-    - It generated three pages:
-        - Home - which is just a series of buttons referencing other pages ✅
-        - Profile - which is the user profile page ✅
-        - Trade - which is the page where users can register new trades ✅
+  - It generated a Login and Signup route and pages (which is excellent, for reference, so excellent that I only made some minor style changes to those; it was working out of the box!) ✅
+  - It generated three pages:
+    - Home - which is just a series of buttons referencing other pages ✅
+    - Profile - which is the user profile page ✅
+    - Trade - which is the page where users can register new trades ✅
 - The back-end ⚠️:
-    - It generated two actions (which are simply functions to interact with our back-end): evaluateTrade and registerTrade — which are precisely the two actions that the app needs ✅
-    - It generated two queries: getPokémon and getUserTrade — getUserTrade was perfect from the beginning, and getPokémon would need some adjustments (it misunderstood a few things on the database layer, as we can check below) ⚠️
+  - It generated two actions (which are simply functions to interact with our back-end): evaluateTrade and registerTrade — which are precisely the two actions that the app needs ✅
+  - It generated two queries: getPokémon and getUserTrade — getUserTrade was perfect from the beginning, and getPokémon would need some adjustments (it misunderstood a few things on the database layer, as we can check below) ⚠️
 - The database ⚠️ :
-    - Here is where it suffered the most — generally, the idea was correct, but in this case, since we're not creating each one of our Pokémons on our database (just fetching them from an API), the ideas where it used the Pokémon model were not correct. Everything else was basically okay! ⚠️
+  - Here is where it suffered the most — generally, the idea was correct, but in this case, since we're not creating each one of our Pokémons on our database (just fetching them from an API), the ideas where it used the Pokémon model were not correct. Everything else was basically okay! ⚠️
 
 ## Implementation
 
-So, simply by using this [AI generator](https://usemage.ai/), we were able to generate an amazing start to get it going. After that, it was a simple matter of  downloading the generated app, initializing a repository with it, and following [Wasp's getting started documentation.](https://wasp-lang.dev/docs/quick-start)
+So, simply by using this [AI generator](https://usemage.ai/), we were able to generate an amazing start to get it going. After that, it was a simple matter of downloading the generated app, initializing a repository with it, and following [Wasp's getting started documentation.](https://wasp-lang.dev/docs/quick-start)
 
 To install Wasp’s framework, we can run the command:
 
@@ -123,7 +118,7 @@ To get an even better developer experience, we can download the [Wasp extension 
 
 BTW: If you want to just check the code result, here is the [Github Repository link](https://github.com/LLxD/Poketrader-Wasp) for it!
 
-After setting up the basic structure and preparing the project for development, it is time to start developing our application! 
+After setting up the basic structure and preparing the project for development, it is time to start developing our application!
 
 So, firstly, let's retrieve some Pokémon, since their information is used everywhere on the app! We have the option to fetch each endpoint using the [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), for example, but I will take advantage of the fact that there is an [npm library specifically for Pokémon](https://www.npmjs.com/package/pokedex-promise-v2) that handles this for us.
 
@@ -153,16 +148,16 @@ Now, that we added this dependency, it’s time to fetch them per se, so in orde
 //src/server/queries.js
 // a simples async await fetch to get the pokemon data
 async function loadPokemons() {
-	const P = new Pokedex();
-	const response = await P.getGenerationByName("generation-i");
-	return response.pokemon_species;
+  const P = new Pokedex()
+  const response = await P.getGenerationByName('generation-i')
+  return response.pokemon_species
 }
 
 export const getPokemon = async () => {
-	const pokemons = await loadPokemons();
-	
-	return pokemons;
-};
+  const pokemons = await loadPokemons()
+
+  return pokemons
+}
 ```
 
 Basically, we are fetching Pokémon from the first generation only (which is the one I am most familiar with, but you can choose others if you prefer 🤣) and returning them to the front-end.
@@ -208,45 +203,45 @@ Afterwards, I made this component more generic so that it can be reused in trade
 //src/server/queries.js
 //refactoring loadPokemons to also get images and base_experience values
 async function loadPokemons() {
-  const P = new Pokedex();
-  const response = await P.getGenerationByName("generation-i");
-  const pokemons = response.pokemon_species;
+  const P = new Pokedex()
+  const response = await P.getGenerationByName('generation-i')
+  const pokemons = response.pokemon_species
   const pokemonsWithImages = await Promise.all(
     pokemons.map(async (pokemon) => {
-      const pokemonData = await P.getPokemonByName(pokemon.name);
+      const pokemonData = await P.getPokemonByName(pokemon.name)
       return {
         id: pokemonData.id,
         name: pokemonData.name,
         base_experience: pokemonData.base_experience,
         image: pokemonData.sprites.front_default,
-      };
+      }
     })
-  );
+  )
 
-  return pokemonsWithImages;
+  return pokemonsWithImages
 }
 
 export const getPokemon = async () => {
-  const pokemons = await loadPokemons();
+  const pokemons = await loadPokemons()
 
-  return pokemons;
-};
+  return pokemons
+}
 ```
 
 So, here we are making additional requests for each Pokémon to retrieve all the necessary data, including images and base_experience. Now, we can call those images on the front-end component in order to show them to our user!
 
-So let’s create a generic component for both trade areas (since they share a lot of common things). First, create a new component (we will call it `TradeArea.jsx` ), then we can make a few additions. 
+So let’s create a generic component for both trade areas (since they share a lot of common things). First, create a new component (we will call it `TradeArea.jsx` ), then we can make a few additions.
 
-We will add a title (which must be dynamic for the area) and a select element with Pokémon options. 
+We will add a title (which must be dynamic for the area) and a select element with Pokémon options.
 
-Additionally, we should add a new button that sets the trade area (which are simply arrays of Pokémons that were selected) with the current Pokémon while keeping the old ones. We also should include a section to display the current trade area, showing the image and name of the selected Pokémon. 
+Additionally, we should add a new button that sets the trade area (which are simply arrays of Pokémons that were selected) with the current Pokémon while keeping the old ones. We also should include a section to display the current trade area, showing the image and name of the selected Pokémon.
 
 ```jsx
 //src/client/components/TradeArea.jsx
 // adding those imgs that the back-end now sends
 // adding a button to add to the trade area
 // also adding a max size of pokémons on each side (6)
-import React from "react";
+import React from 'react'
 
 function TradeArea({
   pokemons,
@@ -257,7 +252,7 @@ function TradeArea({
   tradeArea,
 }) {
   const displayName =
-    tradeAreaName === "areaA" ? "Trade Area A" : "Trade Area B";
+    tradeAreaName === 'areaA' ? 'Trade Area A' : 'Trade Area B'
   return (
     <div>
       <h3 className="text-xl">{displayName}</h3>
@@ -275,11 +270,11 @@ function TradeArea({
           onChange={(e) => {
             const targetPokemon = pokemons.find(
               (pokemon) => pokemon.name === e.target.value
-            );
+            )
             setSelectedPokemon({
               ...selectedPokemon,
               [tradeAreaName]: targetPokemon,
-            });
+            })
           }}
         >
           <option disabled selected value>
@@ -294,10 +289,10 @@ function TradeArea({
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           onClick={() => {
-            if (!selectedPokemon[tradeAreaName]) return;
+            if (!selectedPokemon[tradeAreaName]) return
 
             if (tradeArea.length < 6) {
-              setTradeArea([...tradeArea, selectedPokemon[tradeAreaName]]);
+              setTradeArea([...tradeArea, selectedPokemon[tradeAreaName]])
             }
           }}
         >
@@ -305,16 +300,15 @@ function TradeArea({
         </button>
       </div>
     </div>
-  );
+  )
 }
 
-export default TradeArea;
+export default TradeArea
 ```
 
 Here is how it looks (but you can improve the styles as you want):
 
 ![Trade Area](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yxhnlhpe1le6oej84ajq.png)
-
 
 Now that we have obtained the basic experience and images of Pokémon, we can begin evaluating those trades. This involves adding up the XP of each Pokémon on both sides, determining the lower total, and setting that as the maximum threshold for a 10% difference.
 
@@ -323,28 +317,28 @@ To calculate the sum, I used the reduce function. If the trade is fair, the word
 ```jsx
 //src/server/actions.js
 export const evaluateTrade = async (args) => {
-  const pokemonAList = args.tradeAreaA;
-  const pokemonBList = args.tradeAreaB;
+  const pokemonAList = args.tradeAreaA
+  const pokemonBList = args.tradeAreaB
 
   const totalA = pokemonAList.reduce(
     (acc, pokemon) => acc + pokemon.base_experience,
     0
-  );
+  )
   const totalB = pokemonBList.reduce(
     (acc, pokemon) => acc + pokemon.base_experience,
     0
-  );
+  )
 
-  const difference = Math.abs(totalA - totalB);
-  const lowerTotal = Math.min(totalA, totalB);
-  const fairThreshold = lowerTotal * 0.1;
+  const difference = Math.abs(totalA - totalB)
+  const lowerTotal = Math.min(totalA, totalB)
+  const fairThreshold = lowerTotal * 0.1
 
   if (difference < fairThreshold) {
-    return "fair";
+    return 'fair'
   } else {
-    return "unfair";
+    return 'unfair'
   }
-};
+}
 ```
 
 Now, on our front-end, I have implemented a functionality where the fairness is recalculated using the useEffect hook every time the trade areas change.
@@ -353,35 +347,31 @@ Now, on our front-end, I have implemented a functionality where the fairness is 
 //src/client/pages/Trade.jsx
 // if the tradeAreaA or tradeAreaB changes, useEffect will execute handleEvaluteTrade()
 const handleEvaluateTrade = async () => {
-    const result = await evaluateTradeFn({
-      tradeAreaA: tradeAreaA,
-      tradeAreaB: tradeAreaB,
-    });
-    setFairness(result);
-  };
+  const result = await evaluateTradeFn({
+    tradeAreaA: tradeAreaA,
+    tradeAreaB: tradeAreaB,
+  })
+  setFairness(result)
+}
 
 useEffect(() => {
-    if (tradeAreaA.length > 0 && tradeAreaB.length > 0) {
-      handleEvaluateTrade();
-    }
-  }, [tradeAreaA, tradeAreaB]);
+  if (tradeAreaA.length > 0 && tradeAreaB.length > 0) {
+    handleEvaluateTrade()
+  }
+}, [tradeAreaA, tradeAreaB])
 ```
 
 And I made it so that the words "fair" and "unfair" (with separate styles - green for fair and red for unfair) actually appear in the user interface as well.
 
-
 ![Fair Trade](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ylqafgn38k43vfqnbaeq.png)
 
-
 ![Unfair Trade](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/r2p3xoaqgykh048q9w6l.png)
-
-
 
 ```jsx
 //src/client/pages/Trade.jsx
 <h2
   className={`text-2xl mb-4 font-bold ${
-    fairness === "fair" ? "text-green-500" : "text-red-500"
+    fairness === 'fair' ? 'text-green-500' : 'text-red-500'
   } `}
 >
   Trade {fairness && `- is ${fairness}`}
@@ -408,17 +398,17 @@ To do this:
 
 ```jsx
 //src/client/pages/Trade.jsx
-import registerTrade from "@wasp/actions/registerTrade";
+import registerTrade from '@wasp/actions/registerTrade'
 
 const handleRegisterTrade = async () => {
-    await registerTrade({
-      tradeAreaA: tradeAreaA,
-      tradeAreaB: tradeAreaB,
-      fairness: fairness,
-    });
+  await registerTrade({
+    tradeAreaA: tradeAreaA,
+    tradeAreaB: tradeAreaB,
+    fairness: fairness,
+  })
 
-    setTradeRegisteredStatus(true);
-  };
+  setTradeRegisteredStatus(true)
+}
 ```
 
 Now, we just need to make some small changes to our database to support these tradeArea objects. We also need to verify the function that registers them in the database.
@@ -449,15 +439,15 @@ Now, let's discuss the changes in the function responsible for registering trade
 //src/server/actions.js
 //here we convert the trade areas to string and save to our db!
 export const registerTrade = async (args, context) => {
-  const pokemonAList = args.tradeAreaA;
-  const pokemonBList = args.tradeAreaB;
-  const { user, entities } = context;
+  const pokemonAList = args.tradeAreaA
+  const pokemonBList = args.tradeAreaB
+  const { user, entities } = context
 
-  const stringifiedPokemonAList = JSON.stringify(pokemonAList);
-  const stringifiedPokemonBList = JSON.stringify(pokemonBList);
+  const stringifiedPokemonAList = JSON.stringify(pokemonAList)
+  const stringifiedPokemonBList = JSON.stringify(pokemonBList)
 
   if (!user) {
-    throw new HttpError(401);
+    throw new HttpError(401)
   }
 
   const trade = await entities.Trade.create({
@@ -467,10 +457,10 @@ export const registerTrade = async (args, context) => {
       fairness: args.fairness,
       user: { connect: { id: user.id } },
     },
-  });
+  })
 
-  return trade;
-};
+  return trade
+}
 ```
 
 Here, we can observe that we are "stringifying" our JSONs, as mentioned earlier, and registering all of it as a trade!
@@ -479,48 +469,49 @@ Finally, we can verify this in the UI.
 
 ![Register Trade Button](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/o4ue3wxakc8jcphizl1x.png)
 
-
 What? Were you expecting more? It's just a button (although we know it's not that simple on the back-end side of things, hahaha). After that, I made some minor fixes to the AI-generated code for the profile page, such as parsing the JSON and improving some CSS. Luckily, the code that the AI generated for fetching the user trades is completely correct, so there's no need to work on it!
 
 ```jsx
 //src/client/pages/Profile.jsx
 //map all trades, for each one parse the tradeAreas and render them on the screen
-{trades.map((trade) => {
-        const tradeAreaA = JSON.parse(trade.tradeAreaA);
-        const tradeAreaB = JSON.parse(trade.tradeAreaB);
-        return (
-          <div
-            className={`mb-4 border rounded shadow p-4 ${
-              trade.fairness === "fair" ? "bg-green-300" : "bg-red-300"
-            }`}
-          >
-            <div className="mb-2">
-              <span className="font-bold">Trade ID: </span>
-              <span className="capitalize">{trade.id}</span>
-            </div>
-            <div className="mb-2">
-              <span className="font-bold">Trade Area A: </span>
-              <span className="capitalize">
-                {tradeAreaA.map((pokemon) => {
-                  return pokemon.name + " ";
-                })}
-              </span>
-            </div>
-            <div className="mb-2">
-              <span className="font-bold">Trade Area B: </span>
-              <span className="capitalize">
-                {tradeAreaB.map((pokemon) => {
-                  return pokemon.name + " ";
-                })}
-              </span>
-            </div>
-            <div className="mb-2">
-              <span className="font-bold">Fairness: </span>
-              <span>{trade.fairness}</span>
-            </div>
-          </div>
-        );
-      })}
+{
+  trades.map((trade) => {
+    const tradeAreaA = JSON.parse(trade.tradeAreaA)
+    const tradeAreaB = JSON.parse(trade.tradeAreaB)
+    return (
+      <div
+        className={`mb-4 border rounded shadow p-4 ${
+          trade.fairness === 'fair' ? 'bg-green-300' : 'bg-red-300'
+        }`}
+      >
+        <div className="mb-2">
+          <span className="font-bold">Trade ID: </span>
+          <span className="capitalize">{trade.id}</span>
+        </div>
+        <div className="mb-2">
+          <span className="font-bold">Trade Area A: </span>
+          <span className="capitalize">
+            {tradeAreaA.map((pokemon) => {
+              return pokemon.name + ' '
+            })}
+          </span>
+        </div>
+        <div className="mb-2">
+          <span className="font-bold">Trade Area B: </span>
+          <span className="capitalize">
+            {tradeAreaB.map((pokemon) => {
+              return pokemon.name + ' '
+            })}
+          </span>
+        </div>
+        <div className="mb-2">
+          <span className="font-bold">Fairness: </span>
+          <span>{trade.fairness}</span>
+        </div>
+      </div>
+    )
+  })
+}
 ```
 
 And finally, we can check the user's history on the UI. This concludes the scope of this challenge!
@@ -560,32 +551,34 @@ After that, we need to re-run the migrations by deleting the old ones and runnin
 Now that we have the [final version of our app](https://github.com/LLxD/Poketrader-Wasp/tree/master), let's evaluate it from the perspective of a more senior developer to identify areas for improvement and anticipate the type of feedback we might receive:
 
 - Front-end:
-    - Good:
-        - Consistency across the UI: The UI maintains consistent styling, with buttons and color meanings applied correctly (green for success, red for errors/dangerous scenarios).
-        - Codebase reusability: The TradeArea component was successfully made reusable, demonstrating the potential for other complex components to be transformed into reusable ones.
-        - Good code quality and structure: Functions and variables fulfill their intended purposes and have appropriate names (to check the importance of naming, you can give a read [here](https://dev.to/wasp/why-naming-is-1-skill-for-writing-clean-code-4a5p)).
-            - Here are some examples of that:
-                - `loadPokémons()`, `registerTrade()`, `setSelectedPokémon()` are all good naming examples in which we can get the basic sense of what the function does just by reading their name.
-        - Responsiveness: The UI is designed with a mobile-first approach (thanks to [TailwindCSS](https://tailwindcss.com/)).
-    - Bad:
-        - Lack of unit tests for complex behaviors.
-        - Consider using a more user-friendly method to display all Pokémon options, rather than a simple select with 200 options.
-            - For example: There are alternative [select components](https://react-select.com/home) available that could be used.
-            - You can see that this select has an input attached to it (which would bring a much better UX for the user if he wanted a Pokémon who is on the end of the list)
-            
-            ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/055ecaca-9ef1-471a-8633-6578d6225e05/8c8a9b62-4aec-45dc-af69-b5d48009e95f/Untitled.png)
-            
-        - The front-end currently parses the JSON.stringify data from the back-end. It would be better if the back-end sent the data already correctly parsed.
+
+  - Good:
+    - Consistency across the UI: The UI maintains consistent styling, with buttons and color meanings applied correctly (green for success, red for errors/dangerous scenarios).
+    - Codebase reusability: The TradeArea component was successfully made reusable, demonstrating the potential for other complex components to be transformed into reusable ones.
+    - Good code quality and structure: Functions and variables fulfill their intended purposes and have appropriate names (to check the importance of naming, you can give a read [here](https://dev.to/wasp/why-naming-is-1-skill-for-writing-clean-code-4a5p)).
+      - Here are some examples of that:
+        - `loadPokémons()`, `registerTrade()`, `setSelectedPokémon()` are all good naming examples in which we can get the basic sense of what the function does just by reading their name.
+    - Responsiveness: The UI is designed with a mobile-first approach (thanks to [TailwindCSS](https://tailwindcss.com/)).
+  - Bad:
+
+    - Lack of unit tests for complex behaviors.
+    - Consider using a more user-friendly method to display all Pokémon options, rather than a simple select with 200 options.
+      - For example: There are alternative [select components](https://react-select.com/home) available that could be used.
+      - You can see that this select has an input attached to it (which would bring a much better UX for the user if he wanted a Pokémon who is on the end of the list)
+
+      - ![Select Example](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2kb1pmn2hpmvulb893wz.png)
+    - The front-end currently parses the JSON.stringify data from the back-end. It would be better if the back-end sent the data already correctly parsed.
+
 - Back-end and database:
-    - Good:
-        - Clear separation of scopes: The structures are well-organized, and functions are appropriately placed.
-        - Error handling: A few error handlers are in place, enhancing the application's resiliency.
-            - We have some private insertions validations in place (e.g. `if (!user){ throw new HttpError(401); }`)
-            - And also some basic auth validations that the auth method provides by itself via the Wasp Framework.
-        - Effective use of async/await and promise handling.
-    - Bad:
-        - Suboptimal choice of database: The absence of JSON in our database is a drawback, but it's commendable that a creative solution was found for this issue.
-        - Lack of unit tests.
+  - Good:
+    - Clear separation of scopes: The structures are well-organized, and functions are appropriately placed.
+    - Error handling: A few error handlers are in place, enhancing the application's resiliency.
+      - We have some private insertions validations in place (e.g. `if (!user){ throw new HttpError(401); }`)
+      - And also some basic auth validations that the auth method provides by itself via the Wasp Framework.
+    - Effective use of async/await and promise handling.
+  - Bad:
+    - Suboptimal choice of database: The absence of JSON in our database is a drawback, but it's commendable that a creative solution was found for this issue.
+    - Lack of unit tests.
 
 Overall, we have a simple application that functions well. There is evident consideration given to the user interface and user experience, which is a positive aspect. The candidate also demonstrated creativity in resolving encountered issues. However, it would have been beneficial for the candidate to include unit tests and consider a more suitable database choice. Nevertheless, good work overall! 👍
 
@@ -593,7 +586,7 @@ Overall, we have a simple application that functions well. There is evident cons
 
 Just in case you haven't starred [Wasp's repository](https://www.github.com/wasp-lang/wasp), I would recommend doing so! It's a great repository for you to test it out on a full-stack application!
 
-{% cta https://www.github.com/wasp-lang/wasp %} ⭐️ Give it a star! ⭐️  {% endcta %}
+{% cta https://www.github.com/wasp-lang/wasp %} ⭐️ Give it a star! ⭐️ {% endcta %}
 
 In this test, we would have successfully completed a challenge by creating an impressive application. The application allowed users to trade Pokémon and check if the trades were fair, which is precisely the scope of our challenge.
 
