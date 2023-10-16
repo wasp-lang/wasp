@@ -452,7 +452,7 @@ When you make updates and need to redeploy:
 
 ## Heroku (server and database)
 
-We will show how to deploy Wasp server and provision a database for it on Heroku.
+We will show how to deploy the server and provision a database for it on Heroku.
 
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
