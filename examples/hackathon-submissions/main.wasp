@@ -12,7 +12,7 @@ app hackathonBetaSubmissions {
 }
 
 entity Submission {=psl
-  name       String  @id @unique
+  name        String  @id @unique
   email       String  @unique
   github      String
   description String
