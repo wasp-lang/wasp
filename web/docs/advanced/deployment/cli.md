@@ -35,7 +35,7 @@ wasp deploy fly launch my-wasp-app mia
 ```
 
 :::caution Specifying Org
-If your account is a member of more than one organization on Fly.io, you will need to specify under which one do you want to execute the command. To do that, provide additional `--org <org-slug>` option. You can find our the names(slugs) of your organizations by running `fly orgs list`.
+If your account is a member of more than one organization on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names(slugs) of your organizations by running `fly orgs list`.
 :::
 
 <small>
