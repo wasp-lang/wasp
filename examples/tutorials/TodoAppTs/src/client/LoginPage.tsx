@@ -3,7 +3,7 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
-    <div style={{maxWidth: "400px", margin: "0 auto"}}>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <LoginForm />
       <br />
       <span>

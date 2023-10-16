@@ -15,8 +15,9 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 │   ├── client             # Your client code (JS/CSS/HTML) goes here.
 │   │   ├── Main.css
 │   │   ├── MainPage.jsx
-│   │   ├── vite-env.d.ts
 │   │   ├── tsconfig.json
+│   │   ├── vite.config.ts
+│   │   ├── vite-env.d.ts
 │   │   └── waspLogo.png
 │   ├── server             # Your server code (Node JS) goes here.
 │   │   └── tsconfig.json
@@ -56,7 +57,7 @@ The default Wasp file generated via `wasp new` on the previous page looks like:
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.11.0" // Pins the version of Wasp to use.
+    version: "^0.11.6" // Pins the version of Wasp to use.
   },
   title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }
@@ -77,7 +78,7 @@ page MainPage {
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.11.0" // Pins the version of Wasp to use.
+    version: "^0.11.6" // Pins the version of Wasp to use.
   },
   title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }

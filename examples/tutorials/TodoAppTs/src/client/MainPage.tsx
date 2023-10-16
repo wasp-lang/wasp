@@ -1,7 +1,9 @@
+import { FormEvent, ChangeEvent } from 'react'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
-import { useQuery } from '@wasp/queries'
 import updateTask from '@wasp/actions/updateTask'
+import { useQuery } from '@wasp/queries'
+import { Task } from '@wasp/entities'
 import logout from '@wasp/auth/logout'
 
 const MainPage = () => {
@@ -20,17 +22,18 @@ const MainPage = () => {
   )
 }
 
-const Task = ({ task }) => {
-  const handleIsDoneChange = async (event) => {
+const Task = ({ task }: { task: Task }) => {
+  const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
     try {
       await updateTask({
         id: task.id,
         isDone: event.target.checked,
       })
-    } catch (error) {
+    } catch (error: any) {
       window.alert('Error while updating task: ' + error.message)
     }
   }
+
   return (
     <div>
       <input
@@ -44,7 +47,7 @@ const Task = ({ task }) => {
   )
 }
 
-const TasksList = ({ tasks }) => {
+const TasksList = ({ tasks }: { tasks: Task[] }) => {
   if (!tasks?.length) return <div>No tasks</div>
 
   return (
@@ -57,14 +60,14 @@ const TasksList = ({ tasks }) => {
 }
 
 const NewTaskForm = () => {
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     try {
-      const target = event.target
+      const target = event.target as HTMLFormElement
       const description = target.description.value
       target.reset()
       await createTask({ description })
-    } catch (err) {
+    } catch (err: any) {
       window.alert('Error: ' + err.message)
     }
   }
