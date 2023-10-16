@@ -41,7 +41,7 @@ You'll have to [switch to PostgreSQL](/docs/data-model/backends#migrating-from-s
 
 There's a Dockerfile that defines an image for building the server in the `.wasp/build` directory.
 
-To run the server in production, deploy this Docker image to a hosting provider and ensure required environment variables on the provider are correctly set up (mechanism of setting these up is specific per provider).
+To run the server in production, deploy this Docker image to a hosting provider and ensure the required environment variables on the provider are correctly set up (the mechanism of setting these up is specific per provider).
 All necessary environment variables are listed in the next section.
 
 #### Environment Variables
