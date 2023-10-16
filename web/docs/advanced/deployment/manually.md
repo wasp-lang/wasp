@@ -94,7 +94,7 @@ We'll cover a few different deployment providers below:
 
 ## Fly.io (server and database)
 
-We will show how to deploy Wasp server and provision a database for it on Fly.io.
+We will show how to deploy the server and provision a database for it on Fly.io.
 
 :::tip We automated this process for you
 If you want to do all of the work below with one command, you can use the [Wasp CLI](/docs/advanced/deployment/cli#flyio).
