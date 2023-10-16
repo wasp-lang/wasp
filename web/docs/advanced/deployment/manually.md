@@ -69,7 +69,7 @@ Here are the environment variables your server will be looking for:
 
 <AddExternalAuthEnvVarsReminder />
 
-While these are the general instructions on how to deploy the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
+While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
 
 ### 3. Deploying the Web Client (frontend)
 
