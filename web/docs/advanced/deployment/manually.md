@@ -249,7 +249,7 @@ Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in 
 
 ## Railway (server, client and database)
 
-We will show how to deploy Wasp client, Wasp server, and provision a database on Railway.
+We will show how to deploy the client, the server, and provision a database on Railway.
 
 Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app: database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/plans) for more info.
 
