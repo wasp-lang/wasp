@@ -4,11 +4,12 @@ title: Custom Vite Config
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-Wasp uses [Vite](https://vitejs.dev/) for serving the client during development and bundling it for production. If you want to customize the Vite config, you can do that by creating a `vite.config.js` or `vite.config.ts` file in your `src/client` directory. 
+Wasp uses [Vite](https://vitejs.dev/) for serving the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.ts` file in your `src/client` directory.
 
-Wasp will use your config and **merge** it with the default Wasp's Vite config. 
+Wasp will use your config and **merge** it with the default Wasp's Vite config.
 
 Vite config customization can be useful for things like:
+
 - Adding custom Vite plugins.
 - Customising the dev server.
 - Customising the build process.
@@ -33,6 +34,7 @@ export default {
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -45,6 +47,7 @@ export default defineConfig({
   },
 })
 ```
+
 </TabItem>
 </Tabs>
 
@@ -58,7 +61,7 @@ You have access to all of the [Vite dev server options](https://vitejs.dev/confi
 ```js title="src/client/vite.config.js"
 export default {
   server: {
-    port: 4000
+    port: 4000,
   },
 }
 ```
@@ -66,16 +69,16 @@ export default {
 ```env title=".env.server"
 WASP_WEB_CLIENT_URL=http://localhost:4000
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
-
 
 ```ts title="src/client/vite.config.ts"
 import { defineConfig } from 'vite'
 
 export default defineConfig({
   server: {
-    port: 4000
+    port: 4000,
   },
 })
 ```
@@ -83,6 +86,7 @@ export default defineConfig({
 ```env title=".env.server"
 WASP_WEB_CLIENT_URL=http://localhost:4000
 ```
+
 </TabItem>
 </Tabs>
 
@@ -92,7 +96,7 @@ WASP_WEB_CLIENT_URL=http://localhost:4000
 
 ### Customising the Base Path
 
-If you, for example, want to serve the client from a different path than `/`, you can do that by customizing the `base` option. 
+If you, for example, want to serve the client from a different path than `/`, you can do that by customizing the `base` option.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -102,9 +106,9 @@ export default {
   base: '/my-app/',
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
-
 
 ```ts title="src/client/vite.config.ts"
 import { defineConfig } from 'vite'
@@ -113,5 +117,6 @@ export default defineConfig({
   base: '/my-app/',
 })
 ```
+
 </TabItem>
 </Tabs>
