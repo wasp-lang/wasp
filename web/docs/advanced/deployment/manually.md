@@ -213,7 +213,7 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 ## Netlify (client)
 
-We will show how to deploy Wasp client on Netlify.
+We'll show how to deploy the client on Netlify.
 
 Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account and [Netlify CLI](https://docs.netlify.com/cli/get-started/) installed to follow these instructions.
 
