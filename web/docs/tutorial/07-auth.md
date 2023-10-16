@@ -330,6 +330,7 @@ export const getTasks = async (args, context) => {
   }
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
+    orderBy: { id: 'asc' },
   })
 }
 ```
@@ -348,6 +349,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   }
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
+    orderBy: { id: 'asc' },
   })
 }
 ```
