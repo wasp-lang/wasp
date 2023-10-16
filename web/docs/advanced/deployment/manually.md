@@ -5,6 +5,7 @@ title: Deploying Manually
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
 import BuildingTheWebClient from './\_building-the-web-client.md'
+import { Required } from '@site/src/components/Required'
 
 We'll cover how to deploy your Wasp app manually to a variety of providers:
 
@@ -48,21 +49,21 @@ All necessary environment variables are listed in the next section.
 
 Here are the environment variables your server will be looking for:
 
-- `DATABASE_URL` (required)
+- `DATABASE_URL` (<Required />)
 
   The URL of the Postgres database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
 
-- `WASP_WEB_CLIENT_URL` (required)
+- `WASP_WEB_CLIENT_URL` (<Required />)
 
   The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
   The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
 
-- `JWT_SECRET` (required if using Wasp Auth)
+- `JWT_SECRET` (<Required /> if using Wasp Auth)
 
   You only need this environment variable if you're using Wasp's `auth` features.
   Set it to a random string at least 32 characters long (you can use an [online generator](https://djecrety.ir/)).
 
-- `PORT` (optional)
+- `PORT`
 
   The server's HTTP port number. This is where the server listens for requests (default: `3001`).
 
