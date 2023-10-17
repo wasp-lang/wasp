@@ -27,7 +27,7 @@ I'm currently a member of the Wasp team and since it’s also an open-source pro
 
 The easiest way to show your support is just to star our repo! 🐝 But it would be greatly appreciated if you could take a look at our repository (for contributions or to simply test the product) too!
 
-{% cta https://www.github.com/wasp-lang/wasp %} ⭐️ Give Wasp Framework a Star! ⭐️ {% endcta %}
+[⭐️ Give Wasp Framework a Star! ⭐️](https://www.github.com/wasp-lang/wasp)
 
 ## Introduction
 
@@ -563,10 +563,12 @@ Now that we have the [final version of our app](https://github.com/LLxD/Poketrad
 
     - Lack of unit tests for complex behaviors.
     - Consider using a more user-friendly method to display all Pokémon options, rather than a simple select with 200 options.
+
       - For example: There are alternative [select components](https://react-select.com/home) available that could be used.
       - You can see that this select has an input attached to it (which would bring a much better UX for the user if he wanted a Pokémon who is on the end of the list)
 
       - ![Select Example](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2kb1pmn2hpmvulb893wz.png)
+
     - The front-end currently parses the JSON.stringify data from the back-end. It would be better if the back-end sent the data already correctly parsed.
 
 - Back-end and database:
@@ -586,7 +588,7 @@ Overall, we have a simple application that functions well. There is evident cons
 
 Just in case you haven't starred [Wasp's repository](https://www.github.com/wasp-lang/wasp), I would recommend doing so! It's a great repository for you to test it out on a full-stack application!
 
-{% cta https://www.github.com/wasp-lang/wasp %} ⭐️ Give it a star! ⭐️ {% endcta %}
+[⭐️ Give it a star! ⭐️](https://www.github.com/wasp-lang/wasp)
 
 In this test, we would have successfully completed a challenge by creating an impressive application. The application allowed users to trade Pokémon and check if the trades were fair, which is precisely the scope of our challenge.
 
