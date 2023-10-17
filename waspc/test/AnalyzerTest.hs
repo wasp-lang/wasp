@@ -62,7 +62,8 @@ spec_Analyzer = do
                 "  },",
                 "  client: {",
                 "    rootComponent: import { App } from \"@client/App.jsx\",",
-                "    setupFn: import { setupClient } from \"@client/baz.js\"",
+                "    setupFn: import { setupClient } from \"@client/baz.js\",",
+                "    baseDir: \"/\"",
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL,",
@@ -176,7 +177,8 @@ spec_Analyzer = do
                                 ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz.js"),
                             Client.rootComponent =
                               Just $
-                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx")
+                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx"),
+                            Client.baseDir = Just "/"
                           },
                     App.db =
                       Just

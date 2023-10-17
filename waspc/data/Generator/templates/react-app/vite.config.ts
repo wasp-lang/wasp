@@ -12,6 +12,7 @@ const _waspUserProvidedConfig = {};
 {=/ customViteConfig.isDefined =}
 
 const defaultViteConfig = {
+  base: "{= baseDir =}",
   plugins: [react()],
   server: {
     port: 3000,

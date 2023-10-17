@@ -1,0 +1,14 @@
+app subdirExample {
+  wasp: {
+    version: "^0.11.6"
+  },
+  title: "subdir-example",
+  client: {
+    baseDir: "bla"
+  }
+}
+
+route RootRoute { path: "/login", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}

@@ -63,6 +63,7 @@ import Wasp.JsImport
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
+import qualified Wasp.Project.WebApp as WebApp
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -339,7 +340,10 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = C.asTmplFile [relfile|vite.config.ts|]
     tmplData =
-      object ["customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec)]
+      object
+        [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
+          "baseDir" .= WebApp.getBaseDir spec
+        ]
 
     makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport
     makeCustomViteConfigJsImport pathToConfig = makeJsImport importPath importName
