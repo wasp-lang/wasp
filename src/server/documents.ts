@@ -10,6 +10,7 @@ import prisma from "@wasp/dbClient.js";
 import { toSql } from "pgvector/utils";
 import openai from "openai";
 import { getContent, getLinksToScrape } from "./scrape.js";
+import HttpError from "@wasp/core/HttpError.js";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY env var is not set");
@@ -30,7 +31,10 @@ type EmbedDocumentOutput = {
 export const embedDocument: EmbedDocument<
   EmbedDocumentInput,
   EmbedDocumentOutput
-> = async (args) => {
+> = async (args, { user }) => {
+  if (!user) {
+    throw new HttpError(401, "You must be logged in to embed documents");
+  }
   const { url, selector } = args;
 
   // Scrape url to get the title and content
@@ -68,7 +72,10 @@ type SearchDocumentsOutput = {
 export const searchDocuments: SearchDocuments<
   SearchDocumentsInput,
   SearchDocumentsOutput
-> = async (args) => {
+> = async (args, { user }) => {
+  if (!user) {
+    throw new HttpError(401, "You must be logged in to search documents");
+  }
   const { query } = args;
 
   const embedding = toSql(await createEmbedding(query));
@@ -134,9 +141,8 @@ type AskDocumentsOutput = {
 export const askDocuments: AskDocuments<
   AskDocumentsInput,
   AskDocumentsOutput
-> = async (args, context) => {
+> = async (args) => {
   const { query } = args;
-  // Find top 3 most relevant documents
   const queryEmbedding = await createEmbedding(query);
 
   const result = (await prisma.$queryRaw`

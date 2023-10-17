@@ -12,8 +12,21 @@ import { UrlTreeForm } from "../components/MainPage/UrlTreeForm";
 import { SingleDocumentForm } from "../components/MainPage/SingleDocumentForm";
 import { DocumentsList } from "../components/MainPage/DocumentsList";
 import { SearchForm } from "../components/MainPage/SearchForm";
+import useAuth from "@wasp/auth/useAuth";
 
 export function Main() {
+  const { data: user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="pt-8 min-h-screen">
+        <div className="max-w-4xl mx-auto p-4">
+          <AskTheDocumentsForm />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-8 min-h-screen">
       <div className="max-w-4xl mx-auto p-4">

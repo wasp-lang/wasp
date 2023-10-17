@@ -1,8 +1,19 @@
-app pgVectorExample {
+app askTheDocuments {
   wasp: {
     version: "^0.11.3"
   },
   title: "PG Vector Example",
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js",
+        configFn: import { getConfig } from "@server/auth/google.js",
+      }
+    },
+    onAuthFailedRedirectTo: "/"
+  },
   dependencies: [
     ("openai", "^4.5.0"),
     ("react-hook-form", "^7.45.4"),
@@ -27,6 +38,32 @@ app pgVectorExample {
     }
   }
 }
+
+entity User {=psl
+  id                        Int           @id @default(autoincrement())
+  email                     String?
+  externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+
+entity Document {=psl
+  id String @id @default(uuid())
+  title String
+  url String @unique
+  content String
+  embedding Unsupported("vector(1536)")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
@@ -62,13 +99,3 @@ action deleteDocument {
   fn: import { deleteDocument } from "@server/documents.js",
   entities: [Document]
 }
-
-entity Document {=psl
-  id String @id @default(uuid())
-  title String
-  url String @unique
-  content String
-  embedding Unsupported("vector(1536)")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-psl=}
