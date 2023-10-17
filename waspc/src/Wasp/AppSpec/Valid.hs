@@ -369,6 +369,7 @@ validatePrismaOptions spec =
 validateWebAppBaseDir :: AppSpec -> [ValidationError]
 validateWebAppBaseDir spec = case maybeBaseDir of
   Just baseDir | startsWithSlash baseDir -> []
+  Nothing -> []
   _anyOtherCase -> [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
   where
     maybeBaseDir = Client.baseDir =<< AS.App.client (snd $ getApp spec)

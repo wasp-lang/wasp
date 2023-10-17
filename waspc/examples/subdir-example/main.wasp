@@ -4,7 +4,7 @@ app subdirExample {
   },
   title: "subdir-example",
   client: {
-    baseDir: "bla"
+    baseDir: "/bla"
   }
 }
 
