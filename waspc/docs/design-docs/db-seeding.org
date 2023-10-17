@@ -13,7 +13,7 @@ I might want to have multiple such states, each of them named.
 
 I imagine this would actually be easier to do by doing snapshots of db then having seeding script, so I don't think this is what Prisma is targeting with their =seed=.
 So I probably went here a bit into a different use case -> still interesting though.
-Actuall, I read a bit more and seeding script is also valid way to do this.
+Actually, I read a bit more and seeding script is also valid way to do this.
 
 As for snapshots -> I guess this would come down to doing postgre exports and then saving those in git and loading them.
 I saw this being called "SQL backup file" somewhere.

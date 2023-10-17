@@ -38,7 +38,7 @@ The solution that people suggested was an async function that returns an object 
 
 ### Basic
   - Dev can specify, through wasp language, a JS function that will be executed on server start.
-    Such function would be async, take no arguments, and return an object that would be avaialable in operations (through `context`).
+    Such function would be async, take no arguments, and return an object that would be available in operations (through `context`).
 
 ### Advanced
   - Instead of returning an object that will be added to `context`, function could return a function that modifies the `context`.
