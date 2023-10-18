@@ -5,35 +5,33 @@ import { GitHub, ArrowUpRight, Monitor } from 'react-feather'
 
 const examples = [
   {
-    title: 'Waspello 📝',
-    description: 'A Trello clone made with Wasp.',
-    tags: ['Optimistic UI Updates'],
-    level: 'Beginner',
+    title: 'Todo App (TypeScript) ✅',
+    description: 'A famous To-Do list app, implemented in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'waspello-example-app',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/waspello',
-    demoUrl: 'https://waspello-demo.netlify.app/',
+    repoName: 'todo-app-ts',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/todo-app-in-typescript',
+    //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
   {
-    title: 'Real World App 🐑',
-    description: 'A Medium clone made with Wasp and Material UI.',
-    authorName: 'wasp',
-    authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'real-world-app',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/realworld',
-    demoUrl: 'https://wasp-rwa.netlify.app/',
+    title: 'CoverLetterGPT 🤖',
+    description: 'Generate cover letters based on your CV and job description. Powered by ChatGPT.',
+    authorName: 'vincanger',
+    authorImg: 'https://avatars.githubusercontent.com/u/70215737',
+    repoName: 'cover-letter-gpt',
+    repoUrl: 'https://github.com/vincanger/coverlettergpt',
+    demoUrl: 'https://coverlettergpt.xyz/',
   },
   {
-    title: 'Waspleau 📊',
+    title: 'Realtime voting via WebSockets 🔌',
     description:
-      'A simple data dashboard that makes use of Wasp async jobs feature.',
+      'A realtime, websockets powered voting app buit with Wasp in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'waspleau-jobs-example',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/waspleau',
-    demoUrl: 'https://waspleau-app-client.fly.dev/',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/websockets-realtime-voting',
+    demoUrl: 'https://websockets-client-production.up.railway.app/login',
   },
 ]
 
