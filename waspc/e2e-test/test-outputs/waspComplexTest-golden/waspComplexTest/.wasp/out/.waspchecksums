@@ -914,7 +914,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "1b167573635d206d53a8598ae39a81b140cd017c6c71ce13bf57c9a04b5b8160"
+        "16209b667488c40c3a7a80be224d6d1ebb8df75bbaf8f2c6398eff07a92618ca"
     ],
     [
         [
@@ -1026,6 +1026,6 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "ba22ae0b9027a2a4d3cd2689e9a9e1caff526b96dfab5e7f0f58f194dff830d9"
+        "08962d79f2d71eb470ee85dee03db6deca7ede28df9d41542bbaea752db0eeed"
     ]
 ]

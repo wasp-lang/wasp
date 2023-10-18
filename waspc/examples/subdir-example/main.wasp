@@ -5,6 +5,9 @@ app subdirExample {
   title: "subdir-example",
   client: {
     baseDir: "/bla"
+  },
+  db: {
+    system: PostgreSQL
   }
 }
 
