@@ -1,9 +1,8 @@
-{{={= =}=}}
 import React from 'react'
 
 import { Redirect } from 'react-router-dom'
 import useAuth from '../useAuth'
-
+import Styles from "./createAuthRequiredPage.module.css"
 
 const createAuthRequiredPage = (Page) => {
   return (props) => {
@@ -18,7 +17,7 @@ const createAuthRequiredPage = (Page) => {
         return <Redirect to="{= onAuthFailedRedirectTo =}" />
       }
     } else if (isLoading) {
-      return <span>Loading...</span>
+      return <span className={Styles.loadery}></span>
     } else if (isError) {
       return <span>An error ocurred. Please refresh the page.</span>
     } else {
