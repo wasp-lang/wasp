@@ -17,7 +17,7 @@ const createAuthRequiredPage = (Page) => {
         return <Redirect to="{= onAuthFailedRedirectTo =}" />
       }
     } else if (isLoading) {
-      return <span className={Styles.loadery}></span>
+      return <span className={Styles.loader}></span>
     } else if (isError) {
       return <span>An error ocurred. Please refresh the page.</span>
     } else {
