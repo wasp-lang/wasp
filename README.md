@@ -1,6 +1,7 @@
 <p align=center>
   <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
 </p>
+<div id="top"></div>
 <p align=center>
   The fastest way to develop full-stack web apps with React & Node.js.
 </p>
@@ -125,3 +126,5 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 <a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a> - Big thanks Mariano for being one of our first sponsors and believing in us ❤️!
 
 <a href="https://github.com/haseeb-heaven"><img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" /></a> - We are thankful for your support Heaven in this early stage of Wasp :)!
+
+<p align="right"><a href="#top">🔼 Back to top</a></p>
