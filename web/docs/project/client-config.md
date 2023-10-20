@@ -2,6 +2,8 @@
 title: Client Config
 ---
 
+import BaseDirEnvNote from './_baseDirEnvNote.md'
+
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 You can configure the client using the `client` field inside the `app` declaration:
@@ -283,6 +285,8 @@ This means that if you serve your app from `https://example.com/my-app`, the
 router will work correctly, and all the assets will be served from
 `https://example.com/my-app`.
 
+<BaseDirEnvNote />
+
 ## API Reference
 
 <Tabs groupId="js-ts">
@@ -441,3 +445,5 @@ Client has the following options:
   `/my-app`. It will also set the `base` option of the Vite config to `/my-app`.
 
   This means that if you serve your app from `https://example.com/my-app`, the router will work correctly, and all the assets will be served from `https://example.com/my-app`.
+
+  <BaseDirEnvNote />
