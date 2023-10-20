@@ -1,6 +1,5 @@
 module Wasp.Generator.ServerGenerator.ConfigG
   ( genConfigFile,
-    configFileInSrcDir,
   )
 where
 
@@ -13,6 +12,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.WebApp (getDefaultClientUrl)
 
 genConfigFile :: AppSpec -> Generator FileDraft
 genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -22,8 +22,9 @@ genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "databaseUrlEnvVarName" .= databaseUrlEnvVarName
+          "databaseUrlEnvVarName" .= databaseUrlEnvVarName,
+          "defaultClientUrl" .= getDefaultClientUrl spec
         ]
 
-configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-configFileInSrcDir = [relfile|config.js|]
+    configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    configFileInSrcDir = [relfile|config.js|]

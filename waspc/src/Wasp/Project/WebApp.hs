@@ -17,3 +17,9 @@ getBaseDir :: AppSpec -> String
 getBaseDir spec = fromMaybe "/" maybeBaseDir
   where
     maybeBaseDir = AS.App.Client.baseDir =<< AS.App.client (snd $ getApp spec)
+
+defaultClientPort :: Int
+defaultClientPort = 3000
+
+getDefaultClientUrl :: AppSpec -> String
+getDefaultClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ getBaseDir spec
