@@ -19,7 +19,7 @@
 
 <br>
 
-Wasp (**W**eb **A**pplication **Sp**ecification) is a Rails-like framework for React, Node.js and Prisma.  
+Wasp (**W**eb **A**pplication **Sp**ecification) is a Rails-like framework for [React](https://react.dev/), [Node.js](https://nodejs.org/en/docs) and [Prisma](https://www.prisma.io/docs).  
 Build your app in a day and deploy it with a single CLI command!
 
 ### Why is Wasp awesome
@@ -95,7 +95,10 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 Currently, Wasp is in beta, with most features flushed out and working well.
 However, there are still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
 
-While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma.
+While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack:  
+[React](https://react.dev/) + [react-query](https://tanstack.com/query/v3/),     
+[NodeJS](https://nodejs.org/en) + [ExpressJS](https://www.express.com/),  
+[Prisma](https://www.prisma.io/)
 
 # Contributing
 
