@@ -50,7 +50,7 @@ page MainPage {
   component: import Main from "@client/Main.tsx" // Your React code.
 }
 
-query get tasks {
+query getTasks {
   fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
   entities: [Task] // Automatic cache invalidation.
 }
@@ -70,7 +70,7 @@ The rest of the code you write in React / Node.js / Prisma and just reference it
 
 <img width="800px" src="https://user-images.githubusercontent.com/1536647/231472285-126679e5-ecce-4cbb-8579-eb3cd9ba95bf.png"/>
 
-Given a simple .wasp configuration file that describes the high-level details of your web app and .js(x)/.css/..., source files with your unique logic, the Wasp compiler generates the full source of your web app in the target stack: front-end, back-end, and deployment.
+Given a simple .wasp configuration file that describes the high-level details of your web app, and .js(x)/.css/..., source files with your unique logic, Wasp compiler generates the full source of your web app in the target stack: front-end, back-end and deployment.
 
 This unique approach is what makes Wasp "smart" and gives it its superpowers!
 
@@ -105,7 +105,7 @@ The best place to start is to check out [waspc/](waspc/), where you can find det
 
 The core of Wasp is built in Haskell, but there are also a lot of non-Haskell parts of Wasp, so you will certainly be able to find something for you!
 
-Even if you don't plan to submit any code, just join the discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
+Even if you don't plan to submit any code, just joining the discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
 You can also:
  - :star: Star this repo to show your interest/support.
