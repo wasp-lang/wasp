@@ -72,7 +72,7 @@ The API reference is an exhaustive list of the feature's API and must describe e
 
 Both the guide and the API Reference should be self-sufficient and contain examples showcasing the feature.
 Always assume that the reader is only reading one or the other.
-The Guide doesn't need to explain everything about the feature, only the most important bits, but the API reference must be exhaustive.
+The guide doesn't need to explain everything about the feature, only the most important bits, but the API reference must be exhaustive.
 
 Make sure to feature each example in all languages Wasp supports (currently TypeScript and JavaScript) using tabs.
 You should almost always use tabs, even when there's no difference between the example in TypeScript and the example in JavaScript.
