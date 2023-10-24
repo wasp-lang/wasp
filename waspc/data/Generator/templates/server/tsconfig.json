@@ -1,5 +1,6 @@
+{{={= =}=}}
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
+  "extends": "@tsconfig/node{= majorNodeVersion =}/tsconfig.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
@@ -8,7 +9,7 @@
     "target": "es2017",
     // Enable source map for debugging
     "sourceMap": true,
-    // The remaining settings should match node18/tsconfig.json, but I kept
+    // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
     // them here to be explicit.
 
     // Enable default imports in TypeScript.

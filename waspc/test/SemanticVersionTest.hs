@@ -1,8 +1,10 @@
 module SemanticVersionTest where
 
+import Data.Either (fromRight)
 import Numeric.Natural
 import Test.Tasty.Hspec
 import Wasp.SemanticVersion
+import Wasp.SemanticVersion.VersionBound (HasVersionBounds (versionBounds), parseInterval)
 
 spec_SemanticVersion :: Spec
 spec_SemanticVersion = do
@@ -103,6 +105,16 @@ spec_SemanticVersion = do
             ((1, 3, 0), False),
             ((2, 0, 0), False)
           ]
+  describe "versionBounds" $ do
+    let r ~> i =
+          it (show r) $
+            versionBounds r `shouldBe` parseInterval' i
+    Range [] ~> "(inf, inf)"
+    Range [gt (Version 0 1 2)] ~> "(0.1.2, inf)"
+    Range [lte (Version 1 2 3)] ~> "(inf, 1.2.3]"
+    Range [backwardsCompatibleWith (Version 0 2 3)] ~> "[0.2.3, 0.3.0)"
+    Range [backwardsCompatibleWith (Version 0 2 3)] ~> "[0.2.3, 0.3.0)"
+    Range [lte (Version 1 2 3) <> backwardsCompatibleWith (Version 1 1 0), eq (Version 0 5 6)] ~> "[0.5.6, 1.2.3]"
   where
     testRange :: Range -> [((Natural, Natural, Natural), Bool)] -> Expectation
     testRange range versionsWithResults =
@@ -110,3 +122,4 @@ spec_SemanticVersion = do
           <$> map fst versionsWithResults
       )
         `shouldBe` map snd versionsWithResults
+    parseInterval' = fromRight (error "interval parsing failed") . parseInterval

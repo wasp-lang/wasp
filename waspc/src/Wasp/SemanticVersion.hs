@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module Wasp.SemanticVersion
   ( Version (..),
     Range (..),
@@ -14,21 +16,16 @@ where
 
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
-import Numeric.Natural
-import Text.Printf (printf)
+import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
+import Wasp.SemanticVersion.VersionBound
+  ( HasVersionBounds (versionBounds),
+    VersionBound (Exclusive, Inclusive, Inf),
+    intervalIntersection,
+    intervalUnion,
+    isVersionInInterval,
+  )
 
 -- Implements SemVer (semantic versioning) by following spec from https://github.com/npm/node-semver .
-
-data Version = Version
-  { major :: Natural,
-    minor :: Natural,
-    patch :: Natural
-  }
-  deriving (Eq, Ord)
-
--- | We rely on this `show` implementation to produce valid semver representation of version.
-instance Show Version where
-  show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
 data Operator
   = Equal
@@ -79,7 +76,26 @@ instance Semigroup Range where
   (Range csets1) <> (Range csets2) = Range $ nub $ csets1 <> csets2
 
 instance Monoid Range where
+  mempty :: Range
   mempty = Range []
+
+instance HasVersionBounds Comparator where
+  versionBounds (PrimitiveComparator operator version) =
+    case operator of
+      Equal -> (Inclusive version, Inclusive version)
+      LessThan -> (Inf, Exclusive version)
+      LessThanOrEqual -> (Inf, Inclusive version)
+      GreaterThan -> (Exclusive version, Inf)
+      GreaterThanOrEqual -> (Inclusive version, Inf)
+  versionBounds (BackwardsCompatibleWith version) =
+    (Inclusive version, Exclusive $ nextBreakingChangeVersion version)
+
+instance HasVersionBounds ComparatorSet where
+  versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
+
+instance HasVersionBounds Range where
+  versionBounds (Range []) = (Inf, Inf)
+  versionBounds (Range compSets) = foldr1 intervalUnion $ versionBounds <$> compSets
 
 isVersionInRange :: Version -> Range -> Bool
 isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
@@ -89,25 +105,8 @@ doesVersionSatisfyComparatorSet version (ComparatorSet comps) =
   all (doesVersionSatisfyComparator version) comps
 
 doesVersionSatisfyComparator :: Version -> Comparator -> Bool
-doesVersionSatisfyComparator version (BackwardsCompatibleWith refVersion) =
-  all
-    (doesVersionSatisfyComparator version)
-    [ PrimitiveComparator GreaterThanOrEqual refVersion,
-      PrimitiveComparator LessThan (nextBreakingChangeVersion refVersion)
-    ]
-doesVersionSatisfyComparator version (PrimitiveComparator operator compVersion) =
-  case operator of
-    Equal -> version == compVersion
-    LessThan -> version < compVersion
-    LessThanOrEqual -> version <= compVersion
-    GreaterThan -> version > compVersion
-    GreaterThanOrEqual -> version >= compVersion
-
-nextBreakingChangeVersion :: Version -> Version
-nextBreakingChangeVersion version = case version of
-  (Version 0 0 x) -> Version 0 0 (succ x)
-  (Version 0 x _) -> Version 0 (succ x) 0
-  (Version x _ _) -> Version (succ x) 0 0
+doesVersionSatisfyComparator version comparator =
+  isVersionInInterval (versionBounds comparator) version
 
 -- Helper methods.
 

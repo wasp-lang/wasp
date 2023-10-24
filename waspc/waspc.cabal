@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.11.8
+version:        0.12.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -334,6 +334,8 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
+    Wasp.SemanticVersion.VersionBound
+    Wasp.SemanticVersion.Version
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Network.Socket
@@ -341,6 +343,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
+    Wasp.Util.TH
     Wasp.Util.FilePath
     Wasp.Util.StrongPath
     Wasp.Util.HashMap
@@ -573,6 +576,8 @@ test-suite waspc-test
     Util.Diff
     Util.FilePathTest
     SemanticVersionTest
+    SemanticVersion.VersionBoundTest
+    SemanticVersion.VersionTest
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest

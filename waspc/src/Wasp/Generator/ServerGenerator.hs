@@ -40,7 +40,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getUserNodeVersionRangeLowerBoundMajorVersion, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
@@ -74,8 +74,8 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|nodemon.json|],
+      genTsConfigJson,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -116,6 +116,18 @@ genDotEnv spec =
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
+genTsConfigJson :: Generator FileDraft
+genTsConfigJson = do
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|tsconfig.json|])
+      (C.asServerFile [relfile|tsconfig.json|])
+      ( Just $
+          object
+            [ "majorNodeVersion" .= show (major NodeVersion.oldestWaspSupportedNodeVersion)
+            ]
+      )
+
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
   combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
@@ -127,7 +139,7 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show NodeVersion.nodeVersionRange,
+              "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -179,12 +191,14 @@ npmDepsForWasp spec =
             ("typescript", "^5.1.0"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
-            ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1"),
+            ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
+            ("@tsconfig/node" <> majorNodeVersionStr, "^1.0.1"),
             ("@types/uuid", "^9.0.0"),
             ("@types/cors", "^2.8.5")
           ]
     }
+  where
+    majorNodeVersionStr = show (getUserNodeVersionRangeLowerBoundMajorVersion spec)
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
