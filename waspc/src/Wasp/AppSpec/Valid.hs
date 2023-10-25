@@ -368,8 +368,9 @@ validatePrismaOptions spec =
 
 validateWebAppBaseDir :: AppSpec -> [ValidationError]
 validateWebAppBaseDir spec = case maybeBaseDir of
-  Just baseDir | not (startsWithSlash baseDir) ->
-    [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
+  Just baseDir
+    | not (startsWithSlash baseDir) ->
+        [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
   _anyOtherCase -> []
   where
     maybeBaseDir = Client.baseDir =<< AS.App.client (snd $ getApp spec)
@@ -377,6 +378,7 @@ validateWebAppBaseDir spec = case maybeBaseDir of
     startsWithSlash :: String -> Bool
     startsWithSlash ('/' : _) = True
     startsWithSlash _ = False
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
