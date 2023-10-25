@@ -81,7 +81,6 @@ waspBuild/.wasp/build/web-app/tsconfig.node.json
 waspBuild/.wasp/build/web-app/vite.config.ts
 waspBuild/.wasproot
 waspBuild/main.wasp
-waspBuild/src/.DS_Store
 waspBuild/src/.waspignore
 waspBuild/src/client/Main.css
 waspBuild/src/client/MainPage.jsx
