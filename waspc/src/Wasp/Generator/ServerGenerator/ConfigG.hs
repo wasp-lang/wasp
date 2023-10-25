@@ -11,8 +11,8 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.WebApp (getDefaultClientUrl)
 
 genConfigFile :: AppSpec -> Generator FileDraft
 genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -23,7 +23,7 @@ genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
           "databaseUrlEnvVarName" .= databaseUrlEnvVarName,
-          "defaultClientUrl" .= getDefaultClientUrl spec
+          "defaultClientUrl" .= WebApp.getDefaultClientUrl spec
         ]
 
     configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

@@ -63,7 +63,6 @@ import Wasp.JsImport
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
-import qualified Wasp.Project.WebApp as WebApp
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -342,8 +341,8 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
     tmplData =
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
-          "baseDir" .= WebApp.getBaseDir spec,
-          "defaultClientPort" .= WebApp.defaultClientPort
+          "baseDir" .= C.getBaseDir spec,
+          "defaultClientPort" .= C.defaultClientPort
         ]
 
     makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport

@@ -28,7 +28,6 @@ import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
-import qualified Wasp.Project.WebApp as WebApp
 import Wasp.Util.WebRouterPath (Param (Optional, Required), extractPathParams)
 
 data RouterTemplateData = RouterTemplateData
@@ -128,7 +127,7 @@ createRouterTemplateData spec =
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
       _externalAuthProviders = externalAuthProviders,
       _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
-      _baseDir = WebApp.getBaseDir spec
+      _baseDir = C.getBaseDir spec
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec

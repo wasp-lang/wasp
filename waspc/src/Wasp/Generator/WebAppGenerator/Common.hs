@@ -20,14 +20,21 @@ module Wasp.Generator.WebAppGenerator.Common
     toViteImportPath,
     staticAssetsDirInWebAppDir,
     WebAppStaticAssetsDir,
+    getBaseDir,
+    getDefaultClientUrl,
+    defaultClientPort,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import StrongPath (Dir, File, File', Path, Path', Posix, Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
   ( GeneratedSrcDir,
     ProjectRootDir,
@@ -123,3 +130,14 @@ toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
 toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
   where
     dropExtension = fst . splitExtension
+
+getBaseDir :: AppSpec -> String
+getBaseDir spec = fromMaybe "/" maybeBaseDir
+  where
+    maybeBaseDir = AS.App.Client.baseDir =<< AS.App.client (snd $ getApp spec)
+
+defaultClientPort :: Int
+defaultClientPort = 3000
+
+getDefaultClientUrl :: AppSpec -> String
+getDefaultClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ getBaseDir spec
