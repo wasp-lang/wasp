@@ -61,6 +61,8 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
 	// This creates the fly.toml file, but does not attempt to deploy.
 	await $`flyctl launch --no-deploy ${launchArgs}`;
 
+	replaceLineInLocalToml(/min_machines_running = 0/g, 'min_machines_running = 1');
+
 	copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
 	const randomString = crypto.randomBytes(32).toString('hex');
