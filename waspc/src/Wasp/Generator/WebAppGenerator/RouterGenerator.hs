@@ -10,6 +10,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
 import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
+import qualified StrongPath as SP
 import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -127,7 +128,7 @@ createRouterTemplateData spec =
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
       _externalAuthProviders = externalAuthProviders,
       _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
-      _baseDir = C.getBaseDir spec
+      _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
