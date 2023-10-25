@@ -90,6 +90,7 @@ waspMigrate/.wasproot
 waspMigrate/main.wasp
 waspMigrate/migrations/migration_lock.toml
 waspMigrate/migrations/no-date-foo/migration.sql
+waspMigrate/src/.DS_Store
 waspMigrate/src/.waspignore
 waspMigrate/src/client/Main.css
 waspMigrate/src/client/MainPage.jsx

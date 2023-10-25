@@ -150,6 +150,7 @@ waspComplexTest/.wasp/out/web-app/tsconfig.node.json
 waspComplexTest/.wasp/out/web-app/vite.config.ts
 waspComplexTest/.wasproot
 waspComplexTest/main.wasp
+waspComplexTest/src/.DS_Store
 waspComplexTest/src/.waspignore
 waspComplexTest/src/client/App.jsx
 waspComplexTest/src/client/Main.css

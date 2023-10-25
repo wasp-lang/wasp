@@ -83,6 +83,7 @@ waspCompile/.wasp/out/web-app/tsconfig.node.json
 waspCompile/.wasp/out/web-app/vite.config.ts
 waspCompile/.wasproot
 waspCompile/main.wasp
+waspCompile/src/.DS_Store
 waspCompile/src/.waspignore
 waspCompile/src/client/Main.css
 waspCompile/src/client/MainPage.jsx

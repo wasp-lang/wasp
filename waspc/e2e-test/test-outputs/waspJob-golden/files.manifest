@@ -90,6 +90,7 @@ waspJob/.wasp/out/web-app/tsconfig.node.json
 waspJob/.wasp/out/web-app/vite.config.ts
 waspJob/.wasproot
 waspJob/main.wasp
+waspJob/src/.DS_Store
 waspJob/src/.waspignore
 waspJob/src/client/Main.css
 waspJob/src/client/MainPage.jsx

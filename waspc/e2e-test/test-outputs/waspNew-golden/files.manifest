@@ -1,5 +1,6 @@
 waspNew/.wasproot
 waspNew/main.wasp
+waspNew/src/.DS_Store
 waspNew/src/.waspignore
 waspNew/src/client/Main.css
 waspNew/src/client/MainPage.jsx
