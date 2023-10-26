@@ -14,7 +14,7 @@ import { MyDialog } from "../components/Dialog";
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
-  const [isGhModalOpen, setIsGhModalOpen] = useState(false);
+  const [isPowerUserModalOpen, setIsPowerUserModalOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
     message: "Waiting for instructions",
@@ -78,7 +78,7 @@ const MainPage = () => {
         localStorage.setItem("appNum", 0);
       }
       if (appNum === 2) {
-        setIsGhModalOpen(true);
+        setIsPowerUserModalOpen(true);
       }
       if (appDetails) {
         setAppName(appDetails.appName);
@@ -151,7 +151,7 @@ const MainPage = () => {
     <div className="container">
       <Header currentStatus={currentStatus} isStatusVisible={true} />
 
-      <GhModal isGhModalOpen={isGhModalOpen} setIsGhModalOpen={setIsGhModalOpen} />
+      <PowerUserModal isOpen={isPowerUserModalOpen} setIsOpen={setIsPowerUserModalOpen} />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-6 flex flex-col gap-3">
@@ -188,64 +188,38 @@ The simpler and more specific the app is, the better the generated app will be."
           </div>
           <div className="grid md:grid-cols-3 gap-3">
             <div>
-              <label
-                htmlFor="appPrimaryColor"
-                className="text-slate-700 block mb-2"
-              >
+              <label htmlFor="appPrimaryColor" className="text-slate-700 block mb-2">
                 App brand color
               </label>
-              <MyDropdown
-                value={appPrimaryColor}
-                onChange={setAppPrimaryColor}
-                options={availableColors}
-              />
+              <MyDropdown value={appPrimaryColor} onChange={setAppPrimaryColor} options={availableColors} />
             </div>
             <div>
-              <label
-                htmlFor="creativityLevel"
-                className="text-slate-700 block mb-2"
-              >
+              <label htmlFor="creativityLevel" className="text-slate-700 block mb-2">
                 Creativity level
               </label>
-              <MyDropdown
-                value={creativityLevel}
-                onChange={setCreativityLevel}
-                options={availableCreativityLevels}
-              />
+              <MyDropdown value={creativityLevel} onChange={setCreativityLevel} options={availableCreativityLevels} />
             </div>
             <div>
-              <label
-                htmlFor="appAuthMethod"
-                className="text-slate-700 block mb-2"
-              >
+              <label htmlFor="appAuthMethod" className="text-slate-700 block mb-2">
                 Auth method
               </label>
-              <MyDropdown
-                value={appAuthMethod}
-                onChange={setAppAuthMethod}
-                options={availableAuthMethods}
-              />
+              <MyDropdown value={appAuthMethod} onChange={setAppAuthMethod} options={availableAuthMethods} />
             </div>
           </div>
         </div>
-        <button
-          className="button mr-2"
-          disabled={currentStatus.status === "inProgress"}
-        >
+        <button className="button mr-2" disabled={currentStatus.status === "inProgress"}>
           Generate the app <PiMagicWandDuotone className="inline-block ml-1" />
         </button>
       </form>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4 text-slate-800">
-          Some example ideas
-        </h3>
+        <h3 className="text-xl font-semibold mb-4 text-slate-800">Some example ideas</h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
           {exampleIdeas.map((idea) => (
             <ExampleCard key={idea.name} idea={idea} useIdea={useIdea} />
           ))}
         </div>
         <div className="mt-8">
-          <Faq/>
+          <Faq />
         </div>
       </div>
     </div>
@@ -253,9 +227,9 @@ The simpler and more specific the app is, the better the generated app will be."
 };
 export default MainPage;
 
-export function GhModal({ isGhModalOpen, setIsGhModalOpen }) {
+export function PowerUserModal({ isOpen, setIsOpen }) {
   return (
-    <MyDialog isOpen={isGhModalOpen} onClose={() => setIsGhModalOpen(false)} title={<span>With Great Power Comes Great Responsibility! 🧙</span>}>
+    <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>With Great Power Comes Great Responsibility! 🧙</span>}>
       <div className="mt-6 space-y-5">
         <p className="text-base leading-relaxed text-gray-500">
           We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇

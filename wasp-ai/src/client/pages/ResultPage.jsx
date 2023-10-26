@@ -34,7 +34,8 @@ const jsConfetti = new JSConfetti();
 export const ResultPage = () => {
   const { appId } = useParams();
   const [generationDone, setGenerationDone] = useState(false);
-  const [isStarRepoOpen, setIsStarRepoOpen] = useState(false);
+  const [isRunning, setIsRunning] = useState(false); 
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const {
     data: appGenerationResult,
     isError,
@@ -46,7 +47,7 @@ export const ResultPage = () => {
   );
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [currentStatus, setCurrentStatus] = useState({
-    status: "idle",
+    status: "idle", 
     message: "Waiting",
   });
   const [currentFiles, setCurrentFiles] = useState({});
@@ -73,10 +74,16 @@ export const ResultPage = () => {
   }, [appId]);
 
   useEffect(() => {
-    if (currentStatus.status === "success") {
-      setIsStarRepoOpen(true);
+    const currentAppStatus = appGenerationResult?.project?.status;
+    if (currentAppStatus === "in-progress") {
+      setIsRunning(true)
+    } else if (currentAppStatus === "success" && isRunning) {
+      setIsSuccessModalOpen(true)
+      setIsRunning(false)
+    } else if (isRunning) {
+      setIsRunning(false)
     }
-  }, [currentStatus])
+  }, [appGenerationResult?.project?.status])
 
   const logs = appGenerationResult?.project?.logs.map((log) => log.content);
 
@@ -217,7 +224,7 @@ export const ResultPage = () => {
         currentStatus={currentStatus}
         isStatusVisible={!!appGenerationResult?.project}
       />
-      <StarOurRepoModal isStarRepoOpen={isStarRepoOpen} setIsStarRepoOpen={setIsStarRepoOpen} appGenerationResult={appGenerationResult}/>
+      <OnSuccessModal isOpen={isSuccessModalOpen} setIsOpen={setIsSuccessModalOpen} appGenerationResult={appGenerationResult}/>
 
       {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
@@ -406,59 +413,71 @@ function getCardinalNumber(number) {
   }
 }
 
-export function StarOurRepoModal({ isStarRepoOpen, setIsStarRepoOpen, appGenerationResult }) {
-  const [tokens, setTokens] = useState(0)
-  const { data: numTotalProjects } = useQuery(getNumProjects, {}, { enabled: isStarRepoOpen })
-
-  const tokenNumberStr = appGenerationResult?.project?.logs?.filter(log => log.content.toLowerCase().includes("tokens usage") === true)[0]?.content.split(':')[1]?.trim()
+export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
+  const [numTokensSpent, setNumTokensSpent] = useState(0)
+  const { data: numTotalProjects } = useQuery(getNumProjects, {}, { enabled: isOpen })
 
   useEffect(() => {
-    if (!!tokenNumberStr) {
-      const num = tokenNumberStr.slice(1, -1) * 1000
-      setTokens(num)
+    const logText = appGenerationResult?.project?.logs?.find((log) => /tokens usage/i.test(log.content))?.content;
+    const tokenNumberStr = logText ? logText.split(":")[1]?.trim() : null;
+    if (tokenNumberStr) {
+      const num =  Number(tokenNumberStr.replace(/[\s~k]/gi, '')) * 1000;
+      if (num.toString().match(/^[0-9]+$/)) {
+        setNumTokensSpent(num);
+      } 
     }
-  }, [tokenNumberStr])
+  }, [appGenerationResult]);
 
   useEffect(() => {
-    if (isStarRepoOpen) {
+    if (isOpen) {
       jsConfetti.addConfetti({
         emojis: ['🐝'],
         emojiSize: 120,
       })
     }
-  }, [isStarRepoOpen])
+  }, [isOpen])
+
+  function FormattedText({ children }) {
+    return <span className="py-1 px-2 font-semibold text-pink-800 rounded">{children}</span>;
+  } 
+
   return (
-    <MyDialog isOpen={isStarRepoOpen} onClose={() => setIsStarRepoOpen(false)} title={<span>Your App is Ready! 🎉</span>}>
+    <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>Your App is Ready! 🎉</span>}>
       <div className="mt-6 space-y-5">
         <p className="text-base leading-relaxed text-gray-500">
           We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
         </p>
-        <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
-          {/* <caption>Fun Stats</caption> */}
-          <tr>
-            <td className="p-2 text-gray-600"> Number of tokens your app used: </td>
-            <td className="p-2 text-gray-600">
-              {" "}
-              <FormattedText>{tokens.toLocaleString(2) ?? "~22k"}</FormattedText>{" "}
-            </td>
-          </tr>
-          <tr>
-            <td className="p-2 text-gray-600"> Cost to generate your app: </td>
-            <td className="p-2 text-gray-600">
-              {" "}
-              <FormattedText>{tokens ? `$${((tokens / 1000) * 0.004).toFixed(2)}` : "~ $0.50"}</FormattedText>{" "}
-            </td>
-          </tr>
-          {numTotalProjects && (
-            <tr className="p-2 text-gray-600">
-              <td className="p-2 text-gray-600"> Total number of apps generated with Mage: </td>
-              <td className="p-2 text-gray-600">
-                {" "}
-                <FormattedText>{numTotalProjects.toLocaleString()}</FormattedText>{" "}
-              </td>
-            </tr>
-          )}
-        </table>
+        {numTokensSpent && (
+          <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
+            <tbody>
+              <tr>
+                <td className="p-2 text-gray-600"> Number of tokens your app used: </td>
+                <td className="p-2 text-gray-600">
+                  {" "}
+                  <FormattedText>{numTokensSpent.toLocaleString()}</FormattedText>{" "}
+                </td>
+              </tr>
+              <tr>
+                <td className="p-2 text-gray-600"> Cost to generate your app: </td>
+                <td className="p-2 text-gray-600">
+                  {" "}
+                  <FormattedText>
+                    {`$${((Number(numTokensSpent) / 1000) * 0.004).toFixed(2)}`}
+                  </FormattedText>{" "}
+                </td>
+              </tr>
+              {numTotalProjects && (
+                <tr className="p-2 text-gray-600">
+                  <td className="p-2 text-gray-600"> Total number of apps generated with Mage: </td>
+                  <td className="p-2 text-gray-600">
+                    {" "}
+                    <FormattedText>{numTotalProjects.toLocaleString()}</FormattedText>{" "}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
         <p className="text-base leading-relaxed text-gray-500">
           But you can still show your support by starring us on GitHub:
         </p>
@@ -478,14 +497,8 @@ export function StarOurRepoModal({ isStarRepoOpen, setIsStarRepoOpen, appGenerat
         <p className="text-base leading-relaxed text-gray-500">We'd very much appreciate it! 🧙</p>
       </div>
     </MyDialog>
-  )
+  );
 }
-
-function FormattedText({ children }) {
-  return (
-    <span className='py-1 px-2 font-semibold text-pink-800 rounded'>{children}</span>
-  )
-} 
 
 export default function RunTheAppModal({ disabled, onDownloadZip }) {
   const [showModal, setShowModal] = useState(false);
