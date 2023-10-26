@@ -38,13 +38,13 @@ export const embedDocument: EmbedDocument<
   const { url, selector } = args;
 
   // Scrape url to get the title and content
-  const { title, content } = await getContent(url, selector);
+  const { title, markdownContent } = await getContent(url, selector);
 
-  const embedding = toSql(await createEmbedding(content));
+  const embedding = toSql(await createEmbedding(markdownContent));
 
   await prisma.$queryRaw`
     INSERT INTO "Document" ("id", "title", "content", "embedding", "url", "updatedAt")
-    VALUES (gen_random_uuid(), ${title}, ${content}, ${embedding}::vector, ${url}, ${new Date()})
+    VALUES (gen_random_uuid(), ${title}, ${markdownContent}, ${embedding}::vector, ${url}, ${new Date()})
     RETURNING "id";
   `;
 
@@ -160,15 +160,17 @@ export const askDocuments: AskDocuments<
 
   const prompt = `Provide an aswer to the following: ${query}
   
-  You can use the following documents:
-  ${result.map((r) => `${r.content}\nSource URL: ${r.url}`).join("\n\n")}`;
+  You can use the following documents delimited by triple quotes:
+  ${result
+    .map((r) => `"""${r.content}"""\nSource URL: ${r.url}`)
+    .join("\n\n")}`;
 
   const completion = await api.chat.completions.create({
     messages: [
       {
         role: "system",
         content:
-          "You are a Q&A system. Respond concisiely. Do not make it conversational. Mention the source URL. Respond in Markdown.",
+          "You are a Q&A system. Respond concisiely. Do not make it conversational. Mention the source URL. Respond in Markdown. Respond only with content from the documents provided. If the answer is not clear from the documents, respond with 'I don't know'.",
       },
       { role: "user", content: prompt.slice(0, 4000) },
     ],

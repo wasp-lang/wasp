@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as Cheerio from "cheerio";
+import { NodeHtmlMarkdown, NodeHtmlMarkdownOptions } from "node-html-markdown";
 
 export const getContent = createContentGetterWithCache();
 
@@ -14,6 +15,9 @@ export async function getLinksToScrape(startingUrl: string): Promise<{
     const href = $(element).attr("href");
     if (href) {
       const url = new URL(href, startingUrl);
+      if (isFile(url)) {
+        return;
+      }
       if (url.origin === startingUrlOrigin) {
         links.add(cleanUrl(url.href));
       }
@@ -30,29 +34,21 @@ function cleanUrl(url: string) {
   return urlObject.href;
 }
 
-export async function scrapeLinks(
-  links: string[],
-  contentSelector: string = "body"
-): Promise<{
-  results: {
-    url: string;
-    title: string;
-    content: string;
-  }[];
-}> {
-  const results = await Promise.all(
-    links.map(async (url) => {
-      const { title, content } = await getContent(url, contentSelector);
-      return {
-        url,
-        title,
-        content,
-      };
-    })
-  );
-  return {
-    results,
-  };
+function isFile(url: URL): boolean {
+  const pathname = url.pathname;
+  const lastSegment = pathname.split("/").pop();
+  if (!lastSegment) {
+    return false;
+  }
+  const lastSegmentParts = lastSegment.split(".");
+  if (lastSegmentParts.length < 2) {
+    return false;
+  }
+  const extension = lastSegmentParts.pop();
+  if (!extension) {
+    return false;
+  }
+  return true;
 }
 
 function createContentGetterWithCache() {
@@ -61,6 +57,7 @@ function createContentGetterWithCache() {
     {
       title: string;
       content: string;
+      markdownContent: string;
     }
   >();
   return async function getContent(
@@ -69,6 +66,7 @@ function createContentGetterWithCache() {
   ): Promise<{
     title: string;
     content: string;
+    markdownContent: string;
   }> {
     const key = `${url}::${contentSelector}`;
     if (cache.has(key)) {
@@ -86,11 +84,24 @@ async function scrapeUrl(
 ): Promise<{
   title: string;
   content: string;
+  markdownContent: string;
 }> {
   const { data } = await axios.get(url);
   const $ = Cheerio.load(data);
   return {
     title: $("title").text(),
     content: $(contentSelector).text(),
+    markdownContent: htmlToMarkdown($(contentSelector).html()),
   };
+}
+
+const nhm = new NodeHtmlMarkdown({
+  maxConsecutiveNewlines: 2,
+});
+
+function htmlToMarkdown(html: string | null): string {
+  if (!html) {
+    return "";
+  }
+  return nhm.translate(html);
 }

@@ -9,13 +9,13 @@ body {
   @apply text-blue-500 underline hover:text-blue-600;
 }
 .markdown h1 {
-  @apply text-4xl font-bold;
+  @apply text-3xl font-bold mb-4;
 }
 .markdown h2 {
-  @apply text-3xl font-bold;
+  @apply text-2xl font-bold mb-4;
 }
 .markdown h3 {
-  @apply text-2xl font-bold;
+  @apply text-xl font-bold mb-4;
 }
 .markdown ul {
   @apply list-disc list-inside;
@@ -26,4 +26,11 @@ body {
 .markdown ol,
 .markdown ul {
   @apply pl-4 my-4 space-y-1;
+}
+.markdown p {
+  @apply my-2 leading-relaxed;
+}
+
+.markdown li > p {
+  @apply inline;
 }
