@@ -11,7 +11,7 @@ const customTheme = {
     color: {
       primary: "bg-red-500 hover:bg-red-600",
     },
-  },
+  }
 };
 
 export const Layout = ({ children }) => {
@@ -20,9 +20,9 @@ export const Layout = ({ children }) => {
     <Flowbite theme={{ theme: customTheme }}>
       <div className="p-8">
         <Navbar fluid rounded>
-          <Navbar.Brand href="https://flowbite-react.com">
+          <Navbar.Brand className="cursor-pointer">
             <img
-              alt="Flowbite React Logo"
+              alt="Fox Logo"
               className="mr-3 h-6 sm:h-9"
               src={Logo}
             />

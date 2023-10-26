@@ -26,7 +26,7 @@ const examples = [
   {
     title: 'Realtime voting via WebSockets 🔌',
     description:
-      'A realtime, websockets powered voting app buit with Wasp in TypeScript.',
+      'A realtime, websockets powered voting app built with Wasp in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'waspleau-jobs-example',
