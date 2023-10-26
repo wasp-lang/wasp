@@ -3,16 +3,17 @@ import {
   StartGeneratingNewApp,
   CreateFeedback,
 } from "@wasp/actions/types";
-import { Project } from "@wasp/entities";
 import {
   GetAppGenerationResult,
   GetStats,
   GetFeedback,
   GetNumProjects,
+  GetProjectsByUser
 } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
+import type { Project } from "@wasp/entities"
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -225,19 +226,16 @@ export const getNumProjects = (async (_args, context) => {
   return context.entities.Project.count();
 }) satisfies GetNumProjects<{}>;
 
-function getDownloadStats(projects: Project[]) {
-  const projectsAfterDownloadTracking = projects.filter(
-    (project) =>
-      // This is the time of the first recorded download (after we rolled out download tracking).
-      project.createdAt > new Date("2023-07-14 10:36:45.12") &&
-      project.status === "success"
-  );
-  const downloadedProjects = projectsAfterDownloadTracking.filter(
-    (project) => project.zipDownloadedAt !== null
-  );
-  return {
-    projectsDownloaded: downloadedProjects.length,
-    downloadRatio:
-      downloadedProjects.length / projectsAfterDownloadTracking.length,
-  };
+export const getProjectsByUser: GetProjectsByUser<{userId: number}, Project[]> = async ({ userId }, context) => {
+  console.log("context.user", context.user)
+  if (!context.user) {
+    throw new HttpError(401, "Not authorized");
+  }
+  return await context.entities.Project.findMany({
+    where: {
+      user: {
+        id: context.user.id
+      }
+    }
+  })
 }

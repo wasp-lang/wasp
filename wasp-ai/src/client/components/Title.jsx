@@ -1,6 +1,5 @@
 import magicLogo from "../magic-app-gen-logo.png";
 import { Link } from "react-router-dom";
-import { RxQuestionMarkCircled } from "react-icons/rx";
 
 export function Title() {
   return (
@@ -14,10 +13,6 @@ export function Title() {
           <p className="md:text-base text-sm leading-relaxed text-gray-500">
             Generate your full-stack web app in Wasp, React, Node.js and Prisma
           </p>
-          <a href="#faq" className="flex items-center mt-2 space-x-1 text-gray-500 hover:text-gray-400">
-            <span className="text-sm font-normal">Learn more</span>
-            <RxQuestionMarkCircled className="text-base" />
-          </a>
         </div>
       </div>
     </div>

@@ -10,39 +10,46 @@ import { exampleIdeas } from "../examples";
 import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
 import { readReferrerFromLocalStorage } from "../storage";
 import { MyDialog } from "../components/Dialog";
+import useAuth from "@wasp/auth/useAuth";
+import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
   const [isPowerUserModalOpen, setIsPowerUserModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
     message: "Waiting for instructions",
   });
   const history = useHistory();
+  const { data: user } = useAuth();
 
-  const [appPrimaryColor, setAppPrimaryColor] = useState(
-    availableColors.find((color) => color.name === "sky")
-  );
+  const [appPrimaryColor, setAppPrimaryColor] = useState(availableColors.find((color) => color.name === "sky"));
 
   const availableCreativityLevels = useMemo(
-    () => [{
-      value: "conventional",
-      name: "Conventional",
-      description: "Generates sensible code with minimal amount of mistakes.",
-      disabled: false
-    }, {
-      value: "balanced",
-      name: "Balanced",
-      description: "Optimal trade-off between creativity and possible mistakes.",
-      disabled: false
-    }, {
-      value: "creative",
-      name: "Creative",
-      description: "Generates more creative code, but mistakes are more likely.",
-      disabled: false
-    }]
-  , []);
+    () => [
+      {
+        value: "conventional",
+        name: "Conventional",
+        description: "Generates sensible code with minimal amount of mistakes.",
+        disabled: false,
+      },
+      {
+        value: "balanced",
+        name: "Balanced",
+        description: "Optimal trade-off between creativity and possible mistakes.",
+        disabled: false,
+      },
+      {
+        value: "creative",
+        name: "Creative",
+        description: "Generates more creative code, but mistakes are more likely.",
+        disabled: false,
+      },
+    ],
+    []
+  );
   const [creativityLevel, setCreativityLevel] = useState(
     availableCreativityLevels.find((lvl) => lvl.value === "balanced")
   );
@@ -73,11 +80,7 @@ const MainPage = () => {
   useEffect(() => {
     try {
       const appDetails = JSON.parse(localStorage.getItem("appDetails"));
-      const appNum = JSON.parse(localStorage.getItem("appNum"));
-      if (!appNum) {
-        localStorage.setItem("appNum", 0);
-      }
-      if (appNum === 2) {
+      if (user?.projects.length >= 2) {
         setIsPowerUserModalOpen(true);
       }
       if (appDetails) {
@@ -95,19 +98,23 @@ const MainPage = () => {
 
   async function startGenerating(event) {
     event.preventDefault();
-
     try {
-      const appNum = JSON.parse(localStorage.getItem("appNum"))
-      localStorage.setItem("appNum", appNum + 1)
-      localStorage.setItem("appDetails", JSON.stringify({
-        appName,
-        appDesc,
-        appPrimaryColor: appPrimaryColor.name,
-        appAuthMethod: appAuthMethod.value,
-        appCreativityLevel: creativityLevel.value,
-      }));
+      localStorage.setItem(
+        "appDetails",
+        JSON.stringify({
+          appName,
+          appDesc,
+          appPrimaryColor: appPrimaryColor.name,
+          appAuthMethod: appAuthMethod.value,
+          appCreativityLevel: creativityLevel.value,
+        })
+      );
+      if (!user) {
+        setIsLoginModalOpen(true);
+        return;
+      }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
 
     setCurrentStatus({
@@ -116,7 +123,7 @@ const MainPage = () => {
     });
 
     try {
-      const referrer = readReferrerFromLocalStorage(); 
+      const referrer = readReferrerFromLocalStorage();
       const appId = await startGeneratingNewApp({
         referrer,
         appName,
@@ -151,6 +158,7 @@ const MainPage = () => {
     <div className="container">
       <Header currentStatus={currentStatus} isStatusVisible={true} />
 
+      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
       <PowerUserModal isOpen={isPowerUserModalOpen} setIsOpen={setIsPowerUserModalOpen} />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
@@ -229,7 +237,11 @@ export default MainPage;
 
 export function PowerUserModal({ isOpen, setIsOpen }) {
   return (
-    <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>With Great Power Comes Great Responsibility! 🧙</span>}>
+    <MyDialog
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      title={<span>With Great Power Comes Great Responsibility! 🧙</span>}
+    >
       <div className="mt-6 space-y-5">
         <p className="text-base leading-relaxed text-gray-500">
           We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
@@ -254,5 +266,19 @@ export function PowerUserModal({ isOpen, setIsOpen }) {
         <p className="text-base leading-relaxed text-gray-500">We'd very much appreciate it! 🧙</p>
       </div>
     </MyDialog>
-  )
+  );
+}
+
+export function LoginModal({ isOpen, setIsOpen }) {
+  return (
+    <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>Sign in to your GitHub account</span>}>
+      <div className="mt-6 space-y-5">
+        <p className="text-base leading-relaxed text-gray-500">
+          We're offering this tool completely <span className="font-semibold">free</span>. All you have to do is login
+          with your GitHub Account.
+        </p>
+        <GitHubSignInButton />
+      </div>
+    </MyDialog>
+  );
 }

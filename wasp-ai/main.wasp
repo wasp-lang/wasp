@@ -66,6 +66,12 @@ page ResultPage {
   component: import { ResultPage } from "@client/pages/ResultPage.jsx"
 }
 
+route UserRoute { path: "/user", to: UserPage }
+page UserPage {
+  component: import { UserPage } from "@client/pages/UserPage.jsx",
+  authRequired: true
+}
+
 route StatsRoute { path: "/stats", to: StatsPage }
 page StatsPage {
   component: import { Stats } from "@client/pages/StatsPage.jsx",
@@ -105,6 +111,11 @@ query getFeedback {
   entities: [Feedback]
 }
 
+query getProjectsByUser {
+  fn: import { getProjectsByUser } from "@server/operations.js",
+  entities: [Project]
+}
+
 
 query getAppGenerationResult {
   fn: import { getAppGenerationResult } from "@server/operations.js",
@@ -131,6 +142,7 @@ entity User {=psl
   id Int @id @default(autoincrement())
 
   email String @unique
+  username String?
   externalAuthAssociations SocialLogin[]
   projects Project[]
 psl=}
