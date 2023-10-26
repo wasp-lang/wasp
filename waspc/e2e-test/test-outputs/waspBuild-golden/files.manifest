@@ -52,7 +52,7 @@ waspBuild/.wasp/build/web-app/src/ext-src/Main.css
 waspBuild/.wasp/build/web-app/src/ext-src/MainPage.jsx
 waspBuild/.wasp/build/web-app/src/ext-src/vite-env.d.ts
 waspBuild/.wasp/build/web-app/src/ext-src/vite.config.ts
-waspBuild/.wasp/build/web-app/src/ext-src/waspLogo.png
+waspBuild/.wasp/build/web-app/src/ext-src/waspLogo.svg
 waspBuild/.wasp/build/web-app/src/index.tsx
 waspBuild/.wasp/build/web-app/src/logo.png
 waspBuild/.wasp/build/web-app/src/operations/index.ts
@@ -87,6 +87,6 @@ waspBuild/src/client/MainPage.jsx
 waspBuild/src/client/tsconfig.json
 waspBuild/src/client/vite-env.d.ts
 waspBuild/src/client/vite.config.ts
-waspBuild/src/client/waspLogo.png
+waspBuild/src/client/waspLogo.svg
 waspBuild/src/server/tsconfig.json
 waspBuild/src/shared/tsconfig.json

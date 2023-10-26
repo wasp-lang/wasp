@@ -903,7 +903,7 @@ This was the file tree of a newly generated project in the previous version of W
 │   ├── Main.css
 │   ├── MainPage.js
 │   ├── .waspignore
-│   └── waspLogo.png
+│   └── waspLogo.svg
 ├── .gitignore
 ├── main.wasp
 └── .wasproot
@@ -920,7 +920,7 @@ get by running `wasp new project` from this point onwards):
 │   │   ├── MainPage.jsx
 │   │   ├── react-app-env.d.ts
 │   │   ├── tsconfig.json
-│   │   └── waspLogo.png
+│   │   └── waspLogo.svg
 │   ├── server
 │   │   └── tsconfig.json
 │   ├── shared

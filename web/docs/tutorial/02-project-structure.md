@@ -18,7 +18,7 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 │   │   ├── tsconfig.json
 │   │   ├── vite.config.ts
 │   │   ├── vite-env.d.ts
-│   │   └── waspLogo.png
+│   │   └── waspLogo.svg
 │   ├── server             # Your server code (Node JS) goes here.
 │   │   └── tsconfig.json
 │   ├── shared             # Your shared (runtime independent) code goes here.

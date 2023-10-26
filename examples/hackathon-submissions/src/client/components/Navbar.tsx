@@ -1,5 +1,5 @@
 import React from 'react';
-import waspLogo from '../waspLogo.png';
+import waspLogo from '../waspLogo.svg';
 import { Star } from 'react-feather';
 
 export const DiscordIcon = () => (

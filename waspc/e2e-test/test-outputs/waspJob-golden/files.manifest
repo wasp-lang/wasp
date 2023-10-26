@@ -61,7 +61,7 @@ waspJob/.wasp/out/web-app/src/ext-src/Main.css
 waspJob/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspJob/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspJob/.wasp/out/web-app/src/ext-src/vite.config.ts
-waspJob/.wasp/out/web-app/src/ext-src/waspLogo.png
+waspJob/.wasp/out/web-app/src/ext-src/waspLogo.svg
 waspJob/.wasp/out/web-app/src/index.tsx
 waspJob/.wasp/out/web-app/src/logo.png
 waspJob/.wasp/out/web-app/src/operations/index.ts
@@ -96,7 +96,7 @@ waspJob/src/client/MainPage.jsx
 waspJob/src/client/tsconfig.json
 waspJob/src/client/vite-env.d.ts
 waspJob/src/client/vite.config.ts
-waspJob/src/client/waspLogo.png
+waspJob/src/client/waspLogo.svg
 waspJob/src/server/jobs/bar.js
 waspJob/src/server/tsconfig.json
 waspJob/src/shared/tsconfig.json

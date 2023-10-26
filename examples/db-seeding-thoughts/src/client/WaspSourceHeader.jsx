@@ -1,4 +1,4 @@
-import waspLogo from './waspLogo.png'
+import waspLogo from './waspLogo.svg'
 
 const WaspSourceHeader = (props) => {
   const divStyle = {

@@ -48,7 +48,7 @@ Let's take a look at the React component referenced by the page declaration:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/client/MainPage.jsx"
-import waspLogo from './waspLogo.png'
+import waspLogo from './waspLogo.svg'
 import './Main.css'
 
 const MainPage = () => {
@@ -61,7 +61,7 @@ export default MainPage
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/client/MainPage.tsx"
-import waspLogo from './waspLogo.png'
+import waspLogo from './waspLogo.svg'
 import './Main.css'
 
 const MainPage = () => {
@@ -148,7 +148,7 @@ Since you are using Typescript, you can benefit from using Wasp's type-safe `Lin
 
 ## Cleaning Up
 
-Let's prepare for building the Todo app by cleaning up the project and removing files and code we won't need. Start by deleting `Main.css`, `waspLogo.png`, and `HelloPage.{jsx,tsx}` that we just created in the `src/client/` folder.
+Let's prepare for building the Todo app by cleaning up the project and removing files and code we won't need. Start by deleting `Main.css`, `waspLogo.svg`, and `HelloPage.{jsx,tsx}` that we just created in the `src/client/` folder.
 
 Since we deleted `HelloPage.{jsx,tsx}`, we also need to remember to remove the `route` and `page` declarations we wrote for it. Your Wasp file should now look like this:
 

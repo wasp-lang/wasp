@@ -18,7 +18,7 @@ With these files present, Wasp installs the necessary dependencies and copies yo
 │   │   ├── tsconfig.json
 │   │   ├── Main.css
 │   │   ├── MainPage.js
-│   │   └── waspLogo.png
+│   │   └── waspLogo.svg
 │   ├── server
 │   │   └── tsconfig.json
 │   └── shared

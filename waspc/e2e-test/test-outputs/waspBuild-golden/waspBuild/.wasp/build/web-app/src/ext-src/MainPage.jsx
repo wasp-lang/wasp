@@ -1,4 +1,4 @@
-import waspLogo from './waspLogo.png'
+import waspLogo from './waspLogo.svg'
 import './Main.css'
 
 const MainPage = () => {

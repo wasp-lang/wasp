@@ -6,6 +6,6 @@ waspNew/src/client/MainPage.jsx
 waspNew/src/client/tsconfig.json
 waspNew/src/client/vite-env.d.ts
 waspNew/src/client/vite.config.ts
-waspNew/src/client/waspLogo.png
+waspNew/src/client/waspLogo.svg
 waspNew/src/server/tsconfig.json
 waspNew/src/shared/tsconfig.json

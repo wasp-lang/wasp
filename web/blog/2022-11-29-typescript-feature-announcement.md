@@ -46,7 +46,7 @@ This will generate a project skeleton in the folder `myApp`. The project structu
 │   │   ├── MainPage.jsx
 │   │   ├── react-app-env.d.ts
 │   │   ├── tsconfig.json
-│   │   └── waspLogo.png
+│   │   └── waspLogo.svg
 │   ├── server            # Your server code (Node JS) goes here.
 │   │   └── tsconfig.json
 │   ├── shared            # Your shared (runtime independent) code goes here.

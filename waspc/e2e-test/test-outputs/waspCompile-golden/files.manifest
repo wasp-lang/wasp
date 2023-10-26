@@ -54,7 +54,7 @@ waspCompile/.wasp/out/web-app/src/ext-src/Main.css
 waspCompile/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspCompile/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspCompile/.wasp/out/web-app/src/ext-src/vite.config.ts
-waspCompile/.wasp/out/web-app/src/ext-src/waspLogo.png
+waspCompile/.wasp/out/web-app/src/ext-src/waspLogo.svg
 waspCompile/.wasp/out/web-app/src/index.tsx
 waspCompile/.wasp/out/web-app/src/logo.png
 waspCompile/.wasp/out/web-app/src/operations/index.ts
@@ -89,6 +89,6 @@ waspCompile/src/client/MainPage.jsx
 waspCompile/src/client/tsconfig.json
 waspCompile/src/client/vite-env.d.ts
 waspCompile/src/client/vite.config.ts
-waspCompile/src/client/waspLogo.png
+waspCompile/src/client/waspLogo.svg
 waspCompile/src/server/tsconfig.json
 waspCompile/src/shared/tsconfig.json

@@ -1104,7 +1104,7 @@ Ok, but what good is a function that fetches the data if we’ve got nowhere to 
 Let’s go now to our `src/client/MainPage.tsx` file (make sure it’s got the `.tsx` extension and not `.jsx`) and replace the contents with these below:
 
 ```tsx
-import waspLogo from './waspLogo.png'
+import waspLogo from './waspLogo.svg'
 import './Main.css'
 
 const MainPage = () => {
@@ -1208,7 +1208,7 @@ Next, we want our page to perform the following actions:
 That’s exactly what the below code will do. Go ahead and replace the `MainPage` with it and take a minute to review what’s going on:
 
 ```tsx
-import waspLogo from './waspLogo.png';
+import waspLogo from './waspLogo.svg';
 import './Main.css';
 import { useState } from 'react';
 import generateNewIdeas from '@wasp/actions/generateNewIdeas';

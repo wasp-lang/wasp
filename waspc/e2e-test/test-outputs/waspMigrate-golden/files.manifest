@@ -59,7 +59,7 @@ waspMigrate/.wasp/out/web-app/src/ext-src/Main.css
 waspMigrate/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/vite.config.ts
-waspMigrate/.wasp/out/web-app/src/ext-src/waspLogo.png
+waspMigrate/.wasp/out/web-app/src/ext-src/waspLogo.svg
 waspMigrate/.wasp/out/web-app/src/index.tsx
 waspMigrate/.wasp/out/web-app/src/logo.png
 waspMigrate/.wasp/out/web-app/src/operations/index.ts
@@ -96,6 +96,6 @@ waspMigrate/src/client/MainPage.jsx
 waspMigrate/src/client/tsconfig.json
 waspMigrate/src/client/vite-env.d.ts
 waspMigrate/src/client/vite.config.ts
-waspMigrate/src/client/waspLogo.png
+waspMigrate/src/client/waspLogo.svg
 waspMigrate/src/server/tsconfig.json
 waspMigrate/src/shared/tsconfig.json

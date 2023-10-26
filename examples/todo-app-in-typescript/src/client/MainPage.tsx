@@ -1,5 +1,5 @@
 import React, { FormEventHandler, FormEvent } from "react";
-import waspLogo from "./waspLogo.png";
+import waspLogo from "./waspLogo.svg";
 
 import "./Main.css";
 // Wasp imports 🐝 = }
