@@ -1,51 +1,49 @@
 # Contributing to Wasp
 
 Wasp's compiler is built with Haskell and under the hood it generates a web application in React and NodeJS. Given that, there are several ways in which you can contribute: 
-- [Wasp compiler/CLI/LSP internals](#wasp-compilerclilsp-internals) (Haskell)
-- [Wasp as a web framework](#wasp-as-a-web-framework) (React, Node, HTML/CSS, database and so on)
-- [Tutorials or Example apps](#tutorials-or-example-apps)
+- [Wasp Compiler/CLI/LSP Internals](#wasp-compilerclilsp-internals) (Haskell)
+- [Wasp as a Web Framework](#wasp-as-a-web-framework) (React, Node, HTML/CSS, database, and more)
+- [Tutorials or Example Apps](#tutorials-or-example-apps)
 - [Documentation](#documentation)
 
-## Before you begin 
+## Before You Begin
 
-- Check out the [**Getting Started**](https://wasp-lang.dev/docs) guide to get familiar with Wasp's fundamentals. Ideally, you'd also build an app from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/tutorials/todo-app) page to really get a feel for it!
-- Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. More on this is below.
-- Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set!
-- Below you can find links to the good first issues. If you'd like to filter the issues on your own — please, use [this link](https://github.com/wasp-lang/wasp/issues)
+To get started with contributing to Wasp, follow these steps:
 
-Let's jump right in!
+1. Check out the [**Getting Started**](https://wasp-lang.dev/docs) guide to familiarize yourself with the fundamentals of Wasp.
+2. Ideally, build an app using one of the tutorials from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/tutorials/todo-app) page to gain hands-on experience.
+3. Determine what aspect of Wasp you'd like to contribute to, whether it's code, documentation, tutorials, or other areas.
 
-## Wasp compiler/CLI/LSP internals
+For efficient communication and feedback, consider joining our Discord community [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX). Our community can assist you in finding a suitable issue to work on, based on your interests and skill set.
 
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
+You can also explore a list of good first issues by following this [link](https://github.com/wasp-lang/wasp/issues) to find opportunities for contributions.
 
-While you will need to know some Haskell, you don't have to be an expert in Haskell to contribute or understand the code since we don't use complicated Haskell features much -> most of the code is relatively straightforward, and we are happy to help with the part that is not.
+Let's dive into the various ways you can contribute to Wasp:
 
-Check the [**Wasp compiler README**](https://github.com/wasp-lang/wasp/blob/main/waspc/README.md) for all the detailed instructions and guides.
+## Wasp Compiler/CLI/LSP Internals
 
-[**Haskell-related issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Ahaskell) 
+Wasp's compiler is primarily implemented in Haskell, but you will encounter JavaScript and other web technologies because Wasp compiles its own code into these technologies. You don't need to be an expert in Haskell, as most of the code is relatively straightforward.
 
-Feel free to contact us via Discord to ask for an appropriate issue for yourself, or just open a new one if you have something specific in mind and it isn't already there!
+To get involved in this area, refer to the [**Wasp compiler README**](https://github.com/wasp-lang/wasp/blob/main/waspc/README.md) for detailed instructions and guides.
 
-## Wasp as a web framework
+Find beginner-friendly Haskell-related issues [here](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Ahaskell). If you can't find a suitable issue, don't hesitate to reach out to our Discord community for assistance or open a new issue if you have a specific contribution in mind.
 
-Wasp is a language for developing full-stack web apps. This means there are plenty of tasks related to web development itself. 
+## Wasp as a Web Framework
 
-[**Web dev issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Awebdev)
+Wasp is a versatile platform for developing full-stack web applications, which involves various web development tasks.
 
-## Tutorials or Example apps
+Discover beginner-friendly web development issues [here](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Awebdev).
 
-Another great way to help is to create an app with Wasp! We have an [Examples](https://wasp-lang.dev/docs/examples) section on our website, as well as the [Tutorials](https://wasp-lang.dev/docs/tutorials/todo-app) page. Both of them can be improved and updated with your projects. 
+## Tutorials or Example Apps
 
-All that's required is to create an app. And make a tutorial or a blog post to help other people reproduce your work. Some prominent examples are: [Waspello](https://wasp-lang.dev/blog/2021/12/02/waspello), [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau), [It Wasps on My Machine](https://wasp-lang.dev/blog/2022/09/05/dev-excuses-app-tutrial) and [To-Do app](https://wasp-lang.dev/docs/tutorials/todo-app).
+A great way to contribute is by creating an application using Wasp. We have an [Examples](https://wasp-lang.dev/docs/examples) section on our website, as well as a [Tutorials](https://wasp-lang.dev/docs/tutorials/todo-app) page. You can enhance and update these resources with your own projects.
 
-Or you can re-build your existing pet project with Wasp. That would be cool!
+To contribute in this way, create an app and then produce a tutorial or blog post to help others replicate your work. Some notable examples include [Waspello](https://wasp-lang.dev/blog/2021/12/02/waspello), [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau), [It Wasps on My Machine](https://wasp-lang.dev/blog/2022/09/05/dev-excuses-app-tutorial), and [To-Do app](https://wasp-lang.dev/docs/tutorials/todo-app). Alternatively, you can rebuild your existing pet project with Wasp, which would be a valuable contribution.
 
 ## Documentation
 
-It may sound like the simplest one, but it's super valuable! If you've found an issue, a broken link or if something was unclear on our [website](https://wasp-lang.dev/) - please, feel free to fix it :)
+Improving documentation is a highly valuable contribution. If you come across an issue, a broken link, or anything unclear on our [website](https://wasp-lang.dev/), please feel free to rectify it.
 
-[**Documentation issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Adocumentation)
+Explore beginner-friendly documentation issues [here](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Adocumentation).
 
-
-Happy hacking!
+Happy hacking, and thank you for contributing to Wasp!
