@@ -131,6 +131,11 @@ query getStats {
   ]
 }
 
+query checkIfUserStarredWasp {
+  fn: import { checkIfUserStarredWasp } from "@server/operations.js",
+  entities: [Project]
+}
+
 query getNumProjects {
   fn: import { getNumProjects } from "@server/operations.js",
   entities: [

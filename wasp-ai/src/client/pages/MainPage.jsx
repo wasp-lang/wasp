@@ -14,6 +14,7 @@ import useAuth from "@wasp/auth/useAuth";
 import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
 import { useQuery } from "@wasp/queries";
 import getProjectsByUser from "@wasp/queries/getProjectsByUser";
+import checkIfUserStarredWasp from "@wasp/queries/checkIfUserStarredWasp";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -29,6 +30,11 @@ const MainPage = () => {
   const history = useHistory();
   const { data: user } = useAuth();
   const { data: userProjects } = useQuery(getProjectsByUser, {}, { enabled: !!user });
+  const { data: hasUserStarredWasp } = useQuery(
+    checkIfUserStarredWasp,
+    { username: user?.username },
+    { enabled: !!user }
+  );
 
   const availableCreativityLevels = useMemo(
     () => [
@@ -79,33 +85,10 @@ const MainPage = () => {
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
 
   useEffect(() => {
-    if (userProjects?.length >= 1) {
-      checkIfUserStarredWasp({ username: user.username }).then((hasStarred) => {
-        if (!hasStarred) {
-          setIsAskForStarsModalOpen(true);
-        }
-      });
+    if (!hasUserStarredWasp && userProjects?.length >= 1) {
+      setIsAskForStarsModalOpen(true);
     }
-  }, [userProjects, user]);
-
-  async function checkIfUserStarredWasp({ username }) {
-    const token = "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";
-    try {
-      const response = await fetch(`https://api.github.com/user/starred/wasp-lang/wasp`, {
-        method: "GET",
-        headers: {
-          Authorization: "Basic " + btoa(username + ":" + token),
-        },
-      });
-      if (response.status === 404) {
-        return false;
-      } else if (response.status === 204) {
-        return true;
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
+  }, [hasUserStarredWasp]);
 
   useEffect(() => {
     try {

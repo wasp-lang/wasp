@@ -1,19 +1,9 @@
-import {
-  RegisterZipDownload,
-  StartGeneratingNewApp,
-  CreateFeedback,
-} from "@wasp/actions/types";
-import {
-  GetAppGenerationResult,
-  GetStats,
-  GetFeedback,
-  GetNumProjects,
-  GetProjectsByUser
-} from "@wasp/queries/types";
+import { RegisterZipDownload, StartGeneratingNewApp, CreateFeedback } from "@wasp/actions/types";
+import { GetAppGenerationResult, GetStats, GetFeedback, GetNumProjects, GetProjectsByUser } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
-import type { Project } from "@wasp/entities"
+import type { Project } from "@wasp/entities";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -33,10 +23,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     throw new HttpError(422, "App name is required.");
   }
   if (!/^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(args.appName)) {
-    throw new HttpError(
-      422,
-      "App name can only contain letters, numbers, dashes, or underscores."
-    );
+    throw new HttpError(422, "App name can only contain letters, numbers, dashes, or underscores.");
   }
   if (!args.appDesc) {
     throw new HttpError(422, "App description is required.");
@@ -226,15 +213,42 @@ export const getNumProjects = (async (_args, context) => {
 }) satisfies GetNumProjects<{}>;
 
 export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_args, context) => {
-  console.log("context.user", context.user)
   if (!context.user) {
     throw new HttpError(401, "Not authorized");
   }
   return await context.entities.Project.findMany({
     where: {
       user: {
-        id: context.user.id
-      }
+        id: context.user.id,
+      },
+    },
+  });
+};
+
+import { CheckIfUserStarredWasp } from "@wasp/queries/types";
+
+export const checkIfUserStarredWasp: CheckIfUserStarredWasp<{ username: string }, boolean> = async (
+  { username },
+  context
+) => {
+  if (!context.user) {
+    throw new HttpError(401, "Not authorized");
+  }
+  let status = false;
+  try {
+    const response = await fetch(`https://api.github.com/user/starred/wasp-lang/wasp`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + btoa(username + ":" + process.env.GITHUB_PERSONAL_ACCESS_TOKEN),
+      },
+    });
+    console.log(response.status);
+    if (response.status === 204) {
+      status = true;
     }
-  })
-}
+  } catch (error) {
+    console.error("Error:", error);
+  } finally {
+    return status;
+  }
+};
