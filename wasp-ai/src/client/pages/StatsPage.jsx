@@ -337,11 +337,11 @@ function getWaitingInQueueDuration(stat, logsByProjectId) {
   return getFormattedDiff(start, end);
 }
 
-function getColorValue(colorName) {
+export function getColorValue(colorName) {
   return availableColors.find((color) => color.name === colorName).color;
 }
 
-function getStatusName(status) {
+export function getStatusName(status) {
   switch (status) {
     case "in-progress":
       return "inProgress";
@@ -356,7 +356,7 @@ function getStatusName(status) {
   }
 }
 
-function getStatusText(status) {
+export function getStatusText(status) {
   switch (status) {
     case "in-progress":
       return "In progress";

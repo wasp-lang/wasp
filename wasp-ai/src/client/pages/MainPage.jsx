@@ -12,11 +12,15 @@ import { readReferrerFromLocalStorage } from "../storage";
 import { MyDialog } from "../components/Dialog";
 import useAuth from "@wasp/auth/useAuth";
 import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
+import { useQuery } from "@wasp/queries";
+import getProjectsByUser from "@wasp/queries/getProjectsByUser";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
-  const [isPowerUserModalOpen, setIsPowerUserModalOpen] = useState(false);
+  const [appPrimaryColor, setAppPrimaryColor] = useState(availableColors.find((color) => color.name === "sky"));
+
+  const [askForStarsModal, setIsAskForStarsModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
@@ -24,8 +28,7 @@ const MainPage = () => {
   });
   const history = useHistory();
   const { data: user } = useAuth();
-
-  const [appPrimaryColor, setAppPrimaryColor] = useState(availableColors.find((color) => color.name === "sky"));
+  const { data: userProjects } = useQuery(getProjectsByUser, {}, { enabled: !!user });
 
   const availableCreativityLevels = useMemo(
     () => [
@@ -53,7 +56,6 @@ const MainPage = () => {
   const [creativityLevel, setCreativityLevel] = useState(
     availableCreativityLevels.find((lvl) => lvl.value === "balanced")
   );
-
   const availableAuthMethods = useMemo(
     () => [
       {
@@ -74,15 +76,40 @@ const MainPage = () => {
     ],
     []
   );
-
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
+
+  useEffect(() => {
+    if (userProjects?.length >= 1) {
+      checkIfUserStarredWasp({ username: user.username }).then((hasStarred) => {
+        if (!hasStarred) {
+          setIsAskForStarsModalOpen(true);
+        }
+      });
+    }
+  }, [userProjects, user]);
+
+  async function checkIfUserStarredWasp({ username }) {
+    const token = "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";
+    try {
+      const response = await fetch(`https://api.github.com/user/starred/wasp-lang/wasp`, {
+        method: "GET",
+        headers: {
+          Authorization: "Basic " + btoa(username + ":" + token),
+        },
+      });
+      if (response.status === 404) {
+        return false;
+      } else if (response.status === 204) {
+        return true;
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 
   useEffect(() => {
     try {
       const appDetails = JSON.parse(localStorage.getItem("appDetails"));
-      if (user?.projects.length >= 2) {
-        setIsPowerUserModalOpen(true);
-      }
       if (appDetails) {
         setAppName(appDetails.appName);
         setAppDesc(appDetails.appDesc);
@@ -156,10 +183,10 @@ const MainPage = () => {
 
   return (
     <div className="container">
-      <Header currentStatus={currentStatus} isStatusVisible={true} />
+      <Header currentStatus={currentStatus} isStatusVisible={true} setIsLoginModalOpen={setIsLoginModalOpen} />
 
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
-      <PowerUserModal isOpen={isPowerUserModalOpen} setIsOpen={setIsPowerUserModalOpen} />
+      <AskForStarsModal isOpen={askForStarsModal} setIsOpen={setIsAskForStarsModalOpen} />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-6 flex flex-col gap-3">
@@ -235,7 +262,7 @@ The simpler and more specific the app is, the better the generated app will be."
 };
 export default MainPage;
 
-export function PowerUserModal({ isOpen, setIsOpen }) {
+export function AskForStarsModal({ isOpen, setIsOpen }) {
   return (
     <MyDialog
       isOpen={isOpen}
@@ -272,10 +299,10 @@ export function PowerUserModal({ isOpen, setIsOpen }) {
 export function LoginModal({ isOpen, setIsOpen }) {
   return (
     <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>Sign in to your GitHub account</span>}>
-      <div className="mt-6 space-y-5">
-        <p className="text-base leading-relaxed text-gray-500">
-          We're offering this tool completely <span className="font-semibold">free</span>. All you have to do is login
-          with your GitHub Account.
+      <div className="mt-6 space-y-5 ">
+        <p className="text-base leading-relaxed text-center text-gray-500">
+          This tool is completely <span className="font-semibold">free</span>.<br /> Just sign in with your GitHub
+          Account.
         </p>
         <GitHubSignInButton />
       </div>

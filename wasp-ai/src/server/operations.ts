@@ -26,6 +26,9 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   },
   string
 > = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Not authorized.");
+  }
   if (!args.appName) {
     throw new HttpError(422, "App name is required.");
   }
@@ -39,15 +42,7 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     throw new HttpError(422, "App description is required.");
   }
   const { Project } = context.entities;
-  const optionalUser = context.user
-    ? {
-        user: {
-          connect: {
-            id: context.user.id,
-          },
-        },
-      }
-    : {};
+
   const project = await Project.create({
     data: {
       name: args.appName,
@@ -56,7 +51,11 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
       authMethod: args.appAuthMethod,
       creativityLevel: args.appCreativityLevel,
       referrer: args.referrer,
-      ...optionalUser,
+      user: {
+        connect: {
+          id: context.user.id,
+        },
+      },
     },
   });
 
@@ -226,7 +225,7 @@ export const getNumProjects = (async (_args, context) => {
   return context.entities.Project.count();
 }) satisfies GetNumProjects<{}>;
 
-export const getProjectsByUser: GetProjectsByUser<{userId: number}, Project[]> = async ({ userId }, context) => {
+export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_args, context) => {
   console.log("context.user", context.user)
   if (!context.user) {
     throw new HttpError(401, "Not authorized");

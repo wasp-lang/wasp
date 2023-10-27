@@ -51,7 +51,7 @@ app waspAi {
         getUserFieldsFn: import { getGoogleUserFields } from "@server/auth.js",
       },
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: "/",
     onAuthSucceededRedirectTo: "/"
   }
 }
