@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "221db53f63544c2b82fddcc7f9143f0b627909f0e2af687e5da969d69691ce12"
+        "61df2044110c16c48bfe89f0798c689c256598cb6cbc37f9ea69b69ee6ffe2a4"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "bc09642f90f43c75f083e06fe580fee34b73b7fcb17e5cdec9f7fd17bdc67b08"
+        "4f0e17393f778e7b176646feae464aa45a812212776bc4c3adc10d68db624553"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "web-app/package.json"
         ],
-        "c2b7000a7380cce059cdafe67fa755a8e5f4d1de5e13eb11e545a3ee4d32db0d"
+        "623add2a9bf2a9d3d7e0e5551fb01e7ec8653fc27067fefe50197581d6027bd5"
     ],
     [
         [

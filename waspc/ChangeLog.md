@@ -17,6 +17,9 @@ app todoApp {
 }
 ```
 
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug with Prisma which prevent connections via SSL with our versions of Alpine and OpenSSL. We upgraded to the latest Prisma 4.X.X which fixes this issue.
+
 
 ## 0.11.6
 
