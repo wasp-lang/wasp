@@ -339,7 +339,11 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = C.asTmplFile [relfile|vite.config.ts|]
     tmplData =
-      object ["customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec)]
+      object
+        [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
+          "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
+          "defaultClientPort" .= C.defaultClientPort
+        ]
 
     makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport
     makeCustomViteConfigJsImport pathToConfig = makeJsImport importPath importName

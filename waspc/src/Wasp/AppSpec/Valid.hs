@@ -23,6 +23,7 @@ import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
+import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
@@ -61,7 +62,8 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
-          validatePrismaOptions spec
+          validatePrismaOptions spec,
+          validateWebAppBaseDir spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -363,6 +365,19 @@ validatePrismaOptions spec =
     prismaOptions = AS.Db.prisma =<< AS.App.db (snd $ getApp spec)
     prismaClientPreviewFeatures = AS.Db.clientPreviewFeatures =<< prismaOptions
     prismaDbExtensions = AS.Db.dbExtensions =<< prismaOptions
+
+validateWebAppBaseDir :: AppSpec -> [ValidationError]
+validateWebAppBaseDir spec = case maybeBaseDir of
+  Just baseDir
+    | not (startsWithSlash baseDir) ->
+        [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
+  _anyOtherCase -> []
+  where
+    maybeBaseDir = Client.baseDir =<< AS.App.client (snd $ getApp spec)
+
+    startsWithSlash :: String -> Bool
+    startsWithSlash ('/' : _) = True
+    startsWithSlash _ = False
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

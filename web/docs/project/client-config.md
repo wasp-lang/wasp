@@ -2,6 +2,8 @@
 title: Client Config
 ---
 
+import BaseDirEnvNote from './_baseDirEnvNote.md'
+
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 You can configure the client using the `client` field inside the `app` declaration:
@@ -265,6 +267,26 @@ explained in
 
 Read more about the setup function in the [API Reference](#setupfn-clientimport).
 
+## Base Directory
+
+If you need to serve the client from a subdirectory, you can use the `baseDir` option:
+
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    baseDir: "/my-app",
+  }
+}
+```
+
+This means that if you serve your app from `https://example.com/my-app`, the
+router will work correctly, and all the assets will be served from
+`https://example.com/my-app`.
+
+<BaseDirEnvNote />
+
 ## API Reference
 
 <Tabs groupId="js-ts">
@@ -290,7 +312,8 @@ app MyApp {
   // ...
   client: {
     rootComponent: import Root from "@client/Root.tsx",
-    setupFn: import mySetupFunction from "@client/myClientSetupCode.ts"
+    setupFn: import mySetupFunction from "@client/myClientSetupCode.ts",
+    baseDir: "/my-app",
   }
 }
 ```
@@ -413,3 +436,14 @@ Client has the following options:
 
   </TabItem>
   </Tabs>
+
+- #### `baseDir: String`
+
+  If you need to serve the client from a subdirectory, you can use the `baseDir` option.
+
+  If you set `baseDir` to `/my-app` for example, that will make Wasp set the `basename` prop of the `Router` to
+  `/my-app`. It will also set the `base` option of the Vite config to `/my-app`.
+
+  This means that if you serve your app from `https://example.com/my-app`, the router will work correctly, and all the assets will be served from `https://example.com/my-app`.
+
+  <BaseDirEnvNote />

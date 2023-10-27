@@ -27,7 +27,7 @@ export const routes = {
 export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 const router = (
-  <Router>
+  <Router basename="/">
     <App>
     <Switch>
       {Object.entries(routes).map(([routeKey, route]) => (
