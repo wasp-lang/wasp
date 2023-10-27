@@ -26,5 +26,5 @@ genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
           "defaultClientUrl" .= WebApp.getDefaultClientUrl spec
         ]
 
-    configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    configFileInSrcDir = [relfile|config.js|]
+configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+configFileInSrcDir = [relfile|config.js|]
