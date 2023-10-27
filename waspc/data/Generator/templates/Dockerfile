@@ -16,10 +16,6 @@ FROM node:{= nodeMajorVersion =}-alpine3.17 AS node
 
 FROM node AS base
 RUN apk --no-cache -U upgrade # To ensure any potential security patches are applied.
-# TODO: Remove line below (installation of openssl 1.1) once Prisma adds support for
-#   openssl 3 on alpine. Alpine >= 3.17 has openssl 3 as default.
-#   Relevant GH issue: https://github.com/wasp-lang/wasp/issues/877
-RUN apk add --no-cache openssl1.1-compat
 
 
 FROM base AS server-builder
