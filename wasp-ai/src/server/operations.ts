@@ -224,31 +224,3 @@ export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_arg
     },
   });
 };
-
-import { CheckIfUserStarredWasp } from "@wasp/queries/types";
-
-export const checkIfUserStarredWasp: CheckIfUserStarredWasp<{ username: string }, boolean> = async (
-  { username },
-  context
-) => {
-  if (!context.user) {
-    throw new HttpError(401, "Not authorized");
-  }
-  let status = false;
-  try {
-    const response = await fetch(`https://api.github.com/user/starred/wasp-lang/wasp`, {
-      method: "GET",
-      headers: {
-        Authorization: "Basic " + btoa(username + ":" + process.env.GITHUB_PERSONAL_ACCESS_TOKEN),
-      },
-    });
-    console.log(response.status);
-    if (response.status === 204) {
-      status = true;
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  } finally {
-    return status;
-  }
-};

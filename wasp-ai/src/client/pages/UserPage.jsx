@@ -51,7 +51,7 @@ export function UserPage({ user }) {
               </tr>
             </thead>
             <tbody>
-              {projects?.length &&
+              {projects?.length > 0 &&
                 projects.map((project) => (
                   <tr className="bg-white border-t" key={project.id}>
                     <th

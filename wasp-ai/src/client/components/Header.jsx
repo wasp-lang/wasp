@@ -19,7 +19,7 @@ export function Header({ currentStatus, isStatusVisible, isUserPage, setIsLoginM
               <RxQuestionMarkCircled className="text-base text-slate-600" />
             </a>
 
-            <div className="relative group">
+            <div className="flex items-center relative group">
               <button
                 onClick={() => {
                   if (!user) {

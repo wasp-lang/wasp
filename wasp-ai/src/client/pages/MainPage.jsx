@@ -14,7 +14,6 @@ import useAuth from "@wasp/auth/useAuth";
 import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
 import { useQuery } from "@wasp/queries";
 import getProjectsByUser from "@wasp/queries/getProjectsByUser";
-import checkIfUserStarredWasp from "@wasp/queries/checkIfUserStarredWasp";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -30,11 +29,6 @@ const MainPage = () => {
   const history = useHistory();
   const { data: user } = useAuth();
   const { data: userProjects } = useQuery(getProjectsByUser, {}, { enabled: !!user });
-  const { data: hasUserStarredWasp } = useQuery(
-    checkIfUserStarredWasp,
-    { username: user?.username },
-    { enabled: !!user }
-  );
 
   const availableCreativityLevels = useMemo(
     () => [
@@ -85,10 +79,10 @@ const MainPage = () => {
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
 
   useEffect(() => {
-    if (!hasUserStarredWasp && userProjects?.length >= 1) {
+    if (userProjects?.length > 0 && userProjects.length % 2 === 0) {
       setIsAskForStarsModalOpen(true);
     }
-  }, [hasUserStarredWasp]);
+  }, [userProjects]);
 
   useEffect(() => {
     try {
@@ -252,28 +246,23 @@ export function AskForStarsModal({ isOpen, setIsOpen }) {
       onClose={() => setIsOpen(false)}
       title={<span>With Great Power Comes Great Responsibility! 🧙</span>}
     >
-      <div className="mt-6 space-y-5">
+      <div className="mt-6 space-y-2">
         <p className="text-base leading-relaxed text-gray-500">
-          We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
+          Mage is completely <span className="font-semibold">free</span> and we cover all the costs.
         </p>
-
         <p className="text-base leading-relaxed text-gray-500">
-          But you can still show your support by starring us on GitHub:
+          But if you enjoy using it, please consider starring the project on GitHub:
         </p>
         <a
           href="https://github.com/wasp-lang/wasp"
           target="_blank"
           className="flex items-center justify-center underline text-pink-600 "
         >
-          <div className="py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
+          <div className="mt-4 py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
             <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on GitHub{" "}
             <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
           </div>
         </a>
-        <p className="text-base leading-relaxed text-gray-500">
-          This helps spread the word, so we can keep making Mage better.
-        </p>
-        <p className="text-base leading-relaxed text-gray-500">We'd very much appreciate it! 🧙</p>
       </div>
     </MyDialog>
   );
