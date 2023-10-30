@@ -3,7 +3,7 @@ import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { useHistory } from "react-router-dom";
 import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
-import { Header } from "../components/Header";
+import { FaqButton, Header, ProfileButton } from "../components/Header";
 import { availableColors } from "../components/Color";
 import { Faq } from "../components/Faq";
 import { exampleIdeas } from "../examples";
@@ -14,13 +14,14 @@ import useAuth from "@wasp/auth/useAuth";
 import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
 import { useQuery } from "@wasp/queries";
 import getProjectsByUser from "@wasp/queries/getProjectsByUser";
+import { StatusPill } from "../components/StatusPill";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
   const [appPrimaryColor, setAppPrimaryColor] = useState(availableColors.find((color) => color.name === "sky"));
 
-  const [askForStarsModal, setIsAskForStarsModalOpen] = useState(false);
+  const [isAskForStarsModalOpen, setIsAskForStarsModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
@@ -113,14 +114,14 @@ const MainPage = () => {
           appCreativityLevel: creativityLevel.value,
         })
       );
-      if (!user) {
-        setIsLoginModalOpen(true);
-        return;
-      }
     } catch (error) {
       console.error(error);
     }
-
+    
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
     setCurrentStatus({
       status: "idle",
       message: "Starting...",
@@ -160,10 +161,13 @@ const MainPage = () => {
 
   return (
     <div className="container">
-      <Header currentStatus={currentStatus} isStatusVisible={true} setIsLoginModalOpen={setIsLoginModalOpen} />
+      <Header StatusPill={StatusPill} currentStatus={currentStatus}>
+        <FaqButton />
+        <ProfileButton setIsLoginModalOpen={setIsLoginModalOpen} />
+      </Header>
 
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
-      <AskForStarsModal isOpen={askForStarsModal} setIsOpen={setIsAskForStarsModalOpen} />
+      <AskForStarsModal isOpen={isAskForStarsModalOpen} setIsOpen={setIsAskForStarsModalOpen} />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-6 flex flex-col gap-3">

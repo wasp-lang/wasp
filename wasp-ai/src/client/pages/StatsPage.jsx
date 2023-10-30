@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import getStats from "@wasp/queries/getStats";
 import { useQuery } from "@wasp/queries";
 import { Link } from "react-router-dom";
-import { Color, availableColors } from "../components/Color";
+import { Color } from "../components/Color";
 import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
 import { BarChart } from "../components/BarChart";
@@ -13,6 +13,8 @@ import { WaspIcon } from "../components/WaspIcon";
 import { Header } from "../components/Header";
 import { PiDownloadDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
+import { HomeButton } from "../components/Header";
+import { getColorValue, getStatusName, getStatusText } from "../stats/stats"
 
 const chartTypes = [
   {
@@ -90,7 +92,9 @@ export function Stats() {
 
   return (
     <>
-      <Header />
+      <Header >
+        <HomeButton />
+      </Header>
       <div className="big-box">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-semibold text-slate-800">Stats</h1>
@@ -335,40 +339,4 @@ function getWaitingInQueueDuration(stat, logsByProjectId) {
   const start = stat.createdAt;
   const end = logs[logs.length - 1].createdAt;
   return getFormattedDiff(start, end);
-}
-
-export function getColorValue(colorName) {
-  return availableColors.find((color) => color.name === colorName).color;
-}
-
-export function getStatusName(status) {
-  switch (status) {
-    case "in-progress":
-      return "inProgress";
-    case "success":
-      return "success";
-    case "failure":
-      return "error";
-    case "cancelled":
-      return "cancelled";
-    default:
-      return "idle";
-  }
-}
-
-export function getStatusText(status) {
-  switch (status) {
-    case "in-progress":
-      return "In progress";
-    case "success":
-      return "Success";
-    case "failure":
-      return "Error";
-    case "cancelled":
-      return "Cancelled";
-    case "pending":
-      return "Pending";
-    default:
-      return "Unknown";
-  }
 }

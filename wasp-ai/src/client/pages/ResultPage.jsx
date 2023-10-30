@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
 import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import registerZipDownload from "@wasp/actions/registerZipDownload";
-import createFeedback from "@wasp/actions/createFeedback"
+import createFeedback from "@wasp/actions/createFeedback";
 import { useQuery } from "@wasp/queries";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { FileTree } from "../components/FileTree";
@@ -10,7 +10,7 @@ import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
-import { RadioGroup } from '@headlessui/react'
+import { RadioGroup } from "@headlessui/react";
 import { Loader } from "../components/Loader";
 import { MyDialog } from "../components/Dialog";
 import { Logs } from "../components/Logs";
@@ -24,30 +24,28 @@ import {
   PiCheckDuotone,
   PiGithubLogoDuotone,
   PiStarDuotone,
-} from 'react-icons/pi';
+} from "react-icons/pi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import JSConfetti from 'js-confetti';
+import JSConfetti from "js-confetti";
 import getNumProjects from "@wasp/queries/getNumProjects";
+import { StatusPill } from "../components/StatusPill";
+import { HomeButton, ProfileButton, FaqButton } from "../components/Header";
 
 const jsConfetti = new JSConfetti();
 
 export const ResultPage = () => {
   const { appId } = useParams();
   const [generationDone, setGenerationDone] = useState(false);
-  const [isRunning, setIsRunning] = useState(false); 
+  const [isRunning, setIsRunning] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const {
     data: appGenerationResult,
     isError,
     isLoading,
-  } = useQuery(
-    getAppGenerationResult,
-    { appId },
-    { enabled: !!appId && !generationDone, refetchInterval: 3000 }
-  );
+  } = useQuery(getAppGenerationResult, { appId }, { enabled: !!appId && !generationDone, refetchInterval: 3000 });
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [currentStatus, setCurrentStatus] = useState({
-    status: "idle", 
+    status: "idle",
     message: "Waiting",
   });
   const [currentFiles, setCurrentFiles] = useState({});
@@ -74,16 +72,15 @@ export const ResultPage = () => {
   }, [appId]);
 
   useEffect(() => {
+    const wasRunning = isRunning;
     const currentAppStatus = appGenerationResult?.project?.status;
-    if (currentAppStatus === "in-progress") {
-      setIsRunning(true)
-    } else if (currentAppStatus === "success" && isRunning) {
-      setIsSuccessModalOpen(true)
-      setIsRunning(false)
-    } else if (isRunning) {
-      setIsRunning(false)
+
+    setIsRunning(currentAppStatus === "in-progress");
+
+    if (wasRunning && currentAppStatus === "success") {
+      setIsSuccessModalOpen(true);
     }
-  }, [appGenerationResult?.project?.status])
+  }, [appGenerationResult?.project?.status]);
 
   const logs = appGenerationResult?.project?.logs.map((log) => log.content);
 
@@ -104,15 +101,12 @@ export const ResultPage = () => {
       return [];
     }
 
-    const updatedFilePaths = Object.entries(files).reduce(
-      (updatedPaths, [path, newContent]) => {
-        if (newContent === previousFiles[path]) {
-          return updatedPaths;
-        }
-        return [...updatedPaths, path];
-      },
-      []
-    );
+    const updatedFilePaths = Object.entries(files).reduce((updatedPaths, [path, newContent]) => {
+      if (newContent === previousFiles[path]) {
+        return updatedPaths;
+      }
+      return [...updatedPaths, path];
+    }, []);
 
     return updatedFilePaths;
   }, [files]);
@@ -178,10 +172,7 @@ export const ResultPage = () => {
   }
 
   function getUniqueZipName() {
-    const safeAppName = appGenerationResult?.project?.name.replace(
-      /[^a-zA-Z0-9]/g,
-      "_"
-    );
+    const safeAppName = appGenerationResult?.project?.name.replace(/[^a-zA-Z0-9]/g, "_");
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     return `${safeAppName}-${randomSuffix}`;
   }
@@ -205,7 +196,7 @@ export const ResultPage = () => {
         appDesc: project.description,
         appPrimaryColor: project.primaryColor,
         appAuthMethod: project.authMethod,
-        appCreativityLevel: project.creativityLevel
+        appCreativityLevel: project.creativityLevel,
       });
       alert("Now I will go to " + appId);
       history.push(`/result/${appId}`);
@@ -220,17 +211,21 @@ export const ResultPage = () => {
 
   return (
     <div className="container">
-      <Header
-        currentStatus={currentStatus}
-        isStatusVisible={!!appGenerationResult?.project}
+      <Header currentStatus={currentStatus} StatusPill={!!appGenerationResult?.project && StatusPill}>
+        <FaqButton />
+        <HomeButton />
+        <ProfileButton />
+      </Header>
+      <OnSuccessModal
+        isOpen={isSuccessModalOpen}
+        setIsOpen={setIsSuccessModalOpen}
+        appGenerationResult={appGenerationResult}
       />
-      <OnSuccessModal isOpen={isSuccessModalOpen} setIsOpen={setIsSuccessModalOpen} appGenerationResult={appGenerationResult}/>
 
       {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
           <div className="text-red-500">
-            We couldn't find the app generation result. Maybe the link is
-            incorrect or the app generation has failed.
+            We couldn't find the app generation result. Maybe the link is incorrect or the app generation has failed.
           </div>
           <Link className="button gray sm mt-4 inline-block" to="/">
             Generate a new one
@@ -269,43 +264,31 @@ export const ResultPage = () => {
             onClick={() => window.open("https://github.com/wasp-lang/wasp/tree/wasp-ai")}
           >
             <span>
-              🔮 This is a Wasp powered project. If you like it,{" "}
-              <span className="underline">star us on GitHub</span>!
+              🔮 This is a Wasp powered project. If you like it, <span className="underline">star us on GitHub</span>!
             </span>
           </span>
         </div>
       </div>
 
       {currentStatus.status === "pending" && (
-        <WaitingRoomContent numberOfProjectsAheadInQueue={appGenerationResult?.numberOfProjectsAheadInQueue || 0}/>
+        <WaitingRoomContent numberOfProjectsAheadInQueue={appGenerationResult?.numberOfProjectsAheadInQueue || 0} />
       )}
 
       {interestingFilePaths.length > 0 && (
         <>
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">
-              {appGenerationResult?.project?.name}
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800">{appGenerationResult?.project?.name}</h2>
           </div>
-          <button
-            className="button gray block w-full mb-4 md:hidden"
-            onClick={toggleMobileFileBrowser}
-          >
-            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser (
-            {interestingFilePaths.length} files)
+          <button className="button gray block w-full mb-4 md:hidden" onClick={toggleMobileFileBrowser}>
+            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser ({interestingFilePaths.length} files)
           </button>
           <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto md:overflow-x-visible">
             <aside className={isMobileFileBrowserOpen ? "" : "hidden md:block"}>
               <div className="mb-2">
-                <RunTheAppModal
-                  onDownloadZip={downloadZip}
-                  disabled={currentStatus.status !== "success"}
-                />
+                <RunTheAppModal onDownloadZip={downloadZip} disabled={currentStatus.status !== "success"} />
               </div>
               {currentStatus.status !== "success" && (
-                <small className="text-gray-500 text-center block my-2">
-                  The app is still being generated.
-                </small>
+                <small className="text-gray-500 text-center block my-2">The app is still being generated.</small>
               )}
               <div>
                 <ShareButton />
@@ -324,26 +307,18 @@ export const ResultPage = () => {
             </aside>
 
             {activeFilePath && (
-              <main
-                className={isMobileFileBrowserOpen ? "hidden md:block" : ""}
-              >
+              <main className={isMobileFileBrowserOpen ? "hidden md:block" : ""}>
                 <div
                   className={`
                     font-bold text-sm bg-slate-200 text-slate-700 p-3 rounded rounded-b-none
                     flex items-center md:justify-between
-                  `}>
+                  `}
+                >
                   <span className="mr-3">{activeFilePath}:</span>
                   <Feedback projectId={appId} />
-
                 </div>
-                <div
-                  key={activeFilePath}
-                  className="py-4 bg-slate-100 rounded rounded-t-none"
-                >
-                  <CodeHighlight
-                    language={language}
-                    className="text-sm md:text-base"
-                  >
+                <div key={activeFilePath} className="py-4 bg-slate-100 rounded rounded-t-none">
+                  <CodeHighlight language={language} className="text-sm md:text-base">
                     {files[activeFilePath].trim()}
                   </CodeHighlight>
                 </div>
@@ -353,9 +328,7 @@ export const ResultPage = () => {
               <main className="p-8 bg-slate-100 rounded grid place-content-center">
                 <div className="text-center">
                   <div className="font-bold">Select a file to view</div>
-                  <div className="text-gray-500 text-sm">
-                    (click on a file in the file tree)
-                  </div>
+                  <div className="text-gray-500 text-sm">(click on a file in the file tree)</div>
                 </div>
               </main>
             )}
@@ -382,9 +355,7 @@ function getStatusPillData(generationResult) {
     cancelled: "cancelled",
   };
 
-  const queueCardinalNumber = getCardinalNumber(
-    generationResult.numberOfProjectsAheadInQueue
-  );
+  const queueCardinalNumber = getCardinalNumber(generationResult.numberOfProjectsAheadInQueue);
 
   const backendStatusToPillText = {
     pending: `${queueCardinalNumber} in the queue`,
@@ -414,32 +385,35 @@ function getCardinalNumber(number) {
 }
 
 export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
-  const [numTokensSpent, setNumTokensSpent] = useState(0)
-  const { data: numTotalProjects } = useQuery(getNumProjects, {}, { enabled: isOpen })
+  const [numTokensSpent, setNumTokensSpent] = useState(0);
+  const { data: numTotalProjects } = useQuery(getNumProjects, {}, { enabled: isOpen });
 
   useEffect(() => {
-    const logText = appGenerationResult?.project?.logs?.find((log) => /tokens usage/i.test(log.content))?.content;
-    const tokenNumberStr = logText ? logText.split(":")[1]?.trim() : null;
-    if (tokenNumberStr) {
-      const num =  Number(tokenNumberStr.replace(/[\s~k]/gi, '')) * 1000;
-      if (num.toString().match(/^[0-9]+$/)) {
+    const logText = appGenerationResult?.project?.logs?.find((log) =>
+      log.content.includes("tokens usage")
+    )?.content;
+    const regex = /total tokens usage: ~(\d+(\.\d+)?)/i;
+    const match = logText?.match(regex);
+    if (match && match[1]) {
+      const num = Number(match[1]) * 1000;
+      if (Number.isInteger(num)) {
         setNumTokensSpent(num);
-      } 
+      }
     }
   }, [appGenerationResult]);
 
   useEffect(() => {
     if (isOpen) {
       jsConfetti.addConfetti({
-        emojis: ['🐝'],
+        emojis: ["🐝"],
         emojiSize: 120,
-      })
+      });
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   function FormattedText({ children }) {
     return <span className="py-1 px-2 font-semibold text-pink-800 rounded">{children}</span>;
-  } 
+  }
 
   return (
     <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>Your App is Ready! 🎉</span>}>
@@ -447,7 +421,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
         <p className="text-base leading-relaxed text-gray-500">
           We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
         </p>
-        {numTokensSpent && (
+        {numTokensSpent > 0 && (
           <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
             <tbody>
               <tr>
@@ -461,9 +435,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>
-                    {`$${((Number(numTokensSpent) / 1000) * 0.004).toFixed(2)}`}
-                  </FormattedText>{" "}
+                  <FormattedText>{`$${((Number(numTokensSpent) / 1000) * 0.004).toFixed(2)}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (
@@ -505,22 +477,18 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className={`button flex items-center justify-center gap-1 w-full${
-          !disabled ? " animate-jumping" : ""
-        }`}
+        className={`button flex items-center justify-center gap-1 w-full${!disabled ? " animate-jumping" : ""}`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
-        Run the app locally{" "}
-        <PiLaptopDuotone className="inline-block" size={20} />
+        Run the app locally <PiLaptopDuotone className="inline-block" size={20} />
       </button>
       <MyDialog
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         title={
           <span>
-            Run the app locally{" "}
-            <PiLaptopDuotone className="inline-block" size={20} />
+            Run the app locally <PiLaptopDuotone className="inline-block" size={20} />
           </span>
         }
       >
@@ -529,71 +497,50 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Congrats, your full-stack web app is ready! 🎉
             <br />
             App is implemented in{" "}
-            <a
-              href="https://wasp-lang.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
+            <a href="https://wasp-lang.dev" target="_blank" rel="noopener noreferrer" className="underline">
               Wasp
             </a>{" "}
-            web framework, using React, Node.js and Prisma, and is completely
-            full-stack (frontend + backend + database).
+            web framework, using React, Node.js and Prisma, and is completely full-stack (frontend + backend +
+            database).
           </p>
 
           <WarningAboutAI />
 
-          <p className="text-base leading-relaxed text-gray-500">
-            Now, let's get the app running!
-          </p>
+          <p className="text-base leading-relaxed text-gray-500">Now, let's get the app running!</p>
 
           <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
             <h2 className="font-bold flex items-center space-x-1">
               <span>1. Install Wasp CLI</span>
-              <a href="https://wasp-lang.dev/docs/quick-start#installation-1" target="blank" rel="noopener noreferrer"> <RxQuestionMarkCircled className="text-base" /> </a>
+              <a href="https://wasp-lang.dev/docs/quick-start#installation-1" target="blank" rel="noopener noreferrer">
+                {" "}
+                <RxQuestionMarkCircled className="text-base" />{" "}
+              </a>
               :
             </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               curl -sSL https://get.wasp-lang.dev/installer.sh | sh
             </pre>
 
-            <h2 className="font-bold mt-4">
-              {" "}
-              2. Download the generated app files and unzip them:{" "}
-            </h2>
-            <button
-              className="button flex items-center justify-center gap-1 w-full mt-2"
-              onClick={onDownloadZip}
-            >
-              Download ZIP{" "}
-              <PiDownloadDuotone className="inline-block" size={20} />
+            <h2 className="font-bold mt-4"> 2. Download the generated app files and unzip them: </h2>
+            <button className="button flex items-center justify-center gap-1 w-full mt-2" onClick={onDownloadZip}>
+              Download ZIP <PiDownloadDuotone className="inline-block" size={20} />
             </button>
 
-            <h2 className="font-bold mt-4">
-              {" "}
-              3. Position into the unzipped dir and run the app:{" "}
-            </h2>
+            <h2 className="font-bold mt-4"> 3. Position into the unzipped dir and run the app: </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               cd {"<your-app-name>"}
               <br />
-              wasp db migrate-dev{" "}
-              <span className="text-slate-400"># init the db</span>
+              wasp db migrate-dev <span className="text-slate-400"># init the db</span>
               <br />
               wasp start
             </pre>
           </div>
 
-          <p className="text-base leading-relaxed text-gray-500">
-            Congratulations, you are now running your app! 🎉
-          </p>
+          <p className="text-base leading-relaxed text-gray-500">Congratulations, you are now running your app! 🎉</p>
 
           <div className="bg-pink-50 text-pink-800 p-4 rounded">
             If you like this project,{" "}
-            <a
-              href="https://github.com/wasp-lang/wasp"
-              target="_blank"
-              className="underline text-pink-600"
-            >
+            <a href="https://github.com/wasp-lang/wasp" target="_blank" className="underline text-pink-600">
               star us on GitHub
             </a>{" "}
             ⭐️
@@ -612,9 +559,8 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is a GPT generated app, it might contain some mistakes,
-              proportional to how complex the app is. If there are some in your
-              app, check out{" "}
+              Since this is a GPT generated app, it might contain some mistakes, proportional to how complex the app is.
+              If there are some in your app, check out{" "}
               <a
                 href="https://wasp-lang.dev/docs"
                 target="_blank"
@@ -623,8 +569,7 @@ function WarningAboutAI() {
               >
                 Wasp docs
               </a>{" "}
-              for help while fixing them, and also feel free to reach out to us
-              on{" "}
+              for help while fixing them, and also feel free to reach out to us on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
@@ -633,7 +578,8 @@ function WarningAboutAI() {
               >
                 Discord
               </a>
-              ! You can also try generating the app again to get different results (try playing with the creativity level).
+              ! You can also try generating the app again to get different results (try playing with the creativity
+              level).
             </p>
           </div>
         </div>
@@ -644,24 +590,24 @@ function WarningAboutAI() {
 
 function Feedback({ projectId }) {
   const [isModalOpened, setIsModalOpened] = useState(false);
-  const [feedbackText, setFeedbackText] = useState("")
-  const [score, setScore] = useState(0)
+  const [feedbackText, setFeedbackText] = useState("");
+  const [score, setScore] = useState(0);
 
-  const scoreOptions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  const scoreOptions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      await createFeedback({ score, message: feedbackText, projectId })
+      await createFeedback({ score, message: feedbackText, projectId });
     } catch (e) {
-      console.error('Could not create feedback')
+      console.error("Could not create feedback");
     }
 
-    setIsModalOpened(false)
-    setScore(0)
-    setFeedbackText('')
-  }
+    setIsModalOpened(false);
+    setScore(0);
+    setFeedbackText("");
+  };
 
   return (
     <div>
@@ -682,67 +628,57 @@ function Feedback({ projectId }) {
       <MyDialog
         isOpen={isModalOpened}
         onClose={() => setIsModalOpened(false)}
-        title={
-          <span>
-            Let us know how it went!
-          </span>
-        }
+        title={<span>Let us know how it went!</span>}
       >
         <form onSubmit={handleSubmit}>
-            <label className="text-slate-700 block mb-2 mt-8">
-              How likely are you to recommend this tool to a friend? <span className="text-red-500">*</span>
-            </label>
-            <div className="mx-auto w-full max-w-md">
-              <RadioGroup value={score} onChange={setScore}>
-                  <div className="flex space-x-2">
-                    {scoreOptions.map((option) => (
-                      <RadioGroup.Option value={option}>
-                        {({ active, checked }) => (
-                          <div
-                            className={`
-                              ${active ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300' : ''}
+          <label className="text-slate-700 block mb-2 mt-8">
+            How likely are you to recommend this tool to a friend? <span className="text-red-500">*</span>
+          </label>
+          <div className="mx-auto w-full max-w-md">
+            <RadioGroup value={score} onChange={setScore}>
+              <div className="flex space-x-2">
+                {scoreOptions.map((option) => (
+                  <RadioGroup.Option value={option}>
+                    {({ active, checked }) => (
+                      <div
+                        className={`
+                              ${active ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300" : ""}
 
 
-                              ${checked ? 'bg-sky-900 bg-opacity-75 text-white' : ''}
+                              ${checked ? "bg-sky-900 bg-opacity-75 text-white" : ""}
                               cursor-pointer px-3 py-2 shadow-md focus:outline-none
                               rounded-md
                             `}
-                          >
-                              {option}
-                          </div>
-                        )}
-                      </RadioGroup.Option>
-                    ))}
-                  </div>
-              </RadioGroup>
-            </div>
+                      >
+                        {option}
+                      </div>
+                    )}
+                  </RadioGroup.Option>
+                ))}
+              </div>
+            </RadioGroup>
+          </div>
 
+          <label htmlFor="feedbackText" className="text-slate-700 block mb-2 mt-8">
+            How did it go? <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            id="feedback"
+            required
+            placeholder="How happy are you with the result? What could have been better?"
+            value={feedbackText}
+            rows="5"
+            cols="50"
+            onChange={(e) => setFeedbackText(e.target.value)}
+          />
 
-            <label htmlFor="feedbackText" className="text-slate-700 block mb-2 mt-8">
-              How did it go? <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              id="feedback"
-              required
-              placeholder="How happy are you with the result? What could have been better?"
-              value={feedbackText}
-              rows="5"
-              cols="50"
-              onChange={(e) => setFeedbackText(e.target.value)}
-            />
-
-            <button
-              className='button black mt-4'
-              type="submit"
-            >
-              Submit
-            </button>
-
+          <button className="button black mt-4" type="submit">
+            Submit
+          </button>
         </form>
       </MyDialog>
     </div>
-
-  )
+  );
 }
 
 function ShareButton() {
@@ -765,8 +701,7 @@ function ShareButton() {
         </span>
       ) : (
         <span>
-          Copy a shareable link{" "}
-          <PiCopyDuotone className="inline-block" size={20} />
+          Copy a shareable link <PiCopyDuotone className="inline-block" size={20} />
         </span>
       )}
     </button>
