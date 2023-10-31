@@ -14,8 +14,8 @@ import { HomeButton } from "../components/Header";
 export function UserPage({ user }) {
   const { data: projects, isLoading, error } = useQuery(getProjectsByUser);
 
-  if (isLoading) "Loading Projects...";
-  if (error) "Error loading projects.";
+  if (isLoading) return "Loading Projects...";
+  if (error) return "Error loading projects.";
 
   return (
     <div className="container">
