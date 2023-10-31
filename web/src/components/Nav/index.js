@@ -166,7 +166,7 @@ const Nav = () => {
                         text-sm font-semibold
                       `}
                     >
-                      Blog Test
+                      Blog
                     </span>
                   </Link>
 
