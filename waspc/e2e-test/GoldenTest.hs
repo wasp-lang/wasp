@@ -95,7 +95,8 @@ runGoldenTest goldenTest = do
                     "dev.db",
                     "dev.db-journal",
                     "package-lock.json",
-                    ".gitignore"
+                    ".gitignore",
+                    ".DS_Store"
                   ]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
