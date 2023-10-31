@@ -12,14 +12,12 @@ const Nav = () => {
 
   const Logo = () => (
     <div className='flex flex-shrink-0 items-center'>
-      <Link to='/'>
-        <img
-          src='img/lp/wasp-logo.png'
-          width={35}
-          height={35}
-          alt='Wasp Logo'
-        />
-      </Link>
+      <img
+        src='img/lp/wasp-logo.png'
+        width={35}
+        height={35}
+        alt='Wasp Logo'
+      />
       <span className='ml-3 font-semibold text-lg text-neutral-700'>
         Wasp <sup className='text-base text-yellow-500'>βeta</sup>
       </span>
@@ -168,7 +166,7 @@ const Nav = () => {
                         text-sm font-semibold
                       `}
                     >
-                      Blog
+                      Blog Test
                     </span>
                   </Link>
 
