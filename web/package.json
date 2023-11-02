@@ -41,6 +41,8 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.2.0",
+    "prettier": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.5.6",
     "remark-cli": "^11.0.0",
     "remark-validate-links": "^12.1.1"
   },
