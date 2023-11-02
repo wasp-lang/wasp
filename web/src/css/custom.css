@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -90,7 +90,7 @@
   --sidebar-category-spacing: 2em;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --custom-background-color-diff: #2a2a2a;
 
   /* Blog */
@@ -106,11 +106,13 @@
 /******** DOCS SIDEBAR **********/
 
 /* remove background from sidebar items (except for active) */
-.menu__link:not(.menu__link--active), .menu__list-item-collapsible {
+.menu__link:not(.menu__link--active),
+.menu__list-item-collapsible {
   background: initial !important;
 }
 /* less opaque on hover/focus */
-.menu__link:hover:not(.menu__link--active):not(.menu__link--sublist), .menu__link:focus:not(.menu__link--active):not(.menu__link--sublist) {
+.menu__link:hover:not(.menu__link--active):not(.menu__link--sublist),
+.menu__link:focus:not(.menu__link--active):not(.menu__link--sublist) {
   opacity: 0.7;
 }
 
@@ -123,7 +125,9 @@
   padding-left: 0;
 }
 
-.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link {
+.theme-doc-sidebar-item-category-level-1
+  > .menu__list-item-collapsible
+  > .menu__link {
   color: var(--sidebar-category-color);
   font-weight: bold;
   font-size: var(--ifm-h6-font-size);

@@ -1,13 +1,13 @@
-import Admonition from "@theme/Admonition";
-import Link from "@docusaurus/Link";
-import React from "react";
+import Admonition from '@theme/Admonition'
+import Link from '@docusaurus/Link'
+import React from 'react'
 
 export default function OldDocsNote() {
   return (
     <div
       style={{
-        position: "sticky",
-        top: "calc(var(--ifm-navbar-height) + 1rem)",
+        position: 'sticky',
+        top: 'calc(var(--ifm-navbar-height) + 1rem)',
         zIndex: 1,
       }}
     >
@@ -21,5 +21,5 @@ export default function OldDocsNote() {
         content.
       </Admonition>
     </div>
-  );
+  )
 }
