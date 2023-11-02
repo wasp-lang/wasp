@@ -44,7 +44,7 @@ queryChatGPT apiKey params requestMessages = do
       request =
         -- 90 seconds should be more than enough for ChatGPT to generate an answer, or reach its own timeout.
         -- If it proves in the future that it might need more time, we can increase this number.
-        HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro $ Util.secondsToMicroSeconds 90) $
+        HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro $ Util.secondsToMicroSeconds 300) $
           HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
             HTTP.setRequestBodyJSON reqBodyJson $
               HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
