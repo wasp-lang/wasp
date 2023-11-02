@@ -1,25 +1,25 @@
-const lightCodeTheme = require("prism-react-renderer/themes/github");
+const lightCodeTheme = require('prism-react-renderer/themes/github')
 
-const autoImportTabs = require("./src/remark/auto-import-tabs");
-const fileExtSwitcher = require("./src/remark/file-ext-switcher");
+const autoImportTabs = require('./src/remark/auto-import-tabs')
+const fileExtSwitcher = require('./src/remark/file-ext-switcher')
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: "Wasp",
+  title: 'Wasp',
   tagline:
-    "A simple language for developing full-stack web apps with less code.",
+    'A simple language for developing full-stack web apps with less code.',
   // url, baseUrl, organizationName, projectName and trailingSlash are set according to the
   // instructions in https://docusaurus.io/docs/deployment#deploying-to-github-pages .
-  url: "https://wasp-lang.dev",
-  baseUrl: "/", // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
-  organizationName: "wasp-lang", // Should be GitHub org/user name if hosted on Github Pages.
-  projectName: "wasp", // Should be repo name if hosted on Github Pages.
+  url: 'https://wasp-lang.dev',
+  baseUrl: '/', // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
+  organizationName: 'wasp-lang', // Should be GitHub org/user name if hosted on Github Pages.
+  projectName: 'wasp', // Should be repo name if hosted on Github Pages.
   trailingSlash: false,
-  onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+  favicon: 'img/favicon.ico',
   stylesheets: [
-    "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap",
+    'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
   ],
   themeConfig: {
     /*
@@ -47,86 +47,86 @@ module.exports = {
       },
     },
     navbar: {
-      title: ".wasp (beta)",
+      title: '.wasp (beta)',
       logo: {
-        alt: "Wasp logo",
-        src: "img/wasp-logo-eqpar-circle.png",
-        href: "https://wasp-lang.dev/",
-        target: "_self"
+        alt: 'Wasp logo',
+        src: 'img/wasp-logo-eqpar-circle.png',
+        href: 'https://wasp-lang.dev/',
+        target: '_self'
       },
       items: [
         {
-          to: "docs/",
-          activeBasePath: "docs",
-          label: "Docs",
-          position: "left",
-          className: "navbar-item-docs navbar-item-outside",
+          to: 'docs/',
+          activeBasePath: 'docs',
+          label: 'Docs',
+          position: 'left',
+          className: 'navbar-item-docs navbar-item-outside',
         },
         {
-          to: "blog",
-          label: "Blog",
-          position: "left",
+          to: 'blog',
+          label: 'Blog',
+          position: 'left',
         },
         {
-          href: "https://github.com/wasp-lang/wasp",
-          className: "navbar-item-github",
-          position: "right",
+          href: 'https://github.com/wasp-lang/wasp',
+          className: 'navbar-item-github',
+          position: 'right',
         },
         {
-          href: "https://twitter.com/WaspLang",
-          className: "navbar-item-twitter",
-          position: "right",
+          href: 'https://twitter.com/WaspLang',
+          className: 'navbar-item-twitter',
+          position: 'right',
         },
         {
-          href: "https://discord.gg/rzdnErX",
-          className: "navbar-item-discord",
-          position: "right",
+          href: 'https://discord.gg/rzdnErX',
+          className: 'navbar-item-discord',
+          position: 'right',
         },
       ],
     },
     prism: {
-      additionalLanguages: ["shell-session", "haskell"],
+      additionalLanguages: ['shell-session', 'haskell'],
       theme: lightCodeTheme,
     },
     footer: {
-      style: "dark",
+      style: 'dark',
       links: [
         {
-          title: "Docs",
+          title: 'Docs',
           items: [
             {
-              label: "Getting started",
-              to: "docs",
+              label: 'Getting started',
+              to: 'docs',
             },
             {
-              label: "Todo app tutorial",
-              to: "docs/tutorial/create",
+              label: 'Todo app tutorial',
+              to: 'docs/tutorial/create',
             },
             {
-              label: "Reference",
-              to: "docs/language/features",
+              label: 'Reference',
+              to: 'docs/language/features',
             },
           ],
         },
         {
-          title: "Community",
+          title: 'Community',
           items: [
             {
-              label: "Discord",
-              href: "https://discord.gg/rzdnErX",
+              label: 'Discord',
+              href: 'https://discord.gg/rzdnErX',
             },
           ],
         },
         {
-          title: "More",
+          title: 'More',
           items: [
             {
-              label: "GitHub",
-              href: "https://github.com/wasp-lang/wasp",
+              label: 'GitHub',
+              href: 'https://github.com/wasp-lang/wasp',
             },
             {
-              label: "Contact",
-              to: "docs/contact",
+              label: 'Contact',
+              to: 'docs/contact',
             },
           ],
         },
@@ -134,59 +134,59 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Wasp.`,
     },
     algolia: {
-      appId: "RG0JSZOWH4",
-      apiKey: "feaa2a25dc596d40418c82cd040e2cbe",
-      indexName: "wasp-lang",
+      appId: 'RG0JSZOWH4',
+      apiKey: 'feaa2a25dc596d40418c82cd040e2cbe',
+      indexName: 'wasp-lang',
       // TODO: contextualSearch is useful when you are doing versioning,
       //   it searches only in v1 docs if you are searching from v1 docs.
       //   We should enable it if we start doing versioning.
       // contextualSearch: true
     },
-    image: "img/wasp_twitter_cover.png",
-    metadata: [{ name: "twitter:card", content: "summary_large_image" }],
+    image: 'img/wasp_twitter_cover.png',
+    metadata: [{ name: 'twitter:card', content: 'summary_large_image' }],
   },
   presets: [
     [
-      "@docusaurus/preset-classic",
+      '@docusaurus/preset-classic',
       {
         gtag: {
-          trackingID: "GTM-PQ4JFCK",
+          trackingID: 'GTM-PQ4JFCK',
           anonymizeIP: true,
         },
         docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
+          sidebarPath: require.resolve('./sidebars.js'),
           sidebarCollapsible: true,
           // Please change this to your repo.
-          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
+          editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
           remarkPlugins: [autoImportTabs, fileExtSwitcher],
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
-          blogSidebarCount: "ALL",
-          blogSidebarTitle: "All our posts",
-          postsPerPage: "ALL",
-          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
+          blogSidebarCount: 'ALL',
+          blogSidebarTitle: 'All our posts',
+          postsPerPage: 'ALL',
+          editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
         },
         theme: {
-          customCss: [require.resolve("./src/css/custom.css")],
+          customCss: [require.resolve('./src/css/custom.css')],
         },
       },
     ],
   ],
-  scripts: ["/scripts/posthog.js", "/js/fix-multiple-trailing-slashes.js"],
+  scripts: ['/scripts/posthog.js', '/js/fix-multiple-trailing-slashes.js'],
   plugins: [
-    "plugin-image-zoom",
+    'plugin-image-zoom',
     async function myPlugin(context, options) {
       return {
-        name: "docusaurus-tailwindcss",
+        name: 'docusaurus-tailwindcss',
         configurePostCss(postcssOptions) {
           // Appends TailwindCSS and AutoPrefixer.
-          postcssOptions.plugins.push(require("tailwindcss"));
-          postcssOptions.plugins.push(require("autoprefixer"));
-          return postcssOptions;
+          postcssOptions.plugins.push(require('tailwindcss'))
+          postcssOptions.plugins.push(require('autoprefixer'))
+          return postcssOptions
         },
-      };
+      }
     },
     [
       '@docusaurus/plugin-client-redirects',
@@ -218,7 +218,7 @@ module.exports = {
           },
           {
             from: '/docs/guides/email-auth',
-            to: '/docs/auth/email'
+            to: '/docs/auth/email',
           },
           {
             from: '/docs/guides/crud',
@@ -244,4 +244,4 @@ module.exports = {
       },
     ],
   ],
-};
+}

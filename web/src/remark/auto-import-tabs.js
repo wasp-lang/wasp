@@ -1,5 +1,5 @@
 // Copied from
-// https://github.com/redwoodjs/redwood/blob/bd903c5755925ea7174775a2fdaba371b700c910/docs/src/remark/auto-import-tabs.js 
+// https://github.com/redwoodjs/redwood/blob/bd903c5755925ea7174775a2fdaba371b700c910/docs/src/remark/auto-import-tabs.js
 
 const needImports = (tree) =>
   tree.children.some(
