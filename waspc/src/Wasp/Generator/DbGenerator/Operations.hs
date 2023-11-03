@@ -17,6 +17,7 @@ import Control.Monad (when)
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
 import Data.Either (isRight)
+import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
@@ -38,7 +39,7 @@ import Wasp.Generator.DbGenerator.Common
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO (collectJobTextOutput, printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
@@ -141,9 +142,17 @@ isDbRunning ::
 isDbRunning genProjectDir = do
   chan <- newChan
   exitCode <- DbJobs.dbExecuteTest genProjectDir chan
-  -- NOTE: We only care if the command succeeds or fails, so we don't look at
-  -- the exit code or stdout/stderr for the process.
-  return $ exitCode == ExitSuccess
+
+  case exitCode of
+    ExitSuccess -> return True
+    ExitFailure _ -> do
+      textOutput <- collectJobTextOutput chan
+
+      -- "Database not created" error is fine since Prisma will create it for us.
+      let areWeOkayWithTheError = any containsDatabaseNotCreatedError textOutput
+      return areWeOkayWithTheError
+  where
+    containsDatabaseNotCreatedError = T.isInfixOf "P1003"
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClients projectRootDir = do
