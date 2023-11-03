@@ -8,7 +8,7 @@ import logout from "@wasp/auth/logout";
 import { FiLogOut } from "react-icons/fi";
 import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
-import { getColorValue, getStatusName, getStatusText } from "../stats/stats";
+import { getColorValue, getStatusName, getStatusText } from "../display/utils";
 import { HomeButton } from "../components/Header";
 
 export function UserPage({ user }) {
@@ -35,14 +35,14 @@ export function UserPage({ user }) {
           </button>
         </div>
         <div className="sm:rounded-lg shadow-md overflow-x-auto ">
-          <UserTable projects={projects} />
+          <UserProjectsTable projects={projects} />
         </div>
       </div>
     </div>
   );
 }
 
-function UserTable({ projects }) {
+function UserProjectsTable({ projects }) {
   return (
     <table className=" w-full text-sm text-left text-slate-500">
       <thead className="text-xs text-slate-700 uppercase bg-gray-50">
@@ -74,7 +74,7 @@ function UserTable({ projects }) {
                 <span className="flex gap-1">
                   {project.zipDownloadedAt && (
                     <span
-                      title={`Downlaoded ${format(project.zipDownloadedAt)}`}
+                      title={`Downloaded ${format(project.zipDownloadedAt)}`}
                       className="w-5 h-5 bg-sky-100 rounded-full flex items-center justify-center text-sky-800 border border-sky-200"
                     >
                       <PiDownloadDuotone className="w-3 h-3" />

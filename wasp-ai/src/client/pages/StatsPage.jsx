@@ -14,7 +14,7 @@ import { Header } from "../components/Header";
 import { PiDownloadDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
 import { HomeButton } from "../components/Header";
-import { getColorValue, getStatusName, getStatusText } from "../stats/stats"
+import { getColorValue, getStatusName, getStatusText } from "../display/utils"
 
 const chartTypes = [
   {

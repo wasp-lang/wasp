@@ -14,7 +14,6 @@ import useAuth from "@wasp/auth/useAuth";
 import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
 import { useQuery } from "@wasp/queries";
 import getProjectsByUser from "@wasp/queries/getProjectsByUser";
-import { StatusPill } from "../components/StatusPill";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");
@@ -161,7 +160,7 @@ const MainPage = () => {
 
   return (
     <div className="container">
-      <Header StatusPill={StatusPill} currentStatus={currentStatus}>
+      <Header currentStatus={currentStatus}>
         <FaqButton />
         <ProfileButton setIsLoginModalOpen={setIsLoginModalOpen} />
       </Header>

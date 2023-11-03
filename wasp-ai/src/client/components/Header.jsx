@@ -5,14 +5,15 @@ import useAuth from "@wasp/auth/useAuth";
 import { useHistory } from "react-router-dom";
 import { BiSolidHome } from "react-icons/bi";
 import { Link } from "@wasp/router";
+import { StatusPill } from "./StatusPill";
 
-export function Header({ children, StatusPill, currentStatus }) {
+export function Header({ children, currentStatus }) {
   return (
     <div className="mb-4 bg-slate-50 p-8 rounded-xl md:flex justify-between items-center">
       <Title />
       <div className="flex flex-col items-end gap-2">
         <div className="flex items-center gap-3 m-1">{children}</div>
-        {!!StatusPill && (
+        {!!currentStatus && (
           <StatusPill status={currentStatus.status} className="hidden md:flex">
             {currentStatus.message}
           </StatusPill>
@@ -47,7 +48,7 @@ export function ProfileButton({ setIsLoginModalOpen }) {
       }}
     >
       <BiSolidUser className="w-5 h-5 text-slate-600" />
-      <ToolTip>My Apps</ToolTip>
+      <ToolTip>Profile</ToolTip>
     </button>
   );
 }
