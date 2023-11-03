@@ -14,7 +14,11 @@ import { Header } from "../components/Header";
 import { PiDownloadDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
 import { HomeButton } from "../components/Header";
-import { getColorValue, getStatusName, getStatusText } from "../display/utils"
+import {
+  convertProjectColorToClassName,
+  convertProjectStatusToClassName,
+  convertProjectStatusToText,
+} from "../project/converters";
 
 const chartTypes = [
   {
@@ -52,11 +56,7 @@ export function Stats() {
     if (filterOutExampleApps) {
       filters.push(
         (stat) =>
-          !exampleIdeas.some(
-            (example) =>
-              example.name === stat.name &&
-              example.description === stat.description
-          )
+          !exampleIdeas.some((example) => example.name === stat.name && example.description === stat.description)
       );
     }
     if (filterOutKnownUsers) {
@@ -87,12 +87,11 @@ export function Stats() {
 
   const downloadStats = getDownloadStats(filteredProjects);
 
-  const downloadedPercentage =
-    Math.round(downloadStats.downloadRatio * 10000) / 100;
+  const downloadedPercentage = Math.round(downloadStats.downloadRatio * 10000) / 100;
 
   return (
     <>
-      <Header >
+      <Header>
         <HomeButton />
       </Header>
       <div className="big-box">
@@ -105,35 +104,22 @@ export function Stats() {
           </div>
         </div>
 
-        {stats.projects.length === 0 && (
-          <p className="text-sm text-slate-500">No projects created yet.</p>
-        )}
+        {stats.projects.length === 0 && <p className="text-sm text-slate-500">No projects created yet.</p>}
 
         {stats.projects.length > 0 && (
           <>
             <div className="mb-3 flex justify-between items-end">
               <div>
-                <h2 className="text-xl font-semibold text-slate-800">
-                  Projects over time
-                </h2>
+                <h2 className="text-xl font-semibold text-slate-800">Projects over time</h2>
               </div>
               <div className="w-1/3">
-                <MyDropdown
-                  options={chartTypes}
-                  value={chartType}
-                  onChange={setChartType}
-                />
+                <MyDropdown options={chartTypes} value={chartType} onChange={setChartType} />
               </div>
             </div>
             <div style={{ height: 300, width: "100%" }} className="mb-4">
               <ParentSize>
                 {({ width, height }) => (
-                  <BarChart
-                    chartType={chartType.value}
-                    projects={filteredProjects}
-                    width={width}
-                    height={height}
-                  />
+                  <BarChart chartType={chartType.value} projects={filteredProjects} width={width} height={height} />
                 )}
               </ParentSize>
             </div>
@@ -145,15 +131,10 @@ export function Stats() {
                     id="filter"
                     type="checkbox"
                     checked={filterOutExampleApps}
-                    onChange={(event) =>
-                      setFilterOutExampleApps(event.target.checked)
-                    }
+                    onChange={(event) => setFilterOutExampleApps(event.target.checked)}
                     className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
                   />
-                  <label
-                    htmlFor="filter"
-                    className="ml-2 text-sm font-medium text-gray-900"
-                  >
+                  <label htmlFor="filter" className="ml-2 text-sm font-medium text-gray-900">
                     Filter out example apps
                   </label>
                 </div>
@@ -162,15 +143,10 @@ export function Stats() {
                     id="default-checkbox"
                     type="checkbox"
                     checked={filterOutKnownUsers}
-                    onChange={(event) =>
-                      setFilterOutKnownUsers(event.target.checked)
-                    }
+                    onChange={(event) => setFilterOutKnownUsers(event.target.checked)}
                     className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
                   />
-                  <label
-                    htmlFor="default-checkbox"
-                    className="ml-2 text-sm font-medium text-gray-900"
-                  >
+                  <label htmlFor="default-checkbox" className="ml-2 text-sm font-medium text-gray-900">
                     Filter out known users
                   </label>
                 </div>
@@ -178,10 +154,7 @@ export function Stats() {
 
               <p className="text-sm text-slate-800 flex gap-2">
                 <span className="bg-slate-100 rounded-md px-2 py-1">
-                  Generated:{" "}
-                  <strong className="text-slate-800">
-                    {filteredProjects.length}
-                  </strong>
+                  Generated: <strong className="text-slate-800">{filteredProjects.length}</strong>
                 </span>
                 <span className="bg-slate-100 rounded-md px-2 py-1">
                   Downlaoded:{" "}
@@ -219,11 +192,8 @@ export function Stats() {
                         scope="row"
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
-                        <Color value={getColorValue(project.primaryColor)} />{" "}
-                        <span
-                          title={project.description}
-                          className="max-w-[250px] overflow-hidden overflow-ellipsis"
-                        >
+                        <Color value={convertProjectColorToClassName(project.primaryColor)} />{" "}
+                        <span title={project.description} className="max-w-[250px] overflow-hidden overflow-ellipsis">
                           {project.name}
                         </span>{" "}
                         <span className="flex gap-1">
@@ -234,9 +204,7 @@ export function Stats() {
                           )}
                           {project.zipDownloadedAt && (
                             <span
-                              title={`Downlaoded ${format(
-                                project.zipDownloadedAt
-                              )}`}
+                              title={`Downlaoded ${format(project.zipDownloadedAt)}`}
                               className="w-5 h-5 bg-sky-100 rounded-full flex items-center justify-center text-sky-800 border border-sky-200"
                             >
                               <PiDownloadDuotone className="w-3 h-3" />
@@ -245,8 +213,8 @@ export function Stats() {
                         </span>
                       </th>
                       <td className="px-6 py-4">
-                        <StatusPill status={getStatusName(project.status)} sm>
-                          {getStatusText(project.status)}
+                        <StatusPill status={convertProjectStatusToClassName(project.status)} sm>
+                          {convertProjectStatusToText(project.status)}
                         </StatusPill>
                       </td>
                       <td
@@ -256,19 +224,12 @@ export function Stats() {
                         {format(project.createdAt)}
                       </td>
                       <td className="px-6 py-4">
-                        {getWaitingInQueueDuration(project, logsByProjectId)}{" "}
-                        &rarr; {getDuration(project, logsByProjectId)}
+                        {getWaitingInQueueDuration(project, logsByProjectId)} &rarr;{" "}
+                        {getDuration(project, logsByProjectId)}
                       </td>
-                      <td
-                        className={`px-6 py-4 creativity-${project.creativityLevel}`}
-                      >
-                        {project.creativityLevel}
-                      </td>
+                      <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>{project.creativityLevel}</td>
                       <td className="px-6 py-4">
-                        <Link
-                          to={`/result/${project.id}`}
-                          className="font-medium text-sky-600 hover:underline"
-                        >
+                        <Link to={`/result/${project.id}`} className="font-medium text-sky-600 hover:underline">
                           View the app &rarr;
                         </Link>
                       </td>
@@ -293,18 +254,13 @@ function getDownloadStats(projects) {
   const projectsAfterDownloadTracking = projects.filter(
     (project) =>
       // This is the time of the first recorded download (after we rolled out download tracking).
-      project.createdAt > new Date("2023-07-14 10:36:45.12") &&
-      project.status === "success"
+      project.createdAt > new Date("2023-07-14 10:36:45.12") && project.status === "success"
   );
-  const downloadedProjects = projectsAfterDownloadTracking.filter(
-    (project) => project.zipDownloadedAt !== null
-  );
+  const downloadedProjects = projectsAfterDownloadTracking.filter((project) => project.zipDownloadedAt !== null);
   return {
     projectsDownloaded: downloadedProjects.length,
     downloadRatio:
-      projectsAfterDownloadTracking.length > 0
-        ? downloadedProjects.length / projectsAfterDownloadTracking.length
-        : 0,
+      projectsAfterDownloadTracking.length > 0 ? downloadedProjects.length / projectsAfterDownloadTracking.length : 0,
   };
 }
 
