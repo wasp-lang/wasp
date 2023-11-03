@@ -39,7 +39,11 @@ import Wasp.Generator.DbGenerator.Common
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (collectJobTextOutput, printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO
+  ( collectJobTextOutputUntilExitReceived,
+    printJobMsgsUntilExitReceived,
+    readJobMessagesAndPrintThemPrefixed,
+  )
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
@@ -146,12 +150,13 @@ isDbRunning genProjectDir = do
   case exitCode of
     ExitSuccess -> return True
     ExitFailure _ -> do
-      textOutput <- collectJobTextOutput chan
+      textOutput <- collectJobTextOutputUntilExitReceived chan
 
       -- "Database not created" error is fine since Prisma will create it for us.
-      let areWeOkayWithTheError = any containsDatabaseNotCreatedError textOutput
-      return areWeOkayWithTheError
+      let isErrorTolerated = any containsDatabaseNotCreatedError textOutput
+      return isErrorTolerated
   where
+    -- Prisma error code for "Database not created" is P1003.
     containsDatabaseNotCreatedError = T.isInfixOf "P1003"
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())

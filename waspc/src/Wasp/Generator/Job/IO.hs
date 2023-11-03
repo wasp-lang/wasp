@@ -2,7 +2,7 @@ module Wasp.Generator.Job.IO
   ( readJobMessagesAndPrintThemPrefixed,
     printJobMessage,
     printJobMsgsUntilExitReceived,
-    collectJobTextOutput,
+    collectJobTextOutputUntilExitReceived,
   )
 where
 
@@ -33,8 +33,8 @@ readJobMessagesAndPrintThemPrefixed chan = runPrefixedWriter go
         J.JobOutput {} -> printJobMessagePrefixed jobMsg >> go
         J.JobExit {} -> return ()
 
-collectJobTextOutput :: Chan J.JobMessage -> IO [Text]
-collectJobTextOutput chan = collectJobMessages chan <&> mapMaybe jobMessageToText
+collectJobTextOutputUntilExitReceived :: Chan J.JobMessage -> IO [Text]
+collectJobTextOutputUntilExitReceived chan = collectJobMessages chan <&> mapMaybe jobMessageToText
   where
     jobMessageToText :: J.JobMessageData -> Maybe Text
     jobMessageToText = \case
