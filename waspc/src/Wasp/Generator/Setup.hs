@@ -28,11 +28,10 @@ runNpmInstallIfNeeded spec dstDir sendMessage = do
     Right maybeFullStackDeps -> case maybeFullStackDeps of
       Nothing -> return ([], [])
       Just fullStackDeps -> do
-        sendMessage $ Msg.Start "Starting npm install..."
-        (Left (npmInstallWarnings, npmInstallErrors)) <-
-          installNpmDependenciesWithInstallRecord fullStackDeps dstDir
-            `race` reportInstallationProgress reportInstallationProgressMessages
+        sendMessage $ Msg.Start "Skipping npm install..."
+        (Left (npmInstallWarnings, npmInstallErrors)) <- installNpmDependenciesWithInstallRecord fullStackDeps dstDir `race` reportInstallationProgress reportInstallationProgressMessages
         when (null npmInstallErrors) (sendMessage $ Msg.Success "Successfully completed npm install.")
+        return ([], [])
         return (npmInstallWarnings, npmInstallErrors)
   where
     reportInstallationProgress :: [String] -> IO ()

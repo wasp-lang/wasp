@@ -18,15 +18,10 @@ import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 
 genSourceFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileDraft
-genSourceFile strategy file = return $ FD.createTextFileDraft dstPath text'
+genSourceFile strategy file = return $ FD.createTextFileDraft dstPath text
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
-
-    filePathInGenExtCodeDir :: Path' (Rel C.GeneratedExternalCodeDir) File'
-    filePathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir filePathInSrcExtCodeDir
-
     text = EC.fileText file
-    text' = C._resolveJsFileWaspImports strategy filePathInGenExtCodeDir text
     dstPath = C._resolveDstFilePath strategy filePathInSrcExtCodeDir
 
 -- | Replaces imports that start with "@wasp/" with imports that start from the src dir of the app.

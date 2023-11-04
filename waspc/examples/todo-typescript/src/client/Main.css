@@ -1,0 +1,53 @@
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+main {
+  padding: 1rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  padding: 0;
+  margin: 1rem 0;
+}
+
+main p {
+  font-size: 1rem;
+}
+
+img {
+  max-height: 100px;
+}
+
+button {
+  margin-top: 1rem;
+}
+
+code {
+  border-radius: 5px;
+  padding: 0.2rem;
+  background: #efefef;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
+.auth-form h2 {
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.tasklist {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 300px;
+  margin-top: 1rem;
+}
