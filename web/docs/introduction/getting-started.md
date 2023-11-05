@@ -107,13 +107,11 @@ Open your terminal and run:
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
-:::note Apple Silicon
 If you are using macOS on a device with Apple Silicon you might encounter `Bad CPU type in executable` issue. To fix that, please [install Rosetta on your Mac](https://support.apple.com/en-us/HT211861).
 
 ```shell
 softwareupdate --install-rosetta
 ```
-:::
 
 
   </TabItem>
