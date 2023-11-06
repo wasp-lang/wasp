@@ -222,7 +222,7 @@ export const ChatPage = () => {
 
 Wasp's **full-stack type safety** kicks in here: all the event types and payloads are automatically inferred from the server and are available on the client 🔥
 
-You can additonally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
+You can additionally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
 
 ```tsx title=src/client/ChatPage.tsx
 import React, { useState } from 'react'

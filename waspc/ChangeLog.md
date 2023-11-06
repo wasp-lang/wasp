@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.11.8
+
+### 🎉 [New Feature] Serving the Client From a Subdirectory
+
+You can now serve the client from a subdirectory. This is useful if you want to serve the client from a subdirectory of your domain, e.g. `https://example.com/my-app/`.
+
+To do this, you need to add the `client.baseDir` property to your `.wasp` file:
+
+```wasp
+app todoApp {
+  // ...
+  client: {
+    baseDir: "/my-app",
+  },
+}
+```
+
+## 0.11.7
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug with Prisma which prevent connections via SSL with our versions of Alpine and OpenSSL. We upgraded to the latest Prisma 4.X.X which fixes this issue.
+
+
 ## 0.11.6
 
 ### 🎉 [New Feature] Enable Customising the Vite Config

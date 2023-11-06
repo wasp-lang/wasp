@@ -45,11 +45,12 @@ app MyApp {
 }
 ```
 
-2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL:
+2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](https://wasp-lang.dev/docs/general/cli#project-commands):
 
-   ```bash
-   rm -r migrations/
-   ```
+```bash
+rm -r migrations/
+wasp clean
+```
 
 3. Ensure your new database is running (check the [section on connecing to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
