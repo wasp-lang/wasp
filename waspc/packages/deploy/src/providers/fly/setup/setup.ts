@@ -86,9 +86,7 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
 	const minMachinesOptionRegex = /min_machines_running = 0/g;
 
-	// if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
-	// eslint-disable-next-line no-constant-condition
-	if (true) {
+	if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
 		await question(`\n⚠️  There was a possible issue setting up your server app.
 We tried modifying your server fly.toml to set ${boldText(
 		'min_machines_running = 1',
@@ -157,9 +155,7 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
 	const internalPortOptionRegex = /internal_port = \d+/g;
 
-	// if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
-	// eslint-disable-next-line no-constant-condition
-	if (true) {
+	if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
 		await question(`\n⚠️  There was an issue setting up your client app.
 We tried modifying your client fly.toml to set ${boldText(
 		'internal_port = 8043',
