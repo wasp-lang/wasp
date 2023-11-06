@@ -8,7 +8,7 @@ import logout from "@wasp/auth/logout";
 import { FiLogOut } from "react-icons/fi";
 import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
-import { convertProjectColorToClassName, convertProjectStatusToClassName, convertProjectStatusToText } from "../project/converters";
+import { getTailwindClassNameForProjectBrandColor, getTailwindClassNameForProjectStatus, getDisplayableTextForProjectStatus } from "../project/utils";
 import { HomeButton } from "../components/Header";
 
 export function UserPage({ user }) {
@@ -67,7 +67,7 @@ function UserProjectsTable({ projects }) {
           projects.map((project) => (
             <tr className="bg-white border-t" key={project.id}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2">
-                <Color value={convertProjectColorToClassName(project.primaryColor)} />{" "}
+                <Color value={getTailwindClassNameForProjectBrandColor(project.primaryColor)} />{" "}
                 <span title={project.description} className="max-w-[250px] overflow-hidden overflow-ellipsis">
                   {project.name}
                 </span>{" "}
@@ -83,8 +83,8 @@ function UserProjectsTable({ projects }) {
                 </span>
               </th>
               <td className="px-6 py-4">
-                <StatusPill status={convertProjectStatusToClassName(project.status)} sm>
-                  {convertProjectStatusToText(project.status)}
+                <StatusPill status={getTailwindClassNameForProjectStatus(project.status)} sm>
+                  {getDisplayableTextForProjectStatus(project.status)}
                 </StatusPill>
               </td>
               <td

@@ -79,7 +79,7 @@ const MainPage = () => {
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
 
   useEffect(() => {
-    if (userProjects?.length > 0 && userProjects.length % 2 === 0) {
+    if (userProjects?.length === 2) {
       setIsAskForStarsModalOpen(true);
     }
   }, [userProjects]);

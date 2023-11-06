@@ -1,12 +1,12 @@
-import { availableColors } from "../components/Color";
+import { validProjectBrandColors } from "../components/Color";
 
 // converts project's color name to tailwind css class name
-export function convertProjectColorToClassName(colorName) {
-  return availableColors.find((color) => color.name === colorName).color;
+export function getTailwindClassNameForProjectBrandColor(colorName) {
+  return validProjectBrandColors.find((color) => color.name === colorName).color;
 }
 
 // converts project's status to tailwind css class name
-export function convertProjectStatusToClassName(status) {
+export function getTailwindClassNameForProjectStatus(status) {
   switch (status) {
     case "in-progress":
       return "inProgress";
@@ -22,7 +22,7 @@ export function convertProjectStatusToClassName(status) {
 }
 
 // converts project's status to displayable text
-export function convertProjectStatusToText(status) {
+export function getDisplayableTextForProjectStatus(status) {
   switch (status) {
     case "in-progress":
       return "In progress";

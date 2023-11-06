@@ -15,10 +15,10 @@ import { PiDownloadDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
 import { HomeButton } from "../components/Header";
 import {
-  convertProjectColorToClassName,
-  convertProjectStatusToClassName,
-  convertProjectStatusToText,
-} from "../project/converters";
+  getTailwindClassNameForProjectBrandColor,
+  getTailwindClassNameForProjectStatus,
+  getDisplayableTextForProjectStatus,
+} from "../project/utils";
 
 const chartTypes = [
   {
@@ -157,7 +157,7 @@ export function Stats() {
                   Generated: <strong className="text-slate-800">{filteredProjects.length}</strong>
                 </span>
                 <span className="bg-slate-100 rounded-md px-2 py-1">
-                  Downlaoded:{" "}
+                  Downloaded:{" "}
                   <strong className="text-slate-800">{`${downloadStats.projectsDownloaded} (${downloadedPercentage}%)`}</strong>
                 </span>
               </p>
@@ -192,7 +192,7 @@ export function Stats() {
                         scope="row"
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
-                        <Color value={convertProjectColorToClassName(project.primaryColor)} />{" "}
+                        <Color value={getTailwindClassNameForProjectBrandColor(project.primaryColor)} />{" "}
                         <span title={project.description} className="max-w-[250px] overflow-hidden overflow-ellipsis">
                           {project.name}
                         </span>{" "}
@@ -204,7 +204,7 @@ export function Stats() {
                           )}
                           {project.zipDownloadedAt && (
                             <span
-                              title={`Downlaoded ${format(project.zipDownloadedAt)}`}
+                              title={`Downloaded ${format(project.zipDownloadedAt)}`}
                               className="w-5 h-5 bg-sky-100 rounded-full flex items-center justify-center text-sky-800 border border-sky-200"
                             >
                               <PiDownloadDuotone className="w-3 h-3" />
@@ -213,8 +213,8 @@ export function Stats() {
                         </span>
                       </th>
                       <td className="px-6 py-4">
-                        <StatusPill status={convertProjectStatusToClassName(project.status)} sm>
-                          {convertProjectStatusToText(project.status)}
+                        <StatusPill status={getTailwindClassNameForProjectStatus(project.status)} sm>
+                          {getDisplayableTextForProjectStatus(project.status)}
                         </StatusPill>
                       </td>
                       <td
