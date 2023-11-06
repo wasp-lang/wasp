@@ -86,16 +86,25 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
 	const minMachinesOptionRegex = /min_machines_running = 0/g;
 
-	if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
-		await question(`⚠️  There was an issue setting up your server app.
+	// if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
+	// eslint-disable-next-line no-constant-condition
+	if (true) {
+		await question(`\n⚠️  There was a possible issue setting up your server app.
 We tried modifying your server fly.toml to set ${boldText(
 		'min_machines_running = 1',
 	)}, but couldn't find the option ${boldText(
-		'min_machines_running',
-	)} in the fly.toml.
+	'min_machines_running',
+)} in the fly.toml.
 
-This might mean your server app might not be always running,
-which could cause certain Wasp features like jobs to not work.
+We advise that you additionaly check what is the value for "minimal number of machines running" on Fly
+for this server app and confirm that it is set to the value you are OK with.
+
+Be aware that if it is set to 0, your server will shut down when there are no requests from the client,
+which might be an issue for you if you have recurring Jobs or some other processes that need to keep
+running on the server even without external input, in which case we advise keeping "minimal number
+of machines running" setting at a number larger than zero.
+
+Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX 
 
 Press any key to continue or Ctrl+C to cancel.`);
 	} else {
@@ -148,15 +157,19 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
 	const internalPortOptionRegex = /internal_port = \d+/g;
 
-	if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
-		await question(`⚠️  There was an issue setting up your client app.
+	// if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
+	// eslint-disable-next-line no-constant-condition
+	if (true) {
+		await question(`\n⚠️  There was an issue setting up your client app.
 We tried modifying your client fly.toml to set ${boldText(
 		'internal_port = 8043',
 	)}, but couldn't find the option ${boldText(
-		'modifying',
-	)} in the fly.toml.
+	'internal_port',
+)} in the fly.toml.
 
-This might mean your client app might not be accessible,
+This means your client app might not be accessible.
+
+Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX 
 
 Press any key to continue or Ctrl+C to cancel.`);
 	} else {
