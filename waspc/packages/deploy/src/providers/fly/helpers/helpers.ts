@@ -9,12 +9,16 @@ export function isYes(str: string): boolean {
 }
 
 export function ensureWaspDirLooksRight(thisCommand: Command): void {
-	const dirContainsWasproot = fs.existsSync(path.join(thisCommand.opts().waspProjectDir, '.wasproot'));
+	const dirContainsWasproot = fs.existsSync(
+		path.join(thisCommand.opts().waspProjectDir, '.wasproot'),
+	);
 	if (dirContainsWasproot) {
 		return;
 	}
 
-	waspSays('The supplied Wasp directory does not appear to be a valid Wasp project.');
+	waspSays(
+		'The supplied Wasp directory does not appear to be a valid Wasp project.',
+	);
 	waspSays('Please double check your path.');
 	exit(1);
 }
@@ -38,8 +42,11 @@ function getWaspBuildDir(waspProjectDir: string) {
 	return path.join(waspProjectDir, '.wasp', 'build');
 }
 
-export function ensureDirsInCmdAreAbsoluteAndPresent(thisCommand: Command): void {
-	const waspProjectDirPath: string | undefined = thisCommand.opts().waspProjectDir;
+export function ensureDirsInCmdAreAbsoluteAndPresent(
+	thisCommand: Command,
+): void {
+	const waspProjectDirPath: string | undefined =
+		thisCommand.opts().waspProjectDir;
 	if (waspProjectDirPath) {
 		if (!path.isAbsolute(waspProjectDirPath)) {
 			waspSays('The Wasp dir path must be absolute.');
@@ -88,6 +95,10 @@ export function waspSays(str: string): void {
 	console.log('🚀 \x1b[33m ' + str + ' \x1b[0m');
 }
 
+export function boldText(str: string): string {
+	return '\x1b[1m' + str + '\x1b[0m';
+}
+
 export function displayWaspRocketImage(): void {
 	// Escaping backslashes makes it look weird here, but it works in console.
 	const asciiArt = `
@@ -109,7 +120,10 @@ export function getCommandHelp(command: Command): string {
 }
 
 function trimUsage(usage: string): string {
-	return usage.split(/[\r\n]+/)[0].replace('Usage: ', '').replace(' [options]', '');
+	return usage
+		.split(/[\r\n]+/)[0]
+		.replace('Usage: ', '')
+		.replace(' [options]', '');
 }
 
 // There is a theoretical race condition here since we are modifying a global `$`
@@ -118,7 +132,9 @@ function trimUsage(usage: string): string {
 // times concurrently could change the setting incorrectly.
 // However, our pattern of awaiting for both `$` and `silence` calls without any random
 // callbacks using either means this interleaving should not ever happen.
-export async function silence(cmd: ($hh: Shell) => Promise<ProcessOutput>): Promise<ProcessOutput> {
+export async function silence(
+	cmd: ($hh: Shell) => Promise<ProcessOutput>,
+): Promise<ProcessOutput> {
 	const verboseSetting = $.verbose;
 	$.verbose = false;
 	const proc = await cmd($);
