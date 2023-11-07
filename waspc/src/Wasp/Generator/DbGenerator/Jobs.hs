@@ -69,14 +69,10 @@ migrateDev projectDir migrateArgs =
 
 asPrismaCliArgs :: MigrateArgs -> [ShellCommandArg]
 asPrismaCliArgs migrateArgs = do
-  concat . concat $
-    [ [[Shell.RawArgument "--create-only"] | _isCreateOnlyMigration migrateArgs],
-      [ [ Shell.RawArgument "--name",
-          Shell.RawArgument name
-        ]
-        | Just name <- [_migrationName migrateArgs]
-      ]
-    ]
+  concat . concat $ [createOnlyArg, nameArg]
+  where
+    createOnlyArg = [[Shell.RawArgument "--create-only"] | _isCreateOnlyMigration migrateArgs]
+    nameArg = [[Shell.RawArgument "--name", Shell.RawArgument name] | Just name <- [_migrationName migrateArgs]]
 
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
