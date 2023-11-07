@@ -100,11 +100,6 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right _ -> do
       envVars <- getAllEnvVars
-
-      print $ "Running command: " ++ command ++ " " ++ unwords args
-
-      print args
-
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
       runProcessAsJob nodeCommandProcess jobType chan
   where
