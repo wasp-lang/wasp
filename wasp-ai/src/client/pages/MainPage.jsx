@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
 import { FaqButton, Header, ProfileButton } from "../components/Header";
-import { availableColors } from "../components/Color";
+import { validProjectBrandColors } from "../components/Color";
 import { Faq } from "../components/Faq";
 import { exampleIdeas } from "../examples";
 import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
@@ -18,7 +18,7 @@ import getProjectsByUser from "@wasp/queries/getProjectsByUser";
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
-  const [appPrimaryColor, setAppPrimaryColor] = useState(availableColors.find((color) => color.name === "sky"));
+  const [appPrimaryColor, setAppPrimaryColor] = useState(validProjectBrandColors.find((color) => color.name === "sky"));
 
   const [isAskForStarsModalOpen, setIsAskForStarsModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -90,7 +90,7 @@ const MainPage = () => {
       if (appDetails) {
         setAppName(appDetails.appName);
         setAppDesc(appDetails.appDesc);
-        setAppPrimaryColor(availableColors.find((color) => color.name === appDetails.appPrimaryColor));
+        setAppPrimaryColor(validProjectBrandColors.find((color) => color.name === appDetails.appPrimaryColor));
         setAppAuthMethod(availableAuthMethods.find((method) => method.value === appDetails.appAuthMethod));
         setCreativityLevel(availableCreativityLevels.find((level) => level.value === appDetails.appCreativityLevel));
         localStorage.removeItem("appDetails");
@@ -206,7 +206,7 @@ The simpler and more specific the app is, the better the generated app will be."
               <label htmlFor="appPrimaryColor" className="text-slate-700 block mb-2">
                 App brand color
               </label>
-              <MyDropdown value={appPrimaryColor} onChange={setAppPrimaryColor} options={availableColors} />
+              <MyDropdown value={appPrimaryColor} onChange={setAppPrimaryColor} options={validProjectBrandColors} />
             </div>
             <div>
               <label htmlFor="creativityLevel" className="text-slate-700 block mb-2">

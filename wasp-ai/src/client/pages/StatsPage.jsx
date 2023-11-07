@@ -17,7 +17,7 @@ import { HomeButton } from "../components/Header";
 import {
   getTailwindClassNameForProjectBrandColor,
   getTailwindClassNameForProjectStatus,
-  getDisplayableTextForProjectStatus,
+  projectStatusToDisplayableText,
 } from "../project/utils";
 
 const chartTypes = [
@@ -214,7 +214,7 @@ export function Stats() {
                       </th>
                       <td className="px-6 py-4">
                         <StatusPill status={getTailwindClassNameForProjectStatus(project.status)} sm>
-                          {getDisplayableTextForProjectStatus(project.status)}
+                          {projectStatusToDisplayableText(project.status)}
                         </StatusPill>
                       </td>
                       <td

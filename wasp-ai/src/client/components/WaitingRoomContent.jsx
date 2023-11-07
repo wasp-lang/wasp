@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { availableColors } from "./Color";
+import { validProjectBrandColors } from "./Color";
 import Tilt from "react-parallax-tilt";
 
 const NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL = 7;
@@ -93,7 +93,7 @@ export const showcaseSamples = [
       "A simple todo app with one main page that lists all the tasks." +
       " User can create new tasks by providing their description, toggle existing ones, or edit their description." +
       " User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database.",
-    color: availableColors.find((color) => color.name === "sky"),
+    color: validProjectBrandColors.find((color) => color.name === "sky"),
     complexity: "simple",
   },
   {
@@ -106,7 +106,7 @@ export const showcaseSamples = [
       " Home page also has a 'Add plant' button, that takes you to a new page where user can create a new plant." +
       "\nWhen creating a new plant, user should give it a name and specify how often it needs to be watered (in the number of days)." +
       " Plants are saved in the database. User can access only their own plants.",
-    color: availableColors.find((color) => color.name === "green"),
+    color: validProjectBrandColors.find((color) => color.name === "green"),
     complexity: "moderate",
   },
 ];

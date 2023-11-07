@@ -222,5 +222,8 @@ export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_arg
         id: context.user.id,
       },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 };

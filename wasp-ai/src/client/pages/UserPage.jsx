@@ -8,7 +8,7 @@ import logout from "@wasp/auth/logout";
 import { FiLogOut } from "react-icons/fi";
 import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
-import { getTailwindClassNameForProjectBrandColor, getTailwindClassNameForProjectStatus, getDisplayableTextForProjectStatus } from "../project/utils";
+import { getTailwindClassNameForProjectBrandColor, getTailwindClassNameForProjectStatus, projectStatusToDisplayableText } from "../project/utils";
 import { HomeButton } from "../components/Header";
 
 export function UserPage({ user }) {
@@ -84,7 +84,7 @@ function UserProjectsTable({ projects }) {
               </th>
               <td className="px-6 py-4">
                 <StatusPill status={getTailwindClassNameForProjectStatus(project.status)} sm>
-                  {getDisplayableTextForProjectStatus(project.status)}
+                  {projectStatusToDisplayableText(project.status)}
                 </StatusPill>
               </td>
               <td
