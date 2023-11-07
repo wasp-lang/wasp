@@ -4,7 +4,7 @@ app waspAi {
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
-    "<meta property=\"og:title\" content=\"MAGE - GPT Web App Generator ✨\">",
+    "<meta property=\"og:title\" content=\"MAGE GPT Web App Generator ✨ MageGPT\">",
     "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and the Wasp full-stack framework.\">",
     "<meta property=\"og:type\" content=\"website\">",
     "<meta property=\"og:image\" content=\"https://usemage.ai/twitter.png\">",
@@ -51,7 +51,7 @@ app waspAi {
         getUserFieldsFn: import { getGoogleUserFields } from "@server/auth.js",
       },
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: "/",
     onAuthSucceededRedirectTo: "/"
   }
 }
@@ -64,6 +64,12 @@ page MainPage {
 route ResultRoute { path: "/result/:appId", to: ResultPage }
 page ResultPage {
   component: import { ResultPage } from "@client/pages/ResultPage.jsx"
+}
+
+route UserRoute { path: "/user", to: UserPage }
+page UserPage {
+  component: import { UserPage } from "@client/pages/UserPage.jsx",
+  authRequired: true
 }
 
 route StatsRoute { path: "/stats", to: StatsPage }
@@ -105,6 +111,11 @@ query getFeedback {
   entities: [Feedback]
 }
 
+query getProjectsByUser {
+  fn: import { getProjectsByUser } from "@server/operations.js",
+  entities: [Project]
+}
+
 
 query getAppGenerationResult {
   fn: import { getAppGenerationResult } from "@server/operations.js",
@@ -131,6 +142,7 @@ entity User {=psl
   id Int @id @default(autoincrement())
 
   email String @unique
+  username String?
   externalAuthAssociations SocialLogin[]
   projects Project[]
 psl=}

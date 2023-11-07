@@ -11,7 +11,7 @@ export function Color({ value }) {
   );
 }
 
-export const availableColors = Object.entries(tailwindColors)
+export const validProjectBrandColors = Object.entries(tailwindColors)
   .map(([name, color]) => {
     return {
       name,

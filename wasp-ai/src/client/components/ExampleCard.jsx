@@ -25,7 +25,7 @@ export function ExampleCard({ idea, useIdea }) {
             <button className="button sm gray">Use this idea</button>
           </div>
           <div className="text-base leading-relaxed text-slate-500 line-clamp-[10]">
-            {idea.description.split('\n').map(str => <p>{str}</p>)}
+            {idea.description.split('\n').map(str => <p key={str}>{str}</p>)}
           </div>
         </div>
       </div>

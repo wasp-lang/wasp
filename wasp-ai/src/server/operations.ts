@@ -1,18 +1,9 @@
-import {
-  RegisterZipDownload,
-  StartGeneratingNewApp,
-  CreateFeedback,
-} from "@wasp/actions/types";
-import { Project } from "@wasp/entities";
-import {
-  GetAppGenerationResult,
-  GetStats,
-  GetFeedback,
-  GetNumProjects,
-} from "@wasp/queries/types";
+import { RegisterZipDownload, StartGeneratingNewApp, CreateFeedback } from "@wasp/actions/types";
+import { GetAppGenerationResult, GetStats, GetFeedback, GetNumProjects, GetProjectsByUser } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
+import type { Project } from "@wasp/entities";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -25,28 +16,20 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
   },
   string
 > = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Not authorized.");
+  }
   if (!args.appName) {
     throw new HttpError(422, "App name is required.");
   }
   if (!/^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(args.appName)) {
-    throw new HttpError(
-      422,
-      "App name can only contain letters, numbers, dashes, or underscores."
-    );
+    throw new HttpError(422, "App name can only contain letters, numbers, dashes, or underscores.");
   }
   if (!args.appDesc) {
     throw new HttpError(422, "App description is required.");
   }
   const { Project } = context.entities;
-  const optionalUser = context.user
-    ? {
-        user: {
-          connect: {
-            id: context.user.id,
-          },
-        },
-      }
-    : {};
+
   const project = await Project.create({
     data: {
       name: args.appName,
@@ -55,7 +38,11 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
       authMethod: args.appAuthMethod,
       creativityLevel: args.appCreativityLevel,
       referrer: args.referrer,
-      ...optionalUser,
+      user: {
+        connect: {
+          id: context.user.id,
+        },
+      },
     },
   });
 
@@ -222,7 +209,21 @@ export const getStats = (async (_args, context) => {
 }) satisfies GetStats<{}>;
 
 export const getNumProjects = (async (_args, context) => {
-  const { Project } = context.entities;
-  const numProjects = await Project.count();
-  return numProjects;
+  return context.entities.Project.count();
 }) satisfies GetNumProjects<{}>;
+
+export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Not authorized");
+  }
+  return await context.entities.Project.findMany({
+    where: {
+      user: {
+        id: context.user.id,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
