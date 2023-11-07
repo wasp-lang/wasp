@@ -28,6 +28,8 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
+import Wasp.Util.ShellCommand (ShellCommandArg)
+import qualified Wasp.Util.ShellCommand as Shell
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectDir migrateArgs =
@@ -46,30 +48,34 @@ migrateDev projectDir migrateArgs =
     scriptArgs =
       if System.Info.os == "darwin"
         then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
-          ["-Fq", "/dev/null"] ++ prismaMigrateCmd
+          ["-Fq", "/dev/null"] ++ Shell.getShellArgValues prismaMigrateCmd
         else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
-          ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
+          ["-feqc", Shell.showShellArgs prismaMigrateCmd, "/dev/null"]
 
     -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not
     -- wrapped in any quotes.
     -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
     --   in some situations is too aggressive / confusing.
     prismaMigrateCmd =
-      [ absPrismaExecutableFp projectDir,
-        "migrate",
-        "dev",
-        "--schema",
-        SP.fromAbsFile schemaFile,
-        "--skip-generate",
-        "--skip-seed"
+      [ Shell.QuotedArgument $ absPrismaExecutableFp projectDir,
+        Shell.RawArgument "migrate",
+        Shell.RawArgument "dev",
+        Shell.RawArgument "--schema",
+        Shell.QuotedArgument $ SP.fromAbsFile schemaFile,
+        Shell.RawArgument "--skip-generate",
+        Shell.RawArgument "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
 
-asPrismaCliArgs :: MigrateArgs -> [String]
+asPrismaCliArgs :: MigrateArgs -> [ShellCommandArg]
 asPrismaCliArgs migrateArgs = do
   concat . concat $
-    [ [["--create-only"] | _isCreateOnlyMigration migrateArgs],
-      [["--name", name] | Just name <- [_migrationName migrateArgs]]
+    [ [[Shell.RawArgument "--create-only"] | _isCreateOnlyMigration migrateArgs],
+      [ [ Shell.RawArgument "--name",
+          Shell.RawArgument name
+        ]
+        | Just name <- [_migrationName migrateArgs]
+      ]
     ]
 
 -- | Diffs the Prisma schema file against the db.

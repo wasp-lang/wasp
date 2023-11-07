@@ -65,7 +65,6 @@ data-files:
   packages/studio/dist/**/*.js
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.css
-  packages/studio/dist/**/*.png
   packages/studio/package.json
   packages/studio/package-lock.json
 data-dir: data/
@@ -346,6 +345,7 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.HashMap
     Wasp.Util.WebRouterPath
+    Wasp.Util.ShellCommand
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
