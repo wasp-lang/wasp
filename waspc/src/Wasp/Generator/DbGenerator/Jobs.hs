@@ -49,6 +49,11 @@ migrateDev projectDir migrateArgs =
         then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
           ["-Fq", "/dev/null"] ++ Shell.getShellArgValues prismaMigrateCmd
         else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
+        -- NOTE(miho): Since we are passing the arguments as a single string, we need to wrap the arguments
+        --  which might contain spaces in them. We are using Shell.Quoted and Shell.Raw to know which
+        --   arguments should be wrapped in quotes and which shouldn't.
+        --   Specifically, we are using `showShellArgs` to wrap file paths in quotes. Other arguments
+        --   are not wrapped in quotes since we know their values and they don't contain spaces.
           ["-feqc", Shell.showShellArgs prismaMigrateCmd, "/dev/null"]
 
     -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not
