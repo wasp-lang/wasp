@@ -56,13 +56,13 @@ migrateDev projectDir migrateArgs =
     -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
     --   in some situations is too aggressive / confusing.
     prismaMigrateCmd =
-      [ Shell.Unsafe $ absPrismaExecutableFp projectDir,
-        Shell.Safe "migrate",
-        Shell.Safe "dev",
-        Shell.Safe "--schema",
-        Shell.Unsafe $ SP.fromAbsFile schemaFile,
-        Shell.Safe "--skip-generate",
-        Shell.Safe "--skip-seed"
+      [ Shell.Quoted $ absPrismaExecutableFp projectDir,
+        Shell.Raw "migrate",
+        Shell.Raw "dev",
+        Shell.Raw "--schema",
+        Shell.Quoted $ SP.fromAbsFile schemaFile,
+        Shell.Raw "--skip-generate",
+        Shell.Raw "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
 
@@ -71,10 +71,10 @@ asPrismaCliArgs migrateArgs = do
   concat . concat $ [createOnlyArg, nameArg]
   where
     createOnlyArg =
-      [[Shell.Safe "--create-only"] | _isCreateOnlyMigration migrateArgs]
+      [[Shell.Raw "--create-only"] | _isCreateOnlyMigration migrateArgs]
     nameArg =
-      [ [ Shell.Safe "--name",
-          Shell.Safe name
+      [ [ Shell.Raw "--name",
+          Shell.Raw name
         ]
         | Just name <- [_migrationName migrateArgs]
       ]
