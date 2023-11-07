@@ -8,12 +8,11 @@ export const failStaleGenerations: FailStaleAppsJobs<
     success: boolean;
   }
 > = async (_args, context) => {
-  // If a generation has been in progress for > 5 minutes, it fails it
   log("Failing stale generations");
   const { Project, Log } = context.entities;
 
   const now = getNowInUTC();
-  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+  const fiveMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
 
   try {
     const staleProjects = await Project.findMany({
