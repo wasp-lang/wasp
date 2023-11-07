@@ -28,7 +28,6 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
-import Wasp.Util.ShellCommand (ShellCommandArg)
 import qualified Wasp.Util.ShellCommand as Shell
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
@@ -57,22 +56,28 @@ migrateDev projectDir migrateArgs =
     -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
     --   in some situations is too aggressive / confusing.
     prismaMigrateCmd =
-      [ Shell.QuotedArgument $ absPrismaExecutableFp projectDir,
-        Shell.RawArgument "migrate",
-        Shell.RawArgument "dev",
-        Shell.RawArgument "--schema",
-        Shell.QuotedArgument $ SP.fromAbsFile schemaFile,
-        Shell.RawArgument "--skip-generate",
-        Shell.RawArgument "--skip-seed"
+      [ Shell.Unsafe $ absPrismaExecutableFp projectDir,
+        Shell.Safe "migrate",
+        Shell.Safe "dev",
+        Shell.Safe "--schema",
+        Shell.Unsafe $ SP.fromAbsFile schemaFile,
+        Shell.Safe "--skip-generate",
+        Shell.Safe "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
 
-asPrismaCliArgs :: MigrateArgs -> [ShellCommandArg]
+asPrismaCliArgs :: MigrateArgs -> [Shell.ShellCommandArg]
 asPrismaCliArgs migrateArgs = do
   concat . concat $ [createOnlyArg, nameArg]
   where
-    createOnlyArg = [[Shell.RawArgument "--create-only"] | _isCreateOnlyMigration migrateArgs]
-    nameArg = [[Shell.RawArgument "--name", Shell.RawArgument name] | Just name <- [_migrationName migrateArgs]]
+    createOnlyArg =
+      [[Shell.Safe "--create-only"] | _isCreateOnlyMigration migrateArgs]
+    nameArg =
+      [ [ Shell.Safe "--name",
+          Shell.Safe name
+        ]
+        | Just name <- [_migrationName migrateArgs]
+      ]
 
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
@@ -95,7 +100,11 @@ migrateDiff projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
 -- Therefore, this should be checked **after** a command that ensures connectivity.
 migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateStatus projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
-  ["migrate", "status", "--schema", SP.fromAbsFile schema]
+  [ "migrate",
+    "status",
+    "--schema",
+    SP.fromAbsFile schema
+  ]
 
 -- | Runs `prisma migrate reset`, which drops the tables (so schemas and data is lost) and then
 -- reapplies all the migrations.
@@ -103,7 +112,13 @@ reset :: Path' Abs (Dir ProjectRootDir) -> J.Job
 reset projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
   -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically on
   --   reset is too aggressive / confusing.
-  ["migrate", "reset", "--schema", SP.fromAbsFile schema, "--skip-generate", "--skip-seed"]
+  [ "migrate",
+    "reset",
+    "--schema",
+    SP.fromAbsFile schema,
+    "--skip-generate",
+    "--skip-seed"
+  ]
 
 -- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
 --   prisma.seed field.
@@ -127,7 +142,14 @@ dbExecuteTest projectDir =
   let absSchemaPath = projectDir </> dbSchemaFileInProjectRootDir
    in runPrismaCommandAsDbJob
         projectDir
-        (const ["db", "execute", "--stdin", "--schema", SP.fromAbsFile absSchemaPath])
+        ( const
+            [ "db",
+              "execute",
+              "--stdin",
+              "--schema",
+              SP.fromAbsFile absSchemaPath
+            ]
+        )
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
@@ -137,7 +159,10 @@ runStudio projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> (String, String) -> JobType -> J.Job
 generatePrismaClient projectDir prismaClientOutputDirEnv jobType =
   runPrismaCommandAsJobWithExtraEnv jobType envVars projectDir $ \schema ->
-    ["generate", "--schema", SP.fromAbsFile schema]
+    [ "generate",
+      "--schema",
+      SP.fromAbsFile schema
+    ]
   where
     envVars = [prismaClientOutputDirEnv]
 

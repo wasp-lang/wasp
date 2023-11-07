@@ -1,10 +1,10 @@
 module Wasp.Util.ShellCommand where
 
-data ShellCommandArg = RawArgument String | QuotedArgument String
+data ShellCommandArg = Safe String | Unsafe String
 
 instance Show ShellCommandArg where
-  show (RawArgument arg) = arg
-  show (QuotedArgument arg) = show arg
+  show (Safe arg) = arg
+  show (Unsafe arg) = show arg
 
 showShellArgs :: [ShellCommandArg] -> String
 showShellArgs = unwords . map show
@@ -12,5 +12,5 @@ showShellArgs = unwords . map show
 getShellArgValues :: [ShellCommandArg] -> [String]
 getShellArgValues = map getShellArgValue
   where
-    getShellArgValue (RawArgument arg) = arg
-    getShellArgValue (QuotedArgument arg) = arg
+    getShellArgValue (Safe arg) = arg
+    getShellArgValue (Unsafe arg) = arg
