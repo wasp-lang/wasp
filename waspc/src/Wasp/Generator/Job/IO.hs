@@ -8,8 +8,6 @@ where
 
 import Control.Concurrent (Chan, readChan)
 import Control.Monad.IO.Class (liftIO)
-import Data.Functor ((<&>))
-import Data.Maybe (mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush)
@@ -34,12 +32,13 @@ readJobMessagesAndPrintThemPrefixed chan = runPrefixedWriter go
         J.JobExit {} -> return ()
 
 collectJobTextOutputUntilExitReceived :: Chan J.JobMessage -> IO [Text]
-collectJobTextOutputUntilExitReceived chan = collectJobMessages chan <&> mapMaybe jobMessageToText
+collectJobTextOutputUntilExitReceived = collect []
   where
-    jobMessageToText :: J.JobMessageData -> Maybe Text
-    jobMessageToText = \case
-      J.JobOutput text _ -> Just text
-      J.JobExit _ -> Nothing
+    collect jobTextOutput chan = do
+      jobMsg <- readChan chan
+      case J._data jobMsg of
+        J.JobExit {} -> return jobTextOutput
+        J.JobOutput text _ -> collect (text : jobTextOutput) chan
 
 printJobMessage :: J.JobMessage -> IO ()
 printJobMessage jobMsg = do
@@ -47,12 +46,3 @@ printJobMessage jobMsg = do
   let message = getJobMessageContent jobMsg
   T.IO.hPutStr outHandle message
   hFlush outHandle
-
-collectJobMessages :: Chan J.JobMessage -> IO [J.JobMessageData]
-collectJobMessages = collect []
-  where
-    collect messages chan = do
-      jobMsg <- readChan chan
-      case J._data jobMsg of
-        J.JobExit {} -> return messages
-        message -> collect (message : messages) chan

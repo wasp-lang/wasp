@@ -6,7 +6,9 @@ module Wasp.Generator.DbGenerator.Operations
     areAllMigrationsAppliedToDb,
     dbReset,
     dbSeed,
-    isDbRunning,
+    testDbConnection,
+    isDbConnectionEstablished,
+    containsDatabaseNotCreatedError,
   )
 where
 
@@ -22,6 +24,7 @@ import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
+import qualified Text.Regex.TDFA as TR
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
@@ -49,6 +52,12 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
+
+data DbConnectionTestResult
+  = DbConnectionSuccess
+  | DbNotCreated
+  | DbConnectionFailure
+  deriving (Eq)
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
@@ -140,24 +149,32 @@ dbSeed genProjectDir seedName = do
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
 
-isDbRunning ::
+testDbConnection ::
   Path' Abs (Dir ProjectRootDir) ->
-  IO Bool
-isDbRunning genProjectDir = do
+  IO DbConnectionTestResult
+testDbConnection genProjectDir = do
   chan <- newChan
   exitCode <- DbJobs.dbExecuteTest genProjectDir chan
 
   case exitCode of
-    ExitSuccess -> return True
+    ExitSuccess -> return DbConnectionSuccess
     ExitFailure _ -> do
-      textOutput <- collectJobTextOutputUntilExitReceived chan
+      outputLines <- collectJobTextOutputUntilExitReceived chan
+      let databaseNotCreated = any containsDatabaseNotCreatedError outputLines
 
-      -- "Database not created" error is fine since Prisma will create it for us.
-      let isErrorTolerated = any containsDatabaseNotCreatedError textOutput
-      return isErrorTolerated
-  where
-    -- Prisma error code for "Database not created" is P1003.
-    containsDatabaseNotCreatedError = T.isInfixOf "P1003"
+      return $
+        if databaseNotCreated
+          then DbNotCreated
+          else DbConnectionFailure
+
+-- Prisma error code for "Database not created" is P1003.
+containsDatabaseNotCreatedError :: T.Text -> Bool
+containsDatabaseNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
+
+isDbConnectionEstablished :: DbConnectionTestResult -> Bool
+isDbConnectionEstablished DbConnectionSuccess = True
+isDbConnectionEstablished DbNotCreated = True
+isDbConnectionEstablished _ = False
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClients projectRootDir = do
