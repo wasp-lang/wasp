@@ -36,7 +36,7 @@ import Wasp.Generator.DbGenerator.Common
     webAppPrismaClientOutputDirEnv,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
-import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
+import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
@@ -77,11 +77,17 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs onLast
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
-copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs =
-  copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
-    `catch` (\e -> return $ Left $ show (e :: P.PathException))
-    `catch` (\e -> return $ Left $ show (e :: IOError))
+copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
+  doesMigrationsDirExist <- doesDirectoryExist $ SP.fromAbsDir genProjectMigrationsDir
+
+  if doesMigrationsDirExist
+    then copyMigrationsDir
+    else return $ Right ()
   where
+    copyMigrationsDir =
+      copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
+        `catch` (\e -> return $ Left $ show (e :: P.PathException))
+        `catch` (\e -> return $ Left $ show (e :: IOError))
     waspMigrationsDir = dbMigrationsDirInWaspProjectDirAbs
     genProjectMigrationsDir = genProjectRootDirAbs </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
