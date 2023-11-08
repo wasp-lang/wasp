@@ -50,7 +50,7 @@ migrateDev projectDir migrateArgs =
           ["-Fq", "/dev/null"] ++ Shell.getShellArgValues prismaMigrateCmd
         else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
         -- NOTE(miho): Since we are passing the arguments as a single string, we need to wrap the arguments
-        --  which might contain spaces in them. We are using Shell.Quoted and Shell.Raw to know which
+        --  which might contain spaces in them. We are using Shell.Quoted to know which
         --   arguments should be wrapped in quotes and which shouldn't.
         --   Specifically, we are using `showShellArgs` to wrap file paths in quotes. Other arguments
         --   are not wrapped in quotes since we know their values and they don't contain spaces.
@@ -62,12 +62,12 @@ migrateDev projectDir migrateArgs =
     --   in some situations is too aggressive / confusing.
     prismaMigrateCmd =
       [ Shell.Quoted $ absPrismaExecutableFp projectDir,
-        Shell.Raw "migrate",
-        Shell.Raw "dev",
-        Shell.Raw "--schema",
+        "migrate",
+        "dev",
+        "--schema",
         Shell.Quoted $ SP.fromAbsFile schemaFile,
-        Shell.Raw "--skip-generate",
-        Shell.Raw "--skip-seed"
+        "--skip-generate",
+        "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
 
@@ -76,13 +76,9 @@ asPrismaCliArgs migrateArgs = do
   concat . concat $ [createOnlyArg, nameArg]
   where
     createOnlyArg =
-      [[Shell.Raw "--create-only"] | _isCreateOnlyMigration migrateArgs]
+      [["--create-only"] | _isCreateOnlyMigration migrateArgs]
     nameArg =
-      [ [ Shell.Raw "--name",
-          Shell.Raw name
-        ]
-        | Just name <- [_migrationName migrateArgs]
-      ]
+      [["--name", Shell.Raw name] | Just name <- [_migrationName migrateArgs]]
 
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
