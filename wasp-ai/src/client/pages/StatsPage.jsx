@@ -11,7 +11,7 @@ import { exampleIdeas } from "../examples";
 import logout from "@wasp/auth/logout";
 import { WaspIcon } from "../components/WaspIcon";
 import { Header } from "../components/Header";
-import { PiDownloadDuotone } from "react-icons/pi";
+import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
 import { HomeButton } from "../components/Header";
 import {
@@ -193,13 +193,16 @@ export function Stats() {
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
                         <Color value={getTailwindClassNameForProjectBrandColor(project.primaryColor)} />{" "}
-                        <span title={project.description} className="max-w-[250px] overflow-hidden overflow-ellipsis">
+                        <span className="max-w-[250px] overflow-hidden overflow-ellipsis">
                           {project.name}
                         </span>{" "}
                         <span className="flex gap-1">
                           {project.user && (
-                            <span title={project.user.email}>
-                              <WaspIcon className="w-5 h-5" />
+                            <span
+                              title={project.user.email}
+                              className="w-5 h-5 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-800 border border-yellow-200"
+                            >
+                              <PiUserDuotone className="w-3 h-3" />
                             </span>
                           )}
                           {project.zipDownloadedAt && (

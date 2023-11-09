@@ -193,13 +193,23 @@ export const getStats = (async (_args, context) => {
     orderBy: {
       createdAt: "desc",
     },
-    include: {
+    // Excluding description since we are not showing it in the table.
+    select: {
+      id: true,
+      name: true,
+      primaryColor: true,
+      authMethod: true,
+      creativityLevel: true,
+      createdAt: true,
+      status: true,
+      referrer: true,
+      zipDownloadedAt: true,
       user: {
         select: {
-          email: true,
-        },
-      },
-    },
+          email: true
+        }
+      }
+    }
   });
 
   return {

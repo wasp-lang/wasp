@@ -3,6 +3,7 @@ import { GetUserFieldsFn } from "@wasp/types";
 export const getGoogleUserFields: GetUserFieldsFn = async (_context, args) => {
   return {
     email: args.profile.emails[0].value,
+    username: args.profile.emails[0].value,
   };
 };
 
