@@ -6,7 +6,9 @@ module Wasp.Generator.DbGenerator.Operations
     areAllMigrationsAppliedToDb,
     dbReset,
     dbSeed,
-    isDbRunning,
+    testDbConnection,
+    isDbConnectionPossible,
+    prismaErrorContainsDbNotCreatedError,
   )
 where
 
@@ -17,10 +19,12 @@ import Control.Monad (when)
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
 import Data.Either (isRight)
+import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
+import qualified Text.Regex.TDFA as TR
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
@@ -38,12 +42,22 @@ import Wasp.Generator.DbGenerator.Common
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO
+  ( collectJobTextOutputUntilExitReceived,
+    printJobMsgsUntilExitReceived,
+    readJobMessagesAndPrintThemPrefixed,
+  )
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
+
+data DbConnectionTestResult
+  = DbConnectionSuccess
+  | DbNotCreated
+  | DbConnectionFailure
+  deriving (Eq)
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
@@ -143,15 +157,32 @@ dbSeed genProjectDir seedName = do
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
 
-isDbRunning ::
+testDbConnection ::
   Path' Abs (Dir ProjectRootDir) ->
-  IO Bool
-isDbRunning genProjectDir = do
+  IO DbConnectionTestResult
+testDbConnection genProjectDir = do
   chan <- newChan
   exitCode <- DbJobs.dbExecuteTest genProjectDir chan
-  -- NOTE: We only care if the command succeeds or fails, so we don't look at
-  -- the exit code or stdout/stderr for the process.
-  return $ exitCode == ExitSuccess
+
+  case exitCode of
+    ExitSuccess -> return DbConnectionSuccess
+    ExitFailure _ -> do
+      outputLines <- collectJobTextOutputUntilExitReceived chan
+      let databaseNotCreated = any prismaErrorContainsDbNotCreatedError outputLines
+
+      return $
+        if databaseNotCreated
+          then DbNotCreated
+          else DbConnectionFailure
+
+-- Prisma error code for "Database not created" is P1003.
+prismaErrorContainsDbNotCreatedError :: T.Text -> Bool
+prismaErrorContainsDbNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
+
+isDbConnectionPossible :: DbConnectionTestResult -> Bool
+isDbConnectionPossible DbConnectionSuccess = True
+isDbConnectionPossible DbNotCreated = True
+isDbConnectionPossible _ = False
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClients projectRootDir = do
