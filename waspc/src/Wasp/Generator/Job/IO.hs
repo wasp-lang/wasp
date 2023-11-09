@@ -32,13 +32,13 @@ readJobMessagesAndPrintThemPrefixed chan = runPrefixedWriter go
         J.JobExit {} -> return ()
 
 collectJobTextOutputUntilExitReceived :: Chan J.JobMessage -> IO [Text]
-collectJobTextOutputUntilExitReceived = collect []
+collectJobTextOutputUntilExitReceived = go []
   where
-    collect jobTextOutput chan = do
+    go jobTextOutput chan = do
       jobMsg <- readChan chan
       case J._data jobMsg of
         J.JobExit {} -> return jobTextOutput
-        J.JobOutput text _ -> collect (text : jobTextOutput) chan
+        J.JobOutput text _ -> go (text : jobTextOutput) chan
 
 printJobMessage :: J.JobMessage -> IO ()
 printJobMessage jobMsg = do

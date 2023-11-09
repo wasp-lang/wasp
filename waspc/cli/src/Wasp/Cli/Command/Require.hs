@@ -39,7 +39,7 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Common as Cli.Common
-import Wasp.Generator.DbGenerator.Operations (isDbConnectionEstablished, testDbConnection)
+import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
@@ -49,7 +49,7 @@ instance Requirable DbConnectionEstablished where
     -- call to 'require' will not result in an infinite loop.
     InWaspProject waspProjectDir <- require
     let outDir = waspProjectDir SP.</> Cli.Common.dotWaspDirInWaspProjectDir SP.</> Cli.Common.generatedCodeDirInDotWaspDir
-    dbIsRunning <- liftIO $ isDbConnectionEstablished <$> testDbConnection outDir
+    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 
     if dbIsRunning
       then return DbConnectionEstablished

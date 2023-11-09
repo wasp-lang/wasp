@@ -7,8 +7,8 @@ module Wasp.Generator.DbGenerator.Operations
     dbReset,
     dbSeed,
     testDbConnection,
-    isDbConnectionEstablished,
-    containsDatabaseNotCreatedError,
+    isDbConnectionPossible,
+    prismaErrorContainsDbNotCreatedError,
   )
 where
 
@@ -160,7 +160,7 @@ testDbConnection genProjectDir = do
     ExitSuccess -> return DbConnectionSuccess
     ExitFailure _ -> do
       outputLines <- collectJobTextOutputUntilExitReceived chan
-      let databaseNotCreated = any containsDatabaseNotCreatedError outputLines
+      let databaseNotCreated = any prismaErrorContainsDbNotCreatedError outputLines
 
       return $
         if databaseNotCreated
@@ -168,13 +168,13 @@ testDbConnection genProjectDir = do
           else DbConnectionFailure
 
 -- Prisma error code for "Database not created" is P1003.
-containsDatabaseNotCreatedError :: T.Text -> Bool
-containsDatabaseNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
+prismaErrorContainsDbNotCreatedError :: T.Text -> Bool
+prismaErrorContainsDbNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
 
-isDbConnectionEstablished :: DbConnectionTestResult -> Bool
-isDbConnectionEstablished DbConnectionSuccess = True
-isDbConnectionEstablished DbNotCreated = True
-isDbConnectionEstablished _ = False
+isDbConnectionPossible :: DbConnectionTestResult -> Bool
+isDbConnectionPossible DbConnectionSuccess = True
+isDbConnectionPossible DbNotCreated = True
+isDbConnectionPossible _ = False
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClients projectRootDir = do
