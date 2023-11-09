@@ -17,6 +17,11 @@ app todoApp {
 }
 ```
 
+### 🐞 Bug fixes / 🔧 small improvements
+- Changed the minimum number of machines that a server app is using when deployed to Fly.io from 0 to 1. This prevents the server app from shutting down when there are no requests to it. There might be some other work that the server is doing e.g. running periodic Jobs or sending e-mails, so we want to make sure that the server is always running.
+- Fixes a bug where copying of migrations dir failed due to a missing `migrations` dir.
+
+
 ## 0.11.7
 
 ### 🐞 Bug fixes / 🔧 small improvements

@@ -40,7 +40,7 @@ import Wasp.Generator.DbGenerator.Common
     webAppPrismaClientOutputDirEnv,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
-import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
+import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO
   ( collectJobTextOutputUntilExitReceived,
@@ -76,7 +76,7 @@ finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigratio
 finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs onLastDbConcurrenceChecksumFileRefreshAction = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
-  res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
+  res <- copyMigrationsBackToSourceIfTheyExist genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
   applyOnLastDbConcurrenceChecksumFileRefreshAction
   return res
   where
@@ -90,12 +90,20 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs onLast
         IgnoreOnLastDbConcurrenceChecksumFile -> return ()
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
-copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
-copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs =
-  copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
-    `catch` (\e -> return $ Left $ show (e :: P.PathException))
-    `catch` (\e -> return $ Left $ show (e :: IOError))
+copyMigrationsBackToSourceIfTheyExist ::
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' Abs (Dir DbMigrationsDir) ->
+  IO (Either String ())
+copyMigrationsBackToSourceIfTheyExist genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
+  doesDirectoryExist (SP.fromAbsDir genProjectMigrationsDir) >>= \case
+    False -> return $ Right ()
+    True -> copyMigrationsDir
   where
+    copyMigrationsDir =
+      copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
+        `catch` (\e -> return $ Left $ show (e :: P.PathException))
+        `catch` (\e -> return $ Left $ show (e :: IOError))
+
     waspMigrationsDir = dbMigrationsDirInWaspProjectDirAbs
     genProjectMigrationsDir = genProjectRootDirAbs </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
