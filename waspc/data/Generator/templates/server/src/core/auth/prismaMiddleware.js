@@ -1,35 +1,6 @@
 {{={= =}=}}
 import { hashPassword } from '../auth.js'
-import AuthError from '../AuthError.js'
-
-{=# isUsernameOnUserEntity  =}
-const USERNAME_FIELD = 'username'
-{=/ isUsernameOnUserEntity  =}
-const PASSWORD_FIELD = 'password'
-
-// Allows flexible validation of a user entity.
-// Users can skip default validations by passing _waspSkipDefaultValidations = true
-// Users can also add custom validations by passing an array of _waspCustomValidations
-// with the same format as our default validations.
-// Throws an AuthError on the first validation that fails.
-const registerUserEntityValidation = (prismaClient) => {
-  prismaClient.$use(async (params, next) => {
-    if (params.model === '{= userEntityUpper =}') {
-      if (['create', 'update', 'updateMany'].includes(params.action)) {
-        validateUser(params.args.data, params.args, params.action)
-      } else if (params.action === 'upsert') {
-        validateUser(params.args.create, params.args, 'create')
-        validateUser(params.args.update, params.args, 'update')
-      }
-
-      // Remove from downstream Prisma processing to avoid "Unknown arg" error
-      delete params.args._waspSkipDefaultValidations
-      delete params.args._waspCustomValidations
-    }
-
-    return next(params)
-  })
-}
+import { PASSWORD_FIELD } from '../../auth/validation.js'
 
 // Make sure password is always hashed before storing to the database.
 const registerPasswordHashing = (prismaClient) => {
@@ -56,36 +27,5 @@ const registerPasswordHashing = (prismaClient) => {
 }
 
 export const registerAuthMiddleware = (prismaClient) => {
-  // NOTE: registerUserEntityValidation must come before registerPasswordHashing.
-  registerUserEntityValidation(prismaClient)
   registerPasswordHashing(prismaClient)
-}
-
-const userValidations = []
-{=# isUsernameOnUserEntity =}
-userValidations.push({ validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username })
-{=/ isUsernameOnUserEntity =}
-{=# isPasswordOnUserEntity =}
-userValidations.push({ validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password })
-userValidations.push({ validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 })
-userValidations.push({ validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) })
-{=/ isPasswordOnUserEntity =}
-
-const validateUser = (user, args, action) => {
-  user = user || {}
-
-  const validations = [
-    ...(args._waspSkipDefaultValidations ? [] : userValidations),
-    ...(args._waspCustomValidations || [])
-  ]
-
-  // On 'create' validations run always, otherwise (on updates)
-  // they run only when the field they are validating is present.
-  for (const v of validations) {
-    if (action === 'create' || user.hasOwnProperty(v.validates)) {
-      if (!v.validator(user[v.validates])) {
-        throw new AuthError(v.message)
-      }
-    }
-  }
 }

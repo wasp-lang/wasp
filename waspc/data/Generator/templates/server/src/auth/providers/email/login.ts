@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
-import { findUserBy, createAuthToken, ensureValidEmailAndPassword } from "../../utils.js";
+import { findUserBy, createAuthToken } from "../../utils.js";
+import { ensureValidEmailAndPassword } from "../../validation.js";
 
 export function getLoginRoute({
     allowUnverifiedLogin,
@@ -11,12 +12,12 @@ export function getLoginRoute({
         req: Request<{ email: string; password: string; }>,
         res: Response,
     ): Promise<Response<{ token: string } | undefined>> {
-        const args = req.body || {}
-        ensureValidEmailAndPassword(args)
+        const userFields = req.body || {}
+        ensureValidEmailAndPassword(userFields)
 
-        args.email = args.email.toLowerCase()
+        userFields.email = userFields.email.toLowerCase()
 
-        const user = await findUserBy({ email: args.email })
+        const user = await findUserBy({ email: userFields.email })
         if (!user) {
             throwInvalidCredentialsError()
         }
@@ -24,7 +25,7 @@ export function getLoginRoute({
             throwInvalidCredentialsError()
         }
         try {
-            await verifyPassword(user.password, args.password);
+            await verifyPassword(user.password, userFields.password);
         } catch(e) {
             throwInvalidCredentialsError()
         }

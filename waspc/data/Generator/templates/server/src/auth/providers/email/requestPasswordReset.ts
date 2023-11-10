@@ -3,10 +3,10 @@ import {
     createPasswordResetLink,
     findUserBy,
     doFakeWork,
-    ensureValidEmail,
     sendPasswordResetEmail,
     isEmailResendAllowed,
 } from "../../utils.js";
+import { ensureValidEmail } from "../../validation.js";
 import type { EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';
 

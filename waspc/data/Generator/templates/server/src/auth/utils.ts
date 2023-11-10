@@ -8,10 +8,12 @@ import { type {= userEntityUpper =} } from '../entities/index.js'
 import waspServerConfig from '../config.js';
 import { type Prisma } from '@prisma/client';
 {=# isEmailAuthEnabled =}
-import { isValidEmail } from '../core/auth/validators.js'
 import { emailSender } from '../email/index.js';
 import { Email } from '../email/core/types.js';
 {=/ isEmailAuthEnabled =}
+
+import { throwValidationError } from './validation.js'
+
 {=# additionalSignupFields.isDefined =}
 {=& additionalSignupFields.importStatement =}
 {=/ additionalSignupFields.isDefined =}
@@ -168,55 +170,6 @@ export function isEmailResendAllowed(
   const diff = now.getTime() - sentAt.getTime();
   return diff > resendInterval;
 }
-
-const EMAIL_FIELD = 'email';
-const PASSWORD_FIELD = 'password';
-const TOKEN_FIELD = 'token';
-
-const emailValidators = [
-  { validates: EMAIL_FIELD, message: 'email must be present', validator: email => !!email },
-  { validates: EMAIL_FIELD, message: 'email must be a valid email', validator: email => isValidEmail(email) },
-];
-const passwordValidators = [
-  { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
-  { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
-  { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
-];
-const tokenValidators = [
-  { validates: TOKEN_FIELD, message: 'token must be present', validator: token => !!token },
-];
-
-export function ensureValidEmailAndPassword(args: unknown): void {
-  ensureValidEmail(args);
-  ensureValidPassword(args);
-}
-
-export function ensureValidTokenAndNewPassword(args: unknown): void {
-  validate(args, [
-    ...tokenValidators,
-  ]);
-  ensureValidPassword(args);
-}
-
-export function ensureValidEmail(args: unknown): void {
-  validate(args, [
-    ...emailValidators,
-  ]);
-}
-
-export function ensureValidPassword(args: unknown): void {
-  validate(args, [
-    ...passwordValidators,
-  ]);
-}
-
-function validate(args: unknown, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
-  for (const { validates, message, validator } of validators) {
-    if (!validator(args[validates])) {
-      throwValidationError(message);
-    }
-  }
-}
 {=/ isEmailAuthEnabled =}
 
 function rethrowPossiblePrismaError(e: unknown): void {
@@ -227,10 +180,6 @@ function rethrowPossiblePrismaError(e: unknown): void {
   } else {
     throw new HttpError(500)
   }
-}
-
-function throwValidationError(message: string): void {
-  throw new HttpError(422, 'Validation failed', { message })
 }
 
 export async function validateAndGetAdditionalFields(data: {

@@ -6,10 +6,10 @@ import {
     findUserBy,
     deleteUser,
     doFakeWork,
-    ensureValidEmailAndPassword,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
 } from "../../utils.js";
+import { ensureValidEmailAndPassword } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetAdditionalFields } from '../../utils.js'
 
