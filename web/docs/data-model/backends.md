@@ -232,19 +232,19 @@ Seeding a production database is a two step process:
 
 If we set ```seeding-test```  as our deployment name so:
 
-* Our DB app is seeding-test-db
-* Our server app is seeding-test-server
+* Our DB app is `seeding-test-db`
+* Our server app is `seeding-test-server`
 
-To seed the production database on Fly.io, follow these steps :
+To seed the production database on Fly.io, follow these steps:
 
 ### Getting the DB Name and Password
 
-#### Retrieve the DB Name:
+#### Retrieve the DB Name
 
 To obtain the DB name, use the following command:
 
 ```bash
-fly postgres connect -a <app_name>    # In our example it is seeding-test-db
+fly postgres connect -a <app_name> # In our example it is seeding-test-db
 ```
 
 Replace `<app_name>` with the name of your Wasp app. After connecting to the database, run:
@@ -255,12 +255,12 @@ Replace `<app_name>` with the name of your Wasp app. After connecting to the dat
 
 The DB name will be displayed in the list of databases.
 
-#### Retrieve the DB Password:
+#### Retrieve the DB Password
 
 To get the DB password, run the following command:
 
 ```bash
-fly ssh console -a <app_name>   # In our example it is seeding-test-db
+fly ssh console -a <app_name> # In our example it is seeding-test-db
 ```
 
 Once connected to the database server, execute:
@@ -315,7 +315,6 @@ fly proxy stop 5432
 You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
 :::
 
----
 
 ## Prisma Configuration
 
