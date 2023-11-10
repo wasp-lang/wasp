@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.11.8
+
+### 🎉 [New Feature] Serving the Client From a Subdirectory
+
+You can now serve the client from a subdirectory. This is useful if you want to serve the client from a subdirectory of your domain, e.g. `https://example.com/my-app/`.
+
+To do this, you need to add the `client.baseDir` property to your `.wasp` file:
+
+```wasp
+app todoApp {
+  // ...
+  client: {
+    baseDir: "/my-app",
+  },
+}
+```
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Changed the minimum number of machines that a server app is using when deployed to Fly.io from 0 to 1. This prevents the server app from shutting down when there are no requests to it. There might be some other work that the server is doing e.g. running periodic Jobs or sending e-mails, so we want to make sure that the server is always running.
+- Fixes a bug where copying of migrations dir failed due to a missing `migrations` dir.
+- Fixes a regression where a missing DB on the DB server would prevent project from running. Now, Wasp will tolerate the missing DB error and rely on Prisma to create the DB for you (like before).
+
+
+## 0.11.7
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug with Prisma which prevent connections via SSL with our versions of Alpine and OpenSSL. We upgraded to the latest Prisma 4.X.X which fixes this issue.
+
+
 ## 0.11.6
 
 ### 🎉 [New Feature] Enable Customising the Vite Config

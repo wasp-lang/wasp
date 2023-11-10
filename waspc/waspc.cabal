@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.11.6
+version:        0.11.7
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -65,7 +65,6 @@ data-files:
   packages/studio/dist/**/*.js
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.css
-  packages/studio/dist/**/*.png
   packages/studio/package.json
   packages/studio/package-lock.json
 data-dir: data/

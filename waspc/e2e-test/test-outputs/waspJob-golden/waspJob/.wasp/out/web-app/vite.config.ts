@@ -6,6 +6,7 @@ import customViteConfig from './src/ext-src/vite.config'
 const _waspUserProvidedConfig = customViteConfig
 
 const defaultViteConfig = {
+  base: "/",
   plugins: [react()],
   server: {
     port: 3000,
