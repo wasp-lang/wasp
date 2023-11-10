@@ -227,8 +227,8 @@ Check the [API Reference](#cli-commands-for-seeding-the-database) for more detai
 Let's say we deployed an app on Fly.
 
 Seeding a production database is a two step process:
-1️⃣ pointing our local app to use the production DB (just to seed it)
-2️⃣ opening a tunnel towards the production DB so the local app can connect to it.
+* 1️⃣ pointing our local app to use the production DB (just to seed it)
+* 2️⃣ opening a tunnel towards the production DB so the local app can connect to it.
 
 If we set ```seeding-test```  as our deployment name so:
 
@@ -269,6 +269,8 @@ Once connected to the database server, execute:
 echo $OPERATOR_PASSWORD
 ```
 
+The value outputted is our database password.
+
 ### Setting the Database URL in  `.env.server`
 
 The database URL should be set in the `.env.server` file, specific to the production environment. Format the URL as follows:
@@ -287,9 +289,11 @@ To open a tunnel to the production DB, run:
 fly proxy 5432 -a <app_name>
 ```
 
-Replace `<app_name>` with your Wasp app's name. This command creates a tunnel on port 5432 that forwards traffic to the production DB.
+Replace `<app_name>` with your Wasp DB app's name, which is `seeding-test-db` in our example. This command creates a tunnel on port 5432 that forwards traffic to the production DB.
 
 ### Running the Wasp DB Seed Command
+
+Open a new terminal.
 
 To seed the production database, execute:
 
