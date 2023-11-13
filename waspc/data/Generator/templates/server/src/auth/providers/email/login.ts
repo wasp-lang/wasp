@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
 import { findUserBy, createAuthToken } from "../../utils.js";
-import { ensureValidEmailLoginArgs } from "../../validation.js";
+import { ensureValidEmail, ensurePasswordIsPresent } from "../../validation.js";
 
 export function getLoginRoute({
     allowUnverifiedLogin,
@@ -13,7 +13,7 @@ export function getLoginRoute({
         res: Response,
     ): Promise<Response<{ token: string } | undefined>> {
         const userFields = req.body || {}
-        ensureValidEmailLoginArgs(userFields)
+        ensureValidArgs(userFields)
 
         userFields.email = userFields.email.toLowerCase()
 
@@ -34,4 +34,9 @@ export function getLoginRoute({
       
         return res.json({ token })
     };
+}
+
+function ensureValidArgs(args: unknown): void {
+    ensureValidEmail(args);
+    ensurePasswordIsPresent(args);
 }

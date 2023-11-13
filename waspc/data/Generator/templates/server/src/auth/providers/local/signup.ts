@@ -1,12 +1,12 @@
 {{={= =}=}}
 import { handleRejection } from '../../../utils.js'
 import { createUser } from '../../utils.js'
-import { ensureValidUsernameSignupArgs } from '../../validation.js'
+import { ensureValidUsername, ensurePasswordIsPresent, ensureValidPassword } from '../../validation.js'
 import { validateAndGetAdditionalFields } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
   const userFields = req.body || {}
-  ensureValidUsernameSignupArgs(userFields)
+  ensureValidArgs(userFields)
 
   const additionalFields = await validateAndGetAdditionalFields(userFields)
 
@@ -18,3 +18,9 @@ export default handleRejection(async (req, res) => {
 
   return res.json({ success: true })
 })
+
+function ensureValidArgs(args: unknown): void {
+  ensureValidUsername(args);
+  ensurePasswordIsPresent(args);
+  ensureValidPassword(args);
+}

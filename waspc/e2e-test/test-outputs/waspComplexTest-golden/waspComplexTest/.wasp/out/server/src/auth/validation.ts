@@ -5,41 +5,11 @@ const USERNAME_FIELD = 'username';
 const EMAIL_FIELD = 'email';
 const TOKEN_FIELD = 'token';
 
-export function ensureValidEmailSignupArgs(args: unknown): void {
-  ensureValidEmail(args);
-  ensurePasswordIsPresent(args);
-  ensureValidPassword(args);
-}
-
-export function ensureValidEmailLoginArgs(args: unknown): void {
-  ensureValidEmail(args);
-  ensurePasswordIsPresent(args);
-}
-
 export function ensureValidEmail(args: unknown): void {
   validate(args, [
     { validates: EMAIL_FIELD, message: 'email must be present', validator: email => !!email },
     { validates: EMAIL_FIELD, message: 'email must be a valid email', validator: email => isValidEmail(email) },
   ]);
-}
-
-export function ensureValidUsernameSignupArgs(args: unknown): void {
-  ensureValidUsername(args);
-  ensurePasswordIsPresent(args);
-  ensureValidPassword(args);
-}
-
-export function ensureValidUsernameLoginArgs(args: unknown): void {
-  ensureValidUsername(args);
-  ensurePasswordIsPresent(args);
-}
-
-export function ensureValidTokenAndNewPassword(args: unknown): void {
-  validate(args, [
-    { validates: TOKEN_FIELD, message: 'token must be present', validator: token => !!token },
-  ]);
-  ensurePasswordIsPresent(args);
-  ensureValidPassword(args);
 }
 
 export function ensureValidUsername(args: unknown): void {
@@ -48,7 +18,7 @@ export function ensureValidUsername(args: unknown): void {
   ]);
 }
 
-function ensurePasswordIsPresent(args: unknown): void {
+export function ensurePasswordIsPresent(args: unknown): void {
   validate(args, [
     { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
   ]);
@@ -58,6 +28,12 @@ export function ensureValidPassword(args: unknown): void {
   validate(args, [
     { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => isMinLength(password, 8) },
     { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => containsNumber(password) },
+  ]);
+}
+
+export function ensureTokenIsPresent(args: unknown): void {
+  validate(args, [
+    { validates: TOKEN_FIELD, message: 'token must be present', validator: token => !!token },
   ]);
 }
 

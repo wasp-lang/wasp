@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { findUserBy, verifyToken } from "../../utils.js";
 import { updateUserPassword } from "./utils.js";
-import { ensureValidTokenAndNewPassword } from "../../validation.js";
+import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
 
 export async function resetPassword(
@@ -9,7 +9,7 @@ export async function resetPassword(
     res: Response,
 ): Promise<Response<{ success: true } | { success: false; message: string }>> {
     const args = req.body || {};
-    ensureValidTokenAndNewPassword(args);
+    ensureValidArgs(args);
 
     const { token, password } = args;
     try {
@@ -27,3 +27,9 @@ export async function resetPassword(
     }
     res.json({ success: true });
 };
+
+function ensureValidArgs(args: unknown): void {
+    ensureTokenIsPresent(args);
+    ensurePasswordIsPresent(args);
+    ensureValidPassword(args);
+}
