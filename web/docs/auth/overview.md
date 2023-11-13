@@ -407,7 +407,7 @@ export const updatePassword: UpdatePassword<
 
 ### Default validations
 
-Wasp includes several basic validation mechanisms. If you need something extra, the [next section](#customizing-validations) shows how to customize them.
+Wasp includes several basic validation mechanisms for the auth fields.
 
 Default validations depend on the auth method you use.
 
@@ -429,65 +429,6 @@ If you use [Email](/docs/auth/email) authentication, the default validations are
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
-### Customizing validations
-
-:::note
-You can only disable the default validation for **Username & password** authentication, but you can add custom validations can to both **Username & password** and **Email** auth methods.
-
-This is a bug in Wasp that is being tracked [here](https://github.com/wasp-lang/wasp/issues/1358)
-:::
-
-To disable/enable default validations, or add your own, modify your custom signup function:
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js
-const newUser = context.entities.User.create({
-  data: {
-    username: args.username,
-    password: args.password, // password hashed automatically by Wasp! 🐝
-  },
-  _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
-  _waspCustomValidations: [
-    {
-      validates: 'password',
-      message: 'password must contain an uppercase letter',
-      validator: (password) => /[A-Z]/.test(password),
-    },
-  ],
-})
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-const newUser = context.entities.User.create({
-  data: {
-    username: args.username,
-    password: args.password, // password hashed automatically by Wasp! 🐝
-  },
-  _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
-  _waspCustomValidations: [
-    {
-      validates: 'password',
-      message: 'password must contain an uppercase letter',
-      validator: (password) => /[A-Z]/.test(password),
-    },
-  ],
-})
-```
-
-</TabItem>
-</Tabs>
-
-:::info
-Validations always run on `create()`.
-For `update()`, they only run when the field mentioned in `validates` is present.
-
-The validation process stops on the first `validator` to return false. If enabled, default validations run first and then custom validations.
-:::
 
 ### Validation Error Handling
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0
+
+### ⚠️ Breaking changes
+
+- Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity. This is a part of auth refactoring that we are doing to make it easier to customize auth. We will be adding more customization options in the future.
+
 ## 0.11.8
 
 ### 🎉 [New Feature] Serving the Client From a Subdirectory
