@@ -7,7 +7,6 @@ import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =} } from '../../../entities/index.js'
 
-
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
 export async function updateUserEmailVerification(userId: {= userEntityUpper =}Id): Promise<void> {
