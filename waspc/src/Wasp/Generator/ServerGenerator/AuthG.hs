@@ -40,7 +40,6 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthMiddleware spec auth,
-        genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
