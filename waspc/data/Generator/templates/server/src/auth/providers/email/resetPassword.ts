@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { findUserBy, updateUserPassword, verifyToken } from "../../utils.js";
+import { findUserBy, verifyToken } from "../../utils.js";
+import { updateUserPassword } from "./utils.js";
 import { ensureValidTokenAndNewPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
 

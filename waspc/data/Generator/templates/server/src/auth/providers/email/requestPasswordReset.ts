@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import {
-    createPasswordResetLink,
     findUserBy,
     doFakeWork,
+} from "../../utils.js";
+import {
+    createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
-} from "../../utils.js";
+} from "./utils.js";
 import { ensureValidEmail } from "../../validation.js";
 import type { EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';

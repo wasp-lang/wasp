@@ -1,14 +1,16 @@
 import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
-    createEmailVerificationLink,
     createUser,
     findUserBy,
     deleteUser,
     doFakeWork,
+} from "../../utils.js";
+import {
+    createEmailVerificationLink,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
-} from "../../utils.js";
+} from "./utils.js";
 import { ensureValidEmailAndPassword } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetAdditionalFields } from '../../utils.js'

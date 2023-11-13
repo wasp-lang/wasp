@@ -30,16 +30,18 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
+import qualified Wasp.Util as Util
 
 genEmailAuth :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth spec auth = case emailAuth of
   Just emailAuthConfig ->
     sequence
       [ genEmailAuthConfig spec emailAuthConfig,
-        genTypes emailAuthConfig
+        genTypes emailAuthConfig,
+        genUtils auth
       ]
       <++> genRoutes
-  _ -> return []
+  Nothing -> return []
   where
     emailAuth = AS.Auth.email $ AS.Auth.methods auth
 
@@ -102,3 +104,14 @@ genTypes _emailAuthConfig = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/email/types.ts|]
     tmplData = object []
+
+genUtils :: AS.Auth.Auth -> Generator FileDraft
+genUtils auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
+  where
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/email/utils.ts|]
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
+        ]

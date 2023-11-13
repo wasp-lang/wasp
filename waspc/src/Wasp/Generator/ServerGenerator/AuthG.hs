@@ -129,7 +129,6 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
           "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields
         ]
 
