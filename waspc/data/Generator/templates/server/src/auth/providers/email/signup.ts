@@ -11,7 +11,7 @@ import {
     sendEmailVerificationEmail,
     isEmailResendAllowed,
 } from "./utils.js";
-import { ensureValidEmailAndPassword } from "../../validation.js";
+import { ensureValidEmailSignupArgs } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetAdditionalFields } from '../../utils.js'
 
@@ -29,7 +29,7 @@ export function getSignupRoute({
         res: Response,
     ): Promise<Response<{ success: true } | { success: false; message: string }>> {
         const userFields = req.body;
-        ensureValidEmailAndPassword(userFields);
+        ensureValidEmailSignupArgs(userFields);
         
         userFields.email = userFields.email.toLowerCase();
 

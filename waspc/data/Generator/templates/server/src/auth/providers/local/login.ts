@@ -3,11 +3,11 @@ import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth
 import { handleRejection } from '../../../utils.js'
 
 import { findUserBy, createAuthToken } from '../../utils.js'
-import { ensureValidUsernameAndPassword } from '../../validation.js'
+import { ensureValidUsernameLoginArgs } from '../../validation.js'
 
 export default handleRejection(async (req, res) => {
   const userFields = req.body || {}
-  ensureValidUsernameAndPassword(userFields)
+  ensureValidUsernameLoginArgs(userFields)
 
   const user = await findUserBy({ username: userFields.username })
   if (!user) {
