@@ -502,6 +502,9 @@ export const signup = async (args, { entities: { User } }) => {
     }
   }
 
+  // Your custom code after sign-up.
+  // ...
+
   return {
     success: true,
     message: 'User created successfully',
@@ -558,6 +561,9 @@ export const signup: CustomSignup<
       message: e.message,
     }
   }
+
+  // Your custom code after sign-up.
+  // ...
 
   return {
     success: true,
