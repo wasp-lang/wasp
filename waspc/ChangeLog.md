@@ -21,7 +21,7 @@ app todoApp {
 - Changed the minimum number of machines that a server app is using when deployed to Fly.io from 0 to 1. This prevents the server app from shutting down when there are no requests to it. There might be some other work that the server is doing e.g. running periodic Jobs or sending e-mails, so we want to make sure that the server is always running.
 - Fixes a bug where copying of migrations dir failed due to a missing `migrations` dir.
 - Fixes a regression where a missing DB on the DB server would prevent project from running. Now, Wasp will tolerate the missing DB error and rely on Prisma to create the DB for you (like before).
-
+- Fixes an issue on Linux where running Prisma migration command fails when a project has a path that has spaces in it.
 
 ## 0.11.7
 
