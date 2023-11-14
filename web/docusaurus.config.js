@@ -51,6 +51,8 @@ module.exports = {
       logo: {
         alt: "Wasp logo",
         src: "img/wasp-logo-eqpar-circle.png",
+        href: "https://wasp-lang.dev/",
+        target: "_self"
       },
       items: [
         {
