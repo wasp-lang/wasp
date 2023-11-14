@@ -492,7 +492,7 @@ export const signup = async (args, { entities: { User } }) => {
     await User.create({
       data: {
         username: args.username,
-        password: args.password,
+        password: args.password, // Password is hashed automatically by Wasp
       },
     })
   } catch (e) {
@@ -549,7 +549,7 @@ export const signup: CustomSignup<
     await User.create({
       data: {
         username: args.username,
-        password: args.password,
+        password: args.password, // Password is hashed automatically by Wasp
       },
     })
   } catch (e: any) {
