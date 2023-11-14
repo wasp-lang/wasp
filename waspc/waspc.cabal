@@ -345,7 +345,6 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.HashMap
     Wasp.Util.WebRouterPath
-    Wasp.Util.ShellCommand
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
