@@ -574,7 +574,7 @@ export const signup: CustomSignup<
 </TabItem>
 </Tabs>
 
-We suggest using the built-in args validators for your authentication flow. You can import them from `@wasp/auth/validation.js`.
+We suggest using the built-in field validators for your authentication flow. You can import them from `@wasp/auth/validation.js`. These are the same validators that Wasp uses internally for the default authentication flow.
 
 #### Username
 

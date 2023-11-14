@@ -407,7 +407,9 @@ export const updatePassword: UpdatePassword<
 
 ### Default validations
 
-Wasp includes several basic validation mechanisms for the auth fields.
+When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](/docs/auth/ui) or if you use the provided auth actions.
+
+If you decide to create your [custom auth actions](/docs/auth/username-and-pass#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
 
 Default validations depend on the auth method you use.
 
