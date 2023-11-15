@@ -28,7 +28,6 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.AppSpec.Entity (isFieldUnique)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
@@ -155,35 +154,7 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
       then []
       else validationErrors
     where
-      validationErrors = concat [usernameValidationErrors, passwordValidationErrors]
-      usernameValidationErrors
-        | not $ null usernameTypeValidationErrors = usernameTypeValidationErrors
-        | otherwise = usernameAttributeValidationErrors
-      passwordValidationErrors =
-        validateEntityHasField
-          userEntityName
-          authUserEntityPath
-          userEntityFields
-          ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
-      usernameTypeValidationErrors =
-        validateEntityHasField
-          userEntityName
-          authUserEntityPath
-          userEntityFields
-          ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
-      usernameAttributeValidationErrors
-        | isFieldUnique "username" userEntity == Just True = []
-        | otherwise =
-            [ GenericValidationError $
-                "The field 'username' on entity '"
-                  ++ userEntityName
-                  ++ "' (referenced by "
-                  ++ authUserEntityPath
-                  ++ ") must be marked with the '@unique' attribute."
-            ]
-      userEntityFields = Entity.getFields userEntity
-      authUserEntityPath = "app.auth.userEntity"
-      (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+      validationErrors = []
 
 validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of

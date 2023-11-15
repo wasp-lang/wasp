@@ -1,0 +1,27 @@
+app authModelExperiment {
+  wasp: {
+    version: "^0.11.8"
+  },
+  title: "auth-model-experiment",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {}
+    },
+    onAuthFailedRedirectTo: "/"
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
+
+entity User {=psl
+  id String @id @default(uuid())
+psl=}
+
+route SignupRoute { path: "/signup", to: Signup }
+page Signup {
+  component: import { Signup } from "@client/auth.jsx"
+}
