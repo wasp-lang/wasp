@@ -81,7 +81,9 @@ Next, create a new file `src/server/queries.ts` and define the TypeScript functi
 
 ```js title="src/server/queries.js"
 export const getTasks = async (args, context) => {
-  return context.entities.Task.findMany({})
+  return context.entities.Task.findMany({
+    orderBy: { id: 'asc' },
+  })
 }
 ```
 
@@ -93,7 +95,9 @@ import { Task } from '@wasp/entities'
 import { GetTasks } from '@wasp/queries/types'
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
-  return context.entities.Task.findMany({})
+  return context.entities.Task.findMany({
+    orderBy: { id: 'asc' },
+  })
 }
 ```
 

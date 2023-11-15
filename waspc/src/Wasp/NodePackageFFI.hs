@@ -24,6 +24,7 @@ import Wasp.Node.Version (getAndCheckNodeVersion)
 data Package
   = DeployPackage
   | TsInspectPackage
+  | WaspStudioPackage
 
 data PackagesDir
 
@@ -37,6 +38,7 @@ packagesDirInDataDir = [reldir|packages|]
 packageDirInPackagesDir :: Package -> Path' (Rel PackagesDir) (Dir PackageDir)
 packageDirInPackagesDir DeployPackage = [reldir|deploy|]
 packageDirInPackagesDir TsInspectPackage = [reldir|ts-inspect|]
+packageDirInPackagesDir WaspStudioPackage = [reldir|studio|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]

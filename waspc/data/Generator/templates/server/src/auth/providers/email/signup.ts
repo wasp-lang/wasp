@@ -1,16 +1,19 @@
 import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
-    createEmailVerificationLink,
     createUser,
     findUserBy,
     deleteUser,
     doFakeWork,
-    ensureValidEmailAndPassword,
+} from "../../utils.js";
+import {
+    createEmailVerificationLink,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
-} from "../../utils.js";
+} from "./utils.js";
+import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
+import { validateAndGetAdditionalFields } from '../../utils.js'
 
 export function getSignupRoute({
     fromField,
@@ -26,7 +29,7 @@ export function getSignupRoute({
         res: Response,
     ): Promise<Response<{ success: true } | { success: false; message: string }>> {
         const userFields = req.body;
-        ensureValidEmailAndPassword(userFields);
+        ensureValidArgs(userFields);
         
         userFields.email = userFields.email.toLowerCase();
 
@@ -41,8 +44,11 @@ export function getSignupRoute({
             }
             await deleteUser(existingUser);
         }
+
+        const additionalFields = await validateAndGetAdditionalFields(userFields);
     
         const user = await createUser({
+            ...additionalFields,
             email: userFields.email,
             password: userFields.password,
         });
@@ -65,3 +71,10 @@ export function getSignupRoute({
         return res.json({ success: true });
     };
 }
+
+function ensureValidArgs(args: unknown): void {
+    ensureValidEmail(args);
+    ensurePasswordIsPresent(args);
+    ensureValidPassword(args);
+}
+  

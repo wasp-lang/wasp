@@ -7,6 +7,7 @@ import getDate from '@wasp/queries/getDate'
 import Todo, { areThereAnyTasks } from './Todo'
 import { App } from './App'
 import { getMe } from '@wasp/auth/useAuth'
+import type { User } from '@wasp/auth/types'
 
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
@@ -38,8 +39,9 @@ const mockUser = {
   email: 'elon@tesla.com',
   isEmailVerified: false,
   emailVerificationSentAt: null,
-  passwordResetSentAt: null
-}
+  passwordResetSentAt: null,
+  address: null,
+} satisfies User
 
 test('handles multiple mock data sources', async () => {
   mockQuery(getMe, mockUser)

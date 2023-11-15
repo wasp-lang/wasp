@@ -27,6 +27,7 @@ import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
+import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
@@ -56,6 +57,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
+        ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
@@ -84,6 +86,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
+    Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
@@ -141,8 +144,9 @@ printUsage =
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
-        cmd   "    info                  Prints basic information about current Wasp project.",
+        cmd   "    info                  Prints basic information about the current Wasp project.",
         cmd   "    test                  Executes tests in your project.",
+        cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
               "",
         title "EXAMPLES",
               "  wasp new MyApp",

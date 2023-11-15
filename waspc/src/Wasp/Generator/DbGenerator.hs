@@ -42,6 +42,7 @@ import Wasp.Generator.Monad
   )
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
+import qualified Wasp.Psl.Generator.Extensions as Psl.Generator.Extensions
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
@@ -59,7 +60,7 @@ genPrismaSchema spec = do
     AS.Db.PostgreSQL -> return ("postgresql", makeEnvVarField databaseUrlEnvVarName)
     AS.Db.SQLite ->
       if AS.isBuild spec
-        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features#migrating-from-sqlite-to-postgresql ."
+        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
         else return ("sqlite", "\"file:./dev.db\"")
 
   let templateData =
@@ -68,7 +69,8 @@ genPrismaSchema spec = do
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaClientOutputDir" .= makeEnvVarField Wasp.Generator.DbGenerator.Common.prismaClientOutputDirEnvVar,
-            "prismaPreviewFeatures" .= prismaPreviewFeatures
+            "prismaPreviewFeatures" .= prismaPreviewFeatures,
+            "dbExtensions" .= dbExtensions
           ]
 
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
@@ -77,6 +79,7 @@ genPrismaSchema spec = do
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
+    dbExtensions = Psl.Generator.Extensions.showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =

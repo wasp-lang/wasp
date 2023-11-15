@@ -12,7 +12,13 @@ app crudTesting {
       usernameAndPassword: {},
     },
     onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth.js",
+    },
   },
+  dependencies: [
+    ("zod", "^3.22.2")
+  ],
   db: {
     system: PostgreSQL
   }
@@ -31,7 +37,7 @@ page LoginPage {
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.tsx",
+  component: import { SignupPage } from "@client/CustomSignupPage.tsx",
 }
 
 route DetailRoute { path: "/:id/:something?", to: DetailPage }
@@ -44,6 +50,7 @@ entity User {=psl
   id Int @id @default(autoincrement())
   username String @unique
   password String
+  address String?
   tasks Task[]
 psl=}
 
@@ -80,4 +87,9 @@ job simplePrintJob {
     fn: import { simplePrint } from "@server/jobs.js",
   },
   entities: [Task]
+}
+
+action customSignup {
+  fn: import { signup } from "@server/auth.js",
+  entities: [User]
 }

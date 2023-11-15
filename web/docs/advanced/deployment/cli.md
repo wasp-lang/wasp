@@ -47,7 +47,11 @@ wasp deploy fly create-db mia
 wasp deploy fly deploy
 ```
 
-The commands above use the app basename `my-wasp-app` and deploy it to the _Miami, Florida (US) region_ (called `mia`).
+The commands above use the app basename `my-wasp-app` and deploy it to the _Miami, Florida (US) region_ (called `mia`). Read more about Fly.io regions [here](#flyio-regions).
+
+:::caution Unique Name
+Your app name must be unique across all of Fly or deployment will fail.
+:::
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -55,11 +59,11 @@ The basename is used to create all three app tiers, resulting in three separate 
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
-:::caution Unique Name
-Your app name must be unique across all of Fly or deployment will fail.
-:::
+You'll notice that Wasp creates two new files in your project root directory:
+- `fly-server.toml`
+- `fly-client.toml`
 
-Read more about Fly.io regions [here](#flyio-regions).
+You should include these files in your version control so that you can deploy your app with a single command in the future.
 
 ### Using a Custom Domain For Your App
 
@@ -158,6 +162,8 @@ It accepts the following arguments:
 
 After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
 You should include these files in your version control.
+
+You **can edit the `fly-server.toml` and `fly-client.toml` files** to further configure your Fly deployments. Wasp will use the TOML files when you run `deploy`.
 
 If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 

@@ -49,7 +49,7 @@ data DbRootDir
 instance AppComponentRootDir DbRootDir
 
 prismaVersion :: SV.Version
-prismaVersion = SV.Version 4 12 0
+prismaVersion = SV.Version 4 16 2
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =

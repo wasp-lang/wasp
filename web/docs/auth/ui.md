@@ -218,6 +218,8 @@ export function SignupPage() {
 
 It will automatically show the correct authentication providers based on your `main.wasp` file.
 
+Read more about customizing the signup process like adding additional fields or extra UI in the [Using Auth](/docs/auth/overview#customizing-the-signup-process) section.
+
 ### Forgot Password Form
 
 Used with <EmailPill /> authentication.

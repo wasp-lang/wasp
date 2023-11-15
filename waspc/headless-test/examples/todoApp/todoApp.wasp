@@ -9,6 +9,7 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
+    externalAuthEntity: SocialLogin,
     methods: {
       email: {
         fromField: {
@@ -25,6 +26,7 @@ app todoApp {
         },
         allowUnverifiedLogin: true,
       },
+      google: {}
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"

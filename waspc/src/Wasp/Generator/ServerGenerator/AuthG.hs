@@ -10,6 +10,7 @@ import StrongPath
     Path',
     Rel,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -29,6 +30,7 @@ import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -38,13 +40,14 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthMiddleware spec auth,
-        genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
         genProvidersIndex auth,
-        genFileCopy [relfile|auth/providers/types.ts|]
+        genFileCopy [relfile|auth/providers/types.ts|],
+        genFileCopy [relfile|auth/validation.ts|]
       ]
+      <++> genIndexTs auth
       <++> genLocalAuth auth
       <++> genOAuthAuth spec auth
       <++> genEmailAuth spec auth
@@ -125,11 +128,28 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+          "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
+
+    additionalSignupFields = AS.Auth.signup auth >>= AS.Auth.additionalFields
+
+genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
+genIndexTs auth =
+  return $
+    if isEmailAuthEnabled || isLocalAuthEnabled
+      then [C.mkTmplFdWithData [relfile|src/auth/index.ts|] (Just tmplData)]
+      else []
+  where
+    tmplData =
+      object
+        [ "isEmailAuthEnabled" .= isEmailAuthEnabled,
+          "isLocalAuthEnabled" .= isLocalAuthEnabled
+        ]
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
+    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

@@ -390,7 +390,11 @@ genExportedTypesDir spec =
     [ C.mkTmplFdWithData [relfile|src/types/index.ts|] (Just tmplData)
     ]
   where
-    tmplData = object ["isExternalAuthEnabled" .= isExternalAuthEnabled, "isEmailAuthEnabled" .= isEmailAuthEnabled]
+    tmplData =
+      object
+        [ "isExternalAuthEnabled" .= isExternalAuthEnabled,
+          "isEmailAuthEnabled" .= isEmailAuthEnabled
+        ]
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec

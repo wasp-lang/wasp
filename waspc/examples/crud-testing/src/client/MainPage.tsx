@@ -2,6 +2,7 @@ import "./Main.css";
 
 import React, { useState } from "react";
 import { Link, routes } from "@wasp/router";
+import logout from "@wasp/auth/logout";
 
 import { tasks as tasksCrud } from "@wasp/crud/tasks";
 import { User } from "@wasp/entities";
@@ -45,7 +46,7 @@ const MainPage = ({ user }: { user: User }) => {
     setEditTaskTitle("");
   }
 
-  function handleStartEditing(task: Task) {
+  function handleStartEditing(task: { id: number; title: string }) {
     setIsEditing(task.id);
     setEditTaskTitle(task.title);
   }
@@ -122,6 +123,7 @@ const MainPage = ({ user }: { user: User }) => {
             Create task
           </button>
         </form>
+        <button onClick={logout}>Logout</button>
       </main>
     </div>
   );

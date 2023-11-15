@@ -1,6 +1,161 @@
 # Changelog
 
+## 0.12.0
+
+### ⚠️ Breaking changes
+
+- Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity. This is a part of auth refactoring that we are doing to make it easier to customize auth. We will be adding more customization options in the future.
+
+## 0.11.8
+
+### 🎉 [New Feature] Serving the Client From a Subdirectory
+
+You can now serve the client from a subdirectory. This is useful if you want to serve the client from a subdirectory of your domain, e.g. `https://example.com/my-app/`.
+
+To do this, you need to add the `client.baseDir` property to your `.wasp` file:
+
+```wasp
+app todoApp {
+  // ...
+  client: {
+    baseDir: "/my-app",
+  },
+}
+```
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Changed the minimum number of machines that a server app is using when deployed to Fly.io from 0 to 1. This prevents the server app from shutting down when there are no requests to it. There might be some other work that the server is doing e.g. running periodic Jobs or sending e-mails, so we want to make sure that the server is always running.
+- Fixes a bug where copying of migrations dir failed due to a missing `migrations` dir.
+- Fixes a regression where a missing DB on the DB server would prevent project from running. Now, Wasp will tolerate the missing DB error and rely on Prisma to create the DB for you (like before).
+- Fixes an issue on Linux where running Prisma migration command fails when a project has a path that has spaces in it.
+
+## 0.11.7
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug with Prisma which prevent connections via SSL with our versions of Alpine and OpenSSL. We upgraded to the latest Prisma 4.X.X which fixes this issue.
+
+
+## 0.11.6
+
+### 🎉 [New Feature] Enable Customising the Vite Config
+
+You can now customise the Vite config for your client app. This allows you to add plugins, change the dev server settings and more.
+
+By adding a `vite.config.ts` or `vite.config.js` to your `client` directory, you can customise the Vite config. For example, you change the dev server behaviour
+not to open the browser automatically:
+
+```ts
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  server: {
+    open: false,
+  },
+})
+```
+
+⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+
+### 🚧 [Experimental Feature] Wasp Studio
+
+Running `wasp studio` in the root of your project starts Wasp Studio which visualises your application and shows you the relationships between pieces of your app. It is an experimental feature which is not yet fully ready, but we are working on it and will be adding more features to it in the future.
+
+## 0.11.5
+
+### 🐞 Bug fixes / 🔧 small improvements
+- Fixed a bug in Auth UI imports that prevented users from using the social login buttons.
+
 ## 0.11.4
+
+### 🎉 [New Feature] Signup Fields Customization
+
+We added an API for extending the default signup form with custom fields. This allows you to add fields like `age`, `address`, etc. to your signup form.
+
+You first need to define the `auth.signup.additionalFields` property in your `.wasp` file:
+```wasp
+app crudTesting {
+  // ...
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { fields } from "@server/auth.js",
+    },
+  },
+}
+```
+
+Then, you need to define the `fields` object in your `auth.js` file:
+```js
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+export const fields = defineAdditionalSignupFields({
+  address: (data) => {
+    // Validate the address field
+    if (typeof data.address !== 'string') {
+      throw new Error('Address is required.')
+    }
+    if (data.address.length < 10) {
+      throw new Error('Address must be at least 10 characters long.')
+    }
+    // Return the address field
+    return data.address
+  },
+})
+```
+
+Finally, you can extend the `SignupForm` component on the client:
+```jsx
+import { SignupForm } from "@wasp/auth/forms/Signup";
+
+export const SignupPage = () => {
+  return (
+    <div className="container">
+      <main>
+        <h1>Signup</h1>
+        <SignupForm
+          additionalFields={[
+            {
+              name: "address",
+              label: "Address",
+              type: "input",
+              validations: {
+                required: "Address is required",
+              },
+            },
+          ]}
+        />
+      </main>
+    </div>
+  );
+};
+```
+### 🎉 [New Feature] Support for PostgreSQL Extensions
+
+Wasp now supports PostgreSQL extensions! You can enable them in your `main.wasp` file:
+
+```wasp
+app todoApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"],
+      dbExtensions: [{
+        name: "pgvector",
+        // map: "vector", (optional)
+        // schema: "public", (optional)
+        // version: "0.1.0", (optiona)
+      }]
+    }
+  }
+}
+```
+
+This will add the necessary Prisma configuration to your `schema.prisma` file. Keep in mind that your database needs to support the extension you want to use. For example, if you want to use the `pgvector` extension, you need to install it in your database first.
 
 ### 🎉 [New Feature] Added Typescript support for Jobs
 

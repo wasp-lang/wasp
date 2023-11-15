@@ -2,6 +2,8 @@
 title: Databases
 ---
 
+import { Required } from '@site/src/components/Required'
+
 [Entities](/docs/data-model/entities.md), [Operations](/docs/data-model/operations/overview) and [Automatic CRUD](/docs/data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
 ## Supported Database Backends
@@ -30,12 +32,25 @@ We cover all supported ways of connecting to a database in [the next section](#c
 
 To run your Wasp app in production, you'll need to switch from SQLite to PostgreSQL.
 
-1. Set the `app.db.system` fild to PostgreSQL.
-2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL:
+1. Set the `app.db.system` field to PostgreSQL.
+   
+```wasp title=main.wasp
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    system: PostgreSQL,
+    // ...
+  }
+}
+```
 
-   ```bash
-   rm -r migrations/
-   ```
+2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](https://wasp-lang.dev/docs/general/cli#project-commands):
+
+```bash
+rm -r migrations/
+wasp clean
+```
 
 3. Ensure your new database is running (check the [section on connecing to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
@@ -140,23 +155,23 @@ Here's an example of a seed function that imports an Action:
 <TabItem value="js" label="JavaScript">
 
 ```js
-import { createTask } from './actions.js'
+import { createTask } from "./actions.js";
 
 export const devSeedSimple = async (prismaClient) => {
   const user = await createUser(prismaClient, {
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+    username: "RiuTheDog",
+    password: "bark1234",
+  });
 
   await createTask(
-    { description: 'Chase the cat' },
+    { description: "Chase the cat" },
     { user, entities: { Task: prismaClient.task } }
-  )
-}
+  );
+};
 
 async function createUser(prismaClient, data) {
-  const { password, ...newUser } = await prismaClient.user.create({ data })
-  return newUser
+  const { password, ...newUser } = await prismaClient.user.create({ data });
+  return newUser;
 }
 ```
 
@@ -164,30 +179,30 @@ async function createUser(prismaClient, data) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask } from './actions.js'
-import { User } from '@wasp/entities'
-import { PrismaClient } from '@prisma/client'
+import { createTask } from "./actions.js";
+import { User } from "@wasp/entities";
+import { PrismaClient } from "@prisma/client";
 
-type SanitizedUser = Omit<User, 'password'>
+type SanitizedUser = Omit<User, "password">;
 
 export const devSeedSimple = async (prismaClient: PrismaClient) => {
   const user = await createUser(prismaClient, {
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+    username: "RiuTheDog",
+    password: "bark1234",
+  });
 
   await createTask(
-    { description: 'Chase the cat', isDone: false },
+    { description: "Chase the cat", isDone: false },
     { user, entities: { Task: prismaClient.task } }
-  )
-}
+  );
+};
 
 async function createUser(
   prismaClient: PrismaClient,
-  data: Pick<User, 'username' | 'password'>
+  data: Pick<User, "username" | "password">
 ): Promise<SanitizedUser> {
-  const { password, ...newUser } = await prismaClient.user.create({ data })
-  return newUser
+  const { password, ...newUser } = await prismaClient.user.create({ data });
+  return newUser;
 }
 ```
 
@@ -209,6 +224,59 @@ Check the [API Reference](#cli-commands-for-seeding-the-database) for more detai
 :::tip
 You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
 :::
+
+## Prisma Configuration
+
+Wasp uses [Prisma](https://www.prisma.io/) to interact with the database. Prisma is a "Next-generation Node.js and TypeScript ORM" that provides a type-safe API for working with your database.
+
+### Prisma Preview Features
+
+Prisma is still in active development and some of its features are not yet stable. To use them, you have to enable them in the `app.db.prisma.clientPreviewFeatures` field: 
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"]
+    }
+  }
+}
+```
+
+<small>
+
+Read more about Prisma preview features in the [Prisma docs](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+</small>
+
+### PostgreSQL Extensions
+
+PostgreSQL supports [extensions](https://www.postgresql.org/docs/current/contrib.html) that add additional functionality to the database. For example, the [hstore](https://www.postgresql.org/docs/13/hstore.html) extension adds support for storing key-value pairs in a single column.
+
+To use PostgreSQL extensions with Prisma, you have to enable them in the `app.db.prisma.dbExtensions` field:
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  db: {
+    system: PostgreSQL,
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"]
+      dbExtensions: [
+        { name: "hstore", schema: "myHstoreSchema" },
+        { name: "pg_trgm" },
+        { name: "postgis", version: "2.1" },
+      ]
+    }
+  }
+}
+```
+
+<small>
+
+Read more about PostgreSQL configuration in Wasp in the [API Reference](#the-appdb-field).
+</small>
 
 ## API Reference
 
@@ -274,12 +342,60 @@ app MyApp {
 
 - `prisma: PrismaOptions`
 
-  Additional configuration for Prisma.
-  It currently only supports a single field:
+  Additional configuration for Prisma. 
+  
+  ```wasp title="main.wasp"
+  app MyApp {
+    // ...
+    db: {
+      // ...
+      prisma: {
+        clientPreviewFeatures: ["postgresqlExtensions"],
+        dbExtensions: [
+          { name: "hstore", schema: "myHstoreSchema" },
+          { name: "pg_trgm" },
+          { name: "postgis", version: "2.1" },
+        ]
+      }
+    }
+  }
+  ```
+  
+  It's a dictionary with the following fields:
 
   - `clientPreviewFeatures : [string]`
 
-    Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
+    Allows you to define [Prisma client preview features](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features), like for example, `"postgresqlExtensions"`.
+
+  - `dbExtensions: DbExtension[]`
+
+    It allows you to define PostgreSQL extensions that should be enabled for your database. Read more about [PostgreSQL extensions in Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/postgresql-extensions).
+
+    For each extension you define a dict with the following fields:
+
+    - `name: string` <Required />
+
+      The name of the extension you would normally put in the Prisma file.
+
+      ```prisma title="schema.prisma"
+      extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+      //              👆 Extension name
+      ```
+
+    - `map: string`
+
+      It sets the `map` argument of the extension. Explanation for the field from the Prisma docs:
+      > This is the database name of the extension. If this argument is not specified, the name of the extension in the Prisma schema must match the database name.
+
+    - `schema: string`
+
+      It sets the `schema` argument of the extension. Explanation for the field from the Prisma docs:
+      > This is the name of the schema in which to activate the extension's objects. If this argument is not specified, the current default object creation schema is used.
+
+    - `version: string`
+
+      It sets the `version` argument of the extension. Explanation for the field from the Prisma docs:
+      > This is the version of the extension to activate. If this argument is not specified, the value given in the extension's control file is used.
 
 ### CLI Commands for Seeding the Database
 
