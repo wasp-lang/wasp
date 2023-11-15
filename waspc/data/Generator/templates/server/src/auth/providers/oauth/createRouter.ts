@@ -2,14 +2,18 @@
 
 import { Router } from "express"
 import passport from "passport"
-import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import { sign } from '../../../core/auth.js'
-import { authConfig, contextWithUserEntity, createUser } from "../../utils.js"
+import {
+  authConfig,
+  contextWithUserEntity,
+  createAuthWithUser,
+  findAuthWithUserBy,
+} from "../../utils.js"
 
-import type { {= userEntityUpper =} } from '../../../entities';
+import type { {= authEntityUpper =} } from '@prisma/client'
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
 import type { GetUserFieldsFn } from "./types.js"
 import { handleRejection } from "../../../utils.js"
@@ -46,9 +50,9 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile });
           // TODO: In the future we could make this configurable, possibly associating an external account
           // with the currently logged in account, or by some DB lookup.
-          const user = await findOrCreateUserByExternalAuthAssociation(provider.id, providerProfile.id, getUserFields);
+          const auth = await findOrCreateAuthByAuthProvider(provider.id, providerProfile.id, getUserFields);
 
-          const token = await sign(user.id);
+          const token = await sign(auth.{= userFieldOnAuthEntityName =}.id);
           res.json({ token });
       })
     )
@@ -56,34 +60,38 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
     return router;
 }
 
-async function findOrCreateUserByExternalAuthAssociation(
+async function findOrCreateAuthByAuthProvider(
   provider: string,
   providerId: string,
   getUserFields: () => ReturnType<GetUserFieldsFn>,
-): Promise<{= userEntityUpper =}> {
+) {
   // Attempt to find a User by an external auth association.
-  const externalAuthAssociation = await prisma.{= externalAuthEntityLower =}.findFirst({
+  const authProvider = await prisma.{= authProviderEntityLower =}.findFirst({
     where: { provider, providerId },
-    include: { user: true }
+    include: {
+      {= authFieldOnProviderEntityName =}: {
+        include: {
+          {= userFieldOnAuthEntityName =}: true
+        }
+      }
+    }
   })
 
-  if (externalAuthAssociation) {
-    return externalAuthAssociation.user
+  if (authProvider) {
+    return authProvider.{= authFieldOnProviderEntityName =}
   }
 
   // No external auth association linkage found. Create a new User using details from
   // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
   const userFields = await getUserFields()
-  const userAndExternalAuthAssociation = {
-    ...userFields,
-    {=# isPasswordOnUserEntity =}
-    // TODO: Decouple social from usernameAndPassword auth.
-    password: uuidv4(),
-    {=/ isPasswordOnUserEntity =}
-    externalAuthAssociations: {
+  const authAndProviderData = {
+    {= providersFieldOnAuthEntityName =}: {
       create: [{ provider, providerId }]
     }
   }
 
-  return createUser(userAndExternalAuthAssociation)
+  // TODO(miho): decide if we want to keep the custom data on User or Auth?
+  const auth = await createAuthWithUser(authAndProviderData, userFields)
+  // NOTE: we are fetching the auth again becuase it incldues nested user
+  return findAuthWithUserBy({ id: auth.id });
 }

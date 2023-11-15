@@ -30,6 +30,7 @@ import Wasp.AppSpec.Valid (doesUserEntityContainField, getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
@@ -49,25 +50,23 @@ genOAuthAuth spec auth
 genOAuthHelpers :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
 genOAuthHelpers spec auth =
   sequence
-    [ genCreateRouter spec auth,
+    [ genCreateRouter,
       genTypes auth,
       genDefaults spec,
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|]
     ]
 
-genCreateRouter :: AS.AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genCreateRouter spec auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
+genCreateRouter :: Generator FileDraft
+genCreateRouter = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
   where
     tmplData =
       object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
-          "isPasswordOnUserEntity" .= isPasswordOnUserEntity
+        [ "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authProviderEntityLower" .= (Util.toLowerFirst DbAuth.providerEntityName :: String),
+          "providersFieldOnAuthEntityName" .= (DbAuth.providersFieldOnAuthEntityName :: String),
+          "authFieldOnProviderEntityName" .= (DbAuth.authFieldOnProviderEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
-    isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)

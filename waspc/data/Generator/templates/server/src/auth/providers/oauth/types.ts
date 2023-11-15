@@ -9,7 +9,7 @@ export type OAuthConfig = {
     scope?: string[];
 }
 
-export type CreateOAuthUser = Omit<Prisma.{= userEntityName =}CreateInput, 'password'>
+export type CreateOAuthUser = Prisma.{= userEntityName =}CreateInput
 
 export type UserDefinedConfigFn = () => { [key: string]: any }
 

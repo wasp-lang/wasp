@@ -6,20 +6,24 @@ app authModelExperiment {
   auth: {
     userEntity: User,
     methods: {
-      // usernameAndPassword: {},
-      email: {
-        fromField: {
-          name: "ToDO App",
-          email: "mihovil@ilakovac.com"
-        },
-        emailVerification: {
-          clientRoute: EmailVerificationRoute,
-        },
-        passwordReset: {
-          clientRoute: PasswordResetRoute
-        },
-        allowUnverifiedLogin: false,
+      google: {
+        getUserFieldsFn: import { getUserFields } from "@server/google.js",
+        configFn: import { getGoogleConfig } from "@server/google.js",
       },
+      usernameAndPassword: {},
+      // email: {
+      //   fromField: {
+      //     name: "ToDO App",
+      //     email: "mihovil@ilakovac.com"
+      //   },
+      //   emailVerification: {
+      //     clientRoute: EmailVerificationRoute,
+      //   },
+      //   passwordReset: {
+      //     clientRoute: PasswordResetRoute
+      //   },
+      //   allowUnverifiedLogin: false,
+      // },
     },
     onAuthFailedRedirectTo: "/"
   },
@@ -38,6 +42,9 @@ page MainPage {
 
 entity User {=psl
   id String @id @default(uuid())
+  // TODO: figure out how to pass data from all auth methods
+  // We have now - additional signup fields + Social providers setup
+  email String?
 psl=}
 
 route LoginRoute { path: "/login", to: Login }

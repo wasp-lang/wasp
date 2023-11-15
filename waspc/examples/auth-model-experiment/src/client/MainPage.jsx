@@ -22,9 +22,14 @@ const MainPage = () => {
 
         {user && (
           <div className="user-info">
-            <p>
+            <p
+              style={{
+                maxWidth: "500px",
+              }}
+            >
               {" "}
-              You are logged in as <strong>{user.auth.email}</strong>!{" "}
+              You are logged in as{" "}
+              <strong>{JSON.stringify(user, null, 2)}</strong>!{" "}
             </p>
             <p>
               {" "}

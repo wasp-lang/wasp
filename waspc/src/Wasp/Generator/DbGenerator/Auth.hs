@@ -17,18 +17,31 @@ import qualified Wasp.Psl.Ast.Model as Psl.Model.Field
 authEntityName :: String
 authEntityName = "Auth"
 
+authEntityIdType :: String
+authEntityIdType = "String"
+
 userFieldOnAuthEntityName :: String
 userFieldOnAuthEntityName = "user"
 
 authFieldOnUserEntityName :: String
 authFieldOnUserEntityName = "auth"
 
+authFieldOnProviderEntityName :: String
+authFieldOnProviderEntityName = "auth"
+
+providerEntityName :: String
+providerEntityName = "SocialAuthProvider"
+
+providersFieldOnAuthEntityName :: String
+providersFieldOnAuthEntityName = "providers"
+
 injectAuth :: Maybe (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -> Generator [(String, AS.Entity.Entity)]
 injectAuth Nothing entities = return entities
 injectAuth (Just (userEntityName, userEntity)) entities = do
   userEntityIdType <- getUserEntityId userEntity
   authEntity <- makeAuthEntity userEntityIdType userEntityName
-  return $ injectAuthIntoUserEntity userEntityName $ entities ++ authEntity
+  providerEntity <- makeProviderEntity
+  return $ injectAuthIntoUserEntity userEntityName $ entities ++ [authEntity, providerEntity]
 
 getUserEntityId :: AS.Entity.Entity -> Generator String
 getUserEntityId entity =
@@ -38,17 +51,36 @@ getUserEntityId entity =
           Just idType -> return idType
       )
 
-makeAuthEntity :: String -> String -> Generator [(String, AS.Entity.Entity)]
+makeProviderEntity :: Generator (String, AS.Entity.Entity)
+makeProviderEntity = case parsePslBody providerEntityPslBody of
+  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Provider entity: " ++ show err
+  Right pslBody -> return (providerEntityName, AS.Entity.makeEntity pslBody)
+  where
+    providerEntityPslBody =
+      T.unpack
+        [trimming|
+          id         String   @id @default(uuid())
+          provider   String
+          providerId String
+          authId    ${authEntityIdTypeText}
+          ${authFieldOnProviderEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
+        |]
+
+    authEntityIdTypeText = T.pack authEntityIdType
+    authEntityNameText = T.pack authEntityName
+    authFieldOnProviderEntityNameText = T.pack authFieldOnProviderEntityName
+
+makeAuthEntity :: String -> String -> Generator (String, AS.Entity.Entity)
 makeAuthEntity userEntityIdType userEntityName = case parsePslBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Auth entity: " ++ show err
-  Right pslBody -> return [(authEntityName, AS.Entity.makeEntity pslBody)]
+  Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
     -- TODO(miho): decide if we want to switch between fields for username and email
     -- based auth. It's much simpler to just have everything and let some fields be null.
     authEntityPslBody =
       T.unpack
         [trimming|
-          id        String   @id @default(uuid())
+          id ${authEntityIdTypeText}   @id @default(uuid())
           email String? @unique
           username String? @unique
           password String?
@@ -57,11 +89,15 @@ makeAuthEntity userEntityIdType userEntityName = case parsePslBody authEntityPsl
           passwordResetSentAt DateTime?
           userId    ${userEntityIdTypeText}? @unique
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+          ${providersFieldOnAuthEntityNameText} ${providerEntityNameText}[]
         |]
 
+    authEntityIdTypeText = T.pack authEntityIdType
     userEntityIdTypeText = T.pack userEntityIdType
     userEntityNameText = T.pack userEntityName
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
+    providerEntityNameText = T.pack providerEntityName
+    providersFieldOnAuthEntityNameText = T.pack providersFieldOnAuthEntityName
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =
