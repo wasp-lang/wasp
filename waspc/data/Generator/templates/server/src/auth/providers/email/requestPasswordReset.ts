@@ -30,25 +30,25 @@ export function getRequestPasswordResetRoute({
 
         args.email = args.email.toLowerCase();
 
-        const user = await findAuthWithUserBy({ email: args.email });
+        const auth = await findAuthWithUserBy({ email: args.email });
     
         // User not found or not verified - don't leak information
-        if (!user || !user.isEmailVerified) {
+        if (!auth || !auth.isEmailVerified) {
             await doFakeWork();
             return res.json({ success: true });
         }
 
-        if (!isEmailResendAllowed(user, 'passwordResetSentAt')) {
+        if (!isEmailResendAllowed(auth, 'passwordResetSentAt')) {
             return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
         }
     
-        const passwordResetLink = await createPasswordResetLink(user, clientRoute);
+        const passwordResetLink = await createPasswordResetLink(auth, clientRoute);
         try {
             await sendPasswordResetEmail(
-                user.email,
+                auth.email,
                 {
                     from: fromField,
-                    to: user.email,
+                    to: auth.email,
                     ...getPasswordResetEmailContent({ passwordResetLink }),
                 }
             );

@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { handleRejection } from '../../../utils.js'
-import { createUser } from '../../utils.js'
+import { createAuthWithUser } from '../../utils.js'
 import {
   ensureValidUsername,
   ensurePasswordIsPresent,
@@ -14,7 +14,7 @@ export default handleRejection(async (req, res) => {
 
   const additionalFields = await validateAndGetAdditionalFields(userFields)
 
-  await createUser(
+  await createAuthWithUser(
     {
       username: userFields.username,
       password: userFields.password,

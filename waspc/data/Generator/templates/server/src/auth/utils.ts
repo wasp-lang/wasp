@@ -34,11 +34,11 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}WhereUniqueInput) {
-  return prisma.{= authEntityLower =}.findUnique({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}WhereInput) {
+  return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
-export async function createUser(data: Prisma.{= authEntityUpper =}CreateInput, additionalFields: PossibleAdditionalSignupFields) {
+export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}CreateInput, additionalFields: PossibleAdditionalSignupFields) {
   try {
     return await prisma.{= authEntityLower =}.create({
       data: {

@@ -17,20 +17,20 @@ export function getLoginRoute({
 
         userFields.email = userFields.email.toLowerCase()
 
-        const user = await findAuthWithUserBy({ email: userFields.email })
-        if (!user) {
+        const auth = await findAuthWithUserBy({ email: userFields.email })
+        if (!auth) {
             throwInvalidCredentialsError()
         }
-        if (!user.isEmailVerified && !allowUnverifiedLogin) {
+        if (!auth.isEmailVerified && !allowUnverifiedLogin) {
             throwInvalidCredentialsError()
         }
         try {
-            await verifyPassword(user.password, userFields.password);
+            await verifyPassword(auth.password, userFields.password);
         } catch(e) {
             throwInvalidCredentialsError()
         }
     
-        const token = await createAuthToken(user)
+        const token = await createAuthToken(auth)
       
         return res.json({ token })
     };

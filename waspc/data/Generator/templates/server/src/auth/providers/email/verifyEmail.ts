@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { updateUserEmailVerification } from './utils.js';
+import { updateAuthEmailVerification } from './utils.js';
 import { verifyToken } from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
 
@@ -9,8 +9,8 @@ export async function verifyEmail(
 ): Promise<Response<{ success: true } | { success: false, message: string }>> {
     try {
         const { token } = req.body;
-        const { id: userId } = await verifyToken(token);
-        await updateUserEmailVerification(userId);
+        const { id: authId } = await verifyToken(token);
+        await updateAuthEmailVerification(authId);
     } catch (e) {
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'

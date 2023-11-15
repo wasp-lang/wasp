@@ -24,7 +24,7 @@ const MainPage = () => {
           <div className="user-info">
             <p>
               {" "}
-              You are logged in as <strong>{user.auth.username}</strong>!{" "}
+              You are logged in as <strong>{user.auth.email}</strong>!{" "}
             </p>
             <p>
               {" "}

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { findAuthWithUserBy, verifyToken } from "../../utils.js";
-import { updateUserPassword } from "./utils.js";
+import { updateAuthPassword } from "./utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
 
@@ -13,12 +13,12 @@ export async function resetPassword(
 
     const { token, password } = args;
     try {
-        const { id: userId } = await verifyToken(token);
-        const user = await findAuthWithUserBy({ id: userId });
-        if (!user) {
+        const { id: authId } = await verifyToken(token);
+        const auth = await findAuthWithUserBy({ id: authId });
+        if (!auth) {
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }
-        await updateUserPassword(userId, password);
+        await updateAuthPassword(authId, password);
     } catch (e) {
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'

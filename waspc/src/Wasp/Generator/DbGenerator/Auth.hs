@@ -43,13 +43,19 @@ makeAuthEntity userEntityIdType userEntityName = case parsePslBody authEntityPsl
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Auth entity: " ++ show err
   Right pslBody -> return [(authEntityName, AS.Entity.makeEntity pslBody)]
   where
+    -- TODO(miho): decide if we want to switch between fields for username and email
+    -- based auth. It's much simpler to just have everything and let some fields be null.
     authEntityPslBody =
       T.unpack
         [trimming|
           id        String   @id @default(uuid())
-          username  String   @unique
-          password  String
-          userId    ${userEntityIdTypeText}?  @unique
+          email String? @unique
+          username String? @unique
+          password String?
+          isEmailVerified Boolean @default(false)
+          emailVerificationSentAt DateTime?
+          passwordResetSentAt DateTime?
+          userId    ${userEntityIdTypeText}? @unique
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [id], onDelete: Cascade)
         |]
 

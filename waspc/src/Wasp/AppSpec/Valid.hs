@@ -53,8 +53,6 @@ validateAppSpec spec =
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
-          validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
-          validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
@@ -145,34 +143,6 @@ validateDbIsPostgresIfPgBossUsed spec =
       "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
     | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
-
-validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
-  Nothing -> []
-  Just auth ->
-    if not $ Auth.isUsernameAndPasswordAuthEnabled auth
-      then []
-      else validationErrors
-    where
-      validationErrors = []
-
-validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
-  Nothing -> []
-  Just auth ->
-    if not $ Auth.isEmailAuthEnabled auth
-      then []
-      else
-        let (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
-            userEntityFields = Entity.getFields userEntity
-         in concatMap
-              (validateEntityHasField userEntityName "app.auth.userEntity" userEntityFields)
-              [ ("email", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
-                ("password", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
-                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
-                ("emailVerificationSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?"),
-                ("passwordResetSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?")
-              ]
 
 validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of

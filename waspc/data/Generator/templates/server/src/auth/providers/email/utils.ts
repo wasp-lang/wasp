@@ -6,13 +6,14 @@ import { rethrowPossiblePrismaError } from '../../utils.js'
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =} } from '../../../entities/index.js'
+import { type {= authEntityUpper =} } from '@prisma/client';
 
-type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
+type {= authEntityUpper =}Id = {= authEntityUpper =}['id']
 
-export async function updateUserEmailVerification(userId: {= userEntityUpper =}Id): Promise<void> {
+export async function updateAuthEmailVerification(authId: {= authEntityUpper =}Id) {
   try {
-    await prisma.{= userEntityLower =}.update({
-      where: { id: userId },
+    await prisma.{= authEntityLower =}.update({
+      where: { id: authId },
       data: { isEmailVerified: true },
     })
   } catch (e) {
@@ -20,10 +21,10 @@ export async function updateUserEmailVerification(userId: {= userEntityUpper =}I
   }
 }
 
-export async function updateUserPassword(userId: {= userEntityUpper =}Id, password: string): Promise<void> {
+export async function updateAuthPassword(authId: {= authEntityUpper =}Id, password: string) {
   try {
-    await prisma.{= userEntityLower =}.update({
-      where: { id: userId },
+    await prisma.{= authEntityLower =}.update({
+      where: { id: authId },
       data: { password },
     })
   } catch (e) {
@@ -31,35 +32,35 @@ export async function updateUserPassword(userId: {= userEntityUpper =}Id, passwo
   }
 }
 
-export async function createEmailVerificationLink(user: {= userEntityUpper =}, clientRoute: string): Promise<string> {
-  const token = await createEmailVerificationToken(user);
+export async function createEmailVerificationLink(auth: {= authEntityUpper =}, clientRoute: string) {
+  const token = await createEmailVerificationToken(auth);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-export async function createPasswordResetLink(user: {= userEntityUpper =}, clientRoute: string): Promise<string> {
-  const token = await createPasswordResetToken(user);
+export async function createPasswordResetLink(auth: {= authEntityUpper =}, clientRoute: string)  {
+  const token = await createPasswordResetToken(auth);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-async function createEmailVerificationToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id, { expiresIn: '30m' });
+async function createEmailVerificationToken(auth: {= authEntityUpper =}): Promise<string> {
+  return sign(auth.id, { expiresIn: '30m' });
 }
 
-async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id, { expiresIn: '30m' });
+async function createPasswordResetToken(auth: {= authEntityUpper =}): Promise<string> {
+  return sign(auth.id, { expiresIn: '30m' });
 }
 
 export async function sendPasswordResetEmail(
   email: string,
   content: Email,
-): Promise<void> {
+) {
   return sendEmailAndLogTimestamp(email, content, 'passwordResetSentAt');
 }
 
 export async function sendEmailVerificationEmail(
   email: string,
   content: Email,
-): Promise<void> {
+) {
   return sendEmailAndLogTimestamp(email, content, 'emailVerificationSentAt');
 }
 
@@ -67,12 +68,12 @@ async function sendEmailAndLogTimestamp(
   email: string,
   content: Email,
   field: 'emailVerificationSentAt' | 'passwordResetSentAt',
-): Promise<void> {
+) {
   // Set the timestamp first, and then send the email
   // so the user can't send multiple requests while
   // the email is being sent.
   try {
-    await prisma.{= userEntityLower =}.update({
+    await prisma.{= authEntityLower =}.update({
       where: { email },
       data: { [field]: new Date() },
     })
@@ -85,11 +86,11 @@ async function sendEmailAndLogTimestamp(
 }
 
 export function isEmailResendAllowed(
-  user: {= userEntityUpper =},
+  auth: {= authEntityUpper =},
   field: 'emailVerificationSentAt' | 'passwordResetSentAt',
   resendInterval: number = 1000 * 60,
 ): boolean {
-  const sentAt = user[field];
+  const sentAt = auth[field];
   if (!sentAt) {
     return true;
   }

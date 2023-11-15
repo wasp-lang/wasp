@@ -6,10 +6,29 @@ app authModelExperiment {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {}
+      // usernameAndPassword: {},
+      email: {
+        fromField: {
+          name: "ToDO App",
+          email: "mihovil@ilakovac.com"
+        },
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute
+        },
+        allowUnverifiedLogin: false,
+      },
     },
     onAuthFailedRedirectTo: "/"
-  }
+  },
+  emailSender: {
+    provider: SMTP,
+    defaultFrom: {
+      email: "mihovil@ilakovac.com"
+    },
+  },
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -29,4 +48,19 @@ page Login {
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
   component: import { Signup } from "@client/auth.jsx"
+}
+
+route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
+page PasswordResetPage {
+  component: import { PasswordReset } from "@client/auth.jsx",
+}
+
+route EmailVerificationRoute { path: "/email-verification-", to: EmailVerificationPage }
+page EmailVerificationPage {
+  component: import { EmailVerification } from "@client/auth.jsx",
+}
+
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
+page RequestPasswordReset {
+  component: import { RequestPasswordReset  } from "@client/auth.jsx"
 }

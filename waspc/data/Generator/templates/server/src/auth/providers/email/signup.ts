@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
-    createUser,
+    createAuthWithUser,
     findAuthWithUserBy,
     deleteUser,
     doFakeWork,
@@ -33,21 +33,21 @@ export function getSignupRoute({
         
         userFields.email = userFields.email.toLowerCase();
 
-        const existingUser  = await findAuthWithUserBy({ email: userFields.email });
+        const existingAuth  = await findAuthWithUserBy({ email: userFields.email });
         // User already exists and is verified - don't leak information
-        if (existingUser && existingUser.isEmailVerified) {
+        if (existingAuth && existingAuth.isEmailVerified) {
             await doFakeWork();
             return res.json({ success: true });
-        } else if (existingUser && !existingUser.isEmailVerified) {
-            if (!isEmailResendAllowed(existingUser, 'emailVerificationSentAt')) {
+        } else if (existingAuth && !existingAuth.isEmailVerified) {
+            if (!isEmailResendAllowed(existingAuth, 'emailVerificationSentAt')) {
                 return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
             }
-            await deleteUser(existingUser);
+            await deleteUser(existingAuth);
         }
 
         const additionalFields = await validateAndGetAdditionalFields(userFields);
     
-        const user = await createUser(
+        const auth = await createAuthWithUser(
             {
                 email: userFields.email,
                 password: userFields.password,
@@ -55,7 +55,8 @@ export function getSignupRoute({
             additionalFields,
         );
 
-        const verificationLink = await createEmailVerificationLink(user, clientRoute);
+        // TODO: use user here
+        const verificationLink = await createEmailVerificationLink(auth, clientRoute);
         try {
             await sendEmailVerificationEmail(
                 userFields.email,
