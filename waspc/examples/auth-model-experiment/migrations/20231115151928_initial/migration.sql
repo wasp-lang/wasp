@@ -1,7 +1,6 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "authId" TEXT
+    "id" TEXT NOT NULL PRIMARY KEY
 );
 
 -- CreateTable
@@ -10,7 +9,7 @@ CREATE TABLE "Auth" (
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "userId" TEXT,
-    CONSTRAINT "Auth_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "Auth_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex

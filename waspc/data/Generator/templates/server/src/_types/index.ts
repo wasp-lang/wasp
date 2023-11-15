@@ -5,6 +5,7 @@ import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } fr
 import prisma from "../dbClient.js"
 {=# isAuthEnabled =}
 import { type {= userEntityName =} } from "../entities"
+import { type {= authEntityName =} } from "@prisma/client"
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
@@ -83,5 +84,7 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { 
 // password field from the object there, we must do the same here). Ideally,
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
-export type SanitizedUser = Omit<{= userEntityName =}, 'password'>
+export type SanitizedUser = {= userEntityName =} & {
+  {= authFieldOnUserEntityName =}: Omit<{= authEntityName =}, 'password'>
+}
 {=/ isAuthEnabled =}

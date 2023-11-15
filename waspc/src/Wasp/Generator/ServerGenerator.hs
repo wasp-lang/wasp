@@ -47,6 +47,7 @@ import Wasp.Generator.Common
     makeJsonWithEntityData,
     prismaVersion,
   )
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -316,6 +317,8 @@ genTypesAndEntitiesDirs spec =
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust maybeUserEntityName,
                 "userEntityName" .= userEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
                 "userFieldName" .= toLowerFirst userEntityName
               ]
         )

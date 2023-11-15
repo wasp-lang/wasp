@@ -5,7 +5,7 @@ import { PASSWORD_FIELD } from '../../auth/validation.js'
 // Make sure password is always hashed before storing to the database.
 const registerPasswordHashing = (prismaClient) => {
   prismaClient.$use(async (params, next) => {
-    if (params.model === '{= userEntityUpper =}') {
+    if (params.model === '{= authEntityUpper =}') {
       if (['create', 'update', 'updateMany'].includes(params.action)) {
         if (params.args.data.hasOwnProperty(PASSWORD_FIELD)) {
           params.args.data[PASSWORD_FIELD] = await hashPassword(params.args.data[PASSWORD_FIELD])

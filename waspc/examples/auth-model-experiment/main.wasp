@@ -21,6 +21,11 @@ entity User {=psl
   id String @id @default(uuid())
 psl=}
 
+route LoginRoute { path: "/login", to: Login }
+page Login {
+  component: import { Login } from "@client/auth.jsx"
+}
+
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
   component: import { Signup } from "@client/auth.jsx"

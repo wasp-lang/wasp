@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import {
-    findUserBy,
+    findAuthWithUserBy,
     doFakeWork,
 } from "../../utils.js";
 import {
@@ -30,7 +30,7 @@ export function getRequestPasswordResetRoute({
 
         args.email = args.email.toLowerCase();
 
-        const user = await findUserBy({ email: args.email });
+        const user = await findAuthWithUserBy({ email: args.email });
     
         // User not found or not verified - don't leak information
         if (!user || !user.isEmailVerified) {

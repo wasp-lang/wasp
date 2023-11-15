@@ -8,12 +8,10 @@ module Wasp.Generator.DbGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromJust, fromMaybe, maybeToList)
+import Data.List (find)
+import Data.Maybe (fromMaybe, maybeToList)
 import Data.Text (Text, pack)
-import qualified Data.Text as T
-import NeatInterpolation (trimming)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
-import Wasp.Analyzer.StdTypeDefinitions.Entity (parsePslBody)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -22,6 +20,7 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
     DbSchemaChecksumOnLastDbConcurrenceFile,
@@ -46,7 +45,6 @@ import Wasp.Generator.Monad
   )
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
-import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Generator.Extensions as Psl.Generator.Extensions
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
@@ -68,15 +66,11 @@ genPrismaSchema spec = do
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
         else return ("sqlite", "\"file:./dev.db\"")
 
-  let entities = injectAuthIntoUserEntity $ AS.getDecls @AS.Entity.Entity spec
-
-  authEntities <- makeAuthEntity "String" maybeUserEntityName
-
-  let modelSchemas = map entityToPslModelSchema (entities ++ authEntities)
+  entities <- DbAuth.injectAuth maybeUserEntity userDefinedEntities
 
   let templateData =
         object
-          [ "modelSchemas" .= modelSchemas,
+          [ "modelSchemas" .= map entityToPslModelSchema entities,
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaClientOutputDir" .= makeEnvVarField Wasp.Generator.DbGenerator.Common.prismaClientOutputDirEnvVar,
@@ -92,46 +86,13 @@ genPrismaSchema spec = do
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
     dbExtensions = Psl.Generator.Extensions.showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
-    maybeUserEntityName = AS.refName . AS.Auth.userEntity <$> maybeAuth
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    userDefinedEntities = getEntities spec
 
-    makeAuthEntity :: String -> Maybe String -> Generator [(String, AS.Entity.Entity)]
-    makeAuthEntity _ Nothing = return []
-    makeAuthEntity userEntityIdType (Just userEntityName) = case parsePslBody authEntityPslBody of
-      Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Auth entity: " ++ show err
-      Right pslBody -> return [("Auth", AS.Entity.makeEntity pslBody)]
-      where
-        authEntityPslBody =
-          T.unpack
-            [trimming|
-              id        String   @id @default(uuid())
-              username  String   @unique
-              password  String
-              userId    ${userEntityIdTypeText}?  @unique
-              user      ${userEntityNameText}?    @relation(fields: [userId], references: [id])
-            |]
-
-        userEntityIdTypeText = T.pack userEntityIdType
-        userEntityNameText = T.pack userEntityName
-
-    injectAuthIntoUserEntity :: [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
-    injectAuthIntoUserEntity entities =
-      case maybeUserEntityName of
-        Nothing -> entities
-        Just userEntityName ->
-          let userEntity = fromJust $ lookup userEntityName entities
-              userEntityWithAuthInjected = injectRelationToAuth userEntity
-           in (userEntityName, userEntityWithAuthInjected) : filter ((/= userEntityName) . fst) entities
-      where
-        injectRelationToAuth :: AS.Entity.Entity -> AS.Entity.Entity
-        injectRelationToAuth entity = AS.Entity.makeEntity newPslBody
-          where
-            (Psl.Model.Body oldPslElements) = AS.Entity.getPslModelBody entity
-            newPslElements =
-              [ Psl.Model.ElementField $ Psl.Model.Field "authId" Psl.Model.String [Psl.Model.Optional] [],
-                Psl.Model.ElementField $ Psl.Model.Field "auth" (Psl.Model.UserType "Auth") [Psl.Model.Optional] []
-              ]
-            newPslBody = Psl.Model.Body $ oldPslElements ++ newPslElements
+    maybeUserEntity :: Maybe (String, AS.Entity.Entity)
+    maybeUserEntity = do
+      auth <- AS.App.auth $ snd $ getApp spec
+      let userEntityName = AS.refName . AS.Auth.userEntity $ auth
+      find ((== userEntityName) . fst) userDefinedEntities
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =

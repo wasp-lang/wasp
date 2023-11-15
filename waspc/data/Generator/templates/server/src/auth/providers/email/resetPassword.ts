@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { findUserBy, verifyToken } from "../../utils.js";
+import { findAuthWithUserBy, verifyToken } from "../../utils.js";
 import { updateUserPassword } from "./utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
@@ -14,7 +14,7 @@ export async function resetPassword(
     const { token, password } = args;
     try {
         const { id: userId } = await verifyToken(token);
-        const user = await findUserBy({ id: userId });
+        const user = await findAuthWithUserBy({ id: userId });
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
     createUser,
-    findUserBy,
+    findAuthWithUserBy,
     deleteUser,
     doFakeWork,
 } from "../../utils.js";
@@ -33,7 +33,7 @@ export function getSignupRoute({
         
         userFields.email = userFields.email.toLowerCase();
 
-        const existingUser  = await findUserBy({ email: userFields.email });
+        const existingUser  = await findAuthWithUserBy({ email: userFields.email });
         // User already exists and is verified - don't leak information
         if (existingUser && existingUser.isEmailVerified) {
             await doFakeWork();
@@ -47,11 +47,13 @@ export function getSignupRoute({
 
         const additionalFields = await validateAndGetAdditionalFields(userFields);
     
-        const user = await createUser({
-            ...additionalFields,
-            email: userFields.email,
-            password: userFields.password,
-        });
+        const user = await createUser(
+            {
+                email: userFields.email,
+                password: userFields.password,
+            },
+            additionalFields,
+        );
 
         const verificationLink = await createEmailVerificationLink(user, clientRoute);
         try {

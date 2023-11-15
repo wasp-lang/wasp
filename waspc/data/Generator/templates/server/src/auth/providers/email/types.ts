@@ -14,4 +14,4 @@ export const tokenVerificationErrors = {
     TokenExpiredError: 'TokenExpiredError',
 };
 
-export const defineAdditionalSignupFields = createDefineAdditionalSignupFieldsFn<"email" | "password">()
+export const defineAdditionalSignupFields = createDefineAdditionalSignupFieldsFn()

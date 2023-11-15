@@ -5,7 +5,7 @@ import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
 import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
 import { type {= userEntityUpper =} } from '../entities/index.js'
-import { type Prisma } from '@prisma/client';
+import { type Prisma, type {= authEntityUpper =} } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
@@ -13,13 +13,13 @@ import { throwValidationError } from './validation.js'
 {=& additionalSignupFields.importStatement =}
 {=/ additionalSignupFields.isDefined =}
 
+import { createDefineAdditionalSignupFieldsFn, type PossibleAdditionalSignupFields } from './providers/types.js'
 {=# additionalSignupFields.isDefined =}
 const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdentifier =}
 {=/ additionalSignupFields.isDefined =}
 {=^ additionalSignupFields.isDefined =}
-import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
 const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
-  ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
+  ReturnType<typeof createDefineAdditionalSignupFieldsFn>
 >
 {=/ additionalSignupFields.isDefined =}
 
@@ -34,28 +34,39 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findUserBy(where: Prisma.{= userEntityUpper =}WhereUniqueInput): Promise<{= userEntityUpper =}> {
-  return prisma.{= userEntityLower =}.findUnique({ where });
+export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}WhereUniqueInput) {
+  return prisma.{= authEntityLower =}.findUnique({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
-export async function createUser(data: Prisma.{= userEntityUpper =}CreateInput): Promise<{= userEntityUpper =}> {
+export async function createUser(data: Prisma.{= authEntityUpper =}CreateInput, additionalFields: PossibleAdditionalSignupFields) {
   try {
-    return await prisma.{= userEntityLower =}.create({ data })
+    return await prisma.{= authEntityLower =}.create({
+      data: {
+        ...data,
+        {= userFieldOnAuthEntityName =}: {
+          create: {
+            ...additionalFields,
+          }
+        }
+      }
+    })
   } catch (e) {
     rethrowPossiblePrismaError(e);
   }
 }
 
-export async function deleteUser(user: {= userEntityUpper =}): Promise<{= userEntityUpper =}> {
+export async function deleteUser(auth: {= authEntityUpper =}) {
   try {
-    return await prisma.{= userEntityLower =}.delete({ where: { id: user.id } })
+    return await prisma.{= authEntityLower =}.delete({ where: { id: auth.id } })
   } catch (e) {
     rethrowPossiblePrismaError(e);
   }
 }
 
-export async function createAuthToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id);
+export async function createAuthToken(
+  auth: {= authEntityUpper =} & { {= userFieldOnAuthEntityName =}: {= userEntityUpper =} }
+): Promise<string> {
+  return sign(auth.{= userFieldOnAuthEntityName =}.id);
 }
 
 export async function verifyToken(token: string): Promise<{ id: any }> {
