@@ -37,7 +37,7 @@ page LoginPage {
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.tsx",
+  component: import { SignupPage } from "@client/CustomSignupPage.tsx",
 }
 
 route DetailRoute { path: "/:id/:something?", to: DetailPage }
@@ -87,4 +87,9 @@ job simplePrintJob {
     fn: import { simplePrint } from "@server/jobs.js",
   },
   entities: [Task]
+}
+
+action customSignup {
+  fn: import { signup } from "@server/auth.js",
+  entities: [User]
 }
