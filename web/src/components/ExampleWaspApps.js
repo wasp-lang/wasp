@@ -10,13 +10,15 @@ const examples = [
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'todo-app-ts',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/todo-app-in-typescript',
+    repoUrl:
+      'https://github.com/wasp-lang/wasp/tree/main/examples/todo-app-in-typescript',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
   {
     title: 'CoverLetterGPT 🤖',
-    description: 'Generate cover letters based on your CV and job description. Powered by ChatGPT.',
+    description:
+      'Generate cover letters based on your CV and job description. Powered by ChatGPT.',
     authorName: 'vincanger',
     authorImg: 'https://avatars.githubusercontent.com/u/70215737',
     repoName: 'cover-letter-gpt',
@@ -30,7 +32,8 @@ const examples = [
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'waspleau-jobs-example',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/websockets-realtime-voting',
+    repoUrl:
+      'https://github.com/wasp-lang/wasp/tree/main/examples/websockets-realtime-voting',
     demoUrl: 'https://websockets-client-production.up.railway.app/login',
   },
 ]
