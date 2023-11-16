@@ -1,36 +1,45 @@
-import "./Main.css";
-import React, { useEffect, FormEventHandler, FormEvent } from "react";
-import logout from "@wasp/auth/logout";
-import useAuth from "@wasp/auth/useAuth";
-import { useQuery, useAction } from "@wasp/rpc"; // Wasp uses a thin wrapper around react-query
-import { getTasks } from "@wasp/rpc/queries";
-import { createTask, updateTask } from "@wasp/rpc/actions";
-import waspLogo from "./waspLogo.png";
-import { Task } from "./types";
+import './Main.css'
+import React, { useEffect, FormEventHandler, FormEvent } from 'react'
+import logout from '@wasp/auth/logout'
+import useAuth from '@wasp/auth/useAuth'
+import { useQuery, useAction } from '@wasp/rpc' // Wasp uses a thin wrapper around react-query
+import { getTasks } from '@wasp/rpc/queries'
+import { createTask, updateTask, deleteTasks } from '@wasp/rpc/actions'
+import waspLogo from './waspLogo.png'
+import { User } from '@wasp/auth/types'
 
-export function MainPage() {
-  const { data: user } = useAuth();
-  const { data: tasks, isLoading, error } = useQuery<unknown, Task[]>(getTasks);
+export const MainPage = ({ user }: { user: User }) => {
+  const { data: tasks, isLoading, error } = useQuery(getTasks)
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
+  if (isLoading) return 'Loading...'
+  if (error) return 'Error: ' + error
 
-  if (isLoading) return "Loading...";
-  if (error) return "Error: " + error;
+  const completed = tasks?.filter((task) => task.isDone).map((task) => task.id)
 
   return (
     <main>
       <img src={waspLogo} alt="wasp logo" />
-      <h1>
-        {user.username}
-        {`'s tasks :)`}
-      </h1>
+      {user && (
+        <h1>
+          {user.username}
+          {`'s tasks :)`}
+        </h1>
+      )}
       <NewTaskForm />
       {tasks && <TasksList tasks={tasks} />}
-      <button onClick={logout}> Logout </button>
+      <div className="buttons">
+        <button
+          className="logout"
+          onClick={() => void deleteTasks(completed ?? [])}
+        >
+          Delete completed
+        </button>
+        <button className="logout" onClick={logout}>
+          Logout
+        </button>
+      </div>
     </main>
-  );
+  )
 }
 
 function Todo({ id, isDone, description }: Task) {
@@ -41,54 +50,57 @@ function Todo({ id, isDone, description }: Task) {
       await updateTask({
         id,
         isDone: event.currentTarget.checked,
-      });
+      })
     } catch (err: any) {
-      window.alert("Error while updating task " + err?.message);
+      window.alert('Error while updating task ' + err?.message)
     }
-  };
+  }
 
   return (
     <li>
-      <input
-        type="checkbox"
-        id={id.toString()}
-        checked={isDone}
-        onChange={handleIsDoneChange}
-      />
-      <span>{description}</span>
+      <span className="todo-item">
+        <input
+          type="checkbox"
+          id={id.toString()}
+          checked={isDone}
+          onChange={handleIsDoneChange}
+        />
+        <span>{description}</span>
+        <button onClick={() => void deleteTasks([id])}>Delete</button>
+      </span>
     </li>
-  );
+  )
 }
 
 function TasksList({ tasks }: { tasks: Task[] }) {
-  if (tasks.length === 0) return <p>No tasks yet.</p>;
+  if (tasks.length === 0) return <p>No tasks yet.</p>
   return (
     <ol className="tasklist">
       {tasks.map((task, idx) => (
         <Todo {...task} key={idx} />
       ))}
     </ol>
-  );
+  )
 }
 
 function NewTaskForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
     try {
-      const description = event.currentTarget.description.value;
-      console.log(description);
-      event.currentTarget.reset();
-      await createTask({ description });
+      const description = event.currentTarget.description.value
+      console.log(description)
+      event.currentTarget.reset()
+      await createTask({ description })
     } catch (err: any) {
-      window.alert("Error: " + err?.message);
+      window.alert('Error: ' + err?.message)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit}>
       <input name="description" type="text" defaultValue="" />
       <input type="submit" value="Create task" />
     </form>
-  );
+  )
 }
