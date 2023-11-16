@@ -49,11 +49,11 @@ All necessary environment variables are listed in the next section.
 
 Here are the environment variables your server will be looking for:
 
-- `DATABASE_URL` (<Required />)
+- `DATABASE_URL` <Required />
 
   The URL of the Postgres database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
 
-- `WASP_WEB_CLIENT_URL` (<Required />)
+- `WASP_WEB_CLIENT_URL` <Required />
 
   The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
   The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
