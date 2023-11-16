@@ -18,10 +18,10 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@docusaurus/core": "2.4.0",
-    "@docusaurus/plugin-client-redirects": "^2.4.0",
-    "@docusaurus/plugin-google-gtag": "2.4.0",
-    "@docusaurus/preset-classic": "2.4.0",
+    "@docusaurus/core": "3.0.0",
+    "@docusaurus/plugin-client-redirects": "^3.0.0",
+    "@docusaurus/plugin-google-gtag": "3.0.0",
+    "@docusaurus/preset-classic": "3.0.0",
     "@kodingdotninja/use-tailwind-breakpoint": "^0.0.5",
     "@mdx-js/react": "^1.6.22",
     "@svgr/webpack": "^6.5.1",
