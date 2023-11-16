@@ -48,11 +48,16 @@ export async function getUserFromToken(token) {
     }
   }
 
+  // TODO: this might not be the best thing to do, each request makes a db call
   const user = await prisma.{= userEntityLower =}
     .findUnique({
       where: { id: userIdFromToken },
       include: {
-        {= authFieldOnUserEntityName =}: true
+        {= authFieldOnUserEntityName =}: {
+          include: {
+            {= providersFieldOnAuthEntityName =}: true
+          }
+        }
       }
     })
   if (!user) {

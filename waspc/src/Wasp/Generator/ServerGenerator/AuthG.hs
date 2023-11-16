@@ -70,7 +70,8 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-              "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String)
+              "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
+              "providersFieldOnAuthEntityName" .= (DbAuth.providersFieldOnAuthEntityName :: String)
             ]
 
 genAuthMiddleware :: Generator FileDraft

@@ -87,3 +87,18 @@ code {
   font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
     Bitstream Vera Sans Mono, Courier New, monospace;
 }
+.task__title {
+  padding: 1rem;
+}
+
+button,
+input,
+.button {
+  padding: 0.5rem 1rem;
+  background: yellow;
+  border: 1px solid #000;
+  font-size: 1rem;
+  border-radius: 5px;
+  font-weight: 400;
+  display: inline-block;
+}
