@@ -9,7 +9,7 @@ const examples = [
     description: 'A famous To-Do list app, implemented in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'todo-app-ts',
+    repoName: 'todo-typescript',
     repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
@@ -19,7 +19,7 @@ const examples = [
     description: 'Generate cover letters based on your CV and the job description. Powered by ChatGPT.',
     authorName: 'vincanger',
     authorImg: 'https://avatars.githubusercontent.com/u/70215737',
-    repoName: 'cover-letter-gpt',
+    repoName: 'coverlettergpt',
     repoUrl: 'https://github.com/vincanger/coverlettergpt',
     demoUrl: 'https://coverlettergpt.xyz/',
   },
