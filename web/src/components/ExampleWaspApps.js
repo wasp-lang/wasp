@@ -9,31 +9,28 @@ const examples = [
     description: 'A famous To-Do list app, implemented in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'todo-app-ts',
-    repoUrl:
-      'https://github.com/wasp-lang/wasp/tree/main/examples/todo-app-in-typescript',
+    repoName: 'todo-typescript',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
   {
     title: 'CoverLetterGPT 🤖',
-    description:
-      'Generate cover letters based on your CV and job description. Powered by ChatGPT.',
+    description: 'Generate cover letters based on your CV and the job description. Powered by ChatGPT.',
     authorName: 'vincanger',
     authorImg: 'https://avatars.githubusercontent.com/u/70215737',
-    repoName: 'cover-letter-gpt',
+    repoName: 'coverlettergpt',
     repoUrl: 'https://github.com/vincanger/coverlettergpt',
     demoUrl: 'https://coverlettergpt.xyz/',
   },
   {
     title: 'Realtime voting via WebSockets 🔌',
     description:
-      'A realtime, websockets powered voting app built with Wasp in TypeScript.',
+      'A realtime, websockets-powered voting app built with Wasp and TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'waspleau-jobs-example',
-    repoUrl:
-      'https://github.com/wasp-lang/wasp/tree/main/examples/websockets-realtime-voting',
+    repoName: 'websockets-realtime-voting',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting',
     demoUrl: 'https://websockets-client-production.up.railway.app/login',
   },
 ]
@@ -158,7 +155,7 @@ const ExampleWaspApps = () => {
       </div>
 
       <div className="flex justify-center">
-        <Link to="https://github.com/wasp-lang/wasp/tree/main/examples">
+        <Link to="https://github.com/wasp-lang/wasp/tree/release/examples">
           <span
             className={`
               flex
