@@ -1,9 +1,9 @@
-import { RegisterZipDownload, StartGeneratingNewApp, CreateFeedback } from "@wasp/actions/types";
+import { RegisterZipDownload, StartGeneratingNewApp, CreateFeedback, DeleteUser } from "@wasp/actions/types";
 import { GetAppGenerationResult, GetStats, GetFeedback, GetNumProjects, GetProjectsByUser } from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
-import type { Project } from "@wasp/entities";
+import type { Project, User } from "@wasp/entities";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -206,10 +206,10 @@ export const getStats = (async (_args, context) => {
       zipDownloadedAt: true,
       user: {
         select: {
-          email: true
-        }
-      }
-    }
+          email: true,
+        },
+      },
+    },
   });
 
   return {
@@ -234,6 +234,18 @@ export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_arg
     },
     orderBy: {
       createdAt: "desc",
+    },
+  });
+};
+
+export const deleteUser: DeleteUser<{ userId: number }, User> = async (args, context) => {
+  if (!context.user || context.user.id !== args.userId) {
+    throw new HttpError(401, "Not authorized");
+  }
+
+  return await context.entities.User.delete({
+    where: {
+      id: args.userId,
     },
   });
 };

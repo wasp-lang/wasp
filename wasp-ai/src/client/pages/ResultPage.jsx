@@ -392,14 +392,19 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     const logText = appGenerationResult?.project?.logs?.find((log) =>
       log.content.includes("tokens usage")
     )?.content;
-    const regex = /total tokens usage: ~(\d+(\.\d+)?)/i;
-    const match = logText?.match(regex);
-    if (match && match[1]) {
-      const num = Number(match[1]) * 1000;
-      if (Number.isInteger(num)) {
-        setNumTokensSpent(num);
+    
+    if (logText) {
+      const regex = /Total\s+tokens\s+usage\s*:\s*~\s*(\d+(?:\.\d+){0,1})\s*k\b/;
+      const match = logText.match(regex);
+
+      if (match) {
+        const num = parseFloat(match[1]);
+        setNumTokensSpent(num * 1000);
+      } else {
+        console.log('No match found');
       }
     }
+
   }, [appGenerationResult]);
 
   useEffect(() => {
@@ -638,7 +643,7 @@ function Feedback({ projectId }) {
             <RadioGroup value={score} onChange={setScore}>
               <div className="flex space-x-2">
                 {scoreOptions.map((option) => (
-                  <RadioGroup.Option value={option}>
+                  <RadioGroup.Option key={option} value={option}>
                     {({ active, checked }) => (
                       <div
                         className={`
