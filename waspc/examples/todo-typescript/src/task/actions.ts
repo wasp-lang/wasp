@@ -1,4 +1,4 @@
-import HttpError from '@wasp/core/HttpError.js'
+import HttpError from '@wasp/core/HttpError'
 import type {
   CreateTask,
   UpdateTask,

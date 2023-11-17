@@ -6,7 +6,7 @@ import { useQuery, useAction } from '@wasp/rpc' // Wasp uses a thin wrapper arou
 import { getTasks } from '@wasp/rpc/queries'
 import { createTask, updateTask, deleteTasks } from '@wasp/rpc/actions'
 import waspLogo from './waspLogo.png'
-import { User } from '@wasp/auth/types'
+import type { Task, User } from '@wasp/entities'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)

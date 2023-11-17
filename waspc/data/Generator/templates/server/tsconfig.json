@@ -2,6 +2,15 @@
   "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
+    // Filip: begin client file hacks
+    // We need this to make server work with copied client files (we copy everything)
+    "jsx": "preserve",
+    "lib": [
+      "esnext",
+      "dom",
+      "DOM.Iterable"
+    ],
+    // Filip: end client file hacks
     "strict": false,
     // Overriding this because we want to use top-level await
     "module": "esnext",
@@ -10,12 +19,13 @@
     "sourceMap": true,
     // The remaining settings should match node18/tsconfig.json, but I kept
     // them here to be explicit.
-
     // Enable default imports in TypeScript.
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
