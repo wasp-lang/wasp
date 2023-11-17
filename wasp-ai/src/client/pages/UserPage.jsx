@@ -15,7 +15,7 @@ import {
   projectStatusToDisplayableText,
 } from "../project/utils";
 import { HomeButton } from "../components/Header";
-import deleteUser from "@wasp/actions/deleteUser";
+import deleteMyself from "@wasp/actions/deleteMyself";
 import { MyDialog } from "../components/Dialog";
 
 export function UserPage({ user }) {
@@ -33,8 +33,7 @@ export function UserPage({ user }) {
       <DeleteUserModal
         isOpen={isDeleteUserModalOpen}
         setIsOpen={setIsDeleteUserModalOpen}
-        deleteUser={deleteUser}
-        user={user}
+        deleteUser={deleteMyself}
       />
 
       <div className="big-box">
@@ -137,9 +136,9 @@ function UserProjectsTable({ projects }) {
   );
 }
 
-function DeleteUserModal({ isOpen, setIsOpen, deleteUser, user }) {
+function DeleteUserModal({ isOpen, setIsOpen, deleteUser }) {
   async function deleteUserHandler() {
-    await deleteUser({ userId: user.id });
+    await deleteUser();
     logout();
   }
 

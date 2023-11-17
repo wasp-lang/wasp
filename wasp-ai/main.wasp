@@ -106,8 +106,8 @@ action createFeedback {
   entities: [Feedback]
 }
 
-action deleteUser {
-  fn: import { deleteUser } from "@server/operations.js",
+action deleteMyself {
+  fn: import { deleteMyself } from "@server/operations.js",
   entities: [User]
 }
 

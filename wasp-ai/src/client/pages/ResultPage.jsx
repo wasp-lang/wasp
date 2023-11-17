@@ -401,7 +401,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
         const num = parseFloat(match[1]);
         setNumTokensSpent(num * 1000);
       } else {
-        console.log('No match found');
+        console.log("Failed to parse total number of tokens used: no regex match.");
       }
     }
 
