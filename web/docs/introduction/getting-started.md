@@ -109,8 +109,11 @@ curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 
 :::note Something Unclear?
 **Experiencing the 'Bad CPU type in executable' issue on a device with arm64 (Apple Silicon)?**
-
-Given that the wasp binary is built for x86 and not for arm64 (Apple Silicon), you'll need to install [Rosetta on your Mac](https://support.apple.com/en-us/HT211861). Rosetta is a translation process that enables users to run applications designed for x86 on arm64 (Apple Silicon). To install Rosetta, run the following command in your terminal: `softwareupdate --install-rosetta`. Once Rosetta is installed, you should be able to run Wasp without any issues.
+Given that the wasp binary is built for x86 and not for arm64 (Apple Silicon), you'll need to install [Rosetta on your Mac](https://support.apple.com/en-us/HT211861). Rosetta is a translation process that enables users to run applications designed for x86 on arm64 (Apple Silicon). To install Rosetta, run the following command in your terminal
+```bash
+softwareupdate --install-rosetta
+```
+Once Rosetta is installed, you should be able to run Wasp without any issues.
 :::
 
   </TabItem>
