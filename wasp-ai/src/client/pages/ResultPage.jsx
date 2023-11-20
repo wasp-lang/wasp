@@ -530,7 +530,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               cd {"<your-app-name>"}
               <br />
-              wasp db migrate-dev <span className="text-slate-400"># init the db</span>
+              wasp db migrate-dev
               <br />
               wasp start
             </pre>
