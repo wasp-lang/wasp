@@ -16,7 +16,7 @@ const faqs = [
   {
     question: 'What is GPT Web App Generator?',
     answer: <p>
-      GTP Web App Generator is an experiment by the {l("Wasp")} team:
+      GPT Web App Generator is an experiment by the {l("Wasp")} team:
       it is a web app where you can shortly describe the web app you would like to create, and in a matter of minutes,
       a full-stack web app codebase, written in React, Node.js, Prisma, and Wasp, will be generated right in front of you,
       and made available to download and run locally.
