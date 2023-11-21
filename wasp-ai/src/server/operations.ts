@@ -1,5 +1,16 @@
-import { RegisterZipDownload, StartGeneratingNewApp, CreateFeedback, DeleteMyself } from "@wasp/actions/types";
-import { GetAppGenerationResult, GetStats, GetFeedback, GetNumProjects, GetProjectsByUser } from "@wasp/queries/types";
+import {
+  RegisterZipDownload,
+  StartGeneratingNewApp,
+  CreateFeedback,
+  DeleteMyself,
+} from "@wasp/actions/types";
+import {
+  GetAppGenerationResult,
+  GetStats,
+  GetFeedback,
+  GetNumProjects,
+  GetProjectsByUser,
+} from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
@@ -242,10 +253,44 @@ export const deleteMyself: DeleteMyself<void, User> = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401, "Not authorized");
   }
-
-  return await context.entities.User.delete({
-    where: {
-      id: context.user.id,
-    },
-  });
+  try {
+    await context.entities.Log.deleteMany({
+      where: {
+        project: {
+          user: {
+            id: context.user.id,
+          },
+        },
+      },
+    });
+    await context.entities.File.deleteMany({
+      where: {
+        project: {
+          user: {
+            id: context.user.id,
+          },
+        },
+      },
+    });
+    await context.entities.Project.updateMany({
+      where: {
+        user: {
+          id: context.user.id,
+        },
+      },
+      data: {
+        zipDownloadedAt: undefined,
+        name: "Deleted project",
+        description: "Deleted project",
+      },
+    });
+    return await context.entities.User.delete({
+      where: {
+        id: context.user.id,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw new HttpError(500, "Error deleting user");
+  }
 };

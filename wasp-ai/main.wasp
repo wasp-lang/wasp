@@ -108,7 +108,7 @@ action createFeedback {
 
 action deleteMyself {
   fn: import { deleteMyself } from "@server/operations.js",
-  entities: [User]
+  entities: [User, Project, File, Log]
 }
 
 query getFeedback {
