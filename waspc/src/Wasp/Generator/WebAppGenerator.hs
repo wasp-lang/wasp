@@ -50,7 +50,6 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
-    extSharedCodeGeneratorStrategy,
   )
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as EC
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
@@ -84,8 +83,9 @@ genWebApp spec = do
       genViteConfig spec
     ]
     <++> genSrcDir spec
-    <++> return extClientCodeFileDrafts
-    <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
+    -- Filip: I don't generate external source folders as we're importing the user's code direclty (see ServerGenerator/JsImport.hs).
+    -- <++> return extClientCodeFileDrafts
+    -- <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genPublicDir spec extClientCodeFileDrafts
     <++> genDotEnv spec
     <++> genUniversalDir
@@ -318,10 +318,10 @@ genEnvValidationScript =
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-      sequence
-        [ genFileCopy [relfile|webSocket.ts|],
-          genWebSocketProvider spec
-        ]
+    sequence
+      [ genFileCopy [relfile|webSocket.ts|],
+        genWebSocketProvider spec
+      ]
   | otherwise = return []
   where
     genFileCopy = return . C.mkSrcTmplFd

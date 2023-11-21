@@ -1,14 +1,12 @@
 module Wasp.Generator.WebAppGenerator.JsImport where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust)
 import StrongPath (Dir, Path, Posix, Rel)
-import qualified StrongPath as SP
-import Wasp.AppSpec.ExtImport (ExtImport)
+import StrongPath.TH (reldirP)
+import Wasp.AppSpec.ExtImport (ExtImport (..))
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.WebAppGenerator.Common (WebAppSrcDir)
-import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
 import Wasp.JsImport
   ( JsImport,
     JsImportIdentifier,
@@ -24,6 +22,26 @@ extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImpo
   where
     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
 
+-- extImportToImportJson ::
+--   Path Posix (Rel importLocation) (Dir WebAppSrcDir) ->
+--   Maybe ExtImport ->
+--   Aeson.Value
+-- extImportToImportJson _ maybeExtImport = case maybeExtImport of
+--   Nothing -> object ["isDefined" .= False]
+--   Just extImport -> makeImportObject extImport
+--   where
+--     makeImportObject (ExtImport importName importPath) =
+--       let importClause = makeImportClause importName
+--           importPathStr = "ext-sdrc/" ++ SP.toFilePath importPath
+--        in object
+--             [ "isDefined" .= True,
+--               "importStatement" .= ("import " ++ importClause ++ "from \"" ++ importPathStr ++ "\""),
+--               "importIdentifier" .= importName
+--             ]
+--     makeImportClause = \case
+--       EI.ExtImportModule name -> name
+--       EI.ExtImportField name -> "{ " ++ name ++ "
+
 getJsImportStmtAndIdentifier ::
   Path Posix (Rel importLocation) (Dir WebAppSrcDir) ->
   EI.ExtImport ->
@@ -36,4 +54,5 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport webAppExtDir
   where
-    webAppExtDir = fromJust (SP.relDirToPosix extClientCodeDirInWebAppSrcDir)
+    -- filip: read notes in ServerGenerator/JsImport.hs
+    webAppExtDir = [reldirP|../../../../src|]

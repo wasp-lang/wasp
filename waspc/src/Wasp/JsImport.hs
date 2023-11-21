@@ -10,6 +10,7 @@ module Wasp.JsImport
     makeJsImport,
     applyJsImportAlias,
     getJsImportStmtAndIdentifier,
+    getJsImportStmtAndIdentifierRaw,
   )
 where
 
@@ -34,6 +35,7 @@ data JsImport = JsImport
 
 type JsImportPath = Path Posix (Rel Dir') File'
 
+-- Note (filip): not a fan of so many aliases for regular types
 type JsImportAlias = String
 
 data JsImportName
@@ -60,15 +62,24 @@ applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
+  getJsImportStmtAndIdentifierRaw normalizedPath importName maybeImportAlias
+  where
+    filePath = SP.fromRelFileP importPath
+    normalizedPath = if ".." `isPrefixOf` filePath then filePath else "./" ++ filePath
+
+-- filip: attempt to simplify how we generate imports. I wanted to generate a
+-- module import (e.g., '@ext-src/something') and couldn't do it. This is one of
+-- the funtions I implemented while I was trying to pull it off.
+getJsImportStmtAndIdentifierRaw ::
+  FilePath ->
+  JsImportName ->
+  Maybe JsImportAlias ->
+  (JsImportStatement, JsImportIdentifier)
+getJsImportStmtAndIdentifierRaw importPath importName maybeImportAlias =
   (importStatement, importIdentifier)
   where
     (importIdentifier, importClause) = jsImportIdentifierAndClause
-
-    importStatement :: JsImportStatement
-    importStatement = "import " ++ importClause ++ " from '" ++ normalizedPath ++ "'"
-      where
-        filePath = SP.fromRelFileP importPath
-        normalizedPath = if ".." `isPrefixOf` filePath then filePath else "./" ++ filePath
+    importStatement = "import " ++ importClause ++ " from '" ++ importPath ++ "'"
 
     -- First part of import statement based on type of import and alias
     -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")

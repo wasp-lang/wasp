@@ -169,13 +169,21 @@ extImport = evaluation' . withCtx $ \ctx -> \case
       Nothing ->
         mkParseError
           ctx
-          $ "Path in external import must start with \"" ++ serverPrefix ++ "\"" ++ " or \"" ++ clientPrefix ++ "\"!"
+          $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
   where
     mkParseError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg
-    stripImportPrefix importPath = stripPrefix serverPrefix importPath <|> stripPrefix clientPrefix importPath
-    serverPrefix = "@server/"
-    clientPrefix = "@client/"
+    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
+    -- Filip: We no longer want separation between client and server code
+    -- todo (filip): Do we still want to know whic is which. We might (because of the reloading).
+    -- For now, as we'd like (expect):
+    --   - Nodemon watches all files in the user's source folder (client files
+    --   included), but tsc only compiles the server files (I think because it
+    --   knows that the others aren't used). I am not yet sure how it knows this.
+    --   - Vite also only triggers on client files. I am not sure how it knows
+    --   about the difference either.
+    -- todo (filip): investigate
+    extSrcPrefix = "@src/"
 
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON

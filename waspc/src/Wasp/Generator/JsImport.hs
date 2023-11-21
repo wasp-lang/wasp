@@ -34,6 +34,22 @@ extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir ex
     extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
     extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
+-- filip: attempt to simplify how we generate imports. I wanted to generate a
+-- module import (e.g., '@ext-src/something') and couldn't do it
+-- jsImportToImportJsonRaw :: Maybe (FilePath, JsImportName, Maybe JsImportAlias) -> Aeson.Value
+-- jsImportToImportJsonRaw importData = maybe notDefinedValue mkTmplData importData
+--   where
+--     notDefinedValue = object ["isDefined" .= False]
+
+--     mkTmplData :: (FilePath, JsImportName, Maybe JsImportAlias) -> Aeson.Value
+--     mkTmplData (importPath, importName, maybeImportAlias) =
+--       let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifierRaw importPath importName maybeImportAlias
+--        in object
+--             [ "isDefined" .= True,
+--               "importStatement" .= jsImportStmt,
+--               "importIdentifier" .= jsImportIdentifier
+--             ]
+
 jsImportToImportJson :: Maybe JsImport -> Aeson.Value
 jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
   where
