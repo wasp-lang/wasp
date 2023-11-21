@@ -282,6 +282,7 @@ export const deleteMyself: DeleteMyself<void, User> = async (args, context) => {
         zipDownloadedAt: undefined,
         name: "Deleted project",
         description: "Deleted project",
+        status: "deleted",
       },
     });
     return await context.entities.User.delete({

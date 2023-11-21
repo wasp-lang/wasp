@@ -42,7 +42,11 @@ export const ResultPage = () => {
     data: appGenerationResult,
     isError,
     isLoading,
-  } = useQuery(getAppGenerationResult, { appId }, { enabled: !!appId && !generationDone, refetchInterval: 3000 });
+  } = useQuery(
+    getAppGenerationResult,
+    { appId },
+    { enabled: !!appId && !generationDone, refetchInterval: 3000 }
+  );
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [currentStatus, setCurrentStatus] = useState({
     status: "idle",
@@ -211,7 +215,10 @@ export const ResultPage = () => {
 
   return (
     <div className="container">
-      <Header currentStatus={currentStatus} StatusPill={!!appGenerationResult?.project && StatusPill}>
+      <Header
+        currentStatus={currentStatus}
+        StatusPill={!!appGenerationResult?.project && StatusPill}
+      >
         <FaqButton />
         <HomeButton />
         <ProfileButton />
@@ -225,7 +232,8 @@ export const ResultPage = () => {
       {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
           <div className="text-red-500">
-            We couldn't find the app generation result. Maybe the link is incorrect or the app generation has failed.
+            We couldn't find the app generation result. Maybe the link is incorrect or the app
+            generation has failed.
           </div>
           <Link className="button gray sm mt-4 inline-block" to="/">
             Generate a new one
@@ -244,7 +252,16 @@ export const ResultPage = () => {
         </>
       )}
 
-      <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
+      {appGenerationResult?.project.status.includes("deleted") ? (
+        <div className="flex flex-col items-center justify-center gap-1 mb-4 bg-red-50 text-gray-700 p-8 rounded-xl">
+          <span>This app has been deleted. </span>
+          <Link className="underline sm inline-block" to="/">
+            &#x2190; Go back and generate a new app
+          </Link>
+        </div>
+      ) : (
+        <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
+      )}
 
       <div
         className="overflow-hidden
@@ -264,31 +281,45 @@ export const ResultPage = () => {
             onClick={() => window.open("https://github.com/wasp-lang/wasp/tree/wasp-ai")}
           >
             <span>
-              🔮 This is a Wasp powered project. If you like it, <span className="underline">star us on GitHub</span>!
+              🔮 This is a Wasp powered project. If you like it,{" "}
+              <span className="underline">star us on GitHub</span>!
             </span>
           </span>
         </div>
       </div>
 
       {currentStatus.status === "pending" && (
-        <WaitingRoomContent numberOfProjectsAheadInQueue={appGenerationResult?.numberOfProjectsAheadInQueue || 0} />
+        <WaitingRoomContent
+          numberOfProjectsAheadInQueue={appGenerationResult?.numberOfProjectsAheadInQueue || 0}
+        />
       )}
 
       {interestingFilePaths.length > 0 && (
         <>
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">{appGenerationResult?.project?.name}</h2>
+            <h2 className="text-xl font-bold text-gray-800">
+              {appGenerationResult?.project?.name}
+            </h2>
           </div>
-          <button className="button gray block w-full mb-4 md:hidden" onClick={toggleMobileFileBrowser}>
-            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser ({interestingFilePaths.length} files)
+          <button
+            className="button gray block w-full mb-4 md:hidden"
+            onClick={toggleMobileFileBrowser}
+          >
+            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser ({interestingFilePaths.length}{" "}
+            files)
           </button>
           <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto md:overflow-x-visible">
             <aside className={isMobileFileBrowserOpen ? "" : "hidden md:block"}>
               <div className="mb-2">
-                <RunTheAppModal onDownloadZip={downloadZip} disabled={currentStatus.status !== "success"} />
+                <RunTheAppModal
+                  onDownloadZip={downloadZip}
+                  disabled={currentStatus.status !== "success"}
+                />
               </div>
               {currentStatus.status !== "success" && (
-                <small className="text-gray-500 text-center block my-2">The app is still being generated.</small>
+                <small className="text-gray-500 text-center block my-2">
+                  The app is still being generated.
+                </small>
               )}
               <div>
                 <ShareButton />
@@ -353,6 +384,7 @@ function getStatusPillData(generationResult) {
     success: "success",
     failure: "error",
     cancelled: "cancelled",
+    deleted: "deleted"
   };
 
   const queueCardinalNumber = getCardinalNumber(generationResult.numberOfProjectsAheadInQueue);
@@ -363,6 +395,7 @@ function getStatusPillData(generationResult) {
     success: "Finished",
     failure: "There was an error",
     cancelled: "The generation was cancelled",
+    deleted: "The project was deleted"
   };
 
   return {
@@ -392,7 +425,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     const logText = appGenerationResult?.project?.logs?.find((log) =>
       log.content.includes("tokens usage")
     )?.content;
-    
+
     if (logText) {
       const regex = /Total\s+tokens\s+usage\s*:\s*~\s*(\d+(?:\.\d+){0,1})\s*k\b/;
       const match = logText.match(regex);
@@ -404,7 +437,6 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
         console.log("Failed to parse total number of tokens used: no regex match.");
       }
     }
-
   }, [appGenerationResult]);
 
   useEffect(() => {
@@ -421,10 +453,15 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
   }
 
   return (
-    <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>Your App is Ready! 🎉</span>}>
+    <MyDialog
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      title={<span>Your App is Ready! 🎉</span>}
+    >
       <div className="mt-6 space-y-5">
         <p className="text-base leading-relaxed text-gray-500">
-          We've made this tool completely <span className="font-semibold">free</span> and cover all the costs 😇
+          We've made this tool completely <span className="font-semibold">free</span> and cover all
+          the costs 😇
         </p>
         {numTokensSpent > 0 && (
           <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
@@ -440,7 +477,9 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`$${((Number(numTokensSpent) / 1000) * 0.004).toFixed(2)}`}</FormattedText>{" "}
+                  <FormattedText>{`$${((Number(numTokensSpent) / 1000) * 0.004).toFixed(
+                    2
+                  )}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (
@@ -482,7 +521,9 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
   return (
     <>
       <button
-        className={`button flex items-center justify-center gap-1 w-full${!disabled ? " animate-jumping" : ""}`}
+        className={`button flex items-center justify-center gap-1 w-full${
+          !disabled ? " animate-jumping" : ""
+        }`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
@@ -502,11 +543,16 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Congrats, your full-stack web app is ready! 🎉
             <br />
             App is implemented in{" "}
-            <a href="https://wasp-lang.dev" target="_blank" rel="noopener noreferrer" className="underline">
+            <a
+              href="https://wasp-lang.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
               Wasp
             </a>{" "}
-            web framework, using React, Node.js and Prisma, and is completely full-stack (frontend + backend +
-            database).
+            web framework, using React, Node.js and Prisma, and is completely full-stack (frontend +
+            backend + database).
           </p>
 
           <WarningAboutAI />
@@ -516,7 +562,11 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
           <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
             <h2 className="font-bold flex items-center space-x-1">
               <span>1. Install Wasp CLI</span>
-              <a href="https://wasp-lang.dev/docs/quick-start#installation-1" target="blank" rel="noopener noreferrer">
+              <a
+                href="https://wasp-lang.dev/docs/quick-start#installation-1"
+                target="blank"
+                rel="noopener noreferrer"
+              >
                 {" "}
                 <RxQuestionMarkCircled className="text-base" />{" "}
               </a>
@@ -526,8 +576,14 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               curl -sSL https://get.wasp-lang.dev/installer.sh | sh
             </pre>
 
-            <h2 className="font-bold mt-4"> 2. Download the generated app files and unzip them: </h2>
-            <button className="button flex items-center justify-center gap-1 w-full mt-2" onClick={onDownloadZip}>
+            <h2 className="font-bold mt-4">
+              {" "}
+              2. Download the generated app files and unzip them:{" "}
+            </h2>
+            <button
+              className="button flex items-center justify-center gap-1 w-full mt-2"
+              onClick={onDownloadZip}
+            >
               Download ZIP <PiDownloadDuotone className="inline-block" size={20} />
             </button>
 
@@ -541,11 +597,17 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             </pre>
           </div>
 
-          <p className="text-base leading-relaxed text-gray-500">Congratulations, you are now running your app! 🎉</p>
+          <p className="text-base leading-relaxed text-gray-500">
+            Congratulations, you are now running your app! 🎉
+          </p>
 
           <div className="bg-pink-50 text-pink-800 p-4 rounded">
             If you like this project,{" "}
-            <a href="https://github.com/wasp-lang/wasp" target="_blank" className="underline text-pink-600">
+            <a
+              href="https://github.com/wasp-lang/wasp"
+              target="_blank"
+              className="underline text-pink-600"
+            >
               star us on GitHub
             </a>{" "}
             ⭐️
@@ -564,8 +626,8 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is a GPT generated app, it might contain some mistakes, proportional to how complex the app is.
-              If there are some in your app, check out{" "}
+              Since this is a GPT generated app, it might contain some mistakes, proportional to how
+              complex the app is. If there are some in your app, check out{" "}
               <a
                 href="https://wasp-lang.dev/docs"
                 target="_blank"
@@ -583,8 +645,8 @@ function WarningAboutAI() {
               >
                 Discord
               </a>
-              ! You can also try generating the app again to get different results (try playing with the creativity
-              level).
+              ! You can also try generating the app again to get different results (try playing with
+              the creativity level).
             </p>
           </div>
         </div>
@@ -637,7 +699,8 @@ function Feedback({ projectId }) {
       >
         <form onSubmit={handleSubmit}>
           <label className="text-slate-700 block mb-2 mt-8">
-            How likely are you to recommend this tool to a friend? <span className="text-red-500">*</span>
+            How likely are you to recommend this tool to a friend?{" "}
+            <span className="text-red-500">*</span>
           </label>
           <div className="mx-auto w-full max-w-md">
             <RadioGroup value={score} onChange={setScore}>
@@ -647,7 +710,11 @@ function Feedback({ projectId }) {
                     {({ active, checked }) => (
                       <div
                         className={`
-                              ${active ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300" : ""}
+                              ${
+                                active
+                                  ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                                  : ""
+                              }
 
 
                               ${checked ? "bg-sky-900 bg-opacity-75 text-white" : ""}
