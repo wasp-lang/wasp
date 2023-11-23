@@ -1,23 +1,23 @@
-import React, { FormEventHandler, FormEvent } from 'react'
-import waspLogo from './waspLogo.png'
+import React, { FormEventHandler, FormEvent } from "react";
+import waspLogo from "./waspLogo.png";
 
-import './Main.css'
+import "./Main.css";
 // Wasp imports 🐝 = }
-import logout from '@wasp/auth/logout'
-import { useQuery } from '@wasp/queries' // Wasp uses a thin wrapper around react-query
-import getTasks from '@wasp/queries/getTasks'
-import createTask from '@wasp/actions/createTask'
-import updateTask from '@wasp/actions/updateTask'
-import deleteTasks from '@wasp/actions/deleteTasks'
-import type { Task, User } from '@wasp/entities'
+import logout from "@wasp/auth/logout";
+import { useQuery } from "@wasp/queries"; // Wasp uses a thin wrapper around react-query
+import getTasks from "@wasp/queries/getTasks";
+import createTask from "@wasp/actions/createTask";
+import updateTask from "@wasp/actions/updateTask";
+import deleteTasks from "@wasp/actions/deleteTasks";
+import type { Task, User } from "@wasp/entities";
 
 export const MainPage = ({ user }: { user: User }) => {
-  const { data: tasks, isLoading, error } = useQuery(getTasks)
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
 
-  if (isLoading) return 'Loading...'
-  if (error) return 'Error: ' + error
+  if (isLoading) return "Loading...";
+  if (error) return "Error: " + error;
 
-  const completed = tasks?.filter((task) => task.isDone).map((task) => task.id)
+  const completed = tasks?.filter((task) => task.isDone).map((task) => task.id);
 
   return (
     <main>
@@ -42,8 +42,8 @@ export const MainPage = ({ user }: { user: User }) => {
         </button>
       </div>
     </main>
-  )
-}
+  );
+};
 
 function Todo({ id, isDone, description }: Task) {
   const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (
@@ -53,11 +53,11 @@ function Todo({ id, isDone, description }: Task) {
       await updateTask({
         id,
         isDone: event.currentTarget.checked,
-      })
+      });
     } catch (err: any) {
-      window.alert('Error while updating task ' + err?.message)
+      window.alert("Error while updating task " + err?.message);
     }
-  }
+  };
 
   return (
     <li>
@@ -72,38 +72,38 @@ function Todo({ id, isDone, description }: Task) {
         <button onClick={() => void deleteTasks([id])}>Delete</button>
       </span>
     </li>
-  )
+  );
 }
 
 function TasksList({ tasks }: { tasks: Task[] }) {
-  if (tasks.length === 0) return <p>No tasks yet.</p>
+  if (tasks.length === 0) return <p>No tasks yet.</p>;
   return (
     <ol className="tasklist">
       {tasks.map((task, idx) => (
         <Todo {...task} key={idx} />
       ))}
     </ol>
-  )
+  );
 }
 
 function NewTaskForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
     try {
-      const description = event.currentTarget.description.value
-      console.log(description)
-      event.currentTarget.reset()
-      await createTask({ description })
+      const description = event.currentTarget.description.value;
+      console.log(description);
+      event.currentTarget.reset();
+      await createTask({ description });
     } catch (err: any) {
-      window.alert('Error: ' + err?.message)
+      window.alert("Error: " + err?.message);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <input name="description" type="text" defaultValue="" />
       <input type="submit" value="Create task" />
     </form>
-  )
+  );
 }
