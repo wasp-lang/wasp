@@ -7,6 +7,7 @@ export function StatusPill({ children, status, className = "", sm = false }) {
     error: "bg-red-100 text-red-700",
     cancelled: "bg-red-100 text-red-700",
     warning: "bg-yellow-100 text-yellow-700",
+    deleted: "bg-red-100 text-red-700",
   };
   return (
     <div className={`flex items-center ${className}`}>

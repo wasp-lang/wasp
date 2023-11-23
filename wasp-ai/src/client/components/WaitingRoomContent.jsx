@@ -77,7 +77,7 @@ export function WaitingRoomContent(props) {
 
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-4">
         {showcaseSamples.map((sample) => (
-          <ShowcaseCard {...sample} />
+          <ShowcaseCard key={sample.name} {...sample} />
         ))}
       </div>
     </>

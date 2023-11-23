@@ -107,6 +107,11 @@ action createFeedback {
   entities: [Feedback]
 }
 
+action deleteMyself {
+  fn: import { deleteMyself } from "@server/operations.js",
+  entities: [User, Project, File, Log]
+}
+
 query getFeedback {
   fn: import { getFeedback } from "@server/operations.js",
   entities: [Feedback]
@@ -155,7 +160,7 @@ entity SocialLogin {=psl
   providerId String
 
   userId Int
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 psl=}
 

@@ -1,9 +1,20 @@
-import { RegisterZipDownload, StartGeneratingNewApp, CreateFeedback } from "@wasp/actions/types";
-import { GetAppGenerationResult, GetStats, GetFeedback, GetNumProjects, GetProjectsByUser } from "@wasp/queries/types";
+import {
+  RegisterZipDownload,
+  StartGeneratingNewApp,
+  CreateFeedback,
+  DeleteMyself,
+} from "@wasp/actions/types";
+import {
+  GetAppGenerationResult,
+  GetStats,
+  GetFeedback,
+  GetNumProjects,
+  GetProjectsByUser,
+} from "@wasp/queries/types";
 import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
-import type { Project } from "@wasp/entities";
+import type { Project, User } from "@wasp/entities";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -206,10 +217,10 @@ export const getStats = (async (_args, context) => {
       zipDownloadedAt: true,
       user: {
         select: {
-          email: true
-        }
-      }
-    }
+          email: true,
+        },
+      },
+    },
   });
 
   return {
@@ -236,4 +247,51 @@ export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_arg
       createdAt: "desc",
     },
   });
+};
+
+export const deleteMyself: DeleteMyself<void, User> = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "Not authorized");
+  }
+  try {
+    await context.entities.Log.deleteMany({
+      where: {
+        project: {
+          user: {
+            id: context.user.id,
+          },
+        },
+      },
+    });
+    await context.entities.File.deleteMany({
+      where: {
+        project: {
+          user: {
+            id: context.user.id,
+          },
+        },
+      },
+    });
+    await context.entities.Project.updateMany({
+      where: {
+        user: {
+          id: context.user.id,
+        },
+      },
+      data: {
+        zipDownloadedAt: undefined,
+        name: "Deleted project",
+        description: "Deleted project",
+        status: "deleted",
+      },
+    });
+    return await context.entities.User.delete({
+      where: {
+        id: context.user.id,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw new HttpError(500, "Error deleting user");
+  }
 };

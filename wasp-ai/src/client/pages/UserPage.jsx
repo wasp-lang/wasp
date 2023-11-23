@@ -1,20 +1,27 @@
+import { useState } from "react";
 import { useQuery } from "@wasp/queries";
 import getProjectsByUser from "@wasp/queries/getProjectsByUser";
 import { Link } from "@wasp/router";
 import { Color } from "../components/Color";
 import { Header } from "../components/Header";
-import { PiDownloadDuotone } from "react-icons/pi";
+import { PiDownloadDuotone, PiSealWarningDuotone } from "react-icons/pi";
 import logout from "@wasp/auth/logout";
 import { FiLogOut } from "react-icons/fi";
 import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
-import { getTailwindClassNameForProjectBrandColor, getTailwindClassNameForProjectStatus, projectStatusToDisplayableText } from "../project/utils";
+import {
+  getTailwindClassNameForProjectBrandColor,
+  getTailwindClassNameForProjectStatus,
+  projectStatusToDisplayableText,
+} from "../project/utils";
 import { HomeButton } from "../components/Header";
+import deleteMyself from "@wasp/actions/deleteMyself";
+import { MyDialog } from "../components/Dialog";
 
 export function UserPage({ user }) {
+  const [isDeleteUserModalOpen, setIsDeleteUserModalOpen] = useState(false);
   const { data: projects, isLoading, error } = useQuery(getProjectsByUser);
 
-  if (isLoading) return "Loading Projects...";
   if (error) return "Error loading projects.";
 
   return (
@@ -22,6 +29,13 @@ export function UserPage({ user }) {
       <Header>
         <HomeButton />
       </Header>
+
+      <DeleteUserModal
+        isOpen={isDeleteUserModalOpen}
+        setIsOpen={setIsDeleteUserModalOpen}
+        deleteUser={deleteMyself}
+      />
+
       <div className="big-box">
         <div className="flex items-center justify-between pb-6 pl-1">
           <p className="text-gray-700 mr-2 whitespace-nowrap">
@@ -34,9 +48,18 @@ export function UserPage({ user }) {
             </div>
           </button>
         </div>
-        <div className="sm:rounded-lg shadow-md overflow-x-auto ">
-          <UserProjectsTable projects={projects} />
-        </div>
+        {isLoading ? (
+          "Loading..."
+        ) : (
+          <div className="sm:rounded-lg shadow-md overflow-x-auto ">
+            <UserProjectsTable projects={projects} />
+          </div>
+        )}
+      </div>
+      <div className="flex justify-end pt-8 px-10">
+        <button onClick={() => setIsDeleteUserModalOpen(true)} className="text-xs text-gray-500 hover:underline">
+          *I want to delete my account.
+        </button>
       </div>
     </div>
   );
@@ -63,7 +86,7 @@ function UserProjectsTable({ projects }) {
         </tr>
       </thead>
       <tbody>
-        {projects?.length > 0 &&
+        {!!projects && projects?.length > 0 ? (
           projects.map((project) => (
             <tr className="bg-white border-t" key={project.id}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2">
@@ -100,8 +123,54 @@ function UserProjectsTable({ projects }) {
                 </Link>
               </td>
             </tr>
-          ))}
+          ))
+        ) : (
+          <tr className="bg-white border-t">
+            <td colSpan={5} className="text-center py-4">
+              you have not generated any apps yet.
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
+  );
+}
+
+function DeleteUserModal({ isOpen, setIsOpen, deleteUser }) {
+  async function deleteUserHandler() {
+    await deleteUser();
+    logout();
+  }
+
+  return (
+    <MyDialog
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      title={
+        <div className="flex items-center gap-2">
+          <PiSealWarningDuotone arie-hidden="true" /> Are You Sure You Want to Delete Your Account?
+        </div>
+      }
+    >
+      <div className="mt-10 space-y-10">
+        <p className="px-8 text-base leading-relaxed text-center text-gray-500">
+          You will lose access to your current projects and data.
+        </p>
+        <div className="flex items-center justify-between">
+          <button
+            className="px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            onClick={deleteUserHandler}
+          >
+            Delete Account
+          </button>
+          <button
+            className="px-4 py-2 text-base font-medium text-gray-700 bg-gray-100 border border-transparent rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            onClick={() => setIsOpen(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </MyDialog>
   );
 }
