@@ -10,9 +10,8 @@ import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../..
 type {= authEntityUpper =}Id = {= authEntityUpper =}['id']
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
-type AuthWithUserId = {
+type AuthWithId = {
   id: {= authEntityUpper =}Id,
-  {= userFieldOnAuthEntityName =}: { id: {= userEntityUpper =}Id }
 }
 
 export async function updateAuthEmailVerification(authId: {= authEntityUpper =}Id) {
@@ -37,22 +36,22 @@ export async function updateAuthPassword(authId: {= authEntityUpper =}Id, passwo
   }
 }
 
-export async function createEmailVerificationLink(authWithUserId: AuthWithUserId, clientRoute: string) {
-  const token = await createEmailVerificationToken(authWithUserId);
+export async function createEmailVerificationLink(auth: AuthWithId, clientRoute: string) {
+  const token = await createEmailVerificationToken(auth);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-export async function createPasswordResetLink(authWithUserId: AuthWithUserId, clientRoute: string)  {
-  const token = await createPasswordResetToken(authWithUserId);
+export async function createPasswordResetLink(auth: AuthWithId, clientRoute: string)  {
+  const token = await createPasswordResetToken(auth);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-async function createEmailVerificationToken(authWithUserId: AuthWithUserId): Promise<string> {
-  return sign(authWithUserId.user.id, { expiresIn: '30m' });
+async function createEmailVerificationToken(auth: AuthWithId): Promise<string> {
+  return sign(auth.id, { expiresIn: '30m' });
 }
 
-async function createPasswordResetToken(authWithUserId: AuthWithUserId): Promise<string> {
-  return sign(authWithUserId.user.id, { expiresIn: '30m' });
+async function createPasswordResetToken(auth: AuthWithId): Promise<string> {
+  return sign(auth.id, { expiresIn: '30m' });
 }
 
 export async function sendPasswordResetEmail(

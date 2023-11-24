@@ -7,8 +7,8 @@ app authModelExperiment {
     userEntity: User,
     methods: {
       google: {
-        // getUserFieldsFn: import { getUserFields } from "@server/google.js",
-        // configFn: import { getGoogleConfig } from "@server/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/google.js",
+        configFn: import { getGoogleConfig } from "@server/google.js",
       },
       // usernameAndPassword: {},
       email: {
@@ -25,7 +25,10 @@ app authModelExperiment {
         allowUnverifiedLogin: false,
       },
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: "/login",
+    signup: {
+      additionalFields: import { additionalSignupFields } from "@server/signup.js",
+    }
   },
   emailSender: {
     provider: SMTP,
@@ -86,7 +89,7 @@ page PasswordResetPage {
   component: import { PasswordReset } from "@client/auth.jsx",
 }
 
-route EmailVerificationRoute { path: "/email-verification-", to: EmailVerificationPage }
+route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
   component: import { EmailVerification } from "@client/auth.jsx",
 }

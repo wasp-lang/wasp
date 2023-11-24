@@ -1,8 +1,8 @@
 import { SignupForm } from "@wasp/auth/forms/Signup";
 import { LoginForm } from "@wasp/auth/forms/Login";
-// import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
-// import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
-// import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
+import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
+import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
+import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
 
 export function Signup() {
   return <SignupForm />;
@@ -13,13 +13,13 @@ export function Login() {
 }
 
 export function RequestPasswordReset() {
-  return <div />;
+  return <ForgotPasswordForm />;
 }
 
 export function PasswordReset() {
-  return <div />;
+  return <ResetPasswordForm />;
 }
 
 export function EmailVerification() {
-  return <div />;
+  return <VerifyEmailForm />;
 }
