@@ -27,7 +27,7 @@ export function App({ children }: any) {
         {user && (
           <div className="flex gap-3 items-center">
             <div>
-              Hello, <Link to="/profile">{user.email}</Link>
+              Hello, <Link to="/profile">{user.auth?.email}</Link>
             </div>
             <div>
               <button className="btn btn-primary" onClick={logout}>

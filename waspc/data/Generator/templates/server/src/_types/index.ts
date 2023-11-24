@@ -84,6 +84,6 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { 
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
 export type SanitizedUser = {= userEntityName =} & {
-  {= authFieldOnUserEntityName =}: Omit<{= authEntityName =}, 'password'>
+  {= authFieldOnUserEntityName =}: Omit<{= authEntityName =}, 'password'> | null
 }
 {=/ isAuthEnabled =}
