@@ -15,6 +15,7 @@ export default handleRejection(async (req, res) => {
   }
 
   try {
+
     await verifyPassword(auth.password, userFields.password)
   } catch(e) {
     throwInvalidCredentialsError()

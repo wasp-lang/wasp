@@ -19,7 +19,9 @@ export default handleRejection(async (req, res) => {
       username: userFields.username,
       password: userFields.password,
     },
-    additionalFields
+    // Using any here because we want to avoid TypeScript errors and
+    // rely on Prisma to validate the data.
+    additionalFields as any
   )
 
   return res.json({ success: true })

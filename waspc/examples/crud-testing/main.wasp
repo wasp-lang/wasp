@@ -20,7 +20,10 @@ app crudTesting {
     ("zod", "^3.22.2")
   ],
   db: {
-    system: PostgreSQL
+    system: PostgreSQL,
+    seeds: [
+      import { migrateAuth } from "@server/migrate.js"
+    ]
   }
 }
 
@@ -91,5 +94,4 @@ job simplePrintJob {
 
 action customSignup {
   fn: import { signup } from "@server/auth.js",
-  entities: [User]
 }

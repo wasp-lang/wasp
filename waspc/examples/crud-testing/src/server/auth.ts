@@ -5,6 +5,7 @@ import {
   ensureValidPassword,
   ensureValidUsername,
 } from '@wasp/auth/validation.js'
+import prisma from '@wasp/dbClient.js'
 
 export const fields = defineAdditionalSignupFields({
   address: (data) => {
@@ -21,7 +22,7 @@ export const fields = defineAdditionalSignupFields({
     }
     return result.data
   },
-})
+} as any)
 
 import { CustomSignup } from '@wasp/actions/types'
 
@@ -38,17 +39,21 @@ type CustomSignupOutput = {
 export const signup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
-> = async (args, { entities: { User } }) => {
+> = async (args) => {
   ensureValidUsername(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
 
   try {
-    await User.create({
+    await prisma.auth.create({
       data: {
         username: args.username,
         password: args.password,
-        address: args.address,
+        user: {
+          create: {
+            address: args.address,
+          } as any,
+        },
       },
     })
   } catch (e: any) {

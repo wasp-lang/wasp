@@ -43,7 +43,9 @@ export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}Creat
         ...data,
         {= userFieldOnAuthEntityName =}: {
           create: {
-            ...(additionalFields ?? {}),
+            // Using any here to prevent type errors when additionalFields are not
+            // defined. We want Prisma to throw an error in that case.
+            ...(additionalFields ?? {} as any),
           }
         }
       },
