@@ -1,5 +1,5 @@
 ---
-title: 'A guide to Windows development with Wasp'
+title: 'A Guide to Windows Development with Wasp & WSL'
 authors: [martinovicdev]
 image: /img/wsl-guide/wsl-guide-banner.jpeg
 tags: [wsl, windows, tutorial]
