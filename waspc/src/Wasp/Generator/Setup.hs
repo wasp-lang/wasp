@@ -29,7 +29,9 @@ runNpmInstallIfNeeded spec dstDir sendMessage = do
       Nothing -> return ([], [])
       Just fullStackDeps -> do
         sendMessage $ Msg.Start "Starting npm install..."
-        (Left (npmInstallWarnings, npmInstallErrors)) <- installNpmDependenciesWithInstallRecord fullStackDeps dstDir `race` reportInstallationProgress reportInstallationProgressMessages
+        (Left (npmInstallWarnings, npmInstallErrors)) <-
+          installNpmDependenciesWithInstallRecord fullStackDeps dstDir
+            `race` reportInstallationProgress reportInstallationProgressMessages
         when (null npmInstallErrors) (sendMessage $ Msg.Success "Successfully completed npm install.")
         return (npmInstallWarnings, npmInstallErrors)
   where
