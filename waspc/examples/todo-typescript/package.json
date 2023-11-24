@@ -1,9 +1,3 @@
 {
-  "dependencies": {
-    "@prisma/client": "^4.12.0",
-    "vite": "^4.5.0"
-  },
-  "devDependencies": {
-    "prisma": "^4.12.0"
-  }
+    "name": "prototype"
 }
