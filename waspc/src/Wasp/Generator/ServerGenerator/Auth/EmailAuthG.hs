@@ -116,5 +116,6 @@ genUtils auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String)
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]

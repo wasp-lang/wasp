@@ -50,7 +50,7 @@ genAuth spec = case maybeAuth of
       ]
       <++> genIndexTs auth
       <++> genLocalAuth auth
-      <++> genOAuthAuth spec auth
+      <++> genOAuthAuth auth
       <++> genEmailAuth spec auth
   Nothing -> return []
   where

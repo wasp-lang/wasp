@@ -13,14 +13,13 @@ import {
   findAuthWithUserBy,
 } from "../../utils.js"
 
-import type { {= authEntityUpper =} } from '@prisma/client'
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
 import type { GetUserFieldsFn } from "./types.js"
 import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
-export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn: GetUserFieldsFn }) {
+export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn?: GetUserFieldsFn }) {
     const { passportStrategyName, getUserFieldsFn } = initData;
 
     const router = Router();
@@ -47,7 +46,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           }
 
           // Wrap call to getUserFieldsFn so we can invoke only if needed.
-          const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile });
+          const getUserFields = () => getUserFieldsFn ? getUserFieldsFn(contextWithUserEntity, { profile: providerProfile }) : Promise.resolve({});
           // TODO: In the future we could make this configurable, possibly associating an external account
           // with the currently logged in account, or by some DB lookup.
           const auth = await findOrCreateAuthByAuthProvider(provider.id, providerProfile.id, getUserFields);

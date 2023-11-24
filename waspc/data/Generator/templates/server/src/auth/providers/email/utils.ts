@@ -5,10 +5,15 @@ import { Email } from '../../../email/core/types.js';
 import { rethrowPossiblePrismaError } from '../../utils.js'
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js';
-import { type {= userEntityUpper =} } from '../../../entities/index.js'
-import { type {= authEntityUpper =} } from '@prisma/client';
+import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
 type {= authEntityUpper =}Id = {= authEntityUpper =}['id']
+type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
+
+type AuthWithUserId = {
+  id: {= authEntityUpper =}Id,
+  {= userFieldOnAuthEntityName =}: { id: {= userEntityUpper =}Id }
+}
 
 export async function updateAuthEmailVerification(authId: {= authEntityUpper =}Id) {
   try {
@@ -32,22 +37,22 @@ export async function updateAuthPassword(authId: {= authEntityUpper =}Id, passwo
   }
 }
 
-export async function createEmailVerificationLink(auth: {= authEntityUpper =}, clientRoute: string) {
-  const token = await createEmailVerificationToken(auth);
+export async function createEmailVerificationLink(authWithUserId: AuthWithUserId, clientRoute: string) {
+  const token = await createEmailVerificationToken(authWithUserId);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-export async function createPasswordResetLink(auth: {= authEntityUpper =}, clientRoute: string)  {
-  const token = await createPasswordResetToken(auth);
+export async function createPasswordResetLink(authWithUserId: AuthWithUserId, clientRoute: string)  {
+  const token = await createPasswordResetToken(authWithUserId);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-async function createEmailVerificationToken(auth: {= authEntityUpper =}): Promise<string> {
-  return sign(auth.id, { expiresIn: '30m' });
+async function createEmailVerificationToken(authWithUserId: AuthWithUserId): Promise<string> {
+  return sign(authWithUserId.user.id, { expiresIn: '30m' });
 }
 
-async function createPasswordResetToken(auth: {= authEntityUpper =}): Promise<string> {
-  return sign(auth.id, { expiresIn: '30m' });
+async function createPasswordResetToken(authWithUserId: AuthWithUserId): Promise<string> {
+  return sign(authWithUserId.user.id, { expiresIn: '30m' });
 }
 
 export async function sendPasswordResetEmail(

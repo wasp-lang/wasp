@@ -25,14 +25,12 @@ export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 export type PossibleAdditionalSignupFields = Expand<Partial<UserEntity>>
 
-export function createDefineAdditionalSignupFieldsFn() {
-  return function defineFields(config: {
-    [key in keyof PossibleAdditionalSignupFields]: FieldGetter<
-      PossibleAdditionalSignupFields[key]
-    >
-  }) {
-    return config
-  }
+export function defineAdditionalSignupFields(config: {
+  [key in keyof PossibleAdditionalSignupFields]: FieldGetter<
+    PossibleAdditionalSignupFields[key]
+  >
+}) {
+  return config
 }
 
 type FieldGetter<T> = (

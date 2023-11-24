@@ -11,7 +11,7 @@ import type { OAuthConfig } from "../oauth/types.js";
 const _waspGetUserFieldsFn = {= userFieldsFn.importIdentifier =}
 {=/ userFieldsFn.isDefined =}
 {=^ userFieldsFn.isDefined =}
-import { getUserFieldsFn as _waspGetUserFieldsFn } from '../oauth/defaults.js'
+const _waspGetUserFieldsFn = undefined
 {=/ userFieldsFn.isDefined =}
 {=# configFn.isDefined =}
 {=& configFn.importStatement =}

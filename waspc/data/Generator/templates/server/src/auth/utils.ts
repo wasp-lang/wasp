@@ -4,8 +4,8 @@ import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
 import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
-import { type {= userEntityUpper =} } from '../entities/index.js'
-import { type Prisma, type {= authEntityUpper =} } from '@prisma/client';
+import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../entities/index.js'
+import { type Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
@@ -13,14 +13,12 @@ import { throwValidationError } from './validation.js'
 {=& additionalSignupFields.importStatement =}
 {=/ additionalSignupFields.isDefined =}
 
-import { createDefineAdditionalSignupFieldsFn, type PossibleAdditionalSignupFields } from './providers/types.js'
+import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
 {=# additionalSignupFields.isDefined =}
 const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdentifier =}
 {=/ additionalSignupFields.isDefined =}
 {=^ additionalSignupFields.isDefined =}
-const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
-  ReturnType<typeof createDefineAdditionalSignupFieldsFn>
->
+const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
 {=/ additionalSignupFields.isDefined =}
 
 export const contextWithUserEntity = {
@@ -38,14 +36,22 @@ export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}Wher
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
-export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}CreateInput, additionalFields: PossibleAdditionalSignupFields) {
+export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}CreateInput, additionalFields?: PossibleAdditionalSignupFields) {
   try {
     return await prisma.{= authEntityLower =}.create({
       data: {
         ...data,
         {= userFieldOnAuthEntityName =}: {
           create: {
-            ...additionalFields,
+            ...(additionalFields ?? {}),
+          }
+        }
+      },
+      select: {
+        id: true,
+        {= userFieldOnAuthEntityName =}: {
+          select: {
+            id: true
           }
         }
       }
@@ -55,7 +61,7 @@ export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}Creat
   }
 }
 
-export async function deleteUser(auth: {= authEntityUpper =}) {
+export async function deleteAuth(auth: {= authEntityUpper =}) {
   try {
     return await prisma.{= authEntityLower =}.delete({ where: { id: auth.id } })
   } catch (e) {

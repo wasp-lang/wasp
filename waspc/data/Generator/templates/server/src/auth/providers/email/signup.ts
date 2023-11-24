@@ -3,7 +3,7 @@ import { EmailFromField } from "../../../email/core/types.js";
 import {
     createAuthWithUser,
     findAuthWithUserBy,
-    deleteUser,
+    deleteAuth,
     doFakeWork,
 } from "../../utils.js";
 import {
@@ -42,7 +42,7 @@ export function getSignupRoute({
             if (!isEmailResendAllowed(existingAuth, 'emailVerificationSentAt')) {
                 return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
             }
-            await deleteUser(existingAuth);
+            await deleteAuth(existingAuth);
         }
 
         const additionalFields = await validateAndGetAdditionalFields(userFields);
@@ -55,7 +55,6 @@ export function getSignupRoute({
             additionalFields,
         );
 
-        // TODO: use user here
         const verificationLink = await createEmailVerificationLink(auth, clientRoute);
         try {
             await sendEmailVerificationEmail(

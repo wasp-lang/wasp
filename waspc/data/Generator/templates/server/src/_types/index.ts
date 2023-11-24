@@ -4,8 +4,7 @@ import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
 {=# isAuthEnabled =}
-import { type {= userEntityName =} } from "../entities"
-import { type {= authEntityName =} } from "@prisma/client"
+import { type {= userEntityName =}, type {= authEntityName =} } from "../entities"
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";

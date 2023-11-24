@@ -28,12 +28,9 @@ genLocalAuth auth
       sequence
         [ genLoginRoute auth,
           genSignupRoute auth,
-          genLocalAuthConfig,
-          genFileCopy [relfile|auth/providers/local/types.ts|]
+          genLocalAuthConfig
         ]
   | otherwise = return []
-  where
-    genFileCopy = return . C.mkSrcTmplFd
 
 genLocalAuthConfig :: Generator FileDraft
 genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

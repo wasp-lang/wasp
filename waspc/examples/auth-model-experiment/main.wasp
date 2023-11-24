@@ -7,23 +7,23 @@ app authModelExperiment {
     userEntity: User,
     methods: {
       google: {
-        getUserFieldsFn: import { getUserFields } from "@server/google.js",
-        configFn: import { getGoogleConfig } from "@server/google.js",
+        // getUserFieldsFn: import { getUserFields } from "@server/google.js",
+        // configFn: import { getGoogleConfig } from "@server/google.js",
       },
-      usernameAndPassword: {},
-      // email: {
-      //   fromField: {
-      //     name: "ToDO App",
-      //     email: "mihovil@ilakovac.com"
-      //   },
-      //   emailVerification: {
-      //     clientRoute: EmailVerificationRoute,
-      //   },
-      //   passwordReset: {
-      //     clientRoute: PasswordResetRoute
-      //   },
-      //   allowUnverifiedLogin: false,
-      // },
+      // usernameAndPassword: {},
+      email: {
+        fromField: {
+          name: "ToDO App",
+          email: "mihovil@ilakovac.com"
+        },
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute
+        },
+        allowUnverifiedLogin: false,
+      },
     },
     onAuthFailedRedirectTo: "/login"
   },

@@ -299,7 +299,13 @@ genTypesAndEntitiesDirs spec =
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
-        (Just $ object ["entities" .= allEntities])
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "authEntityName" .= DbAuth.authEntityName
+              ]
+        )
     taggedEntitiesFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/_types/taggedEntities.ts|]
