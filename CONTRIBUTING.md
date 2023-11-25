@@ -41,11 +41,14 @@ All that's required is to create an app. And make a tutorial or a blog post to h
 
 Or you can re-build your existing pet project with Wasp. That would be cool!
 
-## Documentation
+## Documentation & Blog
 
 It may sound like the simplest one, but it's super valuable! If you've found an issue, a broken link or if something was unclear on our [website](https://wasp-lang.dev/) - please, feel free to fix it :)
 
+Please make sure to **base your feature branches and PRs on the `release` branch** instead of `main`, since that's the one that is deployed to the website.
+
 [**Documentation issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Adocumentation)
 
+If you'd like to write a blog post about Wasp, please contact us via [Discord](https://discord.gg/zKFDFrsHa9) to discuss the topic and the details.
 
 Happy hacking!
