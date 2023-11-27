@@ -6,9 +6,7 @@ import { registerAuthMiddleware } from './core/auth/prismaMiddleware.js'
 {=/ isAuthEnabled =}
 
 const createDbClient = () => {
-  const prismaClient = new Prisma.PrismaClient({
-    log: ['query', 'info', 'warn', 'error'],
-  })
+  const prismaClient = new Prisma.PrismaClient()
 
   {=# isAuthEnabled =}
   registerAuthMiddleware(prismaClient)

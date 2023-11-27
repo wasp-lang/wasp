@@ -6,17 +6,17 @@ import { findAuthWithUserBy, createAuthToken } from '../../utils.js'
 import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
 
 export default handleRejection(async (req, res) => {
-  const userFields = req.body || {}
-  ensureValidArgs(userFields)
+  const fields = req.body || {}
+  ensureValidArgs(fields)
 
-  const auth = await findAuthWithUserBy({ username: userFields.username })
+  const auth = await findAuthWithUserBy({ username: fields.username })
   if (!auth) {
     throwInvalidCredentialsError()
   }
 
   try {
 
-    await verifyPassword(auth.password, userFields.password)
+    await verifyPassword(auth.password, fields.password)
   } catch(e) {
     throwInvalidCredentialsError()
   }

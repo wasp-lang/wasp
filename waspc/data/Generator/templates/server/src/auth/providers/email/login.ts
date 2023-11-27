@@ -12,12 +12,12 @@ export function getLoginRoute({
         req: Request<{ email: string; password: string; }>,
         res: Response,
     ): Promise<Response<{ token: string } | undefined>> {
-        const userFields = req.body || {}
-        ensureValidArgs(userFields)
+        const fields = req.body || {}
+        ensureValidArgs(fields)
 
-        userFields.email = userFields.email.toLowerCase()
+        fields.email = fields.email.toLowerCase()
 
-        const auth = await findAuthWithUserBy({ email: userFields.email })
+        const auth = await findAuthWithUserBy({ email: fields.email })
         if (!auth) {
             throwInvalidCredentialsError()
         }
@@ -25,7 +25,7 @@ export function getLoginRoute({
             throwInvalidCredentialsError()
         }
         try {
-            await verifyPassword(auth.password, userFields.password);
+            await verifyPassword(auth.password, fields.password);
         } catch(e) {
             throwInvalidCredentialsError()
         }

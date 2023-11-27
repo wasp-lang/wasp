@@ -9,15 +9,15 @@ import {
 import { validateAndGetAdditionalFields } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
-  const userFields = req.body || {}
-  ensureValidArgs(userFields)
+  const fields = req.body || {}
+  ensureValidArgs(fields)
 
-  const additionalFields = await validateAndGetAdditionalFields(userFields)
+  const additionalFields = await validateAndGetAdditionalFields(fields)
 
   await createAuthWithUser(
     {
-      username: userFields.username,
-      password: userFields.password,
+      username: fields.username,
+      password: fields.password,
     },
     // Using any here because we want to avoid TypeScript errors and
     // rely on Prisma to validate the data.

@@ -28,12 +28,12 @@ export function getSignupRoute({
         req: Request<{ email: string; password: string; }>,
         res: Response,
     ): Promise<Response<{ success: true } | { success: false; message: string }>> {
-        const userFields = req.body;
-        ensureValidArgs(userFields);
+        const fields = req.body;
+        ensureValidArgs(fields);
         
-        userFields.email = userFields.email.toLowerCase();
+        fields.email = fields.email.toLowerCase();
 
-        const existingAuth  = await findAuthWithUserBy({ email: userFields.email });
+        const existingAuth  = await findAuthWithUserBy({ email: fields.email });
         // User already exists and is verified - don't leak information
         if (existingAuth && existingAuth.isEmailVerified) {
             await doFakeWork();
@@ -45,12 +45,12 @@ export function getSignupRoute({
             await deleteAuth(existingAuth);
         }
 
-        const additionalFields = await validateAndGetAdditionalFields(userFields);
+        const additionalFields = await validateAndGetAdditionalFields(fields);
     
         const auth = await createAuthWithUser(
             {
-                email: userFields.email,
-                password: userFields.password,
+                email: fields.email,
+                password: fields.password,
             },
             additionalFields,
         );
@@ -58,10 +58,10 @@ export function getSignupRoute({
         const verificationLink = await createEmailVerificationLink(auth, clientRoute);
         try {
             await sendEmailVerificationEmail(
-                userFields.email,
+                fields.email,
                 {
                     from: fromField,
-                    to: userFields.email,
+                    to: fields.email,
                     ...getVerificationEmailContent({ verificationLink }),
                 }
             );
