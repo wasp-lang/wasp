@@ -89,7 +89,6 @@ async function findOrCreateAuthByAuthProvider(
     }
   }
 
-  // TODO(miho): decide if we want to keep the custom data on User or Auth?
   const auth = await createAuthWithUser(authAndProviderData, userFields)
   // NOTE: we are fetching the auth again becuase it incldues nested user
   return findAuthWithUserBy({ id: auth.id });

@@ -97,6 +97,7 @@ makeAuthEntity userEntityIdType userEntityName userEntity = case parsePslBody au
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
     providerEntityNameText = T.pack providerEntityName
     providersFieldOnAuthEntityNameText = T.pack providersFieldOnAuthEntityName
+    -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdFieldName = T.pack $ AS.Entity.getIdField userEntity & fromJust & Psl.Model.Field._name
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
