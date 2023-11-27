@@ -14,6 +14,7 @@ model User {
   username String @unique
   password String
   externalAuthAssociations SocialLogin[]
+  auth Auth?
 
 }
 model SocialLogin {
@@ -30,5 +31,26 @@ model Task {
   id Int @id @default(autoincrement())
   description String
   isDone Boolean @default(false)
+
+}
+model Auth {
+  id String @id @default(uuid())
+  email String? @unique
+  username String? @unique
+  password String?
+  isEmailVerified Boolean @default(false)
+  emailVerificationSentAt DateTime?
+  passwordResetSentAt DateTime?
+  userId Int? @unique
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providers SocialAuthProvider[]
+
+}
+model SocialAuthProvider {
+  id String @id @default(uuid())
+  provider String
+  providerId String
+  authId String
+  auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
 
 }

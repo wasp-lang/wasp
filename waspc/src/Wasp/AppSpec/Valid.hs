@@ -12,7 +12,7 @@ where
 
 import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, isJust, isNothing)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -52,6 +52,7 @@ validateAppSpec spec =
       concat
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+          validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
@@ -114,6 +115,19 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     eitherUnitToErrorList :: Either e () -> [e]
     eitherUnitToErrorList (Left e) = [e]
     eitherUnitToErrorList (Right ()) = []
+
+validateUserEntity :: AppSpec -> [ValidationError]
+validateUserEntity spec =
+  case App.auth (snd $ getApp spec) of
+    Nothing -> []
+    Just auth ->
+      [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
+        | isNothing idFieldType
+      ]
+      where
+        idFieldType = Entity.getIdField userEntity
+
+        (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
 
 validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =

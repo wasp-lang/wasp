@@ -3,16 +3,14 @@ import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
 import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
-import { type User } from '../entities/index.js'
+import { type User, type Auth } from '../entities/index.js'
 import { type Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
 
-import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
-const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
-  ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
->
+import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
+const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
 
 export const contextWithUserEntity = {
   entities: {
@@ -25,28 +23,41 @@ export const authConfig = {
   successRedirectPath: "/",
 }
 
-export async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User> {
-  return prisma.user.findUnique({ where });
+export async function findAuthWithUserBy(where: Prisma.AuthWhereInput) {
+  return prisma.auth.findFirst({ where, include: { user: true }});
 }
 
-export async function createUser(data: Prisma.UserCreateInput): Promise<User> {
+export async function createAuthWithUser(data: Prisma.AuthCreateInput, additionalFields?: PossibleAdditionalSignupFields) {
   try {
-    return await prisma.user.create({ data })
+    return await prisma.auth.create({
+      data: {
+        ...data,
+        user: {
+          create: {
+            // Using any here to prevent type errors when additionalFields are not
+            // defined. We want Prisma to throw an error in that case.
+            ...(additionalFields ?? {} as any),
+          }
+        }
+      }
+    })
   } catch (e) {
     rethrowPossiblePrismaError(e);
   }
 }
 
-export async function deleteUser(user: User): Promise<User> {
+export async function deleteAuth(auth: Auth) {
   try {
-    return await prisma.user.delete({ where: { id: user.id } })
+    return await prisma.auth.delete({ where: { id: auth.id } })
   } catch (e) {
     rethrowPossiblePrismaError(e);
   }
 }
 
-export async function createAuthToken(user: User): Promise<string> {
-  return sign(user.id);
+export async function createAuthToken(
+  auth: Auth & { user: User }
+): Promise<string> {
+  return sign(auth.user.id);
 }
 
 export async function verifyToken(token: string): Promise<{ id: any }> {

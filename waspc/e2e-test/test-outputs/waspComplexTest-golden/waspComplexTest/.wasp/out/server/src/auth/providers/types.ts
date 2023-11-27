@@ -1,6 +1,8 @@
 import type { Router, Request } from 'express'
-import type { User } from '../../entities'
+import type { Prisma } from '@prisma/client'
 import type { Expand } from '../../universal/types'
+
+type UserEntityCreateInput = Prisma.UserCreateInput
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
@@ -20,20 +22,14 @@ export type InitData = {
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
-export function createDefineAdditionalSignupFieldsFn<
-  // Wasp already includes these fields in the signup process
-  ExistingFields extends keyof User,
-  PossibleAdditionalFields = Expand<
-    Partial<Omit<User, ExistingFields>>
+export type PossibleAdditionalSignupFields = Expand<Partial<UserEntityCreateInput>>
+
+export function defineAdditionalSignupFields(config: {
+  [key in keyof PossibleAdditionalSignupFields]: FieldGetter<
+    PossibleAdditionalSignupFields[key]
   >
->() {
-  return function defineFields(config: {
-    [key in keyof PossibleAdditionalFields]: FieldGetter<
-      PossibleAdditionalFields[key]
-    >
-  }) {
-    return config
-  }
+}) {
+  return config
 }
 
 type FieldGetter<T> = (

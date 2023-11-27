@@ -2,7 +2,7 @@ import { type Expand } from "../universal/types.js";
 import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
-import { type User } from "../entities"
+import { type User, type Auth } from "../entities"
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
 
@@ -77,4 +77,6 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { 
 // password field from the object there, we must do the same here). Ideally,
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
-export type SanitizedUser = Omit<User, 'password'>
+export type SanitizedUser = User & {
+  auth: Omit<Auth, 'password'> | null
+}

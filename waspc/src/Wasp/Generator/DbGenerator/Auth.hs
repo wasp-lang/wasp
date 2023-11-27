@@ -39,7 +39,7 @@ injectAuth :: Maybe (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -
 injectAuth Nothing entities = return entities
 injectAuth (Just (userEntityName, userEntity)) entities = do
   userEntityIdType <- getUserEntityIdType userEntity
-  authEntity <- makeAuthEntity userEntityIdType userEntityName
+  authEntity <- makeAuthEntity userEntityIdType userEntityName userEntity
   providerEntity <- makeProviderEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
   return $ entitiesWithAuth ++ [authEntity, providerEntity]
@@ -71,13 +71,11 @@ makeProviderEntity = case parsePslBody providerEntityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnProviderEntityNameText = T.pack authFieldOnProviderEntityName
 
-makeAuthEntity :: String -> String -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdType userEntityName = case parsePslBody authEntityPslBody of
+makeAuthEntity :: String -> String -> AS.Entity.Entity -> Generator (String, AS.Entity.Entity)
+makeAuthEntity userEntityIdType userEntityName userEntity = case parsePslBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Auth entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
-    -- TODO(miho): decide if we want to switch between fields for username and email
-    -- based auth. It's much simpler to just have everything and let some fields be null.
     authEntityPslBody =
       T.unpack
         [trimming|
@@ -89,7 +87,7 @@ makeAuthEntity userEntityIdType userEntityName = case parsePslBody authEntityPsl
           emailVerificationSentAt DateTime?
           passwordResetSentAt DateTime?
           userId    ${userEntityIdTypeText}? @unique
-          ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+          ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [${userEntityIdFieldName}], onDelete: Cascade)
           ${providersFieldOnAuthEntityNameText} ${providerEntityNameText}[]
         |]
 
@@ -99,6 +97,7 @@ makeAuthEntity userEntityIdType userEntityName = case parsePslBody authEntityPsl
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
     providerEntityNameText = T.pack providerEntityName
     providersFieldOnAuthEntityNameText = T.pack providersFieldOnAuthEntityName
+    userEntityIdFieldName = T.pack $ AS.Entity.getIdField userEntity & fromJust & Psl.Model.Field._name
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =

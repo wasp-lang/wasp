@@ -48,14 +48,6 @@ export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}Creat
             ...(additionalFields ?? {} as any),
           }
         }
-      },
-      select: {
-        id: true,
-        {= userFieldOnAuthEntityName =}: {
-          select: {
-            id: true
-          }
-        }
       }
     })
   } catch (e) {

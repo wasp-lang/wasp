@@ -47,7 +47,18 @@ export async function getUserFromToken(token) {
     }
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userIdFromToken } })
+  // TODO: this might not be the best thing to do, each request makes a db call
+  const user = await prisma.user
+    .findUnique({
+      where: { id: userIdFromToken },
+      include: {
+        auth: {
+          include: {
+            providers: true
+          }
+        }
+      }
+    })
   if (!user) {
     throwInvalidCredentialsError()
   }
@@ -56,9 +67,17 @@ export async function getUserFromToken(token) {
   // password field from the object here, we must to do the same there).
   // Ideally, these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965
-  const { password, ...userView } = user
+  const {
+    auth: { password, ...authFields },
+    ...fields
+  } = user
 
-  return userView
+  return {
+    ...fields,
+    auth: {
+      ...authFields
+    }
+  }
 }
 
 const SP = new SecurePassword()
