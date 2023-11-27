@@ -38,13 +38,14 @@ providersFieldOnAuthEntityName = "providers"
 injectAuth :: Maybe (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -> Generator [(String, AS.Entity.Entity)]
 injectAuth Nothing entities = return entities
 injectAuth (Just (userEntityName, userEntity)) entities = do
-  userEntityIdType <- getUserEntityId userEntity
+  userEntityIdType <- getUserEntityIdType userEntity
   authEntity <- makeAuthEntity userEntityIdType userEntityName
   providerEntity <- makeProviderEntity
-  return $ injectAuthIntoUserEntity userEntityName $ entities ++ [authEntity, providerEntity]
+  let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
+  return $ entitiesWithAuth ++ [authEntity, providerEntity]
 
-getUserEntityId :: AS.Entity.Entity -> Generator String
-getUserEntityId entity =
+getUserEntityIdType :: AS.Entity.Entity -> Generator String
+getUserEntityIdType entity =
   show . Psl.Model.Field._type <$> AS.Entity.getIdField entity
     & ( \case
           Nothing -> logAndThrowGeneratorError $ GenericGeneratorError "User entity does not have an id field."
