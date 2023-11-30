@@ -11,6 +11,7 @@ module Wasp.Cli.Command.Telemetry.Project
 where
 
 import Control.Monad (void, when)
+import Control.Monad.Except (catchError)
 import Crypto.Hash (SHA256 (..), hashWith)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
@@ -85,7 +86,8 @@ getTelemetryContext = do
         -- NOTE(martin): We are not 100% sure how correctly does `hIsTerminalDevice` detect
         --   if shell is non-interactive or not, so let's use this info with regard to that and
         --   revise this in the future once we have more data.
-        SIO.hIsTerminalDevice SIO.stdout <&> \case True -> ""; False -> "NON_INTERACTIVE_SHELL"
+        (SIO.hIsTerminalDevice SIO.stdout `catchError` const (return True))
+          <&> \case True -> ""; False -> "NON_INTERACTIVE_SHELL"
       ]
   where
     -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
