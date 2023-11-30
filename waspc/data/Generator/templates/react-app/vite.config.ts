@@ -15,7 +15,7 @@ const defaultViteConfig = {
   base: "{= baseDir =}",
   plugins: [react()],
   optimizeDeps: {
-    exclude: ['@wasp']
+    exclude: ['wasp']
   },
   server: {
     port: {= defaultClientPort =},

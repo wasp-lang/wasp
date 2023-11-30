@@ -1,12 +1,11 @@
 import './Main.css'
 import React, { useEffect, FormEventHandler, FormEvent } from 'react'
-import logout from '@wasp/auth/logout'
-import useAuth from '@wasp/auth/useAuth'
-import { useQuery, useAction } from '@wasp/rpc' // Wasp uses a thin wrapper around react-query
-import { getTasks } from '@wasp/rpc/queries'
-import { createTask, updateTask, deleteTasks } from '@wasp/rpc/actions'
+import logout from 'wasp/auth/logout'
+import { useQuery, useAction } from 'wasp/rpc' // Wasp uses a thin wrapper around react-query
+import { getTasks } from 'wasp/rpc/queries'
+import { createTask, updateTask, deleteTasks } from 'wasp/rpc/actions'
 import waspLogo from './waspLogo.png'
-import type { Task, User } from '@wasp/entities'
+import type { Task, User } from 'wasp/entities'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
