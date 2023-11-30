@@ -88,7 +88,15 @@ data ChatGPTParams = ChatGPTParams
   deriving (Show)
 
 -- TODO: There are some more data models there but for now we went with these core ones.
-data Model = GPT_3_5_turbo | GPT_3_5_turbo_16k | GPT_4
+data Model
+  = GPT_3_5_turbo_1106
+  | GPT_3_5_turbo
+  | GPT_3_5_turbo_16k
+  | GPT_4_1106_Preview
+  | GPT_4
+  | GPT_4_32k
+  | GPT_4_0613
+  | GPT_4_32k_0613
   deriving (Eq, Bounded, Enum)
 
 instance Show Model where
@@ -96,9 +104,14 @@ instance Show Model where
 
 modelOpenAiId :: Model -> String
 modelOpenAiId = \case
+  GPT_3_5_turbo_1106 -> "gpt-3.5-turbo-1106"
   GPT_3_5_turbo -> "gpt-3.5-turbo"
   GPT_3_5_turbo_16k -> "gpt-3.5-turbo-16k"
+  GPT_4_1106_Preview -> "gpt-4-1106-preview"
   GPT_4 -> "gpt-4"
+  GPT_4_32k -> "gpt-4-32k"
+  GPT_4_0613 -> "gpt-4-0613"
+  GPT_4_32k_0613 -> "gpt-4-32k-0613"
 
 instance FromJSON Model where
   parseJSON = Aeson.withText "Model" $ \t ->
