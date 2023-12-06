@@ -87,8 +87,8 @@ constructAppSpec waspDir options decls = do
           }
   let (validationErrors, validationWarnings) =
         let errsAndWarns = validateAppSpec appSpec
-         in ( map show $ filter isValidationWarning errsAndWarns,
-              map show $ filter isValidationError errsAndWarns
+         in ( filter isValidationError errsAndWarns,
+              filter isValidationWarning errsAndWarns
             )
   return
     ( if null validationErrors then Right appSpec else Left (show <$> validationErrors),

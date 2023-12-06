@@ -57,8 +57,8 @@ isValidationError (GenericValidationError _) = True
 isValidationError (GenericValidationWarning _) = False
 
 isValidationWarning :: ValidationError -> Bool
-isValidationWarning (GenericValidationWarning _) = True
 isValidationWarning (GenericValidationError _) = False
+isValidationWarning (GenericValidationWarning _) = True
 
 validateAppSpec :: AppSpec -> [ValidationError]
 validateAppSpec spec =
