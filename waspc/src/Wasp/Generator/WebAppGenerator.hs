@@ -31,11 +31,10 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
-    prismaVersion,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -62,7 +61,6 @@ import Wasp.JsImport
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -142,16 +140,11 @@ npmDepsForWasp spec =
             ("react-dom", "^18.2.0"),
             ("@tanstack/react-query", "^4.29.0"),
             ("react-router-dom", "^5.3.3"),
-            -- The web app only needs @prisma/client (we're using the server's
-            -- CLI to generate what's necessary, check the description in
-            -- https://github.com/wasp-lang/wasp/pull/962/ for details).
-            ("@prisma/client", show prismaVersion),
             ("superjson", "^1.12.2"),
             ("mitt", "3.0.0"),
             -- Used for Auth UI
             ("react-hook-form", "^7.45.4")
           ]
-          ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec
           ++ depsRequiredForWebSockets spec,
       N.waspDevDependencies =
@@ -171,12 +164,6 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredForTesting
     }
-
-depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredForAuth spec =
-  [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
-  where
-    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =

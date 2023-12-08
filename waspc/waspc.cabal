@@ -270,6 +270,7 @@ library
     Wasp.Generator.AuthProviders.Email
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
+    Wasp.Generator.SdkGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG

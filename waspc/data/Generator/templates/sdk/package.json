@@ -1,0 +1,35 @@
+{{={= =}=}}
+{
+  "name": "wasp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
+    },
+  "exports": {
+      "./core/HttpError": "./core/HttpError.js",
+      "./core/config": "./core/config.js",
+      "./core/stitches.config": "./core/stitches.config.js",
+      "./core/storage": "./core/storage.ts",
+      "./rpc": "./rpc/index.ts",
+      "./rpc/queries": "./rpc/queries/index.ts",
+      "./rpc/actions": "./rpc/actions/index.ts",
+      "./rpc/queryClient": "./rpc/queryClient.ts",
+      "./types": "./types/index.ts",
+      "./auth/*": "./auth/*",
+      "./api": "./api/index.ts",
+      "./api/*": "./api/*",
+      "./operations": "./operations/index.ts",
+      "./operations/*": "./operations/*",
+      "./universal/url": "./universal/url.ts",
+      "./universal/types": "./universal/url.ts"
+   },
+   "license": "ISC",
+    "include": [
+      "src/**/*"
+   ],
+  {=& depsChunk =},
+  {=& devDepsChunk =}
+}
