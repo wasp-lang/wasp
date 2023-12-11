@@ -11,9 +11,12 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.Templates (TemplatesDir, getTemplatesDirAbsPath)
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 
 genSdk :: AppSpec -> Generator [FileDraft]
@@ -87,3 +90,9 @@ sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk|]
+
+-- todo(filip): figure out where this belongs
+-- also, fix imports for wasp project
+installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
+installNpmDependencies projectDir =
+  runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp

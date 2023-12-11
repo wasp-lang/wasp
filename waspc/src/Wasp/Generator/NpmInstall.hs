@@ -4,26 +4,31 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan)
+import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as B
+import qualified Data.Text as T
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
+import UnliftIO (race)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Job (Job, JobMessage, JobType)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import qualified Wasp.Generator.NpmDependencies as N
+import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.ServerGenerator as SG
 import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
 import Wasp.Generator.WebAppGenerator as WG
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
+import Wasp.Project.Common (WaspProjectDir)
 
 -- | Figure out if npm install is needed.
 --
@@ -59,14 +64,18 @@ isNpmInstallNeeded spec dstDir = do
 
 -- Run npm install for desired AppSpec dependencies, recording what we installed
 -- Installation may fail, in which the installation record is removed.
-installNpmDependenciesWithInstallRecord :: N.NpmDepsForFullStack -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-installNpmDependenciesWithInstallRecord npmDepsForFullStack dstDir = do
+installNpmDependenciesWithInstallRecord ::
+  N.NpmDepsForFullStack ->
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' Abs (Dir ProjectRootDir) ->
+  IO ([GeneratorWarning], [GeneratorError])
+installNpmDependenciesWithInstallRecord npmDepsForFullStack waspProjectDir dstDir = do
   -- in case anything fails during installation that would leave node modules in
   -- a broken state, we remove the file before we start npm install
   fileExists <- doesFileExist dependenciesInstalledFp
   when fileExists $ removeFile dependenciesInstalledFp
   -- now actually do the installation
-  npmInstallResult <- installNpmDependencies dstDir
+  npmInstallResult <- installNpmDependencies waspProjectDir dstDir
   case npmInstallResult of
     Left npmInstallError -> do
       return ([], [GenericGeneratorError $ "npm install failed: " ++ npmInstallError])
@@ -100,34 +109,81 @@ loadInstalledFullStackNpmDependencies dstDir = do
       return (Aeson.decode fileContents :: Maybe N.NpmDepsForFullStack)
     else return Nothing
 
+reportInstallationProgress :: Chan JobMessage -> JobType -> IO ()
+reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
+  where
+    reportPeriodically messages = do
+      threadDelay $ secToMicroSec 5
+      writeChan chan $ J.JobMessage {J._data = J.JobOutput (T.append (head messages) "\n") J.Stdout, J._jobType = jobType}
+      threadDelay $ secToMicroSec 5
+      reportPeriodically (if hasLessThan2Elems messages then messages else drop 1 messages)
+    secToMicroSec = (* 1000000)
+    hasLessThan2Elems = null . drop 1
+    allPossibleMessages =
+      [ "Still installing npm dependencies!",
+        "Installation going great - we'll get there soon!",
+        "The installation is taking a while, but we'll get there!",
+        "Yup, still not done installing.",
+        "We're getting closer and closer, everything will be installed soon!",
+        "Still waiting for the installation to finish? You should! We got too far to give up now!",
+        "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
+      ]
+
+installNpmDependenciesAndReport :: Job -> Chan JobMessage -> JobType -> IO ExitCode
+installNpmDependenciesAndReport installF chan jobType = do
+  writeChan chan $ J.JobMessage {J._data = J.JobOutput "Starting npm install\n" J.Stdout, J._jobType = jobType}
+  result <- installF chan `race` reportInstallationProgress chan jobType
+  case result of
+    Left exitCode -> return exitCode
+    Right _ -> error "This should be impossible"
+
 -- Run the individual `npm install` commands for both server and webapp projects
 -- It runs these concurrently, collects the output produced by these commands
 -- to pass them along to IO with a prefix
-installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-installNpmDependencies projectDir = do
-  chan <- newChan
-  let runSetupJobs =
-        ServerSetup.installNpmDependencies projectDir chan
-          `concurrently` WebAppSetup.installNpmDependencies projectDir chan
-  (_, result) <- concurrently (handleJobMessages chan) runSetupJobs
-  case result of
-    (ExitSuccess, ExitSuccess) -> return $ Right ()
-    exitCodes -> return $ Left $ setupFailedMessage exitCodes
+installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+installNpmDependencies projectDir dstDir = do
+  messagesChan <- newChan
+  (_, exitCode) <-
+    concurrently
+      (handleProjectInstallMessage messagesChan)
+      (installNpmDependenciesAndReport (SdkGenerator.installNpmDependencies projectDir) messagesChan J.Wasp)
+  case exitCode of
+    ExitFailure code -> return $ Left $ "Project setup failed with exit code " ++ show code ++ "."
+    _ -> do
+      let handleMessagesJob = handleJobMessages messagesChan
+      let runSetupJobs =
+            concurrently
+              (installNpmDependenciesAndReport (ServerSetup.installNpmDependencies dstDir) messagesChan J.Server)
+              (installNpmDependenciesAndReport (WebAppSetup.installNpmDependencies dstDir) messagesChan J.WebApp)
+      (_, results) <- concurrently handleMessagesJob runSetupJobs
+      case results of
+        (ExitSuccess, ExitSuccess) -> return $ Right ()
+        exitCodes -> return $ Left $ setupFailedMessage exitCodes
   where
-    handleJobMessages = runPrefixedWriter . go (False, False)
+    handleProjectInstallMessage :: Chan J.JobMessage -> IO ()
+    handleProjectInstallMessage = runPrefixedWriter . processMessages
       where
-        go :: (Bool, Bool) -> Chan J.JobMessage -> PrefixedWriter ()
-        go (True, True) _ = return ()
-        go (isWebAppDone, isServerDone) chan = do
+        processMessages :: Chan J.JobMessage -> PrefixedWriter ()
+        processMessages chan = do
+          jobMsg <- liftIO $ readChan chan
+          case J._data jobMsg of
+            J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
+            J.JobExit {} -> return ()
+    handleJobMessages = runPrefixedWriter . processMessages (False, False)
+      where
+        processMessages :: (Bool, Bool) -> Chan J.JobMessage -> PrefixedWriter ()
+        processMessages (True, True) _ = return ()
+        processMessages (isWebAppDone, isServerDone) chan = do
           jobMsg <- liftIO $ readChan chan
           case J._data jobMsg of
             J.JobOutput {} ->
               printJobMessagePrefixed jobMsg
-                >> go (isWebAppDone, isServerDone) chan
+                >> processMessages (isWebAppDone, isServerDone) chan
             J.JobExit {} -> case J._jobType jobMsg of
-              J.WebApp -> go (True, isServerDone) chan
-              J.Server -> go (isWebAppDone, True) chan
+              J.WebApp -> processMessages (True, isServerDone) chan
+              J.Server -> processMessages (isWebAppDone, True) chan
               J.Db -> error "This should never happen. No db job should be active."
+              J.Wasp -> error "This should never happen. No db job should be active."
 
     setupFailedMessage (serverExitCode, webAppExitCode) =
       let serverErrorMessage = case serverExitCode of
