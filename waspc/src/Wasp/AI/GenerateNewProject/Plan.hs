@@ -25,8 +25,8 @@ import qualified Text.Parsec as Parsec
 import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
-    defaultChatGPTParamsForPlan,
-    defaultChatGPTParamsForPlanFixing,
+    fixingChatGPTParams,
+    planChatGPTParams,
     queryChatGPTForJSON,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
@@ -42,7 +42,7 @@ type PlanRule = String
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   writeToLog "Generating plan (slowest step, usually takes 30 to 90 seconds)..."
-  initialPlan <- queryChatGPTForJSON (defaultChatGPTParamsForPlan newProjectDetails) chatMessages
+  initialPlan <- queryChatGPTForJSON (planChatGPTParams newProjectDetails) chatMessages
   writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
   writeToLog "Fixing initial plan..."
   fixedPlan <- fixPlanRepeatedly 3 initialPlan
@@ -170,7 +170,7 @@ generatePlan newProjectDetails planRules = do
                     |]
           writeToLog "Sending plan to GPT for fixing..."
           fixedPlan <-
-            queryChatGPTForJSON (defaultChatGPTParamsForPlanFixing newProjectDetails) $
+            queryChatGPTForJSON (fixingChatGPTParams $ planChatGPTParams newProjectDetails) $
               chatMessages
                 <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan'},
                      ChatMessage

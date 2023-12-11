@@ -7,11 +7,10 @@ module Wasp.AI.GenerateNewProject.Common
     getProjectPrimaryColor,
     emptyNewProjectConfig,
     queryChatGPTForJSON,
-    defaultChatGPTParams,
-    defaultChatGPTParamsForFixing,
-    defaultChatGPTParamsForPlan,
-    defaultChatGPTParamsForPlanFixing,
     writeToWaspFileEnd,
+    baseChatGPTParams,
+    planChatGPTParams,
+    fixingChatGPTParams,
   )
 where
 
@@ -35,7 +34,7 @@ data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
     -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
     projectPrimaryColor :: !(Maybe String),
-    projectDefaultGptModel :: !(Maybe GPT.Model),
+    projectBaseGptModel :: !(Maybe GPT.Model),
     projectPlanGptModel :: !(Maybe GPT.Model),
     projectDefaultGptTemperature :: !(Maybe Float)
   }
@@ -45,14 +44,14 @@ instance Aeson.FromJSON NewProjectConfig where
   parseJSON = withObject "NewProjectConfig" $ \obj -> do
     auth <- obj .:? "auth"
     primaryColor <- obj .:? "primaryColor"
-    defaultGptModel <- obj .:? "defaultGptModel"
+    baseGptModel <- obj .:? "baseGptModel"
     planGptModel <- obj .:? "planGptModel"
     defaultGptTemperature <- obj .:? "defaultGptTemperature"
     return
       ( NewProjectConfig
           { projectAuth = auth,
             projectPrimaryColor = primaryColor,
-            projectDefaultGptModel = defaultGptModel,
+            projectBaseGptModel = baseGptModel,
             projectPlanGptModel = planGptModel,
             projectDefaultGptTemperature = defaultGptTemperature
           }
@@ -63,7 +62,7 @@ emptyNewProjectConfig =
   NewProjectConfig
     { projectAuth = Nothing,
       projectPrimaryColor = Nothing,
-      projectDefaultGptModel = Nothing,
+      projectBaseGptModel = Nothing,
       projectPlanGptModel = Nothing,
       projectDefaultGptTemperature = Nothing
     }
@@ -139,27 +138,25 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
 
-defaultChatGPTParams :: NewProjectDetails -> ChatGPTParams
-defaultChatGPTParams projectDetails =
+_paramsWithFallbackModel :: (NewProjectDetails -> Maybe GPT.Model) -> GPT.Model -> NewProjectDetails -> ChatGPTParams
+_paramsWithFallbackModel maybeGetModel fallbackModel projectDetails =
   GPT.ChatGPTParams
-    { GPT._model = fromMaybe GPT.GPT_3_5_turbo_16k (projectDefaultGptModel $ _projectConfig projectDetails),
+    { GPT._model = fromMaybe fallbackModel (maybeGetModel projectDetails),
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
 
-defaultChatGPTParamsForFixing :: NewProjectDetails -> ChatGPTParams
-defaultChatGPTParamsForFixing projectDetails =
-  let params = defaultChatGPTParams projectDetails
-   in params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
+baseChatGPTParams :: NewProjectDetails -> ChatGPTParams
+baseChatGPTParams = _paramsWithFallbackModel (projectBaseGptModel . _projectConfig) baseGptModel
+  where
+    baseGptModel = GPT.GPT_3_5_turbo
 
-defaultChatGPTParamsForPlan :: NewProjectDetails -> ChatGPTParams
-defaultChatGPTParamsForPlan projectDetails =
-  let params = defaultChatGPTParams projectDetails
-   in params {GPT._model = fromMaybe GPT.GPT_4 (projectPlanGptModel $ _projectConfig projectDetails)}
+planChatGPTParams :: NewProjectDetails -> ChatGPTParams
+planChatGPTParams = _paramsWithFallbackModel (projectPlanGptModel . _projectConfig) planGptModel
+  where
+    planGptModel = GPT.GPT_4
 
-defaultChatGPTParamsForPlanFixing :: NewProjectDetails -> ChatGPTParams
-defaultChatGPTParamsForPlanFixing projectDetails =
-  let params = defaultChatGPTParamsForPlan projectDetails
-   in params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
+fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
+fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do
