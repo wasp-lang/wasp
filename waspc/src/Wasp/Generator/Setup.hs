@@ -25,7 +25,6 @@ runNpmInstallIfNeeded spec dstDir sendMessage = do
     Right maybeFullStackDeps -> case maybeFullStackDeps of
       Nothing -> return ([], [])
       Just fullStackDeps -> do
-        sendMessage $ Msg.Start "Starting npm install..."
         (npmInstallWarnings, npmInstallErrors) <-
           installNpmDependenciesWithInstallRecord fullStackDeps (waspProjectDir spec) dstDir
         when (null npmInstallErrors) (sendMessage $ Msg.Success "Successfully completed npm install.")
