@@ -9,6 +9,8 @@ module Wasp.AI.GenerateNewProject.Common
     queryChatGPTForJSON,
     defaultChatGPTParams,
     defaultChatGPTParamsForFixing,
+    defaultChatGPTParamsForPlan,
+    defaultChatGPTParamsForPlanFixing,
     writeToWaspFileEnd,
   )
 where
@@ -34,6 +36,7 @@ data NewProjectConfig = NewProjectConfig
     -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
     projectPrimaryColor :: !(Maybe String),
     projectDefaultGptModel :: !(Maybe GPT.Model),
+    projectPlanGptModel :: !(Maybe GPT.Model),
     projectDefaultGptTemperature :: !(Maybe Float)
   }
   deriving (Show)
@@ -43,12 +46,14 @@ instance Aeson.FromJSON NewProjectConfig where
     auth <- obj .:? "auth"
     primaryColor <- obj .:? "primaryColor"
     defaultGptModel <- obj .:? "defaultGptModel"
+    planGptModel <- obj .:? "defaultGptModel"
     defaultGptTemperature <- obj .:? "defaultGptTemperature"
     return
       ( NewProjectConfig
           { projectAuth = auth,
             projectPrimaryColor = primaryColor,
             projectDefaultGptModel = defaultGptModel,
+            projectPlanGptModel = planGptModel,
             projectDefaultGptTemperature = defaultGptTemperature
           }
       )
@@ -59,6 +64,7 @@ emptyNewProjectConfig =
     { projectAuth = Nothing,
       projectPrimaryColor = Nothing,
       projectDefaultGptModel = Nothing,
+      projectPlanGptModel = Nothing,
       projectDefaultGptTemperature = Nothing
     }
 
@@ -143,6 +149,16 @@ defaultChatGPTParams projectDetails =
 defaultChatGPTParamsForFixing :: NewProjectDetails -> ChatGPTParams
 defaultChatGPTParamsForFixing projectDetails =
   let params = defaultChatGPTParams projectDetails
+   in params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
+
+defaultChatGPTParamsForPlan :: NewProjectDetails -> ChatGPTParams
+defaultChatGPTParamsForPlan projectDetails =
+  let params = defaultChatGPTParams projectDetails
+   in params {GPT._model = fromMaybe GPT.GPT_4 (projectPlanGptModel $ _projectConfig projectDetails)}
+
+defaultChatGPTParamsForPlanFixing :: NewProjectDetails -> ChatGPTParams
+defaultChatGPTParamsForPlanFixing projectDetails =
+  let params = defaultChatGPTParamsForPlan projectDetails
    in params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()

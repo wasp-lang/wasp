@@ -25,13 +25,13 @@ import qualified Text.Parsec as Parsec
 import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
-    defaultChatGPTParams,
-    defaultChatGPTParamsForFixing,
+    defaultChatGPTParamsForPlan,
+    defaultChatGPTParamsForPlanFixing,
     queryChatGPTForJSON,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams (_model), ChatMessage (..), ChatRole (..), Model (GPT_4))
+import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Psl.Format as Prisma
 import qualified Wasp.Psl.Parser.Model as Psl.Parser
 import qualified Wasp.Util.Aeson as Util.Aeson
@@ -42,7 +42,7 @@ type PlanRule = String
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   writeToLog "Generating plan (slowest step, usually takes 30 to 90 seconds)..."
-  initialPlan <- queryChatGPTForJSON ((defaultChatGPTParams newProjectDetails) {_model = planGptModel}) chatMessages
+  initialPlan <- queryChatGPTForJSON (defaultChatGPTParamsForPlan newProjectDetails) chatMessages
   writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
   writeToLog "Fixing initial plan..."
   fixedPlan <- fixPlanRepeatedly 3 initialPlan
@@ -170,7 +170,7 @@ generatePlan newProjectDetails planRules = do
                     |]
           writeToLog "Sending plan to GPT for fixing..."
           fixedPlan <-
-            queryChatGPTForJSON ((defaultChatGPTParamsForFixing newProjectDetails) {_model = planGptModel}) $
+            queryChatGPTForJSON (defaultChatGPTParamsForPlanFixing newProjectDetails) $
               chatMessages
                 <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText plan'},
                      ChatMessage
@@ -189,8 +189,6 @@ generatePlan newProjectDetails planRules = do
                        }
                    ]
           return (False, fixedPlan)
-
-    planGptModel = GPT_4
 
 checkPlanForEntityIssues :: Plan -> [String]
 checkPlanForEntityIssues plan =
