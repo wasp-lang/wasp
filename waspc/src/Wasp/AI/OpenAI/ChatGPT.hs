@@ -92,6 +92,8 @@ data Model
   = GPT_3_5_turbo_1106
   | GPT_3_5_turbo
   | GPT_3_5_turbo_16k
+  | GPT_3_5_turbo_0613
+  | GPT_3_5_turbo_16k_0613
   | GPT_4_1106_Preview
   | GPT_4
   | GPT_4_32k
@@ -107,6 +109,8 @@ modelOpenAiId = \case
   GPT_3_5_turbo_1106 -> "gpt-3.5-turbo-1106"
   GPT_3_5_turbo -> "gpt-3.5-turbo"
   GPT_3_5_turbo_16k -> "gpt-3.5-turbo-16k"
+  GPT_3_5_turbo_0613 -> "gpt-3.5-turbo-0613"
+  GPT_3_5_turbo_16k_0613 -> "gpt-3.5-turbo-16k-0613"
   GPT_4_1106_Preview -> "gpt-4-1106-preview"
   GPT_4 -> "gpt-4"
   GPT_4_32k -> "gpt-4-32k"
