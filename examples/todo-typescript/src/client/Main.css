@@ -26,7 +26,7 @@ img {
   max-height: 100px;
 }
 
-button {
+.logout {
   margin-top: 1rem;
 }
 
@@ -43,6 +43,13 @@ code {
   font-size: 1.2rem;
 }
 
+.buttons {
+  display: flex;
+  flex-direction: row;
+  width: 300px;
+  justify-content: space-between;
+}
+
 .tasklist {
   display: flex;
   flex-direction: column;
@@ -50,4 +57,17 @@ code {
   justify-content: center;
   width: 300px;
   margin-top: 1rem;
+  padding: 0
+}
+
+li {
+  width: 100%;
+}
+
+.todo-item {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }

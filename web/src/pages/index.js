@@ -21,43 +21,52 @@ import styles from './styles.module.css'
 import './index.css'
 import './preflight.css'
 
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 
 const Background = () => {
   return (
-    <div className='absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none'>
+    <div className="pointer-events-none absolute left-0 top-0 h-full w-full overflow-hidden">
       <span className={classNames(styles.leftLights, 'opacity-100')} />
     </div>
-  );
-};
+  )
+}
 
 const LightsTwo = () => (
-  <div className='absolute top-[1800px] lg:top-[1000px] left-0 w-full h-full overflow-hidden pointer-events-none'>
+  <div className="pointer-events-none absolute left-0 top-[1800px] h-full w-full overflow-hidden lg:top-[1000px]">
     <span className={classNames(styles.lightsTwo, 'opacity-100')} />
   </div>
-);
+)
 
 const Index = () => {
-  const { siteConfig } = useDocusaurusContext();
-  const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`;
+  const { siteConfig } = useDocusaurusContext()
+  const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`
   return (
-    <div className='twLandingPage'>
+    <div className="twLandingPage">
       <Head>
         {/* opengraph / facebook */}
-        <meta property='og:type' content='website' />
-        <meta property='og:url' content='https://wasp-lang.dev/' />
-        <meta property='og:description' content='Develop full-stack web apps without boilerplate.' />
-        <meta property='og:image' content={coverPhotoAbsoluteUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://wasp-lang.dev/" />
+        <meta
+          property="og:description"
+          content="Develop full-stack web apps without boilerplate."
+        />
+        <meta property="og:image" content={coverPhotoAbsoluteUrl} />
         {/* twitter */}
-        <meta property='twitter:card' content='summary_large_image' />
-        <meta property='twitter:url' content='https://wasp-lang.dev/' />
-        <meta property='twitter:title' content='Develop full-stack web apps without boilerplate.' />
-        <meta property='twitter:image' content={coverPhotoAbsoluteUrl} />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://wasp-lang.dev/" />
+        <meta
+          property="twitter:title"
+          content="Develop full-stack web apps without boilerplate."
+        />
+        <meta property="twitter:image" content={coverPhotoAbsoluteUrl} />
 
-        <script id="wasp-langdev-2392a8eb" src="https://letsask.ai/widget.js"></script>
+        <script
+          id="wasp-langdev-2392a8eb"
+          src="https://letsask.ai/widget.js"
+        ></script>
       </Head>
       <Nav />
-      <div className='min-h-screen'>
+      <div className="min-h-screen">
         <main>
           <Background />
           <div>
@@ -78,7 +87,7 @@ const Index = () => {
       </div>
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default Index;
+export default Index

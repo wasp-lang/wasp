@@ -1,21 +1,36 @@
+{{={= =}=}}
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { mergeConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
 
-// https://vitejs.dev/config/
-export default defineConfig({
+{=# customViteConfig.isDefined =}
+{=& customViteConfig.importStatement =}
+const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
+{=/ customViteConfig.isDefined =}
+{=^ customViteConfig.isDefined =}
+const _waspUserProvidedConfig = {};
+{=/ customViteConfig.isDefined =}
+
+const defaultViteConfig = {
+  base: "{= baseDir =}",
   plugins: [react()],
   server: {
-    port: 3000,
-    host: '0.0.0.0',
+    port: {= defaultClientPort =},
+    host: "0.0.0.0",
     open: true,
   },
-  envPrefix: 'REACT_APP_',
+  envPrefix: "REACT_APP_",
   build: {
-    outDir: 'build',
+    outDir: "build",
   },
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/vitest/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/vitest/setup.ts"],
   },
-})
+};
+
+// https://vitejs.dev/config/
+export default mergeConfig(
+  defaultViteConfig,
+  _waspUserProvidedConfig
+);

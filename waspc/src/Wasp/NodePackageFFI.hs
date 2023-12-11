@@ -32,6 +32,7 @@ data Package
     --   It might make sense to keep it we will be maybe using @prisma/internals or some other
     --   prisma packages via it in the future, if not then it is not worth keeping it.
     PrismaPackage
+  | WaspStudioPackage
 
 data PackagesDir
 
@@ -46,6 +47,7 @@ packageDirInPackagesDir :: Package -> Path' (Rel PackagesDir) (Dir PackageDir)
 packageDirInPackagesDir DeployPackage = [reldir|deploy|]
 packageDirInPackagesDir TsInspectPackage = [reldir|ts-inspect|]
 packageDirInPackagesDir PrismaPackage = [reldir|prisma|]
+packageDirInPackagesDir WaspStudioPackage = [reldir|studio|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]

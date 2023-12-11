@@ -42,7 +42,7 @@ The \texttt{<anything>} inside \texttt{<quoter>} is ambiguous, so to correctly
 parse wasp, a quoter starting with \texttt{\{=tag} must contain all text until
 the first \texttt{tag=\}} or until the end of the input.
 
-The nonterminals for strings, numbers, and identifers are not shown.
+The nonterminals for strings, numbers, and identifiers are not shown.
 
 \subsection{Type System}
 
@@ -308,7 +308,7 @@ to wasp without bloating its core library.
 \subsection{Simplicity}
 
 While wasp is much more complex than old wasp, it is still fairly simple.
-Noteably, control flow is absent. I wanted wasp to be as simple as possible
+Notably, control flow is absent. I wanted wasp to be as simple as possible
 to make experimenting with its implementation less painful. Hopefully, when
 a good implementation is found, it will be flexible enough to bring
 in more complex features as needed.
@@ -345,7 +345,7 @@ data ParamType = StringParam | NumParam
 newtype PageParam = PageParam { name :: String
                               , paramType :: ParamType
                               } deriving (Generic)
-newtype Page = Page { componenent :: Analyzer.Primitive.Import
+newtype Page = Page { component :: Analyzer.Primitive.Import
                     , authRequired :: Maybe Bool
                     , params :: Maybe [PageParam]
                     } deriving (Generic)

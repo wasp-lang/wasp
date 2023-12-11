@@ -3,7 +3,7 @@ title: 7. Adding Authentication
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 Most apps today require some sort of registration and login flow, so Wasp has first-class support for it. Let's add it to our Todo app!
 
@@ -122,18 +122,17 @@ Great, Wasp now knows these pages exist! Now, the React code for the pages:
 
 ```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
-
 import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <LoginForm />
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -145,18 +144,17 @@ export default LoginPage
 
 ```tsx title="src/client/LoginPage.tsx"
 import { Link } from 'react-router-dom'
-
 import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <LoginForm />
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -173,18 +171,17 @@ The Signup page is very similar to the login one:
 
 ```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
-
 import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <SignupForm />
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -196,18 +193,17 @@ export default SignupPage
 
 ```tsx title="src/client/SignupPage.tsx"
 import { Link } from 'react-router-dom'
-
 import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
-    <>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <SignupForm />
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </>
+    </div>
   )
 }
 
@@ -223,7 +219,6 @@ export default SignupPage
 Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](/docs/advanced/links) for more details.
 :::
 </ShowForTs>
-
 
 ## Update the Main Page to Require Auth
 
@@ -288,17 +283,15 @@ However, you will notice that if you try logging in as different users and creat
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp {7,16-17} title="main.wasp"
+```wasp {7,14-15} title="main.wasp"
 // ...
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    username    String  @unique
-    password    String
-    tasks       Task[]
+    id       Int     @id @default(autoincrement())
+    username String  @unique
+    password String
+    tasks    Task[]
 psl=}
-
-// ...
 
 entity Task {=psl
     id          Int     @id @default(autoincrement())
@@ -328,7 +321,7 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js {1,4} title="src/server/queries.js"
+```js {1,4-6} title="src/server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -337,6 +330,7 @@ export const getTasks = async (args, context) => {
   }
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
+    orderBy: { id: 'asc' },
   })
 }
 ```
@@ -344,7 +338,7 @@ export const getTasks = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts {3,6} title="src/server/queries.ts"
+```ts {3,6-8,10} title="src/server/queries.ts"
 import { Task } from '@wasp/entities'
 import { GetTasks } from '@wasp/queries/types'
 import HttpError from '@wasp/core/HttpError.js'
@@ -355,6 +349,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   }
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
+    orderBy: { id: 'asc' },
   })
 }
 ```
@@ -365,7 +360,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js {1,4,8,14,17,18} title="src/server/actions.js"
+```js {1,4-6,10,16-18} title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (args, context) => {
@@ -394,7 +389,7 @@ export const updateTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts {3,8-10,14,22-26} title="src/server/actions.ts"
+```ts {3,11-13,17,28-30,32} title="src/server/actions.ts"
 import { Task } from '@wasp/entities'
 import { CreateTask, UpdateTask } from '@wasp/actions/types'
 import HttpError from '@wasp/core/HttpError.js'
@@ -505,7 +500,16 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 
 We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp.
 
-You can find the complete code for the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+<ShowForJs>
+
+You can find the complete code for the JS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+
+</ShowForJs>
+<ShowForTs>
+
+You can find the complete code for the TS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
+
+</ShowForTs>
 
 You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your app! ✨
 

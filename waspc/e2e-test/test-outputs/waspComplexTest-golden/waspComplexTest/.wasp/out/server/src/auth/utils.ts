@@ -4,15 +4,15 @@ import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
 import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
 import { type User } from '../entities/index.js'
-import waspServerConfig from '../config.js';
 import { type Prisma } from '@prisma/client';
+
+import { throwValidationError } from './validation.js'
+
 
 import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
 const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
   ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
 >
-
-type UserId = User['id']
 
 export const contextWithUserEntity = {
   entities: {
@@ -65,8 +65,7 @@ export async function doFakeWork() {
   return sleep(timeToWork);
 }
 
-
-function rethrowPossiblePrismaError(e: unknown): void {
+export function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
   } else if (isPrismaError(e)) {
@@ -74,10 +73,6 @@ function rethrowPossiblePrismaError(e: unknown): void {
   } else {
     throw new HttpError(500)
   }
-}
-
-function throwValidationError(message: string): void {
-  throw new HttpError(422, 'Validation failed', { message })
 }
 
 export async function validateAndGetAdditionalFields(data: {

@@ -19,7 +19,7 @@ import GHC.Generics (Generic)
 -- value associated with a token, you need the context provided by a "Token".
 data TokenKind
   = White
-  | -- | Newlines (only \n) are separated from whitespace to accomodate line-break
+  | -- | Newlines (only \n) are separated from whitespace to accommodate line-break
     -- based error recovery, if that is ever implemented in the future
     Newline
   | Comment

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@prisma/client": "4.12.0",
+    "@prisma/client": "4.16.2",
     "@sendgrid/mail": "^7.7.0",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
@@ -29,7 +29,7 @@
     "@types/node": "^18.11.9",
     "@types/uuid": "^9.0.0",
     "nodemon": "^2.0.19",
-    "prisma": "4.12.0",
+    "prisma": "4.16.2",
     "standard": "^17.0.0",
     "typescript": "^5.1.0"
   },

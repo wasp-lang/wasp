@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import classNames from 'classnames'
 
-const createNewEmailSubscriberApiEndpoint = "https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu"
+const createNewEmailSubscriberApiEndpoint =
+  'https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu'
 
 const SubscribeForm = ({ className, inputBgColor }) => {
   const [email, setEmail] = useState('')
@@ -13,14 +14,13 @@ const SubscribeForm = ({ className, inputBgColor }) => {
 
     try {
       const res = await fetch(createNewEmailSubscriberApiEndpoint, {
-        method: "POST",
+        method: 'POST',
         body: 'userGroup=&email=' + email,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       })
       setMessage('Thank you for subscribing! 🙏')
-
     } catch (error) {
       setMessage('🛑 Oops! Something went wrong. Please try again.')
     }
@@ -28,9 +28,9 @@ const SubscribeForm = ({ className, inputBgColor }) => {
 
   return (
     <>
-      { message ?
-        <p className='text-lg text-neutral-500'>{message}</p>
-      :
+      {message ? (
+        <p className="text-lg text-neutral-500">{message}</p>
+      ) : (
         <form
           onSubmit={handleSubmit}
           className={classNames('sm:flex', className)}
@@ -40,36 +40,39 @@ const SubscribeForm = ({ className, inputBgColor }) => {
             type="email"
             name="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             id="email-address"
-            required autoComplete='email'
-            placeholder='you@awesomedev.com'
-            className={`
-              text-sm w-full
-              appearance-none
-              placeholder:text-neutral-400
-              border border-yellow-500
-              px-4 py-2 rounded-md
+            required
+            autoComplete="email"
+            placeholder="you@awesomedev.com"
+            className={
+              `
+              w-full appearance-none
+              rounded-md
+              border
+              border-yellow-500 px-4
+              py-2 text-sm placeholder:text-neutral-400
               focus:outline-none focus:ring-2 focus:ring-yellow-400
-            ` + ` ${inputBgColor}`}
+            ` + ` ${inputBgColor}`
+            }
           />
-          <div className='rounded-md mt-3 sm:mt-0 sm:ml-3'>
+          <div className="mt-3 rounded-md sm:ml-3 sm:mt-0">
             <button
-              type='submit'
+              type="submit"
               className={`
                 w-full
-                text-sm border border-transparent rounded-md
-                bg-yellow-500 text-white
+                rounded-md border border-transparent bg-yellow-500
                 px-4 py-2
-                hover:bg-yellow-400
-                transition ease-out duration-200
+                text-sm text-white
+                transition
+                duration-200 ease-out hover:bg-yellow-400
               `}
             >
               Subscribe
             </button>
           </div>
         </form>
-      }
+      )}
     </>
   )
 }

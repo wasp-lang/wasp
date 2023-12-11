@@ -16,6 +16,7 @@ data Call
   | Deps
   | Dockerfile
   | Info
+  | Studio
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
   | BashCompletionListCommands

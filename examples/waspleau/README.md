@@ -5,7 +5,7 @@ It pulls in data via [Jobs](https://wasp-lang.dev/docs/language/features#jobs) a
 
 This example project can serve as a good starting point for building your own dashboard with Wasp, that regularly pulls in external data by using Jobs Wasp feature.
 
-The deployed version of this example can be found at https://waspleau.netlify.app/ .
+The deployed version of this example can be found at https://waspleau-app-client.fly.dev/ .
 
 ## Running in development
 

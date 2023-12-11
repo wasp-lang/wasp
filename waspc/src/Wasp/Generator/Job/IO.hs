@@ -2,11 +2,13 @@ module Wasp.Generator.Job.IO
   ( readJobMessagesAndPrintThemPrefixed,
     printJobMessage,
     printJobMsgsUntilExitReceived,
+    collectJobTextOutputUntilExitReceived,
   )
 where
 
 import Control.Concurrent (Chan, readChan)
 import Control.Monad.IO.Class (liftIO)
+import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush)
 import qualified Wasp.Generator.Job as J
@@ -28,6 +30,15 @@ readJobMessagesAndPrintThemPrefixed chan = runPrefixedWriter go
       case J._data jobMsg of
         J.JobOutput {} -> printJobMessagePrefixed jobMsg >> go
         J.JobExit {} -> return ()
+
+collectJobTextOutputUntilExitReceived :: Chan J.JobMessage -> IO [Text]
+collectJobTextOutputUntilExitReceived = go []
+  where
+    go jobTextOutput chan = do
+      jobMsg <- readChan chan
+      case J._data jobMsg of
+        J.JobExit {} -> return jobTextOutput
+        J.JobOutput text _ -> go (text : jobTextOutput) chan
 
 printJobMessage :: J.JobMessage -> IO ()
 printJobMessage jobMsg = do

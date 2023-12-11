@@ -10,6 +10,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
 import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
+import qualified StrongPath as SP
 import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -36,7 +37,8 @@ data RouterTemplateData = RouterTemplateData
     _isAuthEnabled :: Bool,
     _isExternalAuthEnabled :: Bool,
     _externalAuthProviders :: ![ExternalAuthProviderTemplateData],
-    _rootComponent :: Aeson.Value
+    _rootComponent :: Aeson.Value,
+    _baseDir :: String
   }
 
 instance ToJSON RouterTemplateData where
@@ -47,7 +49,8 @@ instance ToJSON RouterTemplateData where
         "isAuthEnabled" .= _isAuthEnabled routerTD,
         "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
         "externalAuthProviders" .= _externalAuthProviders routerTD,
-        "rootComponent" .= _rootComponent routerTD
+        "rootComponent" .= _rootComponent routerTD,
+        "baseDir" .= _baseDir routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -124,7 +127,8 @@ createRouterTemplateData spec =
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
       _externalAuthProviders = externalAuthProviders,
-      _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
+      _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
+      _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec

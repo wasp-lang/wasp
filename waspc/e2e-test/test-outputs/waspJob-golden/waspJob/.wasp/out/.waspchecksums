@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "221db53f63544c2b82fddcc7f9143f0b627909f0e2af687e5da969d69691ce12"
+        "61df2044110c16c48bfe89f0798c689c256598cb6cbc37f9ea69b69ee6ffe2a4"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "33830187439118a2922c175a6556ac8294102e5e120ee3a5a314a4b63ede3490"
+        "a991bc06f81af3a675fc99e6242292b76c0840c649fddba1ae2724e938f2d1df"
     ],
     [
         [
@@ -116,7 +116,7 @@
             "file",
             "server/src/config.js"
         ],
-        "85e22f3e8e87902ed0b58a3e529d9c2167b553383f33fbb4261a5031a3c5ba27"
+        "d135535e045e5f5852e0b6d8bd49360e7231021cd38b540f419f5f44c6158dc2"
     ],
     [
         [
@@ -326,7 +326,7 @@
             "file",
             "web-app/package.json"
         ],
-        "adcc3a24462553bd66d4c14f43cd351512d28c249d96d3cd3e1e6dad834770fd"
+        "04a1d1f59d0694ba717f16cd5c10b7d705bdd74f72b6c6eb8613594bd4eec869"
     ],
     [
         [
@@ -429,6 +429,13 @@
     [
         [
             "file",
+            "web-app/src/ext-src/vite.config.ts"
+        ],
+        "797dfb8022557b5ce5ce856daca01911974497f9ccf656f5920e5b42a986f4f8"
+    ],
+    [
+        [
+            "file",
             "web-app/src/ext-src/waspLogo.png"
         ],
         "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
@@ -508,7 +515,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "79192ef1e636c2573815ca7151cf8e3a76ebb00a0b0ee3e804cbb60cba5f7197"
+        "067478c4990bbe966fa1984cd9db91aba9aaa68196c5858eab787eb376ab48b9"
     ],
     [
         [
@@ -606,13 +613,13 @@
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "9e2abb169ea87b7190613a1d4da57ca608463a453bd4231fa3aeee5e308370dd"
+        "30fed1f6aa4710deb690d1ae47628066f34afda7b633f0c696fafcda9e2dbc1e"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "0ab8b3892a5d5d25b85646ef30e8b2487904415021912e68670fab316b2ecf2d"
+        "08962d79f2d71eb470ee85dee03db6deca7ede28df9d41542bbaea752db0eeed"
     ]
 ]

@@ -25,7 +25,6 @@ export function ShowForTs({ children }: Props) {
   return jsTs === 'ts' && <MDXContent>{children}</MDXContent>
 }
 
-
 /**
  * Only renders this block if user has selected JS in the codeblocks
  * @Note leave a blank space after opening the tag e.g.

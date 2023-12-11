@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.11.4
+version:        0.11.8
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -65,6 +65,11 @@ data-files:
   packages/prisma/dist/**/*.js
   packages/prisma/package.json
   packages/prisma/package-lock.json
+  packages/studio/dist/**/*.js
+  packages/studio/dist/**/*.html
+  packages/studio/dist/**/*.css
+  packages/studio/package.json
+  packages/studio/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -343,6 +348,8 @@ library
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.WebApp
+    Wasp.Project.Studio
+    Wasp.Project.Vite
     Wasp.Psl.Ast.Model
     Wasp.Psl.Format
     Wasp.Psl.Generator.Model
@@ -437,6 +444,7 @@ library cli-lib
     , filepath
     , time
     , aeson
+    , aeson-pretty
     , mtl
     , async
     , exceptions
@@ -446,6 +454,7 @@ library cli-lib
     , optparse-applicative ^>=0.17.0.0
     , path
     , path-io
+    , pretty-simple ^>= 4.1.2.0
     , process
     , strong-path
     , text
@@ -490,6 +499,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db

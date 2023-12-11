@@ -47,7 +47,7 @@ export const routes = {
 export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 const router = (
-  <Router>
+  <Router basename="{= baseDir =}">
     {=# rootComponent.isDefined =}
     <{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}

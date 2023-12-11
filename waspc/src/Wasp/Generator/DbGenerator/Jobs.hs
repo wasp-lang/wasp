@@ -46,31 +46,40 @@ migrateDev projectDir migrateArgs =
     scriptArgs =
       if System.Info.os == "darwin"
         then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
-          ["-Fq", "/dev/null"] ++ prismaMigrateCmd
+          ["-Fq", "/dev/null"] ++ buildPrismaMigrateCmd id
         else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
-          ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
+          ["-feqc", unwords $ buildPrismaMigrateCmd quoteArg, "/dev/null"]
 
-    -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not
-    -- wrapped in any quotes.
-    -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
-    --   in some situations is too aggressive / confusing.
-    prismaMigrateCmd =
-      [ absPrismaExecutableFp projectDir,
+    -- NOTE(miho): Since we are running the Prisma command using `script` and we are doing it
+    --  in two different ways (MacOS and Linux), we have to take care of quoting the paths
+    --  differently.
+    --  * MacOS - we are passing the command as multiple arguments, so we MUST NOT quote the paths.
+    --  * Linux - we are passing the command as one argument, so we MUST quote the paths.
+    buildPrismaMigrateCmd :: (String -> String) -> [String]
+    buildPrismaMigrateCmd argQuoter =
+      [ argQuoter $ absPrismaExecutableFp projectDir,
         "migrate",
         "dev",
         "--schema",
-        SP.fromAbsFile schemaFile,
+        argQuoter $ SP.fromAbsFile schemaFile,
         "--skip-generate",
+        -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
+        --   in some situations is too aggressive / confusing.
         "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
 
+    quoteArg :: String -> String
+    quoteArg arg = "\"" ++ arg ++ "\""
+
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
-  concat . concat $
-    [ [["--create-only"] | _isCreateOnlyMigration migrateArgs],
+  concat . concat $ [createOnlyArg, nameArg]
+  where
+    createOnlyArg =
+      [["--create-only"] | _isCreateOnlyMigration migrateArgs]
+    nameArg =
       [["--name", name] | Just name <- [_migrationName migrateArgs]]
-    ]
 
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior

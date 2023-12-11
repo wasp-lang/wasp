@@ -9,7 +9,7 @@ const Feature = ({ title, description, url }) => (
     <div className="lg:mt-5">
       <dt>
         <h4 className="mb-4">
-          <span className="text-neutral-700 bg-yellow-500/25 px-2 py-1 rounded">
+          <span className="rounded bg-yellow-500/25 px-2 py-1 text-neutral-700">
             {title}
           </span>
         </h4>
@@ -28,7 +28,7 @@ const TextLink = ({ url, label }) => (
         text-neutral-600 hover:text-neutral-500
       `}
     >
-      <div className="group flex gap-1 items-center">
+      <div className="group flex items-center gap-1">
         <span>{label}</span>
         <div className="transition-all group-hover:ml-0.5">
           <span className="text-yellow-600">
@@ -45,7 +45,7 @@ const HowItWorks = () => {
     <SectionContainer className="lg:pb-8">
       <div className="grid grid-cols-12">
         <div className="col-span-12 lg:col-span-4">
-          <h2 className="text-xl lg:text-2xl text-neutral-700 mb-4">
+          <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
             How does it work? 🧐
           </h2>
           <p className="text-neutral-700">

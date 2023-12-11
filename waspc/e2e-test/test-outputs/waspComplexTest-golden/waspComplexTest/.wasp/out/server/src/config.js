@@ -29,7 +29,7 @@ const resolvedConfig = merge(config.all, config[env])
 export default resolvedConfig
 
 function getDevelopmentConfig() {
-  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000';
+  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000/');
   return {
     frontendUrl,
     allowedCORSOrigins: '*',

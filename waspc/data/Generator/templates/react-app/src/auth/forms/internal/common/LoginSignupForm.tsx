@@ -1,6 +1,8 @@
 {{={= =}=}}
 import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
+import { styled } from '../../../../stitches.config'
+import config from '../../../../config'
 
 import { AuthContext } from '../../Auth'
 import {

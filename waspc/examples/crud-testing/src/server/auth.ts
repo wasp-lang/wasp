@@ -1,5 +1,10 @@
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
 import * as z from 'zod'
+import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidUsername,
+} from '@wasp/auth/validation.js'
 
 export const fields = defineAdditionalSignupFields({
   address: (data) => {
@@ -17,3 +22,44 @@ export const fields = defineAdditionalSignupFields({
     return result.data
   },
 })
+
+import { CustomSignup } from '@wasp/actions/types'
+
+type CustomSignupInput = {
+  username: string
+  password: string
+  address: string
+}
+type CustomSignupOutput = {
+  success: boolean
+  message: string
+}
+
+export const signup: CustomSignup<
+  CustomSignupInput,
+  CustomSignupOutput
+> = async (args, { entities: { User } }) => {
+  ensureValidUsername(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
+
+  try {
+    await User.create({
+      data: {
+        username: args.username,
+        password: args.password,
+        address: args.address,
+      },
+    })
+  } catch (e: any) {
+    return {
+      success: false,
+      message: e.message,
+    }
+  }
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
+}
