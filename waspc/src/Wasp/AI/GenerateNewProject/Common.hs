@@ -146,14 +146,14 @@ _paramsWithFallbackModel maybeGetModel fallbackModel projectDetails =
     }
 
 baseChatGPTParams :: NewProjectDetails -> ChatGPTParams
-baseChatGPTParams = _paramsWithFallbackModel (projectBaseGptModel . _projectConfig) baseGptModel
+baseChatGPTParams = _paramsWithFallbackModel (projectBaseGptModel . _projectConfig) defaultBaseGptModel
   where
-    baseGptModel = GPT.GPT_3_5_turbo
+    defaultBaseGptModel = GPT.GPT_3_5_turbo_0613
 
 planChatGPTParams :: NewProjectDetails -> ChatGPTParams
-planChatGPTParams = _paramsWithFallbackModel (projectPlanGptModel . _projectConfig) planGptModel
+planChatGPTParams = _paramsWithFallbackModel (projectPlanGptModel . _projectConfig) defaultPlanGptModel
   where
-    planGptModel = GPT.GPT_4
+    defaultPlanGptModel = GPT.GPT_4_0613
 
 fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
 fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
