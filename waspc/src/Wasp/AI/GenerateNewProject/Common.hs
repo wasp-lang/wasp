@@ -46,7 +46,7 @@ instance Aeson.FromJSON NewProjectConfig where
     auth <- obj .:? "auth"
     primaryColor <- obj .:? "primaryColor"
     defaultGptModel <- obj .:? "defaultGptModel"
-    planGptModel <- obj .:? "defaultGptModel"
+    planGptModel <- obj .:? "planGptModel"
     defaultGptTemperature <- obj .:? "defaultGptTemperature"
     return
       ( NewProjectConfig
