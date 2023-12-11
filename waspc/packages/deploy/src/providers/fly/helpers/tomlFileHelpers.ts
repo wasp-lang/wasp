@@ -4,8 +4,8 @@ import path from 'node:path';
 import { CommonOptions } from '../CommonOptions.js';
 
 export interface TomlFilePaths {
-	serverTomlPath: string;
-	clientTomlPath: string;
+  serverTomlPath: string;
+  clientTomlPath: string;
 }
 
 export function getTomlFilePaths(options: CommonOptions): TomlFilePaths {
@@ -56,18 +56,30 @@ export function getAppNameFromToml(path: string): string {
 	return data.app;
 }
 
-export function getInferredBasenameFromServerToml(paths: TomlFilePaths): string {
+export function getInferredBasenameFromServerToml(
+	paths: TomlFilePaths,
+): string {
 	const serverName = getAppNameFromToml(paths.serverTomlPath);
 	return serverName.replace('-server', '');
 }
 
-export function getInferredBasenameFromClientToml(paths: TomlFilePaths): string {
+export function getInferredBasenameFromClientToml(
+	paths: TomlFilePaths,
+): string {
 	const clientName = getAppNameFromToml(paths.clientTomlPath);
 	return clientName.replace('-client', '');
 }
 
-export function replaceLineInLocalToml(searchValue: string | RegExp, replaceValue: string): void {
+export function replaceLineInLocalToml(
+	searchValue: string | RegExp,
+	replaceValue: string,
+): void {
 	const content = fs.readFileSync('fly.toml', 'utf8');
 	const updatedContent = content.replace(searchValue, replaceValue);
 	fs.writeFileSync('fly.toml', updatedContent);
+}
+
+export function doesLocalTomlContainLine(searchValue: string | RegExp): boolean {
+	const content = fs.readFileSync('fly.toml', 'utf8');
+	return content.search(searchValue) !== -1;
 }

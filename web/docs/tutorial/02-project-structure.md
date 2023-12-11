@@ -15,8 +15,9 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 │   ├── client             # Your client code (JS/CSS/HTML) goes here.
 │   │   ├── Main.css
 │   │   ├── MainPage.jsx
-│   │   ├── vite-env.d.ts
 │   │   ├── tsconfig.json
+│   │   ├── vite.config.ts
+│   │   ├── vite-env.d.ts
 │   │   └── waspLogo.png
 │   ├── server             # Your server code (Node JS) goes here.
 │   │   └── tsconfig.json
@@ -33,6 +34,8 @@ By _your code_, we mean the _"the code you write"_, as opposed to the code gener
 - `src/shared`: Contains code that may be executed on both the client and server.
 
 Many of the other files (`tsconfig.json`, `vite-env.d.ts`, etc.) are used by your IDE to improve your development experience with tools like autocompletion, intellisense, and error reporting.
+The file `vite.config.ts` is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
+We won't be configuring Vite in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](/docs/project/custom-vite-config.md).
 
 :::note TypeScript Support
 Wasp supports TypeScript out of the box, but you are free to choose between or mix JavaScript and TypeScript as you see fit.
@@ -56,7 +59,7 @@ The default Wasp file generated via `wasp new` on the previous page looks like:
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.11.0" // Pins the version of Wasp to use.
+    version: "^0.11.6" // Pins the version of Wasp to use.
   },
   title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }
@@ -77,7 +80,7 @@ page MainPage {
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.11.0" // Pins the version of Wasp to use.
+    version: "^0.11.6" // Pins the version of Wasp to use.
   },
   title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }

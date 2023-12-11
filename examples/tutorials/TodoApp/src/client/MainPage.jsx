@@ -1,12 +1,11 @@
-import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
+import { useQuery } from '@wasp/queries'
 import updateTask from '@wasp/actions/updateTask'
 import logout from '@wasp/auth/logout'
-import Clocks from './Clocks'
 
 const MainPage = () => {
-  const { data: tasks, isFetching, error } = useQuery(getTasks)
+  const { data: tasks, isLoading, error } = useQuery(getTasks)
 
   return (
     <div>
@@ -14,22 +13,19 @@ const MainPage = () => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      <div> <Clocks /> </div>
-
-      {isFetching && 'Fetching...'}
+      {isLoading && 'Loading...'}
       {error && 'Error: ' + error}
-
-      <button onClick={logout}> Logout </button>
+      <button onClick={logout}>Logout</button>
     </div>
   )
 }
 
-const Task = (props) => {
+const Task = ({ task }) => {
   const handleIsDoneChange = async (event) => {
     try {
       await updateTask({
-        taskId: props.task.id,
-        data: { isDone: event.target.checked }
+        id: task.id,
+        isDone: event.target.checked,
       })
     } catch (error) {
       window.alert('Error while updating task: ' + error.message)
@@ -38,26 +34,35 @@ const Task = (props) => {
   return (
     <div>
       <input
-        type='checkbox' id={props.task.id}
-        checked={props.task.isDone}
+        type="checkbox"
+        id={String(task.id)}
+        checked={task.isDone}
         onChange={handleIsDoneChange}
       />
-      {props.task.description}
+      {task.description}
     </div>
   )
 }
 
-const TasksList = (props) => {
-  if (!props.tasks?.length) return 'No tasks'
-  return props.tasks.map((task, idx) => <Task task={task} key={idx} />)
+const TasksList = ({ tasks }) => {
+  if (!tasks?.length) return <div>No tasks</div>
+
+  return (
+    <div>
+      {tasks.map((task, idx) => (
+        <Task task={task} key={idx} />
+      ))}
+    </div>
+  )
 }
 
-const NewTaskForm = (props) => {
+const NewTaskForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     try {
-      const description = event.target.description.value
-      event.target.reset()
+      const target = event.target
+      const description = target.description.value
+      target.reset()
       await createTask({ description })
     } catch (err) {
       window.alert('Error: ' + err.message)
@@ -66,15 +71,10 @@ const NewTaskForm = (props) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name='description'
-        type='text'
-        defaultValue=''
-      />
-      <input type='submit' value='Create task' />
+      <input name="description" type="text" defaultValue="" />
+      <input type="submit" value="Create task" />
     </form>
   )
 }
 
 export default MainPage
-

@@ -25,6 +25,7 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import Wasp.Project.Vite (findCustomViteConfigPath)
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -66,6 +67,8 @@ constructAppSpec waspDir options decls = do
   let devDbUrl = makeDevDatabaseUrl waspDir decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
+
+  let customViteConfigPath = findCustomViteConfigPath externalClientCodeFiles
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
@@ -79,7 +82,8 @@ constructAppSpec waspDir options decls = do
             AS.isBuild = CompileOptions.isBuild options,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
-            AS.devDatabaseUrl = devDbUrl
+            AS.devDatabaseUrl = devDbUrl,
+            AS.customViteConfigPath = customViteConfigPath
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec

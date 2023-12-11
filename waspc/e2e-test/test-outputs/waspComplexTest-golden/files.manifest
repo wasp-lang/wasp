@@ -29,12 +29,12 @@ waspComplexTest/.wasp/out/server/src/auth/providers/oauth/init.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/types.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/types.ts
 waspComplexTest/.wasp/out/server/src/auth/utils.ts
+waspComplexTest/.wasp/out/server/src/auth/validation.ts
 waspComplexTest/.wasp/out/server/src/config.js
 waspComplexTest/.wasp/out/server/src/core/AuthError.js
 waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
 waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
-waspComplexTest/.wasp/out/server/src/core/auth/validators.ts
 waspComplexTest/.wasp/out/server/src/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
@@ -118,6 +118,7 @@ waspComplexTest/.wasp/out/web-app/src/ext-src/Main.css
 waspComplexTest/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/web-app/src/ext-src/myClientSetupCode.js
 waspComplexTest/.wasp/out/web-app/src/ext-src/vite-env.d.ts
+waspComplexTest/.wasp/out/web-app/src/ext-src/vite.config.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspComplexTest/.wasp/out/web-app/src/index.tsx
 waspComplexTest/.wasp/out/web-app/src/logo.png
@@ -156,6 +157,7 @@ waspComplexTest/src/client/MainPage.jsx
 waspComplexTest/src/client/myClientSetupCode.js
 waspComplexTest/src/client/tsconfig.json
 waspComplexTest/src/client/vite-env.d.ts
+waspComplexTest/src/client/vite.config.ts
 waspComplexTest/src/client/waspLogo.png
 waspComplexTest/src/server/actions/bar.js
 waspComplexTest/src/server/apiNamespaces.ts

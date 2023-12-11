@@ -1,25 +1,25 @@
 app TodoApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.11.6" // Pins the version of Wasp to use.
   },
-
-  title: "Todo app",
-
+  title: "Todo app", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
   auth: {
+    // Tells Wasp which entity to use for storing users.
     userEntity: User,
     methods: {
+      // Enable username and password auth.
       usernameAndPassword: {}
     },
+    // We'll see how this is used a bit later.
     onAuthFailedRedirectTo: "/login"
-  },
-
-  dependencies: [
-    ("react-clock", "3.0.0")
-  ]
+  }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
+  // We specify that the React implementation of the page is the default export
+  // of `src/client/MainPage.jsx`. This statement uses standard JS import syntax.
+  // Use `@client` to reference files inside the `src/client` folder.
   authRequired: true,
   component: import Main from "@client/MainPage.jsx"
 }
@@ -35,22 +35,26 @@ page LoginPage {
 }
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    username    String  @unique
-    password    String
-    tasks       Task[]
+    id       Int    @id @default(autoincrement())
+    username String @unique
+    password String
+    tasks    Task[]
 psl=}
 
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
-    user        User?    @relation(fields: [userId], references: [id])
+    user        User?   @relation(fields: [userId], references: [id])
     userId      Int?
 psl=}
 
 query getTasks {
+  // Specifies where the implementation for the query function is.
+  // Use `@server` to import files inside the `src/server` folder.
   fn: import { getTasks } from "@server/queries.js",
+  // Tell Wasp that this query reads from the `Task` entity. By doing this, Wasp
+  // will automatically update the results of this query when tasks are modified.
   entities: [Task]
 }
 

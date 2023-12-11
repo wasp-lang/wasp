@@ -1,0 +1,14 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2017",
+    "outDir": "dist",
+    "rootDir": "src",
+  },
+  "ts-node": {
+    "esm": true,
+    "swc": true,
+  },
+  "include": ["src"]
+}

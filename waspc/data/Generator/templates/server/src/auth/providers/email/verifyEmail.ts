@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { updateUserEmailVerification, verifyToken } from '../../utils.js';
+import { updateUserEmailVerification } from './utils.js';
+import { verifyToken } from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
 
 export async function verifyEmail(

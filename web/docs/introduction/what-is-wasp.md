@@ -52,7 +52,7 @@ Let's say you want to build a web app that allows users to **create and share th
 
 Let's start with the main.wasp file: it is the central file of your app, where you describe the app from the high level.
 
-Let's give our app a title and let's immediatelly turn on the full-stack authentication via username and password:
+Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 ```wasp title="main.wasp"
 app RecipeApp {
   title: "My Recipes",

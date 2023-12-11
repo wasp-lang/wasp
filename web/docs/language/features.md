@@ -198,7 +198,7 @@ on top of it. The workflow is as follows:
 
 1. Wasp developer creates/updates some of the entities in `.wasp` file.
 2. Wasp developer runs `wasp db migrate-dev`.
-3. Migration data is generated in `migrations/` folder (and should be commited).
+3. Migration data is generated in `migrations/` folder (and should be committed).
 4. Wasp developer uses Prisma JS API to work with the database when in Operations.
 
 #### Using Entities in Operations
@@ -584,7 +584,7 @@ In practice, this means that Wasp keeps the queries "fresh" without requiring yo
 
 On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
-If you wish to optimistically set cache values after perfomring an action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
+If you wish to optimistically set cache values after performing an action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
 
 ### Prisma Error Helpers
 In your Operations, you may wish to handle general Prisma errors with HTTP-friendly responses. We have exposed two helper functions, `isPrismaError`, and `prismaErrorToHttpError`, for this purpose. As of now, we convert two specific Prisma errors (which we will continue to expand), with the rest being `500`. See the [source here](https://github.com/wasp-lang/wasp/blob/main/waspc/e2e-test/test-outputs/waspMigrate-golden/waspMigrate/.wasp/out/server/src/utils.js).
@@ -1622,7 +1622,7 @@ When using Social Login Providers, Wasp gives you the following options:
 When a user signs in for the first time, if the `userEntity` has `username` and/or `password` fields Wasp assigns generated values to those fields by default (e.g. `username: nice-blue-horse-14357` and a strong random `password`). This is a historical coupling between auth methods that will be removed over time. If you'd like to change this behavior, these values can be overridden as described below.
 
 :::tip Overriding Defaults
-It is also posslbe to [override the default](features#overrides-for-social-login-providers) login behaviors that Wasp provides for you. This allows you to create custom setups, such as allowing Users to define a username rather than the default random username assigned by Wasp on initial Login.
+It is also possible to [override the default](features#overrides-for-social-login-providers) login behaviors that Wasp provides for you. This allows you to create custom setups, such as allowing Users to define a username rather than the default random username assigned by Wasp on initial Login.
 :::
 
 #### `externalAuthEntity`
@@ -2162,7 +2162,7 @@ Since environmental variables are usually different for server-side and client a
 
 `.env.server` and `.env.client` files have to be defined in the root of your Wasp project.
 
-`.env.server` and `.env.client` files should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
+`.env.server` and `.env.client` files should not be committed to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
 
 Variables are defined in `.env.server` or `.env.client` files in the form of `NAME=VALUE`, for example:
 ```

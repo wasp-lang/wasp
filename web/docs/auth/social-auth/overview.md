@@ -325,7 +325,7 @@ If you're looking for the fastest way to get your auth up and running, that's wh
 The UI helpers described below are lower-level and are useful for creating your custom forms.
 :::
 
-Wasp provides sign-in buttons, logos and URLs for each of the supported social login providers.
+Wasp provides sign-in buttons and URLs for each of the supported social login providers.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -334,12 +334,10 @@ Wasp provides sign-in buttons, logos and URLs for each of the supported social l
 import {
   SignInButton as GoogleSignInButton,
   signInUrl as googleSignInUrl,
-  logoUrl as googleLogoUrl,
 } from '@wasp/auth/helpers/Google'
 import {
   SignInButton as GitHubSignInButton,
   signInUrl as gitHubSignInUrl,
-  logoUrl as gitHubLogoUrl,
 } from '@wasp/auth/helpers/GitHub'
 
 export const LoginPage = () => {
@@ -362,12 +360,10 @@ export const LoginPage = () => {
 import {
   SignInButton as GoogleSignInButton,
   signInUrl as googleSignInUrl,
-  logoUrl as googleLogoUrl,
 } from '@wasp/auth/helpers/Google'
 import {
   SignInButton as GitHubSignInButton,
   signInUrl as gitHubSignInUrl,
-  logoUrl as gitHubLogoUrl,
 } from '@wasp/auth/helpers/GitHub'
 
 export const LoginPage = () => {

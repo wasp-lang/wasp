@@ -5,11 +5,12 @@ Thoughts
 
 Run `wasp start` to start the app in development mode.
 
-This app is deployed at https://wasp-thoughts.netlify.app/ .
+This app is deployed at https://wasp-thoughts.netlify.app/ : client at Netlify, server and db at Heroku.
+It is also deployed at https://wasp-thoughts-client.fly.dev/ : client, server and db on Fly.io .
 
 ## TODO
 
-## How it felt so far to build this app in Wasp
+## How it felt so far to build this app in Wasp (2022)
 
 Here I write down how I felt while developing this app, so we can use this feedback in the future to improve Wasp. Subjective feedback is also written down.
 
