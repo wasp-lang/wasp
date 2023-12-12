@@ -3,12 +3,14 @@ martinsos:
   title: Co-founder & CTO @ Wasp
   url: https://github.com/martinsos
   image_url: https://github.com/martinsos.png
+  email: martin@wasp-lang.dev
 
 matijasos:
   name: Matija Sosic
   title: Co-founder & CEO @ Wasp
   url: https://github.com/matijasos
   image_url: https://github.com/matijasos.png
+  email: matija@wasp-lang.dev
 
 shayneczyzewski:
   name: Shayne Czyzewski
@@ -21,6 +23,7 @@ sodic:
   title: Founding Engineer @ Wasp
   url: https://github.com/sodic
   image_url: https://github.com/sodic.png
+  email: filip@wasp-lang.dev
 
 maksym36ua:
   name: Maksym Khamrovskyi
@@ -37,12 +40,14 @@ vinny:
   title: DevRel @ Wasp
   url: https://vincanger.github.io
   image_url: https://vincanger.github.io/assets/vince_smiley.jpg
+  email: vince@wasp-lang.dev
 
 miho:
   name: Mihovil Ilakovac
   title: Founding Engineer @ Wasp
   url: https://ilakovac.com
   image_url: https://github.com/infomiho.png
+  email: miho@wasp-lang.dev
 
 martinovicdev:
   name: Boris Martinović
