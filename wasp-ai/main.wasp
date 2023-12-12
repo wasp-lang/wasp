@@ -130,6 +130,13 @@ query getAppGenerationResult {
   ]
 }
 
+query getProjects {
+  fn: import { getProjects } from "@server/operations.js",
+  entities: [
+    Project
+  ]
+}
+
 query getStats {
   fn: import { getStats } from "@server/operations.js",
   entities: [

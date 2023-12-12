@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import getProjects from "@wasp/queries/getProjects";
 import getStats from "@wasp/queries/getStats";
 import { useQuery } from "@wasp/queries";
 import { Link } from "react-router-dom";
@@ -9,7 +10,6 @@ import { BarChart } from "../components/BarChart";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
 import { exampleIdeas } from "../examples";
 import logout from "@wasp/auth/logout";
-import { WaspIcon } from "../components/WaspIcon";
 import { Header } from "../components/Header";
 import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
@@ -33,61 +33,61 @@ const chartTypes = [
 
 export function Stats() {
   const [filterOutExampleApps, setFilterOutExampleApps] = useState(false);
-  const [filterOutKnownUsers, setFilterOutKnownUsers] = useState(false);
   const [chartType, setChartType] = useState(chartTypes[0]);
 
-  const { data: stats, isLoading, error } = useQuery(getStats);
+  const { data: projects, isLoading, error } = useQuery(getProjects);
+  const { data: stats } = useQuery(getStats, {
+    filterOutExampleApps,
+  });
 
   const logsByProjectId = useMemo(() => {
-    if (!stats) {
+    if (!projects) {
       return {};
     }
-    if (!stats.latestProjectsWithLogs) {
+    if (!projects.latestProjectsWithLogs) {
       return {};
     }
-    return stats.latestProjectsWithLogs.reduce((acc, project) => {
+    return projects.latestProjectsWithLogs.reduce((acc, project) => {
       acc[project.id] = project.logs;
       return acc;
     }, {});
-  }, [stats]);
+  }, [projects]);
 
   const filteredProjects = useMemo(() => {
     const filters = [];
     if (filterOutExampleApps) {
-      filters.push(
-        (stat) =>
-          !exampleIdeas.some((example) => example.name === stat.name && example.description === stat.description)
-      );
+      filters.push((stat) => !exampleIdeas.some((example) => example.name === stat.name));
     }
-    if (filterOutKnownUsers) {
-      filters.push((stat) => !stat.user);
-    }
-    return stats
-      ? stats.projects.filter((stat) => {
+    return projects
+      ? projects.projects.filter((stat) => {
           return filters.every((filter) => filter(stat));
         })
       : [];
-  }, [stats, stats?.projects, filterOutExampleApps, filterOutKnownUsers]);
+  }, [projects, projects?.projects, filterOutExampleApps]);
 
-  const limitedFilteredProjects = useMemo(() => {
-    return filteredProjects.slice(0, 1000);
-  }, [filteredProjects]);
+  const barChartData = useMemo(() => {
+    if (!stats) {
+      return [];
+    }
+
+    if (chartType.value === "last24Hours") {
+      return stats.last24Hours;
+    } else {
+      return stats.last30Days;
+    }
+  }, [stats, chartType, filteredProjects]);
 
   if (isLoading) {
-    return <p>Loading</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {
     return <p>Error: {error.message}</p>;
   }
 
-  if (!stats) {
+  if (!projects || !stats) {
     return <p>Couldn't load stats</p>;
   }
-
-  const downloadStats = getDownloadStats(filteredProjects);
-
-  const downloadedPercentage = Math.round(downloadStats.downloadRatio * 10000) / 100;
 
   return (
     <>
@@ -104,9 +104,11 @@ export function Stats() {
           </div>
         </div>
 
-        {stats.projects.length === 0 && <p className="text-sm text-slate-500">No projects created yet.</p>}
+        {projects.projects.length === 0 && (
+          <p className="text-sm text-slate-500">No projects created yet.</p>
+        )}
 
-        {stats.projects.length > 0 && (
+        {projects.projects.length > 0 && (
           <>
             <div className="mb-3 flex justify-between items-end">
               <div>
@@ -119,7 +121,12 @@ export function Stats() {
             <div style={{ height: 300, width: "100%" }} className="mb-4">
               <ParentSize>
                 {({ width, height }) => (
-                  <BarChart chartType={chartType.value} projects={filteredProjects} width={width} height={height} />
+                  <BarChart
+                    chartType={chartType.value}
+                    data={barChartData}
+                    width={width}
+                    height={height}
+                  />
                 )}
               </ParentSize>
             </div>
@@ -138,29 +145,19 @@ export function Stats() {
                     Filter out example apps
                   </label>
                 </div>
-                <div className="flex items-center mb-4">
-                  <input
-                    id="default-checkbox"
-                    type="checkbox"
-                    checked={filterOutKnownUsers}
-                    onChange={(event) => setFilterOutKnownUsers(event.target.checked)}
-                    className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
-                  />
-                  <label htmlFor="default-checkbox" className="ml-2 text-sm font-medium text-gray-900">
-                    Filter out known users
-                  </label>
-                </div>
               </div>
 
-              <p className="text-sm text-slate-800 flex gap-2">
-                <span className="bg-slate-100 rounded-md px-2 py-1">
-                  Generated: <strong className="text-slate-800">{filteredProjects.length}</strong>
-                </span>
-                <span className="bg-slate-100 rounded-md px-2 py-1">
-                  Downloaded:{" "}
-                  <strong className="text-slate-800">{`${downloadStats.projectsDownloaded} (${downloadedPercentage}%)`}</strong>
-                </span>
-              </p>
+              {stats && (
+                <p className="text-sm text-slate-800 flex gap-2">
+                  <span className="bg-slate-100 rounded-md px-2 py-1">
+                    Generated: <strong className="text-slate-800">{stats.totalGenerated}</strong>
+                  </span>
+                  <span className="bg-slate-100 rounded-md px-2 py-1">
+                    Downloaded:{" "}
+                    <strong className="text-slate-800">{`${stats.totalDownloaded} (${stats.downloadedPercentage}%)`}</strong>
+                  </span>
+                </p>
+              )}
             </div>
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -192,7 +189,9 @@ export function Stats() {
                         scope="row"
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
-                        <Color value={getTailwindClassNameForProjectBrandColor(project.primaryColor)} />{" "}
+                        <Color
+                          value={getTailwindClassNameForProjectBrandColor(project.primaryColor)}
+                        />{" "}
                         <span className="max-w-[250px] overflow-hidden overflow-ellipsis">
                           {project.name}
                         </span>{" "}
@@ -216,7 +215,10 @@ export function Stats() {
                         </span>
                       </th>
                       <td className="px-6 py-4">
-                        <StatusPill status={getTailwindClassNameForProjectStatus(project.status)} sm>
+                        <StatusPill
+                          status={getTailwindClassNameForProjectStatus(project.status)}
+                          sm
+                        >
                           {projectStatusToDisplayableText(project.status)}
                         </StatusPill>
                       </td>
@@ -230,9 +232,14 @@ export function Stats() {
                         {getWaitingInQueueDuration(project, logsByProjectId)} &rarr;{" "}
                         {getDuration(project, logsByProjectId)}
                       </td>
-                      <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>{project.creativityLevel}</td>
+                      <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>
+                        {project.creativityLevel}
+                      </td>
                       <td className="px-6 py-4">
-                        <Link to={`/result/${project.id}`} className="font-medium text-sky-600 hover:underline">
+                        <Link
+                          to={`/result/${project.id}`}
+                          className="font-medium text-sky-600 hover:underline"
+                        >
                           View the app &rarr;
                         </Link>
                       </td>
@@ -240,31 +247,15 @@ export function Stats() {
                   ))}
                 </tbody>
               </table>
-              {filteredProjects.length > limitedFilteredProjects.length && (
-                <div className="relative px-6 py-3 bg-gray-50 text-sm text-slate-500 text-center">
-                  Showing only the latest 1000 projects
-                </div>
-              )}
+              <div className="relative px-6 py-3 bg-gray-50 text-sm text-slate-500 text-center">
+                Showing only the latest 1000 projects
+              </div>
             </div>
           </>
         )}
       </div>
     </>
   );
-}
-
-function getDownloadStats(projects) {
-  const projectsAfterDownloadTracking = projects.filter(
-    (project) =>
-      // This is the time of the first recorded download (after we rolled out download tracking).
-      project.createdAt > new Date("2023-07-14 10:36:45.12") && project.status === "success"
-  );
-  const downloadedProjects = projectsAfterDownloadTracking.filter((project) => project.zipDownloadedAt !== null);
-  return {
-    projectsDownloaded: downloadedProjects.length,
-    downloadRatio:
-      projectsAfterDownloadTracking.length > 0 ? downloadedProjects.length / projectsAfterDownloadTracking.length : 0,
-  };
 }
 
 function getFormattedDiff(start, end) {
