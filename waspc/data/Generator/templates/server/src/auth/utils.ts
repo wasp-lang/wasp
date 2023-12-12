@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { sign, verify } from '../core/auth.js'
+import { hashPassword, sign, verify } from '../core/auth.js'
 import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
@@ -7,7 +7,7 @@ import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../entities/index.js'
 import { type Prisma } from '@prisma/client';
 
-import { throwValidationError } from './validation.js'
+import { PASSWORD_FIELD, throwValidationError } from './validation.js'
 
 {=# additionalSignupFields.isDefined =}
 {=& additionalSignupFields.importStatement =}
@@ -41,9 +41,10 @@ export async function findAuthIdentityByAuthId(authId: string) {
 }
 
 export async function updateAuthIdentityProviderData(authId: string, providerData: Record<string, unknown>) {
+  const serializedProviderData = await serializeProviderData(providerData);
   return prisma.{= authIdentityEntityLower =}.updateMany({
     where: { authId },
-    data: { providerData: JSON.stringify(providerData) },
+    data: { providerData: serializedProviderData },
   });
 }
 
@@ -129,4 +130,24 @@ export async function validateAndGetAdditionalFields(data: {
     }
   }
   return result;
+}
+
+export function deserializeProviderData(providerData: string) {
+  try {
+    return JSON.parse(providerData);
+  } catch(e) {
+    return {};
+  }
+}
+
+export async function serializeProviderData(providerData: Record<string, unknown>) {
+  // NOTE: doing a shallow copy here as we expect the providerData to be
+  // a flat object. If it's not, we'll have to do a deep copy.
+  const data = {
+    ...providerData,
+  };
+  if (data[PASSWORD_FIELD]) {
+    data[PASSWORD_FIELD] = await hashPassword(providerData.password as string);
+  }
+  return JSON.stringify(data);
 }

@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
-import { findAuthIdentity, findAuthWithUserBy, createAuthToken } from "../../utils.js";
+import {
+    findAuthIdentity,
+    findAuthWithUserBy,
+    createAuthToken,
+    deserializeProviderData,
+} from "../../utils.js";
 import { ensureValidEmail, ensurePasswordIsPresent } from "../../validation.js";
 
 export function getLoginRoute({
@@ -21,7 +26,7 @@ export function getLoginRoute({
         if (!authIdentity) {
             throwInvalidCredentialsError()
         }
-        const providerData = JSON.parse(authIdentity.providerData)
+        const providerData = deserializeProviderData(authIdentity.providerData)
         if (!providerData.isEmailVerified && !allowUnverifiedLogin) {
             throwInvalidCredentialsError()
         }

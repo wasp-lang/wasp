@@ -1,5 +1,10 @@
 import { Request, Response } from 'express';
-import { verifyToken, findAuthIdentityByAuthId, updateAuthIdentityProviderData } from '../../utils.js';
+import {
+    verifyToken,
+    findAuthIdentityByAuthId,
+    updateAuthIdentityProviderData,
+    deserializeProviderData,
+} from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
 
 export async function verifyEmail(
@@ -12,7 +17,7 @@ export async function verifyEmail(
 
         // TODO: update the auth identity JSON field "providerData" to set isEmailVerified=true
         const authIdentity = await findAuthIdentityByAuthId(authId);
-        const providerData = JSON.parse(authIdentity.providerData);
+        const providerData = deserializeProviderData(authIdentity.providerData);
         await updateAuthIdentityProviderData(authId, {
             ...providerData,
             isEmailVerified: true,

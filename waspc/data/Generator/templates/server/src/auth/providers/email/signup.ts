@@ -3,9 +3,10 @@ import { EmailFromField } from "../../../email/core/types.js";
 import {
     createAuthWithUser,
     findAuthIdentity,
-    findAuthWithUserBy,
     deleteUserByAuthId,
     doFakeWork,
+    deserializeProviderData,
+    serializeProviderData,
 } from "../../utils.js";
 import {
     createEmailVerificationLink,
@@ -40,7 +41,7 @@ export function getSignupRoute({
 
         // TODO: check if the email is verified from providerData
         if (existingAuthIdentity) {
-            const providerData = JSON.parse(existingAuthIdentity.providerData);
+            const providerData = deserializeProviderData(existingAuthIdentity.providerData);
             if (providerData.isEmailVerified) {
                 await doFakeWork();
                 return res.json({ success: true });
@@ -55,17 +56,17 @@ export function getSignupRoute({
 
         const additionalFields = await validateAndGetAdditionalFields(fields);
 
-        const password = await hashPassword(fields.password);
+        const newUserProviderData = await serializeProviderData({
+            password: fields.password,
+            isEmailVerified: false,
+        });
         const auth = await createAuthWithUser(
             {
                 identities: {
                     create: {
                         providerName: "email",
                         providerUserId: fields.email,
-                        providerData: JSON.stringify({
-                            password,
-                            isEmailVerified: false,
-                        }),
+                        providerData: newUserProviderData,
                     },
                 }
             },

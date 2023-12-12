@@ -1,6 +1,9 @@
 {{={= =}=}}
 import { handleRejection } from '../../../utils.js'
-import { createAuthWithUser } from '../../utils.js'
+import {
+  createAuthWithUser,
+  serializeProviderData,
+} from '../../utils.js'
 import {
   ensureValidUsername,
   ensurePasswordIsPresent,
@@ -15,18 +18,16 @@ export default handleRejection(async (req, res) => {
 
   const additionalFields = await validateAndGetAdditionalFields(fields)
 
-  // TODO: create auth identity with username (providerName="username" and providerUserId=username)
-  // TODO: set the hashed password in the JSON field "providerData"
-  const password = await hashPassword(fields.password)
+  const providerData = await serializeProviderData({
+    password: fields.password,
+  })
   await createAuthWithUser(
     {
       identities: {
         create: {
           providerName: 'username',
           providerUserId: fields.username,
-          providerData: JSON.stringify({
-            password,
-          }),
+          providerData,
         },
       },
     },

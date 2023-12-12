@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import {
     findAuthIdentity,
-    findAuthWithUserBy,
     doFakeWork,
+    deserializeProviderData,
 } from "../../utils.js";
 import {
     createPasswordResetLink,
@@ -39,7 +39,7 @@ export function getRequestPasswordResetRoute({
             return res.json({ success: true });
         }
 
-        const providerData = JSON.parse(authIdentity.providerData);
+        const providerData = deserializeProviderData(authIdentity.providerData);
         if (!providerData.isEmailVerified) {
             await doFakeWork();
             return res.json({ success: true });

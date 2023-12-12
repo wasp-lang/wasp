@@ -2,7 +2,12 @@
 import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth.js'
 import { handleRejection } from '../../../utils.js'
 
-import { findAuthIdentity, findAuthWithUserBy, createAuthToken } from '../../utils.js'
+import {
+  findAuthIdentity,
+  findAuthWithUserBy,
+  createAuthToken,
+  deserializeProviderData,
+} from '../../utils.js'
 import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
 
 export default handleRejection(async (req, res) => {
@@ -16,8 +21,7 @@ export default handleRejection(async (req, res) => {
   }
 
   try {
-    // TODO: use some JSON helper to parse the providerData
-    const providerData = JSON.parse(authIdentity.providerData)
+    const providerData = deserializeProviderData(authIdentity.providerData)
 
     console.log('providerData', providerData)
 

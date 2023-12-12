@@ -2,7 +2,12 @@
 import { sign } from '../../../core/auth.js'
 import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
-import { rethrowPossiblePrismaError, updateAuthIdentityProviderData, findAuthIdentity } from '../../utils.js';
+import {
+  rethrowPossiblePrismaError,
+  updateAuthIdentityProviderData,
+  findAuthIdentity,
+  deserializeProviderData,
+} from '../../utils.js';
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
@@ -55,7 +60,7 @@ async function sendEmailAndLogTimestamp(
   // the email is being sent.
   try {
     const authIdentity = await findAuthIdentity("email", email);
-    const providerData = JSON.parse(authIdentity.providerData);
+    const providerData = deserializeProviderData(authIdentity.providerData);
     await updateAuthIdentityProviderData(authIdentity.authId, { ...providerData, [field]: new Date() });
   } catch (e) {
     rethrowPossiblePrismaError(e);  
