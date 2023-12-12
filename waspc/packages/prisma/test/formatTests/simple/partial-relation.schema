@@ -1,0 +1,9 @@
+model User {
+  id    Int    @id @default(autoincrement())
+}
+
+model Task {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+}

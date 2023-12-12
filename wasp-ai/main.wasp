@@ -1,0 +1,246 @@
+app waspAi {
+  wasp: {
+    version: "^0.11.5"
+  },
+  title: "MAGE - GPT Web App Generator ✨",
+  head: [
+    "<meta property=\"og:title\" content=\"MAGE GPT Web App Generator ✨ MageGPT\">",
+    "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and the Wasp full-stack framework.\">",
+    "<meta property=\"og:type\" content=\"website\">",
+    "<meta property=\"og:image\" content=\"https://usemage.ai/twitter.png\">",
+    "<meta name=\"twitter:image\" content=\"https://usemage.ai/twitter.png\" />",
+    "<meta name=\"twitter:image:width\" content=\"800\" />",
+    "<meta name=\"twitter:image:height\" content=\"400\" />",
+    "<meta name=\"twitter:card\" content=\"summary_large_image\" />",
+    "<script defer data-domain=\"usemage.ai\" src=\"https://plausible.apps.twoducks.dev/js/script.js\"></script>",
+  ],
+  dependencies: [
+    ("prismjs", "^1.29.0"),
+    ("react-accessible-treeview", "2.6.1"),
+    ("react-icons", "4.10.1"),
+    ("@zip.js/zip.js", "2.7.16"),
+    ("async-mutex", "0.4.0"),
+    ("@headlessui/react", "1.7.15"),
+    ("@heroicons/react", "2.0.18"),
+    ("react-parallax-tilt", "1.7.151"),
+    ("timeago.js", "4.0.2"),
+    ("@visx/mock-data", "3.0.0"),
+    ("@visx/group", "3.0.0"),
+    ("@visx/shape", "3.0.0"),
+    ("@visx/scale", "3.2.0"),
+    ("@visx/responsive", "3.0.0"),
+    ("@visx/gradient", "3.0.0"),
+    ("@visx/axis", "3.2.0"),
+    ("js-confetti", "0.11.0")
+  ],
+  client: {
+    rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
+  },
+  db: {
+    system: PostgreSQL
+  },
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      gitHub: {
+        configFn: import { getGitHubAuthConfig } from "@server/auth.js",
+        getUserFieldsFn: import { getGitHubUserFields } from "@server/auth.js",
+      },
+      google: {
+        configFn: import { getGoogleAuthConfig } from "@server/auth.js",
+        getUserFieldsFn: import { getGoogleUserFields } from "@server/auth.js",
+      },
+    },
+    onAuthFailedRedirectTo: "/",
+    onAuthSucceededRedirectTo: "/"
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/pages/MainPage.jsx"
+}
+
+route ResultRoute { path: "/result/:appId", to: ResultPage }
+page ResultPage {
+  component: import { ResultPage } from "@client/pages/ResultPage.jsx"
+}
+
+route UserRoute { path: "/user", to: UserPage }
+page UserPage {
+  component: import { UserPage } from "@client/pages/UserPage.jsx",
+  authRequired: true
+}
+
+route StatsRoute { path: "/stats", to: StatsPage }
+page StatsPage {
+  component: import { Stats } from "@client/pages/StatsPage.jsx",
+  authRequired: true
+}
+
+route FeedbackRoute { path: "/feedback", to: FeedbackPage }
+page FeedbackPage {
+  component: import { Feedback } from "@client/pages/FeedbackPage.jsx",
+  authRequired: true
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@client/pages/LoginPage.jsx",
+}
+
+action startGeneratingNewApp {
+  fn: import { startGeneratingNewApp } from "@server/operations.js",
+  entities: [
+    Project,
+  ]
+}
+
+action registerZipDownload {
+  fn: import { registerZipDownload } from "@server/operations.js",
+  entities: [Project]
+}
+
+action createFeedback {
+  fn: import { createFeedback } from "@server/operations.js",
+  entities: [Feedback]
+}
+
+action deleteMyself {
+  fn: import { deleteMyself } from "@server/operations.js",
+  entities: [User, Project, File, Log]
+}
+
+query getFeedback {
+  fn: import { getFeedback } from "@server/operations.js",
+  entities: [Feedback]
+}
+
+query getProjectsByUser {
+  fn: import { getProjectsByUser } from "@server/operations.js",
+  entities: [Project]
+}
+
+
+query getAppGenerationResult {
+  fn: import { getAppGenerationResult } from "@server/operations.js",
+  entities: [
+    Project
+  ]
+}
+
+query getStats {
+  fn: import { getStats } from "@server/operations.js",
+  entities: [
+    Project
+  ]
+}
+
+query getNumProjects {
+  fn: import { getNumProjects } from "@server/operations.js",
+  entities: [
+    Project
+  ]
+}
+
+entity User {=psl
+  id Int @id @default(autoincrement())
+
+  email String @unique
+  username String?
+  externalAuthAssociations SocialLogin[]
+  projects Project[]
+psl=}
+
+entity SocialLogin {=psl
+  id String @id @default(uuid())
+
+  provider String
+  providerId String
+
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+psl=}
+
+entity Project {=psl
+  id String @id @default(uuid())
+  name String
+  description String
+  primaryColor String @default("sky")
+  authMethod String @default("usernameAndPassword")
+  creativityLevel String @default("balanced")
+  createdAt DateTime @default(now())
+  status String @default("pending")
+  referrer String @default("unknown")
+  zipDownloadedAt DateTime?
+  userId Int?
+  user User? @relation(fields: [userId], references: [id])
+  files File[]
+  logs Log[]
+  feedbacks Feedback[]
+psl=}
+
+entity Feedback {=psl
+  id String @id @default(uuid())
+  score Int
+  message String
+  createdAt DateTime @default(now())
+
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
+psl=}
+
+entity File {=psl
+  id String @id @default(uuid())
+  name String
+  content String
+  createdAt DateTime @default(now())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([name, projectId])
+psl=}
+
+entity Log {=psl
+  id String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
+psl=}
+
+job checkPendingAppsJob {
+  executor: PgBoss,
+  schedule: {
+    cron: "* * * * *",
+  },
+  perform: {
+    fn: import { checkForPendingApps } from "@server/jobs/checkForPendingApps.js"
+  },
+  entities: [Project]
+}
+
+job failStaleAppsJobs {
+  executor: PgBoss,
+  schedule: {
+    cron: "* * * * *",
+  },
+  perform: {
+    fn: import { failStaleGenerations } from "@server/jobs/failStaleGenerations.js",
+  },
+  entities: [Project, Log]
+}
+
+job generateAppJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { generateApp } from "@server/jobs/generateApp.js",
+  },
+  entities: [
+    Project,
+    File,
+    Log
+  ]
+}

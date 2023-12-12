@@ -9,6 +9,7 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Cli.Command.CreateNewProject.AI (createNewProjectInteractiveOnDisk)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (parseNewProjectArgs)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
@@ -16,8 +17,8 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplate (..),
-    TemplateMetadata (..),
+  ( DirBasedTemplateMetadata (_path),
+    StarterTemplate (..),
     getStarterTemplates,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
@@ -27,7 +28,7 @@ import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Terminal as Term
 
--- It receives all of the arguments that were passed to the `wasp new` command.
+-- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either throwProjectCreationError return
@@ -61,7 +62,9 @@ createProjectOnDisk
     } = do
     cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
     case template of
-      RemoteStarterTemplate TemplateMetadata {_path = remoteTemplatePath} ->
-        createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName remoteTemplatePath
-      LocalStarterTemplate TemplateMetadata {_path = localTemplatePath} ->
-        liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName localTemplatePath
+      RemoteStarterTemplate metadata ->
+        createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName $ _path metadata
+      LocalStarterTemplate metadata ->
+        liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
+      AiGeneratedStarterTemplate ->
+        createNewProjectInteractiveOnDisk absWaspProjectDir appName

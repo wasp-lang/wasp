@@ -49,10 +49,10 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/basic/.gitignore
-  Cli/templates/basic/.wasproot
-  Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  Cli/templates/skeleton/.gitignore
+  Cli/templates/skeleton/.wasproot
+  Cli/templates/skeleton/src/.waspignore
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
   Lsp/templates/**/*.jsx
@@ -62,6 +62,9 @@ data-files:
   packages/ts-inspect/dist/**/*.js
   packages/ts-inspect/package.json
   packages/ts-inspect/package-lock.json
+  packages/prisma/dist/**/*.js
+  packages/prisma/package.json
+  packages/prisma/package-lock.json
   packages/studio/dist/**/*.js
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.css
@@ -127,6 +130,7 @@ library
     , parsec                ^>= 3.1.14
     , path                  ^>= 0.9.2
     , path-io               ^>= 1.6.3
+    , pretty-simple         ^>= 4.1.2
     , regex-tdfa            ^>= 1.3.1
     , strong-path           ^>= 1.1.4
     , unliftio              ^>= 0.2.20
@@ -145,6 +149,20 @@ library
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
+    Wasp.AI.CodeAgent
+    Wasp.AI.GenerateNewProject
+    Wasp.AI.GenerateNewProject.Common
+    Wasp.AI.GenerateNewProject.Common.Prompts
+    Wasp.AI.GenerateNewProject.Entity
+    Wasp.AI.GenerateNewProject.Operation
+    Wasp.AI.GenerateNewProject.OperationsJsFile
+    Wasp.AI.GenerateNewProject.Page
+    Wasp.AI.GenerateNewProject.PageComponentFile
+    Wasp.AI.GenerateNewProject.Plan
+    Wasp.AI.GenerateNewProject.Skeleton
+    Wasp.AI.GenerateNewProject.WaspFile
+    Wasp.AI.OpenAI
+    Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer
     Wasp.Analyzer.AnalyzeError
     Wasp.Analyzer.ErrorMessage
@@ -236,8 +254,14 @@ library
     Wasp.Error
     Wasp.Env
     Wasp.ExternalCode
-    Wasp.JsImport
     Wasp.Generator
+    Wasp.Generator.AuthProviders
+    Wasp.Generator.AuthProviders.Common
+    Wasp.Generator.AuthProviders.OAuth
+    Wasp.Generator.AuthProviders.Local
+    Wasp.Generator.AuthProviders.Email
+    Wasp.Generator.Crud
+    Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
     Wasp.Generator.ConfigFile
     Wasp.Generator.ConfigFileGenerator
@@ -265,13 +289,8 @@ library
     Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
-    Wasp.Generator.AuthProviders
-    Wasp.Generator.AuthProviders.Common
-    Wasp.Generator.AuthProviders.OAuth
-    Wasp.Generator.AuthProviders.Local
-    Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.Crud
-    Wasp.Generator.Crud.Routes
+    Wasp.Generator.NpmDependencies
+    Wasp.Generator.NpmInstall
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -315,7 +334,10 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
+    Wasp.JsImport
+    Wasp.Message
     Wasp.Node.Version
+    Wasp.NpmDependency
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
@@ -329,8 +351,8 @@ library
     Wasp.Project.WebApp
     Wasp.Project.Studio
     Wasp.Project.Vite
-    Wasp.NpmDependency
     Wasp.Psl.Ast.Model
+    Wasp.Psl.Format
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Extensions
     Wasp.Psl.Parser.Model
@@ -338,20 +360,20 @@ library
     Wasp.SemanticVersion
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
-    Wasp.Util.Network.Socket
+    Wasp.Util.Aeson
     Wasp.Util.Control.Monad
     Wasp.Util.Fib
-    Wasp.Util.IO
-    Wasp.Util.Terminal
     Wasp.Util.FilePath
+    Wasp.Util.IO
+    Wasp.Util.IO.Retry
+    Wasp.Util.Network.HTTP
+    Wasp.Util.Network.Socket
+    Wasp.Util.Terminal
     Wasp.Util.StrongPath
     Wasp.Util.HashMap
     Wasp.Util.WebRouterPath
-    Wasp.WaspignoreFile
-    Wasp.Generator.NpmDependencies
-    Wasp.Generator.NpmInstall
-    Wasp.Message
     Wasp.Version
+    Wasp.WaspignoreFile
 
 library waspls
   import: common-all
@@ -441,6 +463,7 @@ library cli-lib
     , uuid
     , waspc
     , waspls
+    , neat-interpolation
     , unliftio ^>= 0.2.20
     , bytestring ^>= 0.10.12
     , tar ^>=0.5.1.1
@@ -459,9 +482,10 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
+    Wasp.Cli.Command.CreateNewProject.AI
+    Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
-    Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
@@ -517,10 +541,12 @@ test-suite waspc-test
   build-depends:
     , aeson
     , base
+    , containers
     , Diff                  ^>= 0.4.1
     , deepseq
     , filepath
     , mtl
+    , neat-interpolation
     , parsec
     , path
     , split
@@ -536,6 +562,7 @@ test-suite waspc-test
     , tasty-quickcheck      ^>= 0.10
     , tasty-golden          ^>= 2.3.5
   other-modules:
+    AI.GenerateNewProject.PageComponentFileTest
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest
     Analyzer.Parser.ConcreteParserTest
@@ -574,6 +601,7 @@ test-suite waspc-test
     UtilTest
     Util.Diff
     Util.FilePathTest
+    Util.IO.RetryTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc

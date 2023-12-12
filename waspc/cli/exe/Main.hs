@@ -16,6 +16,7 @@ import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
+import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -45,6 +46,13 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
+        -- new-ai / new-ai:stdout is meant to be called and consumed programatically (e.g. by our Wasp AI
+        -- web app), while new-ai:disk is useful for us for testing.
+        [newAiCmd, projectName, appDescription, projectConfigJson]
+          | newAiCmd `elem` ["new-ai", "new-ai:stdout"] ->
+              Command.Call.NewAiToStdout projectName appDescription projectConfigJson
+          | newAiCmd == "new-ai:disk" ->
+              Command.Call.NewAiToDisk projectName appDescription projectConfigJson
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -80,6 +88,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
+    Command.Call.NewAiToStdout projectName appDescription projectConfigJson ->
+      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJson
+    Command.Call.NewAiToDisk projectName appDescription projectConfigJson ->
+      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
