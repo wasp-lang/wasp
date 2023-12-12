@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
     createAuthWithUser,
+    findAuthIdentity,
     findAuthWithUserBy,
-    deleteAuth,
+    deleteUserByAuthId,
     doFakeWork,
 } from "../../utils.js";
 import {
@@ -14,6 +15,7 @@ import {
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetAdditionalFields } from '../../utils.js'
+import { hashPassword } from '../../../core/auth.js';
 
 export function getSignupRoute({
     fromField,
@@ -33,24 +35,39 @@ export function getSignupRoute({
         
         fields.email = fields.email.toLowerCase();
 
-        const existingAuth  = await findAuthWithUserBy({ email: fields.email });
+        const existingAuthIdentity = await findAuthIdentity("email", fields.email);
         // User already exists and is verified - don't leak information
-        if (existingAuth && existingAuth.isEmailVerified) {
-            await doFakeWork();
-            return res.json({ success: true });
-        } else if (existingAuth && !existingAuth.isEmailVerified) {
-            if (!isEmailResendAllowed(existingAuth, 'emailVerificationSentAt')) {
-                return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+
+        // TODO: check if the email is verified from providerData
+        if (existingAuthIdentity) {
+            const providerData = JSON.parse(existingAuthIdentity.providerData);
+            if (providerData.isEmailVerified) {
+                await doFakeWork();
+                return res.json({ success: true });
+            } else if (!providerData.isEmailVerified) {
+                if (!isEmailResendAllowed(providerData, 'emailVerificationSentAt')) {
+                    return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+                }
+                // TODO: verify this is correct
+                await deleteUserByAuthId(existingAuthIdentity.authId);
             }
-            await deleteAuth(existingAuth);
         }
 
         const additionalFields = await validateAndGetAdditionalFields(fields);
-    
+
+        const password = await hashPassword(fields.password);
         const auth = await createAuthWithUser(
             {
-                email: fields.email,
-                password: fields.password,
+                identities: {
+                    create: {
+                        providerName: "email",
+                        providerUserId: fields.email,
+                        providerData: JSON.stringify({
+                            password,
+                            isEmailVerified: false,
+                        }),
+                    },
+                }
             },
             additionalFields,
         );

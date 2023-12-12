@@ -1,12 +1,23 @@
 import { createTask } from './actions.js'
 import type { DbSeedFn } from '@wasp/dbSeed/types.js'
 import { PrismaClient } from '@prisma/client/index.js'
+import { hashPassword } from '@wasp/core/auth.js'
 
 async function createUser(prismaClient: PrismaClient, data: any) {
   const newUser = await prismaClient.user.create({
     data: {
       auth: {
-        create: data,
+        create: {
+          identities: {
+            create: {
+              providerName: 'username',
+              providerUserId: data.username,
+              providerData: JSON.stringify({
+                password: hashPassword(data.password),
+              }),
+            },
+          },
+        },
       },
     },
     include: {
@@ -14,11 +25,6 @@ async function createUser(prismaClient: PrismaClient, data: any) {
         select: {
           id: true,
           userId: true,
-          email: true,
-          username: true,
-          isEmailVerified: true,
-          emailVerificationSentAt: true,
-          passwordResetSentAt: true,
         },
       },
     },

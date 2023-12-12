@@ -2,32 +2,35 @@
 import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth.js'
 import { handleRejection } from '../../../utils.js'
 
-import { findAuthWithUserBy, createAuthToken } from '../../utils.js'
+import { findAuthIdentity, findAuthWithUserBy, createAuthToken } from '../../utils.js'
 import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
 
 export default handleRejection(async (req, res) => {
   const fields = req.body || {}
   ensureValidArgs(fields)
 
-  const auth = await findAuthWithUserBy({ username: fields.username })
-  if (!auth) {
+  const authIdentity = await findAuthIdentity('username', fields.username)
+  if (!authIdentity) {
+    console.log('authIdentity', authIdentity)
     throwInvalidCredentialsError()
   }
 
   try {
+    // TODO: use some JSON helper to parse the providerData
+    const providerData = JSON.parse(authIdentity.providerData)
 
-    await verifyPassword(auth.password, fields.password)
+    console.log('providerData', providerData)
+
+    await verifyPassword(providerData.password, fields.password)
   } catch(e) {
+    console.log('e', e)
     throwInvalidCredentialsError()
   }
 
-  // Username & password valid - generate token.
+  const auth = await findAuthWithUserBy({
+    id: authIdentity.authId
+  }) 
   const token = await createAuthToken(auth)
-
-  // NOTE(matija): Possible option - instead of explicitly returning token here,
-  // we could add to response header 'Set-Cookie {token}' directive which would then make
-  // browser automatically save cookie with token.
-  // NOTE(shayne): Cross-domain cookies have serious limitations, which we recently explored.
 
   return res.json({ token })
 })

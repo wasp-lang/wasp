@@ -11,6 +11,7 @@ export {
   {=/ entities =}
   {=# isAuthEnabled =}
   type {= authEntityName =},
+  type {= authIdentityEntityName =},
   {=/ isAuthEnabled =}
 } from "@prisma/client"
 

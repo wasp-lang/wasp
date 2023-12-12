@@ -3,7 +3,7 @@ import express from 'express'
 import { MiddlewareConfigFn } from '@wasp/middleware'
 
 export const fooBar: FooBar = (_req, res, context) => {
-  res.json({ msg: `Hello, ${context?.user?.auth?.email}!` })
+  res.json({ msg: `Hello, ${context?.user?.auth?.id}!` })
 }
 
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {

@@ -303,7 +303,8 @@ genTypesAndEntitiesDirs spec =
             object
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authEntityName" .= DbAuth.authEntityName
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
               ]
         )
     taggedEntitiesFileDraft =

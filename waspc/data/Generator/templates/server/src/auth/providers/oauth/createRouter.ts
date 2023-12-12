@@ -49,7 +49,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const getUserFields = () => getUserFieldsFn ? getUserFieldsFn(contextWithUserEntity, { profile: providerProfile }) : Promise.resolve({});
           // TODO: In the future we could make this configurable, possibly associating an external account
           // with the currently logged in account, or by some DB lookup.
-          const auth = await findOrCreateAuthByAuthProvider(provider.id, providerProfile.id, getUserFields);
+          const auth = await findOrCreateAuthByAuthIdentity(provider.id, providerProfile.id, getUserFields);
 
           const token = await sign(auth.{= userFieldOnAuthEntityName =}.id);
           res.json({ token });
@@ -59,16 +59,17 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
     return router;
 }
 
-async function findOrCreateAuthByAuthProvider(
-  provider: string,
-  providerId: string,
+async function findOrCreateAuthByAuthIdentity(
+  providerName: string,
+  providerUserId: string,
   getUserFields: () => ReturnType<GetUserFieldsFn>,
 ) {
   // Attempt to find a User by an external auth association.
-  const authProvider = await prisma.{= authProviderEntityLower =}.findFirst({
-    where: { provider, providerId },
+  // TODO: find auth identity by provider and providerId
+  const authIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
+    where: { providerName, providerUserId },
     include: {
-      {= authFieldOnProviderEntityName =}: {
+      {= authFieldOnAuthIdentityEntityName =}: {
         include: {
           {= userFieldOnAuthEntityName =}: true
         }
@@ -76,20 +77,22 @@ async function findOrCreateAuthByAuthProvider(
     }
   })
 
-  if (authProvider) {
-    return authProvider.{= authFieldOnProviderEntityName =}
+  if (authIdentity) {
+    return authIdentity.{= authFieldOnAuthIdentityEntityName =}
   }
 
   // No external auth association linkage found. Create a new User using details from
   // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
   const userFields = await getUserFields()
   const authAndProviderData = {
-    {= providersFieldOnAuthEntityName =}: {
-      create: [{ provider, providerId }]
+    {= identitiesFieldOnAuthEntityName =}: {
+      create: [{ providerName, providerUserId }]
     }
   }
 
+  // TODO: create auth identity with provider and providerId
   const auth = await createAuthWithUser(authAndProviderData, userFields)
   // NOTE: we are fetching the auth again becuase it incldues nested user
+  // TODO: find auth identity by id
   return findAuthWithUserBy({ id: auth.id });
 }

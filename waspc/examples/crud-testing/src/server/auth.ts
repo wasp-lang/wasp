@@ -6,6 +6,8 @@ import {
   ensureValidUsername,
 } from '@wasp/auth/validation.js'
 import prisma from '@wasp/dbClient.js'
+import { CustomSignup } from '@wasp/actions/types'
+import { hashPassword } from '@wasp/core/auth.js'
 
 export const fields = defineAdditionalSignupFields({
   address: (data) => {
@@ -22,9 +24,7 @@ export const fields = defineAdditionalSignupFields({
     }
     return result.data
   },
-} as any)
-
-import { CustomSignup } from '@wasp/actions/types'
+})
 
 type CustomSignupInput = {
   username: string
@@ -47,12 +47,20 @@ export const signup: CustomSignup<
   try {
     await prisma.auth.create({
       data: {
-        username: args.username,
-        password: args.password,
         user: {
           create: {
             address: args.address,
-          } as any,
+          },
+        },
+        identities: {
+          create: {
+            providerName: 'username',
+            providerUserId: args.username,
+            // TODO: offer a providerData helper
+            providerData: JSON.stringify({
+              password: hashPassword(args.password),
+            }),
+          },
         },
       },
     })

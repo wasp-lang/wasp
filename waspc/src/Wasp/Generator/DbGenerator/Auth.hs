@@ -26,23 +26,23 @@ userFieldOnAuthEntityName = "user"
 authFieldOnUserEntityName :: String
 authFieldOnUserEntityName = "auth"
 
-authFieldOnProviderEntityName :: String
-authFieldOnProviderEntityName = "auth"
+authFieldOnAuthIdentityEntityName :: String
+authFieldOnAuthIdentityEntityName = "auth"
 
-providerEntityName :: String
-providerEntityName = "SocialAuthProvider"
+authIdentityEntityName :: String
+authIdentityEntityName = "AuthIdentity"
 
-providersFieldOnAuthEntityName :: String
-providersFieldOnAuthEntityName = "providers"
+identitiesFieldOnAuthEntityName :: String
+identitiesFieldOnAuthEntityName = "identities"
 
 injectAuth :: Maybe (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -> Generator [(String, AS.Entity.Entity)]
 injectAuth Nothing entities = return entities
 injectAuth (Just (userEntityName, userEntity)) entities = do
   userEntityIdType <- getUserEntityIdType userEntity
   authEntity <- makeAuthEntity userEntityIdType userEntityName userEntity
-  providerEntity <- makeProviderEntity
+  authIdentityEntity <- makeAuthIdentityEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
-  return $ entitiesWithAuth ++ [authEntity, providerEntity]
+  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity]
 
 getUserEntityIdType :: AS.Entity.Entity -> Generator String
 getUserEntityIdType entity =
@@ -52,24 +52,28 @@ getUserEntityIdType entity =
           Just idType -> return idType
       )
 
-makeProviderEntity :: Generator (String, AS.Entity.Entity)
-makeProviderEntity = case parsePslBody providerEntityPslBody of
-  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Provider entity: " ++ show err
-  Right pslBody -> return (providerEntityName, AS.Entity.makeEntity pslBody)
+makeAuthIdentityEntity :: Generator (String, AS.Entity.Entity)
+makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
+  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authIdentityEntityName ++ " entity: " ++ show err
+  Right pslBody -> return (authIdentityEntityName, AS.Entity.makeEntity pslBody)
   where
-    providerEntityPslBody =
+    authIdentityPslBody =
       T.unpack
         [trimming|
-          id         String   @id @default(uuid())
-          provider   String
-          providerId String
+          providerName   String
+          providerUserId String
+
+          providerData String @default("{}")
+              
           authId    ${authEntityIdTypeText}
-          ${authFieldOnProviderEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
+          ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+          @@id([providerName, providerUserId])
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType
     authEntityNameText = T.pack authEntityName
-    authFieldOnProviderEntityNameText = T.pack authFieldOnProviderEntityName
+    authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
 makeAuthEntity :: String -> String -> AS.Entity.Entity -> Generator (String, AS.Entity.Entity)
 makeAuthEntity userEntityIdType userEntityName userEntity = case parsePslBody authEntityPslBody of
@@ -80,23 +84,17 @@ makeAuthEntity userEntityIdType userEntityName userEntity = case parsePslBody au
       T.unpack
         [trimming|
           id ${authEntityIdTypeText}   @id @default(uuid())
-          email String? @unique
-          username String? @unique
-          password String?
-          isEmailVerified Boolean @default(false)
-          emailVerificationSentAt DateTime?
-          passwordResetSentAt DateTime?
           userId    ${userEntityIdTypeText}? @unique
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [${userEntityIdFieldName}], onDelete: Cascade)
-          ${providersFieldOnAuthEntityNameText} ${providerEntityNameText}[]
+          ${identitiesFieldOnAuthEntityNameText} ${authIdentityEntityNameText}[]
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType
     userEntityIdTypeText = T.pack userEntityIdType
     userEntityNameText = T.pack userEntityName
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
-    providerEntityNameText = T.pack providerEntityName
-    providersFieldOnAuthEntityNameText = T.pack providersFieldOnAuthEntityName
+    authIdentityEntityNameText = T.pack authIdentityEntityName
+    identitiesFieldOnAuthEntityNameText = T.pack identitiesFieldOnAuthEntityName
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdFieldName = T.pack $ AS.Entity.getIdField userEntity & fromJust & Psl.Model.Field._name
 

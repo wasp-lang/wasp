@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { updateAuthEmailVerification } from './utils.js';
-import { verifyToken } from '../../utils.js';
+import { verifyToken, findAuthIdentityByAuthId, updateAuthIdentityProviderData } from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
 
 export async function verifyEmail(
@@ -10,7 +9,14 @@ export async function verifyEmail(
     try {
         const { token } = req.body;
         const { id: authId } = await verifyToken(token);
-        await updateAuthEmailVerification(authId);
+
+        // TODO: update the auth identity JSON field "providerData" to set isEmailVerified=true
+        const authIdentity = await findAuthIdentityByAuthId(authId);
+        const providerData = JSON.parse(authIdentity.providerData);
+        await updateAuthIdentityProviderData(authId, {
+            ...providerData,
+            isEmailVerified: true,
+        });
     } catch (e) {
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'

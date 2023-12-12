@@ -24,13 +24,13 @@ export const getAllTasks = (async (args, context) => {
       id: true,
       title: true,
       user: {
-        // include: {
-        //   auth: {
-        //     select: {
-        //       username: true,
-        //     },
-        //   },
-        // },
+        include: {
+          auth: {
+            include: {
+              identities: true,
+            },
+          },
+        },
       },
     },
   })

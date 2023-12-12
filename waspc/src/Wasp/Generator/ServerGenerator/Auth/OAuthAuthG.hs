@@ -61,9 +61,9 @@ genCreateRouter = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/
     tmplData =
       object
         [ "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authProviderEntityLower" .= (Util.toLowerFirst DbAuth.providerEntityName :: String),
-          "providersFieldOnAuthEntityName" .= (DbAuth.providersFieldOnAuthEntityName :: String),
-          "authFieldOnProviderEntityName" .= (DbAuth.authFieldOnProviderEntityName :: String),
+          "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
+          "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
+          "authFieldOnAuthIdentityEntityName" .= (DbAuth.authFieldOnAuthIdentityEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
 

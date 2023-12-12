@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+    findAuthIdentity,
     findAuthWithUserBy,
     doFakeWork,
 } from "../../utils.js";
@@ -30,25 +31,35 @@ export function getRequestPasswordResetRoute({
 
         args.email = args.email.toLowerCase();
 
-        const auth = await findAuthWithUserBy({ email: args.email });
-    
+        const authIdentity = await findAuthIdentity("email", args.email);
+
         // User not found or not verified - don't leak information
-        if (!auth || !auth.isEmailVerified) {
+        if (!authIdentity) {
             await doFakeWork();
             return res.json({ success: true });
         }
 
-        if (!isEmailResendAllowed(auth, 'passwordResetSentAt')) {
+        const providerData = JSON.parse(authIdentity.providerData);
+        if (!providerData.isEmailVerified) {
+            await doFakeWork();
+            return res.json({ success: true });
+        }
+
+        // TODO: check if the email was sent recently from providerData
+        if (!isEmailResendAllowed(providerData, 'passwordResetSentAt')) {
             return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
         }
-    
-        const passwordResetLink = await createPasswordResetLink(auth, clientRoute);
+
+        const passwordResetLink = await createPasswordResetLink({
+            id: authIdentity.authId,
+        }, clientRoute);
         try {
+            const email = authIdentity.providerUserId
             await sendPasswordResetEmail(
-                auth.email,
+                email,
                 {
                     from: fromField,
-                    to: auth.email,
+                    to: email,
                     ...getPasswordResetEmailContent({ passwordResetLink }),
                 }
             );

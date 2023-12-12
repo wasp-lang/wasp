@@ -71,7 +71,7 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
             [ "userEntityUpper" .= (userEntityName :: String),
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
               "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
-              "providersFieldOnAuthEntityName" .= (DbAuth.providersFieldOnAuthEntityName :: String)
+              "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String)
             ]
 
 genAuthMiddleware :: Generator FileDraft
@@ -87,7 +87,11 @@ genAuthMiddleware = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
     tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile authMiddlewareRelToSrc
 
-    tmplData = object ["authEntityUpper" .= (DbAuth.authEntityName :: String)]
+    tmplData =
+      object
+        [ "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String)
+        ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -122,6 +126,8 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "authEntityUpper" .= (DbAuth.authEntityName :: String),
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String),
+          "authIdentityEntityUpper" .= (DbAuth.authIdentityEntityName :: String),
+          "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
           "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields

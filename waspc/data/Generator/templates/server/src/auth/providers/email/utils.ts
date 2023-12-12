@@ -2,8 +2,7 @@
 import { sign } from '../../../core/auth.js'
 import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
-import { rethrowPossiblePrismaError } from '../../utils.js'
-import prisma from '../../../dbClient.js'
+import { rethrowPossiblePrismaError, updateAuthIdentityProviderData, findAuthIdentity } from '../../utils.js';
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
@@ -12,28 +11,6 @@ type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
 type AuthWithId = {
   id: {= authEntityUpper =}Id,
-}
-
-export async function updateAuthEmailVerification(authId: {= authEntityUpper =}Id) {
-  try {
-    await prisma.{= authEntityLower =}.update({
-      where: { id: authId },
-      data: { isEmailVerified: true },
-    })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);
-  }
-}
-
-export async function updateAuthPassword(authId: {= authEntityUpper =}Id, password: string) {
-  try {
-    await prisma.{= authEntityLower =}.update({
-      where: { id: authId },
-      data: { password },
-    })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);
-  }
 }
 
 export async function createEmailVerificationLink(auth: AuthWithId, clientRoute: string) {
@@ -77,10 +54,9 @@ async function sendEmailAndLogTimestamp(
   // so the user can't send multiple requests while
   // the email is being sent.
   try {
-    await prisma.{= authEntityLower =}.update({
-      where: { email },
-      data: { [field]: new Date() },
-    })
+    const authIdentity = await findAuthIdentity("email", email);
+    const providerData = JSON.parse(authIdentity.providerData);
+    await updateAuthIdentityProviderData(authIdentity.authId, { ...providerData, [field]: new Date() });
   } catch (e) {
     rethrowPossiblePrismaError(e);  
   }
@@ -89,9 +65,11 @@ async function sendEmailAndLogTimestamp(
   });
 }
 
-export function isEmailResendAllowed(
-  auth: {= authEntityUpper =},
-  field: 'emailVerificationSentAt' | 'passwordResetSentAt',
+export function isEmailResendAllowed<Field extends 'emailVerificationSentAt' | 'passwordResetSentAt'>(
+  auth: {
+    [field in Field]: Date | null
+  },
+  field: Field,
   resendInterval: number = 1000 * 60,
 ): boolean {
   const sentAt = auth[field];
@@ -99,6 +77,6 @@ export function isEmailResendAllowed(
     return true;
   }
   const now = new Date();
-  const diff = now.getTime() - sentAt.getTime();
+  const diff = now.getTime() - new Date(sentAt).getTime();
   return diff > resendInterval;
 }

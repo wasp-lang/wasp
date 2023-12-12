@@ -40,7 +40,7 @@ page LoginPage {
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/CustomSignupPage.tsx",
+  component: import { SignupPage } from "@client/SignupPage.tsx",
 }
 
 route DetailRoute { path: "/:id/:something?", to: DetailPage }
@@ -51,8 +51,8 @@ page DetailPage {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
+  // username String @unique
+  // password String
   address String?
   tasks Task[]
 psl=}

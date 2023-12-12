@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
-import { findAuthWithUserBy, createAuthToken } from "../../utils.js";
+import { findAuthIdentity, findAuthWithUserBy, createAuthToken } from "../../utils.js";
 import { ensureValidEmail, ensurePasswordIsPresent } from "../../validation.js";
 
 export function getLoginRoute({
@@ -17,19 +17,21 @@ export function getLoginRoute({
 
         fields.email = fields.email.toLowerCase()
 
-        const auth = await findAuthWithUserBy({ email: fields.email })
-        if (!auth) {
+        const authIdentity = await findAuthIdentity("email", fields.email)
+        if (!authIdentity) {
             throwInvalidCredentialsError()
         }
-        if (!auth.isEmailVerified && !allowUnverifiedLogin) {
+        const providerData = JSON.parse(authIdentity.providerData)
+        if (!providerData.isEmailVerified && !allowUnverifiedLogin) {
             throwInvalidCredentialsError()
         }
         try {
-            await verifyPassword(auth.password, fields.password);
+            await verifyPassword(providerData.password, fields.password);
         } catch(e) {
             throwInvalidCredentialsError()
         }
     
+        const auth = await findAuthWithUserBy({ id: authIdentity.authId })
         const token = await createAuthToken(auth)
       
         return res.json({ token })

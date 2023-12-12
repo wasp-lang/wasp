@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { findAuthWithUserBy, verifyToken } from "../../utils.js";
-import { updateAuthPassword } from "./utils.js";
+import { findAuthIdentityByAuthId, updateAuthIdentityProviderData, verifyToken } from "../../utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
+import { hashPassword } from '../../../core/auth.js';
 
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
@@ -14,11 +14,18 @@ export async function resetPassword(
     const { token, password } = args;
     try {
         const { id: authId } = await verifyToken(token);
-        const auth = await findAuthWithUserBy({ id: authId });
-        if (!auth) {
+
+        const authIdentity = await findAuthIdentityByAuthId(authId);
+        if (!authIdentity) {
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }
-        await updateAuthPassword(authId, password);
+        
+        const providerData = JSON.parse(authIdentity.providerData);
+        const hashedPassword = await hashPassword(password);
+        await updateAuthIdentityProviderData(authId, {
+            ...providerData,
+            password: hashedPassword,
+        });
     } catch (e) {
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'

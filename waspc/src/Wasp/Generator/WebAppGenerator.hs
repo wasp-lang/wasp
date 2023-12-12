@@ -286,7 +286,8 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
             object
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authEntityName" .= DbAuth.authEntityName
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
               ]
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec

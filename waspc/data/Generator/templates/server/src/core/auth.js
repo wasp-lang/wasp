@@ -55,7 +55,7 @@ export async function getUserFromToken(token) {
       include: {
         {= authFieldOnUserEntityName =}: {
           include: {
-            {= providersFieldOnAuthEntityName =}: true
+            {= identitiesFieldOnAuthEntityName =}: true
           }
         }
       }

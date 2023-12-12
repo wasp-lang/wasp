@@ -32,6 +32,21 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
+export async function findAuthIdentity(providerName: string, providerUserId: string) {
+  return prisma.{= authIdentityEntityLower =}.findUnique({ where: { providerName_providerUserId: { providerName, providerUserId } } });
+}
+
+export async function findAuthIdentityByAuthId(authId: string) {
+  return prisma.{= authIdentityEntityLower =}.findFirst({ where: { authId } });
+}
+
+export async function updateAuthIdentityProviderData(authId: string, providerData: Record<string, unknown>) {
+  return prisma.{= authIdentityEntityLower =}.updateMany({
+    where: { authId },
+    data: { providerData: JSON.stringify(providerData) },
+  });
+}
+
 export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}WhereInput) {
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
@@ -55,9 +70,11 @@ export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}Creat
   }
 }
 
-export async function deleteAuth(auth: {= authEntityUpper =}) {
+export async function deleteUserByAuthId(authId: string) {
   try {
-    return await prisma.{= authEntityLower =}.delete({ where: { id: auth.id } })
+    return await prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
+      id: authId,
+    } } })
   } catch (e) {
     rethrowPossiblePrismaError(e);
   }
