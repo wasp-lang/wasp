@@ -12,6 +12,7 @@ where
 
 import Data.Either (fromRight)
 import Data.Foldable (find)
+import Data.List (isPrefixOf)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System, reldir, (</>))
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github as Github
@@ -36,14 +37,14 @@ data DirBasedTemplateMetadata = DirBasedTemplateMetadata
 instance Show StarterTemplate where
   show (RemoteStarterTemplate metadata) = _name metadata
   show (LocalStarterTemplate metadata) = _name metadata
-  show AiGeneratedStarterTemplate = "ai-generated"
+  show AiGeneratedStarterTemplate = "ai-generated 🤖"
 
-instance Interactive.Option StarterTemplate where
+instance Interactive.IsOption StarterTemplate where
   showOption = show
   showOptionDescription (RemoteStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription AiGeneratedStarterTemplate =
-    Just "[experimental] Describe an app in a couple of sentences and have ChatGPT generate initial code for you."
+    Just "[experimental 🧪] Describe an app in a couple of sentences and have Wasp AI generate initial code for you."
 
 getStarterTemplates :: IO [StarterTemplate]
 getStarterTemplates = do
@@ -80,7 +81,7 @@ defaultStarterTemplate =
       }
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
-findTemplateByString templates query = find ((== query) . show) templates
+findTemplateByString templates query = find ((query `isPrefixOf`) . show) templates
 
 readWaspProjectSkeletonFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readWaspProjectSkeletonFiles = do

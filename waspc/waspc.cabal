@@ -361,6 +361,7 @@ library
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
+    Wasp.Util.Debug
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.IO
