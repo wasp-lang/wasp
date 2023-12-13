@@ -41,8 +41,7 @@ newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT
 data CodeAgentConfig = CodeAgentConfig
   { _openAIApiKey :: !OpenAIApiKey,
     _writeFile :: !(FilePath -> Text -> IO ()), -- TODO: Use StrongPath? Not clear which kind of path is it, rel, abs, ... .
-    _writeLog :: !(Text -> IO ()),
-    _useGpt3IfGpt4NotAvailable :: !Bool
+    _writeLog :: !(Text -> IO ())
   }
 
 instance MonadRetry CodeAgent where

@@ -61,8 +61,7 @@ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projec
       CA.CodeAgentConfig
         { CA._openAIApiKey = openAIApiKey,
           CA._writeFile = writeFileToDisk,
-          CA._writeLog = forwardLogToStdout,
-          CA._useGpt3IfGpt4NotAvailable = True
+          CA._writeLog = forwardLogToStdout
         }
 
     writeFileToDisk path content = do
@@ -93,8 +92,7 @@ createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJ
         CA.CodeAgentConfig
           { CA._openAIApiKey = openAIApiKey,
             CA._writeFile = writeFileToStdoutWithDelimiters,
-            CA._writeLog = writeLogToStdoutWithDelimiters,
-            CA._useGpt3IfGpt4NotAvailable = True
+            CA._writeLog = writeLogToStdoutWithDelimiters
           }
 
   liftIO $ generateNewProject codeAgentConfig appName appDescription projectConfig
