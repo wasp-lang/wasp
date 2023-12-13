@@ -7,10 +7,8 @@ export const webSocketFn: WebSocketDefinition<
   InterServerEvents
 > = (io, context) => {
   io.on('connection', (socket) => {
-    const username =
-      socket.data.user?.auth?.email ||
-      socket.data.user?.auth?.username ||
-      'unknown'
+    const identity = socket.data.user?.auth?.identities[0]
+    const username = (identity && identity.providerUserId) ?? 'unknown'
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {

@@ -21,9 +21,7 @@ export default handleRejection(async (req, res) => {
   }
 
   try {
-    const providerData = deserializeProviderData(authIdentity.providerData)
-
-    console.log('providerData', providerData)
+    const providerData = deserializeProviderData<'username'>(authIdentity.providerData)
 
     await verifyPassword(providerData.password, fields.password)
   } catch(e) {

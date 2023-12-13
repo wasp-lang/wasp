@@ -40,8 +40,8 @@ export async function findAuthIdentityByAuthId(authId: string) {
   return prisma.{= authIdentityEntityLower =}.findFirst({ where: { authId } });
 }
 
-export async function updateAuthIdentityProviderData(authId: string, providerData: Record<string, unknown>) {
-  const serializedProviderData = await serializeProviderData(providerData);
+export async function updateAuthIdentityProviderData<ProviderName extends keyof ProviderData>(authId: string, providerData: ProviderData[ProviderName]) {
+  const serializedProviderData = await serializeProviderData<ProviderName>(providerData);
   return prisma.{= authIdentityEntityLower =}.updateMany({
     where: { authId },
     data: { providerData: serializedProviderData },
@@ -132,22 +132,52 @@ export async function validateAndGetAdditionalFields(data: {
   return result;
 }
 
-export function deserializeProviderData(providerData: string) {
-  try {
-    return JSON.parse(providerData);
-  } catch(e) {
-    return {};
-  }
+type EmailProviderData = {
+  password: string;
+  isEmailVerified: boolean;
+  emailVerificationSentAt: Date | null;
+  passwordResetSentAt: Date | null;
 }
 
-export async function serializeProviderData(providerData: Record<string, unknown>) {
+type UsernameProviderData = {
+  password: string;
+}
+
+type OAuthProviderData = {}
+
+export type ProviderData = {
+  email: EmailProviderData;
+  username: UsernameProviderData;
+  oauth: OAuthProviderData;
+}
+
+export function deserializeProviderData<ProviderName extends keyof ProviderData>(
+  providerData: string,
+  { shouldSanitize = false }: { shouldSanitize?: boolean } = {},
+): ProviderData[ProviderName] {
+  // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
+  let data = JSON.parse(providerData) as ProviderData[ProviderName];
+
+  // Remove password field if we don't want to send it to the client.
+  if (providerDataHasPasswordField(data) && shouldSanitize) {
+    delete data[PASSWORD_FIELD];
+  }
+
+  return data;
+}
+
+export async function serializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
   // NOTE: doing a shallow copy here as we expect the providerData to be
   // a flat object. If it's not, we'll have to do a deep copy.
   const data = {
     ...providerData,
   };
-  if (data[PASSWORD_FIELD]) {
-    data[PASSWORD_FIELD] = await hashPassword(providerData.password as string);
+  if (providerDataHasPasswordField(data)) {
+    data[PASSWORD_FIELD] = await hashPassword(data[PASSWORD_FIELD]);
   }
   return JSON.stringify(data);
+}
+
+function providerDataHasPasswordField(providerData: ProviderData[keyof ProviderData]): providerData is { password: string } {
+  return PASSWORD_FIELD in providerData;
 }

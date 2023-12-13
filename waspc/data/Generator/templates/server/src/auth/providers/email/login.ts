@@ -26,7 +26,7 @@ export function getLoginRoute({
         if (!authIdentity) {
             throwInvalidCredentialsError()
         }
-        const providerData = deserializeProviderData(authIdentity.providerData)
+        const providerData = deserializeProviderData<'email'>(authIdentity.providerData)
         if (!providerData.isEmailVerified && !allowUnverifiedLogin) {
             throwInvalidCredentialsError()
         }

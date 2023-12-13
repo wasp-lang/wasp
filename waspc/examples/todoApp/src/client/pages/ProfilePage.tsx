@@ -13,7 +13,7 @@ async function fetchCustomRoute() {
   console.log(res.data)
 }
 
-export const ProfilePage = ({ user }: { user: any }) => {
+export const ProfilePage = ({ user }: { user: User }) => {
   const [messages, setMessages] = useState<
     ServerToClientPayload<'chatMessage'>[]
   >([])
@@ -44,22 +44,21 @@ export const ProfilePage = ({ user }: { user: any }) => {
   ))
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-  const email = user.auth.identities.find(
-    (i: any) => i.providerName === 'google'
-  )?.providerUserId
-  const providerData = user.auth.identities.find(
-    (i: any) => i.providerName === 'google'
-  )?.providerData
-  const isEmailVerified = providerData
-    ? JSON.parse(providerData).isEmailVerified
-    : false
+  const identity = user.auth?.identities[0]
+
+  const userId = identity?.providerUserId
+
+  const isVerified =
+    identity?.providerData && 'isEmailVerified' in identity?.providerData
+      ? identity?.providerData.isEmailVerified
+      : false
 
   return (
     <>
       <h2>Profile page</h2>
       <div>
-        Hello <strong>{email}</strong>! Your status is{' '}
-        <strong>{isEmailVerified ? 'verfied' : 'unverified'}</strong>.
+        Hello <strong>{userId}</strong>! Your status is{' '}
+        <strong>{isVerified ? 'verfied' : 'unverified'}</strong>.
       </div>
       <br />
       <Link to="/task/:id" params={{ id: 3 }}>

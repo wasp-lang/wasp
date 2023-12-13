@@ -15,6 +15,8 @@ export function App({ children }: any) {
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
+  const identity = user?.auth?.identities[0]
+
   return (
     <div className="app border-spacing-2 p-4">
       <header className="flex justify-between">
@@ -27,14 +29,7 @@ export function App({ children }: any) {
         {user && (
           <div className="flex gap-3 items-center">
             <div>
-              Hello,{' '}
-              <Link to="/profile">
-                {
-                  (user.auth as any)?.identities.find(
-                    (i) => i.providerName === 'email'
-                  )?.providerUserId
-                }
-              </Link>
+              Hello, <Link to="/profile">{identity?.providerUserId}</Link>
             </div>
             <div>
               <button className="btn btn-primary" onClick={logout}>

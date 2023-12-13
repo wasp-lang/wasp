@@ -10,7 +10,6 @@ import {
   ensureValidPassword,
 } from '../../validation.js'
 import { validateAndGetAdditionalFields } from '../../utils.js'
-import { hashPassword } from '../../../core/auth.js'
 
 export default handleRejection(async (req, res) => {
   const fields = req.body || {}
@@ -18,7 +17,7 @@ export default handleRejection(async (req, res) => {
 
   const additionalFields = await validateAndGetAdditionalFields(fields)
 
-  const providerData = await serializeProviderData({
+  const providerData = await serializeProviderData<'username'>({
     password: fields.password,
   })
   await createAuthWithUser(

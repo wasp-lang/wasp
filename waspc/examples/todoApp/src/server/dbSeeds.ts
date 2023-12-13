@@ -25,10 +25,21 @@ async function createUser(prismaClient: PrismaClient, data: any) {
         select: {
           id: true,
           userId: true,
+          identities: true,
+        },
+        include: {
+          identities: true,
         },
       },
     },
   })
+
+  if (newUser.auth?.identities) {
+    newUser.auth.identities = newUser.auth.identities.map((identity) => {
+      identity.providerData = JSON.parse(identity.providerData)
+      return identity
+    })
+  }
 
   return newUser
 }

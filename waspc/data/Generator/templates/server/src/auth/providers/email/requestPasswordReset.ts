@@ -39,13 +39,12 @@ export function getRequestPasswordResetRoute({
             return res.json({ success: true });
         }
 
-        const providerData = deserializeProviderData(authIdentity.providerData);
+        const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
         if (!providerData.isEmailVerified) {
             await doFakeWork();
             return res.json({ success: true });
         }
 
-        // TODO: check if the email was sent recently from providerData
         if (!isEmailResendAllowed(providerData, 'passwordResetSentAt')) {
             return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
         }

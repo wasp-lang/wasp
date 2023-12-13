@@ -4,7 +4,12 @@ import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
 {=# isAuthEnabled =}
-import { type {= userEntityName =}, type {= authEntityName =} } from "../entities"
+import {
+  type {= userEntityName =},
+  type {= authEntityName =},
+  type {= authIdentityEntityName =},
+} from "../entities"
+import { type ProviderData } from '../auth/utils.js'
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
@@ -77,13 +82,20 @@ type Context<Entities extends _Entity[]> = Expand<{
 }>
 
 {=# isAuthEnabled =}
-type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser}>
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser }>
 
 // TODO: This type must match the logic in core/auth.js (if we remove the
 // password field from the object there, we must do the same here). Ideally,
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
+
+type DeserializedAuthEntity = Expand<Omit<AuthIdentity, 'providerData'> & {
+  providerData: ProviderData[keyof ProviderData]
+}>
+
 export type SanitizedUser = {= userEntityName =} & {
-  {= authFieldOnUserEntityName =}: Omit<{= authEntityName =}, 'password'> | null
+  {= authFieldOnUserEntityName =}: {= authEntityName =} & {
+    {= identitiesFieldOnAuthEntityName =}: DeserializedAuthEntity[]
+  } | null
 }
 {=/ isAuthEnabled =}

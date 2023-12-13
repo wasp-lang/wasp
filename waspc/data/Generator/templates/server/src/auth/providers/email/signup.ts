@@ -16,7 +16,6 @@ import {
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetAdditionalFields } from '../../utils.js'
-import { hashPassword } from '../../../core/auth.js';
 
 export function getSignupRoute({
     fromField,
@@ -41,7 +40,7 @@ export function getSignupRoute({
 
         // TODO: check if the email is verified from providerData
         if (existingAuthIdentity) {
-            const providerData = deserializeProviderData(existingAuthIdentity.providerData);
+            const providerData = deserializeProviderData<'email'>(existingAuthIdentity.providerData);
             if (providerData.isEmailVerified) {
                 await doFakeWork();
                 return res.json({ success: true });
@@ -56,9 +55,11 @@ export function getSignupRoute({
 
         const additionalFields = await validateAndGetAdditionalFields(fields);
 
-        const newUserProviderData = await serializeProviderData({
+        const newUserProviderData = await serializeProviderData<'email'>({
             password: fields.password,
             isEmailVerified: false,
+            emailVerificationSentAt: null,
+            passwordResetSentAt: null,
         });
         const auth = await createAuthWithUser(
             {

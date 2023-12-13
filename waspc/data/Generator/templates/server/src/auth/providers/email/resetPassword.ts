@@ -7,7 +7,6 @@ import {
 } from "../../utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
-import { hashPassword } from '../../../core/auth.js';
 
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
@@ -25,7 +24,7 @@ export async function resetPassword(
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }
         
-        const providerData = deserializeProviderData(authIdentity.providerData);
+        const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
         await updateAuthIdentityProviderData(authId, {
             ...providerData,
             // The act of resetting the password verifies the email

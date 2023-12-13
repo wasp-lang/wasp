@@ -60,8 +60,11 @@ async function sendEmailAndLogTimestamp(
   // the email is being sent.
   try {
     const authIdentity = await findAuthIdentity("email", email);
-    const providerData = deserializeProviderData(authIdentity.providerData);
-    await updateAuthIdentityProviderData(authIdentity.authId, { ...providerData, [field]: new Date() });
+    const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
+    await updateAuthIdentityProviderData<'email'>(
+      authIdentity.authId,
+      { ...providerData, [field]: new Date() }
+    );
   } catch (e) {
     rethrowPossiblePrismaError(e);  
   }
