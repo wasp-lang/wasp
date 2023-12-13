@@ -11,7 +11,7 @@ import {
 import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
 
 export default handleRejection(async (req, res) => {
-  const fields = req.body || {}
+  const fields = req.body ?? {}
   ensureValidArgs(fields)
 
   const authIdentity = await findAuthIdentity('username', fields.username)

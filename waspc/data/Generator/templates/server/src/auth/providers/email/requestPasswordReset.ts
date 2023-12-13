@@ -26,7 +26,7 @@ export function getRequestPasswordResetRoute({
         req: Request<{ email: string; }>,
         res: Response,
     ): Promise<Response<{ success: true } | { success: false; message: string }>> {
-        const args = req.body || {};
+        const args = req.body ?? {};
         ensureValidEmail(args);
 
         args.email = args.email.toLowerCase();

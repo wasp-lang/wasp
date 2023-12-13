@@ -12,7 +12,7 @@ export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
     res: Response,
 ): Promise<Response<{ success: true } | { success: false; message: string }>> {
-    const args = req.body || {};
+    const args = req.body ?? {};
     ensureValidArgs(args);
 
     const { token, password } = args;

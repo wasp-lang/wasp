@@ -12,7 +12,7 @@ import {
 import { validateAndGetAdditionalFields } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
-  const fields = req.body || {}
+  const fields = req.body ?? {}
   ensureValidArgs(fields)
 
   const additionalFields = await validateAndGetAdditionalFields(fields)

@@ -17,7 +17,7 @@ export function getLoginRoute({
         req: Request<{ email: string; password: string; }>,
         res: Response,
     ): Promise<Response<{ token: string } | undefined>> {
-        const fields = req.body || {}
+        const fields = req.body ?? {}
         ensureValidArgs(fields)
 
         fields.email = fields.email.toLowerCase()
