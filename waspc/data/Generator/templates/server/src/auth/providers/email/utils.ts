@@ -61,7 +61,6 @@ async function sendEmailAndLogTimestamp(
   try {
     const authIdentity = await findAuthIdentity("email", email);
     const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-    // TODO: we are double hashing the password here
     await updateAuthIdentityProviderData<'email'>(authIdentity.authId, providerData, {
         [field]: new Date()
     });
@@ -74,13 +73,13 @@ async function sendEmailAndLogTimestamp(
 }
 
 export function isEmailResendAllowed<Field extends 'emailVerificationSentAt' | 'passwordResetSentAt'>(
-  auth: {
+  fields: {
     [field in Field]: Date | null
   },
   field: Field,
   resendInterval: number = 1000 * 60,
 ): boolean {
-  const sentAt = auth[field];
+  const sentAt = fields[field];
   if (!sentAt) {
     return true;
   }
