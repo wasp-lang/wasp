@@ -138,20 +138,21 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
 
-_paramsWithFallbackModel :: (NewProjectDetails -> Maybe GPT.Model) -> GPT.Model -> NewProjectDetails -> ChatGPTParams
-_paramsWithFallbackModel maybeGetModel fallbackModel projectDetails =
+codingChatGPTParams :: NewProjectDetails -> ChatGPTParams
+codingChatGPTParams projectDetails =
   GPT.ChatGPTParams
-    { GPT._model = fromMaybe fallbackModel (maybeGetModel projectDetails),
+    { GPT._model = fromMaybe defaultCodingGptModel (projectCodingGptModel $ _projectConfig projectDetails),
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
-
-codingChatGPTParams :: NewProjectDetails -> ChatGPTParams
-codingChatGPTParams = _paramsWithFallbackModel (projectCodingGptModel . _projectConfig) defaultCodingGptModel
   where
     defaultCodingGptModel = GPT.GPT_3_5_turbo_0613
 
 planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
-planningChatGPTParams = _paramsWithFallbackModel (projectPlaningGptModel . _projectConfig) defaultPlanningGptModel
+planningChatGPTParams projectDetails =
+  GPT.ChatGPTParams
+    { GPT._model = fromMaybe defaultPlanningGptModel (projectPlaningGptModel $ _projectConfig projectDetails),
+      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+    }
   where
     defaultPlanningGptModel = GPT.GPT_4_0613
 
