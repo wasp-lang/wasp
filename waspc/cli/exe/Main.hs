@@ -276,7 +276,7 @@ printWaspNewAiUsage =
               "      It is used to provide additional configuration to Wasp AI.",
               "      Following fields are supported:",
               "      {",
-              "        \"defaultGptTemperature\"?: number (from 0 to 1)",
+              "        \"defaultGptTemperature\"?: number (from 0 to 2)",
               "        \"planningGptModel\"?: string (OpenAI model name)",
               "        \"codingGptModel\"?: string (OpenAI model name)",
               "        \"primaryColor\"?: string (Tailwind color name)",

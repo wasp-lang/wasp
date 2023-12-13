@@ -4,6 +4,7 @@ module Wasp.AI.GenerateNewProject
 where
 
 import Control.Monad (forM, forM_)
+import Data.Function ((&))
 import Data.List (nub)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -34,12 +35,15 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog . T.pack $
     "Generating a new Wasp project named " <> _projectAppName newProjectDetails <> "!"
 
-  writeToLog . T.pack $
-    "Using "
-      <> show (ChatGPT._model $ planningChatGPTParams newProjectDetails)
-      <> " for planning and "
-      <> show (ChatGPT._model $ codingChatGPTParams newProjectDetails)
-      <> " for coding."
+  let showParams chatGPTParams =
+        show (ChatGPT._model chatGPTParams)
+          <> (ChatGPT._temperature chatGPTParams & maybe "" (\t -> " (temp " <> show t <> ")"))
+   in writeToLog . T.pack $
+        "Using "
+          <> showParams (planningChatGPTParams newProjectDetails)
+          <> " for planning and "
+          <> showParams (codingChatGPTParams newProjectDetails)
+          <> " for coding."
 
   writeToLog "Generating project skeleton..."
   (waspFilePath, planRules) <-
