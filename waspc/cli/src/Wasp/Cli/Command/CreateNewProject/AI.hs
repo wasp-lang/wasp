@@ -92,6 +92,7 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
             GNP.C.projectDefaultGptTemperature = Just temperature
           }
   liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig
+  liftIO $ putStrLn "\n========\n"
 
 createNewProjectNonInteractiveOnDisk :: String -> String -> String -> Command ()
 createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson = do
