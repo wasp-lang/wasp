@@ -9,7 +9,11 @@ import {
   type {= authEntityName =},
   type {= authIdentityEntityName =},
 } from "../entities"
-import { type ProviderData } from '../auth/utils.js'
+import {
+  type EmailProviderData,
+  type UsernameProviderData,
+  type OAuthProviderData,
+} from '../auth/utils.js'
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
@@ -89,8 +93,8 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { 
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
 
-type DeserializedAuthEntity = Expand<Omit<AuthIdentity, 'providerData'> & {
-  providerData: ProviderData[keyof ProviderData]
+type DeserializedAuthEntity = Expand<Omit<{= authIdentityEntityName =}, 'providerData'> & {
+  providerData: Omit<EmailProviderData, 'password'> | Omit<UsernameProviderData, 'password'> | OAuthProviderData
 }>
 
 export type SanitizedUser = {= userEntityName =} & {

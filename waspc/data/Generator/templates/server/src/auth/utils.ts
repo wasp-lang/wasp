@@ -52,16 +52,16 @@ export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}Wher
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
-export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}CreateInput, additionalFields?: PossibleAdditionalSignupFields) {
+export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}CreateInput, userFields?: PossibleAdditionalSignupFields) {
   try {
     return await prisma.{= authEntityLower =}.create({
       data: {
         ...data,
         {= userFieldOnAuthEntityName =}: {
           create: {
-            // Using any here to prevent type errors when additionalFields are not
+            // Using any here to prevent type errors when userFields are not
             // defined. We want Prisma to throw an error in that case.
-            ...(additionalFields ?? {} as any),
+            ...(userFields ?? {} as any),
           }
         }
       }
@@ -132,18 +132,18 @@ export async function validateAndGetAdditionalFields(data: {
   return result;
 }
 
-type EmailProviderData = {
+export type EmailProviderData = {
   password: string;
   isEmailVerified: boolean;
   emailVerificationSentAt: Date | null;
   passwordResetSentAt: Date | null;
 }
 
-type UsernameProviderData = {
+export type UsernameProviderData = {
   password: string;
 }
 
-type OAuthProviderData = {}
+export type OAuthProviderData = {}
 
 export type ProviderData = {
   email: EmailProviderData;
@@ -153,13 +153,13 @@ export type ProviderData = {
 
 export function deserializeProviderData<ProviderName extends keyof ProviderData>(
   providerData: string,
-  { shouldSanitize = false }: { shouldSanitize?: boolean } = {},
+  { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
 ): ProviderData[ProviderName] {
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
   let data = JSON.parse(providerData) as ProviderData[ProviderName];
 
   // Remove password field if we don't want to send it to the client.
-  if (providerDataHasPasswordField(data) && shouldSanitize) {
+  if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
     delete data[PASSWORD_FIELD];
   }
 

@@ -15,7 +15,6 @@ export async function verifyEmail(
         const { token } = req.body;
         const { id: authId } = await verifyToken(token);
 
-        // TODO: update the auth identity JSON field "providerData" to set isEmailVerified=true
         const authIdentity = await findAuthIdentityByAuthId(authId);
         const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
         await updateAuthIdentityProviderData(authId, {

@@ -40,7 +40,6 @@ genAuth spec = case maybeAuth of
   Just auth ->
     sequence
       [ genCoreAuth auth,
-        genAuthMiddleware,
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
@@ -73,25 +72,6 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
               "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
               "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String)
             ]
-
-genAuthMiddleware :: Generator FileDraft
-genAuthMiddleware = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    -- TODO(martin): In prismaMiddleware.js, we assume that 'username' and 'password' are defined in user entity.
-    --   This was promised to us by AppSpec, which has validation checks for this.
-    --   Names of these fields are currently hardcoded, and we are not in any way relyin on AppSpec directly here.
-    --   In the future we might want to figure out a way to better encode these assumptions, either by
-    --   reusing the names for 'username' and 'password' fields by importing them from AppSpec, or smth similar
-    --   in that direction.
-    authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile authMiddlewareRelToSrc
-
-    tmplData =
-      object
-        [ "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String)
-        ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

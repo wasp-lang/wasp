@@ -1,43 +1,45 @@
+import { serializeProviderData } from '@wasp/auth/utils'
 import prisma from '@wasp/dbClient.js'
-import { withDisabledPasswordHashing } from '@wasp/core/auth/prismaMiddleware.js'
 
 export async function migrateAuth(db: typeof prisma) {
+  // 0. Update to the latest version of Wasp and run `wasp db migrate-dev`
+  // 1. Run this migration script
+  // 2. Then remove the username & password fields from User model
   const users = await db.user.findMany()
 
-  // TODO: the User model needs to have username & password and then not
-  // this is a tricky migration
+  for (let user of users) {
+    const username = (user as any).username
+    const authIdentity = await db.authIdentity.findUnique({
+      where: {
+        providerName_providerUserId: {
+          providerName: 'username',
+          providerUserId: username,
+        },
+      },
+    })
 
-  // for (let user of users) {
-  //   const authIdentity = await db.authIdentity.findUnique({
-  //     where: {
-  //       providerName_providerUserId: {
-  //         providerName: 'username',
-  //         providerUserId: user.username,
-  //       },
-  //     },
-  //   })
-  //   if (authIdentity) {
-  //     continue
-  //   }
-  //   withDisabledPasswordHashing(() =>
-  //     db.auth.create({
-  //       data: {
-  //         user: {
-  //           connect: {
-  //             id: user.id,
-  //           },
-  //         },
-  //         identities: {
-  //           create: {
-  //             providerName: 'username',
-  //             providerUserId: user.username,
-  //             providerData: JSON.stringify({
-  //               password: user.password,
-  //             }),
-  //           },
-  //         },
-  //       },
-  //     })
-  //   )
-  // }
+    // If authIdentity already exists, skip this user
+    if (authIdentity) {
+      continue
+    }
+
+    db.auth.create({
+      data: {
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        identities: {
+          create: {
+            providerName: 'username',
+            providerUserId: username,
+            providerData: await serializeProviderData<'username'>({
+              password: (user as any).password,
+            }),
+          },
+        },
+      },
+    })
+  }
 }

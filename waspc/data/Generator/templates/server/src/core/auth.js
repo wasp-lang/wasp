@@ -70,7 +70,7 @@ export async function getUserFromToken(token) {
   // https://github.com/wasp-lang/wasp/issues/965
   let sanitizedUser = { ...user }
   sanitizedUser.{= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =} = sanitizedUser.{= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =}.map(identity => {
-    identity.providerData = deserializeProviderData(identity.providerData, { shouldSanitize: true })
+    identity.providerData = deserializeProviderData(identity.providerData, { shouldRemovePasswordField: true })
     return identity
   });
   return sanitizedUser

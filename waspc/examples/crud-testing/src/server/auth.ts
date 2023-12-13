@@ -7,7 +7,7 @@ import {
 } from '@wasp/auth/validation.js'
 import prisma from '@wasp/dbClient.js'
 import { CustomSignup } from '@wasp/actions/types'
-import { hashPassword } from '@wasp/core/auth.js'
+import { serializeProviderData } from '@wasp/auth/utils'
 
 export const fields = defineAdditionalSignupFields({
   address: (data) => {
@@ -56,9 +56,8 @@ export const signup: CustomSignup<
           create: {
             providerName: 'username',
             providerUserId: args.username,
-            // TODO: offer a providerData helper
-            providerData: JSON.stringify({
-              password: hashPassword(args.password),
+            providerData: await serializeProviderData<'username'>({
+              password: args.password,
             }),
           },
         },

@@ -65,7 +65,6 @@ async function findOrCreateAuthByAuthIdentity(
   getUserFields: () => ReturnType<GetUserFieldsFn>,
 ) {
   // Attempt to find a User by an external auth association.
-  // TODO: find auth identity by provider and providerId
   const authIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
     where: { providerName, providerUserId },
     include: {
@@ -81,8 +80,6 @@ async function findOrCreateAuthByAuthIdentity(
     return authIdentity.{= authFieldOnAuthIdentityEntityName =}
   }
 
-  // No external auth association linkage found. Create a new User using details from
-  // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
   const userFields = await getUserFields()
   const authAndProviderData = {
     {= identitiesFieldOnAuthEntityName =}: {
@@ -90,9 +87,7 @@ async function findOrCreateAuthByAuthIdentity(
     }
   }
 
-  // TODO: create auth identity with provider and providerId
   const auth = await createAuthWithUser(authAndProviderData, userFields)
   // NOTE: we are fetching the auth again becuase it incldues nested user
-  // TODO: find auth identity by id
   return findAuthWithUserBy({ id: auth.id });
 }

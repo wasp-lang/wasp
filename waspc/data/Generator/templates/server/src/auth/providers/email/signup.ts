@@ -36,11 +36,9 @@ export function getSignupRoute({
         fields.email = fields.email.toLowerCase();
 
         const existingAuthIdentity = await findAuthIdentity("email", fields.email);
-        // User already exists and is verified - don't leak information
-
-        // TODO: check if the email is verified from providerData
         if (existingAuthIdentity) {
             const providerData = deserializeProviderData<'email'>(existingAuthIdentity.providerData);
+            // User already exists and is verified - don't leak information
             if (providerData.isEmailVerified) {
                 await doFakeWork();
                 return res.json({ success: true });
@@ -48,7 +46,7 @@ export function getSignupRoute({
                 if (!isEmailResendAllowed(providerData, 'emailVerificationSentAt')) {
                     return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
                 }
-                // TODO: verify this is correct
+                // User exists but is not verified - delete the user and create a new one
                 await deleteUserByAuthId(existingAuthIdentity.authId);
             }
         }
