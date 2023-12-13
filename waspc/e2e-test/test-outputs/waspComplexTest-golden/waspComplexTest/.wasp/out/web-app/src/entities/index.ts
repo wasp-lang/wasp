@@ -9,6 +9,7 @@ export type {
   SocialLogin,
   Task,
   Auth,
+  AuthIdentity,
 } from '@prisma/client'
 
 export type Entity = 

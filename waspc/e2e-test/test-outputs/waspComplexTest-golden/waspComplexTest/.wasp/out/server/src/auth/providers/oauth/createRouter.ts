@@ -48,7 +48,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const getUserFields = () => getUserFieldsFn ? getUserFieldsFn(contextWithUserEntity, { profile: providerProfile }) : Promise.resolve({});
           // TODO: In the future we could make this configurable, possibly associating an external account
           // with the currently logged in account, or by some DB lookup.
-          const auth = await findOrCreateAuthByAuthProvider(provider.id, providerProfile.id, getUserFields);
+          const auth = await findOrCreateAuthByAuthIdentity(provider.id, providerProfile.id, getUserFields);
 
           const token = await sign(auth.user.id);
           res.json({ token });
@@ -58,14 +58,14 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
     return router;
 }
 
-async function findOrCreateAuthByAuthProvider(
-  provider: string,
-  providerId: string,
+async function findOrCreateAuthByAuthIdentity(
+  providerName: string,
+  providerUserId: string,
   getUserFields: () => ReturnType<GetUserFieldsFn>,
 ) {
   // Attempt to find a User by an external auth association.
-  const authProvider = await prisma.socialAuthProvider.findFirst({
-    where: { provider, providerId },
+  const authIdentity = await prisma.authIdentity.findFirst({
+    where: { providerName, providerUserId },
     include: {
       auth: {
         include: {
@@ -75,20 +75,13 @@ async function findOrCreateAuthByAuthProvider(
     }
   })
 
-  if (authProvider) {
-    return authProvider.auth
+  if (authIdentity) {
+    return authIdentity.auth
   }
 
-  // No external auth association linkage found. Create a new User using details from
-  // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
   const userFields = await getUserFields()
-  const authAndProviderData = {
-    providers: {
-      create: [{ provider, providerId }]
-    }
-  }
 
-  const auth = await createAuthWithUser(authAndProviderData, userFields)
+  const auth = await createAuthWithUser(providerName, providerUserId, undefined, userFields)
   // NOTE: we are fetching the auth again becuase it incldues nested user
   return findAuthWithUserBy({ id: auth.id });
 }

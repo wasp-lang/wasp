@@ -2,7 +2,16 @@ import { type Expand } from "../universal/types.js";
 import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
-import { type User, type Auth } from "../entities"
+import {
+  type User,
+  type Auth,
+  type AuthIdentity,
+} from "../entities"
+import {
+  type EmailProviderData,
+  type UsernameProviderData,
+  type OAuthProviderData,
+} from '../auth/utils.js'
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
 
@@ -71,12 +80,19 @@ type Context<Entities extends _Entity[]> = Expand<{
   entities: Expand<EntityMap<Entities>>
 }>
 
-type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser}>
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser }>
 
 // TODO: This type must match the logic in core/auth.js (if we remove the
 // password field from the object there, we must do the same here). Ideally,
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
+
+type DeserializedAuthEntity = Expand<Omit<AuthIdentity, 'providerData'> & {
+  providerData: Omit<EmailProviderData, 'password'> | Omit<UsernameProviderData, 'password'> | OAuthProviderData
+}>
+
 export type SanitizedUser = User & {
-  auth: Omit<Auth, 'password'> | null
+  auth: Auth & {
+    identities: DeserializedAuthEntity[]
+  } | null
 }

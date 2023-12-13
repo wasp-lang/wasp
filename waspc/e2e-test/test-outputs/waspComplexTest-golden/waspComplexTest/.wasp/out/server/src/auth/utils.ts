@@ -1,4 +1,4 @@
-import { sign, verify } from '../core/auth.js'
+import { hashPassword, sign, verify } from '../core/auth.js'
 import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
@@ -6,7 +6,7 @@ import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
 import { type User, type Auth } from '../entities/index.js'
 import { type Prisma } from '@prisma/client';
 
-import { throwValidationError } from './validation.js'
+import { PASSWORD_FIELD, throwValidationError } from './validation.js'
 
 
 import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
@@ -23,20 +23,65 @@ export const authConfig = {
   successRedirectPath: "/",
 }
 
+export async function findAuthIdentity(providerName: string, providerUserId: string) {
+  return prisma.authIdentity.findUnique({
+    where: {
+      providerName_providerUserId: {
+        providerName,
+        providerUserId: providerUserId.toLowerCase(),
+      }
+    }
+  });
+}
+
+export async function findAuthIdentityByAuthId(authId: string) {
+  return prisma.authIdentity.findFirst({ where: { authId } });
+}
+
+export async function updateAuthIdentityProviderData<ProviderName extends keyof ProviderData>(
+  authId: string,
+  existingProviderData: ProviderData[ProviderName],
+  providerDataUpdates: Partial<ProviderData[ProviderName]>,
+) {
+  // We are doing the sanitization here only on updates to avoid
+  // hashing the password multiple times.
+  const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+  const newProviderData = {
+    ...existingProviderData,
+    ...sanitizedProviderDataUpdates,
+  }
+  const serializedProviderData = await serializeProviderData<ProviderName>(newProviderData);
+  return prisma.authIdentity.updateMany({
+    where: { authId },
+    data: { providerData: serializedProviderData },
+  });
+}
+
 export async function findAuthWithUserBy(where: Prisma.AuthWhereInput) {
   return prisma.auth.findFirst({ where, include: { user: true }});
 }
 
-export async function createAuthWithUser(data: Prisma.AuthCreateInput, additionalFields?: PossibleAdditionalSignupFields) {
+export async function createAuthWithUser(
+  providerName: string,
+  providerUserId: string,
+  serializedProviderData?: string,
+  userFields?: PossibleAdditionalSignupFields,
+) {
   try {
     return await prisma.auth.create({
       data: {
-        ...data,
+        identities: {
+            create: {
+                providerName,
+                providerUserId: providerUserId.toLowerCase(),
+                providerData: serializedProviderData,
+            },
+        },
         user: {
           create: {
-            // Using any here to prevent type errors when additionalFields are not
+            // Using any here to prevent type errors when userFields are not
             // defined. We want Prisma to throw an error in that case.
-            ...(additionalFields ?? {} as any),
+            ...(userFields ?? {} as any),
           }
         }
       }
@@ -46,9 +91,11 @@ export async function createAuthWithUser(data: Prisma.AuthCreateInput, additiona
   }
 }
 
-export async function deleteAuth(auth: Auth) {
+export async function deleteUserByAuthId(authId: string) {
   try {
-    return await prisma.auth.delete({ where: { id: auth.id } })
+    return await prisma.user.deleteMany({ where: { auth: {
+      id: authId,
+    } } })
   } catch (e) {
     rethrowPossiblePrismaError(e);
   }
@@ -103,4 +150,66 @@ export async function validateAndGetAdditionalFields(data: {
     }
   }
   return result;
+}
+
+export type EmailProviderData = {
+  password: string;
+  isEmailVerified: boolean;
+  emailVerificationSentAt: Date | null;
+  passwordResetSentAt: Date | null;
+}
+
+export type UsernameProviderData = {
+  password: string;
+}
+
+export type OAuthProviderData = {}
+
+export type ProviderData = {
+  email: EmailProviderData;
+  username: UsernameProviderData;
+  oauth: OAuthProviderData;
+}
+
+export function deserializeProviderData<ProviderName extends keyof ProviderData>(
+  providerData: string,
+  { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
+): ProviderData[ProviderName] {
+  // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
+  let data = JSON.parse(providerData) as ProviderData[ProviderName];
+
+  // Remove password field if we don't want to send it to the client.
+  if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
+    delete data[PASSWORD_FIELD];
+  }
+
+  return data;
+}
+
+export async function sanitizeAndSerializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+  return serializeProviderData(
+    await sanitizeProviderData(providerData)
+  );
+}
+
+async function serializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+  return JSON.stringify(providerData);
+}
+
+async function sanitizeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+  // NOTE: doing a shallow copy here as we expect the providerData to be
+  // a flat object. If it's not, we'll have to do a deep copy.
+  const data = {
+    ...providerData,
+  };
+  if (providerDataHasPasswordField(data)) {
+    data[PASSWORD_FIELD] = await hashPassword(data[PASSWORD_FIELD]);
+  }
+
+  return data;
+}
+
+
+function providerDataHasPasswordField(providerData: ProviderData[keyof ProviderData]): providerData is { password: string } {
+  return PASSWORD_FIELD in providerData;
 }

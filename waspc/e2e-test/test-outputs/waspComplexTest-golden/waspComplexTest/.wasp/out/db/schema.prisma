@@ -35,22 +35,17 @@ model Task {
 }
 model Auth {
   id String @id @default(uuid())
-  email String? @unique
-  username String? @unique
-  password String?
-  isEmailVerified Boolean @default(false)
-  emailVerificationSentAt DateTime?
-  passwordResetSentAt DateTime?
   userId Int? @unique
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-  providers SocialAuthProvider[]
+  identities AuthIdentity[]
 
 }
-model SocialAuthProvider {
-  id String @id @default(uuid())
-  provider String
-  providerId String
+model AuthIdentity {
+  providerName String
+  providerUserId String
+  providerData String @default("{}")
   authId String
   auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
+  @@id([providerName, providerUserId])
 
 }

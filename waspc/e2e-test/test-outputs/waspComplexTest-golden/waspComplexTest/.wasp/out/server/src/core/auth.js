@@ -7,6 +7,7 @@ import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
 import HttpError from '../core/HttpError.js'
 import config from '../config.js'
+import { deserializeProviderData } from '../auth/utils.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -47,14 +48,13 @@ export async function getUserFromToken(token) {
     }
   }
 
-  // TODO: this might not be the best thing to do, each request makes a db call
   const user = await prisma.user
     .findUnique({
       where: { id: userIdFromToken },
       include: {
         auth: {
           include: {
-            providers: true
+            identities: true
           }
         }
       }
@@ -67,17 +67,12 @@ export async function getUserFromToken(token) {
   // password field from the object here, we must to do the same there).
   // Ideally, these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965
-  const {
-    auth: { password, ...authFields },
-    ...fields
-  } = user
-
-  return {
-    ...fields,
-    auth: {
-      ...authFields
-    }
-  }
+  let sanitizedUser = { ...user }
+  sanitizedUser.auth.identities = sanitizedUser.auth.identities.map(identity => {
+    identity.providerData = deserializeProviderData(identity.providerData, { shouldRemovePasswordField: true })
+    return identity
+  });
+  return sanitizedUser
 }
 
 const SP = new SecurePassword()

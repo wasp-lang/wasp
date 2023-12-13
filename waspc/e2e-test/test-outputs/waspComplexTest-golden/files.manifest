@@ -33,7 +33,6 @@ waspComplexTest/.wasp/out/server/src/config.js
 waspComplexTest/.wasp/out/server/src/core/AuthError.js
 waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
-waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
 waspComplexTest/.wasp/out/server/src/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
