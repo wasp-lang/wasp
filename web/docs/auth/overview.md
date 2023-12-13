@@ -5,7 +5,13 @@ title: Using Auth
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
 import { Required } from "@site/src/components/Required";
 
-Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box 🙃.
+Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box.
+
+Here's a 1-minute tour of how full-stack auth works in Wasp:
+
+<div className='video-container'>
+    <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of the `app` declaration.
 
