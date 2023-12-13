@@ -270,7 +270,7 @@ printWaspNewAiUsage =
   putStrLn $
     unlines
       [ title "USAGE",
-              "  wasp new:ai <app-name> <app-description> [<config-json>]",
+              "  wasp new:ai <app-name> <app-description> <config-json>",
               "",
               "    Config JSON:",
               "      It is used to provide additional configuration to Wasp AI.",
@@ -283,7 +283,7 @@ printWaspNewAiUsage =
               "      }",
               "",
         title "EXAMPLES",
-              "  wasp new:ai ButtonApp \"One page with button\"",
+              "  wasp new:ai ButtonApp \"One page with button\" \"{}\"",
               "  wasp new:ai ButtonApp \"One page with button\" \"{ \\\"defaultGptTemperature\\\": 0.5, \\\"codingGptModel\\\": \\\"gpt-4-1106-preview\\\" }\""
       ]
 {- ORMOLU_ENABLE -}

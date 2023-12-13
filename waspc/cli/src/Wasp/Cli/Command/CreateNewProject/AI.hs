@@ -39,6 +39,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkelet
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Util.Aeson as Utils.Aeson
+import qualified Wasp.Util.Terminal as T
 
 createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjectAppName -> Command ()
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
@@ -122,7 +123,7 @@ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projec
     writeFileToDisk path content = do
       createDirectoryIfMissing True (takeDirectory path)
       T.IO.writeFile path content
-      putStrLn $ "> Wrote to file: " <> fromRelDir (basename waspProjectDir) FP.</> path
+      putStrLn $ T.applyStyles [T.Yellow] $ "> Wrote to file: " <> fromRelDir (basename waspProjectDir) FP.</> path
       hFlush stdout
 
     forwardLogToStdout msg = do

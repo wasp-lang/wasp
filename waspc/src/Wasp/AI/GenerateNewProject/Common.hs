@@ -11,6 +11,10 @@ module Wasp.AI.GenerateNewProject.Common
     planningChatGPTParams,
     codingChatGPTParams,
     fixingChatGPTParams,
+    writeToLogS,
+    styleImportant,
+    styleGenerating,
+    styleFixing,
   )
 where
 
@@ -23,6 +27,7 @@ import Wasp.AI.CodeAgent (CodeAgent, queryChatGPT, writeToFile, writeToLog)
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
 import qualified Wasp.AI.OpenAI.ChatGPT as GPT
 import Wasp.Util (naiveTrimJSON, textToLazyBS)
+import qualified Wasp.Util.Terminal as Term
 
 data NewProjectDetails = NewProjectDetails
   { _projectAppName :: !String,
@@ -163,3 +168,15 @@ writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do
   writeToFile waspFilePath $
     (<> "\n" <> text) . fromMaybe (error "wasp file shouldn't be empty")
+
+writeToLogS :: String -> CodeAgent ()
+writeToLogS = writeToLog . T.pack
+
+styleImportant :: String -> String
+styleImportant = Term.applyStyles [Term.Bold]
+
+styleGenerating :: String -> String
+styleGenerating = Term.applyStyles [Term.Blue]
+
+styleFixing :: String -> String
+styleFixing = Term.applyStyles [Term.Green]

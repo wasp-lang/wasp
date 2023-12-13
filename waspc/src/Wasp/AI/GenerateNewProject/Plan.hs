@@ -28,6 +28,9 @@ import Wasp.AI.GenerateNewProject.Common
     fixingChatGPTParams,
     planningChatGPTParams,
     queryChatGPTForJSON,
+    styleFixing,
+    styleGenerating,
+    writeToLogS,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
@@ -41,12 +44,13 @@ type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  writeToLog "Generating plan (slowest step, usually takes 30 to 90 seconds)..."
+  writeToLogS $ "\n" <> styleGenerating "Generating" <> " plan (slowest step, usually takes 30 to 90 seconds)..."
   initialPlan <- queryChatGPTForJSON (planningChatGPTParams newProjectDetails) chatMessages
   writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
-  writeToLog "Fixing initial plan..."
+  writeToLogS $ styleFixing "Fixing" <> " initial plan..."
   fixedPlan <- fixPlanRepeatedly 3 initialPlan
   writeToLog "Plan fixed!"
+
   return fixedPlan
   where
     chatMessages =
