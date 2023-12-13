@@ -7,6 +7,8 @@ module Wasp.Util.Terminal
   )
 where
 
+import Data.List (foldl')
+
 data Style
   = Black
   | Red
@@ -18,13 +20,14 @@ data Style
   | White
   | Bold
   | Underline
+  | Blink
 
 -- | Given a string, returns decorated string that when printed in terminal
 -- will have same content as original string but will also exibit specified styles.
 applyStyles :: [Style] -> String -> String
 applyStyles [] str = str
 applyStyles _ "" = ""
-applyStyles styles str = foldl applyStyle str styles ++ escapeCode ++ resetCode
+applyStyles styles str = foldl' applyStyle str styles ++ escapeCode ++ resetCode
   where
     applyStyle s style = escapeCode ++ styleCode style ++ s
 
@@ -39,6 +42,7 @@ styleCode Cyan = "[36m"
 styleCode White = "[37m"
 styleCode Bold = "[1m"
 styleCode Underline = "[4m"
+styleCode Blink = "[5m"
 
 escapeCode :: String
 escapeCode = "\ESC"

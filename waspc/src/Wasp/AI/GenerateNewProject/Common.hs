@@ -11,28 +11,29 @@ module Wasp.AI.GenerateNewProject.Common
     planningChatGPTParams,
     codingChatGPTParams,
     fixingChatGPTParams,
-    writeToLogS,
-    styleImportant,
-    styleGenerating,
-    styleFixing,
+    CodeAgent,
   )
 where
 
 import Data.Aeson (FromJSON, withObject, withText, (.:?))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe)
+import Data.String (fromString)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Wasp.AI.CodeAgent (CodeAgent, queryChatGPT, writeToFile, writeToLog)
+import qualified Wasp.AI.CodeAgent as CA
+import Wasp.AI.GenerateNewProject.LogMsg (LogMsg)
+import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
 import qualified Wasp.AI.OpenAI.ChatGPT as GPT
 import Wasp.Util (naiveTrimJSON, textToLazyBS)
-import qualified Wasp.Util.Terminal as Term
+
+type CodeAgent a = CA.CodeAgent LogMsg a
 
 data NewProjectDetails = NewProjectDetails
   { _projectAppName :: !String,
     _projectDescription :: !String,
-    _projectConfig :: NewProjectConfig
+    _projectConfig :: !NewProjectConfig
   }
 
 data NewProjectConfig = NewProjectConfig
@@ -106,7 +107,7 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
     -- `maxNumFailedRunsBeforeGivingUpCompletely` * `maxNumFailuresPerRunBeforeGivingUpOnARun`.
     doQueryForJSON :: (FromJSON a) => Int -> Int -> [ChatMessage] -> CodeAgent a
     doQueryForJSON numPrevFailedRuns numPrevFailuresPerCurrentRun chatMsgs = do
-      response <- queryChatGPT chatGPTParams chatMsgs
+      response <- CA.queryChatGPT chatGPTParams chatMsgs
       case Aeson.eitherDecode . textToLazyBS . naiveTrimJSON $ response of
         Right result -> return result
         Left errMsg ->
@@ -116,13 +117,13 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
                   let numFailedRuns = numPrevFailedRuns + 1
                    in if numFailedRuns >= maxNumFailedRunsBeforeGivingUpCompletely
                         then do
-                          writeToLog givingUpMessage
-                          error $ T.unpack givingUpMessage <> " Error:" <> errMsg
+                          CA.writeToLog $ L.styled L.Error $ fromString givingUpMessage
+                          error $ givingUpMessage <> " Error:" <> errMsg
                         else do
-                          writeToLog retryingMessage
+                          CA.writeToLog $ L.styled L.Error $ fromString retryingMessage
                           doQueryForJSON numFailedRuns 0 initChatMsgs
                 else do
-                  writeToLog retryingMessage
+                  CA.writeToLog $ L.styled L.Error $ fromString retryingMessage
                   doQueryForJSON numPrevFailedRuns numFailuresPerCurrentRun $
                     initChatMsgs
                       ++ [ GPT.ChatMessage {GPT.role = GPT.Assistant, GPT.content = response},
@@ -137,7 +138,9 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
                              }
                          ]
       where
+        givingUpMessage :: String
         givingUpMessage = "Repeatedly failed to parse ChatGPT response as JSON, giving up."
+        retryingMessage :: String
         retryingMessage = "Failed to parse ChatGPT response as JSON, trying again."
 
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
@@ -166,17 +169,5 @@ fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._te
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do
-  writeToFile waspFilePath $
+  CA.writeToFile waspFilePath $
     (<> "\n" <> text) . fromMaybe (error "wasp file shouldn't be empty")
-
-writeToLogS :: String -> CodeAgent ()
-writeToLogS = writeToLog . T.pack
-
-styleImportant :: String -> String
-styleImportant = Term.applyStyles [Term.Bold]
-
-styleGenerating :: String -> String
-styleGenerating = Term.applyStyles [Term.Blue]
-
-styleFixing :: String -> String
-styleFixing = Term.applyStyles [Term.Green]

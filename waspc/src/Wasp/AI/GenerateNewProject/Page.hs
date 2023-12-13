@@ -12,13 +12,15 @@ where
 import Data.Aeson (FromJSON)
 import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe)
+import Data.String (fromString)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
+import Wasp.AI.CodeAgent (writeToFile, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
-  ( NewProjectDetails (..),
+  ( CodeAgent,
+    NewProjectDetails (..),
     codingChatGPTParams,
     queryChatGPTForJSON,
     writeToWaspFileEnd,
@@ -35,7 +37,7 @@ generateAndWritePage newProjectDetails waspFilePath entityPlans queries actions 
   page <- generatePage newProjectDetails entityPlans queries actions pPlan
   writePageToJsFile page
   writePageToWaspFile waspFilePath page
-  writeToLog $ T.pack $ "Generated page: " <> Plan.pageName pPlan
+  writeToLog $ "Generated page: " <> fromString (Plan.pageName pPlan)
   return page
 
 generatePage :: NewProjectDetails -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page

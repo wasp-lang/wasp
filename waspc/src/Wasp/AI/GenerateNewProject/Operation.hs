@@ -17,13 +17,15 @@ where
 import Data.Aeson (FromJSON)
 import Data.Aeson.Types (ToJSON)
 import Data.List (find, intercalate, isInfixOf, isPrefixOf, nub)
+import Data.String (fromString)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
+import Wasp.AI.CodeAgent (writeToFile, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
-  ( NewProjectDetails (..),
+  ( CodeAgent,
+    NewProjectDetails (..),
     codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,
@@ -43,7 +45,7 @@ generateAndWriteOperation operationType newProjectDetails waspFilePath plan oper
   operation <- generateOperation operationType newProjectDetails (Plan.entities plan) operationPlan
   writeOperationToJsFile operation
   writeOperationToWaspFile waspFilePath operation
-  writeToLog $ T.pack $ "Generated " <> show operationType <> ": " <> Plan.opName operationPlan
+  writeToLog $ "Generated " <> fromString (show operationType) <> ": " <> fromString (Plan.opName operationPlan)
   return operation
 
 generateOperation :: OperationType -> NewProjectDetails -> [Plan.Entity] -> Plan.Operation -> CodeAgent Operation

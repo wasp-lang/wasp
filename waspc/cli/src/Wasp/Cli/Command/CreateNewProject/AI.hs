@@ -6,9 +6,11 @@ module Wasp.Cli.Command.CreateNewProject.AI
 where
 
 import Control.Arrow ()
+import Control.Monad (unless)
 import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.List (intercalate)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
@@ -27,6 +29,7 @@ import Wasp.AI.GenerateNewProject.Common
     emptyNewProjectConfig,
   )
 import qualified Wasp.AI.GenerateNewProject.Common as GNP.C
+import qualified Wasp.AI.GenerateNewProject.LogMsg as GNP.L
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -38,6 +41,7 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
+import qualified Wasp.Util as U
 import qualified Wasp.Util.Aeson as Utils.Aeson
 import qualified Wasp.Util.Terminal as T
 
@@ -120,14 +124,16 @@ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projec
           CA._writeLog = forwardLogToStdout
         }
 
+    writeFileToDisk :: FilePath -> T.Text -> IO ()
     writeFileToDisk path content = do
       createDirectoryIfMissing True (takeDirectory path)
       T.IO.writeFile path content
       putStrLn $ T.applyStyles [T.Yellow] $ "> Wrote to file: " <> fromRelDir (basename waspProjectDir) FP.</> path
       hFlush stdout
 
+    forwardLogToStdout :: GNP.L.LogMsg -> IO ()
     forwardLogToStdout msg = do
-      putStrLn . T.unpack $ msg
+      putStrLn $ GNP.L.toTermString msg
       hFlush stdout
 
 -- | Instead of writing files to disk, it will write files (and logs) to the stdout,
@@ -153,25 +159,32 @@ createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJ
 
   liftIO $ generateNewProject codeAgentConfig appName appDescription projectConfig
   where
+    writeFileToStdoutWithDelimiters :: FilePath -> T.Text -> IO ()
     writeFileToStdoutWithDelimiters path content =
-      writeToStdoutWithDelimiters "WRITE FILE" [T.pack path, content]
+      writeToStdoutWithDelimiters "WRITE FILE" [path, T.unpack content]
 
+    writeLogToStdoutWithDelimiters :: GNP.L.LogMsg -> IO ()
     writeLogToStdoutWithDelimiters msg =
-      writeToStdoutWithDelimiters "LOG" [msg]
+      unless (null msg') $
+        writeToStdoutWithDelimiters "LOG" [msg']
+      where
+        msg' = U.trim $ GNP.L.toPlainString msg
 
+    writeToStdoutWithDelimiters :: String -> [String] -> IO ()
     writeToStdoutWithDelimiters delimiterTitle paragraphs = do
-      T.IO.putStrLn . ("\n" <>) $ withDelimiter delimiterTitle $ T.intercalate "\n" paragraphs
+      putStrLn . ("\n" <>) $ withDelimiter delimiterTitle $ intercalate "\n" paragraphs
       hFlush stdout
 
+    withDelimiter :: String -> String -> String
     withDelimiter title content =
-      T.intercalate
+      intercalate
         "\n"
         [ "==== WASP AI: " <> title <> " ====",
           content,
           "===/ WASP AI: " <> title <> " ===="
         ]
 
-generateNewProject :: CA.CodeAgentConfig -> NewProjectAppName -> String -> NewProjectConfig -> IO ()
+generateNewProject :: CA.CodeAgentConfig GNP.L.LogMsg -> NewProjectAppName -> String -> NewProjectConfig -> IO ()
 generateNewProject codeAgentConfig (NewProjectAppName appName) appDescription projectConfig = do
   waspProjectSkeletonFiles <- readWaspProjectSkeletonFiles
   CA.runCodeAgent codeAgentConfig $ do

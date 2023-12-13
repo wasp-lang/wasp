@@ -6,14 +6,24 @@ where
 import Control.Monad (forM, forM_)
 import Data.Function ((&))
 import Data.List (nub)
+import Data.String (fromString)
 import Data.Text (Text)
-import qualified Data.Text as T
 import StrongPath (File', Path, Rel, System)
 import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, getTotalTokensUsage, writeToLog)
-import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..), codingChatGPTParams, planningChatGPTParams, styleFixing, styleGenerating, styleImportant, writeToLogS)
+import Wasp.AI.GenerateNewProject.Common
+  ( NewProjectDetails (..),
+    codingChatGPTParams,
+    planningChatGPTParams,
+  )
 import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
-import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation, getOperationJsFilePath)
+import Wasp.AI.GenerateNewProject.LogMsg (LogMsg)
+import qualified Wasp.AI.GenerateNewProject.LogMsg as L
+import Wasp.AI.GenerateNewProject.Operation
+  ( OperationType (..),
+    generateAndWriteOperation,
+    getOperationJsFilePath,
+  )
 import Wasp.AI.GenerateNewProject.OperationsJsFile (fixOperationsJsFile)
 import Wasp.AI.GenerateNewProject.Page (generateAndWritePage, getPageComponentPath)
 import Wasp.AI.GenerateNewProject.PageComponentFile (fixImportsInPageComponentFile, fixPageComponent)
@@ -30,15 +40,15 @@ generateNewProject ::
   --   main.wasp file. They are not specific to the app itself, but are neccessary configuration
   --   "boilerplate" (i.e. .gitignore, tsconfig.json, .wasproot, ...).
   [(Path System (Rel WaspProjectDir) File', Text)] ->
-  CodeAgent ()
+  CodeAgent LogMsg ()
 generateNewProject newProjectDetails waspProjectSkeletonFiles = do
-  writeToLogS $
-    "\nGenerating a new Wasp project named " <> styleImportant (_projectAppName newProjectDetails) <> "!"
+  writeToLog $
+    "\nGenerating a new Wasp project named " <> L.styled L.Important (fromString $ _projectAppName newProjectDetails) <> "!"
 
   let showParams chatGPTParams =
-        styleImportant (show $ ChatGPT._model chatGPTParams)
-          <> (ChatGPT._temperature chatGPTParams & maybe "" (\t -> " (temp " <> show t <> ")"))
-   in writeToLogS $
+        L.styled L.Important (fromString $ show $ ChatGPT._model chatGPTParams)
+          <> (ChatGPT._temperature chatGPTParams & maybe "" (\t -> " (temp " <> fromString (show t) <> ")"))
+   in writeToLog $
         "\n"
           <> "Using "
           <> showParams (planningChatGPTParams newProjectDetails)
@@ -80,28 +90,29 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLogFixing "mistakes in NodeJS operation files..."
   forM_ (nub $ getOperationJsFilePath <$> (queries <> actions)) $ \opFp -> do
     fixOperationsJsFile newProjectDetails waspFilePath opFp
-    writeToLog $ T.pack $ "Fixed NodeJS operation file '" <> opFp <> "'."
+    writeToLog $ "Fixed NodeJS operation file '" <> fromString opFp <> "'."
   writeToLog "NodeJS operation files fixed."
 
   writeToLogFixing "common mistakes in pages..."
   forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
     fixPageComponent newProjectDetails waspFilePath pageFp
-    writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
+    writeToLog $ "Fixed '" <> fromString pageFp <> "' page."
   writeToLog "Pages fixed."
 
   writeToLogFixing "import mistakes in pages..."
   forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
     fixImportsInPageComponentFile pageFp queries actions
-    writeToLog $ T.pack $ "Fixed '" <> pageFp <> "' page."
+    writeToLog $ "Fixed '" <> fromString pageFp <> "' page."
   writeToLog "Imports in pages fixed."
 
   (promptTokensUsed, completionTokensUsed) <- getTotalTokensUsage
   writeToLog $
-    T.pack $
-      printf "\nTotal tokens usage: ~%.1fk" $
-        fromIntegral (promptTokensUsed + completionTokensUsed) / (1000 :: Double)
+    "\nTotal tokens usage: "
+      <> ( L.styled L.Important . fromString . printf "~%.1fk" $
+             fromIntegral (promptTokensUsed + completionTokensUsed) / (1000 :: Double)
+         )
 
-  writeToLog "\nDone!"
+  writeToLog $ L.styled L.Important "\nDone!"
   where
-    writeToLogFixing msg = writeToLogS $ "\n" <> styleFixing "Fixing " <> msg
-    writeToLogGenerating msg = writeToLogS $ "\n" <> styleGenerating "Generating " <> msg
+    writeToLogFixing msg = writeToLog $ "\n" <> L.styled L.Fixing "Fixing " <> msg
+    writeToLogGenerating msg = writeToLog $ "\n" <> L.styled L.Generating "Generating " <> msg

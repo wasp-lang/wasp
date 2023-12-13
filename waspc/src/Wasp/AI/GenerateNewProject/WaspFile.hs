@@ -15,9 +15,10 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
+import Wasp.AI.CodeAgent (getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
-  ( NewProjectDetails,
+  ( CodeAgent,
+    NewProjectDetails,
     codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,

@@ -154,6 +154,7 @@ library
     Wasp.AI.GenerateNewProject.Common
     Wasp.AI.GenerateNewProject.Common.Prompts
     Wasp.AI.GenerateNewProject.Entity
+    Wasp.AI.GenerateNewProject.LogMsg
     Wasp.AI.GenerateNewProject.Operation
     Wasp.AI.GenerateNewProject.OperationsJsFile
     Wasp.AI.GenerateNewProject.Page
