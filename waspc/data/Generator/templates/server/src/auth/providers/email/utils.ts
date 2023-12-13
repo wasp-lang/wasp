@@ -61,10 +61,10 @@ async function sendEmailAndLogTimestamp(
   try {
     const authIdentity = await findAuthIdentity("email", email);
     const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-    await updateAuthIdentityProviderData<'email'>(
-      authIdentity.authId,
-      { ...providerData, [field]: new Date() }
-    );
+    // TODO: we are double hashing the password here
+    await updateAuthIdentityProviderData<'email'>(authIdentity.authId, providerData, {
+        [field]: new Date()
+    });
   } catch (e) {
     rethrowPossiblePrismaError(e);  
   }

@@ -17,8 +17,7 @@ export async function verifyEmail(
 
         const authIdentity = await findAuthIdentityByAuthId(authId);
         const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData(authId, {
-            ...providerData,
+        await updateAuthIdentityProviderData(authId, providerData, {
             isEmailVerified: true,
         });
     } catch (e) {

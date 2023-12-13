@@ -6,7 +6,7 @@ import {
     deleteUserByAuthId,
     doFakeWork,
     deserializeProviderData,
-    serializeProviderData,
+    sanitizeAndSerializeProviderData,
 } from "../../utils.js";
 import {
     createEmailVerificationLink,
@@ -33,8 +33,6 @@ export function getSignupRoute({
         const fields = req.body;
         ensureValidArgs(fields);
         
-        fields.email = fields.email.toLowerCase();
-
         const existingAuthIdentity = await findAuthIdentity("email", fields.email);
         if (existingAuthIdentity) {
             const providerData = deserializeProviderData<'email'>(existingAuthIdentity.providerData);
@@ -51,25 +49,20 @@ export function getSignupRoute({
             }
         }
 
-        const additionalFields = await validateAndGetAdditionalFields(fields);
+        const userFields = await validateAndGetAdditionalFields(fields);
 
-        const newUserProviderData = await serializeProviderData<'email'>({
+        const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
             password: fields.password,
             isEmailVerified: false,
             emailVerificationSentAt: null,
             passwordResetSentAt: null,
         });
+
         const auth = await createAuthWithUser(
-            {
-                identities: {
-                    create: {
-                        providerName: "email",
-                        providerUserId: fields.email,
-                        providerData: newUserProviderData,
-                    },
-                }
-            },
-            additionalFields,
+            'email',
+            fields.email,
+            newUserProviderData,
+            userFields,
         );
 
         const verificationLink = await createEmailVerificationLink(auth, clientRoute);

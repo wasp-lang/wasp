@@ -16,7 +16,6 @@ export default handleRejection(async (req, res) => {
 
   const authIdentity = await findAuthIdentity('username', fields.username)
   if (!authIdentity) {
-    console.log('authIdentity', authIdentity)
     throwInvalidCredentialsError()
   }
 
@@ -25,7 +24,6 @@ export default handleRejection(async (req, res) => {
 
     await verifyPassword(providerData.password, fields.password)
   } catch(e) {
-    console.log('e', e)
     throwInvalidCredentialsError()
   }
 

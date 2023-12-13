@@ -20,8 +20,6 @@ export function getLoginRoute({
         const fields = req.body ?? {}
         ensureValidArgs(fields)
 
-        fields.email = fields.email.toLowerCase()
-
         const authIdentity = await findAuthIdentity("email", fields.email)
         if (!authIdentity) {
             throwInvalidCredentialsError()

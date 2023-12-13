@@ -33,15 +33,33 @@ export const authConfig = {
 }
 
 export async function findAuthIdentity(providerName: string, providerUserId: string) {
-  return prisma.{= authIdentityEntityLower =}.findUnique({ where: { providerName_providerUserId: { providerName, providerUserId } } });
+  return prisma.{= authIdentityEntityLower =}.findUnique({
+    where: {
+      providerName_providerUserId: {
+        providerName,
+        providerUserId: providerUserId.toLowerCase(),
+      }
+    }
+  });
 }
 
 export async function findAuthIdentityByAuthId(authId: string) {
   return prisma.{= authIdentityEntityLower =}.findFirst({ where: { authId } });
 }
 
-export async function updateAuthIdentityProviderData<ProviderName extends keyof ProviderData>(authId: string, providerData: ProviderData[ProviderName]) {
-  const serializedProviderData = await serializeProviderData<ProviderName>(providerData);
+export async function updateAuthIdentityProviderData<ProviderName extends keyof ProviderData>(
+  authId: string,
+  existingProviderData: ProviderData[ProviderName],
+  providerDataUpdates: Partial<ProviderData[ProviderName]>,
+) {
+  // We are doing the sanitization here only on updates to avoid
+  // hashing the password multiple times.
+  const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+  const newProviderData = {
+    ...existingProviderData,
+    ...sanitizedProviderDataUpdates,
+  }
+  const serializedProviderData = await serializeProviderData<ProviderName>(newProviderData);
   return prisma.{= authIdentityEntityLower =}.updateMany({
     where: { authId },
     data: { providerData: serializedProviderData },
@@ -52,11 +70,22 @@ export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}Wher
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
-export async function createAuthWithUser(data: Prisma.{= authEntityUpper =}CreateInput, userFields?: PossibleAdditionalSignupFields) {
+export async function createAuthWithUser(
+  providerName: string,
+  providerUserId: string,
+  serializedProviderData?: string,
+  userFields?: PossibleAdditionalSignupFields,
+) {
   try {
     return await prisma.{= authEntityLower =}.create({
       data: {
-        ...data,
+        {= identitiesFieldOnAuthEntityName =}: {
+            create: {
+                providerName,
+                providerUserId: providerUserId.toLowerCase(),
+                providerData: serializedProviderData,
+            },
+        },
         {= userFieldOnAuthEntityName =}: {
           create: {
             // Using any here to prevent type errors when userFields are not
@@ -166,7 +195,17 @@ export function deserializeProviderData<ProviderName extends keyof ProviderData>
   return data;
 }
 
-export async function serializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+export async function sanitizeAndSerializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+  return serializeProviderData(
+    await sanitizeProviderData(providerData)
+  );
+}
+
+async function serializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+  return JSON.stringify(providerData);
+}
+
+async function sanitizeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
   // NOTE: doing a shallow copy here as we expect the providerData to be
   // a flat object. If it's not, we'll have to do a deep copy.
   const data = {
@@ -175,8 +214,10 @@ export async function serializeProviderData<ProviderName extends keyof ProviderD
   if (providerDataHasPasswordField(data)) {
     data[PASSWORD_FIELD] = await hashPassword(data[PASSWORD_FIELD]);
   }
-  return JSON.stringify(data);
+
+  return data;
 }
+
 
 function providerDataHasPasswordField(providerData: ProviderData[keyof ProviderData]): providerData is { password: string } {
   return PASSWORD_FIELD in providerData;

@@ -2,7 +2,7 @@
 import { handleRejection } from '../../../utils.js'
 import {
   createAuthWithUser,
-  serializeProviderData,
+  sanitizeAndSerializeProviderData,
 } from '../../utils.js'
 import {
   ensureValidUsername,
@@ -15,24 +15,18 @@ export default handleRejection(async (req, res) => {
   const fields = req.body ?? {}
   ensureValidArgs(fields)
 
-  const additionalFields = await validateAndGetAdditionalFields(fields)
+  const userFields = await validateAndGetAdditionalFields(fields)
 
-  const providerData = await serializeProviderData<'username'>({
+  const providerData = await sanitizeAndSerializeProviderData<'username'>({
     password: fields.password,
   })
   await createAuthWithUser(
-    {
-      identities: {
-        create: {
-          providerName: 'username',
-          providerUserId: fields.username,
-          providerData,
-        },
-      },
-    },
+    'username',
+    fields.username,
+    providerData,
     // Using any here because we want to avoid TypeScript errors and
     // rely on Prisma to validate the data.
-    additionalFields as any
+    userFields as any
   )
 
   return res.json({ success: true })

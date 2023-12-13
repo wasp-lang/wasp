@@ -25,8 +25,7 @@ export async function resetPassword(
         }
         
         const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData(authId, {
-            ...providerData,
+        await updateAuthIdentityProviderData(authId, providerData, {
             // The act of resetting the password verifies the email
             isEmailVerified: true,
             password,

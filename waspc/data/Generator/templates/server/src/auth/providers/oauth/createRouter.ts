@@ -81,13 +81,8 @@ async function findOrCreateAuthByAuthIdentity(
   }
 
   const userFields = await getUserFields()
-  const authAndProviderData = {
-    {= identitiesFieldOnAuthEntityName =}: {
-      create: [{ providerName, providerUserId }]
-    }
-  }
 
-  const auth = await createAuthWithUser(authAndProviderData, userFields)
+  const auth = await createAuthWithUser(providerName, providerUserId, undefined, userFields)
   // NOTE: we are fetching the auth again becuase it incldues nested user
   return findAuthWithUserBy({ id: auth.id });
 }

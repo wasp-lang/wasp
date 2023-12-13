@@ -1,4 +1,4 @@
-import { serializeProviderData } from '@wasp/auth/utils'
+import { sanitizeAndSerializeProviderData } from '@wasp/auth/utils'
 import prisma from '@wasp/dbClient.js'
 
 export async function migrateAuth(db: typeof prisma) {
@@ -34,7 +34,7 @@ export async function migrateAuth(db: typeof prisma) {
           create: {
             providerName: 'username',
             providerUserId: username,
-            providerData: await serializeProviderData<'username'>({
+            providerData: await sanitizeAndSerializeProviderData<'username'>({
               password: (user as any).password,
             }),
           },
