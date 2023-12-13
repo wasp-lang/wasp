@@ -26,7 +26,7 @@ import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
-    baseChatGPTParams,
+    codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,
   )
@@ -126,7 +126,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
   currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
   fixedPageComponent <-
     queryChatGPTForJSON
-      (fixingChatGPTParams $ baseChatGPTParams newProjectDetails)
+      (fixingChatGPTParams $ codingChatGPTParams newProjectDetails)
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = fixPageComponentPrompt currentWaspFileContent currentPageComponentContent}
       ]

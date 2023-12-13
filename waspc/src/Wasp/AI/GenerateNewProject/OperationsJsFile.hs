@@ -15,7 +15,7 @@ import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails,
-    baseChatGPTParams,
+    codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,
   )
@@ -33,7 +33,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
   --   with npm dependencies installed, so we skipped it for now.
   fixedOpJsFile <-
     queryChatGPTForJSON
-      (fixingChatGPTParams $ baseChatGPTParams newProjectDetails)
+      (fixingChatGPTParams $ codingChatGPTParams newProjectDetails)
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = fixOpJsFilePrompt currentWaspFileContent currentOpJsFileContent}
       ]

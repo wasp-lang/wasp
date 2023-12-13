@@ -24,7 +24,7 @@ import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, writeToFile, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
-    baseChatGPTParams,
+    codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,
     writeToWaspFileEnd,
@@ -49,7 +49,7 @@ generateAndWriteOperation operationType newProjectDetails waspFilePath plan oper
 generateOperation :: OperationType -> NewProjectDetails -> [Plan.Entity] -> Plan.Operation -> CodeAgent Operation
 generateOperation operationType newProjectDetails entityPlans operationPlan = do
   impl <-
-    queryChatGPTForJSON (baseChatGPTParams newProjectDetails) chatMessages
+    queryChatGPTForJSON (codingChatGPTParams newProjectDetails) chatMessages
       >>= fixOperationImplIfNeeded
   return Operation {opImpl = impl, opPlan = operationPlan, opType = operationType}
   where
@@ -127,7 +127,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
         then return operationImpl
         else do
           let issuesText = T.pack $ intercalate "\n" ((" - " <>) <$> issues)
-          queryChatGPTForJSON (fixingChatGPTParams $ baseChatGPTParams newProjectDetails) $
+          queryChatGPTForJSON (fixingChatGPTParams $ codingChatGPTParams newProjectDetails) $
             chatMessages
               <> [ ChatMessage {role = Assistant, content = Util.Aeson.encodeToText operationImpl},
                    ChatMessage

@@ -18,7 +18,7 @@ import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails,
-    baseChatGPTParams,
+    codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,
   )
@@ -52,7 +52,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
         OnlyIfCompileErrors | null compileErrors -> return $ WaspFile {waspFileContent = wfContent}
         _otherwise ->
           queryChatGPTForJSON
-            (fixingChatGPTParams $ baseChatGPTParams newProjectDetails)
+            (fixingChatGPTParams $ codingChatGPTParams newProjectDetails)
             [ ChatMessage {role = System, content = Prompts.systemPrompt},
               ChatMessage {role = User, content = fixWaspFilePrompt wfContent compileErrors}
             ]

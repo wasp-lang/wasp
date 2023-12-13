@@ -8,8 +8,8 @@ module Wasp.AI.GenerateNewProject.Common
     emptyNewProjectConfig,
     queryChatGPTForJSON,
     writeToWaspFileEnd,
-    baseChatGPTParams,
-    planChatGPTParams,
+    planningChatGPTParams,
+    codingChatGPTParams,
     fixingChatGPTParams,
   )
 where
@@ -34,8 +34,8 @@ data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
     -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
     projectPrimaryColor :: !(Maybe String),
-    projectBaseGptModel :: !(Maybe GPT.Model),
-    projectPlanGptModel :: !(Maybe GPT.Model),
+    projectCodingGptModel :: !(Maybe GPT.Model),
+    projectPlaningGptModel :: !(Maybe GPT.Model),
     projectDefaultGptTemperature :: !(Maybe Float)
   }
   deriving (Show)
@@ -44,15 +44,15 @@ instance Aeson.FromJSON NewProjectConfig where
   parseJSON = withObject "NewProjectConfig" $ \obj -> do
     auth <- obj .:? "auth"
     primaryColor <- obj .:? "primaryColor"
-    baseGptModel <- obj .:? "baseGptModel"
-    planGptModel <- obj .:? "planGptModel"
+    codingGptModel <- obj .:? "codingGptModel"
+    planningGptModel <- obj .:? "planningGptModel"
     defaultGptTemperature <- obj .:? "defaultGptTemperature"
     return
       ( NewProjectConfig
           { projectAuth = auth,
             projectPrimaryColor = primaryColor,
-            projectBaseGptModel = baseGptModel,
-            projectPlanGptModel = planGptModel,
+            projectCodingGptModel = codingGptModel,
+            projectPlaningGptModel = planningGptModel,
             projectDefaultGptTemperature = defaultGptTemperature
           }
       )
@@ -62,8 +62,8 @@ emptyNewProjectConfig =
   NewProjectConfig
     { projectAuth = Nothing,
       projectPrimaryColor = Nothing,
-      projectBaseGptModel = Nothing,
-      projectPlanGptModel = Nothing,
+      projectCodingGptModel = Nothing,
+      projectPlaningGptModel = Nothing,
       projectDefaultGptTemperature = Nothing
     }
 
@@ -145,15 +145,15 @@ _paramsWithFallbackModel maybeGetModel fallbackModel projectDetails =
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
 
-baseChatGPTParams :: NewProjectDetails -> ChatGPTParams
-baseChatGPTParams = _paramsWithFallbackModel (projectBaseGptModel . _projectConfig) defaultBaseGptModel
+codingChatGPTParams :: NewProjectDetails -> ChatGPTParams
+codingChatGPTParams = _paramsWithFallbackModel (projectCodingGptModel . _projectConfig) defaultCodingGptModel
   where
-    defaultBaseGptModel = GPT.GPT_3_5_turbo_0613
+    defaultCodingGptModel = GPT.GPT_3_5_turbo_0613
 
-planChatGPTParams :: NewProjectDetails -> ChatGPTParams
-planChatGPTParams = _paramsWithFallbackModel (projectPlanGptModel . _projectConfig) defaultPlanGptModel
+planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
+planningChatGPTParams = _paramsWithFallbackModel (projectPlaningGptModel . _projectConfig) defaultPlanningGptModel
   where
-    defaultPlanGptModel = GPT.GPT_4_0613
+    defaultPlanningGptModel = GPT.GPT_4_0613
 
 fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
 fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
