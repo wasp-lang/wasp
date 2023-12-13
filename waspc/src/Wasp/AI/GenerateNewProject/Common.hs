@@ -35,7 +35,7 @@ data NewProjectConfig = NewProjectConfig
     -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
     projectPrimaryColor :: !(Maybe String),
     projectCodingGptModel :: !(Maybe GPT.Model),
-    projectPlaningGptModel :: !(Maybe GPT.Model),
+    projectPlanningGptModel :: !(Maybe GPT.Model),
     projectDefaultGptTemperature :: !(Maybe Float)
   }
   deriving (Show)
@@ -52,7 +52,7 @@ instance Aeson.FromJSON NewProjectConfig where
           { projectAuth = auth,
             projectPrimaryColor = primaryColor,
             projectCodingGptModel = codingGptModel,
-            projectPlaningGptModel = planningGptModel,
+            projectPlanningGptModel = planningGptModel,
             projectDefaultGptTemperature = defaultGptTemperature
           }
       )
@@ -63,7 +63,7 @@ emptyNewProjectConfig =
     { projectAuth = Nothing,
       projectPrimaryColor = Nothing,
       projectCodingGptModel = Nothing,
-      projectPlaningGptModel = Nothing,
+      projectPlanningGptModel = Nothing,
       projectDefaultGptTemperature = Nothing
     }
 
@@ -150,7 +150,7 @@ codingChatGPTParams projectDetails =
 planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
 planningChatGPTParams projectDetails =
   GPT.ChatGPTParams
-    { GPT._model = fromMaybe defaultPlanningGptModel (projectPlaningGptModel $ _projectConfig projectDetails),
+    { GPT._model = fromMaybe defaultPlanningGptModel (projectPlanningGptModel $ _projectConfig projectDetails),
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
   where
