@@ -44,7 +44,7 @@ createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjec
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
-  (planGptModel, baseGptModel) <-
+  (planningGptModel, codingGptModel) <-
     liftIO $
       Interactive.askToChoose'
         "Choose GPT model(s) you want to use:"
@@ -64,8 +64,8 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           ]
   let projectConfig =
         emptyNewProjectConfig
-          { GNP.C.projectPlanGptModel = Just planGptModel,
-            GNP.C.projectBaseGptModel = Just baseGptModel
+          { GNP.C.projectPlanningGptModel = Just planningGptModel,
+            GNP.C.projectCodingGptModel = Just codingGptModel
           }
   liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig
 

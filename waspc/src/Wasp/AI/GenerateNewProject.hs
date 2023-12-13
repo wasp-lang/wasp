@@ -10,7 +10,7 @@ import qualified Data.Text as T
 import StrongPath (File', Path, Rel, System)
 import Text.Printf (printf)
 import Wasp.AI.CodeAgent (CodeAgent, getTotalTokensUsage, writeToLog)
-import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..), baseChatGPTParams, planChatGPTParams)
+import Wasp.AI.GenerateNewProject.Common (NewProjectDetails (..), codingChatGPTParams, planningChatGPTParams)
 import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
 import Wasp.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation, getOperationJsFilePath)
 import Wasp.AI.GenerateNewProject.OperationsJsFile (fixOperationsJsFile)
@@ -36,9 +36,9 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
 
   writeToLog . T.pack $
     "Using "
-      <> show (ChatGPT._model $ planChatGPTParams newProjectDetails)
+      <> show (ChatGPT._model $ planningChatGPTParams newProjectDetails)
       <> " for planning and "
-      <> show (ChatGPT._model $ baseChatGPTParams newProjectDetails)
+      <> show (ChatGPT._model $ codingChatGPTParams newProjectDetails)
       <> " for coding."
 
   writeToLog "Generating project skeleton..."
