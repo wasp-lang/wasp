@@ -10,14 +10,14 @@ import Data.String (fromString)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System)
 import Text.Printf (printf)
-import Wasp.AI.CodeAgent (CodeAgent, getTotalTokensUsage, writeToLog)
+import Wasp.AI.CodeAgent (getTotalTokensUsage, writeToLog)
 import Wasp.AI.GenerateNewProject.Common
-  ( NewProjectDetails (..),
+  ( CodeAgent,
+    NewProjectDetails (..),
     codingChatGPTParams,
     planningChatGPTParams,
   )
 import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
-import Wasp.AI.GenerateNewProject.LogMsg (LogMsg)
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.GenerateNewProject.Operation
   ( OperationType (..),
@@ -40,7 +40,7 @@ generateNewProject ::
   --   main.wasp file. They are not specific to the app itself, but are neccessary configuration
   --   "boilerplate" (i.e. .gitignore, tsconfig.json, .wasproot, ...).
   [(Path System (Rel WaspProjectDir) File', Text)] ->
-  CodeAgent LogMsg ()
+  CodeAgent ()
 generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog $
     "\nGenerating a new Wasp project named " <> L.styled L.Important (fromString $ _projectAppName newProjectDetails) <> "!"
