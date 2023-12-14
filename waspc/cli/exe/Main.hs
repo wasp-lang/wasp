@@ -174,6 +174,7 @@ printUsage =
         cmd   "    new:ai <app-name> <app-description> [<config-json>]",
               "      Uses AI to create a new Wasp project just based on the app name and the description.",
               "      You can do the same thing with `wasp new` interactively.",
+              "      Run `wasp new:ai` for more info.",
               "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",

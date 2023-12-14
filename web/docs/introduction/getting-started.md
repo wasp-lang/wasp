@@ -50,7 +50,7 @@ Check [More Details](#more-details) section below if anything went wrong, or if 
 
 ------
 
-## More details 
+## More details
 
 ### Requirements
 

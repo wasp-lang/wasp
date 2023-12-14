@@ -227,7 +227,9 @@ getOpenAIApiKey =
               "",
               "To persist the OPENAI_API_KEY env var, add",
               "  export OPENAI_API_KEY=<yourkeyhere>",
-              "to your .bash_profile (or .profile or .zprofile or whatever your machine is using), restart your shell, and you should be good to go."
+              "to your .bash_profile (or .profile or .zprofile or whatever your machine is using), restart your shell, and you should be good to go.",
+              "",
+              "Alternatively, you can go to our Mage web app at https://usemage.ai and generate new Wasp app there for free, with no OpenAI API keys needed."
             ]
 
 newProjectDetails :: NewProjectConfig -> String -> String -> NewProjectDetails
