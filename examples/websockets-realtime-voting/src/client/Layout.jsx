@@ -11,21 +11,20 @@ const customTheme = {
     color: {
       primary: "bg-red-500 hover:bg-red-600",
     },
-  }
+  },
 };
 
 export const Layout = ({ children }) => {
   const { data: user } = useAuth();
+
+  const identity = user?.auth?.identities[0];
+
   return (
     <Flowbite theme={{ theme: customTheme }}>
       <div className="p-8">
         <Navbar fluid rounded>
           <Navbar.Brand className="cursor-pointer">
-            <img
-              alt="Fox Logo"
-              className="mr-3 h-6 sm:h-9"
-              src={Logo}
-            />
+            <img alt="Fox Logo" className="mr-3 h-6 sm:h-9" src={Logo} />
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Undecisive Fox App
             </span>
@@ -37,13 +36,15 @@ export const Layout = ({ children }) => {
                 label={
                   <Avatar
                     alt="User settings"
-                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${user.username}`}
+                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${identity?.providerUserId}`}
                     rounded
                   />
                 }
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">{user.username}</span>
+                  <span className="block text-sm">
+                    {identity?.providerUserId}
+                  </span>
                 </Dropdown.Header>
                 <Dropdown.Item>Dashboard</Dropdown.Item>
                 <Dropdown.Item>Settings</Dropdown.Item>
