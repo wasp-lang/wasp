@@ -4,8 +4,8 @@ import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 function l(title, overrideTitle) {
   const links = {
     "Wasp": "https://wasp-lang.dev/",
-    "web app": "https://github.com/wasp-lang/wasp/tree/wasp-ai/wasp-ai",
-    "GPT code agent": "https://github.com/wasp-lang/wasp/tree/wasp-ai/waspc/src/Wasp/AI",
+    "web app": "https://github.com/wasp-lang/wasp/tree/main/mage",
+    "GPT code agent": "https://github.com/wasp-lang/wasp/tree/main/waspc/src/Wasp/AI",
     "blog post": "https://wasp-lang.dev/blog/2023/07/10/gpt-web-app-generator"
   };
 

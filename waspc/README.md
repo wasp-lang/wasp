@@ -326,7 +326,7 @@ NOTE: When you run it for the first time it might take a while (~10 minutes) for
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
 ## Branching and merging strategy
-This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`), and also Mage web app (under `wasp-ai`). In order to facilitate the development of Wasp code while still allowing for website / Mage updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
+This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`), and also Mage web app (under `mage`). In order to facilitate the development of Wasp code while still allowing for website / Mage updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
 
 All Wasp development should be done on feature branches. They form the basis of PRs that will target one of the two following branches:
 
@@ -376,7 +376,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Publish the draft release when ready.
 - Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
 - Publish new [docs](/web#deployment) from the `release` branch as well.
-- Publish new [Mage](/wasp-ai#deployment) from the `release` branch as well, if needed.
+- Publish new [Mage](/mage#deployment) from the `release` branch as well, if needed.
 - Announce new release in Discord.
 
 #### Determining next version
@@ -398,7 +398,7 @@ If doing this, steps are the following:
 External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog.
 
 ## Mage
-Wasp's magic GPT web app generator aka Wasp AI aka Mage is hosted at https://usemage.ai and its source is available at [wasp-ai](/wasp-ai).
+Wasp's magic GPT web app generator aka Wasp AI aka Mage is hosted at https://usemage.ai and its source is available at [mage](/mage).
 
 Make sure to update it when changes modify how Wasp works.
 
