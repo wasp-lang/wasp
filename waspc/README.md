@@ -326,23 +326,24 @@ NOTE: When you run it for the first time it might take a while (~10 minutes) for
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
 ## Branching and merging strategy
-This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`). In order to facilitate the development of Wasp code while still allowing for website updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
+This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`), and also Mage web app (under `wasp-ai`). In order to facilitate the development of Wasp code while still allowing for website / Mage updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
 
 All Wasp development should be done on feature branches. They form the basis of PRs that will target one of the two following branches:
 
 - `main`: this branch contains all the actively developed new features and corresponding documentation updates. Some of these things may not yet be released, but anything merged into `main` should be in a release-ready state.
   - This is the default branch to target for any Wasp feature branches.
-- `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website.
+- `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website, and also currently published version of Mage.
   - When doing a full release, which means making a new release based on what we have currently on `main`, we do the following:
     1. Update `main` branch by merging `release` into it. There might be conflicts but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
     2. Update `release` branch to this new `main` by merging `main` into it. There will be no conflicts since we already resolved all of them in the previous step.
 
 How do I know where I want to target my PR, to `release` or `main`?
-  - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, ... .
+  - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, update for Mage that needs to go out now, ... .
   - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
+  - Stuff published on `release` (docs, Mage) uses/references version of `wasp` that was last released (so one that is also on `release`).
   - TLDR;
-    - `release` is for changes to the already published stuff (the present).
-    - `main` is for changes to the to-be-published stuff (the future).
+    - `release` represents the present, and is for changes to the already published stuff.
+    - `main` represents near future, and is for changes to the to-be-published stuff.
 
 ## Deployment / CI
 We use Github Actions for CI.
@@ -375,6 +376,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Publish the draft release when ready.
 - Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
 - Publish new [docs](/web#deployment) from the `release` branch as well.
+- Publish new [Mage](/wasp-ai#deployment) from the `release` branch as well, if needed.
 - Announce new release in Discord.
 
 #### Determining next version
@@ -393,7 +395,10 @@ If doing this, steps are the following:
 
 
 ## Documentation
-External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog. 
+External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog.
+
+## Mage
+Wasp's magic GPT web app generator aka Wasp AI aka Mage is hosted at https://usemage.ai and its source is available at [wasp-ai](/wasp-ai).
 
 Make sure to update it when changes modify how Wasp works.
 
