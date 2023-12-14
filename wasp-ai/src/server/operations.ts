@@ -7,6 +7,7 @@ import {
 import {
   GetAppGenerationResult,
   GetStats,
+  GetProjects,
   GetFeedback,
   GetNumProjects,
   GetProjectsByUser,
@@ -15,6 +16,8 @@ import HttpError from "@wasp/core/HttpError.js";
 import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
 import { getNowInUTC } from "./utils.js";
 import type { Project, User } from "@wasp/entities";
+import type { Prisma } from "@prisma/client";
+import { generateLast24HoursData, generateLast30DaysData } from "./stats.js";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -172,7 +175,7 @@ export const getFeedback = (async (args, context) => {
   };
 }) satisfies GetFeedback<{}>;
 
-export const getStats = (async (_args, context) => {
+export const getProjects = (async (_args, context) => {
   const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
   if (!context.user || !emailsWhitelist.includes(context.user.email)) {
     throw new HttpError(401, "Only admins can access stats.");
@@ -199,7 +202,7 @@ export const getStats = (async (_args, context) => {
     },
   });
 
-  // All projects but without logs
+  // Latest 1000 projects but without logs
   const projects = await Project.findMany({
     orderBy: {
       createdAt: "desc",
@@ -221,13 +224,86 @@ export const getStats = (async (_args, context) => {
         },
       },
     },
+    take: 1000,
   });
 
   return {
     projects,
     latestProjectsWithLogs,
   };
-}) satisfies GetStats<{}>;
+}) satisfies GetProjects<{}>;
+
+export const getStats = (async (args, context) => {
+  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
+  if (!context.user || !emailsWhitelist.includes(context.user.email)) {
+    throw new HttpError(401, "Only admins can access stats.");
+  }
+
+  const { Project } = context.entities;
+
+  const filterOutExampleAppsCondition = args.filterOutExampleApps
+    ? ({
+        name: {
+          not: {
+            in: ["TodoApp", "MyPlants", "Blog"],
+          },
+        },
+      } satisfies Prisma.ProjectWhereInput)
+    : {};
+
+  const projectsAfterDownloadTrackingCondition = {
+    createdAt: {
+      gt: new Date("2023-07-14 10:36:45.12"),
+    },
+    status: "success",
+  };
+  const [totalGenerated, projectsAfterDownloadTracking, downloadedProjects, last30DaysProjects] =
+    await Promise.all([
+      Project.count({
+        where: {
+          ...filterOutExampleAppsCondition,
+        },
+      }),
+      Project.count({
+        where: {
+          ...projectsAfterDownloadTrackingCondition,
+          ...filterOutExampleAppsCondition,
+        },
+      }),
+      Project.count({
+        where: {
+          ...projectsAfterDownloadTrackingCondition,
+          ...filterOutExampleAppsCondition,
+          zipDownloadedAt: {
+            not: null,
+          },
+        },
+      }),
+      Project.findMany({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+          },
+          ...filterOutExampleAppsCondition,
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+    ]);
+  const downloadRatio =
+    projectsAfterDownloadTracking > 0 ? downloadedProjects / projectsAfterDownloadTracking : 0;
+
+  return {
+    totalGenerated,
+    totalDownloaded: downloadedProjects,
+    downloadedPercentage: Math.round(downloadRatio * 10000) / 100,
+    last24Hours: generateLast24HoursData(last30DaysProjects),
+    last30Days: generateLast30DaysData(last30DaysProjects),
+  };
+}) satisfies GetStats<{
+  filterOutExampleApps: boolean;
+}>;
 
 export const getNumProjects = (async (_args, context) => {
   return context.entities.Project.count();

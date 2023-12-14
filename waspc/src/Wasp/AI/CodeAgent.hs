@@ -12,7 +12,6 @@ module Wasp.AI.CodeAgent
     queryChatGPT,
     getTotalTokensUsage,
     getOpenAIApiKey,
-    checkIfGpt4IsAvailable,
   )
 where
 
@@ -42,8 +41,7 @@ newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT
 data CodeAgentConfig = CodeAgentConfig
   { _openAIApiKey :: !OpenAIApiKey,
     _writeFile :: !(FilePath -> Text -> IO ()), -- TODO: Use StrongPath? Not clear which kind of path is it, rel, abs, ... .
-    _writeLog :: !(Text -> IO ()),
-    _useGpt3IfGpt4NotAvailable :: !Bool
+    _writeLog :: !(Text -> IO ())
   }
 
 instance MonadRetry CodeAgent where
@@ -101,18 +99,8 @@ getAllFiles = gets $ H.toList . _files
 
 queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent Text
 queryChatGPT params messages = do
-  params' <- do
-    useGpt3IfGpt4NotAvailable <- asks _useGpt3IfGpt4NotAvailable
-    if ChatGPT._model params == ChatGPT.GPT_4 && useGpt3IfGpt4NotAvailable
-      then do
-        isAvailable <- checkIfGpt4IsAvailable
-        if not isAvailable
-          then return $ params {ChatGPT._model = ChatGPT.GPT_3_5_turbo_16k}
-          else return params
-      else return params
-
   key <- asks _openAIApiKey
-  chatResponse <- queryChatGPTWithRetry key params' messages
+  chatResponse <- queryChatGPTWithRetry key params messages
   modify $ \s -> s {_usage = _usage s <> [ChatGPT.usage chatResponse]}
   return $ ChatGPT.getChatResponseContent chatResponse
   where
@@ -137,16 +125,6 @@ queryChatGPT params messages = do
 
 getOpenAIApiKey :: CodeAgent OpenAIApiKey
 getOpenAIApiKey = asks _openAIApiKey
-
-checkIfGpt4IsAvailable :: CodeAgent Bool
-checkIfGpt4IsAvailable = do
-  gets _isGpt4Available >>= \case
-    Just isAvailable -> pure isAvailable
-    Nothing -> do
-      key <- asks _openAIApiKey
-      isAvailable <- liftIO $ ChatGPT.checkIfGpt4IsAvailable key
-      modify $ \s -> s {_isGpt4Available = Just isAvailable}
-      return isAvailable
 
 type NumTokens = Int
 

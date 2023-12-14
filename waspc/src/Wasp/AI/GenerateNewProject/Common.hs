@@ -7,9 +7,10 @@ module Wasp.AI.GenerateNewProject.Common
     getProjectPrimaryColor,
     emptyNewProjectConfig,
     queryChatGPTForJSON,
-    defaultChatGPTParams,
-    defaultChatGPTParamsForFixing,
     writeToWaspFileEnd,
+    planningChatGPTParams,
+    codingChatGPTParams,
+    fixingChatGPTParams,
   )
 where
 
@@ -33,7 +34,8 @@ data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
     -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
     projectPrimaryColor :: !(Maybe String),
-    projectDefaultGptModel :: !(Maybe GPT.Model),
+    projectCodingGptModel :: !(Maybe GPT.Model),
+    projectPlanningGptModel :: !(Maybe GPT.Model),
     projectDefaultGptTemperature :: !(Maybe Float)
   }
   deriving (Show)
@@ -42,13 +44,15 @@ instance Aeson.FromJSON NewProjectConfig where
   parseJSON = withObject "NewProjectConfig" $ \obj -> do
     auth <- obj .:? "auth"
     primaryColor <- obj .:? "primaryColor"
-    defaultGptModel <- obj .:? "defaultGptModel"
+    codingGptModel <- obj .:? "codingGptModel"
+    planningGptModel <- obj .:? "planningGptModel"
     defaultGptTemperature <- obj .:? "defaultGptTemperature"
     return
       ( NewProjectConfig
           { projectAuth = auth,
             projectPrimaryColor = primaryColor,
-            projectDefaultGptModel = defaultGptModel,
+            projectCodingGptModel = codingGptModel,
+            projectPlanningGptModel = planningGptModel,
             projectDefaultGptTemperature = defaultGptTemperature
           }
       )
@@ -58,7 +62,8 @@ emptyNewProjectConfig =
   NewProjectConfig
     { projectAuth = Nothing,
       projectPrimaryColor = Nothing,
-      projectDefaultGptModel = Nothing,
+      projectCodingGptModel = Nothing,
+      projectPlanningGptModel = Nothing,
       projectDefaultGptTemperature = Nothing
     }
 
@@ -133,17 +138,26 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
 
-defaultChatGPTParams :: NewProjectDetails -> ChatGPTParams
-defaultChatGPTParams projectDetails =
+codingChatGPTParams :: NewProjectDetails -> ChatGPTParams
+codingChatGPTParams projectDetails =
   GPT.ChatGPTParams
-    { GPT._model = fromMaybe GPT.GPT_3_5_turbo_16k (projectDefaultGptModel $ _projectConfig projectDetails),
+    { GPT._model = fromMaybe defaultCodingGptModel (projectCodingGptModel $ _projectConfig projectDetails),
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
+  where
+    defaultCodingGptModel = GPT.GPT_3_5_turbo_0613
 
-defaultChatGPTParamsForFixing :: NewProjectDetails -> ChatGPTParams
-defaultChatGPTParamsForFixing projectDetails =
-  let params = defaultChatGPTParams projectDetails
-   in params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
+planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
+planningChatGPTParams projectDetails =
+  GPT.ChatGPTParams
+    { GPT._model = fromMaybe defaultPlanningGptModel (projectPlanningGptModel $ _projectConfig projectDetails),
+      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+    }
+  where
+    defaultPlanningGptModel = GPT.GPT_4_0613
+
+fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
+fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}
 
 writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do
