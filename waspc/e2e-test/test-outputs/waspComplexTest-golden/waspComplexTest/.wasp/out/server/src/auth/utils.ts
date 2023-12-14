@@ -178,7 +178,6 @@ export function deserializeProviderData<ProviderName extends keyof ProviderData>
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
   let data = JSON.parse(providerData) as ProviderData[ProviderName];
 
-  // Remove password field if we don't want to send it to the client.
   if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
     delete data[PASSWORD_FIELD];
   }
