@@ -564,6 +564,7 @@ test-suite waspc-test
     , tasty-golden          ^>= 2.3.5
   other-modules:
     AI.GenerateNewProject.PageComponentFileTest
+    AI.GenerateNewProject.LogMsgTest
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest
     Analyzer.Parser.ConcreteParserTest

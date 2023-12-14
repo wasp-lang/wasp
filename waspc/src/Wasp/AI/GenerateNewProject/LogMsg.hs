@@ -13,8 +13,10 @@ import qualified Data.Text as T
 import qualified Wasp.Util.Terminal as Term
 
 data LogMsg = Plain String | Concat [LogMsg] | Styled Style LogMsg
+  deriving (Show, Eq)
 
 data Style = Important | Generating | Fixing | Error | Custom [Term.Style]
+  deriving (Show, Eq)
 
 instance IsString LogMsg where
   fromString = Plain

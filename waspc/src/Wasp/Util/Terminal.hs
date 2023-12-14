@@ -21,6 +21,7 @@ data Style
   | Bold
   | Underline
   | Blink
+  deriving (Show, Eq)
 
 -- | Given a string, returns decorated string that when printed in terminal
 -- will have same content as original string but will also exibit specified styles.
