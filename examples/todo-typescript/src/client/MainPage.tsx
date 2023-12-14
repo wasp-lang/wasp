@@ -9,7 +9,14 @@ import getTasks from "@wasp/queries/getTasks";
 import createTask from "@wasp/actions/createTask";
 import updateTask from "@wasp/actions/updateTask";
 import deleteTasks from "@wasp/actions/deleteTasks";
-import type { Task, User } from "@wasp/entities";
+import type { Task } from "@wasp/entities";
+import type { User } from "@wasp/auth/types";
+
+function getUsername(user: User) {
+  return user.auth?.identities.find(
+    (identity) => identity.providerName === "username"
+  )?.providerUserId;
+}
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
@@ -24,7 +31,7 @@ export const MainPage = ({ user }: { user: User }) => {
       <img src={waspLogo} alt="wasp logo" />
       {user && (
         <h1>
-          {user.username}
+          {getUsername(user)}
           {`'s tasks :)`}
         </h1>
       )}

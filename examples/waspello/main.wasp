@@ -11,7 +11,6 @@ app waspello {
 
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
       google: {}
@@ -47,21 +46,9 @@ page Login {
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    username    String  @unique
-    password    String
+
     lists       List[]
     cards       Card[]
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 
 entity List {=psl

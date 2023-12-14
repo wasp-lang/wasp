@@ -3,9 +3,9 @@ import { hashPassword, sign, verify } from '../core/auth.js'
 import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
-import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
+import { sleep } from '../utils.js'
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../entities/index.js'
-import { type Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { PASSWORD_FIELD, throwValidationError } from './validation.js'
 
@@ -140,6 +140,33 @@ export function rethrowPossiblePrismaError(e: unknown): void {
   } else {
     throw new HttpError(500)
   }
+}
+
+const isPrismaError = (e: unknown) => {
+  return (
+    e instanceof Prisma.PrismaClientKnownRequestError ||
+    e instanceof Prisma.PrismaClientUnknownRequestError ||
+    e instanceof Prisma.PrismaClientRustPanicError ||
+    e instanceof Prisma.PrismaClientInitializationError ||
+    e instanceof Prisma.PrismaClientValidationError
+  )
+}
+
+const prismaErrorToHttpError = (e: unknown) => {
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+    return new HttpError(422, 'Save failed', {
+      message: `user with the same identity already exists`,
+    })
+  }
+  if (e instanceof Prisma.PrismaClientValidationError) {
+    // NOTE: Logging the error since this usually means that there are
+    // required fields missing in the request.
+    console.error(e)
+    return new HttpError(422, 'Save failed', {
+      message: 'there was a database error'
+    })
+  }
+  return new HttpError(500)
 }
 
 export async function validateAndGetAdditionalFields(data: {
