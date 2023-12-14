@@ -12,11 +12,13 @@ module Wasp.Util.IO
     removeFile,
     isDirectoryEmpty,
     writeFileFromText,
+    readFileBytes,
   )
 where
 
 import Control.Monad (filterM, when)
 import Control.Monad.Extra (whenM)
+import qualified Data.ByteString.Lazy as B
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
@@ -94,6 +96,9 @@ doesFileExist = SD.doesFileExist . SP.fromAbsFile
 
 readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
+
+readFileBytes :: Path' Abs (File f) -> IO B.ByteString
+readFileBytes = B.readFile . SP.fromAbsFile
 
 readFileStrict :: Path' Abs (File f) -> IO Text
 readFileStrict = T.IO.readFile . SP.toFilePath

@@ -1,15 +1,21 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
+    readPackageJsonFile,
   )
 where
 
 import Control.Arrow (ArrowChoice (left))
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
+import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
+import StrongPath.TH (relfile)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.PackageJson (PackageJson)
 import Wasp.AppSpec.Valid (validateAppSpec)
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
@@ -17,7 +23,7 @@ import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator.ConfigFile as G.CF
-import Wasp.Project.Common (CompileError, WaspProjectDir)
+import Wasp.Project.Common (CompileError, WaspProjectDir, findFileInWaspProjectDir)
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
@@ -31,9 +37,12 @@ analyzeWaspProject ::
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec)
 analyzeWaspProject waspDir options = runExceptT $ do
-  waspFilePath <- ExceptT $ Control.Arrow.left pure <$> findWaspFile waspDir
+  waspFilePath <- ExceptT $ maybeToEither [fileNotFoundMessage] <$> findWaspFile waspDir
   declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
-  ExceptT $ constructAppSpec waspDir options declarations
+  packageJsonContent <- ExceptT $ analyzePackageJsonContent waspDir
+  ExceptT $ constructAppSpec waspDir options packageJsonContent declarations
+  where
+    fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
 analyzeWaspFileContent :: Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFileContent waspFilePath = do
@@ -47,9 +56,10 @@ analyzeWaspFileContent waspFilePath = do
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
+  PackageJson ->
   [AS.Decl] ->
   IO (Either [CompileError] AS.AppSpec)
-constructAppSpec waspDir options decls = do
+constructAppSpec waspDir options packageJson decls = do
   externalServerCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
 
@@ -69,6 +79,7 @@ constructAppSpec waspDir options decls = do
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
+            AS.packageJson = packageJson,
             AS.waspProjectDir = waspDir,
             AS.externalClientFiles = externalClientCodeFiles,
             AS.externalServerFiles = externalServerCodeFiles,
@@ -86,12 +97,26 @@ constructAppSpec waspDir options decls = do
     [] -> Right appSpec
     validationErrors -> Left $ map show validationErrors
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs File'))
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
   files <- fst <$> IOUtil.listDirectory waspDir
-  return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
+  return $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
       ".wasp"
         `isSuffixOf` toFilePath path
         && (length (toFilePath path) > length (".wasp" :: String))
+
+analyzePackageJsonContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
+analyzePackageJsonContent waspProjectDir =
+  findPackageJsonFile >>= \case
+    Just packageJsonFile -> readPackageJsonFile packageJsonFile
+    Nothing -> return $ Left [fileNotFoundMessage]
+  where
+    fileNotFoundMessage = "couldn't find package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
+    findPackageJsonFile = findFileInWaspProjectDir waspProjectDir [relfile|package.json|]
+
+readPackageJsonFile :: Path' Abs File' -> IO (Either [CompileError] PackageJson)
+readPackageJsonFile packageJsonFile = do
+  byteString <- IOUtil.readFileBytes packageJsonFile
+  return $ maybeToEither ["Error reading the package.json file"] $ Aeson.decode byteString
