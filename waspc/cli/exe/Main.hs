@@ -41,32 +41,6 @@ import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
--- OLD:
--- wasp new                                          -> interactive
--- wasp new <project_name>                           -> not interactive (for now)
--- wasp new-ai <project_name> <desc> <config_json>   -> defaults to stdout
--- wasp new-ai:stdout
--- wasp new-ai:disk
-
--- NEW:
--- - [X] wasp new                                          -> add interactive option to create via AI
--- - [X] wasp new <project_name>                           -> same as before
--- - [X] wasp new:ai
--- - [X] wasp new:ai:stdout
---
--- - [ ] Allow them to interactively choose the temperature.
--- - [X] Print which models is Wasp AI using for what.
--- - [X] In `wasp new` add interactive option to choose ChatGPT model.
--- - [X] What if they don't have OpenAI keys? Ask for them? What happens now?
--- - [X] Print ChatGPT output only in DEBUG mode (add concept of DEBUG mode).
--- - [X] When it says "wrote file" -> add "TodoApp/" in front of the path.
--- - [ ] Add emojis, nicer output? Yeah, add newlines and emojis.
---       Update Mage also then to correctly parse that. Trim text if not already trimmed.
---       Emojis we can just use, and now we don't have to put our own emojis in Mage maybe.
--- - [ ] Update Mage: update it to use new version of Wasp in its Dockerfile.
--- - [X] Update CLI Usage here.
--- - [ ] Update docs (documentation, landing pages).
-
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
