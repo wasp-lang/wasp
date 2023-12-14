@@ -38,4 +38,5 @@ printGettingStartedInstructions absProjectDir = do
   putStrLn                                   ""
   putStrLn $ Term.applyStyles [Term.Bold] $  "    cd " ++ projectFolder
   putStrLn $ Term.applyStyles [Term.Bold]    "    wasp start"
+  putStrLn                                   ""
 {- ORMOLU_ENABLE -}
