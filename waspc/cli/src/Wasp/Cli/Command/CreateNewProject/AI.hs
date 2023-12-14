@@ -91,8 +91,25 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
             GNP.C.projectCodingGptModel = Just codingGptModel,
             GNP.C.projectDefaultGptTemperature = Just temperature
           }
+
   liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig
-  liftIO $ putStrLn "\n========\n"
+
+  liftIO $ do
+    putStrLn $
+      unlines
+        [ "",
+          "========",
+          "",
+          "⚠️  Experimental tech",
+          "Since this is a GPT generated app, it will likely contain some mistakes, proportional to how",
+          "complex the app is. If there are some in your app, check out Wasp docs for help while",
+          "fixing them, and also feel free to reach out to us on Discord! You can also try",
+          "generating the app again to get different results (try playing with the creativity level).",
+          " - Wasp docs: https://wasp-lang.dev/docs",
+          " - Our Discord: https://discord.gg/rzdnErX",
+          "",
+          "========"
+        ]
 
 createNewProjectNonInteractiveOnDisk :: String -> String -> String -> Command ()
 createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson = do

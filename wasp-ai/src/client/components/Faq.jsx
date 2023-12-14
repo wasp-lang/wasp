@@ -46,7 +46,7 @@ const faqs = [
 
       <br/><br/>
 
-      With GPT4 increasing its availability and with LLMs improving in general, the quality of generated code will only get better!
+      With LLMs improving in general, the quality of generated code will only get better!
     </p>
   },
   {
@@ -80,26 +80,28 @@ const faqs = [
 
       <br/><br/>
 
-      However, in the future, when GPT4 becomes cheaper / more available, it would make sense to switch to it completely, since it does generate better code!
+      However, in the future, when GPT4 becomes cheaper / faster, it would make sense to switch to it completely, since it does generate better code!
     </p>
   },
   {
-    question: '[Advanced] Can I use GPT4 for the whole app?',
+    question: '[Advanced] Can I use GPT4 for the whole app? / Can I run Mage locally?',
     answer: <p>
       As mentioned above, we use GPT4 + GPT3.5 for practical reasons, even though using GPT4 exclusively does give better results.<br/>
       <br/>
-      However, if you have access yourself to the OpenAI API, you can use GPT4 for the whole app, or play with adjusting the temperature, by running the Wasp GPT code agent locally!<br/>
+      However, if you have access yourself to the OpenAI API, you can use GPT4 for the whole app, or play with adjusting the temperature, by running the Wasp GPT code agent locally! So same thing like Mage, but via CLI.<br/>
       Note: generating an app usually consumes from 20k to 50k tokens, which is then approximately $1 to $2 per app with the current GPT4 pricing (Jul 11th 2023).<br/>
       <br/>
-      You will need to install special version of Wasp:<br/>
+      To run Wasp AI (Mage) locally, make sure you have wasp {'>='}v0.12 installed and just run:<br/>
       <span className="bg-slate-800 text-slate-200 p-1 rounded">
-        curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.11.1-wasp-ai-11
+        wasp new
       </span><br/>
+      When asked, choose AI generation, answer some questions, and your app will start generating!<br/>
       <br/>
-      Now you can run app generation locally via:<br/>
+      There is also a command for running the same thing programmatically, without interactive questions:<br/>
       <span className="bg-slate-800 text-slate-200 p-1 rounded">
-        wasp new-ai:disk MyAwesomeApp "Description of my awesome app." {'"{ \\"defaultGptModel\\": \\"gpt-4\\" }"'}
-      </span>
+        wasp new:ai
+      </span><br/>
+      Run it with no arguments (as above) to see its usage instructions.
     </p>
   },
 ]
