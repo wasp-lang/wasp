@@ -4,6 +4,8 @@ module Wasp.AI.GenerateNewProject.Common.Prompts
     systemPrompt,
     appDescriptionStartMarkerLine,
     appDescriptionBlock,
+    waspPlanExample,
+    waspPlanSchema,
   )
 where
 
@@ -135,3 +137,46 @@ waspFileExample =
         }
         ```
       |]
+
+waspPlanExample :: Text
+waspPlanExample =
+  [trimming|
+      Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
+
+        {
+          "entities": [{
+            "entityName": "User",
+            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
+          }],
+          "actions": [{
+            "opName": "createTask",
+            "opFnPath": "@server/actions.js",
+            "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
+          }],
+          "queries": [{
+            "opName": "getTask",
+            "opFnPath": "@server/queries.js",
+            "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
+          }],
+          "pages": [{
+            "pageName": "TaskPage",
+            "componentPath": "@client/pages/Task.jsx",
+            "routeName: "TaskRoute",
+            "routePath": "/task/:taskId",
+            "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task. Uses getTask query and createTask action.",
+          }]
+        }
+|]
+
+waspPlanSchema :: Text
+waspPlanSchema =
+  [trimming|
+        Plan is represented as JSON with the following schema:
+
+        {
+          "entities": [{ "entityName": string, "entityBodyPsl": string }],
+          "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
+          "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
+          "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
+        }
+  |]

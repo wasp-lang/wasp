@@ -62,6 +62,8 @@ generatePlan newProjectDetails planRules = do
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
+    waspPlanExample = Prompts.waspPlanExample
+    waspPlanSchema = Prompts.waspPlanSchema
     rulesText = T.pack . unlines $ "Instructions you must follow while generating plan:" : map (" - " ++) planRules
     planPrompt =
       [trimming|
@@ -73,40 +75,9 @@ generatePlan newProjectDetails planRules = do
 
         ${rulesText}
 
-        Plan is represented as JSON with the following schema:
+        ${waspPlanSchema}
 
-        {
-          "entities": [{ "entityName": string, "entityBodyPsl": string }],
-          "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-          "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-          "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
-        }
-
-        Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
-
-        {
-          "entities": [{
-            "entityName": "User",
-            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
-          }],
-          "actions": [{
-            "opName": "createTask",
-            "opFnPath": "@server/actions.js",
-            "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
-          }],
-          "queries": [{
-            "opName": "getTask",
-            "opFnPath": "@server/queries.js",
-            "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
-          }],
-          "pages": [{
-            "pageName": "TaskPage",
-            "componentPath": "@client/pages/Task.jsx",
-            "routeName: "TaskRoute",
-            "routePath": "/task/:taskId",
-            "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task. Uses getTask query and createTask action.",
-          }]
-        }
+        ${waspPlanExample}
 
         We will later use this plan to write main.wasp file and all the other parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
