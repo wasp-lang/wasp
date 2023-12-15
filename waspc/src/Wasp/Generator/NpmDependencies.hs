@@ -23,9 +23,9 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as D
-import qualified Wasp.AppSpec.Valid as ASV
+import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFullStack = NpmDepsForFullStack
@@ -108,9 +108,10 @@ buildNpmDepsForFullStack spec forServer forWebApp =
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
   NpmDepsForUser
-    { userDependencies = fromMaybe [] $ AS.App.dependencies $ snd $ ASV.getApp spec,
+    { -- todo(filip): what if package.json has no dependencies field?
+      userDependencies = AS.PackageJson.dependencies $ AS.packageJson spec,
       -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-      userDevDependencies = []
+      userDevDependencies = AS.PackageJson.devDependencies $ AS.packageJson spec
     }
 
 conflictErrorToMessage :: DependencyConflictError -> String
