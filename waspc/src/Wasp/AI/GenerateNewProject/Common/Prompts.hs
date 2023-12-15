@@ -93,7 +93,7 @@ waspFileExample =
           component: import Login from "@client/pages/auth/Login.jsx"
         }
 
-        route DashboardRoute { path: "/", to: Dashboard }
+        route DashboardRoute { path: "/", to: DashboardPage }
         page DashboardPage {
           authRequired: true,
           component: import Dashboard from "@client/pages/Dashboard.jsx"
