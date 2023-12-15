@@ -19,7 +19,6 @@ where
 import Data.Aeson
 import Data.List (intercalate, sort)
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
 import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
