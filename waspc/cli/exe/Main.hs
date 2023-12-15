@@ -25,6 +25,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.Reset (reset)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
@@ -47,6 +48,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("new" : newArgs) -> Command.Call.New newArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
+        ["reset"] -> Command.Call.Reset
         ["clean"] -> Command.Call.Clean
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
@@ -83,6 +85,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
+    Command.Call.Reset -> runCommand reset
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
@@ -138,6 +141,7 @@ printUsage =
         cmd   "    start db              Starts managed development database for you.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    clean                 Deletes all generated code and other cached artifacts.",
+        cmd   "    reset                 Deletes all generated code, all cached artifacts, and the node_modules directory.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",

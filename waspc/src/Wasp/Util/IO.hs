@@ -6,17 +6,19 @@ module Wasp.Util.IO
     deleteDirectoryIfExists,
     deleteFileIfExists,
     doesFileExist,
+    doesDirectoryExist,
     readFile,
     readFileStrict,
     writeFile,
     removeFile,
+    removeDirectory,
     isDirectoryEmpty,
     writeFileFromText,
     readFileBytes,
   )
 where
 
-import Control.Monad (filterM, when)
+import Control.Monad (filterM)
 import Control.Monad.Extra (whenM)
 import qualified Data.ByteString.Lazy as B
 import Data.Text (Text)
@@ -83,16 +85,17 @@ listDirectory absDirPath = do
 -- with relative paths, define a new function (e.g., `readFileRel`).
 
 deleteDirectoryIfExists :: Path' Abs (Dir d) -> IO ()
-deleteDirectoryIfExists dirPath = do
-  let dirPathStr = SP.fromAbsDir dirPath
-  exists <- SD.doesDirectoryExist dirPathStr
-  when exists $ SD.removeDirectoryRecursive dirPathStr
+deleteDirectoryIfExists dirPath =
+  whenM (doesDirectoryExist dirPath) (removeDirectory dirPath)
 
 deleteFileIfExists :: Path' Abs (File f) -> IO ()
 deleteFileIfExists filePath = whenM (doesFileExist filePath) $ removeFile filePath
 
 doesFileExist :: Path' Abs (File f) -> IO Bool
 doesFileExist = SD.doesFileExist . SP.fromAbsFile
+
+doesDirectoryExist :: Path' Abs (Dir f) -> IO Bool
+doesDirectoryExist = SD.doesDirectoryExist . SP.fromAbsDir
 
 readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
@@ -111,6 +114,9 @@ writeFileFromText = T.IO.writeFile . SP.fromAbsFile
 
 removeFile :: Path' Abs (File f) -> IO ()
 removeFile = SD.removeFile . SP.fromAbsFile
+
+removeDirectory :: Path' Abs (Dir d) -> IO ()
+removeDirectory = SD.removeDirectoryRecursive . SP.fromAbsDir
 
 isDirectoryEmpty :: Path' Abs (Dir d) -> IO Bool
 isDirectoryEmpty dirPath = do

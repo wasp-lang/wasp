@@ -5,6 +5,7 @@ module Wasp.Cli.Common
     dotWaspDirInWaspProjectDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
+    nodeModulesDirInWaspProjectDir,
     extServerCodeDirInWaspProjectDir,
     extClientCodeDirInWaspProjectDir,
     extSharedCodeDirInWaspProjectDir,
@@ -24,11 +25,16 @@ import qualified Wasp.Util.Terminal as Term
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
+data NodeModulesDir
+
 data CliTemplatesDir
 
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
+
+nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
+nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
 -- TODO: Hm this has different name than it has in Generator.
 generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)

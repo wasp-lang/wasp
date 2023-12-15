@@ -5,6 +5,7 @@ data Call
   | Start
   | StartDb
   | Clean
+  | Reset
   | Uninstall
   | Compile
   | Db Arguments -- db args
