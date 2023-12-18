@@ -27,6 +27,7 @@ waspComplexTest/.wasp/out/server/src/auth/providers/oauth/createRouter.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/init.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/types.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/types.ts
+waspComplexTest/.wasp/out/server/src/auth/user.ts
 waspComplexTest/.wasp/out/server/src/auth/utils.ts
 waspComplexTest/.wasp/out/server/src/auth/validation.ts
 waspComplexTest/.wasp/out/server/src/config.js
@@ -108,6 +109,7 @@ waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCodeExchange.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/types.ts
 waspComplexTest/.wasp/out/web-app/src/auth/useAuth.ts
+waspComplexTest/.wasp/out/web-app/src/auth/user.ts
 waspComplexTest/.wasp/out/web-app/src/config.js
 waspComplexTest/.wasp/out/web-app/src/crud/tasks.ts
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts
