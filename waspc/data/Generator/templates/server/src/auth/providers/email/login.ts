@@ -4,7 +4,7 @@ import {
     findAuthIdentity,
     findAuthWithUserBy,
     createAuthToken,
-    deserializeProviderData,
+    deserializeAndSanitizeProviderData,
 } from "../../utils.js";
 import { ensureValidEmail, ensurePasswordIsPresent } from "../../validation.js";
 
@@ -24,7 +24,7 @@ export function getLoginRoute({
         if (!authIdentity) {
             throwInvalidCredentialsError()
         }
-        const providerData = deserializeProviderData<'email'>(authIdentity.providerData)
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
         if (!providerData.isEmailVerified && !allowUnverifiedLogin) {
             throwInvalidCredentialsError()
         }
@@ -35,7 +35,7 @@ export function getLoginRoute({
         }
     
         const auth = await findAuthWithUserBy({ id: authIdentity.authId })
-        const token = await createAuthToken(auth)
+        const token = await createAuthToken(auth.userId)
       
         return res.json({ token })
     };

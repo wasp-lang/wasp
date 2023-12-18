@@ -5,12 +5,13 @@ import passport from "passport"
 
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
-import { sign } from '../../../core/auth.js'
 import {
   authConfig,
   contextWithUserEntity,
   createAuthWithUser,
   findAuthWithUserBy,
+  createAuthToken,
+  rethrowPossibleAuthError,
 } from "../../utils.js"
 
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
@@ -49,9 +50,10 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const getUserFields = () => getUserFieldsFn ? getUserFieldsFn(contextWithUserEntity, { profile: providerProfile }) : Promise.resolve({});
           // TODO: In the future we could make this configurable, possibly associating an external account
           // with the currently logged in account, or by some DB lookup.
-          const auth = await findOrCreateAuthByAuthIdentity(provider.id, providerProfile.id, getUserFields);
+          const userId = await getOrCreateUserIdByOAuthProvider(provider.id, providerProfile.id, getUserFields);
 
-          const token = await sign(auth.{= userFieldOnAuthEntityName =}.id);
+          const token = await createAuthToken(userId);
+
           res.json({ token });
       })
     )
@@ -59,30 +61,34 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
     return router;
 }
 
-async function findOrCreateAuthByAuthIdentity(
+async function getOrCreateUserIdByOAuthProvider(
   providerName: string,
   providerUserId: string,
   getUserFields: () => ReturnType<GetUserFieldsFn>,
 ) {
-  // Attempt to find a User by an external auth association.
-  const authIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
-    where: { providerName, providerUserId },
-    include: {
-      {= authFieldOnAuthIdentityEntityName =}: {
-        include: {
-          {= userFieldOnAuthEntityName =}: true
+  try {
+    const authIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
+      where: { providerName, providerUserId },
+      include: {
+        {= authFieldOnAuthIdentityEntityName =}: {
+          include: {
+            {= userFieldOnAuthEntityName =}: true
+          }
         }
       }
+    })
+
+    
+    if (authIdentity) {
+      return authIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id
     }
-  })
+  
+    const userFields = await getUserFields()
+  
+    const auth = await createAuthWithUser(providerName, providerUserId, undefined, userFields)
 
-  if (authIdentity) {
-    return authIdentity.{= authFieldOnAuthIdentityEntityName =}
+    return auth.userId;
+  } catch (e) {
+    rethrowPossibleAuthError(e)
   }
-
-  const userFields = await getUserFields()
-
-  const auth = await createAuthWithUser(providerName, providerUserId, undefined, userFields)
-  // NOTE: we are fetching the auth again becuase it incldues nested user
-  return findAuthWithUserBy({ id: auth.id });
 }

@@ -5,7 +5,7 @@ import {
     findAuthIdentity,
     deleteUserByAuthId,
     doFakeWork,
-    deserializeProviderData,
+    deserializeAndSanitizeProviderData,
     sanitizeAndSerializeProviderData,
 } from "../../utils.js";
 import {
@@ -35,18 +35,19 @@ export function getSignupRoute({
         
         const existingAuthIdentity = await findAuthIdentity("email", fields.email);
         if (existingAuthIdentity) {
-            const providerData = deserializeProviderData<'email'>(existingAuthIdentity.providerData);
+            const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
             // User already exists and is verified - don't leak information
             if (providerData.isEmailVerified) {
                 await doFakeWork();
                 return res.json({ success: true });
-            } else if (!providerData.isEmailVerified) {
-                if (!isEmailResendAllowed(providerData, 'emailVerificationSentAt')) {
-                    return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
-                }
-                // User exists but is not verified - delete the user and create a new one
-                await deleteUserByAuthId(existingAuthIdentity.authId);
             }
+
+            if (!isEmailResendAllowed(providerData, 'emailVerificationSentAt')) {
+                return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+            }
+
+            // User exists but is not verified - delete the user and create a new one
+            await deleteUserByAuthId(existingAuthIdentity.authId);
         }
 
         const userFields = await validateAndGetAdditionalFields(fields);
@@ -65,7 +66,7 @@ export function getSignupRoute({
             userFields,
         );
 
-        const verificationLink = await createEmailVerificationLink(auth, clientRoute);
+        const verificationLink = await createEmailVerificationLink(fields.email, clientRoute);
         try {
             await sendEmailVerificationEmail(
                 fields.email,

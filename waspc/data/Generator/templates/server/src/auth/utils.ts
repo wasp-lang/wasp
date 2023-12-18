@@ -21,6 +21,28 @@ const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdenti
 const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
 {=/ additionalSignupFields.isDefined =}
 
+export type EmailProviderData = {
+  password: string;
+  isEmailVerified: boolean;
+  emailVerificationSentAt: Date | null;
+  passwordResetSentAt: Date | null;
+}
+
+export type UsernameProviderData = {
+  password: string;
+}
+
+export type OAuthProviderData = {}
+
+export type PossibleProviderData = {
+  email: EmailProviderData;
+  username: UsernameProviderData;
+  google: OAuthProviderData;
+  github: OAuthProviderData;
+}
+
+type ProviderName = keyof PossibleProviderData
+
 export const contextWithUserEntity = {
   entities: {
     {= userEntityUpper =}: prisma.{= userEntityLower =}
@@ -32,7 +54,7 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findAuthIdentity(providerName: string, providerUserId: string) {
+export async function findAuthIdentity(providerName: ProviderName, providerUserId: string) {
   return prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
       providerName_providerUserId: {
@@ -43,14 +65,11 @@ export async function findAuthIdentity(providerName: string, providerUserId: str
   });
 }
 
-export async function findAuthIdentityByAuthId(authId: string) {
-  return prisma.{= authIdentityEntityLower =}.findFirst({ where: { authId } });
-}
-
-export async function updateAuthIdentityProviderData<ProviderName extends keyof ProviderData>(
-  authId: string,
-  existingProviderData: ProviderData[ProviderName],
-  providerDataUpdates: Partial<ProviderData[ProviderName]>,
+export async function updateAuthIdentityProviderData<PN extends ProviderName>(
+  providerName: string,
+  providerUserId: string,
+  existingProviderData: PossibleProviderData[PN],
+  providerDataUpdates: Partial<PossibleProviderData[PN]>,
 ) {
   // We are doing the sanitization here only on updates to avoid
   // hashing the password multiple times.
@@ -59,9 +78,14 @@ export async function updateAuthIdentityProviderData<ProviderName extends keyof 
     ...existingProviderData,
     ...sanitizedProviderDataUpdates,
   }
-  const serializedProviderData = await serializeProviderData<ProviderName>(newProviderData);
-  return prisma.{= authIdentityEntityLower =}.updateMany({
-    where: { authId },
+  const serializedProviderData = await serializeProviderData<PN>(newProviderData);
+  return prisma.{= authIdentityEntityLower =}.update({
+    where: {
+      providerName_providerUserId: {
+        providerName,
+        providerUserId: providerUserId.toLowerCase(),
+      }
+    },
     data: { providerData: serializedProviderData },
   });
 }
@@ -96,7 +120,7 @@ export async function createAuthWithUser(
       }
     })
   } catch (e) {
-    rethrowPossiblePrismaError(e);
+    rethrowPossibleAuthError(e);
   }
 }
 
@@ -106,14 +130,14 @@ export async function deleteUserByAuthId(authId: string) {
       id: authId,
     } } })
   } catch (e) {
-    rethrowPossiblePrismaError(e);
+    rethrowPossibleAuthError(e);
   }
 }
 
 export async function createAuthToken(
-  auth: {= authEntityUpper =} & { {= userFieldOnAuthEntityName =}: {= userEntityUpper =} }
+  userId: {= userEntityUpper =}['id']
 ): Promise<string> {
-  return sign(auth.{= userFieldOnAuthEntityName =}.id);
+  return sign(userId);
 }
 
 export async function verifyToken(token: string): Promise<{ id: any }> {
@@ -132,41 +156,43 @@ export async function doFakeWork() {
   return sleep(timeToWork);
 }
 
-export function rethrowPossiblePrismaError(e: unknown): void {
+export function rethrowPossibleAuthError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
-  } else if (isPrismaError(e)) {
-    throw prismaErrorToHttpError(e)
-  } else {
-    throw new HttpError(500)
   }
-}
-
-const isPrismaError = (e: unknown) => {
-  return (
-    e instanceof Prisma.PrismaClientKnownRequestError ||
-    e instanceof Prisma.PrismaClientUnknownRequestError ||
-    e instanceof Prisma.PrismaClientRustPanicError ||
-    e instanceof Prisma.PrismaClientInitializationError ||
-    e instanceof Prisma.PrismaClientValidationError
-  )
-}
-
-const prismaErrorToHttpError = (e: unknown) => {
+  
+  // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-    return new HttpError(422, 'Save failed', {
+    throw new HttpError(422, 'Save failed', {
       message: `user with the same identity already exists`,
     })
   }
+
   if (e instanceof Prisma.PrismaClientValidationError) {
     // NOTE: Logging the error since this usually means that there are
-    // required fields missing in the request.
+    // required fields missing in the request, we want the developer
+    // to know about it.
     console.error(e)
-    return new HttpError(422, 'Save failed', {
+    throw new HttpError(422, 'Save failed', {
       message: 'there was a database error'
     })
   }
-  return new HttpError(500)
+
+  // Prisma code P2021 is for missing table errors.
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
+    // NOTE: Logging the error since this usually means that the database
+    // migrations weren't run, we want the developer to know about it.
+    console.error(e)
+    console.info('🐝 This error can happen if you did\'t run the database migrations.')
+    throw new HttpError(500, 'Save failed', {
+      message: `there was a database error`,
+    })
+  }
+  
+  // NOTE: Giving extra info to the developer since we don't send
+  // the error message to the client.
+  console.error(e)
+  throw new HttpError(500)
 }
 
 export async function validateAndGetAdditionalFields(data: {
@@ -188,31 +214,12 @@ export async function validateAndGetAdditionalFields(data: {
   return result;
 }
 
-export type EmailProviderData = {
-  password: string;
-  isEmailVerified: boolean;
-  emailVerificationSentAt: Date | null;
-  passwordResetSentAt: Date | null;
-}
-
-export type UsernameProviderData = {
-  password: string;
-}
-
-export type OAuthProviderData = {}
-
-export type ProviderData = {
-  email: EmailProviderData;
-  username: UsernameProviderData;
-  oauth: OAuthProviderData;
-}
-
-export function deserializeProviderData<ProviderName extends keyof ProviderData>(
+export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   providerData: string,
   { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
-): ProviderData[ProviderName] {
+): PossibleProviderData[PN] {
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-  let data = JSON.parse(providerData) as ProviderData[ProviderName];
+  let data = JSON.parse(providerData) as PossibleProviderData[PN];
 
   if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
     delete data[PASSWORD_FIELD];
@@ -221,17 +228,17 @@ export function deserializeProviderData<ProviderName extends keyof ProviderData>
   return data;
 }
 
-export async function sanitizeAndSerializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]) {
   return serializeProviderData(
     await sanitizeProviderData(providerData)
   );
 }
 
-async function serializeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+async function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]) {
   return JSON.stringify(providerData);
 }
 
-async function sanitizeProviderData<ProviderName extends keyof ProviderData>(providerData: ProviderData[ProviderName]) {
+async function sanitizeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]) {
   // NOTE: doing a shallow copy here as we expect the providerData to be
   // a flat object. If it's not, we'll have to do a deep copy.
   const data = {
@@ -245,6 +252,6 @@ async function sanitizeProviderData<ProviderName extends keyof ProviderData>(pro
 }
 
 
-function providerDataHasPasswordField(providerData: ProviderData[keyof ProviderData]): providerData is { password: string } {
+function providerDataHasPasswordField(providerData: PossibleProviderData[keyof PossibleProviderData]): providerData is { password: string } {
   return PASSWORD_FIELD in providerData;
 }

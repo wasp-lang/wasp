@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import {
     findAuthIdentity,
     doFakeWork,
-    deserializeProviderData,
+    deserializeAndSanitizeProviderData,
 } from "../../utils.js";
 import {
     createPasswordResetLink,
@@ -37,7 +37,7 @@ export function getRequestPasswordResetRoute({
             return res.json({ success: true });
         }
 
-        const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
         if (!providerData.isEmailVerified) {
             await doFakeWork();
             return res.json({ success: true });
@@ -47,9 +47,7 @@ export function getRequestPasswordResetRoute({
             return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
         }
 
-        const passwordResetLink = await createPasswordResetLink({
-            id: authIdentity.authId,
-        }, clientRoute);
+        const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
         try {
             const email = authIdentity.providerUserId
             await sendPasswordResetEmail(

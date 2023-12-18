@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import {
     verifyToken,
-    findAuthIdentityByAuthId,
+    findAuthIdentity,
     updateAuthIdentityProviderData,
-    deserializeProviderData,
+    deserializeAndSanitizeProviderData,
 } from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
 
@@ -13,11 +13,11 @@ export async function verifyEmail(
 ): Promise<Response<{ success: true } | { success: false, message: string }>> {
     try {
         const { token } = req.body;
-        const { id: authId } = await verifyToken(token);
+        const { id: providerUserId } = await verifyToken(token);
 
-        const authIdentity = await findAuthIdentityByAuthId(authId);
-        const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData(authId, providerData, {
+        const authIdentity = await findAuthIdentity('email', providerUserId);
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+        await updateAuthIdentityProviderData('email', providerUserId, providerData, {
             isEmailVerified: true,
         });
     } catch (e) {

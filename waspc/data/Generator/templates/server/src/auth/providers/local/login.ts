@@ -6,7 +6,7 @@ import {
   findAuthIdentity,
   findAuthWithUserBy,
   createAuthToken,
-  deserializeProviderData,
+  deserializeAndSanitizeProviderData,
 } from '../../utils.js'
 import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
 
@@ -20,7 +20,7 @@ export default handleRejection(async (req, res) => {
   }
 
   try {
-    const providerData = deserializeProviderData<'username'>(authIdentity.providerData)
+    const providerData = deserializeAndSanitizeProviderData<'username'>(authIdentity.providerData)
 
     await verifyPassword(providerData.password, fields.password)
   } catch(e) {
@@ -30,7 +30,7 @@ export default handleRejection(async (req, res) => {
   const auth = await findAuthWithUserBy({
     id: authIdentity.authId
   }) 
-  const token = await createAuthToken(auth)
+  const token = await createAuthToken(auth.userId)
 
   return res.json({ token })
 })

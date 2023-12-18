@@ -3,37 +3,30 @@ import { sign } from '../../../core/auth.js'
 import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
 import {
-  rethrowPossiblePrismaError,
+  rethrowPossibleAuthError,
   updateAuthIdentityProviderData,
   findAuthIdentity,
-  deserializeProviderData,
+  deserializeAndSanitizeProviderData,
 } from '../../utils.js';
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
-type {= authEntityUpper =}Id = {= authEntityUpper =}['id']
-type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
-
-type AuthWithId = {
-  id: {= authEntityUpper =}Id,
-}
-
-export async function createEmailVerificationLink(auth: AuthWithId, clientRoute: string) {
-  const token = await createEmailVerificationToken(auth);
+export async function createEmailVerificationLink(providerUserId: string, clientRoute: string) {
+  const token = await createEmailVerificationToken(providerUserId);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-export async function createPasswordResetLink(auth: AuthWithId, clientRoute: string)  {
-  const token = await createPasswordResetToken(auth);
+export async function createPasswordResetLink(providerUserId: string, clientRoute: string)  {
+  const token = await createPasswordResetToken(providerUserId);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-async function createEmailVerificationToken(auth: AuthWithId): Promise<string> {
-  return sign(auth.id, { expiresIn: '30m' });
+async function createEmailVerificationToken(providerUserId: string): Promise<string> {
+  return sign(providerUserId, { expiresIn: '30m' });
 }
 
-async function createPasswordResetToken(auth: AuthWithId): Promise<string> {
-  return sign(auth.id, { expiresIn: '30m' });
+async function createPasswordResetToken(providerUserId: string): Promise<string> {
+  return sign(providerUserId, { expiresIn: '30m' });
 }
 
 export async function sendPasswordResetEmail(
@@ -60,12 +53,12 @@ async function sendEmailAndLogTimestamp(
   // the email is being sent.
   try {
     const authIdentity = await findAuthIdentity("email", email);
-    const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-    await updateAuthIdentityProviderData<'email'>(authIdentity.authId, providerData, {
+    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+    await updateAuthIdentityProviderData<'email'>('email', email, providerData, {
         [field]: new Date()
     });
   } catch (e) {
-    rethrowPossiblePrismaError(e);  
+    rethrowPossibleAuthError(e);  
   }
   emailSender.send(content).catch((e) => {
     console.error(`Failed to send email for ${field}`, e);

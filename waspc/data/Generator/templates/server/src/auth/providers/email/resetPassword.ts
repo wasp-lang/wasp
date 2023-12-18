@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import {
-    findAuthIdentityByAuthId,
+    findAuthIdentity,
     updateAuthIdentityProviderData,
     verifyToken,
-    deserializeProviderData,
+    deserializeAndSanitizeProviderData,
 } from "../../utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
@@ -17,15 +17,15 @@ export async function resetPassword(
 
     const { token, password } = args;
     try {
-        const { id: authId } = await verifyToken(token);
+        const { id: providerUserId } = await verifyToken(token);
 
-        const authIdentity = await findAuthIdentityByAuthId(authId);
+        const authIdentity = await findAuthIdentity('email', providerUserId);
         if (!authIdentity) {
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }
         
-        const providerData = deserializeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData(authId, providerData, {
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+        await updateAuthIdentityProviderData('email', providerUserId, providerData, {
             // The act of resetting the password verifies the email
             isEmailVerified: true,
             password,
