@@ -29,7 +29,6 @@ import Wasp.Generator.DbGenerator.Common
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
-    prismaClientOutputDirEnvVar,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
@@ -68,7 +67,6 @@ genPrismaSchema spec = do
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
-            "prismaClientOutputDir" .= makeEnvVarField Wasp.Generator.DbGenerator.Common.prismaClientOutputDirEnvVar,
             "prismaPreviewFeatures" .= prismaPreviewFeatures,
             "dbExtensions" .= dbExtensions
           ]
@@ -95,7 +93,7 @@ genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir gen
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
   dbGeneratorWarnings <- maybeToList <$> warnIfDbNeedsMigration spec dstDir
-  dbGeneratorErrors <- maybeToList <$> genPrismaClients spec dstDir
+  dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir
   return (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
@@ -173,12 +171,12 @@ warnProjectDiffersFromDb projectRootDir = do
         "Wasp was unable to verify your database is up to date."
           <> " Running `wasp db migrate-dev` may fix this and will provide more info."
 
-genPrismaClients :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
-genPrismaClients spec projectRootDir =
+generatePrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
+generatePrismaClient spec projectRootDir =
   ifM
     wasCurrentSchemaAlreadyGenerated
     (return Nothing)
-    generatePrismaClientsIfEntitiesExist
+    generatePrismaClientIfEntitiesExist
   where
     wasCurrentSchemaAlreadyGenerated :: IO Bool
     wasCurrentSchemaAlreadyGenerated =
@@ -186,10 +184,10 @@ genPrismaClients spec projectRootDir =
         projectRootDir
         Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
-    generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
-    generatePrismaClientsIfEntitiesExist
+    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
+    generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
+        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = not . null $ getEntities spec

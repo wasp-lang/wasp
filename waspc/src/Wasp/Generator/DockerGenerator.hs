@@ -23,7 +23,6 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator.Common
   ( PrismaDbSchema,
     dbSchemaFileFromAppComponentDir,
-    serverPrismaClientOutputDirEnv,
   )
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
@@ -31,7 +30,6 @@ import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
 import Wasp.Node.Version (latestMajorNodeVersion)
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util (getEnvVarDefinition)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
@@ -47,7 +45,6 @@ genDockerfile spec = do
       ( Just $
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
-              "serverPrismaClientOutputDirEnv" .= getEnvVarDefinition serverPrismaClientOutputDirEnv,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)

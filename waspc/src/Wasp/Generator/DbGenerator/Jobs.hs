@@ -13,24 +13,24 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import StrongPath (Abs, Dir, File, File', Path', (</>))
+import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
-    PrismaDbSchema,
     dbSchemaFileInProjectRootDir,
+    waspProjectDirFromProjectRootDir,
   )
-import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
+import Wasp.Project.Common (WaspProjectDir)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
-migrateDev projectDir migrateArgs =
+migrateDev projectRootDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
   -- NOTE(martin): `prisma migrate dev` refuses to execute when interactivity is needed if stdout is being piped,
@@ -40,8 +40,8 @@ migrateDev projectDir migrateArgs =
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
   where
-    serverDir = projectDir </> serverRootDirInProjectRootDir
-    schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+    serverDir = projectRootDir </> serverRootDirInProjectRootDir
+    schemaFile = projectRootDir </> dbSchemaFileInProjectRootDir
 
     scriptArgs =
       if System.Info.os == "darwin"
@@ -57,7 +57,7 @@ migrateDev projectDir migrateArgs =
     --  * Linux - we are passing the command as one argument, so we MUST quote the paths.
     buildPrismaMigrateCmd :: (String -> String) -> [String]
     buildPrismaMigrateCmd argQuoter =
-      [ argQuoter $ absPrismaExecutableFp projectDir,
+      [ argQuoter $ absPrismaExecutableFp (projectRootDir </> waspProjectDirFromProjectRootDir),
         "migrate",
         "dev",
         "--schema",
@@ -85,15 +85,19 @@ asPrismaCliArgs migrateArgs = do
 -- Because of the --exit-code flag, it changes the exit code behavior
 -- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
 migrateDiff :: Path' Abs (Dir ProjectRootDir) -> J.Job
-migrateDiff projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
-  [ "migrate",
-    "diff",
-    "--from-schema-datamodel",
-    SP.fromAbsFile schema,
-    "--to-schema-datasource",
-    SP.fromAbsFile schema,
-    "--exit-code"
-  ]
+migrateDiff projectRootDir =
+  runPrismaCommandAsJob
+    projectRootDir
+    [ "migrate",
+      "diff",
+      "--from-schema-datamodel",
+      SP.fromAbsFile schema,
+      "--to-schema-datasource",
+      SP.fromAbsFile schema,
+      "--exit-code"
+    ]
+  where
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Checks to see if all migrations are applied to the DB.
 -- An exit code of 0 means we successfully verified all migrations are applied.
@@ -101,27 +105,34 @@ migrateDiff projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
 -- or (b) there are pending migrations to apply.
 -- Therefore, this should be checked **after** a command that ensures connectivity.
 migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
-migrateStatus projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
-  ["migrate", "status", "--schema", SP.fromAbsFile schema]
+migrateStatus projectRootDir =
+  runPrismaCommandAsJob
+    projectRootDir
+    ["migrate", "status", "--schema", SP.fromAbsFile schema]
+  where
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Runs `prisma migrate reset`, which drops the tables (so schemas and data is lost) and then
 -- reapplies all the migrations.
 reset :: Path' Abs (Dir ProjectRootDir) -> J.Job
-reset projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
-  -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically on
-  --   reset is too aggressive / confusing.
-  ["migrate", "reset", "--schema", SP.fromAbsFile schema, "--skip-generate", "--skip-seed"]
+reset projectRootDir =
+  runPrismaCommandAsJob
+    projectRootDir
+    -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically on
+    --   reset is too aggressive / confusing.
+    ["migrate", "reset", "--schema", SP.fromAbsFile schema, "--skip-generate", "--skip-seed"]
+  where
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
 --   prisma.seed field.
 seed :: Path' Abs (Dir ProjectRootDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
-seed projectDir seedName =
+seed projectRootDir seedName =
   runPrismaCommandAsJobWithExtraEnv
-    J.Db
     [(dbSeedNameEnvVarName, seedName)]
-    projectDir
-    (const ["db", "seed"])
+    projectRootDir
+    ["db", "seed"]
 
 -- | Checks if the DB is running and connectable by running
 -- `prisma db execute --stdin --schema <path to db schema>`.
@@ -130,56 +141,48 @@ seed projectDir seedName =
 -- Since nothing is passed to stdin, `prisma db execute` just runs an empty
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir ProjectRootDir) -> J.Job
-dbExecuteTest projectDir =
-  let absSchemaPath = projectDir </> dbSchemaFileInProjectRootDir
-   in runPrismaCommandAsDbJob
-        projectDir
-        (const ["db", "execute", "--stdin", "--schema", SP.fromAbsFile absSchemaPath])
+dbExecuteTest projectRootDir =
+  let absSchemaPath = projectRootDir </> dbSchemaFileInProjectRootDir
+   in runPrismaCommandAsJob
+        projectRootDir
+        ["db", "execute", "--stdin", "--schema", SP.fromAbsFile absSchemaPath]
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
-runStudio projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
-  ["studio", "--schema", SP.fromAbsFile schema]
-
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> (String, String) -> JobType -> J.Job
-generatePrismaClient projectDir prismaClientOutputDirEnv jobType =
-  runPrismaCommandAsJobWithExtraEnv jobType envVars projectDir $ \schema ->
-    ["generate", "--schema", SP.fromAbsFile schema]
+runStudio projectRootDir =
+  runPrismaCommandAsJob projectRootDir ["studio", "--schema", SP.fromAbsFile schema]
   where
-    envVars = [prismaClientOutputDirEnv]
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
-runPrismaCommandAsDbJob ::
-  Path' Abs (Dir ProjectRootDir) ->
-  (Path' Abs (File PrismaDbSchema) -> [String]) ->
-  J.Job
-runPrismaCommandAsDbJob projectDir makeCmdArgs =
-  runPrismaCommandAsJob J.Db projectDir makeCmdArgs
+generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
+generatePrismaClient projectRootDir =
+  runPrismaCommandAsJob projectRootDir args
+  where
+    args =
+      [ "generate",
+        "--schema",
+        SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
+      ]
 
-runPrismaCommandAsJob ::
-  JobType ->
-  Path' Abs (Dir ProjectRootDir) ->
-  (Path' Abs (File PrismaDbSchema) -> [String]) ->
-  J.Job
-runPrismaCommandAsJob jobType projectDir makeCmdArgs =
-  runPrismaCommandAsJobWithExtraEnv jobType [] projectDir makeCmdArgs
+runPrismaCommandAsJob :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
+runPrismaCommandAsJob projectRootDir args =
+  runPrismaCommandAsJobWithExtraEnv [] projectRootDir args
 
 runPrismaCommandAsJobWithExtraEnv ::
-  JobType ->
   [(String, String)] ->
   Path' Abs (Dir ProjectRootDir) ->
-  (Path' Abs (File PrismaDbSchema) -> [String]) ->
+  [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv jobType envVars projectDir makeCmdArgs =
-  runNodeCommandAsJobWithExtraEnv envVars serverDir (absPrismaExecutableFp projectDir) (makeCmdArgs schemaFile) jobType
+runPrismaCommandAsJobWithExtraEnv envVars projectRootDir args =
+  runNodeCommandAsJobWithExtraEnv envVars waspProjectDir (absPrismaExecutableFp waspProjectDir) args J.Db
   where
-    serverDir = projectDir </> serverRootDirInProjectRootDir
-    schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
 
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.
 -- This assumption is ok since it happens during compilation now.
-absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
-absPrismaExecutableFp projectDir = SP.fromAbsFile prismaExecutableAbs
+absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
+absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
     prismaExecutableAbs :: Path' Abs File'
-    prismaExecutableAbs = projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]
+    prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]

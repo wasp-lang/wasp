@@ -26,7 +26,7 @@ COPY server/ ./server/
 RUN cd server && npm install
 {=# usingPrisma =}
 COPY db/schema.prisma ./db/
-RUN cd server && {= serverPrismaClientOutputDirEnv =} npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
+RUN cd server && npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
 {=/ usingPrisma =}
 # Building the server should come after Prisma generation.
 RUN cd server && npm run build
