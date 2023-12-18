@@ -11,7 +11,7 @@ Welcome, new Waspeteer 🐝!
 
 Let's create and run our first Wasp app in 3 short steps:
 
-1. **To install Wasp on Linux / OSX / WSL(Win), open your terminal and run:**
+1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
 
    ```shell
    curl -sSL https://get.wasp-lang.dev/installer.sh | sh
