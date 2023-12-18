@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
-import { Prisma } from '@prisma/client'
+import Prisma from '@prisma/client'
 
 import { readdir } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
-import HttpError from './core/HttpError.js'
 import { type SanitizedUser } from './_types/index.js'
 
 /**
@@ -15,47 +14,22 @@ import { type SanitizedUser } from './_types/index.js'
  *   if given middleware returns promise, reject of that promise will be correctly handled,
  *   meaning that error will be forwarded to next().
  */
-type RequestWithUser = Request & { user?: SanitizedUser }
+type RequestWithExtraFields = Request & {
+  user?: SanitizedUser
+}
 export const handleRejection = (
   middleware: (
-    req: RequestWithUser,
+    req: RequestWithExtraFields,
     res: Response,
     next: NextFunction
-  ) => Promise<unknown>
+  ) => any
 ) =>
-async (req: RequestWithUser, res: Response, next: NextFunction) => {
+async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
   try {
     await middleware(req, res, next)
   } catch (error) {
     next(error)
   }
-}
-
-export const isPrismaError = (e: unknown) => {
-  return (
-    e instanceof Prisma.PrismaClientKnownRequestError ||
-    e instanceof Prisma.PrismaClientUnknownRequestError ||
-    e instanceof Prisma.PrismaClientRustPanicError ||
-    e instanceof Prisma.PrismaClientInitializationError ||
-    e instanceof Prisma.PrismaClientValidationError
-  )
-}
-
-export const prismaErrorToHttpError = (e: unknown) => {
-  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-    return new HttpError(422, 'Save failed', {
-      message: `user with the same identity already exists`,
-    })
-  }
-  if (e instanceof Prisma.PrismaClientValidationError) {
-    // NOTE: Logging the error since this usually means that there are
-    // required fields missing in the request.
-    console.error(e)
-    return new HttpError(422, 'Save failed', {
-      message: 'there was a database error'
-    })
-  }
-  return new HttpError(500)
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))

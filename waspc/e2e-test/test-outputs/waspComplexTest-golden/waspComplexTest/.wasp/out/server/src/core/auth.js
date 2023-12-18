@@ -7,7 +7,7 @@ import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
 import HttpError from '../core/HttpError.js'
 import config from '../config.js'
-import { deserializeProviderData } from '../auth/utils.js'
+import { deserializeAndSanitizeProviderData } from '../auth/utils.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -69,7 +69,7 @@ export async function getUserFromToken(token) {
   // https://github.com/wasp-lang/wasp/issues/965
   let sanitizedUser = { ...user }
   sanitizedUser.auth.identities = sanitizedUser.auth.identities.map(identity => {
-    identity.providerData = deserializeProviderData(identity.providerData, { shouldRemovePasswordField: true })
+    identity.providerData = deserializeAndSanitizeProviderData(identity.providerData, { shouldRemovePasswordField: true })
     return identity
   });
   return sanitizedUser
