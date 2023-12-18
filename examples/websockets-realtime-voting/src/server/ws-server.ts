@@ -1,4 +1,5 @@
 import { WebSocketDefinition } from "@wasp/webSocket";
+import { getUsername } from "@wasp/auth/user.js";
 
 type PollState = {
   question: string;
@@ -53,8 +54,7 @@ export const webSocketFn: WebSocketDefinition<
       return;
     }
 
-    const connectionUsername =
-      socket.data.user.auth?.identities[0].providerUserId;
+    const connectionUsername = getUsername(socket.data.user);
 
     console.log("Socket connected: ", connectionUsername);
     socket.on("askForStateUpdate", () => {

@@ -7,6 +7,7 @@ import {
   useSocketListener,
   ServerToClientPayload,
 } from '@wasp/webSocket'
+import { getName, getProviderData } from '../user'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -44,21 +45,19 @@ export const ProfilePage = ({ user }: { user: User }) => {
   ))
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-  const identity = user.auth?.identities[0]
-
-  const userId = identity?.providerUserId
-
-  const isVerified =
-    identity?.providerData && 'isEmailVerified' in identity?.providerData
-      ? identity?.providerData.isEmailVerified
-      : false
+  const providerData = getProviderData(user)
 
   return (
     <>
       <h2>Profile page</h2>
       <div>
-        Hello <strong>{userId}</strong>! Your status is{' '}
-        <strong>{isVerified ? 'verfied' : 'unverified'}</strong>.
+        Hello <strong>{getName(user)}</strong>! Your status is{' '}
+        <strong>
+          {providerData && providerData.isEmailVerified
+            ? 'verfied'
+            : 'unverified'}
+        </strong>
+        .
       </div>
       <br />
       <Link to="/task/:id" params={{ id: 3 }}>

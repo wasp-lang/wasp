@@ -4,6 +4,7 @@ import "./Main.css";
 import { Flowbite, Dropdown, Navbar, Avatar } from "flowbite-react";
 import Logo from "./logo.png";
 import useAuth from "@wasp/auth/useAuth";
+import { getUsername } from "@wasp/auth/user";
 import logout from "@wasp/auth/logout";
 
 const customTheme = {
@@ -16,8 +17,6 @@ const customTheme = {
 
 export const Layout = ({ children }) => {
   const { data: user } = useAuth();
-
-  const identity = user?.auth?.identities[0];
 
   return (
     <Flowbite theme={{ theme: customTheme }}>
@@ -36,15 +35,15 @@ export const Layout = ({ children }) => {
                 label={
                   <Avatar
                     alt="User settings"
-                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${identity?.providerUserId}`}
+                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${getUsername(
+                      user
+                    )}`}
                     rounded
                   />
                 }
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">
-                    {identity?.providerUserId}
-                  </span>
+                  <span className="block text-sm">{getUsername(user)}</span>
                 </Dropdown.Header>
                 <Dropdown.Item>Dashboard</Dropdown.Item>
                 <Dropdown.Item>Settings</Dropdown.Item>

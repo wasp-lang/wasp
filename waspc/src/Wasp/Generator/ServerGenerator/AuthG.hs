@@ -45,7 +45,8 @@ genAuth spec = case maybeAuth of
         genUtils auth,
         genProvidersIndex auth,
         genProvidersTypes auth,
-        genFileCopy [relfile|auth/validation.ts|]
+        genFileCopy [relfile|auth/validation.ts|],
+        genFileCopy [relfile|auth/user.ts|]
       ]
       <++> genIndexTs auth
       <++> genLocalAuth auth

@@ -4,12 +4,7 @@ import logout from "@wasp/auth/logout";
 
 import "./TopNavbar.css";
 
-function getUsername(user) {
-  const usernameIdentity = user.auth.identities.find(
-    (identity) => identity.providerName === "username"
-  );
-  return usernameIdentity ? usernameIdentity.providerUserId : null;
-}
+import { getUsername } from "@wasp/auth/user";
 
 const TopNavbar = ({ user }) => {
   const username = getUsername(user);

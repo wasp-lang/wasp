@@ -11,12 +11,7 @@ import updateTask from "@wasp/actions/updateTask";
 import deleteTasks from "@wasp/actions/deleteTasks";
 import type { Task } from "@wasp/entities";
 import type { User } from "@wasp/auth/types";
-
-function getUsername(user: User) {
-  return user.auth?.identities.find(
-    (identity) => identity.providerName === "username"
-  )?.providerUserId;
-}
+import { getUsername } from "@wasp/auth/user";
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);

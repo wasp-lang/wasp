@@ -6,10 +6,13 @@ import { useQuery } from '@wasp/queries'
 import getDate from '@wasp/queries/getDate'
 
 import './Main.css'
+import { getName } from './user'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
+
+  const name = user ? getName(user) : null
 
   return (
     <div className="app border-spacing-2 p-4">
@@ -21,7 +24,7 @@ export function App({ children }: any) {
         {user && (
           <div className="flex gap-3 items-center">
             <div>
-              Hello, <Link to="/profile">{user.email}</Link>
+              Hello, <Link to="/profile">{name}</Link>
             </div>
             <div>
               <button className="btn btn-primary" onClick={logout}>

@@ -3,9 +3,10 @@ import './Main.css'
 import React, { useState } from 'react'
 import { Link, routes } from '@wasp/router'
 import logout from '@wasp/auth/logout'
+import { getUsername } from '@wasp/auth/user'
 
 import { tasks as tasksCrud } from '@wasp/crud/tasks'
-import { User, AuthIdentity } from '@wasp/entities'
+import { User } from '@wasp/entities'
 
 const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading } = tasksCrud.getAll.useQuery()
@@ -62,13 +63,6 @@ const MainPage = ({ user }: { user: User }) => {
     }
   }
 
-  type User = NonNullable<typeof tasks>[number]['user']
-
-  function findUsername(user: User) {
-    return user.auth?.identities.find((i) => i.providerName === 'username')
-      ?.providerUserId
-  }
-
   return (
     <div className="container">
       <main>
@@ -105,7 +99,7 @@ const MainPage = ({ user }: { user: User }) => {
                       {routes.DetailRoute.build({
                         params: { id: task.id, something: 'else' },
                       })}{' '}
-                      by {findUsername(task.user)}
+                      by {getUsername(task.user)}
                     </Link>
                   </div>
                   <button onClick={() => handleTaskDelete(task)}>Delete</button>
