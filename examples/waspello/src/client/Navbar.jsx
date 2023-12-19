@@ -8,7 +8,7 @@ import "./Navbar.css";
 import { findUserIdentity, getUsername } from "@wasp/auth/user";
 
 const Navbar = ({ user }) => {
-  // We have to ways of authenticating users, so
+  // We have two ways of authenticating users, so
   // we have to check which one is used.
   const googleIdentity = findUserIdentity(user, "google");
   const usernameIdentity = findUserIdentity(user, "username");
