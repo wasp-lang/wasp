@@ -156,25 +156,25 @@ runStudio projectRootDir =
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectRootDir =
-  runPrismaCommandAsJob projectRootDir args
+  runPrismaCommandAsJob projectRootDir cmdArgs
   where
-    args =
+    cmdArgs =
       [ "generate",
         "--schema",
         SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
       ]
 
 runPrismaCommandAsJob :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
-runPrismaCommandAsJob projectRootDir args =
-  runPrismaCommandAsJobWithExtraEnv [] projectRootDir args
+runPrismaCommandAsJob projectRootDir cmdArgs =
+  runPrismaCommandAsJobWithExtraEnv [] projectRootDir cmdArgs
 
 runPrismaCommandAsJobWithExtraEnv ::
   [(String, String)] ->
   Path' Abs (Dir ProjectRootDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv envVars projectRootDir args =
-  runNodeCommandAsJobWithExtraEnv envVars waspProjectDir (absPrismaExecutableFp waspProjectDir) args J.Db
+runPrismaCommandAsJobWithExtraEnv envVars projectRootDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnv envVars waspProjectDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
 
