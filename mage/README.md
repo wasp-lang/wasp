@@ -41,4 +41,4 @@ To deploy it, just run `wasp deploy fly deploy`. You might want to add `--org wa
 ## FAQ
 
 Q: What is the difference between Wasp AI and Mage? Are those the same thing?
-A: We say "Wasp AI" we refer to logic implemented in `wasp` CLI, while when we say "Mage" we refer to the Mage web app that really serves as a client for "Wasp AI" (calls it in the background). That said, we sometimes use these interchangeably.
+A: When we say "Wasp AI" we refer to logic implemented in `wasp` CLI, while when we say "Mage" we refer to the Mage web app that really serves as a client for "Wasp AI" (calls it in the background). That said, we sometimes use these interchangeably.
