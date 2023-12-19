@@ -1,12 +1,13 @@
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand } from '../../universal/types'
+import type { ProviderName } from '../utils'
 
 type UserEntityCreateInput = Prisma.UserCreateInput
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
-    id: string;
+    id: ProviderName;
     displayName: string;
     // Each provider config can have an init method which is ran on setup time
     // e.g. for oAuth providers this is the time when the Passport strategy is registered.
