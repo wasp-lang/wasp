@@ -90,12 +90,20 @@ fixWaspFile newProjectDetails waspFilePath plan = do
             ${compileErrorsText}
 
             Some common mistakes to look for:
+              - using non-default imports in page components 
+                  In a Wasp page, the component should always use the "default import" JS syntax.
+                  Instead of `component: import { PageName } from ...`, it should 
+                  always be `component: import PageName from ...`.
+                  Fix these by identifying named imports in wasp pages, and replacing 
+                  them with default imports. This only relates to wasp pages, other parts 
+                  of a Wasp file do not have to use the default imports.
+
               - Missing ',' between dictionary entries, for example before `entities` field in action/query.
                 Fix these by adding missing ','.
                 For example, the following is missing ',' after the component field:
                 ```wasp
                   page ExamplePage {
-                    component: import { ExamplePage } from "@client/pages/ExamplePage.jsx" // <- missing ','
+                    component: import ExamplePage from "@client/pages/ExamplePage.jsx" // <- missing ','
                     authRequired: true
                   }
                 ```
