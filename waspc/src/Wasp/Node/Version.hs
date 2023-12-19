@@ -35,9 +35,7 @@ isRangeInWaspSupportedRange range =
 
 data VersionCheckResult
   = VersionCheckFail !ErrorMessage
-  | VersionCheckSuccess !(Maybe WarningMessage) !SV.Version
-
-type WarningMessage = String
+  | VersionCheckSuccess
 
 type ErrorMessage = String
 
@@ -50,7 +48,7 @@ getAndCheckUserNodeVersion =
     Right userNodeVersion ->
       return $
         if SV.isVersionInRange userNodeVersion $ SV.Range [SV.gte oldestWaspSupportedNodeVersion]
-          then VersionCheckSuccess Nothing userNodeVersion
+          then VersionCheckSuccess
           else VersionCheckFail $ makeNodeVersionMismatchMessage userNodeVersion
 
 makeNodeVersionMismatchMessage :: SV.Version -> String

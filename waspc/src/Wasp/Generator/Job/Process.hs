@@ -98,9 +98,7 @@ runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> St
 runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
   NodeVersion.getAndCheckUserNodeVersion >>= \case
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    -- We don't print the warning message here because `wasp CLI` already likely printed it,
-    -- so it would be too much noise.
-    NodeVersion.VersionCheckSuccess _maybeWarning _version -> do
+    NodeVersion.VersionCheckSuccess -> do
       envVars <- getAllEnvVars
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
       runProcessAsJob nodeCommandProcess jobType chan

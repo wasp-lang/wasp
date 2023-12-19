@@ -76,10 +76,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     NodeVersion.VersionCheckFail errorMsg -> do
       cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
       exitFailure
-    NodeVersion.VersionCheckSuccess maybeWarning _version ->
-      case maybeWarning of
-        Just warnMsg -> cliSendMessage $ Message.Warning "Node version warning" warnMsg
-        Nothing -> pure ()
+    NodeVersion.VersionCheckSuccess -> pure ()
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs

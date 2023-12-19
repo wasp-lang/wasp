@@ -54,9 +54,7 @@ scriptInPackageDir = [relfile|dist/index.js|]
 getPackageProcessOptions :: Package -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
   NodeVersion.getAndCheckUserNodeVersion >>= \case
-    -- We don't print the warning message here because `wasp CLI` already likely printed it,
-    -- so it would be too much noise.
-    NodeVersion.VersionCheckSuccess _maybeWarning _version -> pure ()
+    NodeVersion.VersionCheckSuccess -> pure ()
     NodeVersion.VersionCheckFail errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
