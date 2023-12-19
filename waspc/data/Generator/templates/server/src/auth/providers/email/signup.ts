@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
-    createAuthWithUser,
+    createUser,
     findAuthIdentity,
     deleteUserByAuthId,
     doFakeWork,
@@ -59,7 +59,7 @@ export function getSignupRoute({
             passwordResetSentAt: null,
         });
 
-        const auth = await createAuthWithUser(
+        const user = await createUser(
             'email',
             fields.email,
             newUserProviderData,

@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { handleRejection } from '../../../utils.js'
 import {
-  createAuthWithUser,
+  createUser,
   sanitizeAndSerializeProviderData,
 } from '../../utils.js'
 import {
@@ -20,7 +20,7 @@ export default handleRejection(async (req, res) => {
   const providerData = await sanitizeAndSerializeProviderData<'username'>({
     password: fields.password,
   })
-  await createAuthWithUser(
+  await createUser(
     'username',
     fields.username,
     providerData,

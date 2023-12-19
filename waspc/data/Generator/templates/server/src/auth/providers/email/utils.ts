@@ -11,22 +11,22 @@ import {
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
-export async function createEmailVerificationLink(providerUserId: string, clientRoute: string) {
-  const token = await createEmailVerificationToken(providerUserId);
+export async function createEmailVerificationLink(email: string, clientRoute: string) {
+  const token = await createEmailVerificationToken(email);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-export async function createPasswordResetLink(providerUserId: string, clientRoute: string)  {
-  const token = await createPasswordResetToken(providerUserId);
+export async function createPasswordResetLink(email: string, clientRoute: string)  {
+  const token = await createPasswordResetToken(email);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
 }
 
-async function createEmailVerificationToken(providerUserId: string): Promise<string> {
-  return sign(providerUserId, { expiresIn: '30m' });
+async function createEmailVerificationToken(email: string): Promise<string> {
+  return sign(email, { expiresIn: '30m' });
 }
 
-async function createPasswordResetToken(providerUserId: string): Promise<string> {
-  return sign(providerUserId, { expiresIn: '30m' });
+async function createPasswordResetToken(email: string): Promise<string> {
+  return sign(email, { expiresIn: '30m' });
 }
 
 export async function sendPasswordResetEmail(

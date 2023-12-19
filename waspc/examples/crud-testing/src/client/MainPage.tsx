@@ -8,7 +8,7 @@ import { getUsername } from '@wasp/auth/user'
 import { tasks as tasksCrud } from '@wasp/crud/tasks'
 import { User } from '@wasp/entities'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = () => {
   const { data: tasks, isLoading } = tasksCrud.getAll.useQuery()
 
   type Task = NonNullable<typeof tasks>[number]

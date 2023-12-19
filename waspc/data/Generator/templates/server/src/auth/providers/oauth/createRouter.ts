@@ -6,9 +6,10 @@ import passport from "passport"
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import {
+  type ProviderName,
   authConfig,
   contextWithUserEntity,
-  createAuthWithUser,
+  createUser,
   findAuthWithUserBy,
   createAuthToken,
   rethrowPossibleAuthError,
@@ -50,45 +51,52 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const getUserFields = () => getUserFieldsFn ? getUserFieldsFn(contextWithUserEntity, { profile: providerProfile }) : Promise.resolve({});
           // TODO: In the future we could make this configurable, possibly associating an external account
           // with the currently logged in account, or by some DB lookup.
-          const userId = await getOrCreateUserIdByOAuthProvider(provider.id, providerProfile.id, getUserFields);
 
-          const token = await createAuthToken(userId);
+          const providerName = provider.id;
+          const providerUserId = `${providerProfile.id}`.toLowerCase();
 
-          res.json({ token });
+          try {
+            const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
+              where: {
+                providerName_providerUserId: {
+                  providerName,
+                  providerUserId,
+                },
+              },
+              include: {
+                {= authFieldOnAuthIdentityEntityName =}: {
+                  include: {
+                    {= userFieldOnAuthEntityName =}: true
+                  }
+                }
+              }
+            })
+        
+            
+            if (existingAuthIdentity) {
+              const token = await createAuthToken(
+                existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id,
+              );
+              return res.json({ token });
+            }
+          
+            const userFields = await getUserFields()
+          
+            const user = await createUser(
+              providerName,
+              providerUserId,
+              undefined,
+              userFields,
+            )
+        
+            const token = await createAuthToken(user.id);
+
+            res.json({ token });
+          } catch (e) {
+            rethrowPossibleAuthError(e)
+          }
       })
     )
 
     return router;
-}
-
-async function getOrCreateUserIdByOAuthProvider(
-  providerName: string,
-  providerUserId: string,
-  getUserFields: () => ReturnType<GetUserFieldsFn>,
-) {
-  try {
-    const authIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
-      where: { providerName, providerUserId },
-      include: {
-        {= authFieldOnAuthIdentityEntityName =}: {
-          include: {
-            {= userFieldOnAuthEntityName =}: true
-          }
-        }
-      }
-    })
-
-    
-    if (authIdentity) {
-      return authIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id
-    }
-  
-    const userFields = await getUserFields()
-  
-    const auth = await createAuthWithUser(providerName, providerUserId, undefined, userFields)
-
-    return auth.userId;
-  } catch (e) {
-    rethrowPossibleAuthError(e)
-  }
 }

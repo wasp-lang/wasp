@@ -4,7 +4,11 @@ import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
 import { sleep } from '../utils.js'
-import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../entities/index.js'
+import {
+  type {= userEntityUpper =},
+  type {= authEntityUpper =},
+  type {= authIdentityEntityUpper =},
+} from '../entities/index.js'
 import { Prisma } from '@prisma/client';
 
 import { PASSWORD_FIELD, throwValidationError } from './validation.js'
@@ -41,7 +45,7 @@ export type PossibleProviderData = {
   github: OAuthProviderData;
 }
 
-type ProviderName = keyof PossibleProviderData
+export type ProviderName = keyof PossibleProviderData
 
 export const contextWithUserEntity = {
   entities: {
@@ -54,7 +58,7 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findAuthIdentity(providerName: ProviderName, providerUserId: string) {
+export async function findAuthIdentity(providerName: ProviderName, providerUserId: string): Promise<{= authIdentityEntityUpper =} | null> {
   return prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
       providerName_providerUserId: {
@@ -66,11 +70,11 @@ export async function findAuthIdentity(providerName: ProviderName, providerUserI
 }
 
 export async function updateAuthIdentityProviderData<PN extends ProviderName>(
-  providerName: string,
+  providerName: ProviderName,
   providerUserId: string,
   existingProviderData: PossibleProviderData[PN],
   providerDataUpdates: Partial<PossibleProviderData[PN]>,
-) {
+): Promise<{= authIdentityEntityUpper =}> {
   // We are doing the sanitization here only on updates to avoid
   // hashing the password multiple times.
   const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
@@ -90,33 +94,39 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   });
 }
 
-export async function findAuthWithUserBy(where: Prisma.{= authEntityUpper =}WhereInput) {
+type FindAuthWithUserResult = {= authEntityUpper =} & {
+  {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
+}
+
+export async function findAuthWithUserBy(
+  where: Prisma.{= authEntityUpper =}WhereInput
+): Promise<FindAuthWithUserResult> {
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
-export async function createAuthWithUser(
-  providerName: string,
+export async function createUser(
+  providerName: ProviderName,
   providerUserId: string,
   serializedProviderData?: string,
   userFields?: PossibleAdditionalSignupFields,
-) {
+): Promise<{= userEntityUpper =}> {
   try {
-    return await prisma.{= authEntityLower =}.create({
+    return prisma.{= userEntityLower =}.create({
       data: {
-        {= identitiesFieldOnAuthEntityName =}: {
-            create: {
-                providerName,
-                providerUserId: providerUserId.toLowerCase(),
-                providerData: serializedProviderData,
-            },
-        },
-        {= userFieldOnAuthEntityName =}: {
+        // Using any here to prevent type errors when userFields are not
+        // defined. We want Prisma to throw an error in that case.
+        ...(userFields ?? {} as any),
+        {= authFieldOnUserEntityName =}: {
           create: {
-            // Using any here to prevent type errors when userFields are not
-            // defined. We want Prisma to throw an error in that case.
-            ...(userFields ?? {} as any),
+            {= identitiesFieldOnAuthEntityName =}: {
+                create: {
+                    providerName,
+                    providerUserId: providerUserId.toLowerCase(),
+                    providerData: serializedProviderData,
+                },
+            },
           }
-        }
+        },
       }
     })
   } catch (e) {
@@ -124,7 +134,7 @@ export async function createAuthWithUser(
   }
 }
 
-export async function deleteUserByAuthId(authId: string) {
+export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
   try {
     return await prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
       id: authId,
@@ -151,7 +161,7 @@ export async function verifyToken(token: string): Promise<{ id: any }> {
 // NOTE: Attacker measuring time to response can still determine
 // if a user exists or not. We'll be able to avoid it when 
 // we implement e-mail sending via jobs.
-export async function doFakeWork() {
+export async function doFakeWork(): Promise<unknown> {
   const timeToWork = Math.floor(Math.random() * 1000) + 1000;
   return sleep(timeToWork);
 }
@@ -197,7 +207,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
 
 export async function validateAndGetAdditionalFields(data: {
   [key: string]: unknown
-}) {
+}): Promise<Record<string, any>> {
   const {
     password: _password,
     ...sanitizedData
@@ -228,17 +238,17 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   return data;
 }
 
-export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]) {
+export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<string> {
   return serializeProviderData(
     await sanitizeProviderData(providerData)
   );
 }
 
-async function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]) {
+function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
   return JSON.stringify(providerData);
 }
 
-async function sanitizeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]) {
+async function sanitizeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<PossibleProviderData[PN]> {
   // NOTE: doing a shallow copy here as we expect the providerData to be
   // a flat object. If it's not, we'll have to do a deep copy.
   const data = {

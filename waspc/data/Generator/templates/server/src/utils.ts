@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { Request, Response, NextFunction } from 'express'
-import Prisma from '@prisma/client'
 
 import { readdir } from 'fs'
 import { join, dirname } from 'path'
@@ -37,9 +36,9 @@ async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
   }
 }
 
-export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+export const sleep = (ms: number): Promise<unknown> => new Promise((r) => setTimeout(r, ms))
 
-export function getDirFromFileUrl(fileUrl: string) {
+export function getDirFromFileUrl(fileUrl: string): string {
   return fileURLToPath(dirname(fileUrl))
 }
 

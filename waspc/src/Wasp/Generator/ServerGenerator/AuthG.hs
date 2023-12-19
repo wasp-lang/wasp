@@ -109,6 +109,7 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String),
           "authIdentityEntityUpper" .= (DbAuth.authIdentityEntityName :: String),
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
+          "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,

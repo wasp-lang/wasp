@@ -13,11 +13,11 @@ export async function verifyEmail(
 ): Promise<Response<{ success: true } | { success: false, message: string }>> {
     try {
         const { token } = req.body;
-        const { id: providerUserId } = await verifyToken(token);
+        const { id: email } = await verifyToken(token);
 
-        const authIdentity = await findAuthIdentity('email', providerUserId);
+        const authIdentity = await findAuthIdentity('email', email);
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData('email', providerUserId, providerData, {
+        await updateAuthIdentityProviderData('email', email, providerData, {
             isEmailVerified: true,
         });
     } catch (e) {
