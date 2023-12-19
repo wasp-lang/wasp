@@ -87,7 +87,7 @@ askToChoose question options = do
         _invalidIndex -> Nothing
 
     getOptionByName :: String -> Maybe o
-    getOptionByName name = find ((name `isPrefixOf`) . showOption) options
+    getOptionByName name = find ((== name) . showOption) options
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
@@ -105,11 +105,7 @@ askToChoose question options = do
               optionDescription
             ]
           where
-            indexPrefix =
-              Term.applyStyles
-                ([Term.Yellow] <> whenDefault [Term.Bold, Term.Underline])
-                (showIndex idx)
-                <> " "
+            indexPrefix = Term.applyStyles [Term.Yellow] (showIndex idx) <> " "
             optionName = Term.applyStyles [Term.Bold] (showOption option)
             tags = whenDefault (Term.applyStyles [Term.Yellow] " (default)")
             optionDescription = showDescription option

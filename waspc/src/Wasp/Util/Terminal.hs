@@ -43,7 +43,7 @@ styleCode Cyan = "[36m"
 styleCode White = "[37m"
 styleCode Bold = "[1m"
 styleCode Underline = "[4m"
-styleCode Blink = "[5m"
+styleCode Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
 
 escapeCode :: String
 escapeCode = "\ESC"

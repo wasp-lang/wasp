@@ -48,7 +48,7 @@ toTermString (Styled s m) =
   where
     styleToTermStyles = \case
       Important -> [Term.Bold, Term.Magenta]
-      Generating -> [Term.Blue]
+      Generating -> [Term.Cyan]
       Fixing -> [Term.Green]
       Error -> [Term.Red]
       Custom styles -> styles
