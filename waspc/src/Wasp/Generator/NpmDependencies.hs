@@ -141,9 +141,11 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
   if null conflictErrors && null devConflictErrors
     then
       Right $
+        -- todo(filip): check whether dependency updates and npm install work properly
+        -- todo(filip): reconsider whether we want to change the {sever,web-app}/package.json dynamically
         NpmDepsForPackage
-          { dependencies = waspDependencies npmDepsForWasp ++ remainingUserDeps,
-            devDependencies = waspDevDependencies npmDepsForWasp ++ remainingUserDevDeps
+          { dependencies = Map.elems remainingWapsDeps,
+            devDependencies = Map.elems remainingWaspDevDeps
           }
     else
       Left $
@@ -159,8 +161,8 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
     allWaspDepsByName = waspDepsByName `Map.union` waspDevDepsByName
     conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
     devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
-    remainingUserDeps = getRemainingUserDeps allWaspDepsByName userDepsByName
-    remainingUserDevDeps = getRemainingUserDeps allWaspDepsByName userDevDepsByName
+    remainingWapsDeps = allWaspDepsByName `Map.difference` userDepsByName
+    remainingWaspDevDeps = allWaspDepsByName `Map.difference` userDevDepsByName
 
 type DepsByName = Map.Map String D.Dependency
 
@@ -178,12 +180,6 @@ determineConflictErrors waspDepsByName userDepsByName =
       if D.version waspDep /= D.version userDep
         then Just $ DependencyConflictError waspDep userDep
         else Nothing
-
--- Given a map of wasp dependencies and a map of user dependencies, construct a
--- a list of user dependencies that remain once any overlapping wasp dependencies
--- have been removed. This assumes conflict detection was already passed.
-getRemainingUserDeps :: DepsByName -> DepsByName -> [D.Dependency]
-getRemainingUserDeps waspDepsByName userDepsByName = Map.elems $ userDepsByName `Map.difference` waspDepsByName
 
 -- Construct a map of dependency keyed by dependency name.
 makeDepsByName :: [D.Dependency] -> DepsByName
