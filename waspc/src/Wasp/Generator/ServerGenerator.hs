@@ -40,7 +40,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.AppSpec.Valid (getApp, getUserNodeVersionRangeLowerBoundMajorVersion, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getMajorNumberOfLowerBoundOfUserNodeVersionRange, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
@@ -192,13 +192,13 @@ npmDepsForWasp spec =
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
-            ("@tsconfig/node" <> majorNodeVersionStr, "^1.0.1"),
+            ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/uuid", "^9.0.0"),
             ("@types/cors", "^2.8.5")
           ]
     }
   where
-    majorNodeVersionStr = show (getUserNodeVersionRangeLowerBoundMajorVersion spec)
+    majorNodeVersionStr = show (getMajorNumberOfLowerBoundOfUserNodeVersionRange spec)
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

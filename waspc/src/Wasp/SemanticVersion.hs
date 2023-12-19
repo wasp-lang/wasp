@@ -1,5 +1,3 @@
-{-# LANGUAGE InstanceSigs #-}
-
 module Wasp.SemanticVersion
   ( Version (..),
     Range (..),
@@ -11,18 +9,23 @@ module Wasp.SemanticVersion
     gte,
     eq,
     backwardsCompatibleWith,
+    doesVersionRangeAllowMajorChanges,
   )
 where
 
+import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
-import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
+import Data.Maybe (isJust)
+import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion, nextMajorVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),
     intervalIntersection,
     intervalUnion,
+    isSubintervalOf,
     isVersionInInterval,
+    versionFromBound,
   )
 
 -- Implements SemVer (semantic versioning) by following spec from https://github.com/npm/node-semver .
@@ -76,7 +79,6 @@ instance Semigroup Range where
   (Range csets1) <> (Range csets2) = Range $ nub $ csets1 <> csets2
 
 instance Monoid Range where
-  mempty :: Range
   mempty = Range []
 
 instance HasVersionBounds Comparator where
@@ -130,3 +132,14 @@ backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith
 
 mkPrimCompSet :: Operator -> Version -> ComparatorSet
 mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op
+
+doesVersionRangeAllowMajorChanges :: Range -> Bool
+doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
+  where
+    doesVersionRangeAllowOnlyMinorChanges versionRange = isJust $ do
+      let versionInterval = versionBounds versionRange
+      let lowerBound = fst versionInterval
+      lowerBoundVersion <- versionFromBound lowerBound
+      let noMajorChangesInterval =
+            (lowerBound, Exclusive $ nextMajorVersion lowerBoundVersion)
+      guard $ versionInterval `isSubintervalOf` noMajorChangesInterval

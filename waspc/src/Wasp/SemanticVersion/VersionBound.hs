@@ -14,10 +14,6 @@ module Wasp.SemanticVersion.VersionBound
     parseInterval,
     intervalParser,
     vi,
-    (∈),
-    (⊆),
-    (∪),
-    (∩),
   )
 where
 
@@ -89,26 +85,14 @@ class HasVersionBounds a where
 intervalIntersection :: VersionInterval -> VersionInterval -> VersionInterval
 intervalIntersection (lb1, ub1) (lb2, ub2) = (maxLowerBound lb1 lb2, minUpperBound ub1 ub2)
 
-(∩) :: VersionInterval -> VersionInterval -> VersionInterval
-(∩) = intervalIntersection
-
 intervalUnion :: VersionInterval -> VersionInterval -> VersionInterval
 intervalUnion (lb1, ub1) (lb2, ub2) = (minLowerBound lb1 lb2, maxUpperBound ub1 ub2)
-
-(∪) :: VersionInterval -> VersionInterval -> VersionInterval
-(∪) = intervalUnion
 
 isSubintervalOf :: VersionInterval -> VersionInterval -> Bool
 isSubintervalOf vi1 vi2 = intervalIntersection vi1 vi2 == vi1
 
-(⊆) :: VersionInterval -> VersionInterval -> Bool
-(⊆) = isSubintervalOf
-
 isVersionInInterval :: VersionInterval -> Version -> Bool
 isVersionInInterval interval version = interval == intervalUnion interval (Inclusive version, Inclusive version)
-
-(∈) :: Version -> VersionInterval -> Bool
-(∈) = flip isVersionInInterval
 
 -- Takes two lower bounds and returns the bigger one.
 maxLowerBound :: VersionBound -> VersionBound -> VersionBound

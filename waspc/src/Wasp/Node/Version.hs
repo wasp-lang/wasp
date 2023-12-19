@@ -3,6 +3,7 @@ module Wasp.Node.Version
     VersionCheckResult (..),
     oldestWaspSupportedNodeVersion,
     parseNodeVersionOutput,
+    isRangeInWaspSupportedRange,
   )
 where
 
@@ -14,6 +15,7 @@ import qualified System.Process as P
 import qualified Text.Parsec as P
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.Version as SV
+import qualified Wasp.SemanticVersion.VersionBound as SV
 import Wasp.Util (indent)
 
 -- | Wasp supports any node version equal or greater to this version.
@@ -24,6 +26,12 @@ import Wasp.Util (indent)
 --   - /web/docs/introduction/getting-started.md -> "Requirements" section.
 oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 18 0 0
+
+isRangeInWaspSupportedRange :: SV.Range -> Bool
+isRangeInWaspSupportedRange range =
+  SV.versionBounds range `SV.isSubintervalOf` waspVersionInterval
+  where
+    waspVersionInterval = SV.versionBounds $ SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion
 
 data VersionCheckResult
   = VersionCheckFail !ErrorMessage
@@ -88,7 +96,7 @@ getUserNodeVersion = do
       parseNodeVersionOutput stdout
         & left
           ( \e ->
-              "Wasp failed to parse node version provided by `node --version`.\n"
+              "Wasp failed to the parse node version provided by `node --version`.\n"
                 <> (show e <> "\n")
                 <> "This is most likely a bug in Wasp, please file an issue."
           )

@@ -2,7 +2,7 @@ module SemanticVersion.VersionBoundTest where
 
 import Test.Tasty.Hspec
 import Wasp.SemanticVersion.Version
-import Wasp.SemanticVersion.VersionBound hiding ((∈), (∩), (∪), (⊆))
+import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersionBound :: Spec
 spec_SemanticVersionBound = do

@@ -1,10 +1,10 @@
 module SemanticVersionTest where
 
-import Data.Either (fromRight)
 import Numeric.Natural
 import Test.Tasty.Hspec
 import Wasp.SemanticVersion
-import Wasp.SemanticVersion.VersionBound (HasVersionBounds (versionBounds), parseInterval)
+import Wasp.SemanticVersion.Version (v)
+import Wasp.SemanticVersion.VersionBound (HasVersionBounds (versionBounds), vi)
 
 spec_SemanticVersion :: Spec
 spec_SemanticVersion = do
@@ -108,13 +108,28 @@ spec_SemanticVersion = do
   describe "versionBounds" $ do
     let r ~> i =
           it (show r) $
-            versionBounds r `shouldBe` parseInterval' i
-    Range [] ~> "(inf, inf)"
-    Range [gt (Version 0 1 2)] ~> "(0.1.2, inf)"
-    Range [lte (Version 1 2 3)] ~> "(inf, 1.2.3]"
-    Range [backwardsCompatibleWith (Version 0 2 3)] ~> "[0.2.3, 0.3.0)"
-    Range [backwardsCompatibleWith (Version 0 2 3)] ~> "[0.2.3, 0.3.0)"
-    Range [lte (Version 1 2 3) <> backwardsCompatibleWith (Version 1 1 0), eq (Version 0 5 6)] ~> "[0.5.6, 1.2.3]"
+            versionBounds r `shouldBe` i
+    Range [] ~> [vi| (inf, inf) |]
+    Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
+    Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> [vi| (0.1.2, 0.2) |]
+    Range [lte [v|1.2.3|]] ~> [vi| (inf, 1.2.3] |]
+    Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
+    Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
+
+  describe "doesVersionRangeAllowMajorChanges" $ do
+    let range ~> expected =
+          it (show range) $
+            doesVersionRangeAllowMajorChanges range `shouldBe` expected
+    Range [] ~> True
+    Range [gt [v|1.1.2|]] ~> True
+    Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> False
+    Range [gt [v|0.1.2|] <> lte [v|0.2|]] ~> True
+    Range [gt [v|2|] <> lte [v|3|]] ~> True
+    Range [gt [v|2|] <> lt [v|3|]] ~> False
+    Range [lte [v|2.9.99|]] ~> True
+    Range [backwardsCompatibleWith [v|0.2.3|]] ~> False
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> True
   where
     testRange :: Range -> [((Natural, Natural, Natural), Bool)] -> Expectation
     testRange range versionsWithResults =
@@ -122,4 +137,3 @@ spec_SemanticVersion = do
           <$> map fst versionsWithResults
       )
         `shouldBe` map snd versionsWithResults
-    parseInterval' = fromRight (error "interval parsing failed") . parseInterval

@@ -9,11 +9,11 @@ module Wasp.AppSpec.Valid
     getIdFieldFromCrudEntity,
     isValidationError,
     isValidationWarning,
-    getUserNodeVersionRangeLowerBoundMajorVersion,
+    getMajorNumberOfLowerBoundOfUserNodeVersionRange,
   )
 where
 
-import Control.Monad (guard, unless)
+import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, isJust)
 import Numeric.Natural (Natural)
@@ -39,9 +39,9 @@ import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
+import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
-import Wasp.SemanticVersion.Version (nextMajorVersion)
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import qualified Wasp.Version as WV
 
@@ -404,11 +404,10 @@ validateUserNodeVersionRange spec =
     ]
   where
     userRange = AS.userNodeVersionRange spec
-    userVersionInterval = SVB.versionBounds userRange
-    waspVersionInterval = SVB.versionBounds $ SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion
+
     checkUserRangeIsInWaspRange :: [ValidationError]
     checkUserRangeIsInWaspRange =
-      if not (userVersionInterval `SVB.isSubintervalOf` waspVersionInterval)
+      if not (V.isRangeInWaspSupportedRange userRange)
         then
           [ GenericValidationError $
               "Node version range that you specified for your Wasp app ("
@@ -417,20 +416,17 @@ validateUserNodeVersionRange spec =
                 <> show oldestWaspSupportedNodeVersion
           ]
         else []
+
     checkUserRangeAllowsOnlyMinorChanges :: [ValidationError]
     checkUserRangeAllowsOnlyMinorChanges =
-      maybe
-        [ GenericValidationWarning $
-            "Node version range that you specified for your Wasp app ("
-              <> show userRange
-              <> ") allows major version changes, which is not advised."
-        ]
-        (const [])
-        $ do
-          lowerBoundVersion <- SVB.versionFromBound $ fst userVersionInterval
-          let onlyMinorChangesInterval =
-                (fst userVersionInterval, SVB.Exclusive $ nextMajorVersion lowerBoundVersion)
-          guard $ userVersionInterval `SVB.isSubintervalOf` onlyMinorChangesInterval
+      if SV.doesVersionRangeAllowMajorChanges userRange
+        then
+          [ GenericValidationWarning $
+              "Node version range that you specified for your Wasp app ("
+                <> show userRange
+                <> ") allows major version changes, which is not advised."
+          ]
+        else []
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
@@ -475,7 +471,8 @@ getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
-getUserNodeVersionRangeLowerBoundMajorVersion :: AppSpec -> Natural
-getUserNodeVersionRangeLowerBoundMajorVersion spec =
+-- Example: If user specified their node version range to be [18.2, 20), then this function will return 18.
+getMajorNumberOfLowerBoundOfUserNodeVersionRange :: AppSpec -> Natural
+getMajorNumberOfLowerBoundOfUserNodeVersionRange spec =
   maybe (error "This should never happen: user node version range lower bound is Inf") SV.major $
     SVB.versionFromBound $ fst $ SVB.versionBounds $ AS.userNodeVersionRange spec

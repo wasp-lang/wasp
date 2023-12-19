@@ -16,7 +16,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (getUserNodeVersionRangeLowerBoundMajorVersion)
+import Wasp.AppSpec.Valid (getMajorNumberOfLowerBoundOfUserNodeVersionRange)
 import Wasp.Generator.Common
   ( ProjectRootDir,
     ServerRootDir,
@@ -48,7 +48,7 @@ genDockerfile spec = do
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
               "serverPrismaClientOutputDirEnv" .= getEnvVarDefinition serverPrismaClientOutputDirEnv,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
-              "nodeMajorVersion" .= show (getUserNodeVersionRangeLowerBoundMajorVersion spec),
+              "nodeMajorVersion" .= show (getMajorNumberOfLowerBoundOfUserNodeVersionRange spec),
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )
