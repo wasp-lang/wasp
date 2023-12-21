@@ -1,7 +1,6 @@
 module Wasp.Generator.DbGenerator.Auth where
 
-import Data.Function ((&))
-import Data.Maybe
+import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Wasp.Analyzer.StdTypeDefinitions.Entity (parsePslBody)
@@ -13,6 +12,31 @@ import Wasp.Generator.Monad
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Model as Psl.Model.Field
+
+{--
+
+A bit of explanation on how auth works in Wasp:
+
+If developers want to use Wasp's auth, they have to define the user entity.
+Their user entity represents the buisness logic user. Which means, it doesn't need to have
+any auth related fields e.g. email, password, etc. The user entity can have any fields that
+the developer wants.
+
+Wasp injects extra entities into the Prisma schema: Auth and AuthIdentity which are connected
+to the business logic entity. All of the internal auth logic is done on Auth and AuthIdentity
+entities.
+
+The developer doesn't have to worry about these entities, they are hidden from the developer.
+The developer can still use the user entity as they would normally. The developer can also
+use the Auth and AuthIdentity entities if they require custom auth logic.
+
+User <-> Auth (one on one) <-> AuthIdentity (per provider)
+
+The AuthIdentity entity is used to store the user's identity from a specific provider
+(e.g. Google, email, etc.). The Auth entity is used to have a single
+connection between the business logic user and the auth entity.
+
+--}
 
 authEntityName :: String
 authEntityName = "Auth"
@@ -35,22 +59,15 @@ authIdentityEntityName = "AuthIdentity"
 identitiesFieldOnAuthEntityName :: String
 identitiesFieldOnAuthEntityName = "identities"
 
-injectAuth :: Maybe (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -> Generator [(String, AS.Entity.Entity)]
-injectAuth Nothing entities = return entities
-injectAuth (Just (userEntityName, userEntity)) entities = do
-  userEntityIdType <- getUserEntityIdType userEntity
-  authEntity <- makeAuthEntity userEntityIdType userEntityName userEntity
+injectAuth :: (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -> Generator [(String, AS.Entity.Entity)]
+injectAuth (userEntityName, userEntity) entities = do
+  authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
   authIdentityEntity <- makeAuthIdentityEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
   return $ entitiesWithAuth ++ [authEntity, authIdentityEntity]
-
-getUserEntityIdType :: AS.Entity.Entity -> Generator String
-getUserEntityIdType entity =
-  show . Psl.Model.Field._type <$> AS.Entity.getIdField entity
-    & ( \case
-          Nothing -> logAndThrowGeneratorError $ GenericGeneratorError "User entity does not have an id field."
-          Just idType -> return idType
-      )
+  where
+    -- We validated the AppSpec so we are sure that the user entity has an id field.
+    userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
 
 makeAuthIdentityEntity :: Generator (String, AS.Entity.Entity)
 makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
@@ -75,8 +92,8 @@ makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
-makeAuthEntity :: String -> String -> AS.Entity.Entity -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdType userEntityName userEntity = case parsePslBody authEntityPslBody of
+makeAuthEntity :: Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
+makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Auth entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -90,13 +107,13 @@ makeAuthEntity userEntityIdType userEntityName userEntity = case parsePslBody au
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType
-    userEntityIdTypeText = T.pack userEntityIdType
     userEntityNameText = T.pack userEntityName
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
     authIdentityEntityNameText = T.pack authIdentityEntityName
     identitiesFieldOnAuthEntityNameText = T.pack identitiesFieldOnAuthEntityName
-    -- We validated the AppSpec so we are sure that the user entity has an id field.
-    userEntityIdFieldName = T.pack $ AS.Entity.getIdField userEntity & fromJust & Psl.Model.Field._name
+
+    userEntityIdTypeText = T.pack $ show . Psl.Model.Field._type $ userEntityIdField
+    userEntityIdFieldName = T.pack $ Psl.Model.Field._name userEntityIdField
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =

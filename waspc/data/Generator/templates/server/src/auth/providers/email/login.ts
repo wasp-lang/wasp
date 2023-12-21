@@ -29,7 +29,7 @@ export function getLoginRoute({
             throwInvalidCredentialsError()
         }
         try {
-            await verifyPassword(providerData.password, fields.password);
+            await verifyPassword(providerData.hashedPassword, fields.password);
         } catch(e) {
             throwInvalidCredentialsError()
         }

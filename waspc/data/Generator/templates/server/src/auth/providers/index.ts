@@ -2,7 +2,7 @@
 
 import { Router } from "express";
 
-import { getDirFromFileUrl, importJsFilesFromDir } from "../../utils.js";
+import { getDirPathFromFileUrl, importJsFilesFromDir } from "../../utils.js";
 
 import { ProviderConfig } from "./types";
 
@@ -28,7 +28,7 @@ for (const provider of providers) {
 export default router;
 
 async function importProviders(providerConfigs: string[]): Promise<ProviderConfig[]> {
-  const currentExecutionDir = getDirFromFileUrl(import.meta.url);
+  const currentExecutionDir = getDirPathFromFileUrl(import.meta.url);
   const providers = await importJsFilesFromDir(currentExecutionDir, "./config", providerConfigs);
   return providers.map((provider) => provider.default);
 }

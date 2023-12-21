@@ -7,6 +7,7 @@ import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import {
   type ProviderName,
+  createProviderUserId,
   authConfig,
   contextWithUserEntity,
   createUser,
@@ -53,14 +54,14 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           // with the currently logged in account, or by some DB lookup.
 
           const providerName = provider.id;
-          const providerUserId = `${providerProfile.id}`.toLowerCase();
+          const providerUserId = createProviderUserId(providerProfile.id);
 
           try {
             const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
               where: {
                 providerName_providerUserId: {
                   providerName,
-                  providerUserId,
+                  providerUserId: providerUserId.id,
                 },
               },
               include: {
@@ -70,7 +71,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
                   }
                 }
               }
-            })
+            });
         
             
             if (existingAuthIdentity) {

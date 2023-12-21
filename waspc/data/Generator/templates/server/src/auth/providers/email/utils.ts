@@ -32,14 +32,14 @@ async function createPasswordResetToken(email: string): Promise<string> {
 export async function sendPasswordResetEmail(
   email: string,
   content: Email,
-) {
+): Promise<void> {
   return sendEmailAndLogTimestamp(email, content, 'passwordResetSentAt');
 }
 
 export async function sendEmailVerificationEmail(
   email: string,
   content: Email,
-) {
+): Promise<void> {
   return sendEmailAndLogTimestamp(email, content, 'emailVerificationSentAt');
 }
 
@@ -47,7 +47,7 @@ async function sendEmailAndLogTimestamp(
   email: string,
   content: Email,
   field: 'emailVerificationSentAt' | 'passwordResetSentAt',
-) {
+): Promise<void> {
   // Set the timestamp first, and then send the email
   // so the user can't send multiple requests while
   // the email is being sent.

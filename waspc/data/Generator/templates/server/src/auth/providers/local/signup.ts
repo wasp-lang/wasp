@@ -18,7 +18,7 @@ export default handleRejection(async (req, res) => {
   const userFields = await validateAndGetAdditionalFields(fields)
 
   const providerData = await sanitizeAndSerializeProviderData<'username'>({
-    password: fields.password,
+    hashedPassword: fields.password,
   })
   await createUser(
     'username',

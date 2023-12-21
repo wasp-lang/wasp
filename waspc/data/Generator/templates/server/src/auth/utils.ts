@@ -26,14 +26,14 @@ const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAddition
 {=/ additionalSignupFields.isDefined =}
 
 export type EmailProviderData = {
-  password: string;
+  hashedPassword: string;
   isEmailVerified: boolean;
   emailVerificationSentAt: Date | null;
   passwordResetSentAt: Date | null;
 }
 
 export type UsernameProviderData = {
-  password: string;
+  hashedPassword: string;
 }
 
 export type OAuthProviderData = {}
@@ -58,12 +58,22 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findAuthIdentity(providerName: ProviderName, providerUserId: string): Promise<{= authIdentityEntityUpper =} | null> {
+type ProviderUserId = {
+  id: string;
+}
+
+export function createProviderUserId(providerUserId: string): ProviderUserId {
+  return {
+    id: providerUserId.toLowerCase(),
+  }
+}
+
+export async function findAuthIdentity(providerName: ProviderName, providerUserId: ProviderUserId): Promise<{= authIdentityEntityUpper =} | null> {
   return prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
       providerName_providerUserId: {
         providerName,
-        providerUserId: providerUserId.toLowerCase(),
+        providerUserId: providerUserId.id,
       }
     }
   });
@@ -71,7 +81,7 @@ export async function findAuthIdentity(providerName: ProviderName, providerUserI
 
 export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   providerName: ProviderName,
-  providerUserId: string,
+  providerUserId: ProviderUserId,
   existingProviderData: PossibleProviderData[PN],
   providerDataUpdates: Partial<PossibleProviderData[PN]>,
 ): Promise<{= authIdentityEntityUpper =}> {
@@ -87,7 +97,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
     where: {
       providerName_providerUserId: {
         providerName,
-        providerUserId: providerUserId.toLowerCase(),
+        providerUserId: providerUserId.id,
       }
     },
     data: { providerData: serializedProviderData },
@@ -106,7 +116,7 @@ export async function findAuthWithUserBy(
 
 export async function createUser(
   providerName: ProviderName,
-  providerUserId: string,
+  providerUserId: ProviderUserId,
   serializedProviderData?: string,
   userFields?: PossibleAdditionalSignupFields,
 ): Promise<{= userEntityUpper =}> {
@@ -121,7 +131,7 @@ export async function createUser(
             {= identitiesFieldOnAuthEntityName =}: {
                 create: {
                     providerName,
-                    providerUserId: providerUserId.toLowerCase(),
+                    providerUserId: providerUserId.id,
                     providerData: serializedProviderData,
                 },
             },
@@ -238,7 +248,9 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   return data;
 }
 
-export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<string> {
+export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): Promise<string> {
   return serializeProviderData(
     await sanitizeProviderData(providerData)
   );
@@ -248,9 +260,9 @@ function serializeProviderData<PN extends ProviderName>(providerData: PossiblePr
   return JSON.stringify(providerData);
 }
 
-async function sanitizeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<PossibleProviderData[PN]> {
-  // NOTE: doing a shallow copy here as we expect the providerData to be
-  // a flat object. If it's not, we'll have to do a deep copy.
+async function sanitizeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): Promise<PossibleProviderData[PN]> {
   const data = {
     ...providerData,
   };
@@ -262,6 +274,8 @@ async function sanitizeProviderData<PN extends ProviderName>(providerData: Possi
 }
 
 
-function providerDataHasPasswordField(providerData: PossibleProviderData[keyof PossibleProviderData]): providerData is { password: string } {
+function providerDataHasPasswordField(
+  providerData: PossibleProviderData[keyof PossibleProviderData],
+): providerData is { hashedPassword: string } {
   return PASSWORD_FIELD in providerData;
 }

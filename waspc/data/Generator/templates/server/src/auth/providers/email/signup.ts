@@ -53,7 +53,7 @@ export function getSignupRoute({
         const userFields = await validateAndGetAdditionalFields(fields);
 
         const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
-            password: fields.password,
+            hashedPassword: fields.password,
             isEmailVerified: false,
             emailVerificationSentAt: null,
             passwordResetSentAt: null,

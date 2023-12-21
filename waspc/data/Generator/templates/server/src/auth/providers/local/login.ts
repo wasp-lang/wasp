@@ -22,7 +22,7 @@ export default handleRejection(async (req, res) => {
   try {
     const providerData = deserializeAndSanitizeProviderData<'username'>(authIdentity.providerData)
 
-    await verifyPassword(providerData.password, fields.password)
+    await verifyPassword(providerData.hashedPassword, fields.password)
   } catch(e) {
     throwInvalidCredentialsError()
   }
