@@ -57,13 +57,13 @@ Check [More Details](#more-details) section below if anything went wrong with th
 ### Requirements
 
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
-Version of Node.js must be >= 18.
+A version of Node.js must be >= 18.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
 <details>
   <summary style={{cursor: 'pointer', 'textDecoration': 'underline'}}>
-    Quick guide on installing/using nvm
+    A quick guide on installing/using nvm
   </summary>
   <div>
 
