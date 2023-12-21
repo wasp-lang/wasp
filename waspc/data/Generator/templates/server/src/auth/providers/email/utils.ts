@@ -4,6 +4,7 @@ import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
 import {
   rethrowPossibleAuthError,
+  createProviderId,
   updateAuthIdentityProviderData,
   findAuthIdentity,
   deserializeAndSanitizeProviderData,
@@ -52,9 +53,10 @@ async function sendEmailAndLogTimestamp(
   // so the user can't send multiple requests while
   // the email is being sent.
   try {
-    const authIdentity = await findAuthIdentity("email", email);
+    const providerId = createProviderId("email", email);
+    const authIdentity = await findAuthIdentity(providerId);
     const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-    await updateAuthIdentityProviderData<'email'>('email', email, providerData, {
+    await updateAuthIdentityProviderData<'email'>(providerId, providerData, {
         [field]: new Date()
     });
   } catch (e) {

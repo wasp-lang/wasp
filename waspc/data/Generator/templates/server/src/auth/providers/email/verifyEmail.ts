@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import {
     verifyToken,
+    createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
     deserializeAndSanitizeProviderData,
@@ -15,9 +16,10 @@ export async function verifyEmail(
         const { token } = req.body;
         const { id: email } = await verifyToken(token);
 
-        const authIdentity = await findAuthIdentity('email', email);
+        const providerId = createProviderId('email', email);
+        const authIdentity = await findAuthIdentity(providerId);
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData('email', email, providerData, {
+        await updateAuthIdentityProviderData(providerId, providerData, {
             isEmailVerified: true,
         });
     } catch (e) {

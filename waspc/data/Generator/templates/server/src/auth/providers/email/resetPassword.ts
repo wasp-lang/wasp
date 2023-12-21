@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+    createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
     verifyToken,
@@ -19,13 +20,14 @@ export async function resetPassword(
     try {
         const { id: email } = await verifyToken(token);
 
-        const authIdentity = await findAuthIdentity('email', email);
+        const providerId = createProviderId('email', email);
+        const authIdentity = await findAuthIdentity(providerId);
         if (!authIdentity) {
             return res.status(400).json({ success: false, message: 'Invalid token' });
         }
         
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-        await updateAuthIdentityProviderData('email', email, providerData, {
+        await updateAuthIdentityProviderData(providerId, providerData, {
             // The act of resetting the password verifies the email
             isEmailVerified: true,
             password,

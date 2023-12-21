@@ -66,7 +66,7 @@ genPrismaSchema spec = do
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
         else return ("sqlite", "\"file:./dev.db\"")
 
-  entities <- DbAuth.injectAuth maybeUserEntity userDefinedEntities
+  entities <- maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
 
   let templateData =
         object

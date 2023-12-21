@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { EmailFromField } from "../../../email/core/types.js";
 import {
     createUser,
+    createProviderId,
     findAuthIdentity,
     deleteUserByAuthId,
     doFakeWork,
@@ -33,7 +34,8 @@ export function getSignupRoute({
         const fields = req.body;
         ensureValidArgs(fields);
         
-        const existingAuthIdentity = await findAuthIdentity("email", fields.email);
+        const providerId = createProviderId("email", fields.email);
+        const existingAuthIdentity = await findAuthIdentity(providerId);
         if (existingAuthIdentity) {
             const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
             // User already exists and is verified - don't leak information
@@ -60,8 +62,7 @@ export function getSignupRoute({
         });
 
         const user = await createUser(
-            'email',
-            fields.email,
+            providerId,
             newUserProviderData,
             userFields,
         );

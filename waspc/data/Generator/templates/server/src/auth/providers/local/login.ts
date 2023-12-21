@@ -3,6 +3,7 @@ import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth
 import { handleRejection } from '../../../utils.js'
 
 import {
+  createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
   createAuthToken,
@@ -14,7 +15,9 @@ export default handleRejection(async (req, res) => {
   const fields = req.body ?? {}
   ensureValidArgs(fields)
 
-  const authIdentity = await findAuthIdentity('username', fields.username)
+  const authIdentity = await findAuthIdentity(
+    createProviderId('username', fields.username),
+  )
   if (!authIdentity) {
     throwInvalidCredentialsError()
   }

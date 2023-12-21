@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
 import {
+    createProviderId,
     findAuthIdentity,
     findAuthWithUserBy,
     createAuthToken,
@@ -20,7 +21,9 @@ export function getLoginRoute({
         const fields = req.body ?? {}
         ensureValidArgs(fields)
 
-        const authIdentity = await findAuthIdentity("email", fields.email)
+        const authIdentity = await findAuthIdentity(
+            createProviderId("email", fields.email)
+        )
         if (!authIdentity) {
             throwInvalidCredentialsError()
         }

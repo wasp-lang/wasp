@@ -59,8 +59,8 @@ authIdentityEntityName = "AuthIdentity"
 identitiesFieldOnAuthEntityName :: String
 identitiesFieldOnAuthEntityName = "identities"
 
-injectAuth :: (String, AS.Entity.Entity) -> [(String, AS.Entity.Entity)] -> Generator [(String, AS.Entity.Entity)]
-injectAuth (userEntityName, userEntity) entities = do
+injectAuth :: [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
+injectAuth entities (userEntityName, userEntity) = do
   authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
   authIdentityEntity <- makeAuthIdentityEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+    createProviderId,
     findAuthIdentity,
     doFakeWork,
     deserializeAndSanitizeProviderData,
@@ -29,7 +30,9 @@ export function getRequestPasswordResetRoute({
         const args = req.body ?? {};
         ensureValidEmail(args);
 
-        const authIdentity = await findAuthIdentity("email", args.email);
+        const authIdentity = await findAuthIdentity(
+            createProviderId("email", args.email),
+        );
 
         // User not found or not verified - don't leak information
         if (!authIdentity) {

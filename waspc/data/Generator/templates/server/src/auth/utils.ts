@@ -11,7 +11,7 @@ import {
 } from '../entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { PASSWORD_FIELD, throwValidationError } from './validation.js'
+import { throwValidationError } from './validation.js'
 
 {=# additionalSignupFields.isDefined =}
 {=& additionalSignupFields.importStatement =}
@@ -58,30 +58,31 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-type ProviderUserId = {
-  id: string;
+// ProviderId represents one user account in a specific provider.
+// We are packing it into a single object to make it easier to
+// make sure that the providerUserId is always lowercased.
+type ProviderId = {
+  providerName: ProviderName;
+  providerUserId: string;
 }
 
-export function createProviderUserId(providerUserId: string): ProviderUserId {
+export function createProviderId(providerName: ProviderName, providerUserId: string): ProviderId {
   return {
-    id: providerUserId.toLowerCase(),
+    providerName,
+    providerUserId: providerUserId.toLowerCase(),
   }
 }
 
-export async function findAuthIdentity(providerName: ProviderName, providerUserId: ProviderUserId): Promise<{= authIdentityEntityUpper =} | null> {
+export async function findAuthIdentity(providerId: ProviderId): Promise<{= authIdentityEntityUpper =} | null> {
   return prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
-      providerName_providerUserId: {
-        providerName,
-        providerUserId: providerUserId.id,
-      }
+      providerName_providerUserId: providerId,
     }
   });
 }
 
 export async function updateAuthIdentityProviderData<PN extends ProviderName>(
-  providerName: ProviderName,
-  providerUserId: ProviderUserId,
+  providerId: ProviderId,
   existingProviderData: PossibleProviderData[PN],
   providerDataUpdates: Partial<PossibleProviderData[PN]>,
 ): Promise<{= authIdentityEntityUpper =}> {
@@ -95,10 +96,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   const serializedProviderData = await serializeProviderData<PN>(newProviderData);
   return prisma.{= authIdentityEntityLower =}.update({
     where: {
-      providerName_providerUserId: {
-        providerName,
-        providerUserId: providerUserId.id,
-      }
+      providerName_providerUserId: providerId,
     },
     data: { providerData: serializedProviderData },
   });
@@ -115,8 +113,7 @@ export async function findAuthWithUserBy(
 }
 
 export async function createUser(
-  providerName: ProviderName,
-  providerUserId: ProviderUserId,
+  providerId: ProviderId,
   serializedProviderData?: string,
   userFields?: PossibleAdditionalSignupFields,
 ): Promise<{= userEntityUpper =}> {
@@ -130,8 +127,8 @@ export async function createUser(
           create: {
             {= identitiesFieldOnAuthEntityName =}: {
                 create: {
-                    providerName,
-                    providerUserId: providerUserId.id,
+                    providerName: providerId.providerName,
+                    providerUserId: providerId.providerUserId,
                     providerData: serializedProviderData,
                 },
             },
@@ -242,7 +239,7 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   let data = JSON.parse(providerData) as PossibleProviderData[PN];
 
   if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
-    delete data[PASSWORD_FIELD];
+    delete data.hashedPassword;
   }
 
   return data;
@@ -267,7 +264,7 @@ async function sanitizeProviderData<PN extends ProviderName>(
     ...providerData,
   };
   if (providerDataHasPasswordField(data)) {
-    data[PASSWORD_FIELD] = await hashPassword(data[PASSWORD_FIELD]);
+    data.hashedPassword = await hashPassword(data.hashedPassword);
   }
 
   return data;
@@ -277,5 +274,5 @@ async function sanitizeProviderData<PN extends ProviderName>(
 function providerDataHasPasswordField(
   providerData: PossibleProviderData[keyof PossibleProviderData],
 ): providerData is { hashedPassword: string } {
-  return PASSWORD_FIELD in providerData;
+  return 'hashedPassword' in providerData;
 }
