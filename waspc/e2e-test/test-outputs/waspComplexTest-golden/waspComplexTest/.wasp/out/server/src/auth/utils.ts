@@ -196,11 +196,8 @@ export function rethrowPossibleAuthError(e: unknown): void {
       message: `there was a database error`,
     })
   }
-  
-  // NOTE: Giving extra info to the developer since we don't send
-  // the error message to the client.
-  console.error(e)
-  throw new HttpError(500)
+
+  throw e
 }
 
 export async function validateAndGetAdditionalFields(data: {

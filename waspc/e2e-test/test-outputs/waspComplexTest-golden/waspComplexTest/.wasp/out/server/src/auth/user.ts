@@ -1,3 +1,7 @@
+// Since we can't deduplicate these helper functions in the server and the client
+// we have them duplicated in this file and in data/Generator/templates/react-app/src/auth/user.ts
+// If you are changing the logic here, make sure to change it there as well.
+
 import type { SanitizedUser as User, ProviderName, DeserializedAuthEntity } from '../_types/index' 
 
 export function getEmail(user: User): string | null {
