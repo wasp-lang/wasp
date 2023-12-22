@@ -41,11 +41,14 @@ const mockUser = {
   auth: {
     id: '123',
     userId: 12,
-    username: null,
-    email: 'elon@tesla.com',
-    isEmailVerified: false,
-    emailVerificationSentAt: null,
-    passwordResetSentAt: null,
+    identities: [
+      {
+        authId: '123',
+        providerName: 'email',
+        providerUserId: 'elon@tesla.com',
+        providerData: '',
+      },
+    ],
   },
   address: null,
 } satisfies User
