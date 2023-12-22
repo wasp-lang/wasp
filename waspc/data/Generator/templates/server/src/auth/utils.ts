@@ -38,6 +38,7 @@ export type UsernameProviderData = {
 
 export type OAuthProviderData = {}
 
+// This type is used to map provider names to their data types.
 export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
