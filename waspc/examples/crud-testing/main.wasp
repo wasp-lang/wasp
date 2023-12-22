@@ -22,7 +22,7 @@ app crudTesting {
   db: {
     system: PostgreSQL,
     seeds: [
-      import { migrateAuth } from "@server/migrate.js"
+      import { migrateAuth } from "@server/seeds/migrateAuth.js"
     ]
   }
 }
