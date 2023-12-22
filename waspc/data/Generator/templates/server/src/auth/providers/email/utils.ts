@@ -9,6 +9,7 @@ import {
   findAuthIdentity,
   deserializeAndSanitizeProviderData,
 } from '../../utils.js';
+import { getCurrentUTCDate } from '../../../utils.js'
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
@@ -57,7 +58,7 @@ async function sendEmailAndLogTimestamp(
     const authIdentity = await findAuthIdentity(providerId);
     const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
     await updateAuthIdentityProviderData<'email'>(providerId, providerData, {
-        [field]: new Date()
+        [field]: getCurrentUTCDate().toISOString(),
     });
   } catch (e) {
     rethrowPossibleAuthError(e);  
@@ -69,7 +70,7 @@ async function sendEmailAndLogTimestamp(
 
 export function isEmailResendAllowed<Field extends 'emailVerificationSentAt' | 'passwordResetSentAt'>(
   fields: {
-    [field in Field]: Date | null
+    [field in Field]: string | null
   },
   field: Field,
   resendInterval: number = 1000 * 60,
@@ -78,7 +79,7 @@ export function isEmailResendAllowed<Field extends 'emailVerificationSentAt' | '
   if (!sentAt) {
     return true;
   }
-  const now = new Date();
+  const now = getCurrentUTCDate();
   const diff = now.getTime() - new Date(sentAt).getTime();
   return diff > resendInterval;
 }
