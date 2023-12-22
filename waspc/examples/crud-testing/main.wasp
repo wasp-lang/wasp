@@ -51,8 +51,6 @@ page DetailPage {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  // username String @unique
-  // password String
   address String?
   tasks Task[]
 psl=}

@@ -14,6 +14,7 @@ import {
   findAuthWithUserBy,
   createAuthToken,
   rethrowPossibleAuthError,
+  sanitizeAndSerializeProviderData,
 } from "../../utils.js"
 
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
@@ -48,46 +49,48 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
               throw new Error(`${provider.displayName} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
           }
 
-          // Wrap call to getUserFieldsFn so we can invoke only if needed.
-          const getUserFields = () => getUserFieldsFn ? getUserFieldsFn(contextWithUserEntity, { profile: providerProfile }) : Promise.resolve({});
-          // TODO: In the future we could make this configurable, possibly associating an external account
-          // with the currently logged in account, or by some DB lookup.
-
           const providerId = createProviderId(provider.id, providerProfile.id);
 
           try {
-            const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
-              where: {
-                providerName_providerUserId: providerId,
-              },
-              include: {
-                {= authFieldOnAuthIdentityEntityName =}: {
-                  include: {
-                    {= userFieldOnAuthEntityName =}: true
+            // We need a user id to create the auth token, so we either find an existing user
+            // or create a new one if none exists for this provider.
+            const getUserIdFromProviderDetails = async () => {
+              const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
+                where: {
+                  providerName_providerUserId: providerId,
+                },
+                include: {
+                  {= authFieldOnAuthIdentityEntityName =}: {
+                    include: {
+                      {= userFieldOnAuthEntityName =}: true
+                    }
                   }
                 }
-              }
-            });
-        
-            
-            if (existingAuthIdentity) {
-              const token = await createAuthToken(
-                existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id,
-              );
-              return res.json({ token });
-            }
-          
-            const userFields = await getUserFields()
-          
-            const user = await createUser(
-              providerId,
-              undefined,
-              userFields,
-            )
-        
-            const token = await createAuthToken(user.id);
+              })
 
-            res.json({ token });
+              if (existingAuthIdentity) {
+                return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id
+              } else {
+                const userFields = getUserFieldsFn
+                  ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
+                  : {};
+  
+                // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
+                const providerData = await sanitizeAndSerializeProviderData({})
+              
+                const user = await createUser(
+                  providerId,
+                  providerData,
+                  userFields,
+                )
+            
+                return user.id
+              }
+            }
+
+            const userId = await getUserIdFromProviderDetails()    
+            const token = await createAuthToken(userId)
+            res.json({ token })
           } catch (e) {
             rethrowPossibleAuthError(e)
           }

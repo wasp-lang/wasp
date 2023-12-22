@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 import { readdir } from 'fs'
-import { join, dirname } from 'path'
+import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 {=# isAuthEnabled =}
@@ -44,29 +44,27 @@ export function getDirPathFromFileUrl(fileUrl: string): string {
 }
 
 export async function importJsFilesFromDir(
-  absoluteDir: string,
-  relativePath: string,
-  whitelist: string[] | null = null
+  pathToDir: string,
+  whitelistedFileNames: string[] | null = null
 ): Promise<any[]> {
-  const pathToDir = join(absoluteDir, relativePath)
-
   return new Promise((resolve, reject) => {
     readdir(pathToDir, async (err, files) => {
       if (err) {
         return reject(err)
       }
       const importPromises = files
-        .filter((file) => file.endsWith('.js') && isWhitelisted(file))
+        .filter((file) => file.endsWith('.js') && isWhitelistedFileName(file))
         .map((file) => import(`${pathToDir}/${file}`))
       resolve(Promise.all(importPromises))
     })
   })
 
-  function isWhitelisted(file: string) {
+  function isWhitelistedFileName(fileName: string) {
     // No whitelist means all files are whitelisted
-    if (!Array.isArray(whitelist)) {
+    if (!Array.isArray(whitelistedFileNames)) {
       return true
     }
-    return whitelist.some((whitelistedFile) => file.endsWith(whitelistedFile))
+    
+    return whitelistedFileNames.some((whitelistedFileName) => fileName === whitelistedFileName)
   }
 }
