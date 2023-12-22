@@ -2,8 +2,8 @@
 
 import { Router } from "express";
 
-import login from "../local/login.js";
-import signup from "../local/signup.js";
+import login from "../username/login.js";
+import signup from "../username/signup.js";
 import { ProviderConfig } from "../types.js";
 
 const config: ProviderConfig = {

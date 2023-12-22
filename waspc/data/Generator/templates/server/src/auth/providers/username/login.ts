@@ -15,9 +15,8 @@ export default handleRejection(async (req, res) => {
   const fields = req.body ?? {}
   ensureValidArgs(fields)
 
-  const authIdentity = await findAuthIdentity(
-    createProviderId('username', fields.username),
-  )
+  const providerId = createProviderId('username', fields.username)
+  const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
     throwInvalidCredentialsError()
   }

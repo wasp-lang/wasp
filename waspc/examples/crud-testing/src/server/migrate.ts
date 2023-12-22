@@ -35,7 +35,7 @@ export async function migrateAuth(db: typeof prisma) {
             providerName: 'username',
             providerUserId: username,
             providerData: await sanitizeAndSerializeProviderData<'username'>({
-              password: (user as any).password,
+              hashedPassword: (user as any).password,
             }),
           },
         },

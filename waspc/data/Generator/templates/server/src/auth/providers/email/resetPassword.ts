@@ -30,7 +30,9 @@ export async function resetPassword(
         await updateAuthIdentityProviderData(providerId, providerData, {
             // The act of resetting the password verifies the email
             isEmailVerified: true,
-            password,
+            // The password will be hashed when saving the providerData
+            // in the DB
+            hashedPassword: password,
         });
     } catch (e) {
         const reason = e.name === tokenVerificationErrors.TokenExpiredError

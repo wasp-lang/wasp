@@ -45,12 +45,12 @@ genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
         ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    authIndexFileInSrcDir = [relfile|auth/providers/config/local.ts|]
+    authIndexFileInSrcDir = [relfile|auth/providers/config/username.ts|]
 
 genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
 genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    loginRouteRelToSrc = [relfile|auth/providers/local/login.ts|]
+    loginRouteRelToSrc = [relfile|auth/providers/username/login.ts|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> loginRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile loginRouteRelToSrc
 
@@ -64,7 +64,7 @@ genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
 genSignupRoute :: AS.Auth.Auth -> Generator FileDraft
 genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    signupRouteRelToSrc = [relfile|auth/providers/local/signup.ts|]
+    signupRouteRelToSrc = [relfile|auth/providers/username/signup.ts|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> signupRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile signupRouteRelToSrc
 

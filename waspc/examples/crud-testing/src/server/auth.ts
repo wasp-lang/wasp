@@ -57,7 +57,7 @@ export const signup: CustomSignup<
             providerName: 'username',
             providerUserId: args.username,
             providerData: await sanitizeAndSerializeProviderData<'username'>({
-              password: args.password,
+              hashedPassword: args.password,
             }),
           },
         },
