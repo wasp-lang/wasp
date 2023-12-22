@@ -1,11 +1,12 @@
 import { BarBaz, FooBar, WebhookCallback } from '@wasp/apis/types'
 import express from 'express'
 import { MiddlewareConfigFn } from '@wasp/middleware'
+import { getFirstProviderUserId } from '@wasp/auth/user.js'
 
 export const fooBar: FooBar = (_req, res, context) => {
-  const identity = context?.user?.auth?.identities[0]
+  const username = getFirstProviderUserId(context?.user) ?? 'Anonymous'
 
-  res.json({ msg: `Hello, ${identity?.providerUserId}!` })
+  res.json({ msg: `Hello, ${username}!` })
 }
 
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {

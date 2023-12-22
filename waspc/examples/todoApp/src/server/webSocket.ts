@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocketDefinition } from '@wasp/webSocket'
+import { getFirstProviderUserId } from '@wasp/auth/user.js'
 
 export const webSocketFn: WebSocketDefinition<
   ClientToServerEvents,
@@ -7,8 +8,7 @@ export const webSocketFn: WebSocketDefinition<
   InterServerEvents
 > = (io, context) => {
   io.on('connection', (socket) => {
-    const identity = socket.data.user?.auth?.identities[0]
-    const username = (identity && identity.providerUserId) ?? 'unknown'
+    const username = getFirstProviderUserId(socket.data.user) ?? 'Unknown'
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {
