@@ -108,16 +108,16 @@ askToChoose question options = do
             indexPrefix = Term.applyStyles [Term.Yellow] (showIndex idx) <> " "
             optionName = Term.applyStyles [Term.Bold] (showOption option)
             tags = whenDefault (Term.applyStyles [Term.Yellow] " (default)")
-            optionDescription = showDescription option
+            optionDescription = showDescription (idx, option)
             whenDefault xs = if isDefaultOption option then xs else mempty
 
-        showIndex i = "[" ++ show (i :: Int) ++ "]"
+        showIndex idx = "[" ++ show (idx :: Int) ++ "]"
 
-        showDescription option = case showOptionDescription option of
+        showDescription (idx, option) = case showOptionDescription option of
           Just description -> "\n" <> replicate indentLength ' ' <> description
           Nothing -> ""
           where
-            indentLength = 6
+            indentLength = length (showIndex idx) + 1
 
     defaultOption :: o
     defaultOption = NE.head options
