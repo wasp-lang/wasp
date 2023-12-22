@@ -19,8 +19,8 @@ const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAddition
 export type EmailProviderData = {
   hashedPassword: string;
   isEmailVerified: boolean;
-  emailVerificationSentAt: Date | null;
-  passwordResetSentAt: Date | null;
+  emailVerificationSentAt: string | null;
+  passwordResetSentAt: string | null;
 }
 
 export type UsernameProviderData = {
@@ -29,6 +29,7 @@ export type UsernameProviderData = {
 
 export type OAuthProviderData = {}
 
+// This type is used to map provider names to their data types.
 export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
