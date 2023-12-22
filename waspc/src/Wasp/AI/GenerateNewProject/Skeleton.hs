@@ -10,8 +10,15 @@ import NeatInterpolation (trimming)
 import StrongPath (File', Path, Rel)
 import qualified StrongPath as SP
 import StrongPath.Types (System)
-import Wasp.AI.CodeAgent (CodeAgent, writeNewFile)
-import Wasp.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..), getProjectAuth, getProjectPrimaryColor)
+import Wasp.AI.CodeAgent (writeNewFile)
+import Wasp.AI.GenerateNewProject.Common
+  ( AuthProvider (..),
+    CodeAgent,
+    File,
+    NewProjectDetails (..),
+    getProjectAuth,
+    getProjectPrimaryColor,
+  )
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV

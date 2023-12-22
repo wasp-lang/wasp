@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.12.0
+## [WIP] 0.12.0
 
 ### ⚠️ Breaking changes
 

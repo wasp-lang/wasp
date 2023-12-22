@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS_GHC -Wno-deprecations #-}
 
 module Wasp.AI.OpenAI.ChatGPT
   ( queryChatGPT,
@@ -15,7 +16,6 @@ module Wasp.AI.OpenAI.ChatGPT
   )
 where
 
-import Control.Monad (when)
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
@@ -24,12 +24,12 @@ import Data.Functor ((<&>))
 import Data.List (find)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Debug.Pretty.Simple (pTrace)
 import GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.Util as Util
+import Wasp.Util.Debug (debugTrace)
 import qualified Wasp.Util.Network.HTTP as Utils.HTTP
 
 -- | Might throw an HttpException.
@@ -53,18 +53,17 @@ queryChatGPT apiKey params requestMessages = do
     Utils.HTTP.httpJSONThatThrowsIfNot2xx request
       <&> either (error . ("Failed to parse ChatGPT response body as JSON: " <>)) Prelude.id
 
-  when True $
-    pTrace
-      ( "\n\n\n\n==================================\n"
-          <> "\n===== GPT PARAMS ======\n"
-          <> show params
-          <> "\n====== REQUEST =======\n"
-          <> show requestMessages
-          <> "\n====== RESPONSE ======\n"
-          <> show chatResponse
-          <> "\n==================================\n\n\n\n"
-      )
-      $ return ()
+  debugTrace
+    ( "\n\n\n\n==================================\n"
+        <> "\n===== GPT PARAMS ======\n"
+        <> show params
+        <> "\n====== REQUEST =======\n"
+        <> show requestMessages
+        <> "\n====== RESPONSE ======\n"
+        <> show chatResponse
+        <> "\n==================================\n\n\n\n"
+    )
+    $ return ()
 
   return chatResponse
 

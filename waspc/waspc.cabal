@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.11.8
+version:        0.12.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -154,6 +154,7 @@ library
     Wasp.AI.GenerateNewProject.Common
     Wasp.AI.GenerateNewProject.Common.Prompts
     Wasp.AI.GenerateNewProject.Entity
+    Wasp.AI.GenerateNewProject.LogMsg
     Wasp.AI.GenerateNewProject.Operation
     Wasp.AI.GenerateNewProject.OperationsJsFile
     Wasp.AI.GenerateNewProject.Page
@@ -361,6 +362,7 @@ library
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
+    Wasp.Util.Debug
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.IO
@@ -562,6 +564,7 @@ test-suite waspc-test
     , tasty-golden          ^>= 2.3.5
   other-modules:
     AI.GenerateNewProject.PageComponentFileTest
+    AI.GenerateNewProject.LogMsgTest
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest
     Analyzer.Parser.ConcreteParserTest

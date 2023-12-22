@@ -22,31 +22,37 @@ import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Numeric.Natural (Natural)
 import qualified Text.Parsec as Parsec
-import Wasp.AI.CodeAgent (CodeAgent, writeToLog)
+import Wasp.AI.CodeAgent (writeToLog)
 import Wasp.AI.GenerateNewProject.Common
-  ( NewProjectDetails (..),
+  ( CodeAgent,
+    NewProjectDetails (..),
     fixingChatGPTParams,
     planningChatGPTParams,
     queryChatGPTForJSON,
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
+import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Psl.Format as Prisma
 import qualified Wasp.Psl.Parser.Model as Psl.Parser
 import qualified Wasp.Util.Aeson as Util.Aeson
+import qualified Wasp.Util.Terminal as Term
 
 -- | Additional rule to follow while generating plan.
 type PlanRule = String
 
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
-  writeToLog "Generating plan (slowest step, usually takes 30 to 90 seconds)..."
+  writeToLog $
+    "\n" <> L.styled L.Generating "Generating" <> " plan (slowest step, usually takes 30 to 90 seconds)"
+      <> L.styled (L.Custom [Term.Blink]) "..."
   initialPlan <- queryChatGPTForJSON (planningChatGPTParams newProjectDetails) chatMessages
-  writeToLog $ "Initial plan generated!\n" <> summarizePlan initialPlan
-  writeToLog "Fixing initial plan..."
+  writeToLog $ "Initial plan generated!\n" <> L.fromText (summarizePlan initialPlan)
+  writeToLog $ L.styled L.Fixing "Fixing" <> " initial plan..."
   fixedPlan <- fixPlanRepeatedly 3 initialPlan
   writeToLog "Plan fixed!"
+
   return fixedPlan
   where
     chatMessages =

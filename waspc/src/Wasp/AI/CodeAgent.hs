@@ -21,8 +21,8 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (MonadReader, ReaderT (runReaderT), asks)
 import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import qualified Data.HashMap.Strict as H
+import Data.String (IsString (fromString))
 import Data.Text (Text)
-import qualified Data.Text as T
 import qualified Network.HTTP.Simple as HTTP
 import System.IO (hPutStrLn, stderr)
 import UnliftIO (Handler (Handler), catches, throwIO)
@@ -35,33 +35,33 @@ import qualified Wasp.Util.IO.Retry as R
 import Wasp.Util.Network.HTTP (catchRetryableHttpException)
 import qualified Wasp.Util.Network.HTTP as Utils.HTTP
 
-newtype CodeAgent a = CodeAgent {_unCodeAgent :: ReaderT CodeAgentConfig (StateT CodeAgentState IO) a}
-  deriving (Monad, Applicative, Functor, MonadIO, MonadReader CodeAgentConfig, MonadState CodeAgentState)
+newtype CodeAgent logMsg a = CodeAgent {_unCodeAgent :: ReaderT (CodeAgentConfig logMsg) (StateT CodeAgentState IO) a}
+  deriving (Monad, Applicative, Functor, MonadIO, MonadReader (CodeAgentConfig logMsg), MonadState CodeAgentState)
 
-data CodeAgentConfig = CodeAgentConfig
+data CodeAgentConfig logMsg = CodeAgentConfig
   { _openAIApiKey :: !OpenAIApiKey,
     _writeFile :: !(FilePath -> Text -> IO ()), -- TODO: Use StrongPath? Not clear which kind of path is it, rel, abs, ... .
-    _writeLog :: !(Text -> IO ())
+    _writeLog :: !(logMsg -> IO ())
   }
 
-instance MonadRetry CodeAgent where
+instance MonadRetry (CodeAgent logMsg) where
   rThreadDelay = liftIO . threadDelay
 
-runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
+runCodeAgent :: (IsString logMsg) => CodeAgentConfig logMsg -> CodeAgent logMsg a -> IO a
 runCodeAgent config codeAgent =
   (fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState)
     `catches` [ Handler
                   ( \(e :: HTTP.HttpException) -> do
                       let errorInfo =
                             maybe (showShortException e) show $ Utils.HTTP.getHttpExceptionStatusCode e
-                          logMsg = T.pack $ "Code agent failed with the http error: " <> errorInfo
+                          logMsg = fromString $ "Code agent failed with the http error: " <> errorInfo
                       _writeLog config logMsg
                       throwIO e
                   ),
                 Handler
                   ( \(e :: SomeException) -> do
                       _writeLog config $
-                        "Code agent failed with the following error: " <> T.pack (showShortException e)
+                        fromString $ "Code agent failed with the following error: " <> showShortException e
                       throwIO e
                   )
               ]
@@ -78,26 +78,26 @@ runCodeAgent config codeAgent =
     showShortException :: forall e. Exception e => e -> String
     showShortException = shortenWithEllipsisTo 30 . displayException
 
-writeToLog :: Text -> CodeAgent ()
+writeToLog :: IsString logMsg => logMsg -> CodeAgent logMsg ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
 
-writeToFile :: FilePath -> (Maybe Text -> Text) -> CodeAgent ()
+writeToFile :: FilePath -> (Maybe Text -> Text) -> CodeAgent logMsg ()
 writeToFile path updateContentFn = do
   content <- updateContentFn <$> getFile path
   asks _writeFile >>= \f -> liftIO $ f path content
   modify $ \s -> s {_files = H.insert path content (_files s)}
 
-writeNewFile :: (FilePath, Text) -> CodeAgent ()
+writeNewFile :: (FilePath, Text) -> CodeAgent logMsg ()
 writeNewFile (path, content) =
   writeToFile path (maybe content $ error $ "file " <> path <> " shouldn't already exist")
 
-getFile :: FilePath -> CodeAgent (Maybe Text)
+getFile :: FilePath -> CodeAgent logMsg (Maybe Text)
 getFile path = gets $ H.lookup path . _files
 
-getAllFiles :: CodeAgent [(FilePath, Text)]
+getAllFiles :: CodeAgent logMsg [(FilePath, Text)]
 getAllFiles = gets $ H.toList . _files
 
-queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent Text
+queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent logMsg Text
 queryChatGPT params messages = do
   key <- asks _openAIApiKey
   chatResponse <- queryChatGPTWithRetry key params messages
@@ -105,7 +105,7 @@ queryChatGPT params messages = do
   return $ ChatGPT.getChatResponseContent chatResponse
   where
 {- ORMOLU_DISABLE -}
-    queryChatGPTWithRetry :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> CodeAgent ChatResponse
+    queryChatGPTWithRetry :: OpenAIApiKey -> ChatGPTParams -> [ChatMessage] -> CodeAgent logMsg ChatResponse
     queryChatGPTWithRetry key params' messages' =
       do
         R.retry
@@ -123,13 +123,13 @@ queryChatGPT params messages = do
           >>= either throwIO pure
 {- ORMOLU_ENABLE -}
 
-getOpenAIApiKey :: CodeAgent OpenAIApiKey
+getOpenAIApiKey :: CodeAgent logMsg OpenAIApiKey
 getOpenAIApiKey = asks _openAIApiKey
 
 type NumTokens = Int
 
 -- | Returns total tokens usage: (<num_prompt_tokens>, <num_completion_tokens>).
-getTotalTokensUsage :: CodeAgent (NumTokens, NumTokens)
+getTotalTokensUsage :: CodeAgent logMsg (NumTokens, NumTokens)
 getTotalTokensUsage = do
   usage <- gets _usage
   let numPromptTokens = sum $ ChatGPT.prompt_tokens <$> usage

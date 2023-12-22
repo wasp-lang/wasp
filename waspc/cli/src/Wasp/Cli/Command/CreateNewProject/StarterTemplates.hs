@@ -12,6 +12,7 @@ where
 
 import Data.Either (fromRight)
 import Data.Foldable (find)
+import Data.List (isPrefixOf)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System, reldir, (</>))
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github as Github
@@ -38,12 +39,12 @@ instance Show StarterTemplate where
   show (LocalStarterTemplate metadata) = _name metadata
   show AiGeneratedStarterTemplate = "ai-generated"
 
-instance Interactive.Option StarterTemplate where
+instance Interactive.IsOption StarterTemplate where
   showOption = show
   showOptionDescription (RemoteStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription AiGeneratedStarterTemplate =
-    Just "[experimental] Describe an app in a couple of sentences and have ChatGPT generate initial code for you."
+    Just "🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)"
 
 getStarterTemplates :: IO [StarterTemplate]
 getStarterTemplates = do

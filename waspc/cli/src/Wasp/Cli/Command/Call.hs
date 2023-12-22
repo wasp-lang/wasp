@@ -2,8 +2,7 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New Arguments
-  | NewAiToStdout String String String -- projectName, appDescription, projectConfigJson
-  | NewAiToDisk String String String -- projectName, appDescription, projectConfigJson
+  | NewAi Arguments
   | Start
   | StartDb
   | Clean
