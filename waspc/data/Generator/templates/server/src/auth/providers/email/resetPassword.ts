@@ -19,7 +19,7 @@ export async function resetPassword(
 
     const { token, password } = args;
     try {
-        const { id: email } = await verifyToken(token);
+        const { email, token: resetToken } = await verifyToken<{ email: string, token: string }>(token);
 
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
@@ -28,6 +28,11 @@ export async function resetPassword(
         }
         
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+        if (resetToken !== providerData.passwordResetToken) {
+            throw new HttpError(400, "Invalid token");
+        }
+
         await updateAuthIdentityProviderData(providerId, providerData, {
             // The act of resetting the password verifies the email
             isEmailVerified: true,

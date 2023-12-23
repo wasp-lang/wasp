@@ -15,7 +15,8 @@ const jwtVerify = util.promisify(jwt.verify)
 
 const JWT_SECRET = config.auth.jwtSecret
 
-export const sign = (id, options) => jwtSign({ id }, JWT_SECRET, options)
+export const signData = (data, options) => jwtSign(data, JWT_SECRET, options)
+export const sign = (id, options) => signData({ id }, options)
 export const verify = (token) => jwtVerify(token, JWT_SECRET)
 
 const auth = handleRejection(async (req, res, next) => {

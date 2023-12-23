@@ -16,11 +16,16 @@ export async function verifyEmail(
 ): Promise<Response<{ success: true }> | void> {
     try {
         const { token } = req.body;
-        const { id: email } = await verifyToken(token);
+        const { email, token: verificationToken } = await verifyToken<{ email: string, token: string }>(token);
 
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+        if (verificationToken !== providerData.emailVerificationToken) {
+            throw new HttpError(400, "Invalid token");
+        }
+
         await updateAuthIdentityProviderData(providerId, providerData, {
             isEmailVerified: true,
         });

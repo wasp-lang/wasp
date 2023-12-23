@@ -1,70 +1,78 @@
 {{={= =}=}}
-import { sign } from '../../../core/auth.js'
+import { signData } from '../../../core/auth.js'
 import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
 import {
-  rethrowPossibleAuthError,
   createProviderId,
   updateAuthIdentityProviderData,
   findAuthIdentity,
   deserializeAndSanitizeProviderData,
+  type EmailProviderData,
 } from '../../utils.js';
-import { getCurrentUTCDate } from '../../../utils.js'
+import { getCurrentUTCDate, getRandomString } from '../../../utils.js'
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
-export async function createEmailVerificationLink(email: string, clientRoute: string) {
-  const token = await createEmailVerificationToken(email);
-  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
+export async function createEmailVerificationLinkWithToken(
+  email: string,
+  clientRoute: string,
+): Promise<{ link: string; token: string; }> {
+  const { jwtToken, token } = await createEmailJwtToken(email);
+  const link = `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
+  return { link, token };
 }
 
-export async function createPasswordResetLink(email: string, clientRoute: string)  {
-  const token = await createPasswordResetToken(email);
-  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
+export async function createPasswordResetLinkWithToken(
+  email: string,
+  clientRoute: string,
+): Promise<{ link: string; token: string; }>  {
+  const { jwtToken, token } = await createEmailJwtToken(email);
+  const link = `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
+  return { link, token };
 }
 
-async function createEmailVerificationToken(email: string): Promise<string> {
-  return sign(email, { expiresIn: '30m' });
-}
-
-async function createPasswordResetToken(email: string): Promise<string> {
-  return sign(email, { expiresIn: '30m' });
+async function createEmailJwtToken(email: string): Promise<{ jwtToken: string; token: string; }> {
+  const token = getRandomString();
+  const jwtToken = await signData({ email, token }, { expiresIn: '30m' });
+  return { jwtToken, token };
 }
 
 export async function sendPasswordResetEmail(
   email: string,
+  passwordResetToken: string,
   content: Email,
 ): Promise<void> {
-  return sendEmailAndLogTimestamp(email, content, 'passwordResetSentAt');
+  return sendEmailAndSaveMetadata(email, content, {
+    passwordResetSentAt: getCurrentUTCDate().toISOString(),
+    passwordResetToken,
+  });
 }
 
 export async function sendEmailVerificationEmail(
   email: string,
+  emailVerificationToken: string,
   content: Email,
 ): Promise<void> {
-  return sendEmailAndLogTimestamp(email, content, 'emailVerificationSentAt');
+  return sendEmailAndSaveMetadata(email, content, {
+    emailVerificationSentAt: getCurrentUTCDate().toISOString(),
+    emailVerificationToken,
+  });
 }
 
-async function sendEmailAndLogTimestamp(
+async function sendEmailAndSaveMetadata(
   email: string,
   content: Email,
-  field: 'emailVerificationSentAt' | 'passwordResetSentAt',
+  metadata: Partial<EmailProviderData>,
 ): Promise<void> {
-  // Set the timestamp first, and then send the email
-  // so the user can't send multiple requests while
-  // the email is being sent.
-  try {
-    const providerId = createProviderId("email", email);
-    const authIdentity = await findAuthIdentity(providerId);
-    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-    await updateAuthIdentityProviderData<'email'>(providerId, providerData, {
-        [field]: getCurrentUTCDate().toISOString(),
-    });
-  } catch (e) {
-    rethrowPossibleAuthError(e);  
-  }
+  // Save the metadata (e.g. timestamp) first, and then send the email
+  // so the user can't send multiple requests while the email is being sent.
+  const providerId = createProviderId("email", email);
+  const authIdentity = await findAuthIdentity(providerId);
+  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+  await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
+
   emailSender.send(content).catch((e) => {
-    console.error(`Failed to send email for ${field}`, e);
+    console.error('Failed to send email', e);
   });
 }
 

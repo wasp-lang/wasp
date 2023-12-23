@@ -10,7 +10,7 @@ import {
     sanitizeAndSerializeProviderData,
 } from "../../utils.js";
 import {
-    createEmailVerificationLink,
+    createEmailVerificationLinkWithToken,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
 } from "./utils.js";
@@ -67,6 +67,8 @@ export function getSignupRoute({
             isEmailVerified: false,
             emailVerificationSentAt: null,
             passwordResetSentAt: null,
+            emailVerificationToken: null,
+            passwordResetToken: null,
         });
 
         await createUser(
@@ -75,10 +77,14 @@ export function getSignupRoute({
             userFields,
         );
 
-        const verificationLink = await createEmailVerificationLink(fields.email, clientRoute);
+        const {
+            link: verificationLink,
+            token,
+        } = await createEmailVerificationLinkWithToken(fields.email, clientRoute);
         try {
             await sendEmailVerificationEmail(
                 fields.email,
+                token,
                 {
                     from: fromField,
                     to: fields.email,

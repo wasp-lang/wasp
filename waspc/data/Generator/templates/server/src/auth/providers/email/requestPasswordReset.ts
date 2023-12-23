@@ -6,7 +6,7 @@ import {
     deserializeAndSanitizeProviderData,
 } from "../../utils.js";
 import {
-    createPasswordResetLink,
+    createPasswordResetLinkWithToken,
     sendPasswordResetEmail,
     isEmailResendAllowed,
 } from "./utils.js";
@@ -51,16 +51,20 @@ export function getRequestPasswordResetRoute({
             throw new HttpError(400, "Please wait a minute before trying again.");
         }
 
-        const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
+        const {
+            link: passwordResetLink,
+            token,
+        } = await createPasswordResetLinkWithToken(args.email, clientRoute);
         try {
             const email = authIdentity.providerUserId
             await sendPasswordResetEmail(
                 email,
+                token,
                 {
                     from: fromField,
                     to: email,
                     ...getPasswordResetEmailContent({ passwordResetLink }),
-                }
+                },
             );
         } catch (e: any) {
             console.error("Failed to send password reset email:", e);
