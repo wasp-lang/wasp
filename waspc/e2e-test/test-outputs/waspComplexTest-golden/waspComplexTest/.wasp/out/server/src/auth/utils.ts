@@ -198,6 +198,17 @@ export function rethrowPossibleAuthError(e: unknown): void {
     })
   }
 
+  // Prisma code P2003 is for foreign key constraint failure
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+    console.error(e)
+    console.info(`🐝 This error can happen if you have some relation on your User entity
+   but you didn't specify the "onDelete" behaviour to either "Cascade" or "SetNull".
+   Read more at: https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions`)
+    throw new HttpError(500, 'Save failed', {
+      message: `there was a database error`,
+    })
+  }
+
   throw e
 }
 
