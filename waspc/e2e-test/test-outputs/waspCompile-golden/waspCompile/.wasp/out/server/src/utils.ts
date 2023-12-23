@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
 import { readdir } from 'fs'
@@ -78,4 +79,8 @@ export function getCurrentUTCDate(): Date {
     );
 
     return new Date(utcTimestamp);
+}
+
+export function getRandomString(bytes: number = 32): string {
+  return crypto.randomBytes(bytes).toString('hex')
 }

@@ -20,7 +20,9 @@ export type EmailProviderData = {
   hashedPassword: string;
   isEmailVerified: boolean;
   emailVerificationSentAt: string | null;
+  emailVerificationToken: string | null;
   passwordResetSentAt: string | null;
+  passwordResetToken: string | null;
 }
 
 export type UsernameProviderData = {
@@ -149,7 +151,7 @@ export async function createAuthToken(
   return sign(userId);
 }
 
-export async function verifyToken(token: string): Promise<{ id: any }> {
+export async function verifyToken<T = unknown>(token: string): Promise<T> {
   return verify(token);
 }
 
