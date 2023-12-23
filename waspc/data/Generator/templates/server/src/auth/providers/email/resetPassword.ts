@@ -8,11 +8,12 @@ import {
 } from "../../utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
+import HttpError from '../../../core/HttpError.js';
 
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
     res: Response,
-): Promise<Response<{ success: true } | { success: false; message: string }>> {
+): Promise<Response<{ success: true }> | void> {
     const args = req.body ?? {};
     ensureValidArgs(args);
 
@@ -23,7 +24,7 @@ export async function resetPassword(
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
         if (!authIdentity) {
-            return res.status(400).json({ success: false, message: 'Invalid token' });
+            throw new HttpError(400, "Invalid token");
         }
         
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
@@ -38,7 +39,7 @@ export async function resetPassword(
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'
             : 'invalid';
-        return res.status(400).json({ success: false, message: `Password reset failed, ${reason} token`});
+        throw new HttpError(400, `Password reset failed, ${reason} token`);
     }
     res.json({ success: true });
 };

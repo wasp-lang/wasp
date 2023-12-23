@@ -17,39 +17,47 @@ import {
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetAdditionalFields } from '../../utils.js'
+import HttpError from '../../../core/HttpError.js';
 
 export function getSignupRoute({
     fromField,
     clientRoute,
     getVerificationEmailContent,
+    allowUnverifiedLogin,
 }: {
     fromField: EmailFromField;
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
+    allowUnverifiedLogin: boolean;
 }) {
     return async function signup(
         req: Request<{ email: string; password: string; }>,
         res: Response,
-    ): Promise<Response<{ success: true } | { success: false; message: string }>> {
+    ): Promise<Response<{ success: true }> | void> {
         const fields = req.body;
         ensureValidArgs(fields);
         
         const providerId = createProviderId("email", fields.email);
         const existingAuthIdentity = await findAuthIdentity(providerId);
-        if (existingAuthIdentity) {
+
+        if (existingAuthIdentity && !allowUnverifiedLogin) {
             const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
-            // User already exists and is verified - don't leak information
+
+            // 1a. User already exists and is verified - don't leak information
             if (providerData.isEmailVerified) {
                 await doFakeWork();
                 return res.json({ success: true });
             }
 
             if (!isEmailResendAllowed(providerData, 'emailVerificationSentAt')) {
-                return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+                throw new HttpError(400, "Please wait a minute before trying again.");
             }
 
-            // User exists but is not verified - delete the user and create a new one
+            // 1b. User exists but is not verified - delete the user and create a new one
             await deleteUserByAuthId(existingAuthIdentity.authId);
+        } else if (existingAuthIdentity && allowUnverifiedLogin) {
+            // 2. User already exists **and we allow unverified login**
+            throw new HttpError(400, "User with that email already exists.")
         }
 
         const userFields = await validateAndGetAdditionalFields(fields);
@@ -61,7 +69,7 @@ export function getSignupRoute({
             passwordResetSentAt: null,
         });
 
-        const user = await createUser(
+        await createUser(
             providerId,
             newUserProviderData,
             userFields,
@@ -79,7 +87,7 @@ export function getSignupRoute({
             );
         } catch (e: any) {
             console.error("Failed to send email verification email:", e);
-            return res.status(500).json({ success: false, message: "Failed to send email verification email." });
+            throw new HttpError(500, "Failed to send email verification email.");
         } 
       
         return res.json({ success: true });

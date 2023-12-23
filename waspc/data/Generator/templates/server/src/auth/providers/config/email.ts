@@ -62,6 +62,7 @@ const config: ProviderConfig = {
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
+            allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
         }));
         router.post('/signup', signupRoute);
         

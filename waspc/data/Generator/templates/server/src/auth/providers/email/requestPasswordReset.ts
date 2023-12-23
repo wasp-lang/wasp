@@ -13,6 +13,7 @@ import {
 import { ensureValidEmail } from "../../validation.js";
 import type { EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';
+import HttpError from '../../../core/HttpError.js';
 
 export function getRequestPasswordResetRoute({
    fromField,
@@ -26,7 +27,7 @@ export function getRequestPasswordResetRoute({
     return async function requestPasswordReset(
         req: Request<{ email: string; }>,
         res: Response,
-    ): Promise<Response<{ success: true } | { success: false; message: string }>> {
+    ): Promise<Response<{ success: true }> | void> {
         const args = req.body ?? {};
         ensureValidEmail(args);
 
@@ -47,7 +48,7 @@ export function getRequestPasswordResetRoute({
         }
 
         if (!isEmailResendAllowed(providerData, 'passwordResetSentAt')) {
-            return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+            throw new HttpError(400, "Please wait a minute before trying again.");
         }
 
         const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
@@ -63,7 +64,7 @@ export function getRequestPasswordResetRoute({
             );
         } catch (e: any) {
             console.error("Failed to send password reset email:", e);
-            return res.status(500).json({ success: false, message: "Failed to send password reset email." });
+            throw new HttpError(500, "Failed to send password reset email.");
         }
     
         res.json({ success: true });

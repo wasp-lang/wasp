@@ -7,11 +7,13 @@ import {
     deserializeAndSanitizeProviderData,
 } from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
+import HttpError from '../../../core/HttpError.js';
+
 
 export async function verifyEmail(
     req: Request<{ token: string }>,
     res: Response,
-): Promise<Response<{ success: true } | { success: false, message: string }>> {
+): Promise<Response<{ success: true }> | void> {
     try {
         const { token } = req.body;
         const { id: email } = await verifyToken(token);
@@ -26,7 +28,7 @@ export async function verifyEmail(
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'
             : 'invalid';
-        return res.status(400).json({ success: false, message: `Token is ${reason}` });
+        throw new HttpError(400, `Token is ${reason}`);
     }
 
     return res.json({ success: true });
