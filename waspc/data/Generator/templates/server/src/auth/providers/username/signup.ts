@@ -3,6 +3,7 @@ import { handleRejection } from '../../../utils.js'
 import {
   createProviderId,
   createUser,
+  rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
 } from '../../utils.js'
 import {
@@ -22,13 +23,18 @@ export default handleRejection(async (req, res) => {
   const providerData = await sanitizeAndSerializeProviderData<'username'>({
     hashedPassword: fields.password,
   })
-  await createUser(
-    providerId,
-    providerData,
-    // Using any here because we want to avoid TypeScript errors and
-    // rely on Prisma to validate the data.
-    userFields as any
-  )
+
+  try {
+    await createUser(
+      providerId,
+      providerData,
+      // Using any here because we want to avoid TypeScript errors and
+      // rely on Prisma to validate the data.
+      userFields as any
+    )
+  } catch (e: unknown) {
+    rethrowPossibleAuthError(e)
+  }
 
   return res.json({ success: true })
 })

@@ -8,6 +8,7 @@ import {
     doFakeWork,
     deserializeAndSanitizeProviderData,
     sanitizeAndSerializeProviderData,
+    rethrowPossibleAuthError,
 } from "../../utils.js";
 import {
     createEmailVerificationLinkWithToken,
@@ -53,11 +54,16 @@ export function getSignupRoute({
                 throw new HttpError(400, "Please wait a minute before trying again.");
             }
 
-            // 1b. User exists but is not verified - delete the user and create a new one
-            await deleteUserByAuthId(existingAuthIdentity.authId);
+            try {
+                // 1b. User exists but is not verified - delete the user and create a new one
+                await deleteUserByAuthId(existingAuthIdentity.authId);
+            } catch (e: unknown) {
+                rethrowPossibleAuthError(e);
+            }
+
         } else if (existingAuthIdentity && allowUnverifiedLogin) {
             // 2. User already exists **and we allow unverified login**
-            throw new HttpError(400, "User with that email already exists.")
+            throw new HttpError(422, "User with that email already exists.")
         }
 
         const userFields = await validateAndGetAdditionalFields(fields);
@@ -71,11 +77,15 @@ export function getSignupRoute({
             passwordResetToken: null,
         });
 
-        await createUser(
-            providerId,
-            newUserProviderData,
-            userFields,
-        );
+        try {
+            await createUser(
+                providerId,
+                newUserProviderData,
+                userFields,
+            );
+        } catch (e: unknown) {
+            rethrowPossibleAuthError(e);
+        }
 
         const {
             link: verificationLink,
@@ -91,7 +101,7 @@ export function getSignupRoute({
                     ...getVerificationEmailContent({ verificationLink }),
                 }
             );
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Failed to send email verification email:", e);
             throw new HttpError(500, "Failed to send email verification email.");
         } 
