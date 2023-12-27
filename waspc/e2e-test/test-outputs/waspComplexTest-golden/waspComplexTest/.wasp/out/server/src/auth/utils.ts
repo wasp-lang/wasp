@@ -111,38 +111,30 @@ export async function createUser(
   serializedProviderData?: string,
   userFields?: PossibleAdditionalSignupFields,
 ): Promise<User> {
-  try {
-    return prisma.user.create({
-      data: {
-        // Using any here to prevent type errors when userFields are not
-        // defined. We want Prisma to throw an error in that case.
-        ...(userFields ?? {} as any),
-        auth: {
-          create: {
-            identities: {
-                create: {
-                    providerName: providerId.providerName,
-                    providerUserId: providerId.providerUserId,
-                    providerData: serializedProviderData,
-                },
-            },
-          }
-        },
-      }
-    })
-  } catch (e) {
-    rethrowPossibleAuthError(e);
-  }
+  return prisma.user.create({
+    data: {
+      // Using any here to prevent type errors when userFields are not
+      // defined. We want Prisma to throw an error in that case.
+      ...(userFields ?? {} as any),
+      auth: {
+        create: {
+          identities: {
+              create: {
+                  providerName: providerId.providerName,
+                  providerUserId: providerId.providerUserId,
+                  providerData: serializedProviderData,
+              },
+          },
+        }
+      },
+    }
+  })
 }
 
 export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
-  try {
-    return await prisma.user.deleteMany({ where: { auth: {
-      id: authId,
-    } } })
-  } catch (e) {
-    rethrowPossibleAuthError(e);
-  }
+  return prisma.user.deleteMany({ where: { auth: {
+    id: authId,
+  } } })
 }
 
 export async function createAuthToken(
