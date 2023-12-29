@@ -13,13 +13,13 @@ import HttpError from '../../../core/HttpError.js';
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
     res: Response,
-): Promise<Response<{ success: true }> | void> {
+): Promise<Response<{ success: true }>> {
     const args = req.body ?? {};
     ensureValidArgs(args);
 
     const { token, password } = args;
     try {
-        const { email, token: resetToken } = await verifyToken<{ email: string, token: string }>(token);
+        const { email } = await verifyToken<{ email: string }>(token);
 
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
@@ -28,10 +28,6 @@ export async function resetPassword(
         }
         
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-
-        if (resetToken !== providerData.passwordResetToken) {
-            throw new HttpError(400, "Invalid token");
-        }
 
         await updateAuthIdentityProviderData(providerId, providerData, {
             // The act of resetting the password verifies the email
@@ -46,7 +42,7 @@ export async function resetPassword(
             : 'invalid';
         throw new HttpError(400, `Password reset failed, ${reason} token`);
     }
-    res.json({ success: true });
+    return res.json({ success: true });
 };
 
 function ensureValidArgs(args: unknown): void {

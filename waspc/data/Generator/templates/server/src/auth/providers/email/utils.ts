@@ -9,53 +9,45 @@ import {
   deserializeAndSanitizeProviderData,
   type EmailProviderData,
 } from '../../utils.js';
-import { getCurrentUTCDate, getRandomString } from '../../../utils.js'
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
 export async function createEmailVerificationLinkWithToken(
   email: string,
   clientRoute: string,
-): Promise<{ link: string; token: string; }> {
-  const { jwtToken, token } = await createEmailJwtToken(email);
-  const link = `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
-  return { link, token };
+): Promise<string> {
+  const { jwtToken } = await createEmailJwtToken(email);
+  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
 export async function createPasswordResetLinkWithToken(
   email: string,
   clientRoute: string,
-): Promise<{ link: string; token: string; }>  {
-  const { jwtToken, token } = await createEmailJwtToken(email);
-  const link = `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
-  return { link, token };
+): Promise<string>  {
+  const { jwtToken } = await createEmailJwtToken(email);
+  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
-async function createEmailJwtToken(email: string): Promise<{ jwtToken: string; token: string; }> {
-  const token = getRandomString();
-  const jwtToken = await signData({ email, token }, { expiresIn: '30m' });
-  return { jwtToken, token };
+async function createEmailJwtToken(email: string): Promise<{ jwtToken: string; }> {
+  const jwtToken = await signData({ email }, { expiresIn: '30m' });
+  return { jwtToken };
 }
 
 export async function sendPasswordResetEmail(
   email: string,
-  passwordResetToken: string,
   content: Email,
 ): Promise<void> {
   return sendEmailAndSaveMetadata(email, content, {
-    passwordResetSentAt: getCurrentUTCDate().toISOString(),
-    passwordResetToken,
+    passwordResetSentAt: (new Date()).toISOString(),
   });
 }
 
 export async function sendEmailVerificationEmail(
   email: string,
-  emailVerificationToken: string,
   content: Email,
 ): Promise<void> {
   return sendEmailAndSaveMetadata(email, content, {
-    emailVerificationSentAt: getCurrentUTCDate().toISOString(),
-    emailVerificationToken,
+    emailVerificationSentAt: (new Date()).toISOString(),
   });
 }
 
@@ -82,12 +74,21 @@ export function isEmailResendAllowed<Field extends 'emailVerificationSentAt' | '
   },
   field: Field,
   resendInterval: number = 1000 * 60,
-): boolean {
+): {
+  isResendAllowed: boolean;
+  timeLeft: number;
+} {
   const sentAt = fields[field];
   if (!sentAt) {
-    return true;
+    return {
+      isResendAllowed: true,
+      timeLeft: 0,
+    };
   }
-  const now = getCurrentUTCDate();
+  const now = new Date();
   const diff = now.getTime() - new Date(sentAt).getTime();
-  return diff > resendInterval;
+  const isResendAllowed = diff > resendInterval;
+  // Time left in seconds
+  const timeLeft = isResendAllowed ? 0 : Math.round((resendInterval - diff) / 1000);
+  return { isResendAllowed, timeLeft };
 }

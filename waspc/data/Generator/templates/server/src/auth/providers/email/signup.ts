@@ -34,7 +34,7 @@ export function getSignupRoute({
     return async function signup(
         req: Request<{ email: string; password: string; }>,
         res: Response,
-    ): Promise<Response<{ success: true }> | void> {
+    ): Promise<Response<{ success: true }>> {
         const fields = req.body;
         ensureValidArgs(fields);
         
@@ -50,8 +50,9 @@ export function getSignupRoute({
                 return res.json({ success: true });
             }
 
-            if (!isEmailResendAllowed(providerData, 'emailVerificationSentAt')) {
-                throw new HttpError(400, "Please wait a minute before trying again.");
+            const { isResendAllowed, timeLeft } = isEmailResendAllowed(providerData, 'passwordResetSentAt');
+            if (!isResendAllowed) {
+                throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
             }
 
             try {
@@ -73,8 +74,6 @@ export function getSignupRoute({
             isEmailVerified: false,
             emailVerificationSentAt: null,
             passwordResetSentAt: null,
-            emailVerificationToken: null,
-            passwordResetToken: null,
         });
 
         try {
@@ -87,14 +86,10 @@ export function getSignupRoute({
             rethrowPossibleAuthError(e);
         }
 
-        const {
-            link: verificationLink,
-            token,
-        } = await createEmailVerificationLinkWithToken(fields.email, clientRoute);
+        const verificationLink = await createEmailVerificationLinkWithToken(fields.email, clientRoute);
         try {
             await sendEmailVerificationEmail(
                 fields.email,
-                token,
                 {
                     from: fromField,
                     to: fields.email,

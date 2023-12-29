@@ -29,9 +29,7 @@ export type EmailProviderData = {
   hashedPassword: string;
   isEmailVerified: boolean;
   emailVerificationSentAt: string | null;
-  emailVerificationToken: string | null;
   passwordResetSentAt: string | null;
-  passwordResetToken: string | null;
 }
 
 export type UsernameProviderData = {
