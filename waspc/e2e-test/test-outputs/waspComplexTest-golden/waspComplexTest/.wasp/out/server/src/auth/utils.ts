@@ -20,9 +20,7 @@ export type EmailProviderData = {
   hashedPassword: string;
   isEmailVerified: boolean;
   emailVerificationSentAt: string | null;
-  emailVerificationToken: string | null;
   passwordResetSentAt: string | null;
-  passwordResetToken: string | null;
 }
 
 export type UsernameProviderData = {
@@ -52,9 +50,15 @@ export const authConfig = {
   successRedirectPath: "/",
 }
 
-// ProviderId represents one user account in a specific provider.
-// We are packing it into a single object to make it easier to
-// make sure that the providerUserId is always lowercased.
+/**
+ * ProviderId uniquely identifies an auth identity e.g. 
+ * "email" provider with user id "test@test.com" or
+ * "google" provider with user id "1234567890".
+ * 
+ * We use this type to avoid passing the providerName and providerUserId
+ * separately. Also, we can normalize the providerUserId to make sure it's
+ * consistent across different DB operations.
+ */
 type ProviderId = {
   providerName: ProviderName;
   providerUserId: string;
@@ -75,6 +79,14 @@ export async function findAuthIdentity(providerId: ProviderId): Promise<AuthIden
   });
 }
 
+/**
+ * Updates the provider data for the given auth identity.
+ * 
+ * This function performs data sanitization and serialization.
+ * Sanitization is done by hashing the password, so this function
+ * expects the password received in the `providerDataUpdates`
+ * **not to be hashed**.
+ */
 export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   providerId: ProviderId,
   existingProviderData: PossibleProviderData[PN],

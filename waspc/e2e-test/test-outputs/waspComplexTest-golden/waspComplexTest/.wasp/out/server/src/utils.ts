@@ -64,25 +64,3 @@ export async function importJsFilesFromDir(
     return whitelistedFileNames.some((whitelistedFileName) => fileName === whitelistedFileName)
   }
 }
-
-export function getCurrentUTCDate(): Date {
-    const date = new Date();
-
-    // The Date.UTC() static method accepts parameters representing the date and time components
-    // similar to the Date constructor, but treats them as UTC. It returns the number of
-    // milliseconds since January 1, 1970, 00:00:00 UTC.
-    const utcTimestamp = Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      date.getUTCHours(),
-      date.getUTCMinutes(),
-      date.getUTCSeconds()
-    );
-
-    return new Date(utcTimestamp);
-}
-
-export function getRandomString(bytes: number = 32): string {
-  return crypto.randomBytes(bytes).toString('hex')
-}
