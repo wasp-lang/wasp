@@ -18,7 +18,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -41,7 +40,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -420,7 +418,7 @@ If you use [Username & password](/docs/auth/username-and-pass) authentication, t
 - The `username` must not be empty
 - The `password` must not be empty, have at least 8 characters, and contain a number
 
-Note that `username`s are stored in a **case-sensitive** manner.
+Note that `username`s are stored in a **case-insensitive** manner.
 
 #### Email
 
@@ -515,8 +513,6 @@ app crudTesting {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
   address String?
 psl=}
 ```
@@ -560,8 +556,6 @@ app crudTesting {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
   address String?
 psl=}
 ```
@@ -870,7 +864,6 @@ Read more about the render function in the [API Reference](#signupform-customiza
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -894,7 +887,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -929,23 +921,11 @@ Wasp requires you to set the field `auth.externalAuthEntity` for all authenticat
 //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
 //...
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -956,23 +936,11 @@ psl=}
 //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
 //...
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 

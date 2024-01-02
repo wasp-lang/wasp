@@ -1150,7 +1150,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -1580,7 +1579,6 @@ When using Social Login Providers, Wasp gives you the following options:
 ```wasp
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {},
     },
@@ -1601,7 +1599,6 @@ When using Social Login Providers, Wasp gives you the following options:
 ```wasp
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {},
     },
@@ -1632,23 +1629,11 @@ Anytime an authentication method is used that relies on an external authorizatio
 //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
 //...
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 :::note
@@ -1701,7 +1686,6 @@ app Example {
 
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
         configFn: import { config } from "@server/auth/google.js",
@@ -1722,7 +1706,6 @@ entity User {=psl
     username    String  @unique
     password    String
     displayName String?
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 //...

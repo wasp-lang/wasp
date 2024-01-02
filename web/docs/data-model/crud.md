@@ -89,8 +89,6 @@ app tasksCrudApp {
 
 entity User {=psl
   id       Int @id @default(autoincrement())
-  username String @unique
-  password String
   tasks    Task[]
 psl=}
 
