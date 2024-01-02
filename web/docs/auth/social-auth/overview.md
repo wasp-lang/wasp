@@ -45,8 +45,6 @@ app myApp {
   auth: {
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {}
     },
@@ -58,18 +56,6 @@ app myApp {
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -85,8 +71,6 @@ app myApp {
   auth: {
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {}
     },
@@ -98,18 +82,6 @@ app myApp {
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -155,7 +127,6 @@ entity User {=psl
     username                  String?       @unique
     // highlight-next-line
     isSignupComplete          Boolean       @default(false)
-    externalAuthAssociations  SocialLogin[]
 psl=}
 ```
 
@@ -168,7 +139,6 @@ entity User {=psl
     username                  String?       @unique
     // highlight-next-line
     isSignupComplete          Boolean       @default(false)
-    externalAuthAssociations  SocialLogin[]
 psl=}
 ```
 
@@ -190,7 +160,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
         // highlight-next-line
@@ -225,7 +194,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
         // highlight-next-line
@@ -396,102 +364,3 @@ For more information on:
 Check the provider-specific API References:
 
 <SocialAuthGrid pagePart="#api-reference" />
-
-### The `externalAuthEntity` and Its Fields
-
-Using social login providers requires you to define _an External Auth Entity_ and declare it with the `app.auth.externalAuthEntity` field.
-This Entity holds the data relevant to the social provider.
-All social providers share the same Entity.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title=main.wasp {4-10}
-// ...
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-
-// ...
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp {4-10}
-// ...
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-
-// ...
-```
-
-</TabItem>
-</Tabs>
-
-:::info
-You don't need to know these details, you can just copy and paste the entity definition above and you are good to go.
-:::
-
-The Entity acting as `app.auth.externalAuthEntity` must include the following fields:
-
-- `provider` - The provider's name (e.g. `google`, `github`, etc.).
-- `providerId` - The user's ID on the provider's platform.
-- `userId` - The user's ID on your platform (this references the `id` field from the Entity acting as `app.auth.userEntity`).
-- `user` - A relation to the `userEntity` (see [the `userEntity` section](#expected-fields-on-the-userentity)) for more details.
-- `createdAt` - A timestamp of when the association was created.
-- `@@unique([provider, providerId, userId])` - A unique constraint on the combination of `provider`, `providerId` and `userId`.
-
-### Expected Fields on the `userEntity`
-
-Using Social login providers requires you to add one extra field to the Entity acting as `app.auth.userEntity`:
-
-- `externalAuthAssociations` - A relation to the `externalAuthEntity` (see [the `externalAuthEntity` section](#the-externalauthentity-and-its-fields) for more details).
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title=main.wasp {6}
-// ...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// ...
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp {6}
-// ...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// ...
-```
-
-</TabItem>
-</Tabs>

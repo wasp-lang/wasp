@@ -49,10 +49,6 @@ app myApp {
     // 1. Specify the User entity  (we'll define it next)
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    // 2. Specify the SocialLogin entity (we'll define it next)
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
       // highlight-next-line
       // 3. Enable Github Auth
@@ -78,10 +74,6 @@ app myApp {
     // 1. Specify the User entity  (we'll define it next)
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    // 2. Specify the SocialLogin entity (we'll define it next)
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
       // highlight-next-line
       // 3. Enable Github Auth
@@ -106,25 +98,11 @@ Let's now define the entities acting as `app.auth.userEntity` and `app.auth.exte
 ```wasp title="main.wasp"
 // ...
 // highlight-next-line
-// 4. Define the User entity
+// 2. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-// 5. Define the SocialLogin entity
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -134,25 +112,11 @@ psl=}
 ```wasp title="main.wasp"
 // ...
 // highlight-next-line
-// 4. Define the User entity
+// 2. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-// 5. Define the SocialLogin entity
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -321,7 +285,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {}
     },
@@ -341,7 +304,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {}
     },
@@ -374,7 +336,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {
         configFn: import { getConfig } from "@server/auth/github.js",
@@ -389,7 +350,6 @@ entity User {=psl
     id                        Int     @id @default(autoincrement())
     username                  String  @unique
     displayName               String
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 // ...
@@ -424,7 +384,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {
         configFn: import { getConfig } from "@server/auth/github.js",
@@ -439,7 +398,6 @@ entity User {=psl
     id                        Int     @id @default(autoincrement())
     username                  String  @unique
     displayName               String
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 // ...
@@ -488,7 +446,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {
         configFn: import { getConfig } from "@server/auth/github.js",
@@ -511,7 +468,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {
         configFn: import { getConfig } from "@server/auth/github.js",

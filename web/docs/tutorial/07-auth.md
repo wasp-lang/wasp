@@ -19,15 +19,13 @@ First, we'll create a Todo list for what needs to be done (luckily we have an ap
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it expects certain fields to exist on the `User` entity. Specifically, it expects a unique `username` field and a `password` field, both of which should be strings.
+Since Wasp manages authentication, it expects certain fields to exist on the `User` entity:
 
 ```wasp title="main.wasp"
 // ...
 
 entity User {=psl
     id       Int    @id @default(autoincrement())
-    username String @unique
-    password String
 psl=}
 ```
 
@@ -288,8 +286,6 @@ First, let's define a one-to-many relation between users and tasks (check the [P
 
 entity User {=psl
     id       Int     @id @default(autoincrement())
-    username String  @unique
-    password String
     tasks    Task[]
 psl=}
 

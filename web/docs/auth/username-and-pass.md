@@ -89,8 +89,6 @@ When username authentication is enabled, Wasp expects certain fields in your `us
 // 3. Define the user entity
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
     // Add your own fields below
     // ...
 psl=}
@@ -102,8 +100,6 @@ psl=}
 // 3. Define the user entity
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
     // Add your own fields below
     // ...
 psl=}
@@ -621,8 +617,6 @@ app myApp {
 // Wasp requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
 psl=}
 ```
 </TabItem>
@@ -646,17 +640,10 @@ app myApp {
 // Wasp requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
 psl=}
 ```
 </TabItem>
 </Tabs>
-
-Username & password auth requires that `userEntity` specified in `auth` contains:
-
-- `username` field of type `String`
-- `password` field of type `String`
 
 ### Fields in the `usernameAndPassword` dict
 

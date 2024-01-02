@@ -132,11 +132,6 @@ When email authentication is enabled, Wasp expects certain fields in your `userE
 // 5. Define the user entity
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
     // Add your own fields below
     // ...
 psl=}
@@ -148,11 +143,6 @@ psl=}
 // 5. Define the user entity
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
     // Add your own fields below
     // ...
 psl=}
@@ -628,11 +618,6 @@ app myApp {
 // Using email auth requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
 psl=}
 ```
 </TabItem>
@@ -658,23 +643,10 @@ app myApp {
 // Using email auth requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
 psl=}
 ```
 </TabItem>
 </Tabs>
-
-Email auth requires that `userEntity` specified in `auth` contains:
-
-- optional `email` field of type `String`
-- optional `password` field of type `String`
-- `isEmailVerified` field of type `Boolean` with a default value of `false`
-- optional `emailVerificationSentAt` field of type `DateTime`
-- optional `passwordResetSentAt` field of type `DateTime`
 
 ### Fields in the `email` dict
 
