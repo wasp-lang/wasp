@@ -40,7 +40,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.AppSpec.Valid (getApp, getMajorNumberOfLowerBoundOfUserNodeVersionRange, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
@@ -67,7 +67,7 @@ import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.SemanticVersion (major)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -124,7 +124,7 @@ genTsConfigJson = do
       (C.asServerFile [relfile|tsconfig.json|])
       ( Just $
           object
-            [ "majorNodeVersion" .= show (major NodeVersion.oldestWaspSupportedNodeVersion)
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
 
@@ -198,7 +198,7 @@ npmDepsForWasp spec =
           ]
     }
   where
-    majorNodeVersionStr = show (getMajorNumberOfLowerBoundOfUserNodeVersionRange spec)
+    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
@@ -364,7 +364,7 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
     overrides :: [(String, String, String)]
     overrides =
       [ -- sodium-native > 3.3.0 broke deploying on Heroku.
-        -- Ref: https://github.com/sodium-friends/sodium-native/issues/160
+        -- Ref: https://github.com/sodium-friends/sodium-na
         ("secure-password", "sodium-native", "3.3.0")
       ]
 

@@ -9,14 +9,13 @@ module Wasp.AppSpec.Valid
     getIdFieldFromCrudEntity,
     isValidationError,
     isValidationWarning,
-    getMajorNumberOfLowerBoundOfUserNodeVersionRange,
+    getLowestNodeVersionUserAllows,
   )
 where
 
 import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (fromJust, isJust)
-import Numeric.Natural (Natural)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -410,10 +409,14 @@ validateUserNodeVersionRange spec =
       if not (V.isRangeInWaspSupportedRange userRange)
         then
           [ GenericValidationError $
-              "Node version range that you specified for your Wasp app ("
+              "Your app's node version range ("
                 <> show userRange
-                <> ") has too low lower boundary. It must be >= "
+                <> ") allow versions lower than "
                 <> show oldestWaspSupportedNodeVersion
+                <> " ."
+                <> " Wasp only works with node >= "
+                <> show oldestWaspSupportedNodeVersion
+                <> " . "
           ]
         else []
 
@@ -422,9 +425,11 @@ validateUserNodeVersionRange spec =
       if SV.doesVersionRangeAllowMajorChanges userRange
         then
           [ GenericValidationWarning $
-              "Node version range that you specified for your Wasp app ("
+              "Your app's node version range ("
                 <> show userRange
-                <> ") allows major version changes, which is not advised."
+                <> ") allows breaking changes."
+                <> "To ensure consistency between development and production environments,"
+                <> " we recommend you narrow down your node version range to not allow breaking changes."
           ]
         else []
 
@@ -472,7 +477,7 @@ getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- Example: If user specified their node version range to be [18.2, 20), then this function will return 18.
-getMajorNumberOfLowerBoundOfUserNodeVersionRange :: AppSpec -> Natural
-getMajorNumberOfLowerBoundOfUserNodeVersionRange spec =
-  maybe (error "This should never happen: user node version range lower bound is Inf") SV.major $
+getLowestNodeVersionUserAllows :: AppSpec -> SV.Version
+getLowestNodeVersionUserAllows spec =
+  fromMaybe (error "This should never happen: user node version range lower bound is Inf") $
     SVB.versionFromBound $ fst $ SVB.versionBounds $ AS.userNodeVersionRange spec

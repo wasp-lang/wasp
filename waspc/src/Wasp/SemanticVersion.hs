@@ -17,7 +17,7 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion, nextMajorVersion)
+import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),
@@ -141,5 +141,5 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
       let lowerBound = fst versionInterval
       lowerBoundVersion <- versionFromBound lowerBound
       let noMajorChangesInterval =
-            (lowerBound, Exclusive $ nextMajorVersion lowerBoundVersion)
+            (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
       guard $ versionInterval `isSubintervalOf` noMajorChangesInterval

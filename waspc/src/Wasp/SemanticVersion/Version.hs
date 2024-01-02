@@ -3,9 +3,6 @@
 module Wasp.SemanticVersion.Version
   ( Version (..),
     nextBreakingChangeVersion,
-    nextMajorVersion,
-    nextMinorVersion,
-    nextPatchVersion,
     parseVersion,
     versionParser,
     v,
@@ -50,22 +47,7 @@ v :: TH.QuasiQuoter
 v = quasiQuoterFromParser parseVersion
 
 nextBreakingChangeVersion :: Version -> Version
-nextBreakingChangeVersion = nextMajorVersion
-
-nextMajorVersion :: Version -> Version
-nextMajorVersion = \case
+nextBreakingChangeVersion = \case
   (Version 0 0 x) -> Version 0 0 (succ x)
   (Version 0 x _) -> Version 0 (succ x) 0
   (Version x _ _) -> Version (succ x) 0 0
-
-nextMinorVersion :: Version -> Version
-nextMinorVersion = \case
-  (Version 0 0 x) -> Version 0 0 x
-  (Version 0 x y) -> Version 0 x (succ y)
-  (Version x y _) -> Version x (succ y) 0
-
-nextPatchVersion :: Version -> Version
-nextPatchVersion = \case
-  (Version 0 0 x) -> Version 0 0 x
-  (Version 0 x y) -> Version 0 x y
-  (Version x y z) -> Version x y (succ z)
