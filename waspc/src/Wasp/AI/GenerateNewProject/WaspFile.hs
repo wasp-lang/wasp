@@ -90,7 +90,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
             ${compileErrorsText}
 
             Some common mistakes to look for:
-              - using non-default imports in page components 
+              - Using non-default imports in page components.
                   In a Wasp page, the component should always use the "default import" JS syntax.
                   Instead of `component: import { PageName } from ...`, it should 
                   always be `component: import PageName from ...`.
