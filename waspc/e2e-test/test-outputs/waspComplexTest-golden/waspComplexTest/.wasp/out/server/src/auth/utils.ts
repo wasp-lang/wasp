@@ -59,7 +59,7 @@ export const authConfig = {
  * separately. Also, we can normalize the providerUserId to make sure it's
  * consistent across different DB operations.
  */
-type ProviderId = {
+export type ProviderId = {
   providerName: ProviderName;
   providerUserId: string;
 }
