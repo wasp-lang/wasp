@@ -1,5 +1,7 @@
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
+    analyzeWaspFile,
+    analyzeWaspFileContent,
   )
 where
 
@@ -8,6 +10,7 @@ import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
+import Wasp.Analyzer.Parser.Ctx (Ctx)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Valid (isValidationError, isValidationWarning, validateAppSpec)
 import Wasp.CompileOptions (CompileOptions)
@@ -33,19 +36,19 @@ analyzeWaspProject waspDir options = do
   findWaspFile waspDir >>= \case
     Left e -> return (Left [e], [])
     Right waspFilePath -> do
-      analyzeWaspFileContent waspFilePath >>= \case
+      analyzeWaspFile waspFilePath >>= \case
         Left es -> return (Left es, [])
         Right declarations ->
           constructAppSpec waspDir options declarations
 
-analyzeWaspFileContent :: Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspFileContent waspFilePath = do
+analyzeWaspFile :: Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspFile waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
-  let declsOrAnalyzeError = Analyzer.analyze waspFileContent
-  return $
-    Control.Arrow.left
-      (map (showCompilerErrorForTerminal (waspFilePath, waspFileContent) . getErrorMessageAndCtx))
-      declsOrAnalyzeError
+  left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
+    <$> analyzeWaspFileContent waspFileContent
+
+analyzeWaspFileContent :: String -> IO (Either [(String, Ctx)] [AS.Decl])
+analyzeWaspFileContent = return . left (map getErrorMessageAndCtx) . Analyzer.analyze
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->

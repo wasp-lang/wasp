@@ -86,6 +86,10 @@ to install Wasp on OSX/Linux/WSL(Win). From there, just follow the instructions 
 
 For more details, check out [the docs](https://wasp-lang.dev/docs).
 
+# Wasp AI / Mage
+
+Wasp comes with experimental AI code generator to help you kickstart your next Wasp project -> you can use it via `wasp new` in the CLI (choose "AI" option) if you can provide your OpenAI keys or you can do it via our [Mage web app](https://usemage.ai) in which case our OpenAI keys are used in the background.
+
 # This repository
 
 This is the main repo of the Wasp universe, containing core code (mostly `waspc` - Wasp compiler) and the supporting materials.

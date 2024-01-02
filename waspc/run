@@ -97,7 +97,7 @@ print_usage () {
     print_usage_cmd "module-graph" \
                     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
     print_usage_cmd "wasp-packages:compile" \
-                    "Compiles the TS projects in projects/"
+                    "Compiles the TS projects under packages/."
     print_usage_cmd "ghcup-set" \
                     "Sets the correct version of GHC and Cabal for this project (via GHCup)."
 }

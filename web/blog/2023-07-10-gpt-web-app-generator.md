@@ -2,7 +2,7 @@
 title: 'GPT Web App Generator - Let AI create a full-stack React & Node.js codebase based on your description 🤖🤯'
 authors: [martinsos]
 image: /img/gpt-wasp/gpt-wasp-thumbnail.png
-tags: [wasp-ai, GPT]
+tags: [wasp-ai, mage, GPT]
 ---
 
 import Link from '@docusaurus/Link';
@@ -44,7 +44,7 @@ Besides React & Node.js, GPT Web App Generator uses [Prisma](https://www.prisma.
 
 [Wasp](https://github.com/wasp-lang/wasp) is a batteries-included, full-stack framework for React & Node.js. It takes care of everything from front-end to back-end and database along with authentication, sending emails, async jobs, deployment, and more.
 
-Additionaly, all the code behind GPT Web App Generator is completely open-source: [web app](https://github.com/wasp-lang/wasp/tree/wasp-ai/wasp-ai), [GPT code agent](https://github.com/wasp-lang/wasp/tree/wasp-ai/waspc/src/Wasp/AI).
+Additionaly, all the code behind GPT Web App Generator is completely open-source: [web app](https://github.com/wasp-lang/wasp/tree/main/mage), [GPT code agent](https://github.com/wasp-lang/wasp/tree/main/waspc/src/Wasp/AI).
 
 ## What kind of apps can I build with it?
 :::caution
