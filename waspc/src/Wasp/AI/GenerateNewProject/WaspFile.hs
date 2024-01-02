@@ -91,11 +91,11 @@ fixWaspFile newProjectDetails waspFilePath plan = do
 
             Some common mistakes to look for:
               - Using non-default imports in page components.
-                  In a Wasp page, the component should always use the "default import" JS syntax.
+                  In a Wasp `page` declaration, the `component` should always use the "default import" JS syntax.
                   Instead of `component: import { PageName } from ...`, it should 
                   always be `component: import PageName from ...`.
-                  Fix these by identifying named imports in wasp pages, and replacing 
-                  them with default imports. This only relates to wasp pages, other parts 
+                  Fix these by identifying named imports in wasp `page` declarations, and replacing 
+                  them with default imports. This only relates to wasp `page` declarations, other parts 
                   of a Wasp file do not have to use the default imports.
 
               - Missing ',' between dictionary entries, for example before `entities` field in action/query.
