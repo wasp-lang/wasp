@@ -109,10 +109,17 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
 
         Example of such JSON:
         {
-          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import { ExamplePage } from \"@client/ExamplePage.jsx\",\n  authRequired: true\n}",
+          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import ExamplePage from \"@client/ExamplePage.jsx\",\n  authRequired: true\n}",
           "pageJsImpl": "JS imports + React component implementing the page.",
         }
         There should be no other text in the response.
+
+        When writing the javascript implementation, make sure to always use the default export. 
+        Concretely, define the main component with `const ${pageName} = () => {...}`,
+        and then at the end export it with `export default ${pageName}`.
+        It is also really important that the ${pageName} is then imported as a default import
+        in "pageWaspDecl": use `import ${pageName}` instead of `import { ${pageName} }`.
+        This is very important to me, please do as I say.
 
         ${appDescriptionBlock}
       |]
@@ -127,7 +134,7 @@ makePageDocPrompt =
         ```wasp
         route TasksRoute { path: "/", to: ExamplePage }
         page TasksPage {
-          component: import { Tasks } from "@client/Tasks.jsx",
+          component: import Tasks from "@client/Tasks.jsx",
           authRequired: true
         }
         ```
@@ -142,7 +149,7 @@ makePageDocPrompt =
         import createTask from '@wasp/actions/createTask';
         import toggleTask from '@wasp/actions/toggleTask';
 
-        export function Tasks() {
+        const Tasks = () => {
           const { data: tasks, isLoading, error } = useQuery(getTasks);
           const createTaskFn = useAction(createTask);
           const toggleTaskFn = useAction(toggleTask);
@@ -193,6 +200,7 @@ makePageDocPrompt =
           );
         }
 
+        export default Tasks;
         ```
 
         Here's another example of a Page declaration in Wasp:
@@ -200,7 +208,7 @@ makePageDocPrompt =
         ```wasp
         route DashboardRoute { path: "/dashboard", to: DashboardPage }
         page DashboardPage {
-          component: import { Dashboard } from "@client/Dashboard.jsx",
+          component: import Dashboard from "@client/Dashboard.jsx",
           authRequired: true
         }
         ```
@@ -215,7 +223,7 @@ makePageDocPrompt =
         import getUsers from '@wasp/queries/getUsers';
         import deleteUser from '@wasp/actions/deleteUser';
 
-        export function DashboardPage() {
+        const DashboardPage = () => {
           const { data: users, isLoading, error } = useQuery(getUsers);
           const deleteUserFn = useAction(deleteUser);
 
@@ -250,6 +258,8 @@ makePageDocPrompt =
             </div>
           );
         }
+
+        export default DashboardPage;
         ```
 
         Make sure to style the page with Tailwind CSS and make it as beautiful as possible.

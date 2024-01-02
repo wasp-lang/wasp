@@ -82,7 +82,7 @@ generatePlan newProjectDetails planRules = do
           "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
         }
 
-        Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
+      Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
 
         {
           "entities": [{
