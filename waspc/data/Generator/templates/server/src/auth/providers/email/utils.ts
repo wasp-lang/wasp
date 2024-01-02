@@ -12,7 +12,7 @@ import {
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
-export async function createEmailVerificationLinkWithToken(
+export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,
 ): Promise<string> {
@@ -20,7 +20,7 @@ export async function createEmailVerificationLinkWithToken(
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
-export async function createPasswordResetLinkWithToken(
+export async function createPasswordResetLink(
   email: string,
   clientRoute: string,
 ): Promise<string>  {

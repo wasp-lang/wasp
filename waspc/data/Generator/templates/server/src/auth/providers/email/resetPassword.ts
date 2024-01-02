@@ -24,7 +24,7 @@ export async function resetPassword(
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
         if (!authIdentity) {
-            throw new HttpError(400, "Invalid token");
+            throw new HttpError(400, "Password reset failed, invalid token");
         }
         
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);

@@ -6,7 +6,7 @@ import {
     deserializeAndSanitizeProviderData,
 } from "../../utils.js";
 import {
-    createPasswordResetLinkWithToken,
+    createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
 } from "./utils.js";
@@ -35,25 +35,24 @@ export function getRequestPasswordResetRoute({
             createProviderId("email", args.email),
         );
 
-        // User not found - don't leak information
+        /**
+         * By doing fake work, we make it harder to enumerate users by measuring
+         * the time it takes to respond. If we would respond immediately, an attacker
+         * could measure the time it takes to respond and figure out if the user exists.
+         */
+
         if (!authIdentity) {
             await doFakeWork();
             return res.json({ success: true });
         }
 
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-        // User not verified - don't leak information
-        if (!providerData.isEmailVerified) {
-            await doFakeWork();
-            return res.json({ success: true });
-        }
-
         const { isResendAllowed, timeLeft } = isEmailResendAllowed(providerData, 'passwordResetSentAt');
         if (!isResendAllowed) {
             throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
         }
 
-        const passwordResetLink = await createPasswordResetLinkWithToken(args.email, clientRoute);
+        const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
         try {
             const email = authIdentity.providerUserId
             await sendPasswordResetEmail(

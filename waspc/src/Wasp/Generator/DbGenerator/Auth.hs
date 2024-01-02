@@ -34,7 +34,7 @@ User <-> Auth (one on one) <-> AuthIdentity (per provider)
 
 The AuthIdentity entity is used to store the user's identity from a specific provider
 (e.g. Google, email, etc.). The Auth entity is used to have a single
-connection between the business logic user and the auth entity.
+connection between the business logic user and the auth identities.
 
 --}
 
