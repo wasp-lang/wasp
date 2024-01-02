@@ -7,6 +7,7 @@ import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import {
   type ProviderName,
+  type ProviderId,
   createProviderId,
   authConfig,
   contextWithUserEntity,
@@ -16,7 +17,7 @@ import {
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
 } from "../../utils.js"
-
+import { type {= userEntityUpper =} } from "../../../entities/index.js"
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
 import type { GetUserFieldsFn } from "./types.js"
 import { handleRejection } from "../../../utils.js"
@@ -52,43 +53,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const providerId = createProviderId(provider.id, providerProfile.id);
 
           try {
-            // We need a user id to create the auth token, so we either find an existing user
-            // or create a new one if none exists for this provider.
-            const getUserIdFromProviderDetails = async () => {
-              const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
-                where: {
-                  providerName_providerUserId: providerId,
-                },
-                include: {
-                  {= authFieldOnAuthIdentityEntityName =}: {
-                    include: {
-                      {= userFieldOnAuthEntityName =}: true
-                    }
-                  }
-                }
-              })
-
-              if (existingAuthIdentity) {
-                return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id
-              } else {
-                const userFields = getUserFieldsFn
-                  ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
-                  : {};
-  
-                // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
-                const providerData = await sanitizeAndSerializeProviderData({})
-              
-                const user = await createUser(
-                  providerId,
-                  providerData,
-                  userFields,
-                )
-            
-                return user.id
-              }
-            }
-
-            const userId = await getUserIdFromProviderDetails()    
+            const userId = await getUserIdFromProviderDetails(providerId, providerProfile, getUserFieldsFn)
             const token = await createAuthToken(userId)
             res.json({ token })
           } catch (e) {
@@ -98,4 +63,44 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
     )
 
     return router;
+}
+
+// We need a user id to create the auth token, so we either find an existing user
+// or create a new one if none exists for this provider.
+async function getUserIdFromProviderDetails(
+  providerId: ProviderId,
+  providerProfile: any,
+  getUserFieldsFn?: GetUserFieldsFn,
+): Promise<{= userEntityUpper =}['id']> {
+  const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
+    where: {
+      providerName_providerUserId: providerId,
+    },
+    include: {
+      {= authFieldOnAuthIdentityEntityName =}: {
+        include: {
+          {= userFieldOnAuthEntityName =}: true
+        }
+      }
+    }
+  })
+
+  if (existingAuthIdentity) {
+    return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id
+  } else {
+    const userFields = getUserFieldsFn
+      ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
+      : {};
+
+    // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
+    const providerData = await sanitizeAndSerializeProviderData({})
+  
+    const user = await createUser(
+      providerId,
+      providerData,
+      userFields,
+    )
+
+    return user.id
+  }
 }

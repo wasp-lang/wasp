@@ -50,22 +50,24 @@ genOAuthAuth auth
 genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthHelpers auth =
   sequence
-    [ genCreateRouter,
+    [ genCreateRouter auth,
       genTypes auth,
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|]
     ]
 
-genCreateRouter :: Generator FileDraft
-genCreateRouter = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
+genCreateRouter :: AS.Auth.Auth -> Generator FileDraft
+genCreateRouter auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
   where
     tmplData =
       object
-        [ "authEntityUpper" .= (DbAuth.authEntityName :: String),
+        [ "userEntityUpper" .= userEntityName,
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "authFieldOnAuthIdentityEntityName" .= (DbAuth.authFieldOnAuthIdentityEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
+    userEntityName = AS.refName . AS.Auth.userEntity $ auth
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
