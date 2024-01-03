@@ -19,7 +19,7 @@ First, we'll create a Todo list for what needs to be done (luckily we have an ap
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it expects certain fields to exist on the `User` entity:
+Since Wasp manages authentication, it will create [the auth related entities](#todo) for us. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
 
 ```wasp title="main.wasp"
 // ...
@@ -27,12 +27,6 @@ Since Wasp manages authentication, it expects certain fields to exist on the `Us
 entity User {=psl
     id       Int    @id @default(autoincrement())
 psl=}
-```
-
-As we talked about earlier, we have to remember to update the database schema:
-
-```sh
-wasp db migrate-dev
 ```
 
 ## Adding Auth to the Project
@@ -59,6 +53,12 @@ app TodoApp {
 }
 
 // ...
+```
+
+As we talked about earlier, we have to remember to update the database schema:
+
+```sh
+wasp db migrate-dev
 ```
 
 By doing this, Wasp will create:
@@ -248,7 +248,7 @@ const MainPage = ({ user }) => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {3} title="src/client/MainPage.tsx"
-import { User } from '@wasp/entities'
+import { User } from '@wasp/auth/types'
 
 const MainPage = ({ user }: { user: User }) => {
   // Do something with the user
@@ -274,6 +274,8 @@ style={{ border: "1px solid black" }}
 />
 
 We see there is a user and that its password is already hashed 🤯
+
+> TODO: update the gif and talk about the `Auth` and `AuthEntity` entities
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
