@@ -51,17 +51,19 @@ export function getSignupRoute({
          * 
          * We are handling the case of an existing auth identity in two ways:
          * 
-         * 1. If the user is already verified, we don't leak information and pretend that the user
+         * 1. If the user already exists and is verified, we don't want
+         *   to leak that piece of info and instead we pretend that the user
          *   was created successfully.
-         *    - This helps with user enumeration attacks. If we would say that the user already exists,
-         *      an attacker would know that an account with that email exists.
+         *    - This prevents the attacker from learning which emails already have
+         *        an account created.
          * 
          * 2. If the user is not verified:
          *   - We check when we last sent a verification email and if it was less than X seconds ago,
          *     we don't send another one.
          *   - If it was more than X seconds ago, we delete the user and create a new one.
-         *   - This helps with people trying to take other people's emails by signing up with them
-         *     and then not verifying the email.
+         *   - This prevents the attacker from creating an account with somebody
+         *     else's email address and therefore permanently making that email
+         *     address unavailable for later account creation (by real owner).
          */
         if (existingAuthIdentity && !allowUnverifiedLogin) {
             const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
