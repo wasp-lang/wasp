@@ -12,7 +12,7 @@ where
 
 import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, isJust, isNothing)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -28,7 +28,6 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.AppSpec.Entity (isFieldUnique)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
@@ -53,11 +52,9 @@ validateAppSpec spec =
       concat
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+          validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
-          validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
-          validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
-          validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
@@ -119,6 +116,19 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     eitherUnitToErrorList (Left e) = [e]
     eitherUnitToErrorList (Right ()) = []
 
+validateUserEntity :: AppSpec -> [ValidationError]
+validateUserEntity spec =
+  case App.auth (snd $ getApp spec) of
+    Nothing -> []
+    Just auth ->
+      [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
+        | isNothing idFieldType
+      ]
+      where
+        idFieldType = Entity.getIdField userEntity
+
+        (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+
 validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   [ GenericValidationError
@@ -147,62 +157,6 @@ validateDbIsPostgresIfPgBossUsed spec =
     | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
-validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
-  Nothing -> []
-  Just auth ->
-    if not $ Auth.isUsernameAndPasswordAuthEnabled auth
-      then []
-      else validationErrors
-    where
-      validationErrors = concat [usernameValidationErrors, passwordValidationErrors]
-      usernameValidationErrors
-        | not $ null usernameTypeValidationErrors = usernameTypeValidationErrors
-        | otherwise = usernameAttributeValidationErrors
-      passwordValidationErrors =
-        validateEntityHasField
-          userEntityName
-          authUserEntityPath
-          userEntityFields
-          ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
-      usernameTypeValidationErrors =
-        validateEntityHasField
-          userEntityName
-          authUserEntityPath
-          userEntityFields
-          ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
-      usernameAttributeValidationErrors
-        | isFieldUnique "username" userEntity == Just True = []
-        | otherwise =
-            [ GenericValidationError $
-                "The field 'username' on entity '"
-                  ++ userEntityName
-                  ++ "' (referenced by "
-                  ++ authUserEntityPath
-                  ++ ") must be marked with the '@unique' attribute."
-            ]
-      userEntityFields = Entity.getFields userEntity
-      authUserEntityPath = "app.auth.userEntity"
-      (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
-
-validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
-  Nothing -> []
-  Just auth ->
-    if not $ Auth.isEmailAuthEnabled auth
-      then []
-      else
-        let (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
-            userEntityFields = Entity.getFields userEntity
-         in concatMap
-              (validateEntityHasField userEntityName "app.auth.userEntity" userEntityFields)
-              [ ("email", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
-                ("password", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
-                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
-                ("emailVerificationSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?"),
-                ("passwordResetSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?")
-              ]
-
 validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
   Nothing -> []
@@ -214,48 +168,6 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
         Just _ -> []
   where
     app = snd $ getApp spec
-
-validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
-validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
-  Nothing -> []
-  Just auth ->
-    if not $ Auth.isExternalAuthEnabled auth
-      then []
-      else case Auth.externalAuthEntity auth of
-        Nothing -> [GenericValidationError "app.auth.externalAuthEntity must be specified when using a social login method."]
-        Just externalAuthEntityRef ->
-          let (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
-              userEntityFields = Entity.getFields userEntity
-              (externalAuthEntityName, externalAuthEntity) = AS.resolveRef spec externalAuthEntityRef
-              externalAuthEntityFields = Entity.getFields externalAuthEntity
-              externalAuthEntityValidationErrors =
-                concatMap
-                  (validateEntityHasField externalAuthEntityName "app.auth.externalAuthEntity" externalAuthEntityFields)
-                  [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                    ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                    ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
-                    ("userId", Entity.Field.FieldTypeScalar Entity.Field.Int, "Int")
-                  ]
-              userEntityValidationErrors =
-                concatMap
-                  (validateEntityHasField userEntityName "app.auth.userEntity" userEntityFields)
-                  [ ( "externalAuthAssociations",
-                      Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthEntityName,
-                      externalAuthEntityName ++ "[]"
-                    )
-                  ]
-           in externalAuthEntityValidationErrors ++ userEntityValidationErrors
-
-validateEntityHasField :: String -> String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
-validateEntityHasField entityName authEntityPath entityFields (fieldName, fieldType, fieldTypeName) =
-  let maybeField = findFieldByName fieldName entityFields
-   in case maybeField of
-        Just providerField
-          | Entity.Field.fieldType providerField == fieldType -> []
-        _ ->
-          [ GenericValidationError $
-              "Entity '" ++ entityName ++ "' (referenced by " ++ authEntityPath ++ ") must have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
-          ]
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =

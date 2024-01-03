@@ -5,7 +5,7 @@ import { makeOAuthInit } from "../oauth/init.js";
 import type { ProviderConfig } from "../types.js";
 import type { OAuthConfig } from "../oauth/types.js";
 
-import { getUserFieldsFn as _waspGetUserFieldsFn } from '../oauth/defaults.js'
+const _waspGetUserFieldsFn = undefined
 const _waspUserDefinedConfigFn = undefined
 
 const _waspOAuthConfig: OAuthConfig = {

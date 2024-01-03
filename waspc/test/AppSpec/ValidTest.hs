@@ -21,7 +21,6 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
-import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -88,33 +87,10 @@ spec_AppSpecValid = do
 
     describe "auth-related validation" $ do
       let userEntityName = "User"
-      let validUserField =
-            PslModel.Field
-              { PslModel._name = "username",
-                PslModel._type = PslModel.String,
-                PslModel._attrs =
-                  [ PslModel.Attribute
-                      { PslModel._attrName = "unique",
-                        PslModel._attrArgs = []
-                      }
-                  ],
-                PslModel._typeModifiers = []
-              }
       let validUserEntity =
             AS.Entity.makeEntity
               ( PslM.Body
-                  [ PslM.ElementField validUserField,
-                    PslM.ElementField $ makeBasicPslField "password" PslM.String
-                  ]
-              )
-      let validUserEntityForEmailAuth =
-            AS.Entity.makeEntity
-              ( PslM.Body
-                  [ PslM.ElementField $ makePslField "email" PslM.String True,
-                    PslM.ElementField $ makePslField "password" PslM.String True,
-                    PslM.ElementField $ makePslField "isEmailVerified" PslM.Boolean False,
-                    PslM.ElementField $ makePslField "emailVerificationSentAt" PslM.DateTime True,
-                    PslM.ElementField $ makePslField "passwordResetSentAt" PslM.DateTime True
+                  [ PslM.ElementField $ makeIdField "id" PslM.String
                   ]
               )
       let validAppAuth =
@@ -129,7 +105,8 @@ spec_AppSpecValid = do
                       AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
-                AS.Auth.onAuthSucceededRedirectTo = Nothing
+                AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                AS.Auth.signup = Nothing
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -155,9 +132,8 @@ spec_AppSpecValid = do
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
         it "contains expected fields" $ do
-          ASV.doesUserEntityContainField (makeSpec Nothing Nothing) "password" `shouldBe` Nothing
-          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "username" `shouldBe` Just True
-          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "password" `shouldBe` Just True
+          ASV.doesUserEntityContainField (makeSpec Nothing Nothing) "id" `shouldBe` Nothing
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "id" `shouldBe` Just True
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "missing" `shouldBe` Just False
 
       describe "should validate that UsernameAndPassword and Email auth cannot used at the same time" $ do
@@ -173,7 +149,8 @@ spec_AppSpecValid = do
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                                    AS.Auth.signup = Nothing
                                   },
                             AS.App.emailSender =
                               Just
@@ -212,7 +189,7 @@ spec_AppSpecValid = do
 
         it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
           ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntityForEmailAuth) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
 
         it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
           ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity)
@@ -230,21 +207,7 @@ spec_AppSpecValid = do
         let invalidUserEntity =
               AS.Entity.makeEntity
                 ( PslM.Body
-                    [ PslM.ElementField $ makeBasicPslField "email" PslM.String,
-                      PslM.ElementField $ makeBasicPslField "password" PslM.String
-                    ]
-                )
-        let invalidUserEntity2 =
-              AS.Entity.makeEntity
-                ( PslM.Body
-                    [PslM.ElementField validUserField]
-                )
-        let invalidUserEntity3 =
-              AS.Entity.makeEntity
-                ( PslM.Body
-                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
-                      PslM.ElementField $ makeBasicPslField "password" PslM.String
-                    ]
+                    []
                 )
 
         it "returns no error if app.auth is not set, regardless of shape of user entity" $ do
@@ -255,27 +218,21 @@ spec_AppSpecValid = do
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
             `shouldBe` [ ASV.GenericValidationError
-                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'username' of type 'String'."
-                       ]
-          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity2)
-            `shouldBe` [ ASV.GenericValidationError
-                           "Entity 'User' (referenced by app.auth.userEntity) must have field 'password' of type 'String'."
-                       ]
-          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity3)
-            `shouldBe` [ ASV.GenericValidationError
-                           "The field 'username' on entity 'User' (referenced by app.auth.userEntity) must be marked with the '@unique' attribute."
+                           "Entity 'User' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
                        ]
   where
-    makeBasicPslField name typ = makePslField name typ False
-
-    makePslField name typ isOptional =
+    makeIdField name typ =
       PslM.Field
         { PslM._name = name,
           PslM._type = typ,
           PslM._typeModifiers =
-            [ PslM.Optional | isOptional
-            ],
-          PslM._attrs = []
+            [],
+          PslM._attrs =
+            [ PslM.Attribute
+                { PslM._attrName = "id",
+                  PslM._attrArgs = []
+                }
+            ]
         }
 
     basicApp =

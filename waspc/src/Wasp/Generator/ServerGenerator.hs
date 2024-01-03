@@ -47,6 +47,7 @@ import Wasp.Generator.Common
     makeJsonWithEntityData,
     prismaVersion,
   )
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -206,13 +207,13 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|core/AuthError.js|],
       genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec
     ]
+    <++> genServerUtils spec
     <++> genRoutesDir spec
     <++> genTypesAndEntitiesDirs spec
     <++> genOperationsRoutes spec
@@ -298,7 +299,14 @@ genTypesAndEntitiesDirs spec =
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
-        (Just $ object ["entities" .= allEntities])
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+              ]
+        )
     taggedEntitiesFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/_types/taggedEntities.ts|]
@@ -316,6 +324,10 @@ genTypesAndEntitiesDirs spec =
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust maybeUserEntityName,
                 "userEntityName" .= userEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+                "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
                 "userFieldName" .= toLowerFirst userEntityName
               ]
         )
@@ -430,5 +442,10 @@ genOperationsMiddleware spec =
       (C.asTmplFile [relfile|src/middleware/operations.ts|])
       (C.asServerFile [relfile|src/middleware/operations.ts|])
       (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
+
+genServerUtils :: AppSpec -> Generator [FileDraft]
+genServerUtils spec = return [C.mkTmplFdWithData [relfile|src/utils.ts|] (Just tmplData)]
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

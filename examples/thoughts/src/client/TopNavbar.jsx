@@ -1,20 +1,24 @@
-import React from 'react'
+import React from "react";
 
-import logout from '@wasp/auth/logout'
+import logout from "@wasp/auth/logout";
 
-import './TopNavbar.css'
+import "./TopNavbar.css";
 
+import { getUsername } from "@wasp/auth/user";
 
-const TopNavbar = (props) => {
-  const user = props.user
+const TopNavbar = ({ user }) => {
+  const username = getUsername(user);
 
   return (
     <div className="top-navbar">
-      { user.username }
+      {username}
       &nbsp;|&nbsp;
-      <button className="plain" onClick={logout}> logout </button>
+      <button className="plain" onClick={logout}>
+        {" "}
+        logout{" "}
+      </button>
     </div>
-  )
-}
+  );
+};
 
-export default TopNavbar
+export default TopNavbar;
