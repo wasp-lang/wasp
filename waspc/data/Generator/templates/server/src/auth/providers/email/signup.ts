@@ -65,7 +65,20 @@ export function getSignupRoute({
          *     else's email address and therefore permanently making that email
          *     address unavailable for later account creation (by real owner).
          */
-        if (existingAuthIdentity && !allowUnverifiedLogin) {
+        if (existingAuthIdentity) {
+            if (allowUnverifiedLogin) {
+                /**
+                 * This is the case where we allow unverified login.
+                 * 
+                 * If we pretended that the user was created successfully that would bring
+                 * us little value: the attacker would not be able to login and figure out
+                 * if the user exists or not, anyway.
+                 * 
+                 * So, we throw an error that says that the user already exists.
+                 */
+                throw new HttpError(422, "User with that email already exists.")
+            }
+            
             const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
 
             // TOOD: faking work makes sense if the time spent on faking the work matches the time
@@ -88,17 +101,6 @@ export function getSignupRoute({
             } catch (e: unknown) {
                 rethrowPossibleAuthError(e);
             }
-        } else if (existingAuthIdentity && allowUnverifiedLogin) {
-            /**
-             * This is the case where we allow unverified login.
-             * 
-             * If we pretended that the user was created successfully that would bring
-             * us little value: the attacker would not be able to login and figure out
-             * if the user exists or not, anyway.
-             * 
-             * So, we throw an error that says that the user already exists.
-             */
-            throw new HttpError(422, "User with that email already exists.")
         }
 
         const userFields = await validateAndGetAdditionalFields(fields);
