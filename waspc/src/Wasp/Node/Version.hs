@@ -54,7 +54,7 @@ getAndCheckUserNodeVersion =
 makeNodeVersionMismatchMessage :: SV.Version -> String
 makeNodeVersionMismatchMessage nodeVersion =
   unlines
-    [ "Your Node version does not meet Wasp's requirements! You are running Node " <> show nodeVersion <> " .",
+    [ "Your Node version does not meet Wasp's requirements! You are running Node " <> show nodeVersion <> ".",
       "Wasp requires Node version " <> show oldestWaspSupportedNodeVersion <> " or higher."
     ]
 
@@ -80,7 +80,7 @@ getUserNodeVersion = do
         ( unlines
             [ "Running `node --version` failed.",
               indent 2 procErr,
-              "Make sure you have node installed and in your PATH."
+              "Make sure you have `node` installed and in your PATH."
             ]
         )
     Right (ExitFailure code, _, stderr) ->
@@ -94,7 +94,7 @@ getUserNodeVersion = do
       parseNodeVersionOutput stdout
         & left
           ( \e ->
-              "Wasp failed to the parse node version provided by `node --version`.\n"
+              "Wasp failed to the parse `node` version provided by `node --version`.\n"
                 <> (show e <> "\n")
                 <> "This is most likely a bug in Wasp, please file an issue."
           )

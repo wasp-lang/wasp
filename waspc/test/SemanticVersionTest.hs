@@ -106,9 +106,9 @@ spec_SemanticVersion = do
             ((2, 0, 0), False)
           ]
   describe "versionBounds" $ do
-    let r ~> i =
-          it (show r) $
-            versionBounds r `shouldBe` i
+    let range ~> expectedInterval =
+          it (show range) $
+            versionBounds range `shouldBe` expectedInterval
     Range [] ~> [vi| (inf, inf) |]
     Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
     Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> [vi| (0.1.2, 0.2) |]

@@ -409,12 +409,12 @@ validateUserNodeVersionRange spec =
       if not (V.isRangeInWaspSupportedRange userRange)
         then
           [ GenericValidationError $
-              "Your app's node version range ("
+              "Your app's Node version range ("
                 <> show userRange
                 <> ") allow versions lower than "
                 <> show oldestWaspSupportedNodeVersion
                 <> " ."
-                <> " Wasp only works with node >= "
+                <> " Wasp only works with Node >= "
                 <> show oldestWaspSupportedNodeVersion
                 <> " . "
           ]
@@ -425,11 +425,11 @@ validateUserNodeVersionRange spec =
       if SV.doesVersionRangeAllowMajorChanges userRange
         then
           [ GenericValidationWarning $
-              "Your app's node version range ("
+              "Your app's Node version range ("
                 <> show userRange
                 <> ") allows breaking changes."
                 <> "To ensure consistency between development and production environments,"
-                <> " we recommend you narrow down your node version range to not allow breaking changes."
+                <> " we recommend you narrow down your Node version range to not allow breaking changes."
           ]
         else []
 
@@ -479,5 +479,5 @@ getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
 -- Example: If user specified their node version range to be [18.2, 20), then this function will return 18.
 getLowestNodeVersionUserAllows :: AppSpec -> SV.Version
 getLowestNodeVersionUserAllows spec =
-  fromMaybe (error "This should never happen: user node version range lower bound is Inf") $
+  fromMaybe (error "This should never happen: user Node version range lower bound is Inf") $
     SVB.versionFromBound $ fst $ SVB.versionBounds $ AS.userNodeVersionRange spec

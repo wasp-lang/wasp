@@ -364,7 +364,7 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
     overrides :: [(String, String, String)]
     overrides =
       [ -- sodium-native > 3.3.0 broke deploying on Heroku.
-        -- Ref: https://github.com/sodium-friends/sodium-na
+        -- Ref: https://github.com/sodium-friends/sodium-native/issues/160
         ("secure-password", "sodium-native", "3.3.0")
       ]
 
