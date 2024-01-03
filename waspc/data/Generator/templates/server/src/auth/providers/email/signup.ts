@@ -43,7 +43,7 @@ export function getSignupRoute({
 
         /**
          * 
-         * There are two variables to consider in the case of an existing user:
+         * There are two cases to consider in the case of an existing user:
          * - if we allow unverified login
          * - if the user is already verified
          * 
