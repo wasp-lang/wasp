@@ -50,7 +50,7 @@ export function RootComponent({ children }) {
             cursor-pointer flex-row
             space-x-3
             text-white bg-gradient-to-r from-pink-400 to-amber-400"
-          onClick={() => window.open("https://github.com/wasp-lang/wasp/tree/wasp-ai")}
+          onClick={() => window.open("https://github.com/wasp-lang/wasp")}
         >
           <div
             className={`
@@ -103,7 +103,7 @@ export function RootComponent({ children }) {
           <p className="text-center text-slate-500 text-sm mt-2">
             This whole app is open-source, you can find the code{" "}
             <a
-              href="https://github.com/wasp-lang/wasp/tree/wasp-ai/wasp-ai"
+              href="https://github.com/wasp-lang/wasp/tree/main/mage"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sky-500 hover:text-sky-600"

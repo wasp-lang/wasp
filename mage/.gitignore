@@ -9,3 +9,6 @@
 # or modify/delete these two lines.
 *.env
 *.env.*
+
+# Emacs specific
+.projectile
