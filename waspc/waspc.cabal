@@ -267,6 +267,7 @@ library
     Wasp.Generator.ConfigFile
     Wasp.Generator.ConfigFileGenerator
     Wasp.Generator.DbGenerator
+    Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations

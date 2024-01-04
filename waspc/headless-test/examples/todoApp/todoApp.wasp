@@ -9,7 +9,6 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       email: {
         fromField: {
@@ -56,26 +55,8 @@ app todoApp {
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    // Email auth
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
-    // Social login
-    externalAuthAssociations  SocialLogin[]
     // Business logic
     tasks                     Task[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 
 entity Task {=psl

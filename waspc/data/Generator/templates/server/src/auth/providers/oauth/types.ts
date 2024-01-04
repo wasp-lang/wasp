@@ -9,11 +9,11 @@ export type OAuthConfig = {
     scope?: string[];
 }
 
-export type CreateOAuthUser = Omit<Prisma.{= userEntityName =}CreateInput, 'password'>
+export type UserFieldsFromOAuthSignup = Prisma.{= userEntityName =}CreateInput
 
 export type UserDefinedConfigFn = () => { [key: string]: any }
 
 export type GetUserFieldsFn = (
     context: typeof contextWithUserEntity,
     args: { profile: { [key: string]: any } },
-) => Promise<CreateOAuthUser>
+) => Promise<UserFieldsFromOAuthSignup>

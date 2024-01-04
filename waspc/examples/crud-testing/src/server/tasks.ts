@@ -1,59 +1,47 @@
-import HttpError from "@wasp/core/HttpError.js";
-import type { GetQuery, GetAllQuery, CreateAction } from "@wasp/crud/tasks";
-import { Task, User } from "@wasp/entities";
-import { simplePrintJob } from "@wasp/jobs/simplePrintJob.js";
+import HttpError from '@wasp/core/HttpError.js'
+import type { GetQuery, GetAllQuery, CreateAction } from '@wasp/crud/tasks'
+import { Task } from '@wasp/entities'
 
 export const getTask = (async (args, context) => {
   return context.entities.Task.findUnique({
     where: { id: args.id },
     include: {
-      user: { select: { username: true } },
+      user: {
+        // include: {
+        //   auth: {
+        //     select: { username: true },
+        //   },
+        // },
+      },
     },
-  });
-}) satisfies GetQuery<
-  { id: Task["id"] },
-  | (Task & {
-      user: Pick<User, "username">;
-    })
-  | null
->;
+  })
+}) satisfies GetQuery<{ id: Task['id'] }, {}>
 
 export const getAllTasks = (async (args, context) => {
-  const result = await simplePrintJob.submit({
-    name: "moje ime",
-  });
-
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
-  const details = await result.pgBoss.details();
-
-  if (details && details.state === "completed") {
-    console.log("Job started with data:", details.data);
-    console.log("Job completed with output:", details.output.tasks);
-  } else if (details) {
-    console.log("Job state and output", details.state, details.output);
-  }
-
   return context.entities.Task.findMany({
-    orderBy: { id: "desc" },
+    orderBy: { id: 'desc' },
     select: {
       id: true,
       title: true,
       user: {
-        select: {
-          username: true,
+        include: {
+          auth: {
+            include: {
+              identities: true,
+            },
+          },
         },
       },
     },
-  });
-}) satisfies GetAllQuery<{}, {}>;
+  })
+}) satisfies GetAllQuery<{}, {}>
 
 export const createTask = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, "You must be logged in to create a task.");
+    throw new HttpError(401, 'You must be logged in to create a task.')
   }
   if (!args.title) {
-    throw new HttpError(400, "Task title is required.");
+    throw new HttpError(400, 'Task title is required.')
   }
   return context.entities.Task.create({
     data: {
@@ -64,5 +52,5 @@ export const createTask = (async (args, context) => {
         },
       },
     },
-  });
-}) satisfies CreateAction<{ title: Task["title"] }, Task>;
+  })
+}) satisfies CreateAction<{ title: Task['title'] }, Task>

@@ -28,7 +28,7 @@ gitHubAuthProvider =
 localAuthProvider :: L.LocalAuthProvider
 localAuthProvider =
   L.LocalAuthProvider
-    { L._providerId = fromJust $ makeProviderId "local",
+    { L._providerId = fromJust $ makeProviderId "username",
       L._displayName = "Username and password"
     }
 

@@ -71,6 +71,6 @@ function ensureValidConfig(provider: ProviderConfig, config: OAuthConfig): void 
 export type OAuthImports = {
     npmPackage: string;
     userDefinedConfigFn?: UserDefinedConfigFn;
-    getUserFieldsFn: GetUserFieldsFn;
     oAuthConfig: OAuthConfig;
+    getUserFieldsFn?: GetUserFieldsFn;
 };
