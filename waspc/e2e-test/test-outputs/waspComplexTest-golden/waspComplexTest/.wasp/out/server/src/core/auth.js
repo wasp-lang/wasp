@@ -7,13 +7,15 @@ import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
 import HttpError from '../core/HttpError.js'
 import config from '../config.js'
+import { deserializeAndSanitizeProviderData } from '../auth/utils.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
 
 const JWT_SECRET = config.auth.jwtSecret
 
-export const sign = (id, options) => jwtSign({ id }, JWT_SECRET, options)
+export const signData = (data, options) => jwtSign(data, JWT_SECRET, options)
+export const sign = (id, options) => signData({ id }, options)
 export const verify = (token) => jwtVerify(token, JWT_SECRET)
 
 const auth = handleRejection(async (req, res, next) => {
@@ -47,7 +49,17 @@ export async function getUserFromToken(token) {
     }
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userIdFromToken } })
+  const user = await prisma.user
+    .findUnique({
+      where: { id: userIdFromToken },
+      include: {
+        auth: {
+          include: {
+            identities: true
+          }
+        }
+      }
+    })
   if (!user) {
     throwInvalidCredentialsError()
   }
@@ -56,9 +68,12 @@ export async function getUserFromToken(token) {
   // password field from the object here, we must to do the same there).
   // Ideally, these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965
-  const { password, ...userView } = user
-
-  return userView
+  let sanitizedUser = { ...user }
+  sanitizedUser.auth.identities = sanitizedUser.auth.identities.map(identity => {
+    identity.providerData = deserializeAndSanitizeProviderData(identity.providerData, { shouldRemovePasswordField: true })
+    return identity
+  });
+  return sanitizedUser
 }
 
 const SP = new SecurePassword()

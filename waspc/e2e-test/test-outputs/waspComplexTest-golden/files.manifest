@@ -24,17 +24,16 @@ waspComplexTest/.wasp/out/server/src/app.js
 waspComplexTest/.wasp/out/server/src/auth/providers/config/google.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/index.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/createRouter.ts
-waspComplexTest/.wasp/out/server/src/auth/providers/oauth/defaults.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/init.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/types.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/types.ts
+waspComplexTest/.wasp/out/server/src/auth/user.ts
 waspComplexTest/.wasp/out/server/src/auth/utils.ts
 waspComplexTest/.wasp/out/server/src/auth/validation.ts
 waspComplexTest/.wasp/out/server/src/config.js
 waspComplexTest/.wasp/out/server/src/core/AuthError.js
 waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
-waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
 waspComplexTest/.wasp/out/server/src/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
@@ -76,7 +75,7 @@ waspComplexTest/.wasp/out/server/src/server.ts
 waspComplexTest/.wasp/out/server/src/types/index.ts
 waspComplexTest/.wasp/out/server/src/universal/types.ts
 waspComplexTest/.wasp/out/server/src/universal/url.ts
-waspComplexTest/.wasp/out/server/src/utils.js
+waspComplexTest/.wasp/out/server/src/utils.ts
 waspComplexTest/.wasp/out/server/tsconfig.json
 waspComplexTest/.wasp/out/web-app/.env
 waspComplexTest/.wasp/out/web-app/.npmrc
@@ -110,6 +109,7 @@ waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCodeExchange.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/types.ts
 waspComplexTest/.wasp/out/web-app/src/auth/useAuth.ts
+waspComplexTest/.wasp/out/web-app/src/auth/user.ts
 waspComplexTest/.wasp/out/web-app/src/config.js
 waspComplexTest/.wasp/out/web-app/src/crud/tasks.ts
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts

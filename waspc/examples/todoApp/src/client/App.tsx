@@ -7,6 +7,7 @@ import getDate from '@wasp/queries/getDate'
 import { useSocket } from '@wasp/webSocket'
 
 import './Main.css'
+import { getName } from './user'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()
@@ -27,7 +28,7 @@ export function App({ children }: any) {
         {user && (
           <div className="flex gap-3 items-center">
             <div>
-              Hello, <Link to="/profile">{user.email}</Link>
+              Hello, <Link to="/profile">{getName(user)}</Link>
             </div>
             <div>
               <button className="btn btn-primary" onClick={logout}>

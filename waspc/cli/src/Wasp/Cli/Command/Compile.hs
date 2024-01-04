@@ -132,7 +132,9 @@ analyze waspProjectDir = do
 -- Throws if there were any compilation errors.
 analyzeWithOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> Command AS.AppSpec
 analyzeWithOptions waspProjectDir options = do
-  liftIO (Wasp.Project.analyzeWaspProject waspProjectDir options) >>= \case
+  (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
+  liftIO $ printWarningsIfAny warnings
+  case appSpecOrErrors of
     Left errors ->
       throwError $
         CommandError "Analyzing wasp project failed" $

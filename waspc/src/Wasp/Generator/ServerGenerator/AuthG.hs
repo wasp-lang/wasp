@@ -19,11 +19,12 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (doesUserEntityContainField, getApp)
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (emailAuthProvider, gitHubAuthProvider, googleAuthProvider, localAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
@@ -39,17 +40,17 @@ genAuth spec = case maybeAuth of
   Just auth ->
     sequence
       [ genCoreAuth auth,
-        genAuthMiddleware spec auth,
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
         genProvidersIndex auth,
-        genFileCopy [relfile|auth/providers/types.ts|],
-        genFileCopy [relfile|auth/validation.ts|]
+        genProvidersTypes auth,
+        genFileCopy [relfile|auth/validation.ts|],
+        genFileCopy [relfile|auth/user.ts|]
       ]
       <++> genIndexTs auth
       <++> genLocalAuth auth
-      <++> genOAuthAuth spec auth
+      <++> genOAuthAuth auth
       <++> genEmailAuth spec auth
   Nothing -> return []
   where
@@ -68,32 +69,9 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
-              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
-            ]
-
-genAuthMiddleware :: AS.AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genAuthMiddleware spec auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    -- TODO(martin): In prismaMiddleware.js, we assume that 'username' and 'password' are defined in user entity.
-    --   This was promised to us by AppSpec, which has validation checks for this.
-    --   Names of these fields are currently hardcoded, and we are not in any way relyin on AppSpec directly here.
-    --   In the future we might want to figure out a way to better encode these assumptions, either by
-    --   reusing the names for 'username' and 'password' fields by importing them from AppSpec, or smth similar
-    --   in that direction.
-    authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile authMiddlewareRelToSrc
-
-    tmplData =
-      let userEntityName = AS.refName $ AS.Auth.userEntity auth
-          isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
-          isUsernameOnUserEntity = doesUserEntityContainField spec "username" == Just True
-       in object
-            [ "userEntityUpper" .= userEntityName,
-              "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-              "isPasswordOnUserEntity" .= isPasswordOnUserEntity,
-              "isUsernameOnUserEntity" .= isUsernameOnUserEntity,
-              "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+              "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
+              "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String)
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -126,6 +104,13 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String),
+          "authIdentityEntityUpper" .= (DbAuth.authIdentityEntityName :: String),
+          "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
+          "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
+          "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
           "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields
@@ -166,3 +151,10 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
           [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
           [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
         ]
+
+genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
+genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/types.ts|] (Just tmplData)
+  where
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+    tmplData = object ["userEntityUpper" .= (userEntityName :: String)]

@@ -29,6 +29,7 @@ genAuth spec =
         [ genFileCopy [relfile|auth/logout.ts|],
           genFileCopy [relfile|auth/helpers/user.ts|],
           genFileCopy [relfile|auth/types.ts|],
+          genFileCopy [relfile|auth/user.ts|],
           genUseAuth auth,
           genCreateAuthRequiredPage auth
         ]

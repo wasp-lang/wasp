@@ -20,7 +20,8 @@ import qualified Wasp.Util.Terminal as Term
 deps :: Command ()
 deps = do
   InWaspProject waspProjectDir <- require
-  appSpecOrAnalyzerErrors <- liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
+  (appSpecOrAnalyzerErrors, _analyzerWarnings) <-
+    liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either
       (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
