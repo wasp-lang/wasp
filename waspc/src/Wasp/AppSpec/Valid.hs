@@ -7,12 +7,15 @@ module Wasp.AppSpec.Valid
     isAuthEnabled,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
+    isValidationError,
+    isValidationWarning,
+    getLowestNodeVersionUserAllows,
   )
 where
 
 import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (fromJust, isJust, isNothing)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -33,15 +36,27 @@ import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
+import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
+import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.SemanticVersion.VersionBound as SVB
 import qualified Wasp.Version as WV
 
-data ValidationError = GenericValidationError String
+data ValidationError = GenericValidationError !String | GenericValidationWarning !String
   deriving (Eq)
 
 instance Show ValidationError where
   show (GenericValidationError e) = e
+  show (GenericValidationWarning e) = e
+
+isValidationError :: ValidationError -> Bool
+isValidationError (GenericValidationError _) = True
+isValidationError (GenericValidationWarning _) = False
+
+isValidationWarning :: ValidationError -> Bool
+isValidationWarning (GenericValidationError _) = False
+isValidationWarning (GenericValidationWarning _) = True
 
 validateAppSpec :: AppSpec -> [ValidationError]
 validateAppSpec spec =
@@ -60,7 +75,8 @@ validateAppSpec spec =
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
           validatePrismaOptions spec,
-          validateWebAppBaseDir spec
+          validateWebAppBaseDir spec,
+          validateUserNodeVersionRange spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -291,6 +307,44 @@ validateWebAppBaseDir spec = case maybeBaseDir of
     startsWithSlash ('/' : _) = True
     startsWithSlash _ = False
 
+validateUserNodeVersionRange :: AppSpec -> [ValidationError]
+validateUserNodeVersionRange spec =
+  concat
+    [ checkUserRangeIsInWaspRange,
+      checkUserRangeDoesNotAllowMajorChanges
+    ]
+  where
+    userRange = AS.userNodeVersionRange spec
+
+    checkUserRangeIsInWaspRange :: [ValidationError]
+    checkUserRangeIsInWaspRange =
+      if not (V.isRangeInWaspSupportedRange userRange)
+        then
+          [ GenericValidationError $
+              "Your app's Node version range ("
+                <> show userRange
+                <> ") allows versions lower than "
+                <> show oldestWaspSupportedNodeVersion
+                <> "."
+                <> " Wasp only works with Node >= "
+                <> show oldestWaspSupportedNodeVersion
+                <> "."
+          ]
+        else []
+
+    checkUserRangeDoesNotAllowMajorChanges :: [ValidationError]
+    checkUserRangeDoesNotAllowMajorChanges =
+      if SV.doesVersionRangeAllowMajorChanges userRange
+        then
+          [ GenericValidationWarning $
+              "Your app's Node version range ("
+                <> show userRange
+                <> ") allows breaking changes."
+                <> "To ensure consistency between development and production environments,"
+                <> " we recommend you narrow down your Node version range to not allow breaking changes."
+          ]
+        else []
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
@@ -332,3 +386,10 @@ getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- Example: If user specified their node version range to be [18.2, 20), then this function will return 18.
+getLowestNodeVersionUserAllows :: AppSpec -> SV.Version
+getLowestNodeVersionUserAllows spec =
+  fromMaybe (error "This should never happen: user Node version range lower bound is Inf") $
+    SVB.versionFromBound $ fst $ SVB.versionBounds $ AS.userNodeVersionRange spec

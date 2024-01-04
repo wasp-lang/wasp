@@ -13,7 +13,7 @@ where
 import Control.Applicative ((<|>))
 import Data.Foldable (find)
 import Data.Function ((&))
-import Data.List (intercalate, isPrefixOf)
+import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T

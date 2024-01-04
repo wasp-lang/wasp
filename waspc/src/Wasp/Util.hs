@@ -32,6 +32,7 @@ module Wasp.Util
     orIfNothingM,
     kebabToCamelCase,
     maybeToEither,
+    eitherToMaybe,
     whenM,
     naiveTrimJSON,
     textToLazyBS,
@@ -238,6 +239,10 @@ orIfNothingM = flip fromMaybeM
 
 maybeToEither :: a -> Maybe b -> Either a b
 maybeToEither leftValue = maybe (Left leftValue) Right
+
+eitherToMaybe :: Either e a -> Maybe a
+eitherToMaybe (Right x) = Just x
+eitherToMaybe (Left _) = Nothing
 
 getEnvVarDefinition :: (String, String) -> String
 getEnvVarDefinition (name, value) = concat [name, "=", value]

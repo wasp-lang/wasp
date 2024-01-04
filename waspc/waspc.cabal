@@ -359,6 +359,8 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Util
     Wasp.SemanticVersion
+    Wasp.SemanticVersion.VersionBound
+    Wasp.SemanticVersion.Version
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
@@ -366,13 +368,14 @@ library
     Wasp.Util.Debug
     Wasp.Util.Fib
     Wasp.Util.FilePath
+    Wasp.Util.HashMap
     Wasp.Util.IO
     Wasp.Util.IO.Retry
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.Terminal
+    Wasp.Util.TH
     Wasp.Util.StrongPath
-    Wasp.Util.HashMap
     Wasp.Util.WebRouterPath
     Wasp.Version
     Wasp.WaspignoreFile
@@ -606,6 +609,8 @@ test-suite waspc-test
     Util.FilePathTest
     Util.IO.RetryTest
     SemanticVersionTest
+    SemanticVersion.VersionBoundTest
+    SemanticVersion.VersionTest
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest

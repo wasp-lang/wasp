@@ -12,7 +12,6 @@ where
 
 import Data.Either (fromRight)
 import Data.Foldable (find)
-import Data.List (isPrefixOf)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System, reldir, (</>))
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github as Github
