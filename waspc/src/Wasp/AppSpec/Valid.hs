@@ -411,12 +411,12 @@ validateUserNodeVersionRange spec =
           [ GenericValidationError $
               "Your app's Node version range ("
                 <> show userRange
-                <> ") allow versions lower than "
+                <> ") allows versions lower than "
                 <> show oldestWaspSupportedNodeVersion
-                <> " ."
+                <> "."
                 <> " Wasp only works with Node >= "
                 <> show oldestWaspSupportedNodeVersion
-                <> " . "
+                <> "."
           ]
         else []
 
