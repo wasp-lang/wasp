@@ -11,18 +11,14 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 where
 
-import Data.Either (fromRight)
 import Data.Foldable (find)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System, reldir, (</>))
-import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhStartersRepo.Github as StartersRepoGithub
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
-
--- TODO: Poperly do renaming of GhStartersRepoStarterTemplate. Files, modules also.
 
 data StarterTemplate
   = -- | Template from the wasp-lang/starters Github repo.
@@ -59,12 +55,21 @@ instance Interactive.IsOption StarterTemplate where
 
 getStarterTemplates :: IO [StarterTemplate]
 getStarterTemplates = do
-  ghStartersRepoTemplates <- fromRight [] <$> fetchGhStartersRepoStarterTemplates
-  return $
-    [defaultStarterTemplate]
-      ++ ghStartersRepoTemplates
-      ++ [openSaasStarterTemplate]
-      ++ [AiGeneratedStarterTemplate]
+  return
+    [ defaultStarterTemplate,
+      todoTsStarterTemplate,
+      openSaasStarterTemplate,
+      AiGeneratedStarterTemplate
+    ]
+
+defaultStarterTemplate :: StarterTemplate
+defaultStarterTemplate =
+  LocalStarterTemplate $
+    DirBasedTemplateMetadata
+      { _name = "basic",
+        _path = "basic",
+        _description = "Simple starter template with a single page."
+      }
 
 openSaasStarterTemplate :: StarterTemplate
 openSaasStarterTemplate =
@@ -77,36 +82,26 @@ openSaasStarterTemplate =
     )
     ( DirBasedTemplateMetadata
         { _name = "saas",
-          _description = "TODO",
+          _description = "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.",
           _path = "."
         }
     )
 
-fetchGhStartersRepoStarterTemplates :: IO (Either String [StarterTemplate])
-fetchGhStartersRepoStarterTemplates = do
-  fmap extractTemplateNames <$> StartersRepoGithub.fetchTemplatesGithubData
-  where
-    extractTemplateNames :: [StartersRepoGithub.TemplateGithubData] -> [StarterTemplate]
-    -- Each folder in the repo is a template.
-    extractTemplateNames =
-      map
-        ( \metadata ->
-            GhStartersRepoStarterTemplate $
-              DirBasedTemplateMetadata
-                { _name = StartersRepoGithub._name metadata,
-                  _path = StartersRepoGithub._path metadata,
-                  _description = StartersRepoGithub._description metadata
-                }
-        )
-
-defaultStarterTemplate :: StarterTemplate
-defaultStarterTemplate =
-  LocalStarterTemplate $
-    DirBasedTemplateMetadata
-      { _name = "basic",
-        _path = "basic",
-        _description = "Simple starter template with a single page."
-      }
+todoTsStarterTemplate :: StarterTemplate
+todoTsStarterTemplate =
+  GhRepoStarterTemplate
+    ( GhRepo.GithubRepoRef
+        { GhRepo._repoOwner = "wasp-lang",
+          GhRepo._repoName = "starters",
+          GhRepo._repoReferenceName = "main"
+        }
+    )
+    ( DirBasedTemplateMetadata
+        { _name = "todo-ts",
+          _description = "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety.",
+          _path = "todo-ts"
+        }
+    )
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates

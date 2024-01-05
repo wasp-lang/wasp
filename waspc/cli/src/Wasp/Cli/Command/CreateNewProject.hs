@@ -49,7 +49,7 @@ createProjectOnDisk
       GhStartersRepoStarterTemplate metadata ->
         createProjectOnDiskFromGhStartersRepoTemplate absWaspProjectDir projectName appName $ _path metadata
       GhRepoStarterTemplate ghRepoRef metadata ->
-        createProjectOnDiskFromGhRepoTemplate absWaspProjectDir ghRepoRef $ _path metadata
+        createProjectOnDiskFromGhRepoTemplate absWaspProjectDir projectName appName ghRepoRef $ _path metadata
       LocalStarterTemplate metadata ->
         liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
       AiGeneratedStarterTemplate ->
