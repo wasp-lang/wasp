@@ -19,8 +19,9 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
     StarterTemplate (..),
     getStarterTemplates,
   )
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo (createProjectOnDiskFromGhRepoTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhStartersRepo (createProjectOnDiskFromGhStartersRepoTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote (createProjectOnDiskFromRemoteTemplate)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
 
@@ -45,8 +46,10 @@ createProjectOnDisk
     } = do
     cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
     case template of
-      RemoteStarterTemplate metadata ->
-        createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName $ _path metadata
+      GhStartersRepoStarterTemplate metadata ->
+        createProjectOnDiskFromGhStartersRepoTemplate absWaspProjectDir projectName appName $ _path metadata
+      GhRepoStarterTemplate ghRepoRef metadata ->
+        createProjectOnDiskFromGhRepoTemplate absWaspProjectDir ghRepoRef $ _path metadata
       LocalStarterTemplate metadata ->
         liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
       AiGeneratedStarterTemplate ->

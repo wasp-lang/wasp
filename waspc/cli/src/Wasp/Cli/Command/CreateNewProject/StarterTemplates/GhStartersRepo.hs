@@ -1,5 +1,5 @@
-module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
-  ( createProjectOnDiskFromRemoteTemplate,
+module Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhStartersRepo
+  ( createProjectOnDiskFromGhStartersRepoTemplate,
   )
 where
 
@@ -10,22 +10,22 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github (starterTemplateGithubRepo)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhStartersRepo.Github (startersRepo)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInWaspFile)
 import Wasp.Cli.GithubRepo (fetchFolderFromGithubRepoToDisk)
 import Wasp.Project (WaspProjectDir)
 
-createProjectOnDiskFromRemoteTemplate ::
+createProjectOnDiskFromGhStartersRepoTemplate ::
   Path' Abs (Dir WaspProjectDir) ->
   NewProjectName ->
   NewProjectAppName ->
   String ->
   Command ()
-createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName templatePath = do
+createProjectOnDiskFromGhStartersRepoTemplate absWaspProjectDir projectName appName templatePath = do
   fetchGithubTemplateToDisk absWaspProjectDir templatePath >>= either throwProjectCreationError pure
   liftIO $ replaceTemplatePlaceholdersInWaspFile appName projectName absWaspProjectDir
   where
     fetchGithubTemplateToDisk :: Path' Abs (Dir WaspProjectDir) -> String -> Command (Either String ())
     fetchGithubTemplateToDisk projectDir templatePathInRepo = do
       let templateFolderPath = fromJust . SP.parseRelDir $ templatePathInRepo
-      liftIO $ fetchFolderFromGithubRepoToDisk starterTemplateGithubRepo templateFolderPath projectDir
+      liftIO $ fetchFolderFromGithubRepoToDisk startersRepo templateFolderPath projectDir
