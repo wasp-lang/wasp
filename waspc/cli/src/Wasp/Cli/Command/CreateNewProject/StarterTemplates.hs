@@ -20,6 +20,7 @@ import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import qualified Wasp.Util.Terminal as Term
+import qualified System.FilePath as FP
 
 data StarterTemplate
   = -- | Template from a Github repo.
@@ -58,37 +59,43 @@ getTemplateStartingInstructions :: String -> StarterTemplate -> String
 getTemplateStartingInstructions projectDirName = \case
   GhRepoStarterTemplate _ metadata -> _buildStartingInstructions metadata projectDirName
   LocalStarterTemplate metadata -> _buildStartingInstructions metadata projectDirName
-  AiGeneratedStarterTemplate -> buildBasicStartingInstructions projectDirName
-
-buildBasicStartingInstructions :: String -> String
-buildBasicStartingInstructions projectDirName =
-  {- ORMOLU_DISABLE -}
-  unlines [
-                                    "To run your new app, do:",
-                                    "",
-    Term.applyStyles [Term.Bold] $  "    cd " ++ projectDirName,
-    Term.applyStyles [Term.Bold]    "    wasp start"
+  AiGeneratedStarterTemplate ->
+    unlines [
+      {- ORMOLU_DISABLE -}
+                                      "To run your new app, do:",
+      Term.applyStyles [Term.Bold] $  "    cd " <> projectDirName,
+      Term.applyStyles [Term.Bold]    "    wasp db migrate-dev",
+      Term.applyStyles [Term.Bold]    "    wasp start"
+      {- ORMOLU_ENABLE -}
     ]
-  {- ORMOLU_ENABLE -}
 
-getStarterTemplates :: IO [StarterTemplate]
-getStarterTemplates = do
-  return
-    [ defaultStarterTemplate,
-      todoTsStarterTemplate,
-      openSaasStarterTemplate,
-      embeddingsStarterTemplate,
-      AiGeneratedStarterTemplate
-    ]
+getStarterTemplates :: [StarterTemplate]
+getStarterTemplates =
+  [ defaultStarterTemplate,
+    todoTsStarterTemplate,
+    openSaasStarterTemplate,
+    embeddingsStarterTemplate,
+    AiGeneratedStarterTemplate
+  ]
 
 defaultStarterTemplate :: StarterTemplate
-defaultStarterTemplate =
+defaultStarterTemplate = basicStarterTemplate
+
+basicStarterTemplate :: StarterTemplate
+basicStarterTemplate =
   LocalStarterTemplate $
     DirBasedTemplateMetadata
       { _path = [reldir|basic|],
         _name = "basic",
         _description = "Simple starter template with a single page.",
-        _buildStartingInstructions = buildBasicStartingInstructions
+        _buildStartingInstructions = \projectDirName ->
+          unlines [
+            {- ORMOLU_DISABLE -}
+                                            "To run your new app, do:",
+            Term.applyStyles [Term.Bold] $  "    cd " <> projectDirName,
+            Term.applyStyles [Term.Bold]    "    wasp db start"
+            {- ORMOLU_ENABLE -}
+          ]
       }
 
 openSaasStarterTemplate :: StarterTemplate
@@ -99,7 +106,21 @@ openSaasStarterTemplate =
       "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
         <> " Check out https://opensaas.sh/ for more details."
     )
-    buildBasicStartingInstructions
+    (\projectDirName ->
+      unlines [
+        {- ORMOLU_DISABLE -}
+                                        "To run your new app, do:",
+        Term.applyStyles [Term.Bold] $  "    cd " <> projectDirName FP.</> "app",
+        Term.applyStyles [Term.Bold]    "    wasp db start",
+                                        "Then open new terminal window/tab in that same dir and do:",
+        Term.applyStyles [Term.Bold]    "    wasp db migrate-dev",
+        Term.applyStyles [Term.Bold]    "    cp .env.server.example .env.server",
+        Term.applyStyles [Term.Bold]    "    wasp start",
+                                        "",
+        Term.applyStyles [Term.Bold]    "Check the README for additional guidance and link to docs!"
+        {- ORMOLU_ENABLE -}
+      ]
+    )
 
 todoTsStarterTemplate :: StarterTemplate
 todoTsStarterTemplate =
@@ -108,7 +129,18 @@ todoTsStarterTemplate =
     ( "todo-ts",
       "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety."
     )
-    buildBasicStartingInstructions
+    (\projectDirName ->
+      unlines [
+        {- ORMOLU_DISABLE -}
+                                        "To run your new app, do:",
+        Term.applyStyles [Term.Bold] $  "    cd " ++ projectDirName,
+        Term.applyStyles [Term.Bold]    "    wasp db migrate-dev",
+        Term.applyStyles [Term.Bold]    "    wasp start",
+                                        "",
+        Term.applyStyles [Term.Bold]    "Check the README for additional guidance!"
+        {- ORMOLU_ENABLE -}
+      ]
+    )
 
 embeddingsStarterTemplate :: StarterTemplate
 embeddingsStarterTemplate =
@@ -117,7 +149,11 @@ embeddingsStarterTemplate =
     ( "embeddings",
       "Comes with code for generating vector embeddings and performing vector similarity search."
     )
-    buildBasicStartingInstructions
+    (\projectDirName ->
+      "To learn how to set up and run your new app, check instructions in "
+        <> projectDirName FP.</> "README.md"
+    )
+
 
 simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
 simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =

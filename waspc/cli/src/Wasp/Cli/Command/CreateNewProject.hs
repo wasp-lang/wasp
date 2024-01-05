@@ -31,7 +31,7 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either Common.throwProjectCreationError return
-  starterTemplates <- liftIO getStarterTemplates
+  let starterTemplates = getStarterTemplates
 
   newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplates
 
