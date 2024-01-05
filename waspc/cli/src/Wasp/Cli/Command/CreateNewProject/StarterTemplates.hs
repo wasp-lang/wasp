@@ -12,7 +12,7 @@ where
 
 import Data.Foldable (find)
 import Data.Text (Text)
-import StrongPath (File', Path, Rel, System, reldir, (</>))
+import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
@@ -30,7 +30,7 @@ data StarterTemplate
 
 data DirBasedTemplateMetadata = DirBasedTemplateMetadata
   { _name :: !String,
-    _path :: !String, -- Path to a directory containing template files.
+    _path :: !(Path' Rel' Dir'), -- Path to a directory containing template files.
     _description :: !String
   }
   deriving (Eq, Show)
@@ -54,6 +54,7 @@ getStarterTemplates = do
     [ defaultStarterTemplate,
       todoTsStarterTemplate,
       openSaasStarterTemplate,
+      embeddingsStarterTemplate,
       AiGeneratedStarterTemplate
     ]
 
@@ -61,42 +62,61 @@ defaultStarterTemplate :: StarterTemplate
 defaultStarterTemplate =
   LocalStarterTemplate $
     DirBasedTemplateMetadata
-      { _name = "basic",
-        _path = "basic",
+      { _path = [reldir|basic|],
+        _name = "basic",
         _description = "Simple starter template with a single page."
       }
 
 openSaasStarterTemplate :: StarterTemplate
 openSaasStarterTemplate =
-  GhRepoStarterTemplate
-    ( GhRepo.GithubRepoRef
-        { GhRepo._repoOwner = "wasp-lang",
-          GhRepo._repoName = "open-saas",
-          GhRepo._repoReferenceName = "main"
-        }
-    )
-    ( DirBasedTemplateMetadata
-        { _name = "saas",
-          _description = "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.",
-          _path = "."
-        }
+  simpleGhRepoTemplate
+    ("open-saas", [reldir|.|])
+    ( "saas",
+      "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
+        <> " Check out https://opensaas.sh/ for more details."
     )
 
 todoTsStarterTemplate :: StarterTemplate
 todoTsStarterTemplate =
+  simpleGhRepoTemplate
+    ("starters", [reldir|todo-ts|])
+    ( "todo-ts",
+      "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety."
+    )
+
+embeddingsStarterTemplate :: StarterTemplate
+embeddingsStarterTemplate =
+  simpleGhRepoTemplate
+    ("starters", [reldir|embeddings|])
+    ( "embeddings",
+      "Comes with code for generating vector embeddings and performing vector similarity search."
+    )
+
+simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StarterTemplate
+simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) =
   GhRepoStarterTemplate
     ( GhRepo.GithubRepoRef
-        { GhRepo._repoOwner = "wasp-lang",
-          GhRepo._repoName = "starters",
-          GhRepo._repoReferenceName = "main"
+        { GhRepo._repoOwner = waspGhOrgName,
+          GhRepo._repoName = repoName,
+          GhRepo._repoReferenceName = waspVersionTemplateGitTag
         }
     )
     ( DirBasedTemplateMetadata
-        { _name = "todo-ts",
-          _description = "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety.",
-          _path = "todo-ts"
+        { _name = tmplDisplayName,
+          _description = tmplDescription,
+          _path = tmplPathInRepo
         }
     )
+
+waspGhOrgName :: String
+waspGhOrgName = "wasp-lang"
+
+-- NOTE: As version of Wasp CLI changes, so we should update this tag name here,
+--   and also create it on gh repos of templates.
+--   By tagging templates for each version of Wasp CLI, we ensure that each release of
+--   Wasp CLI uses correct version of templates, that work with it.
+waspVersionTemplateGitTag :: String
+waspVersionTemplateGitTag = "wasp-v0.12-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
