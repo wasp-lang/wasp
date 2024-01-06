@@ -67,6 +67,7 @@ module.exports = {
             'auth/social-auth/google',
           ],
         },
+        'auth/entities',
       ],
     },
     {
