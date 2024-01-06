@@ -269,11 +269,9 @@ wasp db studio
 ```
 
 <img alt="Database demonstration - password hashing"
-src={useBaseUrl('img/wasp_db_hash_demonstration.gif')}
+src={useBaseUrl('img/wasp_user_in_db.gif')}
 style={{ border: "1px solid black" }}
 />
-
-We see there is a user and that its password is already hashed 🤯
 
 > TODO: update the gif and talk about the `Auth` and `AuthEntity` entities
 
@@ -283,11 +281,12 @@ However, you will notice that if you try logging in as different users and creat
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp {7,14-15} title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 entity User {=psl
     id       Int     @id @default(autoincrement())
+    // highlight-next-line
     tasks    Task[]
 psl=}
 
@@ -295,7 +294,9 @@ entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
+    // highlight-next-line
     user        User?    @relation(fields: [userId], references: [id])
+    // highlight-next-line
     userId      Int?
 psl=}
 
@@ -444,6 +445,8 @@ wasp db studio
 src={useBaseUrl('img/wasp_db_demonstration.gif')}
 style={{ border: "1px solid black" }}
 />
+
+> TODO: update the gif
 
 You will see that each user has their tasks, just as we specified in our code!
 
