@@ -2,7 +2,7 @@
 title: 'How we built a GPT code agent that generates full-stack web apps in React & Node.js, explained simply'
 authors: [martinsos]
 image: /img/how-we-built-gpt-wasp/generator-logs.png
-tags: [wasp-ai, GPT]
+tags: [mage, wasp-ai, GPT]
 ---
 
 import Link from '@docusaurus/Link';

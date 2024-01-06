@@ -43,7 +43,7 @@ export function getSignupRoute({
 
         /**
          * 
-         * There are two variables to consider in the case of an existing user:
+         * There are two cases to consider in the case of an existing user:
          * - if we allow unverified login
          * - if the user is already verified
          * 
@@ -51,19 +51,34 @@ export function getSignupRoute({
          * 
          * We are handling the case of an existing auth identity in two ways:
          * 
-         * 1. If the user is already verified, we don't leak information and pretend that the user
+         * 1. If the user already exists and is verified, we don't want
+         *   to leak that piece of info and instead we pretend that the user
          *   was created successfully.
-         *    - This helps with user enumeration attacks. If we would say that the user already exists,
-         *      an attacker would know that an account with that email exists.
+         *    - This prevents the attacker from learning which emails already have
+         *        an account created.
          * 
          * 2. If the user is not verified:
          *   - We check when we last sent a verification email and if it was less than X seconds ago,
          *     we don't send another one.
          *   - If it was more than X seconds ago, we delete the user and create a new one.
-         *   - This helps with people trying to take other people's emails by signing up with them
-         *     and then not verifying the email.
+         *   - This prevents the attacker from creating an account with somebody
+         *     else's email address and therefore permanently making that email
+         *     address unavailable for later account creation (by real owner).
          */
-        if (existingAuthIdentity && !allowUnverifiedLogin) {
+        if (existingAuthIdentity) {
+            if (allowUnverifiedLogin) {
+                /**
+                 * This is the case where we allow unverified login.
+                 * 
+                 * If we pretended that the user was created successfully that would bring
+                 * us little value: the attacker would not be able to login and figure out
+                 * if the user exists or not, anyway.
+                 * 
+                 * So, we throw an error that says that the user already exists.
+                 */
+                throw new HttpError(422, "User with that email already exists.")
+            }
+            
             const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
 
             // TOOD: faking work makes sense if the time spent on faking the work matches the time
@@ -86,17 +101,6 @@ export function getSignupRoute({
             } catch (e: unknown) {
                 rethrowPossibleAuthError(e);
             }
-        } else if (existingAuthIdentity && allowUnverifiedLogin) {
-            /**
-             * This is the case where we allow unverified login.
-             * 
-             * If we pretended that the user was created successfully that would bring
-             * us little value: the attacker would not be able to login and figure out
-             * if the user exists or not, anyway.
-             * 
-             * So, we throw an error that says that the user already exists.
-             */
-            throw new HttpError(422, "User with that email already exists.")
         }
 
         const userFields = await validateAndGetAdditionalFields(fields);

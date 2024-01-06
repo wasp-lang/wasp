@@ -20,6 +20,10 @@ COMMANDS
         -t|--template <template-name>
            Check out the templates list here: https://github.com/wasp-lang/starters
 
+    new:ai <app-name> <app-description> [<config-json>]
+      Uses AI to create a new Wasp project just based on the app name and the description.
+      You can do the same thing with `wasp new` interactively.
+
     version               Prints current version of CLI.
     waspls                Run Wasp Language Server. Add --help to get more info.
     completion            Prints help on bash completion.
@@ -35,8 +39,9 @@ COMMANDS
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
-    info                  Prints basic information about current Wasp project.
+    info                  Prints basic information about the current Wasp project.
     test                  Executes tests in your project.
+    studio                (experimental) GUI for inspecting your Wasp app.
 
 EXAMPLES
   wasp new MyApp

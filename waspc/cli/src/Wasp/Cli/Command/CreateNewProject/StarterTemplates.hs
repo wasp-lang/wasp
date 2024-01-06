@@ -38,12 +38,12 @@ instance Show StarterTemplate where
   show (LocalStarterTemplate metadata) = _name metadata
   show AiGeneratedStarterTemplate = "ai-generated"
 
-instance Interactive.Option StarterTemplate where
+instance Interactive.IsOption StarterTemplate where
   showOption = show
   showOptionDescription (RemoteStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription AiGeneratedStarterTemplate =
-    Just "[experimental] Describe an app in a couple of sentences and have ChatGPT generate initial code for you."
+    Just "🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)"
 
 getStarterTemplates :: IO [StarterTemplate]
 getStarterTemplates = do

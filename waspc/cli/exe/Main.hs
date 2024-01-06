@@ -46,13 +46,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
-        -- new-ai / new-ai:stdout is meant to be called and consumed programatically (e.g. by our Wasp AI
-        -- web app), while new-ai:disk is useful for us for testing.
-        [newAiCmd, projectName, appDescription, projectConfigJson]
-          | newAiCmd `elem` ["new-ai", "new-ai:stdout"] ->
-              Command.Call.NewAiToStdout projectName appDescription projectConfigJson
-          | newAiCmd == "new-ai:disk" ->
-              Command.Call.NewAiToDisk projectName appDescription projectConfigJson
+        ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -80,18 +74,28 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- not needed for every command, but checking for every command was decided
   -- to be more robust than trying to only check for commands that require it.
   -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  NodeVersion.getAndCheckNodeVersion >>= \case
-    Left errorMsg -> do
+  NodeVersion.getAndCheckUserNodeVersion >>= \case
+    NodeVersion.VersionCheckFail errorMsg -> do
       cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
       exitFailure
-    Right _ -> pure ()
+    NodeVersion.VersionCheckSuccess -> pure ()
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.NewAiToStdout projectName appDescription projectConfigJson ->
-      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJson
-    Command.Call.NewAiToDisk projectName appDescription projectConfigJson ->
-      runCommand $ Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson
+    Command.Call.NewAi newAiArgs -> case newAiArgs of
+      ["--stdout", projectName, appDescription, projectConfigJson] ->
+        runCommand $
+          Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout
+            projectName
+            appDescription
+            projectConfigJson
+      [projectName, appDescription, projectConfigJson] ->
+        runCommand $
+          Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk
+            projectName
+            appDescription
+            projectConfigJson
+      _ -> printWaspNewAiUsage
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -140,6 +144,11 @@ printUsage =
               "      OPTIONS:",
               "        -t|--template <template-name>",
               "           Check out the templates list here: https://github.com/wasp-lang/starters",
+              "",
+        cmd   "    new:ai <app-name> <app-description> [<config-json>]",
+              "      Uses AI to create a new Wasp project just based on the app name and the description.",
+              "      You can do the same thing with `wasp new` interactively.",
+              "      Run `wasp new:ai` for more info.",
               "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
@@ -227,6 +236,30 @@ printDbUsage =
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
               "  wasp db studio"
+      ]
+{- ORMOLU_ENABLE -}
+
+{- ORMOLU_DISABLE -}
+printWaspNewAiUsage :: IO ()
+printWaspNewAiUsage =
+  putStrLn $
+    unlines
+      [ title "USAGE",
+              "  wasp new:ai <app-name> <app-description> <config-json>",
+              "",
+              "    Config JSON:",
+              "      It is used to provide additional configuration to Wasp AI.",
+              "      Following fields are supported:",
+              "      {",
+              "        \"defaultGptTemperature\"?: number (from 0 to 2)",
+              "        \"planningGptModel\"?: string (OpenAI model name)",
+              "        \"codingGptModel\"?: string (OpenAI model name)",
+              "        \"primaryColor\"?: string (Tailwind color name)",
+              "      }",
+              "",
+        title "EXAMPLES",
+              "  wasp new:ai ButtonApp \"One page with button\" \"{}\"",
+              "  wasp new:ai ButtonApp \"One page with button\" \"{ \\\"defaultGptTemperature\\\": 0.5, \\\"codingGptModel\\\": \\\"gpt-4-1106-preview\\\" }\""
       ]
 {- ORMOLU_ENABLE -}
 

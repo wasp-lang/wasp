@@ -278,7 +278,7 @@ export const ResultPage = () => {
         >
           <span
             className="item-center flex gap-2 p-1 px-2 cursor-pointer text-pink-800 bg-pink-200 rounded"
-            onClick={() => window.open("https://github.com/wasp-lang/wasp/tree/wasp-ai")}
+            onClick={() => window.open("https://github.com/wasp-lang/wasp")}
           >
             <span>
               🔮 This is a Wasp powered project. If you like it,{" "}

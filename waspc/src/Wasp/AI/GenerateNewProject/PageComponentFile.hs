@@ -23,9 +23,10 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Text.Printf (printf)
-import Wasp.AI.CodeAgent (CodeAgent, getFile, writeToFile)
+import Wasp.AI.CodeAgent (getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
-  ( NewProjectDetails (..),
+  ( CodeAgent,
+    NewProjectDetails (..),
     codingChatGPTParams,
     fixingChatGPTParams,
     queryChatGPTForJSON,
@@ -168,6 +169,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
             - If there are any js imports of local modules (`from "./`, `from "../`),
               remove them and instead add the needed implementation directly in the file we are fixing right now.
             - Remove redundant imports, but don't change any of the remaining ones.
+            - Make sure that the component is exported as a default export.
 
           With this in mind, generate a new, fixed React component (${pageComponentPathText}).
           Do actual fixes, don't leave comments with "TODO"!
