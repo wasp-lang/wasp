@@ -24,7 +24,7 @@ Let's walk through enabling Github Authentication, explain some of the default s
 Enabling GitHub Authentication comes down to a series of steps:
 
 1. Enabling GitHub authentication in the Wasp file.
-1. Adding the necessary Entities.
+1. Adding the `User` entity.
 1. Creating a GitHub OAuth app.
 1. Adding the neccessary Routes and Pages
 1. Using Auth UI components in our Pages.
@@ -51,7 +51,7 @@ app myApp {
     userEntity: User,
     methods: {
       // highlight-next-line
-      // 3. Enable Github Auth
+      // 2. Enable Github Auth
       // highlight-next-line
       gitHub: {}
     },
@@ -76,7 +76,7 @@ app myApp {
     userEntity: User,
     methods: {
       // highlight-next-line
-      // 3. Enable Github Auth
+      // 2. Enable Github Auth
       // highlight-next-line
       gitHub: {}
     },
@@ -88,17 +88,16 @@ app myApp {
 </TabItem>
 </Tabs>
 
-### 2. Add the Entities
+### 2. Add the User Entity
 
-Let's now define the entities acting as `app.auth.userEntity` and `app.auth.externalAuthEntity`:
+Let's now define the `app.auth.userEntity` entity:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```wasp title="main.wasp"
 // ...
-// highlight-next-line
-// 2. Define the User entity
+// 3. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
@@ -111,8 +110,7 @@ psl=}
 
 ```wasp title="main.wasp"
 // ...
-// highlight-next-line
-// 2. Define the User entity
+// 3. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
@@ -122,8 +120,6 @@ psl=}
 
 </TabItem>
 </Tabs>
-
-`externalAuthEntity` and `userEntity` are explained in [the social auth overview](/docs/auth/social-auth/overview#social-login-entity).
 
 ### 3. Creating a GitHub OAuth App
 
@@ -277,7 +273,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title=main.wasp {10}
+```wasp title=main.wasp
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -286,6 +282,7 @@ app myApp {
   auth: {
     userEntity: User,
     methods: {
+      // highlight-next-line
       gitHub: {}
     },
     onAuthFailedRedirectTo: "/login"
@@ -296,7 +293,7 @@ app myApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title=main.wasp {10}
+```wasp title=main.wasp
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -305,6 +302,7 @@ app myApp {
   auth: {
     userEntity: User,
     methods: {
+      // highlight-next-line
       gitHub: {}
     },
     onAuthFailedRedirectTo: "/login"
@@ -328,7 +326,7 @@ app myApp {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {11-12,22}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -338,7 +336,9 @@ app myApp {
     userEntity: User,
     methods: {
       gitHub: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       }
     },
@@ -376,7 +376,7 @@ export function getConfig() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {11-12,22}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -386,7 +386,9 @@ app myApp {
     userEntity: User,
     methods: {
       gitHub: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       }
     },
@@ -438,7 +440,7 @@ export function getConfig() {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {11-12}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -448,7 +450,9 @@ app myApp {
     userEntity: User,
     methods: {
       gitHub: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       }
     },
@@ -460,7 +464,7 @@ app myApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {11-12}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -470,7 +474,9 @@ app myApp {
     userEntity: User,
     methods: {
       gitHub: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       }
     },

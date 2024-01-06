@@ -9,6 +9,8 @@ Wasp supports e-mail authentication out of the box, along with email verificatio
 ![Auth UI](/img/authui/all_screens.gif)
 
 :::caution Using email auth and social auth together
+> TODO: what is written below is not true anymore, we need to update it. Social Auth can now work alongside Email Auth. But the new issue now is "Account Merging"!
+
 If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password ✅
 
 If a user signs up with the e-mail and password and then tries to login with a social provider (Google or Github), they won't be able to do that ❌
@@ -20,7 +22,7 @@ In the future, we will lift this limitation and enable smarter merging of accoun
 
 We'll need to take the following steps to set up email authentication:
 1. Enable email authentication in the Wasp file
-1. Add the user entity
+1. Add the `User` entity
 1. Add the routes and pages
 1. Use Auth UI components in our pages
 1. Set up the email sender
@@ -123,14 +125,17 @@ Read more about the `email` auth method options [here](#fields-in-the-email-dict
 
 ### 2. Add the User Entity
 
-When email authentication is enabled, Wasp expects certain fields in your `userEntity`. Let's add these fields to our `main.wasp` file:
+The `User` entity can be as simple as including only the `id` field:
+
+> TODO: link to reading more about auth models in the [Auth Entities](/docs/auth/entities) section.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {4-8}
+```wasp title="main.wasp"
 // 5. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
     // Add your own fields below
     // ...
@@ -139,9 +144,10 @@ psl=}
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {4-8}
+```wasp title="main.wasp"
 // 5. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
     // Add your own fields below
     // ...
@@ -150,7 +156,6 @@ psl=}
 </TabItem>
 </Tabs>
 
-Read more about the `userEntity` fields [here](#userentity-fields).
 
 ### 3. Add the Routes and Pages
 
@@ -598,7 +603,7 @@ Let's go over the options we can specify when using email authentication.
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {18-25}
+```wasp title="main.wasp" {18-21}
 app myApp {
   title: "My app",
   // ...
@@ -615,7 +620,6 @@ app myApp {
   // ...
 }
 
-// Using email auth requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
 psl=}
@@ -623,7 +627,7 @@ psl=}
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {18-25}
+```wasp title="main.wasp" {18-21}
 app myApp {
   title: "My app",
   // ...
@@ -640,7 +644,6 @@ app myApp {
   // ...
 }
 
-// Using email auth requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
 psl=}

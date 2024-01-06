@@ -1168,9 +1168,6 @@ app MyApp {
 #### `userEntity: entity` (required)
 Entity which represents the user.
 
-#### `externalAuthEntity: entity` (optional)
-Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20) for more info.
-
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
 * `usernameAndPassword`: authentication with a username and password. See [here](#username-and-password) for more.
@@ -1622,23 +1619,7 @@ When a user signs in for the first time, if the `userEntity` has `username` and/
 It is also possible to [override the default](features#overrides-for-social-login-providers) login behaviors that Wasp provides for you. This allows you to create custom setups, such as allowing Users to define a username rather than the default random username assigned by Wasp on initial Login.
 :::
 
-#### `externalAuthEntity`
-Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains the following configuration:
 
-```wasp {4,14}
-//...
-  auth: {
-    userEntity: User,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-psl=}
-```
-:::note
-the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
-:::
 #### UI helpers
 
 Wasp provides sign-in buttons, logos and URLs for your login page:

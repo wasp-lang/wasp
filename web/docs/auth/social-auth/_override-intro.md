@@ -1,4 +1,6 @@
-Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username rather instead of getting a randomly generated one.
+> TODO: explain the user fields that can be set by the `getUserFieldsFn` function
+
+Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username.
 
 There are two mechanisms (functions) used for overriding the default behavior:
 

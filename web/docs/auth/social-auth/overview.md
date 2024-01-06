@@ -23,15 +23,12 @@ Wasp currently supports the following social login providers:
 
 <SocialAuthGrid />
 
-## Social Login Entity
+## User Entity
 
 Wasp requires you to declare a `userEntity` for all `auth` methods (social or otherwise).
 This field tells Wasp which Entity represents the user.
 
-Additionally, when using `auth` methods that rely on external providers(e.g., _Google_), you must also declare an `externalAuthEntity`.
-This tells Wasp which Entity represents the user's link with the social provider.
-
-Both fields fall under `app.auth`. Here's what the full setup looks like:
+Here's what the full setup looks like:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -94,23 +91,21 @@ To learn more about what the fields on these entities represent, look at the [AP
 
 </small>
 
-:::note
-Wasp uses the same `externalAuthEntity` for all social login providers (e.g. both GitHub and Google use the same entity).
-:::
-
 ## Default Behavior
 
 <DefaultBehaviour />
 
 ## Overrides
 
-Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username rather instead of getting a randomly generated one.
+> TODO: explain the user fields that can be set by the `getUserFieldsFn` function
+
+Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username.
 
 ### Allowing User to Set Their Username
 
 If you want to modify the signup flow (e.g., let users choose their own usernames), you will need to go through three steps:
 
-1. The first step is adding a `isSignupComplete` property to your `User` Entity. This field will signals whether the user has completed the signup process.
+1. The first step is adding a `isSignupComplete` property to your `User` Entity. This field will signal whether the user has completed the signup process.
 2. The second step is overriding the default signup behavior.
 3. The third step is implementing the rest of your signup flow and redirecting users where appropriate.
 

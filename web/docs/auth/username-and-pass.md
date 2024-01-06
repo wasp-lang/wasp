@@ -10,7 +10,7 @@ Wasp supports username & password authentication out of the box with login and s
 
 To set up username authentication we need to:
 1. Enable username authentication in the Wasp file
-1. Add the user entity
+1. Add the `User` entity
 1. Add the routes and pages
 1. Use Auth UI components in our pages
 
@@ -80,14 +80,17 @@ Read more about the `usernameAndPassword` auth method options [here](#fields-in-
 
 ### 2. Add the User Entity
 
-When username authentication is enabled, Wasp expects certain fields in your `userEntity`. Let's add these fields to our `main.wasp` file:
+The `User` entity can be as simple as including only the `id` field:
+
+TODO: link to reading more about auth models in the [Auth Entities](/docs/auth/entities) section.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {4-5}
+```wasp title="main.wasp"
 // 3. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
     // Add your own fields below
     // ...
@@ -96,9 +99,10 @@ psl=}
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {4-5}
+```wasp title="main.wasp"
 // 3. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
     // Add your own fields below
     // ...
@@ -106,8 +110,6 @@ psl=}
 ```
 </TabItem>
 </Tabs>
-
-Read more about the `userEntity` fields [here](#userentity-fields).
 
 ### 3. Add the Routes and Pages
 
@@ -457,6 +459,8 @@ export function Signup() {
 
 ### 2. Creating your custom sign-up action
 
+> TODO: the code below is no longer valid, update it to the new API
+
 The code of your custom sign-up action can look like this:
 
 <Tabs groupId="js-ts">
@@ -614,7 +618,6 @@ app myApp {
   }
 }
 
-// Wasp requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
 psl=}
@@ -637,7 +640,6 @@ app myApp {
   }
 }
 
-// Wasp requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
 psl=}

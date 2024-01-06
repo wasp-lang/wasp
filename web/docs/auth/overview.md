@@ -5,9 +5,9 @@ title: Using Auth
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
 import { Required } from "@site/src/components/Required";
 
-Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box 🙃.
+Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box.
 
-Enabling auth for your app is optional and can be done by configuring the `auth` field of the `app` declaration.
+Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -198,7 +198,7 @@ page AccountPage {
 ```
 
 ```tsx title="client/pages/Account.tsx"
-import type { User } from '@wasp/entities'
+import type { User } from '@wasp/auth/types'
 import Button from './Button'
 import logout from '@wasp/auth/logout'
 
@@ -295,6 +295,8 @@ Since the `user` prop is only available in a page's React component: use the `us
 
 When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
+TODO: mention which fields are available on the `user` object and link to the [Auth Entities](/docs/auth/entities) section
+
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
@@ -359,7 +361,10 @@ When using WebSockets, the `user` object is also available on the `socket.data` 
 
 ### Password hashing
 
-You don't need to worry about hashing the password yourself. Even when directly using the Prisma client and calling `create()` with a plain-text password, Wasp's middleware makes sure to hash the password before storing it in the database.
+If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you.
+
+TODO: the following code is no longer valid since the `password` field is no longer stored on the `User` but in the `providerData` field on `AuthEntity`
+
 For example, if you need to update a user's password, you can safely use the Prisma client to do so, e.g., inside an Action:
 
 <Tabs groupId="js-ts">
@@ -381,7 +386,7 @@ export const updatePassword = async (args, context) => {
 
 ```ts title="src/server/actions.ts"
 import type { UpdatePassword } from '@wasp/actions/types'
-import type { User } from '@wasp/entities'
+import type { User } from '@wasp/auth/types'
 
 type UpdatePasswordPayload = {
   userId: User['id']
@@ -908,50 +913,9 @@ app MyApp {
 
 #### `userEntity: entity` <Required />
 
-The entity representing the user. Its mandatory fields depend on your chosen auth method.
+The entity representing the user connected to your business logic. 
 
-#### `externalAuthEntity: entity`
-
-Wasp requires you to set the field `auth.externalAuthEntity` for all authentication methods relying on an external authorizatino provider (e.g., Google). You also need to tweak the Entity referenced by `auth.userEntity`, as shown below.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp {4,14} title="main.wasp"
-//...
-  auth: {
-    userEntity: User,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-psl=}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp {4,14} title="main.wasp"
-//...
-  auth: {
-    userEntity: User,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-psl=}
-```
-
-</TabItem>
-</Tabs>
-
-:::note
-The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
-:::
-
-See [Google docs](/docs/auth/social-auth/google) and [GitHub docs](/docs/auth/social-auth/github) for more details.
+TODO: write about how Wasp creates the `Auth` and `AuthIdentity` entities behind the scenes
 
 #### `methods: dict` <Required />
 
