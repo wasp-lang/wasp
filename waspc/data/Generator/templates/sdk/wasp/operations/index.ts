@@ -5,12 +5,9 @@ import {
   deserialize as superjsonDeserialize,
 } from 'superjson'
 
-export type OperationRoute = { method: HttpMethod; path: string }
+export type OperationRoute = { method: HttpMethod, path: string }
 
-export async function callOperation(
-  operationRoute: OperationRoute & { method: HttpMethod.Post },
-  args: any
-) {
+export async function callOperation(operationRoute: OperationRoute & { method: HttpMethod.Post }, args: any) {
   try {
     const superjsonArgs = superjsonSerialize(args)
     const response = await api.post(operationRoute.path, superjsonArgs)
@@ -20,8 +17,6 @@ export async function callOperation(
   }
 }
 
-export function makeOperationRoute(
-  relativeOperationRoute: string
-): OperationRoute {
+export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
   return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
 }

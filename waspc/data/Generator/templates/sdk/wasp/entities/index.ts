@@ -6,6 +6,8 @@ import {
 export {
   type User,
   type Task,
+  type Auth,
+  type AuthIdentity,
 } from "@prisma/client"
 
 export type Entity = 
