@@ -19,7 +19,7 @@ First, we'll create a Todo list for what needs to be done (luckily we have an ap
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it will create [the auth related entities](#todo) for us. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
+Since Wasp manages authentication, it will create [the auth related entities](/docs/auth/entities) for us. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
 
 ```wasp title="main.wasp"
 // ...
@@ -273,9 +273,16 @@ src={useBaseUrl('img/wasp_user_in_db.gif')}
 style={{ border: "1px solid black" }}
 />
 
-> TODO: update the gif and talk about the `Auth` and `AuthEntity` entities
+
+You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
+
+<small>
+
+You'll notice some extra entities like `Auth` and `AuthIdentity` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](/docs/auth/entities).
+
+</small>
 
 ## Defining a User-Task Relation
 

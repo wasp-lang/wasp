@@ -3,6 +3,8 @@ title: Username & Password
 ---
 
 import { Required } from '@site/src/components/Required';
+import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
+import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
 
@@ -82,8 +84,6 @@ Read more about the `usernameAndPassword` auth method options [here](#fields-in-
 
 The `User` entity can be as simple as including only the `id` field:
 
-> TODO: link to reading more about auth models in the [Auth Entities](/docs/auth/entities) section.
-
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
@@ -110,6 +110,8 @@ psl=}
 ```
 </TabItem>
 </Tabs>
+
+<ReadMoreAboutAuthEntities />
 
 ### 3. Add the Routes and Pages
 
@@ -260,6 +262,8 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 That's it! We have set up username authentication in our app. 🎉
 
 Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [using auth docs](/docs/auth/overview).
+
+<MultipleIdentitiesWarning />
 
 ## Customizing the Auth Flow
 

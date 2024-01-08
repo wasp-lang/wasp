@@ -1,0 +1,1 @@
+You can read more about how the `User` entity is connected to the rest of the auth system in the [Auth Entities](/docs/auth/entities) section of the docs.

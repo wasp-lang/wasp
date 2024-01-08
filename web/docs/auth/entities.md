@@ -4,6 +4,7 @@ title: Auth Entities
 
 import ImgWithCaption from '../../blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Internal'
+import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 
 Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](/docs/auth/username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](/docs/auth/email) authentication method, you will need to store the user's email, password and for example, their email verification status.
 
@@ -32,13 +33,13 @@ On the other hand, the `Auth` and `AuthIdentity` entities are created behind the
 
 In the case you want to create custom login or signup actions, you will need to use the `Auth` and `AuthIdentity` entities directly.
 
-### Auth Entities in an Example App
+### Example App Model
 Let's imagine we created a simple tasks management app:
 
  - The app has email and Google-based auth.
  - Users can create tasks and see the tasks that they have created.
 
-Let's look how would that look in the database:
+Let's look at how would that look in the database:
 
 <ImgWithCaption alt="Example of Auth Entities" source="img/auth-entities/model-example.png" caption="Example of Auth Entities"/>
 
@@ -49,12 +50,7 @@ If we take a look at an example user in the database, we can see:
 - Each `Auth` entity can have multiple `AuthIdentity` entities.
   - In this example, the `Auth` entity has two `AuthIdentity` entities: one for the email-based auth and one for the Google-based auth.
 
-:::caution Note on multiple auth identities
-
-Wasp currently doesn't support multiple auth identities for a single user. This means that a user can't have both an email-based auth identity and a Google-based auth identity. This is something we will add in the future with the introduction of the [account merging feature](https://github.com/wasp-lang/wasp/issues/954).
-
-Account merging means that multiple auth identities can be merged into a single user account. For example, a user's email and Google identity can be merged into a single user account. Then the user can log in with either their email or Google account and they will be logged into the same account.
-:::
+<MultipleIdentitiesWarning />
 
 ### `Auth` Entity <Internal />
 
@@ -394,21 +390,21 @@ export const signup = async (args, { entities: { User } }) => {
     )
 
     // This is equivalent to:
-    await prisma.user.create({
-      data: {
-        auth: {
-          create: {
-            identities: {
-                create: {
-                    providerName: 'username',
-                    providerUserId: args.username
-                    providerData,
-                },
-            },
-          }
-        },
-      }
-    })
+    // await prisma.user.create({
+    //   data: {
+    //     auth: {
+    //       create: {
+    //         identities: {
+    //             create: {
+    //                 providerName: 'username',
+    //                 providerUserId: args.username
+    //                 providerData,
+    //             },
+    //         },
+    //       }
+    //     },
+    //   }
+    // })
   } catch (e) {
     return {
       success: false,
@@ -475,21 +471,21 @@ export const signup: CustomSignup<
     )
 
     // This is equivalent to:
-    await prisma.user.create({
-      data: {
-        auth: {
-          create: {
-            identities: {
-                create: {
-                    providerName: 'username',
-                    providerUserId: args.username
-                    providerData,
-                },
-            },
-          }
-        },
-      }
-    })
+    // await prisma.user.create({
+    //   data: {
+    //     auth: {
+    //       create: {
+    //         identities: {
+    //             create: {
+    //                 providerName: 'username',
+    //                 providerUserId: args.username
+    //                 providerData,
+    //             },
+    //         },
+    //       }
+    //     },
+    //   }
+    // })
   } catch (e) {
     return {
       success: false,

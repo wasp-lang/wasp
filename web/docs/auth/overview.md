@@ -4,6 +4,7 @@ title: Using Auth
 
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
 import { Required } from "@site/src/components/Required";
+import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
 Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box.
 
@@ -144,7 +145,9 @@ const LogoutButton = () => {
 
 ## Accessing the logged-in user
 
-You can get access to the `user` object both in the backend and on the frontend.
+You can get access to the `user` object both on the server and on the client. The `user` object contains the logged-in user's data. This includes all of the identities the user has connected to their account.
+
+<ReadMoreAboutAuthEntities />
 
 ### On the client
 
@@ -293,9 +296,7 @@ Since the `user` prop is only available in a page's React component: use the `us
 
 #### Using the `context.user` object
 
-When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
-
-> TODO: mention which fields are available on the `user` object and link to the [Auth Entities](/docs/auth/entities) section
+When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields and the auth identities connected to the user. We strip out the `hashedPassword` field from the identities for security reasons.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -357,26 +358,37 @@ To implement access control in your app, each operation must check `context.user
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](/docs/advanced/web-sockets#websocketfn-function).
 
-## User entity
+## User Entity
 
-### Password hashing
+### Password Hashing
 
-If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you.
+If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
-> TODO: the following code is no longer valid since the `password` field is no longer stored on the `User` but in the `providerData` field on `AuthEntity`
-
-For example, if you need to update a user's password, you can safely use the Prisma client to do so, e.g., inside an Action:
+> TODO: test out the code below and make sure it works
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/server/actions.js"
+import {
+    createProviderId,
+    findAuthIdentity,
+    updateAuthIdentityProviderData,
+    deserializeAndSanitizeProviderData,
+} from '@wasp/auth/utils.js';
+
 export const updatePassword = async (args, context) => {
-  return context.entities.User.update({
-    where: { id: args.userId },
-    data: {
-      password: 'New pwd which will be hashed automatically!',
-    },
+  const providerId = createProviderId('email', args.email)
+  const authIdentity = await findAuthIdentity(providerId)
+  if (!authIdentity) {
+      throw new HttpError(400, "Unknown user")
+  }
+  
+  const providerData = deserializeAndSanitizeProviderData(authIdentity.providerData)
+
+  // Updates the password and hashes it automatically.
+  await updateAuthIdentityProviderData(providerId, providerData, {
+      hashedPassword: args.password,
   })
 }
 ```
@@ -385,22 +397,29 @@ export const updatePassword = async (args, context) => {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/server/actions.ts"
+import {
+    createProviderId,
+    findAuthIdentity,
+    updateAuthIdentityProviderData,
+    deserializeAndSanitizeProviderData,
+} from '@wasp/auth/utils.js';
 import type { UpdatePassword } from '@wasp/actions/types'
-import type { User } from '@wasp/auth/types'
-
-type UpdatePasswordPayload = {
-  userId: User['id']
-}
 
 export const updatePassword: UpdatePassword<
-  UpdatePasswordPayload,
-  User
+  { email: string; password: string },
+  void,
 > = async (args, context) => {
-  return context.entities.User.update({
-    where: { id: args.userId },
-    data: {
-      password: 'New pwd which will be hashed automatically!',
-    },
+  const providerId = createProviderId('email', args.email)
+  const authIdentity = await findAuthIdentity(providerId)
+  if (!authIdentity) {
+      throw new HttpError(400, "Unknown user")
+  }
+  
+  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
+
+  // Updates the password and hashes it automatically.
+  await updateAuthIdentityProviderData(providerId, providerData, {
+      hashedPassword: args.password,
   })
 }
 ```
@@ -408,7 +427,7 @@ export const updatePassword: UpdatePassword<
 </TabItem>
 </Tabs>
 
-### Default validations
+### Default Validations
 
 When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](/docs/auth/ui) or if you use the provided auth actions.
 
@@ -416,7 +435,7 @@ If you decide to create your [custom auth actions](/docs/auth/username-and-pass#
 
 Default validations depend on the auth method you use.
 
-#### Username & password
+#### Username & Password
 
 If you use [Username & password](/docs/auth/username-and-pass) authentication, the default validations are:
 
@@ -915,7 +934,7 @@ app MyApp {
 
 The entity representing the user connected to your business logic. 
 
-> TODO: write about how Wasp creates the `Auth` and `AuthIdentity` entities behind the scenes
+<ReadMoreAboutAuthEntities />
 
 #### `methods: dict` <Required />
 

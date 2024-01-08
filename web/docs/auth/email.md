@@ -3,20 +3,14 @@ title: Email
 ---
 
 import { Required } from '@site/src/components/Required';
+import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
+import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
-:::caution Using email auth and social auth together
-> TODO: what is written below is not true anymore, we need to update it. Social Auth can now work alongside Email Auth. But the new issue now is "Account Merging"!
-
-If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password ✅
-
-If a user signs up with the e-mail and password and then tries to login with a social provider (Google or Github), they won't be able to do that ❌
-
-In the future, we will lift this limitation and enable smarter merging of accounts.
-:::
+<MultipleIdentitiesWarning />
 
 ## Setting Up Email Authentication
 
@@ -127,8 +121,6 @@ Read more about the `email` auth method options [here](#fields-in-the-email-dict
 
 The `User` entity can be as simple as including only the `id` field:
 
-> TODO: link to reading more about auth models in the [Auth Entities](/docs/auth/entities) section.
-
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
@@ -155,6 +147,8 @@ psl=}
 ```
 </TabItem>
 </Tabs>
+
+<ReadMoreAboutAuthEntities />
 
 
 ### 3. Add the Routes and Pages
