@@ -14,13 +14,13 @@ where
 import Data.Foldable (find)
 import Data.Text (Text)
 import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
+import qualified System.FilePath as FP
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import qualified Wasp.Util.Terminal as Term
-import qualified System.FilePath as FP
 
 data StarterTemplate
   = -- | Template from a Github repo.
@@ -52,6 +52,8 @@ instance Interactive.IsOption StarterTemplate where
 
 type StartingInstructionsBuilder = String -> String
 
+{- HLINT ignore getTemplateStartingInstructions "Redundant $" -}
+
 -- | Returns instructions for running the newly created (from the template) Wasp project.
 -- Instructions assume that user is positioned right next to the just created project directory,
 -- whose name is provided via projectDirName.
@@ -60,14 +62,12 @@ getTemplateStartingInstructions projectDirName = \case
   GhRepoStarterTemplate _ metadata -> _buildStartingInstructions metadata projectDirName
   LocalStarterTemplate metadata -> _buildStartingInstructions metadata projectDirName
   AiGeneratedStarterTemplate ->
-    unlines [
-      {- ORMOLU_DISABLE -}
-                                      "To run your new app, do:",
-      Term.applyStyles [Term.Bold] $  "    cd " <> projectDirName,
-      Term.applyStyles [Term.Bold]    "    wasp db migrate-dev",
-      Term.applyStyles [Term.Bold]    "    wasp start"
-      {- ORMOLU_ENABLE -}
-    ]
+    unlines
+      [ styleText $ "To run your new app, do:",
+        styleCode $ "    cd " <> projectDirName,
+        styleCode $ "    wasp db migrate-dev",
+        styleCode $ "    wasp start"
+      ]
 
 getStarterTemplates :: [StarterTemplate]
 getStarterTemplates =
@@ -81,6 +81,8 @@ getStarterTemplates =
 defaultStarterTemplate :: StarterTemplate
 defaultStarterTemplate = basicStarterTemplate
 
+{- HLINT ignore basicStarterTemplate "Redundant $" -}
+
 basicStarterTemplate :: StarterTemplate
 basicStarterTemplate =
   LocalStarterTemplate $
@@ -89,14 +91,14 @@ basicStarterTemplate =
         _name = "basic",
         _description = "Simple starter template with a single page.",
         _buildStartingInstructions = \projectDirName ->
-          unlines [
-            {- ORMOLU_DISABLE -}
-                                            "To run your new app, do:",
-            Term.applyStyles [Term.Bold] $  "    cd " <> projectDirName,
-            Term.applyStyles [Term.Bold]    "    wasp db start"
-            {- ORMOLU_ENABLE -}
-          ]
+          unlines
+            [ styleText $ "To run your new app, do:",
+              styleCode $ "    cd " <> projectDirName,
+              styleCode $ "    wasp db start"
+            ]
       }
+
+{- HLINT ignore openSaasStarterTemplate "Redundant $" -}
 
 openSaasStarterTemplate :: StarterTemplate
 openSaasStarterTemplate =
@@ -106,21 +108,21 @@ openSaasStarterTemplate =
       "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
         <> " Check out https://opensaas.sh/ for more details."
     )
-    (\projectDirName ->
-      unlines [
-        {- ORMOLU_DISABLE -}
-                                        "To run your new app, do:",
-        Term.applyStyles [Term.Bold] $  "    cd " <> projectDirName FP.</> "app",
-        Term.applyStyles [Term.Bold]    "    wasp db start",
-                                        "Then open new terminal window/tab in that same dir and do:",
-        Term.applyStyles [Term.Bold]    "    wasp db migrate-dev",
-        Term.applyStyles [Term.Bold]    "    cp .env.server.example .env.server",
-        Term.applyStyles [Term.Bold]    "    wasp start",
-                                        "",
-        Term.applyStyles [Term.Bold]    "Check the README for additional guidance and link to docs!"
-        {- ORMOLU_ENABLE -}
-      ]
+    ( \projectDirName ->
+        unlines
+          [ styleText $ "To run your new app, do:",
+            styleCode $ "    cd " <> projectDirName FP.</> "app",
+            styleCode $ "    wasp db start",
+            styleText $ "Then open new terminal window/tab in that same dir and do:",
+            styleCode $ "    wasp db migrate-dev",
+            styleCode $ "    cp .env.server.example .env.server",
+            styleCode $ "    wasp start",
+            styleText $ "",
+            styleText $ "Check the README for additional guidance and link to docs!"
+          ]
     )
+
+{- HLINT ignore todoTsStarterTemplate "Redundant $" -}
 
 todoTsStarterTemplate :: StarterTemplate
 todoTsStarterTemplate =
@@ -129,18 +131,26 @@ todoTsStarterTemplate =
     ( "todo-ts",
       "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety."
     )
-    (\projectDirName ->
-      unlines [
-        {- ORMOLU_DISABLE -}
-                                        "To run your new app, do:",
-        Term.applyStyles [Term.Bold] $  "    cd " ++ projectDirName,
-        Term.applyStyles [Term.Bold]    "    wasp db migrate-dev",
-        Term.applyStyles [Term.Bold]    "    wasp start",
-                                        "",
-        Term.applyStyles [Term.Bold]    "Check the README for additional guidance!"
-        {- ORMOLU_ENABLE -}
-      ]
+    ( \projectDirName ->
+        unlines
+          [ styleText $ "To run your new app, do:",
+            styleCode $ "    cd " ++ projectDirName,
+            styleCode $ "    wasp db migrate-dev",
+            styleCode $ "    wasp start",
+            styleText $ "",
+            styleText $ "Check the README for additional guidance!"
+          ]
     )
+
+{- Functions for styling instructions. They are on purpose of same length, for nicer formatting. -}
+
+styleCode :: String -> String
+styleCode = Term.applyStyles [Term.Bold]
+
+styleText :: String -> String
+styleText = id
+
+{- -}
 
 embeddingsStarterTemplate :: StarterTemplate
 embeddingsStarterTemplate =
@@ -149,11 +159,10 @@ embeddingsStarterTemplate =
     ( "embeddings",
       "Comes with code for generating vector embeddings and performing vector similarity search."
     )
-    (\projectDirName ->
-      "To learn how to set up and run your new app, check instructions in "
-        <> projectDirName FP.</> "README.md"
+    ( \projectDirName ->
+        "To learn how to set up and run your new app, check instructions in "
+          <> projectDirName FP.</> "README.md"
     )
-
 
 simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
 simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =
