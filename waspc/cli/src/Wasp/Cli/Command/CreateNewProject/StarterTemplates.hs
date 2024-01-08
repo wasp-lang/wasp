@@ -118,7 +118,7 @@ openSaasStarterTemplate =
             styleCode $ "    cp .env.server.example .env.server",
             styleCode $ "    wasp start",
             styleText $ "",
-            styleText $ "Check the README for additional guidance and link to docs!"
+            styleText $ "Check the README for additional guidance and the link to docs!"
           ]
     )
 
@@ -142,7 +142,7 @@ todoTsStarterTemplate =
           ]
     )
 
-{- Functions for styling instructions. They are on purpose of same length, for nicer formatting. -}
+{- Functions for styling instructions. Their names are on purpose of same length, for nicer code formatting. -}
 
 styleCode :: String -> String
 styleCode = Term.applyStyles [Term.Bold]
