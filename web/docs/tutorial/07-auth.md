@@ -446,8 +446,6 @@ src={useBaseUrl('img/wasp_db_demonstration.gif')}
 style={{ border: "1px solid black" }}
 />
 
-> TODO: update the gif
-
 You will see that each user has their tasks, just as we specified in our code!
 
 ## Logout Button

@@ -82,7 +82,7 @@ Read more about the `usernameAndPassword` auth method options [here](#fields-in-
 
 The `User` entity can be as simple as including only the `id` field:
 
-TODO: link to reading more about auth models in the [Auth Entities](/docs/auth/entities) section.
+> TODO: link to reading more about auth models in the [Auth Entities](/docs/auth/entities) section.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -269,7 +269,7 @@ Read more about the default username and password validation rules in the [using
 
 If you require more control in your authentication flow, you can achieve that in the following ways:
 1. Create your UI and use `signup` and `login` actions.
-1. Create your custom sign-up action which use the Prisma client, along with your custom code.
+1. Create your custom sign-up action which uses the lower-level API, along with your custom code.
 
 ### 1. Using the `signup` and `login` actions
 
@@ -459,8 +459,6 @@ export function Signup() {
 
 ### 2. Creating your custom sign-up action
 
-> TODO: the code below is no longer valid, update it to the new API
-
 The code of your custom sign-up action can look like this:
 
 <Tabs groupId="js-ts">
@@ -482,6 +480,11 @@ import {
   ensureValidPassword,
   ensureValidUsername,
 } from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  createUser,
+} from '@wasp/auth/utils.js'
 
 export const signup = async (args, { entities: { User } }) => {
   ensureValidUsername(args)
@@ -489,12 +492,17 @@ export const signup = async (args, { entities: { User } }) => {
   ensureValidPassword(args)
 
   try {
-    await User.create({
-      data: {
-        username: args.username,
-        password: args.password, // Password is hashed automatically by Wasp
-      },
+    const providerId = createProviderId('username', args.username)
+    const providerData = await sanitizeAndSerializeProviderData({
+      hashedPassword: args.password,
     })
+
+    await createUser(
+      providerId,
+      providerData,
+      // Any additional data you want to store on the User entity
+      {},
+    )
   } catch (e) {
     return {
       success: false,
@@ -529,6 +537,11 @@ import {
   ensureValidPassword,
   ensureValidUsername,
 } from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  createUser,
+} from '@wasp/auth/utils.js'
 import type { CustomSignup } from '@wasp/actions/types'
 
 type CustomSignupInput = {
@@ -549,13 +562,18 @@ export const signup: CustomSignup<
   ensureValidPassword(args)
 
   try {
-    await User.create({
-      data: {
-        username: args.username,
-        password: args.password, // Password is hashed automatically by Wasp
-      },
+    const providerId = createProviderId('username', args.username)
+    const providerData = await sanitizeAndSerializeProviderData<'username'>({
+      hashedPassword: args.password,
     })
-  } catch (e: any) {
+
+    await createUser(
+      providerId,
+      providerData,
+      // Any additional data you want to store on the User entity
+      {},
+    )
+  } catch (e) {
     return {
       success: false,
       message: e.message,

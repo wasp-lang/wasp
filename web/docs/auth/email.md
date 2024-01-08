@@ -590,7 +590,234 @@ Users can enter their new password there.
 
 The content of the e-mail can be customized, read more about it [here](#passwordreset-passwordresetconfig-).
 
-## Using The Auth
+## Creating a Custom Sign-up Action
+
+> TODO: test out the code below and make sure it works
+
+:::caution Creating a custom sign-up action
+
+We don't recommend creating a custom sign-up action unless you have a good reason to do so. It is a complex process and you can easily make a mistake that will compromise the security of your app.
+:::
+
+The code of your custom sign-up action can look like this:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+// ...
+
+action customSignup {
+  fn: import { signup } from "@server/auth/signup.js",
+  entities: [User]
+}
+```
+
+
+```js title="src/server/auth/signup.js"
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidEmail,
+} from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  deserializeAndSanitizeProviderData,
+  findAuthIdentity,
+  createUser,
+} from '@wasp/auth/utils.js'
+import {
+  createEmailVerificationLink,
+  sendEmailVerificationEmail,
+} from '@wasp/auth/providers/email/utils.js'
+
+export const signup = async (args, { entities: { User } }) => {
+  ensureValidEmail(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
+
+  try {
+    const providerId = createProviderId('email', args.email)
+    const existingAuthIdentity = await findAuthIdentity(providerId)
+
+    if (existingAuthIdentity) {
+      const providerData = deserializeAndSanitizeProviderData(existingAuthIdentity.providerData)
+      // Your custom code here
+    } else {
+      // sanitizeAndSerializeProviderData will hash the user's password
+      const newUserProviderData = await sanitizeAndSerializeProviderData({
+          hashedPassword: args.password,
+          isEmailVerified: false,
+          emailVerificationSentAt: null,
+          passwordResetSentAt: null,
+      })
+      await createUser(
+        providerId,
+        providerData,
+        // Any additional data you want to store on the User entity
+        {},
+      )
+
+      // Verification link links to a client route e.g. /email-verification
+      const verificationLink = await createEmailVerificationLink(args.email, '/email-verification');
+      try {
+          await sendEmailVerificationEmail(
+              args.email,
+              {
+                  from: {
+                    name: "My App Postman",
+                    email: "hello@itsme.com",
+                  },
+                  to: args.email,
+                  subject: "Verify your email",
+                  text: `Click the link below to verify your email: ${verificationLink}`,
+                  html: `
+                      <p>Click the link below to verify your email</p>
+                      <a href="${verificationLink}">Verify email</a>
+                  `,
+              }
+          );
+      } catch (e: unknown) {
+          console.error("Failed to send email verification email:", e);
+          throw new HttpError(500, "Failed to send email verification email.");
+      } 
+    }
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
+    }
+  }
+
+  // Your custom code after sign-up.
+  // ...
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+// ...
+
+action customSignup {
+  fn: import { signup } from "@server/auth/signup.js",
+  entities: [User]
+}
+```
+
+```ts title="src/server/auth/signup.ts"
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidEmail,
+} from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  deserializeAndSanitizeProviderData,
+  findAuthIdentity,
+  createUser,
+} from '@wasp/auth/utils.js'
+import {
+  createEmailVerificationLink,
+  sendEmailVerificationEmail,
+} from '@wasp/auth/providers/email/utils.js'
+
+export const signup = async (args, { entities: { User } }) => {
+  ensureValidEmail(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
+
+  try {
+    const providerId = createProviderId('email', args.email)
+    const existingAuthIdentity = await findAuthIdentity(providerId)
+
+    if (existingAuthIdentity) {
+      const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData)
+      // Your custom code here
+    } else {
+      // sanitizeAndSerializeProviderData will hash the user's password
+      const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
+          hashedPassword: args.password,
+          isEmailVerified: false,
+          emailVerificationSentAt: null,
+          passwordResetSentAt: null,
+      })
+      await createUser(
+        providerId,
+        providerData,
+        // Any additional data you want to store on the User entity
+        {},
+      )
+
+      // Verification link links to a client route e.g. /email-verification
+      const verificationLink = await createEmailVerificationLink(args.email, '/email-verification');
+      try {
+          await sendEmailVerificationEmail(
+              args.email,
+              {
+                  from: {
+                    name: "My App Postman",
+                    email: "hello@itsme.com",
+                  },
+                  to: args.email,
+                  subject: "Verify your email",
+                  text: `Click the link below to verify your email: ${verificationLink}`,
+                  html: `
+                      <p>Click the link below to verify your email</p>
+                      <a href="${verificationLink}">Verify email</a>
+                  `,
+              }
+          );
+      } catch (e: unknown) {
+          console.error("Failed to send email verification email:", e);
+          throw new HttpError(500, "Failed to send email verification email.");
+      } 
+    }
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
+    }
+  }
+
+  // Your custom code after sign-up.
+  // ...
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+We suggest using the built-in field validators for your authentication flow. You can import them from `@wasp/auth/validation.js`. These are the same validators that Wasp uses internally for the default authentication flow.
+
+#### Email
+
+- `ensureValidEmail(args)`
+
+  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](/docs/auth/overview#default-validations).
+
+#### Password
+
+- `ensurePasswordIsPresent(args)`
+
+  Checks if the password is present and throws an error if it's not.
+
+- `ensureValidPassword(args)`
+
+  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](/docs/auth/overview#default-validations).
+
+## Using Auth
 
 To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](/docs/auth/overview).
 

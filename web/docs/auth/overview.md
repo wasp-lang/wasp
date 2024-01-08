@@ -295,7 +295,7 @@ Since the `user` prop is only available in a page's React component: use the `us
 
 When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
-TODO: mention which fields are available on the `user` object and link to the [Auth Entities](/docs/auth/entities) section
+> TODO: mention which fields are available on the `user` object and link to the [Auth Entities](/docs/auth/entities) section
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -363,7 +363,7 @@ When using WebSockets, the `user` object is also available on the `socket.data` 
 
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you.
 
-TODO: the following code is no longer valid since the `password` field is no longer stored on the `User` but in the `providerData` field on `AuthEntity`
+> TODO: the following code is no longer valid since the `password` field is no longer stored on the `User` but in the `providerData` field on `AuthEntity`
 
 For example, if you need to update a user's password, you can safely use the Prisma client to do so, e.g., inside an Action:
 
@@ -915,7 +915,7 @@ app MyApp {
 
 The entity representing the user connected to your business logic. 
 
-TODO: write about how Wasp creates the `Auth` and `AuthIdentity` entities behind the scenes
+> TODO: write about how Wasp creates the `Auth` and `AuthIdentity` entities behind the scenes
 
 #### `methods: dict` <Required />
 
