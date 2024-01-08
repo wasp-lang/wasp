@@ -10,6 +10,7 @@ module Wasp.Util.IO
     readFileStrict,
     writeFile,
     removeFile,
+    tryReadFile,
     isDirectoryEmpty,
     writeFileFromText,
     readFileBytes,
@@ -21,6 +22,7 @@ import Control.Monad.Extra (whenM)
 import qualified Data.ByteString.Lazy as B
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
+import qualified Data.Text.IO as Text.IO
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
@@ -111,6 +113,15 @@ writeFileFromText = T.IO.writeFile . SP.fromAbsFile
 
 removeFile :: Path' Abs (File f) -> IO ()
 removeFile = SD.removeFile . SP.fromAbsFile
+
+tryReadFile :: FilePath -> IO (Maybe Text)
+tryReadFile fp =
+  (Just <$> Text.IO.readFile fp)
+    `catch` ( \e ->
+                if isDoesNotExistError e
+                  then return Nothing
+                  else throwIO e
+            )
 
 isDirectoryEmpty :: Path' Abs (Dir d) -> IO Bool
 isDirectoryEmpty dirPath = do

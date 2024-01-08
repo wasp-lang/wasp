@@ -15,12 +15,14 @@ test('areThereAnyTasks', () => {
 
 const { mockQuery } = mockServer()
 
-const mockTasks = [{
-  id: 1,
-  description: 'test todo 1',
-  isDone: true,
-  userId: 1
-}]
+const mockTasks = [
+  {
+    id: 1,
+    description: 'test todo 1',
+    isDone: true,
+    userId: 1,
+  },
+]
 
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks)
@@ -36,10 +38,18 @@ test('handles mock data', async () => {
 
 const mockUser = {
   id: 12,
-  email: 'elon@tesla.com',
-  isEmailVerified: false,
-  emailVerificationSentAt: null,
-  passwordResetSentAt: null,
+  auth: {
+    id: '123',
+    userId: 12,
+    identities: [
+      {
+        authId: '123',
+        providerName: 'email',
+        providerUserId: 'elon@tesla.com',
+        providerData: '',
+      },
+    ],
+  },
   address: null,
 } satisfies User
 
@@ -48,7 +58,11 @@ test('handles multiple mock data sources', async () => {
   mockQuery(getDate, new Date())
   mockQuery(getTasks, mockTasks)
 
-  renderInContext(<App><Todo /></App>)
+  renderInContext(
+    <App>
+      <Todo />
+    </App>
+  )
 
   await screen.findByText('elon@tesla.com')
 

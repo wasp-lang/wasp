@@ -60,6 +60,7 @@ genPackageJson spec =
                 ("mitt", "3.0.0"),
                 ("react", "^18.2.0"),
                 ("react-router-dom", "^5.3.3"),
+                ("react-hook-form", "^7.45.4"),
                 ("secure-password", "^4.0.0"),
                 ("superjson", "^1.12.2"),
                 ("@types/express-serve-static-core", "^4.17.13")

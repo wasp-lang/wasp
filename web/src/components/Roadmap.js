@@ -28,12 +28,12 @@ const GhIssueLink = ({ url, label }) => (
   <Link to={url}>
     <span
       className={`
-        cursor-pointer text-xs
-        bg-neutral-600 text-white
-        px-2.5 py-1 rounded-full
+        cursor-pointer rounded-full
+        bg-neutral-600 px-2.5
+        py-1 text-xs text-white
       `}
     >
-      <div className="group inline-flex gap-1 items-center">
+      <div className="group inline-flex items-center gap-1">
         <span>{label}</span>
         <div className="transition-all group-hover:ml-0.5">
           <span className="text-yellow-400">
@@ -49,7 +49,7 @@ const Section = ({ features }) => (
   <ul className="space-y-6">
     {features.map((f) => (
       <li className="grid grid-cols-12">
-        <div className="flex items-center col-start-3 col-span-8">
+        <div className="col-span-8 col-start-3 flex items-center">
           <span>
             <span className="text-neutral-600">{f[0]}</span>
             {f[1] && (
@@ -69,10 +69,10 @@ const Section = ({ features }) => (
 )
 
 const Roadmap = () => (
-  <SectionContainer className="space-y-16 lg:py-18" id="roadmap">
+  <SectionContainer className="lg:py-18 space-y-16" id="roadmap">
     <div className="grid grid-cols-12">
       <div className="col-span-12 text-center">
-        <h2 className="text-xl lg:text-2xl text-neutral-700 mb-4">
+        <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
           🚧 Roadmap 🚧
         </h2>
         <p className="text-neutral-500">
@@ -81,14 +81,14 @@ const Roadmap = () => (
       </div>
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-16">
+    <div className="grid grid-cols-1 md:gap-16 lg:grid-cols-2">
       <div
         className={`
-            bg-yellow-500/5 border border-yellow-500/25
-            p-5 rounded-lg
+            rounded-lg border border-yellow-500/25
+            bg-yellow-500/5 p-5
           `}
       >
-        <div className="font-bold text-center text-neutral-700 mb-6">
+        <div className="mb-6 text-center font-bold text-neutral-700">
           Near-term improvements and features
         </div>
         <Section
@@ -106,12 +106,12 @@ const Roadmap = () => (
 
       <div
         className={`
-            bg-yellow-500/20 border border-yellow-500/25
-            p-5 rounded-lg
-            mt-6 lg:mt-0
+            mt-6 rounded-lg border
+            border-yellow-500/25 bg-yellow-500/20
+            p-5 lg:mt-0
           `}
       >
-        <div className="font-bold text-center text-neutral-700 mb-6">
+        <div className="mb-6 text-center font-bold text-neutral-700">
           Advanced Features
         </div>
         <Section

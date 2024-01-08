@@ -26,10 +26,11 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
-import Wasp.AppSpec.Valid (doesUserEntityContainField, getApp)
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
@@ -38,36 +39,35 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
-genOAuthAuth :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
-genOAuthAuth spec auth
+genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
-      genOAuthHelpers spec auth
+      genOAuthHelpers auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
 
-genOAuthHelpers :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
-genOAuthHelpers spec auth =
+genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genOAuthHelpers auth =
   sequence
-    [ genCreateRouter spec auth,
+    [ genCreateRouter auth,
       genTypes auth,
-      genDefaults spec,
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|]
     ]
 
-genCreateRouter :: AS.AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genCreateRouter spec auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
+genCreateRouter :: AS.Auth.Auth -> Generator FileDraft
+genCreateRouter auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
   where
     tmplData =
       object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
-          "isPasswordOnUserEntity" .= isPasswordOnUserEntity
+        [ "userEntityUpper" .= userEntityName,
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
+          "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
+          "authFieldOnAuthIdentityEntityName" .= (DbAuth.authFieldOnAuthIdentityEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
-    isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
+    userEntityName = AS.refName . AS.Auth.userEntity $ auth
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
@@ -75,13 +75,6 @@ genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/types.ts|]
     tmplData = object ["userEntityName" .= userEntityName]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genDefaults :: AS.AppSpec -> Generator FileDraft
-genDefaults spec = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/defaults.ts|]
-    tmplData = object ["isUsernameOnUserEntity" .= isUsernameOnUserEntity]
-    isUsernameOnUserEntity = doesUserEntityContainField spec "username" == Just True
 
 genOAuthProvider ::
   OAuthAuthProvider ->

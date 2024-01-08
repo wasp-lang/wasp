@@ -10,7 +10,7 @@ module Wasp.Project
   )
 where
 
-import Control.Arrow (ArrowChoice (left))
+import Control.Arrow (ArrowChoice (left), first)
 import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
@@ -31,16 +31,21 @@ compile ::
 compile waspDir outDir options = do
   compileWarningsAndErrors <-
     analyzeWaspProject waspDir options >>= \case
-      Left analyzerErrors -> return ([], analyzerErrors)
-      Right appSpec -> generateCode appSpec outDir options
+      (Left analyzerErrors, analyzerWarnings) -> return (analyzerWarnings, analyzerErrors)
+      (Right appSpec, analyzerWarnings) ->
+        first (<> analyzerWarnings) <$> generateCode appSpec outDir options
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
-  return $ (dotEnvWarnings, []) <> compileWarningsAndErrors
+  return $
+    mconcat
+      [ compileWarningsAndErrors,
+        (dotEnvWarnings, [])
+      ]
 
 generateCode ::
   AS.AppSpec ->
   Path' Abs (Dir Generator.ProjectRootDir) ->
   CompileOptions ->
-  IO ([CompileError], [CompileWarning])
+  IO ([CompileWarning], [CompileError])
 generateCode appSpec outDir options = do
   (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
   let filteredWarnings = generatorWarningsFilter options generatorWarnings
@@ -48,7 +53,7 @@ generateCode appSpec outDir options = do
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do
-  appSpecOrAnalyzerErrors <- analyzeWaspProject waspDir compileOptions
+  (appSpecOrAnalyzerErrors, _analyzerWarnings) <- analyzeWaspProject waspDir compileOptions
   case appSpecOrAnalyzerErrors of
     Left errors -> return $ Left errors
     Right appSpec -> do

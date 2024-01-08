@@ -57,7 +57,7 @@ const Logo = () => (
     <Link to="/">
       <img src="img/lp/wasp-logo.png" width={35} height={35} alt="Wasp Logo" />
     </Link>
-    <span className="ml-3 font-semibold text-lg text-neutral-700">Wasp</span>
+    <span className="ml-3 text-lg font-semibold text-neutral-700">Wasp</span>
   </div>
 )
 
@@ -71,8 +71,8 @@ const Segment = ({ title, links }) => (
             <a
               href={l.url}
               className={`
-                text-sm text-neutral-500 hover:text-neutral-400
-                transition-colors
+                text-sm text-neutral-500 transition-colors
+                hover:text-neutral-400
               `}
             >
               {l.text}
@@ -111,17 +111,17 @@ const Footer = () => {
               inputBgColor="bg-transparent"
             />
 
-            <span className="flex items-center mt-6">
-              <small className="text-neutral-500 text-xs">Backed by</small>
+            <span className="mt-6 flex items-center">
+              <small className="text-xs text-neutral-500">Backed by</small>
               <img
-                className="w-24 ml-2"
+                className="ml-2 w-24"
                 src="img/lp/yc-logo-rounded.png"
                 alt="YC"
               />
             </span>
           </div>
         </div>
-        <div className="pt-8 mt-8">
+        <div className="mt-8 pt-8">
           <Logo />
           <div className="flex justify-between">
             <p className="mt-4 text-xs text-neutral-400">

@@ -3,6 +3,8 @@ module SemanticVersionTest where
 import Numeric.Natural
 import Test.Tasty.Hspec
 import Wasp.SemanticVersion
+import Wasp.SemanticVersion.Version (v)
+import Wasp.SemanticVersion.VersionBound (HasVersionBounds (versionBounds), vi)
 
 spec_SemanticVersion :: Spec
 spec_SemanticVersion = do
@@ -103,6 +105,31 @@ spec_SemanticVersion = do
             ((1, 3, 0), False),
             ((2, 0, 0), False)
           ]
+  describe "versionBounds" $ do
+    let range ~> expectedInterval =
+          it (show range) $
+            versionBounds range `shouldBe` expectedInterval
+    Range [] ~> [vi| (inf, inf) |]
+    Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
+    Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> [vi| (0.1.2, 0.2) |]
+    Range [lte [v|1.2.3|]] ~> [vi| (inf, 1.2.3] |]
+    Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
+    Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
+
+  describe "doesVersionRangeAllowMajorChanges" $ do
+    let range ~> expected =
+          it (show range) $
+            doesVersionRangeAllowMajorChanges range `shouldBe` expected
+    Range [] ~> True
+    Range [gt [v|1.1.2|]] ~> True
+    Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> False
+    Range [gt [v|0.1.2|] <> lte [v|0.2|]] ~> True
+    Range [gt [v|2|] <> lte [v|3|]] ~> True
+    Range [gt [v|2|] <> lt [v|3|]] ~> False
+    Range [lte [v|2.9.99|]] ~> True
+    Range [backwardsCompatibleWith [v|0.2.3|]] ~> False
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> True
   where
     testRange :: Range -> [((Natural, Natural, Natural), Bool)] -> Expectation
     testRange range versionsWithResults =

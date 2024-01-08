@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
   title: "ToDo App",
   // head: [],
@@ -14,13 +14,12 @@ app todoApp {
   },
   auth: {
     userEntity: User,
-    // externalAuthEntity: SocialLogin,
     methods: {
       // usernameAndPassword: {},
-      // google: {
-      //   configFn: import { config } from "@server/auth/google.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      // },
+      google: {
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      },
       // gitHub: {
       //   // configFn: import { config } from "@server/auth/github.js",
       //   // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
@@ -72,27 +71,9 @@ app todoApp {
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    // Email auth
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
-    // Social login
-    externalAuthAssociations  SocialLogin[]
     // Business logic
     tasks                     Task[]
     address                   String?
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 
 entity Task {=psl

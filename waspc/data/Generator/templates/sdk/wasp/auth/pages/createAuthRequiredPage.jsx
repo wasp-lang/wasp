@@ -1,26 +1,30 @@
-import React from "react";
+import React from 'react'
 
-import { Redirect } from "react-router-dom";
-import useAuth from "../useAuth";
+import { Redirect } from 'react-router-dom'
+import useAuth from '../useAuth'
+
 
 const createAuthRequiredPage = (Page) => {
   return (props) => {
-    const { data: user, isError, isSuccess, isLoading } = useAuth();
+    const { data: user, isError, isSuccess, isLoading } = useAuth()
 
     if (isSuccess) {
       if (user) {
-        return <Page {...props} user={user} />;
+        return (
+          <Page {...props} user={user} />
+        )
       } else {
-        return <Redirect to="/login" />;
+        return <Redirect to="/login" />
       }
     } else if (isLoading) {
-      return <span>Loading...</span>;
+      return <span>Loading...</span>
     } else if (isError) {
-      return <span>An error ocurred. Please refresh the page.</span>;
+      return <span>An error ocurred. Please refresh the page.</span>
     } else {
-      return <span>An unknown error ocurred. Please refresh the page.</span>;
+      return <span>An unknown error ocurred. Please refresh the page.</span>
     }
-  };
-};
+  }
+}
 
-export default createAuthRequiredPage;
+export default createAuthRequiredPage
+

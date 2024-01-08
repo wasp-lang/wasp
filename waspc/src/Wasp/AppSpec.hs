@@ -21,6 +21,7 @@ module Wasp.AppSpec
     getApp,
     getApiNamespaces,
     getCruds,
+    userNodeVersionRange,
   )
 where
 
@@ -47,8 +48,10 @@ import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
+import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import qualified Wasp.SemanticVersion as SV
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -149,3 +152,10 @@ doesConfigFileExist spec file =
 
 asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
 asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
+
+-- This is the node version range that user expects his code to work on.
+-- TODO: Once user will be able to specify package.json, extract this range from
+--   `engines` field in package.json.
+--   In the meantime, we determine it based on the oldest node version that Wasp supports.
+userNodeVersionRange :: AppSpec -> SV.Range
+userNodeVersionRange _ = SV.Range [SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion]
