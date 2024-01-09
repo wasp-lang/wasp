@@ -1,48 +1,39 @@
+import { type Expand } from 'wasp/universal/types';
 import { type Request, type Response } from 'express'
+import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
+import prisma from "wasp/server/dbClient"
 import {
-  type ParamsDictionary as ExpressParams,
-  type Query as ExpressQuery,
-} from 'express-serve-static-core'
-import { type Expand } from 'wasp/universal/types.js'
-import prisma from 'wasp/server/dbClient.js'
-import { type User } from 'wasp/entities'
-import { type _Entity } from './taggedEntities'
-import { type Payload } from './serialization'
+  type User,
+  type Auth,
+  type AuthIdentity,
+} from "wasp/entities"
+import {
+  type EmailProviderData,
+  type UsernameProviderData,
+  type OAuthProviderData,
+  // todo(filip): marker
+} from 'wasp/auth/utils'
+import { type _Entity } from "./taggedEntities"
+import { type Payload } from "./serialization";
 
-export * from './taggedEntities'
-export * from './serialization'
+export * from "./taggedEntities"
+export * from "./serialization"
 
-export type Query<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
-> = Operation<Entities, Input, Output>
+export type Query<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
-export type Action<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
-> = Operation<Entities, Input, Output>
+export type Action<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
-export type AuthenticatedQuery<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
-> = AuthenticatedOperation<Entities, Input, Output>
+export type AuthenticatedQuery<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  AuthenticatedOperation<Entities, Input, Output>
 
-export type AuthenticatedAction<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
-> = AuthenticatedOperation<Entities, Input, Output>
+export type AuthenticatedAction<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  AuthenticatedOperation<Entities, Input, Output>
 
-type AuthenticatedOperation<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
-> = (
+type AuthenticatedOperation<Entities extends _Entity[], Input extends Payload, Output extends Payload> = (
   args: Input,
-  context: ContextWithUser<Entities>
+  context: ContextWithUser<Entities>,
 ) => Output | Promise<Output>
 
 export type AuthenticatedApi<
@@ -55,12 +46,12 @@ export type AuthenticatedApi<
 > = (
   req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
   res: Response<ResBody, Locals>,
-  context: ContextWithUser<Entities>
+  context: ContextWithUser<Entities>,
 ) => void
 
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
-  context: Context<Entities>
+  context: Context<Entities>,
 ) => Output | Promise<Output>
 
 export type Api<
@@ -73,28 +64,38 @@ export type Api<
 > = (
   req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
   res: Response<ResBody, Locals>,
-  context: Context<Entities>
+  context: Context<Entities>,
 ) => void
 
 type EntityMap<Entities extends _Entity[]> = {
-  [EntityName in Entities[number]['_entityName']]: PrismaDelegate[EntityName]
+  [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
 }
 
-type PrismaDelegate = {
-  User: typeof prisma.user
-  Task: typeof prisma.task
+export type PrismaDelegate = {
+  "User": typeof prisma.user,
+  "Task": typeof prisma.task,
 }
 
 type Context<Entities extends _Entity[]> = Expand<{
   entities: Expand<EntityMap<Entities>>
 }>
 
-type ContextWithUser<Entities extends _Entity[]> = Expand<
-  Context<Entities> & { user?: SanitizedUser }
->
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser }>
 
 // TODO: This type must match the logic in core/auth.js (if we remove the
 // password field from the object there, we must do the same here). Ideally,
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
-export type SanitizedUser = Omit<User, 'password'>
+
+export type DeserializedAuthEntity = Expand<Omit<AuthIdentity, 'providerData'> & {
+  providerData: Omit<EmailProviderData, 'password'> | Omit<UsernameProviderData, 'password'> | OAuthProviderData
+}>
+
+export type SanitizedUser = User & {
+  auth: Auth & {
+    identities: DeserializedAuthEntity[]
+  } | null
+}
+
+// todo(filip): marker
+export type { ProviderName } from 'wasp/auth/utils'

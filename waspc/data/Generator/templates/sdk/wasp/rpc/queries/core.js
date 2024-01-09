@@ -11,7 +11,7 @@ export function createQuery(relativeQueryPath, entitiesUsed) {
     const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryKey).reduce(
       (result, update) => update(result),
-      serverResult
+      serverResult,
     )
   }
 

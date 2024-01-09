@@ -16,7 +16,7 @@
 }
 
 .leftLights::after {
-  content: "";
+  content: '';
   position: absolute;
   pointer-events: none;
   width: 1223px;
@@ -30,7 +30,7 @@
 
   background: radial-gradient(
     50% 50% at 50% 50%,
-    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 214, 0, 0.2) 0%,
     rgba(255, 168, 0, 0) 100%
   );
   will-change: filter;
@@ -38,7 +38,7 @@
 }
 
 .lightsTwo::after {
-  content: "";
+  content: '';
   position: absolute;
   pointer-events: none;
   width: 1223px;
@@ -52,7 +52,7 @@
 
   background: radial-gradient(
     50% 50% at 50% 50%,
-    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 214, 0, 0.2) 0%,
     rgba(255, 168, 0, 0) 100%
   );
   will-change: filter;

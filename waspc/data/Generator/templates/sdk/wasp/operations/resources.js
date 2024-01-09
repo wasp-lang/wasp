@@ -26,15 +26,13 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
 }
 
 export function registerActionInProgress(optimisticUpdateTuples) {
-  optimisticUpdateTuples.forEach(({ queryKey, updateQuery }) =>
-    updateHandlers.add(queryKey, updateQuery)
+  optimisticUpdateTuples.forEach(
+    ({ queryKey, updateQuery }) => updateHandlers.add(queryKey, updateQuery)
   )
 }
 
 export async function registerActionDone(resources, optimisticUpdateTuples) {
-  optimisticUpdateTuples.forEach(({ queryKey }) =>
-    updateHandlers.remove(queryKey)
-  )
+  optimisticUpdateTuples.forEach(({ queryKey }) => updateHandlers.remove(queryKey))
   await invalidateQueriesUsing(resources)
 }
 
@@ -43,7 +41,6 @@ export function getActiveOptimisticUpdates(queryKey) {
 }
 
 export async function invalidateAndRemoveQueries() {
-  console.log(queryClientInitialized)
   const queryClient = await queryClientInitialized
   // If we don't reset the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
@@ -63,12 +60,11 @@ export async function invalidateAndRemoveQueries() {
  * @param {string[]} resources - Names of resources.
  */
 async function invalidateQueriesUsing(resources) {
-  console.log(queryClientInitialized)
   const queryClient = await queryClientInitialized
 
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
-  queryCacheKeysToInvalidate.forEach((queryCacheKey) =>
-    queryClient.invalidateQueries(queryCacheKey)
+  queryCacheKeysToInvalidate.forEach(
+    queryCacheKey => queryClient.invalidateQueries(queryCacheKey)
   )
 }
 

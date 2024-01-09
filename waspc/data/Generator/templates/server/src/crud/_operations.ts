@@ -12,9 +12,7 @@ import type {
   {=/ isAuthEnabled =}
   _{= crud.entityUpper =},
 } from "../_types";
-import type {
-  Prisma,
-} from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { Payload } from "../_types/serialization.js";
 import type {
   {= crud.entityUpper =},

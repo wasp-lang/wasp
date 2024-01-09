@@ -1,10 +1,14 @@
+{{={= =}=}}
 import type { Router, Request } from 'express'
-import type { User } from '../../entities'
+import type { Prisma } from '@prisma/client'
 import type { Expand } from '../../universal/types'
+import type { ProviderName } from '../utils'
+
+type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
-    id: string;
+    id: ProviderName;
     displayName: string;
     // Each provider config can have an init method which is ran on setup time
     // e.g. for oAuth providers this is the time when the Passport strategy is registered.
@@ -20,20 +24,14 @@ export type InitData = {
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
-export function createDefineAdditionalSignupFieldsFn<
-  // Wasp already includes these fields in the signup process
-  ExistingFields extends keyof User,
-  PossibleAdditionalFields = Expand<
-    Partial<Omit<User, ExistingFields>>
+export type PossibleAdditionalSignupFields = Expand<Partial<UserEntityCreateInput>>
+
+export function defineAdditionalSignupFields(config: {
+  [key in keyof PossibleAdditionalSignupFields]: FieldGetter<
+    PossibleAdditionalSignupFields[key]
   >
->() {
-  return function defineFields(config: {
-    [key in keyof PossibleAdditionalFields]: FieldGetter<
-      PossibleAdditionalFields[key]
-    >
-  }) {
-    return config
-  }
+}) {
+  return config
 }
 
 type FieldGetter<T> = (

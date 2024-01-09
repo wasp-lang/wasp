@@ -11,6 +11,7 @@ module Wasp.Cli.Command.Telemetry.Project
 where
 
 import Control.Monad (void, when)
+import Control.Monad.Except (catchError)
 import Crypto.Hash (SHA256 (..), hashWith)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
@@ -28,6 +29,7 @@ import Paths_waspc (version)
 import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
+import qualified System.IO as SIO
 import qualified System.Info
 import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Call as Command.Call
@@ -76,17 +78,34 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
           }
 
 getTelemetryContext :: IO String
-getTelemetryContext =
+getTelemetryContext = do
   unwords . filter (not . null)
     <$> sequence
       [ fromMaybe "" <$> ENV.lookupEnv "WASP_TELEMETRY_CONTEXT",
-        checkIfOnCi <&> \case True -> "CI"; False -> ""
+        checkIfOnCi <&> \case True -> "CI"; False -> "",
+        -- NOTE(martin): We are not 100% sure how correctly does `hIsTerminalDevice` detect
+        --   if shell is non-interactive or not, so let's use this info with regard to that and
+        --   revise this in the future once we have more data.
+        (SIO.hIsTerminalDevice SIO.stdout `catchError` const (return True))
+          <&> \case True -> ""; False -> "NON_INTERACTIVE_SHELL"
       ]
   where
     -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
     checkIfOnCi :: IO Bool
     checkIfOnCi =
-      any checkIfEnvValueIsTruthy <$> mapM ENV.lookupEnv ["CI", "BUILD_ID", "CI_BUILD_ID"]
+      any checkIfEnvValueIsTruthy
+        <$> mapM
+          ENV.lookupEnv
+          [ "BUILD_ID", -- Jenkins, Codeship
+            "BUILD_NUMBER", -- Jenkins, TeamCity
+            "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari
+            "CI_APP_ID", -- Appflow
+            "CI_BUILD_ID", -- Appflow
+            "CI_BUILD_NUMBER", -- Appflow
+            "CI_NAME", -- Codeship and others
+            "CONTINUOUS_INTEGRATION", -- Travis CI, Cirrus CI
+            "RUN_ID" -- TaskCluster, dsari
+          ]
 
 checkIfEnvValueIsTruthy :: Maybe String -> Bool
 checkIfEnvValueIsTruthy Nothing = False

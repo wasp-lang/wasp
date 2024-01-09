@@ -1,14 +1,15 @@
 
+import { join } from 'path'
 import { Router } from "express";
 
-import { getDirFromFileUrl, importJsFilesFromDir } from "../../utils.js";
+import { getDirPathFromFileUrl, importJsFilesFromDir } from "../../utils.js";
 
 import { ProviderConfig } from "./types";
 
-const allowedConfigs = [
+const whitelistedProviderConfigFileNames = [
   "google.js",
 ];
-const providers = await importProviders(allowedConfigs);
+const providers = await importProviders(whitelistedProviderConfigFileNames);
 
 const router = Router();
 
@@ -24,8 +25,9 @@ for (const provider of providers) {
 
 export default router;
 
-async function importProviders(providerConfigs: string[]): Promise<ProviderConfig[]> {
-  const currentExecutionDir = getDirFromFileUrl(import.meta.url);
-  const providers = await importJsFilesFromDir(currentExecutionDir, "./config", providerConfigs);
+async function importProviders(whitelistedProviderConfigFileNames: string[]): Promise<ProviderConfig[]> {
+  const currentExecutionDir = getDirPathFromFileUrl(import.meta.url);
+  const pathToDirWithConfigs = join(currentExecutionDir, "./config");
+  const providers = await importJsFilesFromDir(pathToDirWithConfigs, whitelistedProviderConfigFileNames);
   return providers.map((provider) => provider.default);
 }
