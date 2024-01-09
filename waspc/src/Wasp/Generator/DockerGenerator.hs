@@ -16,6 +16,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows)
 import Wasp.Generator.Common
   ( ProjectRootDir,
     ServerRootDir,
@@ -28,7 +29,6 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
-import Wasp.Node.Version (latestMajorNodeVersion)
 import qualified Wasp.SemanticVersion as SV
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
@@ -46,7 +46,7 @@ genDockerfile spec = do
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
-              "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
+              "nodeMajorVersion" .= show (SV.major $ getLowestNodeVersionUserAllows spec),
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )

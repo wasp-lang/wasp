@@ -9,28 +9,28 @@ const examples = [
     description: 'A famous To-Do list app, implemented in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'todo-app-ts',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/todo-app-in-typescript',
+    repoName: 'todo-typescript',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
   {
     title: 'CoverLetterGPT 🤖',
-    description: 'Generate cover letters based on your CV and job description. Powered by ChatGPT.',
+    description: 'Generate cover letters based on your CV and the job description. Powered by ChatGPT.',
     authorName: 'vincanger',
     authorImg: 'https://avatars.githubusercontent.com/u/70215737',
-    repoName: 'cover-letter-gpt',
+    repoName: 'coverlettergpt',
     repoUrl: 'https://github.com/vincanger/coverlettergpt',
     demoUrl: 'https://coverlettergpt.xyz/',
   },
   {
     title: 'Realtime voting via WebSockets 🔌',
     description:
-      'A realtime, websockets powered voting app built with Wasp in TypeScript.',
+      'A realtime, websockets-powered voting app built with Wasp and TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'waspleau-jobs-example',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/main/examples/websockets-realtime-voting',
+    repoName: 'websockets-realtime-voting',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting',
     demoUrl: 'https://websockets-client-production.up.railway.app/login',
   },
 ]
@@ -40,11 +40,11 @@ const SeeTheCodeButton = ({ repoUrl }) => (
     <button
       className={`
         flex items-center
-        text-xs
-        px-2.5 py-1 rounded
-        bg-transparent border border-yellow-500 text-neutral-500
-        hover:text-neutral-400
-        transition ease-out duration-200
+        rounded
+        border border-yellow-500 bg-transparent
+        px-2.5 py-1 text-xs text-neutral-500
+        transition
+        duration-200 ease-out hover:text-neutral-400
       `}
     >
       <span>See the code</span>
@@ -58,11 +58,11 @@ const DemoButton = ({ demoUrl }) => (
     <button
       className={`
         flex items-center
-        text-xs
-        px-2.5 py-1 rounded
-        bg-yellow-500 text-white
-        hover:bg-yellow-400
-        transition ease-out duration-200
+        rounded
+        bg-yellow-500 px-2.5 py-1
+        text-xs text-white
+        transition
+        duration-200 ease-out hover:bg-yellow-400
       `}
     >
       <span>Demo</span>
@@ -76,17 +76,17 @@ const ExampleCard = (props) => (
     {/* Top half */}
     <div
       className={`
+        flex
+        h-40 flex-col rounded rounded-b-none
+        border-l border-r
+        border-t border-yellow-500/25
         bg-yellow-500/5
-        border-t border-l border-r border-yellow-500/25
-        rounded rounded-b-none
-        flex flex-col
-        h-40
         p-5
       `}
     >
       <div className="mb-4">
         <h4 className="mb-4 text-neutral-700">{props.title}</h4>
-        <p className="text-sm mb-4 text-neutral-500">{props.description}</p>
+        <p className="mb-4 text-sm text-neutral-500">{props.description}</p>
         <div>
           <img
             className="inline w-6 rounded-full"
@@ -103,10 +103,10 @@ const ExampleCard = (props) => (
     {/* Bottom half */}
     <div
       className={`
-        bg-yellow-500/20
-        border-b border-l border-r border-yellow-500/25
-        rounded rounded-t-none
-        flex flex-col
+        flex
+        flex-col rounded rounded-t-none border-b
+        border-l border-r
+        border-yellow-500/25 bg-yellow-500/20
         p-5
       `}
     >
@@ -136,7 +136,7 @@ const ExampleWaspApps = () => {
     <SectionContainer className="space-y-16" id="examples">
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
-          <h2 className="text-xl lg:text-2xl text-neutral-700 mb-4">
+          <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
             Show, don't tell.
           </h2>
           <p className="text-neutral-500">
@@ -155,14 +155,14 @@ const ExampleWaspApps = () => {
       </div>
 
       <div className="flex justify-center">
-        <Link to="https://github.com/wasp-lang/wasp/tree/main/examples">
+        <Link to="https://github.com/wasp-lang/wasp/tree/release/examples">
           <span
             className={`
-              text-neutral-500
-              underline decoration-2 decoration-yellow-500 font-medium
-              hover:text-neutral-400
-              transition ease-out duration-200
-              flex items-center
+              flex
+              items-center font-medium text-neutral-500 underline
+              decoration-yellow-500
+              decoration-2 transition duration-200
+              ease-out hover:text-neutral-400
             `}
           >
             <span>See all examples</span>

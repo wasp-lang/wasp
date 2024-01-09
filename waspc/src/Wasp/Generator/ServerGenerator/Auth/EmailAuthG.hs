@@ -25,6 +25,7 @@ import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Util (getRoutePathFromRef)
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as Email
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -113,5 +114,8 @@ genUtils auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]

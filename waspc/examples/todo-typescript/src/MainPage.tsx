@@ -5,7 +5,9 @@ import { useQuery, useAction } from 'wasp/rpc' // Wasp uses a thin wrapper aroun
 import { getTasks } from 'wasp/rpc/queries'
 import { createTask, updateTask, deleteTasks } from 'wasp/rpc/actions'
 import waspLogo from './waspLogo.png'
-import type { Task, User } from 'wasp/entities'
+import type { Task } from 'wasp/entities'
+import type { User } from 'wasp/auth/types'
+import { getUsername } from 'wasp/auth/user'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -20,7 +22,7 @@ export const MainPage = ({ user }: { user: User }) => {
       <img src={waspLogo} alt="wasp logo" />
       {user && (
         <h1>
-          {user.username}
+          {getUsername(user)}
           {`'s tasks :)`}
         </h1>
       )}

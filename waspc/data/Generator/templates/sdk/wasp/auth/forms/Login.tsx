@@ -1,6 +1,5 @@
-import React from "react";
-import { Auth } from "./Auth";
-import { type CustomizationOptions, State } from "./types";
+import Auth from './Auth'
+import { type CustomizationOptions, State } from './types'
 
 export function LoginForm({
   appearance,
@@ -14,5 +13,5 @@ export function LoginForm({
       socialLayout={socialLayout}
       state={State.Login}
     />
-  );
+  )
 }

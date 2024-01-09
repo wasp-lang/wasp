@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState, createContext } from 'react'
 import { createTheme } from '@stitches/react'
 import { styled } from 'wasp/core/stitches.config'
@@ -7,12 +6,13 @@ import {
   type State,
   type CustomizationOptions,
   type ErrorMessage,
+  type AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { MessageError, MessageSuccess } from './internal/Message'
 
 const logoStyle = {
-  height: '3rem',
+  height: '3rem'
 }
 
 const Container = styled('div', {
@@ -23,8 +23,9 @@ const Container = styled('div', {
 const HeaderText = styled('h2', {
   fontSize: '1.875rem',
   fontWeight: '700',
-  marginTop: '1.5rem',
+  marginTop: '1.5rem'
 })
+
 
 export const AuthContext = createContext({
   isLoading: false,
@@ -33,17 +34,14 @@ export const AuthContext = createContext({
   setSuccessMessage: (successMessage: string | null) => {},
 })
 
-export function Auth({
-  state,
-  appearance,
-  logo,
-  socialLayout = 'horizontal',
-}: {
-  state: State
-} & CustomizationOptions) {
-  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additionalSignupFields }: {
+    state: State;
+} & CustomizationOptions & {
+  additionalSignupFields?: AdditionalSignupFields;
+}) {
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // TODO(matija): this is called on every render, is it a problem?
   // If we do it in useEffect(), then there is a glitch between the default color and the
@@ -56,34 +54,32 @@ export function Auth({
   }
   const title = titles[state]
 
-  const socialButtonsDirection =
-    socialLayout === 'vertical' ? 'vertical' : 'horizontal'
+  const socialButtonsDirection = socialLayout === 'vertical' ? 'vertical' : 'horizontal'
 
   return (
     <Container className={customTheme}>
       <div>
-        {logo && <img style={logoStyle} src={logo} alt="Your Company" />}
+        {logo && (<img style={logoStyle} src={logo} alt='Your Company' />)}
         <HeaderText>{title}</HeaderText>
       </div>
 
       {errorMessage && (
         <MessageError>
-          {errorMessage.title}
-          {errorMessage.description && ': '}
-          {errorMessage.description}
+          {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
         </MessageError>
       )}
       {successMessage && <MessageSuccess>{successMessage}</MessageSuccess>}
-      <AuthContext.Provider
-        value={{ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }}
-      >
+      <AuthContext.Provider value={{ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }}>
         {(state === 'login' || state === 'signup') && (
           <LoginSignupForm
             state={state}
             socialButtonsDirection={socialButtonsDirection}
+            additionalSignupFields={additionalSignupFields}
           />
         )}
       </AuthContext.Provider>
     </Container>
   )
 }
+
+export default Auth;

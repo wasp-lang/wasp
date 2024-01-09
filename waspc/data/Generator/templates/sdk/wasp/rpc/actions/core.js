@@ -4,7 +4,7 @@ import {
   registerActionDone,
 } from 'wasp/operations/resources'
 
-// todo - turn helpers and core into the same thing
+// todo(filip) - turn helpers and core into the same thing
 
 export function createAction(relativeActionRoute, entitiesUsed) {
   const actionRoute = makeOperationRoute(relativeActionRoute)
@@ -17,10 +17,7 @@ export function createAction(relativeActionRoute, entitiesUsed) {
       // registering the action as done.
       return await callOperation(actionRoute, args)
     } finally {
-      await registerActionDone(
-        entitiesUsed,
-        specificOptimisticUpdateDefinitions
-      )
+      await registerActionDone(entitiesUsed, specificOptimisticUpdateDefinitions)
     }
   }
 

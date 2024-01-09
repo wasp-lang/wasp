@@ -7,17 +7,14 @@ import {
   useSocketListener,
   ServerToClientPayload,
 } from '@wasp/webSocket'
+import { getName, getProviderData } from '../user'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
   console.log(res.data)
 }
 
-export const ProfilePage = ({
-  user: { email, isEmailVerified },
-}: {
-  user: User
-}) => {
+export const ProfilePage = ({ user }: { user: User }) => {
   const [messages, setMessages] = useState<
     ServerToClientPayload<'chatMessage'>[]
   >([])
@@ -48,12 +45,19 @@ export const ProfilePage = ({
   ))
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
+  const providerData = getProviderData(user)
+
   return (
     <>
       <h2>Profile page</h2>
       <div>
-        Hello <strong>{email}</strong>! Your status is{' '}
-        <strong>{isEmailVerified ? 'verfied' : 'unverified'}</strong>.
+        Hello <strong>{getName(user)}</strong>! Your status is{' '}
+        <strong>
+          {providerData && providerData.isEmailVerified
+            ? 'verfied'
+            : 'unverified'}
+        </strong>
+        .
       </div>
       <br />
       <Link to="/task/:id" params={{ id: 3 }}>

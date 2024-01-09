@@ -4,6 +4,9 @@ import { Server } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import prisma from '../dbClient.js'
+{=# isAuthEnabled =}
+import { type SanitizedUser } from '../_types/index.js'
+{=/ isAuthEnabled =}
 
 {=& userWebSocketFn.importStatement =}
 
@@ -29,7 +32,9 @@ export type WebSocketDefinition<
 ) => Promise<void> | void
 
 export interface WaspSocketData {
-  user?: any
+  {=# isAuthEnabled =}
+  user?: SanitizedUser
+  {=/ isAuthEnabled =}
 }
 
 export type ServerType = Parameters<WebSocketFn>[0]
