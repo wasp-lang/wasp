@@ -390,7 +390,7 @@ export const signup = async (args, { entities: { User } }) => {
     )
 
     // This is equivalent to:
-    // await prisma.user.create({
+    // await User.create({
     //   data: {
     //     auth: {
     //       create: {
@@ -471,7 +471,7 @@ export const signup: CustomSignup<
     )
 
     // This is equivalent to:
-    // await prisma.user.create({
+    // await User.create({
     //   data: {
     //     auth: {
     //       create: {

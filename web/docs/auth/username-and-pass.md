@@ -473,7 +473,6 @@ The code of your custom sign-up action can look like this:
 
 action customSignup {
   fn: import { signup } from "@server/auth/signup.js",
-  entities: [User]
 }
 ```
 
@@ -490,7 +489,7 @@ import {
   createUser,
 } from '@wasp/auth/utils.js'
 
-export const signup = async (args, { entities: { User } }) => {
+export const signup = async (args, _context) => {
   ensureValidUsername(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
@@ -531,7 +530,6 @@ export const signup = async (args, { entities: { User } }) => {
 
 action customSignup {
   fn: import { signup } from "@server/auth/signup.js",
-  entities: [User]
 }
 ```
 
@@ -560,7 +558,7 @@ type CustomSignupOutput = {
 export const signup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
-> = async (args, { entities: { User } }) => {
+> = async (args, _context) => {
   ensureValidUsername(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)

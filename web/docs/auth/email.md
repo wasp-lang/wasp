@@ -586,8 +586,6 @@ The content of the e-mail can be customized, read more about it [here](#password
 
 ## Creating a Custom Sign-up Action
 
-> TODO: test out the code below and make sure it works
-
 :::caution Creating a custom sign-up action
 
 We don't recommend creating a custom sign-up action unless you have a good reason to do so. It is a complex process and you can easily make a mistake that will compromise the security of your app.
@@ -603,10 +601,8 @@ The code of your custom sign-up action can look like this:
 
 action customSignup {
   fn: import { signup } from "@server/auth/signup.js",
-  entities: [User]
 }
 ```
-
 
 ```js title="src/server/auth/signup.js"
 import {
@@ -626,7 +622,7 @@ import {
   sendEmailVerificationEmail,
 } from '@wasp/auth/providers/email/utils.js'
 
-export const signup = async (args, { entities: { User } }) => {
+export const signup = async (args, _context) => {
   ensureValidEmail(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
@@ -701,7 +697,6 @@ export const signup = async (args, { entities: { User } }) => {
 
 action customSignup {
   fn: import { signup } from "@server/auth/signup.js",
-  entities: [User]
 }
 ```
 
@@ -722,8 +717,18 @@ import {
   createEmailVerificationLink,
   sendEmailVerificationEmail,
 } from '@wasp/auth/providers/email/utils.js'
+import type { CustomSignup } from '@wasp/actions/types'
 
-export const signup = async (args, { entities: { User } }) => {
+type CustomSignupInput = {
+  email: string
+  password: string
+}
+type CustomSignupOutput = {
+  success: boolean
+  message: string
+}
+
+export const signup: CustomSignup<CustomSignupInput, CustomSignupOutput> = async (args, _context) => {
   ensureValidEmail(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
