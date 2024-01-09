@@ -364,7 +364,13 @@ When using WebSockets, the `user` object is also available on the `socket.data` 
 
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
-> TODO: test out the code below and make sure it works
+```wasp title="main.wasp"
+// ...
+
+action updatePassword {
+  fn: import { updatePassword } from "@server/auth.js",
+}
+```
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
