@@ -103,6 +103,6 @@ async function getAuthIdFromProviderDetails(
       userFields,
     )
 
-    return user.authId
+    return user.auth.id
   }
 }
