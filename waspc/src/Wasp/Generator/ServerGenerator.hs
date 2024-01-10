@@ -45,7 +45,6 @@ import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
     makeJsonWithEntityData,
-    prismaVersion,
   )
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
@@ -165,7 +164,6 @@ npmDepsForWasp spec =
             ("cors", "^2.8.5"),
             ("express", "~4.18.1"),
             ("morgan", "~1.10.0"),
-            ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
             -- NOTE: secure-password has a package.json override for sodium-native.
             ("secure-password", "^4.0.0"),
@@ -185,7 +183,6 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
             ("standard", "^17.0.0"),
-            ("prisma", show prismaVersion),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^5.1.0"),
