@@ -1,10 +1,15 @@
-module Wasp.Generator.SdkGenerator where
+module Wasp.Generator.SdkGenerator
+  ( genSdk,
+    installNpmDependencies,
+  )
+where
 
 import Data.Aeson (object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types ((.=))
 import GHC.IO (unsafePerformIO)
 import StrongPath
+import qualified StrongPath as SP
 import Wasp.AppSpec
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -18,21 +23,47 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.Templates (TemplatesDir, getTemplatesDirAbsPath)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Util ((<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec = sequence [genSdkModules, genPackageJson spec]
+genSdk spec = (:) <$> genPackageJson spec <*> genHardcodedSdkModules <++> genSdkModules
 
 data SdkRootDir
 
 data SdkTemplatesDir
 
-genSdkModules :: Generator FileDraft
+genSdkModules :: Generator [FileDraft]
 genSdkModules =
-  return $
-    createCopyDirFileDraft
-      RemoveExistingDstDir
-      sdkRootDirInProjectRootDir
-      (unsafePerformIO getTemplatesDirAbsPath </> sdkTemplatesDirInTemplatesDir </> [reldir|wasp|])
+  sequence
+    [ genFileCopy [relfile|api/index.ts|],
+      genFileCopy [relfile|api/events.ts|]
+    ]
+  where
+    genFileCopy = return . mkTmplFd
+
+genHardcodedSdkModules :: Generator [FileDraft]
+genHardcodedSdkModules =
+  return
+    [ copyModule [reldir|auth|],
+      copyModule [reldir|core|],
+      copyModule [reldir|entities|],
+      copyModule [reldir|ext-src|],
+      copyModule [reldir|operations|],
+      copyModule [reldir|rpc|],
+      copyModule [reldir|server|],
+      copyModule [reldir|types|],
+      copyModule [reldir|universal|]
+    ]
+  where
+    copyModule :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
+    copyModule modul =
+      createCopyDirFileDraft
+        RemoveExistingDstDir
+        (dstFolder </> castRel modul)
+        (srcFolder </> modul)
+    dstFolder = sdkRootDirInProjectRootDir
+    srcFolder = absSdkTemplatesDir
+    absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> sdkTemplatesDirInTemplatesDir
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
@@ -85,6 +116,12 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (sdkRootDirInProjectRootDir </> relDstPath)
     (sdkTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
+
+mkTmplFdWithDst :: Path' (Rel SdkTemplatesDir) File' -> Path' (Rel SdkRootDir) File' -> FileDraft
+mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
+
+mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
+mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]

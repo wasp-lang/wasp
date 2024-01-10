@@ -248,9 +248,6 @@ genSrcDir spec =
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|types.ts|],
       genFileCopy [relfile|vite-env.d.ts|],
-      -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      genFileCopy [relfile|api.ts|],
-      genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|storage.ts|],
       getIndexTs spec
     ]
