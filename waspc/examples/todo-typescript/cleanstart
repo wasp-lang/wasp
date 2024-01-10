@@ -1,2 +1,3 @@
-cabal run wasp-cli reset; cabal run wasp-cli db migrate-dev -- --name init && ./fix; cabal run wasp-cli start 
+#!/bin/bash
+cabal run wasp-cli reset; cabal run wasp-cli db migrate-dev && ./fix; cabal run wasp-cli start 
 
