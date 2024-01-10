@@ -1,21 +1,28 @@
+{{={= =}=}}
 import {
-  type User,
-  type Task,
+  {=# entities =}
+  type {= name =},
+  {=/ entities =}
 } from "@prisma/client"
 
 export {
-  type User,
-  type Task,
-  type Auth,
-  type AuthIdentity,
+  {=# entities =}
+  type {= name =},
+  {=/ entities =}
+  {=# isAuthEnabled =}
+  type {= authEntityName =},
+  type {= authIdentityEntityName =},
+  {=/ isAuthEnabled =}
 } from "@prisma/client"
 
 export type Entity = 
-  | User
-  | Task
+  {=# entities =}
+  | {= name =}
+  {=/ entities =}
   | never
 
 export type EntityName = 
-  | "User"
-  | "Task"
+  {=# entities =}
+  | "{= name =}"
+  {=/ entities =}
   | never

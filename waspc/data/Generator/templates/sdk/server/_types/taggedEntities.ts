@@ -1,3 +1,4 @@
+{{={= =}=}}
 // Wasp internally uses the types defined in this file for typing entity maps in
 // operation contexts.
 //
@@ -6,16 +7,19 @@
 import { 
   type Entity, 
   type EntityName,
-  type User,
-  type Task,
-} from '../../entities'
+  {=# entities =}
+  type {= name =},
+  {=/ entities =}
+} from 'wasp/entities'
 
-export type _User = WithName<User, "User">
-export type _Task = WithName<Task, "Task">
+{=# entities =}
+export type {= internalTypeName =} = WithName<{= name =}, "{= name =}">
+{=/ entities =}
 
 export type _Entity = 
-  | _User
-  | _Task
+  {=# entities =}
+  | {= internalTypeName =}
+  {=/ entities =}
   | never
 
 type WithName<E extends Entity, Name extends EntityName> = 

@@ -2,7 +2,7 @@
 // We have them duplicated in this file and in data/Generator/templates/react-app/src/auth/user.ts
 // If you are changing the logic here, make sure to change it there as well.
 
-import type { SanitizedUser as User, ProviderName, DeserializedAuthEntity } from '../_types/index' 
+import type { SanitizedUser as User, ProviderName, DeserializedAuthEntity } from 'wasp/server/_types/index' 
 
 export function getEmail(user: User): string | null {
   return findUserIdentity(user, "email")?.providerUserId ?? null;

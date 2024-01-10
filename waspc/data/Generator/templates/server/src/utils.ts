@@ -7,7 +7,7 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 {=# isAuthEnabled =}
-import { type SanitizedUser } from './_types/index.js'
+import { type SanitizedUser } from 'wasp/server/_types/index.js'
 {=/ isAuthEnabled =}
 
 type RequestWithExtraFields = Request & {

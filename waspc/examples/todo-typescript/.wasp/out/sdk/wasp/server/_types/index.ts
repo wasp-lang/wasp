@@ -11,7 +11,6 @@ import {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-  // todo(filip): marker
 } from 'wasp/auth/utils'
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
@@ -97,5 +96,4 @@ export type SanitizedUser = User & {
   } | null
 }
 
-// todo(filip): marker
 export type { ProviderName } from 'wasp/auth/utils'

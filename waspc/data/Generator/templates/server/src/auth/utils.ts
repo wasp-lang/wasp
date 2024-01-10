@@ -8,7 +8,7 @@ import {
   type {= userEntityUpper =},
   type {= authEntityUpper =},
   type {= authIdentityEntityUpper =},
-} from '../entities/index.js'
+} from 'wasp/entities/index.js'
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'

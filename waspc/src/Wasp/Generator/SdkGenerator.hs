@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.SdkGenerator
   ( genSdk,
     installNpmDependencies,
@@ -7,13 +9,20 @@ where
 import Data.Aeson (object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types ((.=))
+import Data.Maybe (fromMaybe, isJust)
 import GHC.IO (unsafePerformIO)
 import StrongPath
 import qualified StrongPath as SP
 import Wasp.AppSpec
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
+import qualified Wasp.AppSpec.Valid as AS.Valid
+import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import qualified Wasp.Generator.Job as J
@@ -23,47 +32,101 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.Templates (TemplatesDir, getTemplatesDirAbsPath)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util ((<++>))
+import Wasp.Util (toLowerFirst, (<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec = (:) <$> genPackageJson spec <*> genHardcodedSdkModules <++> genSdkModules
+genSdk spec = (:) <$> genPackageJson spec <*> genHardcodedSdkModules <++> genSdkModules spec
 
 data SdkRootDir
 
 data SdkTemplatesDir
 
-genSdkModules :: Generator [FileDraft]
-genSdkModules =
+genSdkModules :: AppSpec -> Generator [FileDraft]
+genSdkModules spec =
   sequence
     [ genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|]
     ]
+    <++> genTypesAndEntitiesDirs spec
   where
     genFileCopy = return . mkTmplFd
 
 genHardcodedSdkModules :: Generator [FileDraft]
 genHardcodedSdkModules =
   return
-    [ copyModule [reldir|auth|],
-      copyModule [reldir|core|],
-      copyModule [reldir|entities|],
-      copyModule [reldir|ext-src|],
-      copyModule [reldir|operations|],
-      copyModule [reldir|rpc|],
-      copyModule [reldir|server|],
-      copyModule [reldir|types|],
-      copyModule [reldir|universal|]
+    [ copyFolder [reldir|auth|],
+      copyFolder [reldir|core|],
+      copyFolder [reldir|ext-src|],
+      copyFolder [reldir|operations|],
+      copyFolder [reldir|rpc|],
+      copyFolder [reldir|server/actions|],
+      copyFolder [reldir|server/queries|],
+      copyFile [relfile|server/dbClient.ts|],
+      copyFile [relfile|server/utils.ts|],
+      copyFolder [reldir|types|],
+      copyFolder [reldir|universal|]
     ]
   where
-    copyModule :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
-    copyModule modul =
+    copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
+    copyFolder modul =
       createCopyDirFileDraft
         RemoveExistingDstDir
         (dstFolder </> castRel modul)
         (srcFolder </> modul)
+    copyFile :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
+    copyFile = mkTmplFd
     dstFolder = sdkRootDirInProjectRootDir
     srcFolder = absSdkTemplatesDir
     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> sdkTemplatesDirInTemplatesDir
+
+genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
+genTypesAndEntitiesDirs spec =
+  return
+    [ entitiesIndexFileDraft,
+      taggedEntitiesFileDraft,
+      serializationFileDraft,
+      typesIndexFileDraft
+    ]
+  where
+    entitiesIndexFileDraft =
+      mkTmplFdWithDstAndData
+        [relfile|entities/index.ts|]
+        [relfile|entities/index.ts|]
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+              ]
+        )
+    taggedEntitiesFileDraft =
+      mkTmplFdWithDstAndData
+        [relfile|server/_types/taggedEntities.ts|]
+        [relfile|server/_types/taggedEntities.ts|]
+        (Just $ object ["entities" .= allEntities])
+    serializationFileDraft =
+      mkTmplFd
+        [relfile|server/_types/serialization.ts|]
+    typesIndexFileDraft =
+      mkTmplFdWithDstAndData
+        [relfile|server/_types/index.ts|]
+        [relfile|server/_types/index.ts|]
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "userEntityName" .= userEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+                "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+                "userFieldName" .= toLowerFirst userEntityName
+              ]
+        )
+    userEntityName = fromMaybe "" maybeUserEntityName
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =

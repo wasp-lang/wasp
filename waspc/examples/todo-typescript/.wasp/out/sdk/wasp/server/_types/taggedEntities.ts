@@ -8,7 +8,7 @@ import {
   type EntityName,
   type User,
   type Task,
-} from '../../entities'
+} from 'wasp/entities'
 
 export type _User = WithName<User, "User">
 export type _Task = WithName<Task, "Task">

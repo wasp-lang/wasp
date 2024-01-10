@@ -13,7 +13,7 @@ import {
   type AuthenticatedQuery,
   {=/ shouldImportAuthenticatedOperation =}
   type Payload,
-} from '../_types'
+} from 'wasp/server/_types'
 
 {=# operations =}
 export type {= typeName =}<Input extends Payload = never, Output extends Payload = Payload> = 
