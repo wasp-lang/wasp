@@ -1,5 +1,6 @@
 module Wasp.Generator.ServerGenerator.AuthG
   ( genAuth,
+    depsRequiredByAuth,
   )
 where
 
@@ -19,6 +20,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (emailAuthProvider, gitHubAuthProvider, googleAuthProvider, localAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
@@ -41,12 +43,17 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthRoutesIndex auth,
-        genMeRoute auth,
+        genFileCopy [relfile|routes/auth/me.js|],
+        genFileCopy [relfile|routes/auth/logout.ts|],
         genUtils auth,
         genProvidersIndex auth,
         genProvidersTypes auth,
         genFileCopy [relfile|auth/validation.ts|],
-        genFileCopy [relfile|auth/user.ts|]
+        genFileCopy [relfile|auth/user.ts|],
+        genFileCopy [relfile|auth/password.ts|],
+        genFileCopy [relfile|auth/jwt.ts|],
+        genSessionTs auth,
+        genLuciaTs auth
       ]
       <++> genIndexTs auth
       <++> genLocalAuth auth
@@ -69,9 +76,7 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
-              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-              "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
-              "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String)
+              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -84,15 +89,6 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
-
-genMeRoute :: AS.Auth.Auth -> Generator FileDraft
-genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    meRouteRelToSrc = [relfile|routes/auth/me.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> meRouteRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile meRouteRelToSrc
-
-    tmplData = object ["userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)]
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
 genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -158,3 +154,38 @@ genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
     tmplData = object ["userEntityUpper" .= (userEntityName :: String)]
+
+genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
+genLuciaTs auth = return $ C.mkTmplFdWithData [relfile|src/auth/lucia.ts|] (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "userEntityUpper" .= (userEntityName :: String)
+        ]
+
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+genSessionTs :: AS.Auth.Auth -> Generator FileDraft
+genSessionTs auth = return $ C.mkTmplFdWithData [relfile|src/auth/session.ts|] (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "userEntityUpper" .= userEntityName,
+          "userEntityLower" .= Util.toLowerFirst userEntityName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
+        ]
+
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+depsRequiredByAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+    authDeps =
+      AS.Dependency.fromList
+        [ ("lucia", "^3.0.0-beta.14"),
+          ("@lucia-auth/adapter-prisma", "^4.0.0-beta.9")
+        ]
