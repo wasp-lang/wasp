@@ -56,11 +56,15 @@ module.exports = {
       },
       items: [
         {
-          to: "docs/",
-          activeBasePath: "docs",
-          label: "Docs",
-          position: "left",
+          type: 'docsVersion',
+          position: 'left',
+          label: 'Docs',
           className: "navbar-item-docs navbar-item-outside",
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'left',
+          className: "navbar-item-docs-version-dropdown",
         },
         {
           to: "blog",
@@ -137,10 +141,10 @@ module.exports = {
       appId: "RG0JSZOWH4",
       apiKey: "feaa2a25dc596d40418c82cd040e2cbe",
       indexName: "wasp-lang",
-      // TODO: contextualSearch is useful when you are doing versioning,
-      //   it searches only in v1 docs if you are searching from v1 docs.
-      //   We should enable it if we start doing versioning.
-      // contextualSearch: true
+      // ContextualSearch is useful when you are doing versioning,
+      // it searches only in v1 docs if you are searching from v1 docs.
+      // Therefore we have it enabled, since we have multiple doc versions.
+      contextualSearch: true
     },
     image: "img/wasp_twitter_cover.png",
     metadata: [{ name: "twitter:card", content: "summary_large_image" }],
@@ -156,13 +160,40 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           sidebarCollapsible: true,
-          // Please change this to your repo.
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           remarkPlugins: [autoImportTabs, fileExtSwitcher],
+
+          // ------ Configuration for multiple docs versions ------ //
+
+          // "current" docs (under /docs) are in-progress docs, so we show them only in development.
+          includeCurrentVersion: process.env.NODE_ENV === 'development',
+
+          // Uncomment line below to build and show only current docs, for faster build times
+          // during development, if needed.
+          // onlyIncludeVersions: process.env.NODE_ENV === 'development' ? ["current"] : undefined,
+
+          // "versions" option here enables us to customize each version of docs individually,
+          // and there are also other options if we ever need to customize versioned docs further.
+          versions: {
+            "current": {
+              path: "next", // Token used in the URL to address this version of docs: {baseUrl}/docs/{path}.
+              label: "Next", // Label shown in the documentation to address this version of docs.
+              noIndex: true, // these are un-released docs, we don't want search engines indexing them.
+            },
+            // Configuration example:
+            // "0.11.1": {
+            //   path: "0.11.1",  // default, but can be anything.
+            //   label: "0.11.1",  // default, but can be anything.
+            //   banner: "unmaintained"
+            //   // and more!
+            // },
+          }
+
+          // ------------------------------------------------------ //
+
         },
         blog: {
           showReadingTime: true,
-          // Please change this to your repo.
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
