@@ -8,35 +8,35 @@ const api = axios.create({
   baseURL: config.apiUrl,
 })
 
-const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
+const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
-let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
+let appSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
 
-export function setAuthToken(token: string): void {
-  authToken = token
-  storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
-  apiEventsEmitter.emit('authToken.set')
+export function setSessionId(sessionId: string): void {
+  appSessionId = sessionId
+  storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
+  apiEventsEmitter.emit('appSessionId.set')
 }
 
-export function getAuthToken(): string | undefined {
-  return authToken
+export function getSessionId(): string | undefined {
+  return appSessionId
 }
 
 export function clearAuthToken(): void {
-  authToken = undefined
-  storage.remove(WASP_APP_AUTH_TOKEN_NAME)
-  apiEventsEmitter.emit('authToken.clear')
+  appSessionId = undefined
+  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
+  apiEventsEmitter.emit('appSessionId.clear')
 }
 
 export function removeLocalUserData(): void {
-  authToken = undefined
+  appSessionId = undefined
   storage.clear()
-  apiEventsEmitter.emit('authToken.clear')
+  apiEventsEmitter.emit('appSessionId.clear')
 }
 
 api.interceptors.request.use((request) => {
-  if (authToken) {
-    request.headers['Authorization'] = `Bearer ${authToken}`
+  if (appSessionId) {
+    request.headers['Authorization'] = `Bearer ${appSessionId}`
   }
   return request
 })
@@ -49,18 +49,18 @@ api.interceptors.response.use(undefined, (error) => {
 })
 
 // This handler will run on other tabs (not the active one calling API functions),
-// and will ensure they know about auth token changes.
+// and will ensure they know about auth session ID changes.
 // Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
 // "Note: This won't work on the same page that is making the changes — it is really a way
 // for other pages on the domain using the storage to sync any changes that are made."
 window.addEventListener('storage', (event) => {
-  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
+  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
     if (!!event.newValue) {
-      authToken = event.newValue
-      apiEventsEmitter.emit('authToken.set')
+      appSessionId = event.newValue
+      apiEventsEmitter.emit('appSessionId.set')
     } else {
-      authToken = undefined
-      apiEventsEmitter.emit('authToken.clear')
+      appSessionId = undefined
+      apiEventsEmitter.emit('appSessionId.clear')
     }
   }
 })
