@@ -44,7 +44,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
   if (sessionId) {
     try {
       const { user } =  await getSessionAndUserFromSessionId(sessionId)
-      socket.data = { ...socket.data, user, }
+      socket.data = { ...socket.data, user }
     } catch (err) { }
   }
   next()
