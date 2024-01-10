@@ -2,6 +2,7 @@
 import { Request as ExpressRequest } from "express";
 
 import { type {= userEntityUpper =} } from "../entities/index.js"
+import { type SanitizedUser } from '../_types/index.js'
 
 import { auth } from "./lucia.js";
 import {
@@ -54,7 +55,7 @@ export async function getSessionAndUserFromSessionId(sessionId: string) {
   }
 }
 
-async function getUser(userId) {
+async function getUser(userId: {= userEntityUpper =}['id']): Promise<SanitizedUser> {
   const user = await prisma.{= userEntityLower =}
     .findUnique({
       where: { id: userId },
@@ -71,16 +72,29 @@ async function getUser(userId) {
     throwInvalidCredentialsError()
   }
 
-  // TODO: This logic must match the type in types/index.ts (if we remove the
+  // TODO: This logic must match the type in _types/index.ts (if we remove the
   // password field from the object here, we must to do the same there).
   // Ideally, these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965
-  let sanitizedUser = { ...user }
-  sanitizedUser.{= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =} = sanitizedUser.{= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =}.map(identity => {
-    (identity.providerData as unknown as ReturnType<typeof deserializeAndSanitizeProviderData>) = deserializeAndSanitizeProviderData(identity.providerData, { shouldRemovePasswordField: true })
-    return identity
-  });
-  return sanitizedUser
+  const deserializedIdentities = user.{= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =}.map((identity) => {
+    const deserializedProviderData = deserializeAndSanitizeProviderData(
+      identity.providerData,
+      {
+        shouldRemovePasswordField: true,
+      }
+    )
+    return {
+      ...identity,
+      providerData: deserializedProviderData,
+    }
+  })
+  return {
+    ...user,
+    auth: {
+      ...user.auth,
+      identities: deserializedIdentities,
+    },
+  }
 }
 
 export function invalidateSession(sessionId: string) {
