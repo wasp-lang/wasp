@@ -16,14 +16,17 @@ const prismaAdapter = new PrismaAdapter(
 export const auth = new Lucia<{}, {
   userId: User['id']
 }>(prismaAdapter, {
-  sessionCookie: {
-    name: "session",
-    expires: true,
-    attributes: {
-      secure: !config.isDevelopment,
-      sameSite: "lax",
-    },
-  },
+  // Since we are not using cookies, we don't need to set any cookie options.
+  // But in the future, if we decide to use cookies, we can set them here.
+
+  // sessionCookie: {
+  //   name: "session",
+  //   expires: true,
+  //   attributes: {
+  //     secure: !config.isDevelopment,
+  //     sameSite: "lax",
+  //   },
+  // },
   getUserAttributes({ userId }) {
     return {
       userId,
