@@ -110,12 +110,23 @@ openSaasStarterTemplate =
     )
     ( \projectDirName ->
         unlines
-          [ styleText $ "To run your new app, do:",
+          [ styleText $ "To run your new app, follow the instructions below:",
+            styleText $ "",
+            styleText $ "  1. Position into app's root directory:",
             styleCode $ "    cd " <> projectDirName FP.</> "app",
+            styleText $ "",
+            styleText $ "  2. Run the development database (and leave it running):",
             styleCode $ "    wasp db start",
-            styleText $ "Then open new terminal window/tab in that same dir and do:",
+            styleText $ "",
+            styleText $ "  3. Open new terminal window (or tab) in that same dir and continue in it.",
+            styleText $ "",
+            styleText $ "  4. Apply initial database migrations:",
             styleCode $ "    wasp db migrate-dev",
+            styleText $ "",
+            styleText $ "  5. Create initial dot env file from the template:",
             styleCode $ "    cp .env.server.example .env.server",
+            styleText $ "",
+            styleText $ "  6. Last step: run the app!",
             styleCode $ "    wasp start",
             styleText $ "",
             styleText $ "Check the README for additional guidance and the link to docs!"
@@ -152,6 +163,8 @@ styleText = id
 
 {- -}
 
+{- HLINT ignore embeddingsStarterTemplate "Redundant $" -}
+
 embeddingsStarterTemplate :: StarterTemplate
 embeddingsStarterTemplate =
   simpleGhRepoTemplate
@@ -160,8 +173,32 @@ embeddingsStarterTemplate =
       "Comes with code for generating vector embeddings and performing vector similarity search."
     )
     ( \projectDirName ->
-        "To learn how to set up and run your new app, check instructions in "
-          <> projectDirName FP.</> "README.md"
+        unlines
+          [ styleText $ "To run your new app, follow the instructions below:",
+            styleText $ "",
+            styleText $ "  1. Position into app's root directory:",
+            styleCode $ "    cd " <> projectDirName,
+            styleText $ "",
+            styleText $ "  2. Create initial dot env file from the template and fill in your API keys:",
+            styleCode $ "    cp .env.server.example .env.server",
+            styleText $ "    Fill in your API keys!",
+            styleText $ "",
+            styleText $ "  3. Run the development database (and leave it running):",
+            styleCode $ "    wasp db start",
+            styleText $ "",
+            styleText $ "  4. Open new terminal window (or tab) in that same dir and continue in it.",
+            styleText $ "",
+            styleText $ "  5. Apply initial database migrations:",
+            styleCode $ "    wasp db migrate-dev",
+            styleText $ "",
+            styleText $ "  6. Run wasp seed script that will generate embeddings from the text files in src/shared/docs:",
+            styleCode $ "    wasp db seed",
+            styleText $ "",
+            styleText $ "  7. Last step: run the app!",
+            styleCode $ "    wasp start",
+            styleText $ "",
+            styleText $ "Check the README for more detailed instructions and additional guidance!"
+          ]
     )
 
 simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
