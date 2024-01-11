@@ -169,17 +169,21 @@ module.exports = {
           includeCurrentVersion: process.env.NODE_ENV === 'development',
 
           // Uncomment line below to build and show only current docs, for faster build times
-          // during development, if needed.
+          // during development, if/when needed.
           // onlyIncludeVersions: process.env.NODE_ENV === 'development' ? ["current"] : undefined,
 
           // "versions" option here enables us to customize each version of docs individually,
           // and there are also other options if we ever need to customize versioned docs further.
           versions: {
-            "current": {
-              path: "next", // Token used in the URL to address this version of docs: {baseUrl}/docs/{path}.
-              label: "Next", // Label shown in the documentation to address this version of docs.
-              noIndex: true, // these are un-released docs, we don't want search engines indexing them.
-            },
+            ...(
+              (process.env.NODE_ENV === 'development') ? {
+                "current": {
+                  path: "next", // Token used in the URL to address this version of docs: {baseUrl}/docs/{path}.
+                  label: "Next", // Label shown in the documentation to address this version of docs.
+                  noIndex: true, // these are un-released docs, we don't want search engines indexing them.
+                }
+              } : {}
+            ),
             // Configuration example:
             // "0.11.1": {
             //   path: "0.11.1",  // default, but can be anything.
