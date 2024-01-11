@@ -129,6 +129,14 @@
   font-size: var(--ifm-h6-font-size);
 }
 
+/******** DOCS NAVBAR *********/
+
+.navbar__item:has(.navbar-item-docs-version-dropdown:not(.active)) {
+  display: none
+}
+
+/******************************/
+
 /******* OTHER ********/
 
 .video-container {

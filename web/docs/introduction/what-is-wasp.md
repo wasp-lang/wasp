@@ -3,7 +3,7 @@ title: Introduction
 slug: /
 ---
 
-import ImgWithCaption from '../../blog/components/ImgWithCaption'
+import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 :::note
 If you are looking for the installation instructions, check out the [Quick Start](/docs/quick-start) section.
@@ -42,13 +42,13 @@ Define your app in the Wasp config and get:
 - async processing jobs,
 - React Query powered data fetching,
 - security best practices,
-- and more. 
+- and more.
 
 You don't need to write any code for these features, Wasp will take care of it for you 🤯 And what's even better, Wasp also maintains the code for you, so you don't have to worry about keeping up with the latest security best practices. As Wasp updates, so does your app.
 
 ## So what does the code look like?
 
-Let's say you want to build a web app that allows users to **create and share their favorite recipes**. 
+Let's say you want to build a web app that allows users to **create and share their favorite recipes**.
 
 Let's start with the main.wasp file: it is the central file of your app, where you describe the app from the high level.
 
