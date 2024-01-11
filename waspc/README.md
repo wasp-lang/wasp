@@ -362,7 +362,12 @@ NOTE: If building of your commit is suddenly taking much longer time, it might b
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
 ### Typical Release Process
-- Ensure that all starter templates in `starter` repo are working with the version of Wasp we are about to release and upgrade their version of Wasp to the new one.
+- Starter templates
+  - Context: they are used by used by `wasp new`, you can find reference to them in `Wasp.Cli. ... .StarterTemplates`.
+  - In `StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `wasp-v0.13.1-template`).
+  - Ensure that all starter templates are working with this new version of Wasp.
+    Update Wasp version in their main.wasp files. Finally, in their repos (for those templates that are on Github),
+    create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`).
 - ChangeLog.md and version in waspc.cabal should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing ChangeLog.md a bit even if all the data is already there. Also check that ChangeLog has correction version of wasp specified.
 - If you modified ChangeLog.md or waspc.cabal, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).

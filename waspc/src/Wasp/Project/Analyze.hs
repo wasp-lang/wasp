@@ -2,6 +2,7 @@ module Wasp.Project.Analyze
   ( analyzeWaspProject,
     analyzeWaspFile,
     analyzeWaspFileContent,
+    findWaspFile,
   )
 where
 
