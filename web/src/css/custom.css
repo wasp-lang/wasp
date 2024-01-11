@@ -131,6 +131,7 @@
 
 /******** DOCS NAVBAR *********/
 
+/* This hides Docs version dropdown when not on docs (i.e. when we are on blog). */
 .navbar__item:has(.navbar-item-docs-version-dropdown:not(.active)) {
   display: none
 }
