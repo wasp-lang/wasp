@@ -2,9 +2,11 @@
 title: Auth Entities
 ---
 
-import ImgWithCaption from '../../blog/components/ImgWithCaption'
+import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
-import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
+import MultipleIdentitiesWarning from '../\_multiple-identities-warning.md';
+import GetEmail from './\_get-email.md';
+import GetUsername from './\_get-username.md';
 
 Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](/docs/auth/username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](/docs/auth/email) authentication method, you will need to store the user's email, password and for example, their email verification status.
 
@@ -113,111 +115,17 @@ To make things a bit easier for you, Wasp offers a few helper functions that you
 
 ### `getEmail`
 
-Returns the user's email or `null` if the user doesn't have an email-based auth identity.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/client/MainPage.jsx"
-import { getEmail } from '@wasp/auth/user'
-
-const MainPage = ({ user }) => {
-  const email = getEmail(user)
-  // ...
-}
-```
-
-```js title=src/server/tasks.js
-import { getEmail } from '@wasp/auth/user.js'
-
-export const createTask = async (args, context) => {
-  const email = getEmail(context.user)
-  // ...
-}
-```
-
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/client/MainPage.tsx"
-import { getEmail } from '@wasp/auth/user'
-import { User } from '@wasp/auth/types'
-
-const MainPage = ({ user }: { user: User }) => {
-  const email = getEmail(user)
-  // ...
-}
-```
-
-```ts title=src/server/tasks.ts
-import { getEmail } from '@wasp/auth/user.js'
-
-export const createTask: CreateTask<...>  = async (args, context) => {
-  const email = getEmail(context.user)
-  // ...
-}
-```
-
-</TabItem>
-</Tabs>
+<GetEmail />
 
 ### `getUsername`
 
-Returns the user's username or `null` if the user doesn't have a username-based auth identity.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/client/MainPage.jsx"
-import { getUsername } from '@wasp/auth/user'
-
-const MainPage = ({ user }) => {
-  const username = getUsername(user)
-  // ...
-}
-```
-
-```js title=src/server/tasks.js
-import { getUsername } from '@wasp/auth/user.js'
-
-export const createTask = async (args, context) => {
-  const username = getUsername(context.user)
-  // ...
-}
-```
-
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/client/MainPage.tsx"
-import { getUsername } from '@wasp/auth/user'
-import { User } from '@wasp/auth/types'
-
-const MainPage = ({ user }: { user: User }) => {
-  const username = getUsername(user)
-  // ...
-}
-```
-
-```ts title=src/server/tasks.ts
-import { getUsername } from '@wasp/auth/user.js'
-
-export const createTask: CreateTask<...>  = async (args, context) => {
-  const username = getUsername(context.user)
-  // ...
-}
-```
-
-</TabItem>
-</Tabs>
+<GetUsername />
 
 ### `getFirstProviderUserId`
 
-[As mentioned before](#authidentity-entity), the `providerUserId` field is the user's ID in the authentication provider. For example, the user's `username` in the case of the username-based or the user's `email` in the case of the email-based auth. This can be useful if you support multiple authentication methods and you need *any* ID that identifies the user in your app.
+The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
 
-This helper function returns the user's first auth identity's provider user ID or `null` if the user doesn't have any auth identities.
+[As mentioned before](#authidentity-entity), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need *any* ID that identifies the user in your app.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -268,9 +176,9 @@ export const createTask: CreateTask<...>  = async (args, context) => {
 
 ### `findUserIdentity`
 
-You can find a specific auth identity by using the `findUserIdentity` helper function. This function takes a `user` and a `providerName` and returns the first auth identity that matches the `providerName` or `null` if no auth identity matches the `providerName`.
+You can find a specific auth identity by using the `findUserIdentity` helper function. This function takes a `user` and a `providerName` and returns the first `providerName` identity that it finds or `null` if it doesn't find any.
 
-This can be useful if you want to check if the user has a specific auth identity. For example, you might want to check if the user has an email-based auth identity.
+This can be useful if you want to check if the user has a specific auth identity. For example, you might want to check if the user has an email auth identity or Google auth identity.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

@@ -5,6 +5,7 @@ title: Username & Password
 import { Required } from '@site/src/components/Tag';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
+import GetUsername from './entities/\_get-username.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
 
@@ -615,6 +616,14 @@ We suggest using the built-in field validators for your authentication flow. You
 ## Using Auth 
 
 To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](/docs/auth/overview).
+
+### `getUsername`
+
+If you are looking to access the user's username in your code, you can do that by accessing the info about the user that is stored in the `user.auth.identities` array.
+
+To make things a bit easier for you, Wasp offers the `getUsername` helper.
+
+<GetUsername />
 
 ## API Reference
 
