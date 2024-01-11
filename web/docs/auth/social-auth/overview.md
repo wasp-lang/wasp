@@ -99,7 +99,7 @@ To learn more about what the fields on these entities represent, look at the [AP
 
 By default, Wasp doesn't store any information it receives from the social login provider. It only stores the user's ID specific to the provider.
 
-If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `getUserFieldsFn` and `configFn` functions.
+If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `getUserFieldsFn` and `configFn` functions in `main.wasp` for each provider.
 
 You can create custom signup setups, such as allowing users to define a custom username after they sign up with a social provider.
 

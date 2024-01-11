@@ -2,7 +2,7 @@
 title: Email
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
@@ -17,7 +17,7 @@ Wasp supports e-mail authentication out of the box, along with email verificatio
 We'll need to take the following steps to set up email authentication:
 1. Enable email authentication in the Wasp file
 1. Add the `User` entity
-1. Add the routes and pages
+1. Add the auth routes and pages
 1. Use Auth UI components in our pages
 1. Set up the email sender
 
@@ -458,7 +458,7 @@ Read more about setting up email senders in the [sending emails docs](/docs/adva
 
 That's it! We have set up email authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [using auth docs](/docs/auth/overview).
+Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [auth overview](/docs/auth/overview).
 
 ## Login and Signup Flows
 
@@ -489,7 +489,7 @@ Some of the behavior you get out of the box:
 
 4. Password validation
 
-  Read more about the default password validation rules and how to override them in [using auth docs](/docs/auth/overview).
+  Read more about the default password validation rules and how to override them in [auth overview docs](/docs/auth/overview).
 
 ## Email Verification Flow
 
@@ -818,7 +818,7 @@ We suggest using the built-in field validators for your authentication flow. You
 
 ## Using Auth
 
-To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](/docs/auth/overview).
+To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](/docs/auth/overview).
 
 ## API Reference
 

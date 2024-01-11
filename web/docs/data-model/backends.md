@@ -2,7 +2,7 @@
 title: Databases
 ---
 
-import { Required } from '@site/src/components/Required'
+import { Required } from '@site/src/components/Tag'
 
 [Entities](/docs/data-model/entities.md), [Operations](/docs/data-model/operations/overview) and [Automatic CRUD](/docs/data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 

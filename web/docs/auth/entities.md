@@ -3,7 +3,7 @@ title: Auth Entities
 ---
 
 import ImgWithCaption from '../../blog/components/ImgWithCaption'
-import { Internal } from '@site/src/components/Internal'
+import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 
 Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](/docs/auth/username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](/docs/auth/email) authentication method, you will need to store the user's email, password and for example, their email verification status.
