@@ -32,6 +32,5 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
 
     waspFileReplacements =
       [ ("__waspAppName__", show appName),
-        ("__waspProjectName__", show projectName),
-        ("__waspVersion__", defaultWaspVersionBounds)
+        ("__waspProjectName__", show projectName)
       ]
