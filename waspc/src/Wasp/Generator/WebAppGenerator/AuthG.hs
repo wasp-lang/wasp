@@ -26,10 +26,10 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       sequence
-        [ genLogoutAction,
-          genFileCopy [relfile|auth/helpers/user.ts|],
+        [ genFileCopy [relfile|auth/helpers/user.ts|],
           genFileCopy [relfile|auth/types.ts|],
           genFileCopy [relfile|auth/user.ts|],
+          genFileCopy [relfile|auth/logout.ts|],
           genUseAuth auth,
           genCreateAuthRequiredPage auth
         ]
@@ -57,8 +57,3 @@ genUseAuth auth = return $ C.mkTmplFdWithData [relfile|src/auth/useAuth.ts|] tmp
   where
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genLogoutAction :: Generator FileDraft
-genLogoutAction = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/logout.ts|]) tmplData
-  where
-    tmplData = object ["logoutPath" .= ("/auth/logout" :: String)]

@@ -1,10 +1,9 @@
-{{={= =}=}}
 import api, { removeLocalUserData } from '../api'
 import { invalidateAndRemoveQueries } from '../operations/resources'
 
 export default async function logout(): Promise<void> {
   try {
-    await api.post('{= logoutPath =}')
+    await api.post('/auth/logout')
   } finally {
     // Even if the logout request fails, we still want to remove the local user data
     // in case the logout failed because of a network error and the user walked away
