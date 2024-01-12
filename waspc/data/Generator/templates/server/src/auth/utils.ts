@@ -158,8 +158,10 @@ export async function createUser(
         }
       },
     },
+    // We need to include the Auth entity here because we need `authId`
+    // to be able to create a session.
     include: {
-      auth: true,
+      {= authFieldOnUserEntityName =}: true,
     },
   })
 }

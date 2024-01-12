@@ -26,8 +26,8 @@ function refreshAuthToken() {
 }
 
 refreshAuthToken()
-apiEventsEmitter.on('appSessionId.set', refreshAuthToken)
-apiEventsEmitter.on('appSessionId.clear', refreshAuthToken)
+apiEventsEmitter.on('sessionId.set', refreshAuthToken)
+apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
 
 export const WebSocketContext = createContext({
   socket,
