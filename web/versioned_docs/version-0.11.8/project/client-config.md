@@ -211,7 +211,7 @@ export default async function mySetupFunction(): Promise<void> {
 ### Overriding Default Behaviour for Queries
 
 :::info
-You can change the options for a **single** Query using the `options` object, as described [here](/docs/data-model/operations/queries#the-usequery-hook-1).
+You can change the options for a **single** Query using the `options` object, as described [here](../data-model/operations/queries#the-usequery-hook-1).
 :::
 
 Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.

@@ -94,7 +94,7 @@ Let's write an example Job that will print a message to the console and return a
   `MySpecialJob`  is a generic type Wasp generates to help you  correctly type the Job's worker function, ensuring type information about the function's arguments and return value. Read more about type-safe jobs in the [Javascript API section](#javascript-api).
   </ShowForTs>
 
-3. After successfully defining the job, you can submit work to be done in your [Operations](/docs/data-model/operations/overview) or [setupFn](/docs/project/server-config#setup-function) (or any other NodeJS code):
+3. After successfully defining the job, you can submit work to be done in your [Operations](../data-model/operations/overview) or [setupFn](../project/server-config#setup-function) (or any other NodeJS code):
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -333,7 +333,7 @@ The Job declaration has the following fields:
 
 - `entities: [Entity]`
   
-  A list of entities you wish to use inside your Job (similar to [Queries and Actions](/docs/data-model/operations/queries#using-entities-in-queries)).
+  A list of entities you wish to use inside your Job (similar to [Queries and Actions](../data-model/operations/queries#using-entities-in-queries)).
 
 ### JavaScript API
 

@@ -5,7 +5,7 @@ title: 1. Creating a New Project
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 :::info
-You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](/docs/quick-start) guide!
+You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](../quick-start) guide!
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.

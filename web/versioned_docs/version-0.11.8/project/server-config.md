@@ -90,7 +90,7 @@ function addCustomRoute(app: Application) {
 
 ### Storing Some Values for Later Use
 
-In case you want to store some values for later use, or to be accessed by the [Operations](/docs/data-model/operations/overview) you do that in the `setupFn` function.
+In case you want to store some values for later use, or to be accessed by the [Operations](../data-model/operations/overview) you do that in the `setupFn` function.
 
 Dummy example of such function and its usage:
 
@@ -247,4 +247,4 @@ app MyApp {
 
 - #### `middlewareConfigFn: ServerImport`
 
-  The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](/docs/advanced/middleware-config#1-customize-global-middleware).
+  The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).

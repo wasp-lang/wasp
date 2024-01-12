@@ -240,7 +240,7 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 ### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](/docs/project/css-frameworks).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
 :::
 
 Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
@@ -418,7 +418,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 </TabItem>
 </Tabs>
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](/docs/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../auth/ui).
 
 ### 5. Set up an Email Sender
 
@@ -461,15 +461,15 @@ app myApp {
 SENDGRID_API_KEY=<your key>
 ```
 
-If you are not sure how to get a SendGrid API key, read more [here](/docs/advanced/email#getting-the-api-key).
+If you are not sure how to get a SendGrid API key, read more [here](../advanced/email#getting-the-api-key).
 
-Read more about setting up email senders in the [sending emails docs](/docs/advanced/email).
+Read more about setting up email senders in the [sending emails docs](../advanced/email).
 
 ### Conclusion
 
 That's it! We have set up email authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [using auth docs](/docs/auth/overview).
+Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [using auth docs](../auth/overview).
 
 ## Login and Signup Flows
 
@@ -500,7 +500,7 @@ Some of the behavior you get out of the box:
 
 4. Password validation
 
-  Read more about the default password validation rules and how to override them in [using auth docs](/docs/auth/overview).
+  Read more about the default password validation rules and how to override them in [using auth docs](../auth/overview).
 
 ## Email Verification Flow
 
@@ -597,7 +597,7 @@ The content of the e-mail can be customized, read more about it [here](#password
 
 ## Using The Auth
 
-To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](/docs/auth/overview).
+To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](../auth/overview).
 
 ## API Reference
 

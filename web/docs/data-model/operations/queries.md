@@ -15,7 +15,7 @@ Fetching all comments on a blog post, a list of users that liked a video, inform
 Queries are fairly similar to Actions in terms of their API.
 Therefore, if you're already familiar with Actions, you might find reading the entire guide repetitive.
 
-We instead recommend skipping ahead and only reading [the differences between Queries and Actions](/docs/data-model/operations/actions#differences-between-queries-and-actions), and consulting the [API Reference](#api-reference) as needed.
+We instead recommend skipping ahead and only reading [the differences between Queries and Actions](../../data-model/operations/actions#differences-between-queries-and-actions), and consulting the [API Reference](#api-reference) as needed.
 :::
 
 ## Working with Queries
@@ -395,7 +395,7 @@ To prevent information leakage, the server won't forward these fields for any ot
 
 ### Using Entities in Queries
 
-In most cases, resources used in Queries will be [Entities](/docs/data-model/entities.md).
+In most cases, resources used in Queries will be [Entities](../../data-model/entities.md).
 To use an Entity in your Query, add it to the `query` declaration in Wasp:
 
 <Tabs groupId="js-ts">
@@ -552,7 +552,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
 2. `context` (type depends on the Query)
 
-   An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](/docs/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
+   An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
 
@@ -651,6 +651,6 @@ Wasp's `useQuery` hook accepts three arguments:
   [the default
   behavior](https://react-query.tanstack.com/guides/important-defaults) for
   this particular Query. If you want to change the global defaults, you can do
-  so in the [client setup function](/docs/project/client-config.md#overriding-default-behaviour-for-queries).
+  so in the [client setup function](../../project/client-config.md#overriding-default-behaviour-for-queries).
 
 For an example of usage, check [this section](#the-usequery-hook).

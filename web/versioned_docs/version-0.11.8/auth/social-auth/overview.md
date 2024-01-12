@@ -258,7 +258,7 @@ export const getUserFields: GetUserFieldsFn = async (_context, _args) => {
 
 #### 3. Showing the Correct State on the Client
 
-You can query the user's `isSignupComplete` flag on the client with the [`useAuth()`](/docs/auth/overview) hook.
+You can query the user's `isSignupComplete` flag on the client with the [`useAuth()`](../../auth/overview) hook.
 Depending on the flag's value, you can redirect users to the appropriate signup step.
 
 For example:
@@ -317,7 +317,7 @@ Each provider has their own rules for defining the `getUserFieldsFn` and `config
 ## UI Helpers
 
 :::tip Use Auth UI
-[Auth UI](/docs/auth/ui) is a common name for all high-level auth forms that come with Wasp.
+[Auth UI](../../auth/ui) is a common name for all high-level auth forms that come with Wasp.
 
 These include fully functional auto-generated login and signup forms with working social login buttons.
 If you're looking for the fastest way to get your auth up and running, that's where you should look.

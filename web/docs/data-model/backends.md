@@ -4,7 +4,7 @@ title: Databases
 
 import { Required } from '@site/src/components/Required'
 
-[Entities](/docs/data-model/entities.md), [Operations](/docs/data-model/operations/overview) and [Automatic CRUD](/docs/data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
+[Entities](../data-model/entities.md), [Operations](../data-model/operations/overview) and [Automatic CRUD](../data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
 ## Supported Database Backends
 
@@ -77,7 +77,7 @@ Also, make sure that:
 
 If you want to spin up your own dev database (or connect to an external one), you can tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string.
 
-The easiest way to set the necessary `DATABASE_URL` environment variable is by adding it to the [.env.server](/docs/project/env-vars) file in the root dir of your Wasp project (if that file doesn't yet exist, create it).
+The easiest way to set the necessary `DATABASE_URL` environment variable is by adding it to the [.env.server](../project/env-vars) file in the root dir of your Wasp project (if that file doesn't yet exist, create it).
 
 Alternatively, you can set it inline when running `wasp` (this applies to all environment variables):
 

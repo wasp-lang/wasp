@@ -131,4 +131,4 @@ The way you provide env vars to your Wasp project in production depends on where
 flyctl secrets set SOME_VAR_NAME=somevalue
 ```
 
-You can read a lot more details in the [deployment section](/docs/advanced/deployment/manually) of the docs. We go into detail on how to define env vars for each deployment option.
+You can read a lot more details in the [deployment section](../advanced/deployment/manually) of the docs. We go into detail on how to define env vars for each deployment option.

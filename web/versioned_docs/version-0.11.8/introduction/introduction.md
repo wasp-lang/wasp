@@ -6,7 +6,7 @@ slug: /
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 :::note
-If you are looking for the installation instructions, check out the [Quick Start](/docs/quick-start) section.
+If you are looking for the installation instructions, check out the [Quick Start](./quick-start.md) section.
 :::
 
 We will give a brief overview of what Wasp is, how it works on a high level and when to use it.
@@ -170,7 +170,7 @@ export function HomePage({ user }: { user: User }) {
 
 And voila! We are listing all the recipes in our app 🎉
 
-This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](/docs/tutorial/create).
+This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](../tutorial/01-create.md).
 
 :::note
 Above we skipped defining /login and /signup pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
