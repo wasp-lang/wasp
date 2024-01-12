@@ -45,8 +45,8 @@ Check [More Details](#more-details) section below if anything went wrong with th
 
 ### What next?
 
- - [ ] 👉 **Check out the [Todo App tutorial](/docs/tutorial/create), which will take you through all the core features of Wasp!** 👈
- - [ ] [Setup your editor](/docs/editor-setup) for working with Wasp.
+ - [ ] 👉 **Check out the [Todo App tutorial](../tutorial/01-create.md), which will take you through all the core features of Wasp!** 👈
+ - [ ] [Setup your editor](./editor-setup.md) for working with Wasp.
  - [ ] Join us on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
  - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp-lang.dev/#signup . We usually send 1 per month, and [Matija](https://github.com/matijaSos) does his best to unleash his creativity to make them engaging and fun to read :D!
 
@@ -110,14 +110,22 @@ Open your terminal and run:
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
+:::note Running Wasp on Mac with Mx chip (arm64)
+**Experiencing the 'Bad CPU type in executable' issue on a device with arm64 (Apple Silicon)?**
+Given that the wasp binary is built for x86 and not for arm64 (Apple Silicon), you'll need to install [Rosetta on your Mac](https://support.apple.com/en-us/HT211861) if you are using a Mac with Mx (M1, M2, ...). Rosetta is a translation process that enables users to run applications designed for x86 on arm64 (Apple Silicon). To install Rosetta, run the following command in your terminal
+```bash
+softwareupdate --install-rosetta
+```
+Once Rosetta is installed, you should be able to run Wasp without any issues.
+:::
+
   </TabItem>
 
   <TabItem value='win'>
 
 With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check it out [here](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 
-In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
-
+In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp-lang.dev/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
 :::caution
   If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
 :::

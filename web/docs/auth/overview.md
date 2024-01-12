@@ -5,7 +5,13 @@ title: Using Auth
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
 import { Required } from "@site/src/components/Required";
 
-Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box 🙃.
+Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box.
+
+Here's a 1-minute tour of how full-stack auth works in Wasp:
+
+<div className='video-container'>
+    <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of the `app` declaration.
 
@@ -72,11 +78,11 @@ Wasp supports the following auth methods:
 
 <AuthMethodsGrid />
 
-Let's say we enabled the [Username & password](/docs/auth/username-and-pass) authentication.
+Let's say we enabled the [Username & password](../auth/username-and-pass) authentication.
 
-We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](/docs/data-model/operations/overview) and we can decide what to do based on whether the user is logged in or not.
+We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](../data-model/operations/overview) and we can decide what to do based on whether the user is logged in or not.
 
-We would also get the [Auth UI](/docs/auth/ui) generated for us. We can set up our login and signup pages where our users can **create their account** and **login**. We can then protect certain pages by setting `authRequired: true` for them. This will make sure that only logged-in users can access them.
+We would also get the [Auth UI](../auth/ui) generated for us. We can set up our login and signup pages where our users can **create their account** and **login**. We can then protect certain pages by setting `authRequired: true` for them. This will make sure that only logged-in users can access them.
 
 We will also have access to the `user` object in our frontend code, so we can show different UI to logged-in and logged-out users. For example, we can show the user's name in the header alongside a **logout button** or a login button if the user is not logged in.
 
@@ -295,7 +301,7 @@ Since the `user` prop is only available in a page's React component: use the `us
 
 #### Using the `context.user` object
 
-When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
+When authentication is enabled, all [queries and actions](../data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -355,7 +361,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
 
-When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](/docs/advanced/web-sockets#websocketfn-function).
+When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](../advanced/web-sockets#websocketfn-function).
 
 ## User entity
 
@@ -415,7 +421,7 @@ Default validations depend on the auth method you use.
 
 #### Username & password
 
-If you use [Username & password](/docs/auth/username-and-pass) authentication, the default validations are:
+If you use [Username & password](../auth/username-and-pass) authentication, the default validations are:
 
 - The `username` must not be empty
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -424,7 +430,7 @@ Note that `username`s are stored in a **case-sensitive** manner.
 
 #### Email
 
-If you use [Email](/docs/auth/email) authentication, the default validations are:
+If you use [Email](../auth/email) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -663,7 +669,7 @@ Now that we defined the fields, Wasp knows how to:
 1. Validate the data sent from the client
 2. Save the data to the database
 
-Next, let's see how to customize [Auth UI](/docs/auth/ui) to include those fields.
+Next, let's see how to customize [Auth UI](../auth/ui) to include those fields.
 
 ### 2. Customizing the Signup Component
 
@@ -673,8 +679,8 @@ If you are not using Wasp's Auth UI, you can skip this section. Just make sure t
 
 Read more about using the signup actions for:
 
-- email auth [here](/docs/auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
-- username & password auth [here](/docs/auth/username-and-pass#customizing-the-auth-flow)
+- email auth [here](../auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
+- username & password auth [here](../auth/username-and-pass#customizing-the-auth-flow)
 :::
 
 If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
@@ -983,7 +989,7 @@ psl=}
 The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 :::
 
-See [Google docs](/docs/auth/social-auth/google) and [GitHub docs](/docs/auth/social-auth/github) for more details.
+See [Google docs](../auth/social-auth/google) and [GitHub docs](../auth/social-auth/github) for more details.
 
 #### `methods: dict` <Required />
 
@@ -994,7 +1000,7 @@ A dictionary of auth methods enabled for the app.
 #### `onAuthFailedRedirectTo: String` <Required />
 
 The route to which Wasp should redirect unauthenticated user when they try to access a private page (i.e., a page that has `authRequired: true`).
-Check out these [essentials docs on auth](/docs/tutorial/auth#adding-auth-to-the-project) to see an example of usage.
+Check out these [essentials docs on auth](../tutorial/auth#adding-auth-to-the-project) to see an example of usage.
 
 #### `onAuthSucceededRedirectTo: String`
 
@@ -1002,7 +1008,7 @@ The route to which Wasp will send a successfully authenticated after a successfu
 The default value is `"/"`.
 
 :::note
-Automatic redirect on successful login only works when using the Wasp-provided [Auth UI](/docs/auth/ui).
+Automatic redirect on successful login only works when using the Wasp-provided [Auth UI](../auth/ui).
 :::
 
 #### `signup: SignupOptions`

@@ -42,7 +42,7 @@ export type UpdateQuery<ActionInput, CachedData> = (item: ActionInput, oldData: 
 
 /**
  * A public query specifier used for addressing Wasp queries. See our docs for details:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * https://wasp-lang.dev/docs/data-model/operations/actions#the-useaction-hook-and-optimistic-updates
  */
 export type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]]
 
@@ -116,7 +116,7 @@ type InternalAction<Input, Output> = Action<Input, Output> & {
  * 
  * @param publicOptimisticUpdateDefinition An optimistic update definition
  * object that's a part of the public API:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * https://wasp-lang.dev/docs/data-model/operations/actions#the-useaction-hook-and-optimistic-updates
  * @returns An internally-used optimistic update definition object.
  */
 function translateToInternalDefinition<Item, CachedData>(
@@ -260,7 +260,7 @@ function getOptimisticUpdateDefinitionForSpecificItem<ActionInput, CachedData>(
  * Translates a Wasp query specifier to a query cache key used by React Query.
  * 
  * @param querySpecifier A query specifier that's a part of the public API:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * https://wasp-lang.dev/docs/data-model/operations/actions#the-useaction-hook-and-optimistic-updates
  * @returns A cache key React Query internally uses for addressing queries.
  */
 function getRqQueryKeyFromSpecifier(querySpecifier: QuerySpecifier<unknown, unknown>): QueryKey {

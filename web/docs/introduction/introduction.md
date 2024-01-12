@@ -3,10 +3,10 @@ title: Introduction
 slug: /
 ---
 
-import ImgWithCaption from '../../blog/components/ImgWithCaption'
+import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 :::note
-If you are looking for the installation instructions, check out the [Quick Start](/docs/quick-start) section.
+If you are looking for the installation instructions, check out the [Quick Start](./quick-start.md) section.
 :::
 
 We will give a brief overview of what Wasp is, how it works on a high level and when to use it.
@@ -42,13 +42,13 @@ Define your app in the Wasp config and get:
 - async processing jobs,
 - React Query powered data fetching,
 - security best practices,
-- and more. 
+- and more.
 
 You don't need to write any code for these features, Wasp will take care of it for you 🤯 And what's even better, Wasp also maintains the code for you, so you don't have to worry about keeping up with the latest security best practices. As Wasp updates, so does your app.
 
 ## So what does the code look like?
 
-Let's say you want to build a web app that allows users to **create and share their favorite recipes**. 
+Let's say you want to build a web app that allows users to **create and share their favorite recipes**.
 
 Let's start with the main.wasp file: it is the central file of your app, where you describe the app from the high level.
 
@@ -170,7 +170,7 @@ export function HomePage({ user }: { user: User }) {
 
 And voila! We are listing all the recipes in our app 🎉
 
-This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](/docs/tutorial/create).
+This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](../tutorial/01-create.md).
 
 :::note
 Above we skipped defining /login and /signup pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
