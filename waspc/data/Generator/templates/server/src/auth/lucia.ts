@@ -13,7 +13,17 @@ const prismaAdapter = new PrismaAdapter(
   prisma.{= authEntityLower =} as any
 );
 
-// TODO: figure out CSRF protection in Lucia - https://v3.lucia-auth.com/guides/validate-session-cookies/express/
+/**
+ * We are using Lucia for session management.
+ * 
+ * Some details:
+ * 1. We are using the Prisma adapter for Lucia.
+ * 2. We are not using cookies for session management. Instead, we are using
+ *    the Authorization header to send the session token.
+ * 3. Our `Session` entity is connected to the `Auth` entity.
+ * 4. We are exposing the `userId` field from the `Auth` entity to
+ *    make fetching the User easier.
+ */
 export const auth = new Lucia<{}, {
   userId: {= userEntityUpper =}['id']
 }>(prismaAdapter, {
