@@ -33,7 +33,7 @@ You **own** the user entity and you can modify it as you wish. You can add new f
 
 On the other hand, the `Auth` and `AuthIdentity` entities are created behind the scenes and are used to store the user's login credentials. You as the developer don't need to care about this entity most of the time. Wasp **owns** these entities.
 
-In the case you want to create custom login or signup actions, you will need to use the `Auth` and `AuthIdentity` entities directly.
+In the case you want to create a custom signup action, you will need to use the `Auth` and `AuthIdentity` entities directly.
 
 ### Example App Model
 Let's imagine we created a simple tasks management app:
@@ -154,9 +154,9 @@ export const createTask = async (args, context) => {
 
 ```tsx title="src/client/MainPage.tsx"
 import { getFirstProviderUserId } from '@wasp/auth/user'
-import { User } from '@wasp/auth/types'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   const userId = getFirstProviderUserId(user)
   // ...
 }
@@ -219,9 +219,9 @@ export const createTask = async (args, context) => {
 
 ```tsx title="src/client/MainPage.tsx"
 import { findUserIdentity } from '@wasp/auth/user'
-import { User } from '@wasp/auth/types'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   const emailIdentity = findUserIdentity(user, 'email')
   const googleIdentity = findUserIdentity(user, 'google')
   if (emailIdentity) {
@@ -251,14 +251,16 @@ export const createTask: CreateTask<...>  = async (args, context) => {
 </TabItem>
 </Tabs>
 
-## Custom Login and Signup Actions
+## Custom Signup Action
 
-Let's take a look how you can use the `Auth` and `AuthIdentity` entities to create custom login and signup actions. For example, you might want to create a custom signup action that creates a user in your app and also creates a user in a third-party service.
+Let's take a look at how you can use the `Auth` and `AuthIdentity` entities to create custom login and signup actions. For example, you might want to create a custom signup action that creates a user in your app and also creates a user in a third-party service.
 
-:::note Custom Login and Signup Examples
+:::info Custom Signup Examples
 
 In the [Email](/docs/auth/email#creating-a-custom-sign-up-action) section of the docs we give you an example for custom email signup and in the [Username & password](/docs/auth/username-and-pass#2-creating-your-custom-sign-up-action) section of the docs we give you an example for custom username & password signup.
 :::
+
+Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

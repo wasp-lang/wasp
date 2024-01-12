@@ -145,7 +145,31 @@ const LogoutButton = () => {
 
 ## Accessing the logged-in user
 
-You can get access to the `user` object both on the server and on the client. The `user` object contains the logged-in user's data. This includes all of the identities the user has connected to their account.
+You can get access to the `user` object both on the server and on the client. The `user` object contains the logged-in user's data.
+
+The `user` object has all the fields that you defined in your `User` entity, plus the `auth` field which contains the auth identities connected to the user. For example, if the user signed up with their email, the `user` object might look something like this:
+
+```js
+const user = {
+  id: "19c7d164-b5cb-4dde-a0cc-0daea77cf854",
+
+  // Your entity's fields.
+  address: "My address",
+  // ...
+
+  // Auth identities connected to the user.
+  auth: {
+    id: "26ab6f96-ed76-4ee5-9ac3-2fd0bf19711f",
+    identities: [
+      {
+        providerName: "email",
+        providerUserId: "some@email.com",
+        providerData: { ... },
+      },
+    ]
+  },
+}
+```
 
 <ReadMoreAboutAuthEntities />
 
@@ -201,11 +225,11 @@ page AccountPage {
 ```
 
 ```tsx title="client/pages/Account.tsx"
-import type { User } from '@wasp/auth/types'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 import Button from './Button'
 import logout from '@wasp/auth/logout'
 
-const AccountPage = ({ user }: { user: User }) => {
+const AccountPage = ({ user }: { user: AuthenticatedUser }) => {
   return (
     <div>
       <Button onClick={logout}>Logout</Button>

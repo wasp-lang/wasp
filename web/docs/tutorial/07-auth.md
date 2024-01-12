@@ -248,9 +248,9 @@ const MainPage = ({ user }) => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {3} title="src/client/MainPage.tsx"
-import { User } from '@wasp/auth/types'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   // Do something with the user
 }
 ```

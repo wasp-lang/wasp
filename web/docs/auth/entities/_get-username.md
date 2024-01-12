@@ -27,9 +27,9 @@ export const createTask = async (args, context) => {
 
 ```tsx title="src/client/MainPage.tsx"
 import { getUsername } from '@wasp/auth/user'
-import { User } from '@wasp/auth/types'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   const username = getUsername(user)
   // ...
 }
