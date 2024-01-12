@@ -69,7 +69,7 @@ Wasp provides several functions to help you write React tests:
   const { mockQuery, mockApi } = mockServer();
   ```
 
-  - `mockQuery`: Takes a Wasp [query](/docs/data-model/operations/queries) to mock and the JSON data it should return.
+  - `mockQuery`: Takes a Wasp [query](../data-model/operations/queries) to mock and the JSON data it should return.
 
     ```js
     import getTasks from "@wasp/queries/getTasks";
@@ -81,7 +81,7 @@ Wasp provides several functions to help you write React tests:
     - Behind the scenes, Wasp uses [`msw`](https://npmjs.com/package/msw) to create a server request handle that responds with the specified data.
     - Mock are cleared between each test.
 
-  - `mockApi`: Similar to `mockQuery`, but for [APIs](/docs/advanced/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
+  - `mockApi`: Similar to `mockQuery`, but for [APIs](../advanced/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
 
     ```js
     import { HttpMethod } from "@wasp/types";

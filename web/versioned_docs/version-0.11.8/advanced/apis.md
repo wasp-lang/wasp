@@ -5,7 +5,7 @@ title: Custom HTTP API Endpoints
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { Required } from '@site/src/components/Required'
 
-In Wasp, the default client-server interaction mechanism is through [Operations](/docs/data-model/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`. Best of all, they should look and feel very familiar.
+In Wasp, the default client-server interaction mechanism is through [Operations](../data-model/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`. Best of all, they should look and feel very familiar.
 
 ## How to Create an API
 
@@ -231,11 +231,11 @@ export const apiMiddleware: MiddlewareConfigFn = (config) => {
 
 We are returning the default middleware which enables CORS for all APIs under the `/foo` path.
 
-For more information about middleware configuration, please see: [Middleware Configuration](/docs/advanced/middleware-config)
+For more information about middleware configuration, please see: [Middleware Configuration](../advanced/middleware-config)
 
 ## Using Entities in APIs
 
-In many cases, resources used in APIs will be [Entities](/docs/data-model/entities.md).
+In many cases, resources used in APIs will be [Entities](../data-model/entities.md).
 To use an Entity in your API, add it to the `api` declaration in Wasp:
 
 <Tabs groupId="js-ts">
@@ -340,4 +340,4 @@ The `api` declaration has the following fields:
 
 - `middlewareConfigFn: ServerImport`
 
-  The import statement to an Express middleware config function for this API. See more in [middleware section](/docs/advanced/middleware-config) of the docs.
+  The import statement to an Express middleware config function for this API. See more in [middleware section](../advanced/middleware-config) of the docs.

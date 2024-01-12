@@ -105,11 +105,7 @@ module.exports = {
             {
               label: "Todo app tutorial",
               to: "docs/tutorial/create",
-            },
-            {
-              label: "Reference",
-              to: "docs/language/features",
-            },
+            }
           ],
         },
         {

@@ -5,7 +5,7 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 ## Overview
 
-Once [installed](/docs/quick-start), you can use the wasp command from your command line.
+Once [installed](../quick-start), you can use the wasp command from your command line.
 
 If you run the `wasp` command without any arguments, it will show you a list of available commands and their descriptions:
 
@@ -96,13 +96,13 @@ Newsletter: https://wasp-lang.dev/#signup
    Deleted .wasp/ directory.
    ```
 
- - `wasp build` generates the complete web app code, which is ready for [deployment](/docs/advanced/deployment/overview). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
+ - `wasp build` generates the complete web app code, which is ready for [deployment](../advanced/deployment/overview). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
 
  - `wasp deploy` makes it easy to get your app hosted on the web.
  
   Currently, Wasp offers support for [Fly.io](https://fly.io). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
   
-  Read more about automatic deployment [here](/docs/advanced/deployment/cli).
+  Read more about automatic deployment [here](../advanced/deployment/cli).
 
  - `wasp telemetry` displays the status of [telemetry](https://wasp-lang.dev/docs/telemetry).
 

@@ -159,7 +159,7 @@ psl=}
 </TabItem>
 </Tabs>
 
-`externalAuthEntity` and `userEntity` are explained in [the social auth overview](/docs/auth/social-auth/overview#social-login-entity).
+`externalAuthEntity` and `userEntity` are explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
 
 ### 3. Creating a GitHub OAuth App
 
@@ -231,7 +231,7 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 ### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](/docs/project/css-frameworks).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
 :::
 
 Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
@@ -295,7 +295,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 </TabItem>
 </Tabs>
 
-We imported the generated Auth UI component and used them in our pages. Read more about the Auth UI components [here](/docs/auth/ui).
+We imported the generated Auth UI component and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
 
 ### Conclusion
 
@@ -304,7 +304,7 @@ Yay, we've successfully set up Github Auth! 🎉
 ![Github Auth](/img/auth/github.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
-To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](/docs/auth/overview).
+To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).
 
 ## Default Behaviour
 

@@ -62,11 +62,11 @@ Let's see how you can define and work with Wasp Entities:
 1. Create/update some Entities in your `.wasp` file.
 2. Run `wasp db migrate-dev`. This command syncs the database model with the Entity definitions in your `.wasp` file. It does this by creating migration scripts.
 3. Migration scripts are automatically placed in the `migrations/` folder. Make sure to commit this folder into version control.
-4. Use Wasp's JavasScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](/docs/data-model/operations/overview)).
+4. Use Wasp's JavasScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](../data-model/operations/overview)).
 
 #### Using Entities in Operations
 
-Most of the time, you will be working with Entities within the context of [Operations (Queries & Actions)](/docs/data-model/operations/overview). We'll see how that's done on the next page.
+Most of the time, you will be working with Entities within the context of [Operations (Queries & Actions)](../data-model/operations/overview). We'll see how that's done on the next page.
 
 #### Using Entities directly
 

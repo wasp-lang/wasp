@@ -85,7 +85,7 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 
 ### Adding Tailwind Plugins
 
-To add Tailwind plugins, add it to [dependencies](/docs/project/dependencies) in your `main.wasp` file and to the plugins list in your `tailwind.config.cjs` file:
+To add Tailwind plugins, add it to [dependencies](../project/dependencies) in your `main.wasp` file and to the plugins list in your `tailwind.config.cjs` file:
 
 ```wasp title="./main.wasp" {4-5}
 app todoApp {

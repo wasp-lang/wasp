@@ -35,7 +35,7 @@ By _your code_, we mean the _"the code you write"_, as opposed to the code gener
 
 Many of the other files (`tsconfig.json`, `vite-env.d.ts`, etc.) are used by your IDE to improve your development experience with tools like autocompletion, intellisense, and error reporting.
 The file `vite.config.ts` is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
-We won't be configuring Vite in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](/docs/project/custom-vite-config.md).
+We won't be configuring Vite in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
 
 :::note TypeScript Support
 Wasp supports TypeScript out of the box, but you are free to choose between or mix JavaScript and TypeScript as you see fit.

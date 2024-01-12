@@ -34,7 +34,7 @@ wasp build
 
 :::caution PostgreSQL in production
 You won't be able to build the app if you are using SQLite as a database (which is the default database).
-You'll have to [switch to PostgreSQL](/docs/data-model/backends#migrating-from-sqlite-to-postgresql) before deploying to production.
+You'll have to [switch to PostgreSQL](../../data-model/backends#migrating-from-sqlite-to-postgresql) before deploying to production.
 :::
 
 ### 2. Deploying the API Server (backend)
@@ -92,7 +92,7 @@ We'll cover a few different deployment providers below:
 ## Fly.io
 
 :::tip We automated this process for you
-If you want to do all of the work below with one command, you can use the [Wasp CLI](/docs/advanced/deployment/cli#flyio).
+If you want to do all of the work below with one command, you can use the [Wasp CLI](../../advanced/deployment/cli#flyio).
 
 Wasp CLI deploys the server, deploys the client, and sets up a database.
 It also gives you a way to redeploy (update) your app with a single command.
@@ -547,7 +547,7 @@ heroku logs --tail --app <app-name>
 
 :::note Using `pg-boss` with Heroku
 
-If you wish to deploy an app leveraging [Jobs](/docs/advanced/jobs) that use `pg-boss` as the executor to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
+If you wish to deploy an app leveraging [Jobs](../../advanced/jobs) that use `pg-boss` as the executor to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
 
 Read more: https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 :::

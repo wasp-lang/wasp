@@ -21,7 +21,7 @@ psl=}
 :::note
 Wasp uses [Prisma](https://www.prisma.io) as a way to talk to the database. You define entities by defining [Prisma models](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model/) using the Prisma Schema Language (PSL) between the `{=psl psl=}` tags.
 
-Read more in the [Entities](/docs/data-model/entities) section of the docs.
+Read more in the [Entities](../data-model/entities) section of the docs.
 :::
 
 To update the database schema to include this entity, stop the `wasp start` process, if its running, and run:
