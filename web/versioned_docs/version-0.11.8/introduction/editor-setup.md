@@ -4,7 +4,7 @@ slug: /editor-setup
 ---
 
 :::note
-This page assumes you have already installed Wasp. If you do not have Wasp installed yet, check out the [Quick Start](quick-start) guide.
+This page assumes you have already installed Wasp. If you do not have Wasp installed yet, check out the [Quick Start](./quick-start.md) guide.
 :::
 
 Wasp comes with the Wasp language server, which gives supported editors powerful support and integration with the language. 
