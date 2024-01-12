@@ -10,40 +10,41 @@ const api = axios.create({
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
-let appSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
+let waspAppAuthSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
 
 export function setSessionId(sessionId: string): void {
-  appSessionId = sessionId
+  waspAppAuthSessionId = sessionId
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
-  apiEventsEmitter.emit('appSessionId.set')
+  apiEventsEmitter.emit('sessionId.set')
 }
 
 export function getSessionId(): string | undefined {
-  return appSessionId
+  return waspAppAuthSessionId
 }
 
-export function clearAuthToken(): void {
-  appSessionId = undefined
+export function clearSessionId(): void {
+  waspAppAuthSessionId = undefined
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
-  apiEventsEmitter.emit('appSessionId.clear')
+  apiEventsEmitter.emit('sessionId.clear')
 }
 
 export function removeLocalUserData(): void {
-  appSessionId = undefined
+  waspAppAuthSessionId = undefined
   storage.clear()
-  apiEventsEmitter.emit('appSessionId.clear')
+  apiEventsEmitter.emit('sessionId.clear')
 }
 
 api.interceptors.request.use((request) => {
-  if (appSessionId) {
-    request.headers['Authorization'] = `Bearer ${appSessionId}`
+  const sessionId = getSessionId()
+  if (sessionId) {
+    request.headers['Authorization'] = `Bearer ${sessionId}`
   }
   return request
 })
 
 api.interceptors.response.use(undefined, (error) => {
   if (error.response?.status === 401) {
-    clearAuthToken()
+    clearSessionId()
   }
   return Promise.reject(error)
 })
@@ -56,11 +57,11 @@ api.interceptors.response.use(undefined, (error) => {
 window.addEventListener('storage', (event) => {
   if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
     if (!!event.newValue) {
-      appSessionId = event.newValue
-      apiEventsEmitter.emit('appSessionId.set')
+      waspAppAuthSessionId = event.newValue
+      apiEventsEmitter.emit('sessionId.set')
     } else {
-      appSessionId = undefined
-      apiEventsEmitter.emit('appSessionId.clear')
+      waspAppAuthSessionId = undefined
+      apiEventsEmitter.emit('sessionId.clear')
     }
   }
 })

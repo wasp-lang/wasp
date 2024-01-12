@@ -4,6 +4,7 @@ import { type User } from "../entities/index.js"
 import { type SanitizedUser } from '../_types/index.js'
 
 import { auth } from "./lucia.js";
+import type { Session } from "lucia";
 import {
   throwInvalidCredentialsError,
   deserializeAndSanitizeProviderData,
@@ -11,13 +12,15 @@ import {
 
 import prisma from '../dbClient.js';
 
-// Lucia's Session is tied to the Auth model,
-// so we keep the Auth ID in the session.
-export async function createSession(authId: string) {
+// Creates a new session for the `authId` in the database
+export async function createSession(authId: string): Promise<Session> {
   return auth.createSession(authId, {});
 }
 
-export function getSessionAndUserFromBearerToken(req: ExpressRequest) {
+export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<{
+  user: SanitizedUser | null,
+  session: Session | null,
+}> {
   const authorizationHeader = req.headers["authorization"];
 
   if (typeof authorizationHeader !== "string") {
@@ -27,7 +30,7 @@ export function getSessionAndUserFromBearerToken(req: ExpressRequest) {
     };
   }
 
-  const sessionId = auth.readBearerToken(authorizationHeader ?? "");
+  const sessionId = auth.readBearerToken(authorizationHeader);
   if (!sessionId) {
     return {
       user: null,
@@ -38,7 +41,10 @@ export function getSessionAndUserFromBearerToken(req: ExpressRequest) {
   return getSessionAndUserFromSessionId(sessionId);
 }
 
-export async function getSessionAndUserFromSessionId(sessionId: string) {
+export async function getSessionAndUserFromSessionId(sessionId: string): Promise<{
+  user: SanitizedUser | null,
+  session: Session | null,
+}> {
   const { session, user: authEntity } = await auth.validateSession(sessionId);
 
   if (!session || !authEntity) {
@@ -96,6 +102,6 @@ async function getUser(userId: User['id']): Promise<SanitizedUser> {
   }
 }
 
-export function invalidateSession(sessionId: string) {
+export function invalidateSession(sessionId: string): Promise<void> {
   return auth.invalidateSession(sessionId);
 }
