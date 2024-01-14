@@ -177,11 +177,11 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
   Nothing -> []
   Just auth ->
-    if not $ Auth.isEmailAuthEnabled auth
-      then []
-      else case App.emailSender app of
-        Nothing -> [GenericValidationError "app.emailSender must be specified when using email auth."]
+    if AS.isBuild spec && Auth.isEmailAuthEnabled auth
+      then case App.emailSender app of
+        Nothing -> [GenericValidationError "app.emailSender must be specified when using email auth in production."]
         Just _ -> []
+      else []
   where
     app = snd $ getApp spec
 

@@ -2,8 +2,6 @@
 title: Sending Emails
 ---
 
-import SendingEmailsInDevelopment from '../\_sendingEmailsInDevelopment.md'
-
 import { Required } from '@site/src/components/Required'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
@@ -55,8 +53,6 @@ Choose from one of the providers:
 Optionally, define the `defaultFrom` field, so you don't need to provide it whenever sending an email.
 
 ## Sending Emails
-
-<SendingEmailsInDevelopment />
 
 Before jumping into details about setting up various providers, let's see how easy it is to send emails.
 

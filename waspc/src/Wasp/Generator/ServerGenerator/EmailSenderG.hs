@@ -1,11 +1,13 @@
 module Wasp.Generator.ServerGenerator.EmailSenderG where
 
+import Control.Applicative ((<|>))
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe, isJust, maybeToList)
 import qualified Data.Text
 import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -26,7 +28,12 @@ genEmailSender spec = case maybeEmailSender of
       <++> genCore emailSender
   Nothing -> return []
   where
-    maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
+    maybeEmailSender = AS.App.emailSender (snd $ getApp spec) <|> maybeDummyEmailSender
+    maybeDummyEmailSender =
+      if isDevelopment
+        then Just AS.EmailSender.defaultDummyEmailSender
+        else Nothing
+    isDevelopment = not $ AS.isBuild spec
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
@@ -39,8 +46,7 @@ genCore email =
   sequence
     [ genCoreIndex email,
       genCoreTypes email,
-      genCoreHelpers email,
-      genFileCopy [relfile|email/core/providers/dummy.ts|]
+      genCoreHelpers email
     ]
     <++> genEmailSenderProviderSetupFn email
 
@@ -94,7 +100,7 @@ depsRequiredByEmail spec = maybeToList maybeNpmDepedency
   where
     maybeProvider :: Maybe Providers.EmailSenderProvider
     maybeProvider = getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
-    maybeNpmDepedency = Providers.npmDependency <$> maybeProvider
+    maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
 
 getEmailProvidersJson :: EmailSender -> Aeson.Value
 getEmailProvidersJson email =
@@ -109,6 +115,7 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SMTP -> Providers.smtp
   AS.EmailSender.SendGrid -> Providers.sendGrid
   AS.EmailSender.Mailgun -> Providers.mailgun
+  AS.EmailSender.Dummy -> Providers.dummy
 
 genFileCopy :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
 genFileCopy = return . C.mkSrcTmplFd

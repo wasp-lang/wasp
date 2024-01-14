@@ -4,6 +4,7 @@ module Wasp.AppSpec.App.EmailSender
   ( EmailSender (..),
     EmailProvider (..),
     EmailFromField (..),
+    defaultDummyEmailSender,
   )
 where
 
@@ -15,7 +16,7 @@ data EmailSender = EmailSender
   }
   deriving (Show, Eq, Data)
 
-data EmailProvider = SMTP | SendGrid | Mailgun
+data EmailProvider = SMTP | SendGrid | Mailgun | Dummy
   deriving (Eq, Data, Show)
 
 data EmailFromField = EmailFromField
@@ -23,3 +24,15 @@ data EmailFromField = EmailFromField
     email :: String
   }
   deriving (Show, Eq, Data)
+
+defaultDummyEmailSender :: EmailSender
+defaultDummyEmailSender =
+  EmailSender
+    { provider = Dummy,
+      defaultFrom =
+        Just
+          EmailFromField
+            { email = "dummy@wasp-lang.dev",
+              name = Just "Wasp Dummy Email Sender"
+            }
+    }

@@ -2,6 +2,7 @@ module Wasp.Generator.ServerGenerator.EmailSender.Providers
   ( smtp,
     sendGrid,
     mailgun,
+    dummy,
     providersDirInServerSrc,
     EmailSenderProvider (..),
   )
@@ -13,7 +14,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
-  { npmDependency :: AS.Dependency.Dependency,
+  { npmDependency :: Maybe AS.Dependency.Dependency,
     setupFnFile :: Path' (Rel ProvidersDir) File',
     -- We have to use explicit boolean keys in templates (e.g. "isSMTPProviderEnabled") so each
     -- provider provides its own key which we pass to the template.
@@ -26,7 +27,7 @@ data ProvidersDir
 smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
-    { npmDependency = nodeMailerDependency,
+    { npmDependency = Just nodeMailerDependency,
       setupFnFile = [relfile|smtp.ts|],
       isEnabledKey = "isSmtpProviderUsed"
     }
@@ -40,7 +41,7 @@ smtp =
 sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
-    { npmDependency = sendGridDependency,
+    { npmDependency = Just sendGridDependency,
       setupFnFile = [relfile|sendgrid.ts|],
       isEnabledKey = "isSendGridProviderUsed"
     }
@@ -54,7 +55,7 @@ sendGrid =
 mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
-    { npmDependency = mailgunDependency,
+    { npmDependency = Just mailgunDependency,
       setupFnFile = [relfile|mailgun.ts|],
       isEnabledKey = "isMailgunProviderUsed"
     }
@@ -64,6 +65,14 @@ mailgun =
 
     mailgunDependency :: AS.Dependency.Dependency
     mailgunDependency = AS.Dependency.make ("ts-mailgun", show mailgunVersionRange)
+
+dummy :: EmailSenderProvider
+dummy =
+  EmailSenderProvider
+    { npmDependency = Nothing,
+      setupFnFile = [relfile|dummy.ts|],
+      isEnabledKey = "isDummyProviderUsed"
+    }
 
 providersDirInServerSrc :: Path' (Rel C.ServerTemplatesSrcDir) (Dir ProvidersDir)
 providersDirInServerSrc = [reldir|email/core/providers|]
