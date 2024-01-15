@@ -8,7 +8,6 @@ app myApp {
 
 // Defining entities
 entity User { ... }
-entity SocialLogin { ... }
 
 // Defining routes and pages
 route LoginRoute { ... }
