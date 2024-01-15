@@ -158,7 +158,7 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 ### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](/docs/project/css-frameworks).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
 :::
 
 Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
@@ -256,13 +256,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 </TabItem>
 </Tabs>
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](/docs/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../auth/ui).
 
 ### Conclusion
 
 That's it! We have set up username authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [auth overview docs](/docs/auth/overview).
+Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [auth overview docs](../auth/overview).
 
 <MultipleIdentitiesWarning />
 
@@ -270,7 +270,7 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 
-Read more about the default username and password validation rules in the [auth overview docs](/docs/auth/overview#default-validations).
+Read more about the default username and password validation rules in the [auth overview docs](../auth/overview#default-validations).
 
 If you require more control in your authentication flow, you can achieve that in the following ways:
 1. Create your UI and use `signup` and `login` actions.
@@ -378,7 +378,7 @@ It takes one argument:
   - `password: string` <Required />
 
   :::info
-  By default, Wasp will only save the `username` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](/docs/auth/overview#customizing-the-signup-process).
+  By default, Wasp will only save the `username` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../auth/overview#customizing-the-signup-process).
   :::
 
 You can use it like this:
@@ -601,7 +601,7 @@ We suggest using the built-in field validators for your authentication flow. You
 
 - `ensureValidUsername(args)`
 
-  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](/docs/auth/overview#default-validations).
+  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
 
 #### Password
 
@@ -611,11 +611,11 @@ We suggest using the built-in field validators for your authentication flow. You
 
 - `ensureValidPassword(args)`
 
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](/docs/auth/overview#default-validations).
+  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
 
 ## Using Auth 
 
-To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](/docs/auth/overview).
+To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../auth/overview).
 
 ### `getUsername`
 
@@ -723,4 +723,4 @@ app myApp {
 `usernameAndPassword` dict doesn't have any options at the moment.
 :::
 
-You can read about the rest of the `auth` options in the [auth overview](/docs/auth/overview) section of the docs.
+You can read about the rest of the `auth` options in the [auth overview](../auth/overview) section of the docs.

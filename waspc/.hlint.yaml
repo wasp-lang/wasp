@@ -12,3 +12,4 @@
 - ignore: {name: Use $>} # I find it makes code harder to read if enforced.
 - ignore: {name: Use list comprehension} # We can decide this on our own.
 - ignore: {name: Use ++} # I sometimes prefer concat over ++ due to the nicer formatting / extensibility.
+- ignore: {name: Redundant lambda} # Sometimes it is nicer to create explicit lambda then function.

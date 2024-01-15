@@ -4,13 +4,13 @@ title: Automatic CRUD
 
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import ImgWithCaption from '../../blog/components/ImgWithCaption'
+import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 If you have a lot of experience writing full-stack apps, you probably ended up doing some of the same things many times: listing data, adding data, editing it, and deleting it.
 
 Wasp makes handling these boring bits easy by offering a higher-level concept called Automatic CRUD.
 
-With a single declaration, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](/docs/data-model/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
+With a single declaration, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](../data-model/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
 
 :::caution Early preview
 This feature is currently in early preview and we are actively working on it. Read more about [our plans](#future-of-crud-operations-in-wasp) for CRUD operations.
@@ -62,7 +62,7 @@ Keep reading for an example of Automatic CRUD in action, or skip ahead for the [
 
 ## Example: A Simple TODO App
 
-Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](/docs/auth/username-and-pass) based auth.
+Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](../auth/username-and-pass) based auth.
 
 <ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud-guide.gif" caption="We are building a simple tasks app with username based auth"/>
 
@@ -326,7 +326,7 @@ export const MainPage = () => {
 </TabItem>
 </Tabs>
 
-And here are the login and signup pages, where we are using Wasp's [Auth UI](/docs/auth/ui) components:
+And here are the login and signup pages, where we are using Wasp's [Auth UI](../auth/ui) components:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -690,7 +690,7 @@ export const getAllOverride: GetAllQuery<Input, Output> = async (
 
 </ShowForTs>
 
-For a usage example, check the [example guide](/docs/data-model/crud#adding-crud-to-the-task-entity-).
+For a usage example, check the [example guide](../data-model/crud#adding-crud-to-the-task-entity-).
 
 #### Using the CRUD operations in client code
 
@@ -740,7 +740,7 @@ const deleteAction = Tasks.delete.useAction()
 </TabItem>
 </Tabs>
 
-All CRUD operations are implemented with [Queries and Actions](/docs/data-model/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
+All CRUD operations are implemented with [Queries and Actions](../data-model/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
 
 ---
 

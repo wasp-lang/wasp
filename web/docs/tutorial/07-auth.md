@@ -31,7 +31,7 @@ psl=}
 
 ## Adding Auth to the Project
 
-Next, we want to tell Wasp that we want to use full-stack [authentication](/docs/auth/overview) in our app:
+Next, we want to tell Wasp that we want to use full-stack [authentication](../auth/overview) in our app:
 
 ```wasp {7-16} title="main.wasp"
 app TodoApp {
@@ -63,13 +63,13 @@ wasp db migrate-dev
 
 By doing this, Wasp will create:
 
-- [Auth UI](/docs/auth/ui) with login and signup forms.
+- [Auth UI](../auth/ui) with login and signup forms.
 - A `logout()` action.
 - A React hook `useAuth()`.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](/docs/auth/social-auth/google), [GitHub](/docs/auth/social-auth/github), and [email](/docs/auth/email), with more on the way!
+Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
 :::
 
 ## Adding Login and Signup Pages
@@ -214,7 +214,7 @@ export default SignupPage
 <ShowForTs>
 
 :::tip Type-safe links
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](/docs/advanced/links) for more details.
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](../advanced/links) for more details.
 :::
 </ShowForTs>
 
@@ -521,8 +521,8 @@ You should be ready to learn about more complicated features and go more in-dept
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](/docs/project/starter-templates)
-- Make a real-time app with [Web Sockets](/docs/advanced/web-sockets)
+- Get a jump start on your next project with [Starter Templates](../project/starter-templates)
+- Make a real-time app with [Web Sockets](../advanced/web-sockets)
 
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏

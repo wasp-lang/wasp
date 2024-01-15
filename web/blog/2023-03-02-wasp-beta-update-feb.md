@@ -60,7 +60,7 @@ This is one of the features we are most excited about! Now, when you define an e
 
 This feature beautifully showcases the power of the Wasp language approach and how much it can cut down on the boilerplate. And we're just getting started!
 
-For more details, [check out our docs on reusing entity types on both a client and a server](/docs/typescript#entity-types).
+For more details, [check out our entity docs](/docs/data-model/entities).
 
 ## 🗓 We set a date for the next launch - April 11th! 🚀
 
