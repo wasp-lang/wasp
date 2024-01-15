@@ -70,7 +70,7 @@ entity User {=psl
 psl=}
 ```
 
-You can read more about the new auth system in the [Auth Entities](/docs/auth/entities) section.
+You can read more about the new auth system in the [Auth Entities](./entities) section.
 
 ## How to Migrate?
 
@@ -121,7 +121,7 @@ If you have an existing app with authentication set up, you can follow these ste
   wasp db seed
   ```
 1. Verify still works as expected
-1. Migrate to using the new auth helper functions for getting the `email` or `username` of the currently logged in user. Read more about the helpers in the [Auth Entities](/docs/auth/entities#accessing-the-auth-fields) section.
+1. Migrate to using the new auth helper functions for getting the `email` or `username` of the currently logged in user. Read more about the helpers in the [Auth Entities](./entities#accessing-the-auth-fields) section.
 
 ### 2. Cleanup the Old Auth System
 
