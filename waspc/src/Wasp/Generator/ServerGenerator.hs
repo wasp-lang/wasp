@@ -54,7 +54,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
-import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.AuthG (depsRequiredByAuth, genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
@@ -178,6 +178,7 @@ npmDepsForWasp spec =
             ("rate-limiter-flexible", "^2.4.1"),
             ("superjson", "^1.12.2")
           ]
+          ++ depsRequiredByAuth spec
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEmail spec
@@ -225,7 +226,8 @@ genSrcDir spec =
       genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genFileCopy [relfile|polyfill.ts|]
     ]
     <++> genServerUtils spec
     <++> genRoutesDir spec

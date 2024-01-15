@@ -1,4 +1,4 @@
-Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username rather instead of getting a randomly generated one.
+By default, Wasp doesn't store any information it receives from the social login provider. It only stores the user's ID specific to the provider.
 
 There are two mechanisms (functions) used for overriding the default behavior:
 

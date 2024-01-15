@@ -36,6 +36,7 @@ waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.ts
 waspJob/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspJob/.wasp/out/server/src/middleware/index.ts
 waspJob/.wasp/out/server/src/middleware/operations.ts
+waspJob/.wasp/out/server/src/polyfill.ts
 waspJob/.wasp/out/server/src/queries/types.ts
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js

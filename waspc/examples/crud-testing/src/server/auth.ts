@@ -11,7 +11,6 @@ import { sanitizeAndSerializeProviderData } from '@wasp/auth/utils.js'
 
 export const fields = defineAdditionalSignupFields({
   address: (data) => {
-    console.log('Received data:', data)
     const AddressSchema = z
       .string({
         required_error: 'Address is required',

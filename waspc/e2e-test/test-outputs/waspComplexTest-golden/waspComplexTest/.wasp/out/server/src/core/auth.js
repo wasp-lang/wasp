@@ -1,23 +1,22 @@
-import jwt from 'jsonwebtoken'
-import SecurePassword from 'secure-password'
-import util from 'util'
 import { randomInt } from 'node:crypto'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
-import HttpError from '../core/HttpError.js'
-import config from '../config.js'
-import { deserializeAndSanitizeProviderData } from '../auth/utils.js'
+import { getSessionAndUserFromBearerToken } from '../auth/session.js'
+import { throwInvalidCredentialsError } from '../auth/utils.js'
 
-const jwtSign = util.promisify(jwt.sign)
-const jwtVerify = util.promisify(jwt.verify)
-
-const JWT_SECRET = config.auth.jwtSecret
-
-export const signData = (data, options) => jwtSign(data, JWT_SECRET, options)
-export const sign = (id, options) => signData({ id }, options)
-export const verify = (token) => jwtVerify(token, JWT_SECRET)
-
+/**
+ * Auth middleware
+ * 
+ * If the request includes an `Authorization` header it will try to authenticate the request,
+ * otherwise it will let the request through.
+ * 
+ * - If authentication succeeds it sets `req.sessionId` and `req.user`
+ *   - `req.user` is the user that made the request and it's used in
+ *      all Wasp features that need to know the user that made the request.
+ *   - `req.sessionId` is the ID of the session that authenticated the request.
+ * - If the request is not authenticated, it throws an error.
+ */
 const auth = handleRejection(async (req, res, next) => {
   const authHeader = req.get('Authorization')
   if (!authHeader) {
@@ -27,68 +26,17 @@ const auth = handleRejection(async (req, res, next) => {
     return next()
   }
 
-  if (authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7, authHeader.length)
-    req.user = await getUserFromToken(token)
-  } else {
+  const { session, user } = await getSessionAndUserFromBearerToken(req);
+
+  if (!session || !user) {
     throwInvalidCredentialsError()
   }
+
+  req.sessionId = session.id
+  req.user = user
 
   next()
 })
-
-export async function getUserFromToken(token) {
-  let userIdFromToken
-  try {
-    userIdFromToken = (await verify(token)).id
-  } catch (error) {
-    if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
-      throwInvalidCredentialsError()
-    } else {
-      throw error
-    }
-  }
-
-  const user = await prisma.user
-    .findUnique({
-      where: { id: userIdFromToken },
-      include: {
-        auth: {
-          include: {
-            identities: true
-          }
-        }
-      }
-    })
-  if (!user) {
-    throwInvalidCredentialsError()
-  }
-
-  // TODO: This logic must match the type in types/index.ts (if we remove the
-  // password field from the object here, we must to do the same there).
-  // Ideally, these two things would live in the same place:
-  // https://github.com/wasp-lang/wasp/issues/965
-  let sanitizedUser = { ...user }
-  sanitizedUser.auth.identities = sanitizedUser.auth.identities.map(identity => {
-    identity.providerData = deserializeAndSanitizeProviderData(identity.providerData, { shouldRemovePasswordField: true })
-    return identity
-  });
-  return sanitizedUser
-}
-
-const SP = new SecurePassword()
-
-export const hashPassword = async (password) => {
-  const hashedPwdBuffer = await SP.hash(Buffer.from(password))
-  return hashedPwdBuffer.toString("base64")
-}
-
-export const verifyPassword = async (hashedPassword, password) => {
-  const result = await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
-  if (result !== SecurePassword.VALID) {
-    throw new Error('Invalid password.')
-  }
-}
 
 // Generates an unused username that looks similar to "quick-purple-sheep-91231". 
 // It generates several options and ensures it picks one that is not currently in use.
@@ -136,10 +84,6 @@ async function findAvailableUsername(potentialUsernames) {
   }
 
   return availableUsernames[0]
-}
-
-export function throwInvalidCredentialsError(message) {
-  throw new HttpError(401, 'Invalid credentials', { message })
 }
 
 export default auth

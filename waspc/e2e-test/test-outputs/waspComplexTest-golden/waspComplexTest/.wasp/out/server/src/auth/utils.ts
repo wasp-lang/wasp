@@ -1,4 +1,5 @@
-import { hashPassword, sign, verify } from '../core/auth.js'
+import { hashPassword } from './password.js'
+import { verify } from './jwt.js'
 import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
@@ -128,7 +129,9 @@ export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
   userFields?: PossibleAdditionalSignupFields,
-): Promise<User> {
+): Promise<User & {
+  auth: Auth
+}> {
   return prisma.user.create({
     data: {
       // Using any here to prevent type errors when userFields are not
@@ -145,7 +148,12 @@ export async function createUser(
           },
         }
       },
-    }
+    },
+    // We need to include the Auth entity here because we need `authId`
+    // to be able to create a session.
+    include: {
+      auth: true,
+    },
   })
 }
 
@@ -153,12 +161,6 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
   return prisma.user.deleteMany({ where: { auth: {
     id: authId,
   } } })
-}
-
-export async function createAuthToken(
-  userId: User['id']
-): Promise<string> {
-  return sign(userId);
 }
 
 export async function verifyToken<T = unknown>(token: string): Promise<T> {
@@ -287,4 +289,8 @@ function providerDataHasPasswordField(
   providerData: PossibleProviderData[keyof PossibleProviderData],
 ): providerData is { hashedPassword: string } {
   return 'hashedPassword' in providerData;
+}
+
+export function throwInvalidCredentialsError(message?: string): void {
+  throw new HttpError(401, 'Invalid credentials', { message })
 }

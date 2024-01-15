@@ -372,6 +372,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - If you modified ChangeLog.md or waspc.cabal, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).
 - Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
+- Take a versioned "snapshot" of the current docs by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the README in the `web` dir for more details. Commit this change to `main`.
 - Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
 - Make sure you are on `release` and then run `./new-release 0.x.y.z`.
   - This will do some checks, tag it with new release version, and push it.

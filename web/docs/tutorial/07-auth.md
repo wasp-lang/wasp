@@ -19,27 +19,19 @@ First, we'll create a Todo list for what needs to be done (luckily we have an ap
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it expects certain fields to exist on the `User` entity. Specifically, it expects a unique `username` field and a `password` field, both of which should be strings.
+Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for us in the background, that we don't have to worry about. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
 
 ```wasp title="main.wasp"
 // ...
 
 entity User {=psl
     id       Int    @id @default(autoincrement())
-    username String @unique
-    password String
 psl=}
-```
-
-As we talked about earlier, we have to remember to update the database schema:
-
-```sh
-wasp db migrate-dev
 ```
 
 ## Adding Auth to the Project
 
-Next, we want to tell Wasp that we want to use full-stack [authentication](/docs/auth/overview) in our app:
+Next, we want to tell Wasp that we want to use full-stack [authentication](../auth/overview) in our app:
 
 ```wasp {7-16} title="main.wasp"
 app TodoApp {
@@ -63,15 +55,21 @@ app TodoApp {
 // ...
 ```
 
+As we talked about earlier, we have to remember to update the database schema:
+
+```sh
+wasp db migrate-dev
+```
+
 By doing this, Wasp will create:
 
-- [Auth UI](/docs/auth/ui) with login and signup forms.
+- [Auth UI](../auth/ui) with login and signup forms.
 - A `logout()` action.
 - A React hook `useAuth()`.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](/docs/auth/social-auth/google), [GitHub](/docs/auth/social-auth/github), and [email](/docs/auth/email), with more on the way!
+Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
 :::
 
 ## Adding Login and Signup Pages
@@ -216,7 +214,7 @@ export default SignupPage
 <ShowForTs>
 
 :::tip Type-safe links
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](/docs/advanced/links) for more details.
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](../advanced/links) for more details.
 :::
 </ShowForTs>
 
@@ -250,9 +248,9 @@ const MainPage = ({ user }) => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {3} title="src/client/MainPage.tsx"
-import { User } from '@wasp/entities'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   // Do something with the user
 }
 ```
@@ -271,25 +269,31 @@ wasp db studio
 ```
 
 <img alt="Database demonstration - password hashing"
-src={useBaseUrl('img/wasp_db_hash_demonstration.gif')}
+src={useBaseUrl('img/wasp_user_in_db.gif')}
 style={{ border: "1px solid black" }}
 />
 
-We see there is a user and that its password is already hashed 🤯
+
+You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
+
+<small>
+
+You might notice some extra Prisma models like `Auth` and `AuthIdentity` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+
+</small>
 
 ## Defining a User-Task Relation
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp {7,14-15} title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 entity User {=psl
     id       Int     @id @default(autoincrement())
-    username String  @unique
-    password String
+    // highlight-next-line
     tasks    Task[]
 psl=}
 
@@ -297,7 +301,9 @@ entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
+    // highlight-next-line
     user        User?    @relation(fields: [userId], references: [id])
+    // highlight-next-line
     userId      Int?
 psl=}
 
@@ -515,8 +521,8 @@ You should be ready to learn about more complicated features and go more in-dept
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](/docs/project/starter-templates)
-- Make a real-time app with [Web Sockets](/docs/advanced/web-sockets)
+- Get a jump start on your next project with [Starter Templates](../project/starter-templates)
+- Make a real-time app with [Web Sockets](../advanced/web-sockets)
 
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
