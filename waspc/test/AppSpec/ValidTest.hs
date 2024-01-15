@@ -99,14 +99,13 @@ spec_AppSpecValid = do
                 AS.Auth.externalAuthEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
-                    { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,
+                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.getUserFieldsFn = Nothing},
                       AS.Auth.google = Nothing,
                       AS.Auth.gitHub = Nothing,
                       AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
-                AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                AS.Auth.signup = Nothing
+                AS.Auth.onAuthSucceededRedirectTo = Nothing
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -149,8 +148,7 @@ spec_AppSpecValid = do
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                                    AS.Auth.signup = Nothing
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
                                   },
                             AS.App.emailSender =
                               Just
@@ -166,7 +164,8 @@ spec_AppSpecValid = do
                 }
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
-                { AS.Auth.fromField =
+                { AS.Auth.getUserFieldsFn = Nothing,
+                  AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",
                         AS.EmailSender.name = Nothing
@@ -188,11 +187,40 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
 
         it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec
+            ( makeSpec
+                ( AS.Auth.AuthMethods
+                    { usernameAndPassword =
+                        Just
+                          AS.Auth.UsernameAndPasswordConfig
+                            { AS.Auth.getUserFieldsFn = Nothing
+                            },
+                      google = Nothing,
+                      gitHub = Nothing,
+                      email = Nothing
+                    }
+                )
+                validUserEntity
+            )
+            `shouldBe` []
           ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
 
         it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity)
+          ASV.validateAppSpec
+            ( makeSpec
+                ( AS.Auth.AuthMethods
+                    { usernameAndPassword =
+                        Just
+                          AS.Auth.UsernameAndPasswordConfig
+                            { AS.Auth.getUserFieldsFn = Nothing
+                            },
+                      google = Nothing,
+                      gitHub = Nothing,
+                      email = Just emailAuthConfig
+                    }
+                )
+                validUserEntity
+            )
             `shouldContain` [ASV.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
