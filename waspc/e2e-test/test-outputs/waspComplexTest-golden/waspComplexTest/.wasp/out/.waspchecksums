@@ -18,7 +18,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "3e6bfc3dadfc9399a3fae3ea77cadb1aa3259efa0b8362ed77d6d5ee5013d393"
+        "5a41561cd6f853da2f4b9f64267f5d4e3b2865f94dfa92d9143acf2c1485519c"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "53aef3360681af1936a5bb2a3f7fa1c7cb74f58f398942bb8bd979a9b78e9b16"
+        "831f2505c29201cd8e5076fda768423448a6cbba92410b0692fd8ac630aeb76b"
     ],
     [
         [
@@ -88,7 +88,7 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "92027caebe484c7d412f97be9bc3c39257d10f9f2bc2e447e52c6855d5d30ffc"
+        "e7678be590a77799133e99d07a3326bbc6e627a5a219db8714a1b3d3b3304150"
     ],
     [
         [
@@ -135,6 +135,27 @@
     [
         [
             "file",
+            "server/src/auth/jwt.ts"
+        ],
+        "be637e3c0ac601c1b6edb4a5cc6a9300edfb7fb1568220672254524a6b395b89"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/lucia.ts"
+        ],
+        "dc5e75c3e3da677c8e98d1456964f1f9bce9105bf90f3c351379e54d3433523b"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/password.ts"
+        ],
+        "f9003f11bf1396bff69a98440543e6e131f50d5bc1269a8aae55d72615922705"
+    ],
+    [
+        [
+            "file",
             "server/src/auth/providers/config/google.ts"
         ],
         "62e519ae90c87e1032e53d089a8d6106331a278ecd1293767c8e8e9cb4848f6a"
@@ -151,7 +172,7 @@
             "file",
             "server/src/auth/providers/oauth/createRouter.ts"
         ],
-        "da122a8a244ddbd9b84bba72a7da2f32ffa41c6093614c6c0d59e113244d2bbc"
+        "90fe889802b86a96e82acfd9ace8b79d144bb33369236ac315b4dd67e31a9f69"
     ],
     [
         [
@@ -177,16 +198,23 @@
     [
         [
             "file",
+            "server/src/auth/session.ts"
+        ],
+        "6edca533dbb38ddcba326fd0399dc6f5bc9b249327ed61c7c167d3a5a9d9a462"
+    ],
+    [
+        [
+            "file",
             "server/src/auth/user.ts"
         ],
-        "5787f3cdab4739781090f2950ba432dca812483ec23c6319ac3f876118324d15"
+        "74080241b9011ddce54ac2452b7c8a7064a4070ef1b04e420c730c62d787e077"
     ],
     [
         [
             "file",
             "server/src/auth/utils.ts"
         ],
-        "ba76300456ffdbd647923b27ff163df5e3efa016d7cd2a01af0b6a86dcd780a9"
+        "0b9bb32aac75246f649b01dca5545b2af3c4485a3196a17b91e2556be4891f9a"
     ],
     [
         [
@@ -221,14 +249,14 @@
             "file",
             "server/src/core/auth.js"
         ],
-        "d708303af170e8159b93f0dda521b6f622c0f3add2d4f4f8f2fd88c0a4f7b79e"
+        "9eec6454bb4f583dec14b7fb7a3f2d802f536bad8cb15390b9800fe6dbccc596"
     ],
     [
         [
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "2c4e1f94939adf825df14624940019889394a0e56cdea2855686d67e0c08458a"
+        "3dbc7ee4341bc00af125c02d4b771bc7e7fb5bc7063191d659e7243217e2761f"
     ],
     [
         [
@@ -408,6 +436,13 @@
     [
         [
             "file",
+            "server/src/polyfill.ts"
+        ],
+        "66d3dca514bdd01be402714d0dfe3836e76f612346dea57ee595ae4f3da915cf"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/MySpecialQuery.ts"
         ],
         "00fa7ce8dbb7bc3f581ab6f6400a69c54d5520f5cba64598419e471d3a01f7ef"
@@ -431,14 +466,21 @@
             "file",
             "server/src/routes/auth/index.js"
         ],
-        "47fb3317c5707e0d7646bb1c0f6fa8d9c5c0f980ca2d643d226e63b49766cea3"
+        "9761e5af295928520748246d3be0ba4113655dbef3afb5c9123894627f3bee1a"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/auth/logout.ts"
+        ],
+        "1324b110888548ab535d78a4c7614c996152e948144a873d0262fa0aeb7ab4dc"
     ],
     [
         [
             "file",
             "server/src/routes/auth/me.js"
         ],
-        "705f77d8970a8367981c9a89601c6d5b12e998c23970ae1735b376dd0826ef10"
+        "9a9cb533bb94af63caf448f73a0d0fef8902c8f8d1af411bed2570a32da2fab9"
     ],
     [
         [
@@ -487,7 +529,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "93c05fac0fb2e30eeda90dbb374bfa5c7fcb860b4605da8ae2c6b6f913f95963"
+        "7963a3e625deb86593258b01dd87c94cf4e2103dbda3a6ee82e672911dee09bc"
     ],
     [
         [
@@ -515,7 +557,7 @@
             "file",
             "server/src/utils.ts"
         ],
-        "f8834df362946064f32ef6a145769f83d10da712ad3daa226243fc590f89618f"
+        "7d29cb34de86e6a0689655e4165aed9fe5b0f82f54e4194f002f7d5823c7cb18"
     ],
     [
         [
@@ -634,14 +676,14 @@
             "file",
             "web-app/src/api.ts"
         ],
-        "93118387834981574ce1773d33275308e68ef8ca87408a35be8931c44a8889bf"
+        "850331885230117aa56317186c6d38f696fb1fbd0c56470ff7c6e4f3c1c43104"
     ],
     [
         [
             "file",
             "web-app/src/api/events.ts"
         ],
-        "7220e570cfb823028ad6c076cbcf033d217acfb88537bcac47020f1085757044"
+        "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
     ],
     [
         [
@@ -718,21 +760,21 @@
             "file",
             "web-app/src/auth/helpers/user.ts"
         ],
-        "e6bc091d8f8520db542f959846ecf528e8a070c5ce989151d00d2f45da4a58a6"
+        "e57cecd0a50b1515d6da8fcfb45f1e98ebefa4f58fe59d792100ffd40980fee9"
     ],
     [
         [
             "file",
             "web-app/src/auth/logout.ts"
         ],
-        "6717411aa38e54aa74a5034628510ee3ca0f2ea9d1692644ee4886c74d8657af"
+        "e04607e4676af958f580152432e873452a33a4276ecdb1a4c368efe2e3958a6c"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/OAuthCodeExchange.jsx"
         ],
-        "7dbcc288201aafbb50b5f5319a28283546c81d006fe61c2a8a3c5f55c6833fb2"
+        "1536a0abfd92944dca315e344758ba50f44a18e34c18a8c1c91046b1e4cc2a5e"
     ],
     [
         [
@@ -746,7 +788,7 @@
             "file",
             "web-app/src/auth/types.ts"
         ],
-        "5ce8d0493c362093b0b2fc7b9df78a86688d3f40264ea8f29530f1d8fa67c4c6"
+        "26b1d53d6ea48d56421ee7050486eb9086367195534f21ca3371cd0685307d7c"
     ],
     [
         [
@@ -760,7 +802,7 @@
             "file",
             "web-app/src/auth/user.ts"
         ],
-        "7113c286081f5597b822f5e576735d321cce38fcbd1a25db0d90e1163570068f"
+        "08cd2cf7dbb5aa5371efcfc1b16651c0c59d03d4ea36cd9f69bdaa9edc5ca68e"
     ],
     [
         [

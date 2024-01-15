@@ -13,11 +13,11 @@ import {
   contextWithUserEntity,
   createUser,
   findAuthWithUserBy,
-  createAuthToken,
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
 } from "../../utils.js"
-import { type {= userEntityUpper =} } from "../../../entities/index.js"
+import { createSession } from "../../session.js"
+import { type {= authEntityUpper =} } from "../../../entities/index.js"
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
 import type { GetUserFieldsFn } from "./types.js"
 import { handleRejection } from "../../../utils.js"
@@ -53,9 +53,11 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const providerId = createProviderId(provider.id, providerProfile.id);
 
           try {
-            const userId = await getUserIdFromProviderDetails(providerId, providerProfile, getUserFieldsFn)
-            const token = await createAuthToken(userId)
-            res.json({ token })
+            const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, getUserFieldsFn)
+            const session = await createSession(authId)
+            return res.json({
+              sessionId: session.id,
+            })
           } catch (e) {
             rethrowPossibleAuthError(e)
           }
@@ -67,11 +69,11 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
 
 // We need a user id to create the auth token, so we either find an existing user
 // or create a new one if none exists for this provider.
-async function getUserIdFromProviderDetails(
+async function getAuthIdFromProviderDetails(
   providerId: ProviderId,
   providerProfile: any,
   getUserFieldsFn?: GetUserFieldsFn,
-): Promise<{= userEntityUpper =}['id']> {
+): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
       providerName_providerUserId: providerId,
@@ -86,7 +88,7 @@ async function getUserIdFromProviderDetails(
   })
 
   if (existingAuthIdentity) {
-    return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.{= userFieldOnAuthEntityName =}.id
+    return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
   } else {
     const userFields = getUserFieldsFn
       ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
@@ -101,6 +103,6 @@ async function getUserIdFromProviderDetails(
       userFields,
     )
 
-    return user.id
+    return user.auth.id
   }
 }

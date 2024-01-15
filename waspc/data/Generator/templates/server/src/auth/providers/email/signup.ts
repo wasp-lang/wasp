@@ -116,7 +116,9 @@ export function getSignupRoute({
             await createUser(
                 providerId,
                 newUserProviderData,
-                userFields,
+                // Using any here because we want to avoid TypeScript errors and
+                // rely on Prisma to validate the data.
+                userFields as any
             );
         } catch (e: unknown) {
             rethrowPossibleAuthError(e);
