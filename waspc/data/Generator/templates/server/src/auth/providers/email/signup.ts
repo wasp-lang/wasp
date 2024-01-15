@@ -19,7 +19,7 @@ import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetUserFields } from '../../utils.js'
 import HttpError from '../../../core/HttpError.js';
-import { defineUserFields } from '../types.js';
+import { type GetUserFieldsFn } from '../types.js';
 
 export function getSignupRoute({
     getUserFieldsFn,
@@ -28,7 +28,7 @@ export function getSignupRoute({
     getVerificationEmailContent,
     allowUnverifiedLogin,
 }: {
-    getUserFieldsFn?: () => ReturnType<typeof defineUserFields>;
+    getUserFieldsFn?: GetUserFieldsFn;
     fromField: EmailFromField;
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;

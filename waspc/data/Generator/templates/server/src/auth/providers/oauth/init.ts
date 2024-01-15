@@ -2,15 +2,10 @@ import passport from "passport";
 
 import waspServerConfig from '../../../config.js';
 
-import type { InitData, ProviderConfig, RequestWithWasp, defineUserFields } from "../types.js";
+import type { InitData, ProviderConfig, RequestWithWasp, GetUserFieldsFn } from "../types.js";
 import type { OAuthConfig, UserDefinedConfigFn  } from "./types.js";
 
-export function makeOAuthInit({
-    userDefinedConfigFn,
-    getUserFieldsFn,
-    npmPackage,
-    oAuthConfig,
-}: OAuthImports) {
+export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage, oAuthConfig }: OAuthImports) {
     return async function init(provider: ProviderConfig): Promise<InitData> {
         const userDefinedConfig = userDefinedConfigFn
             ? userDefinedConfigFn()
@@ -77,5 +72,5 @@ export type OAuthImports = {
     npmPackage: string;
     userDefinedConfigFn?: UserDefinedConfigFn;
     oAuthConfig: OAuthConfig;
-    getUserFieldsFn?: () => ReturnType<typeof defineUserFields>;
+    getUserFieldsFn?: GetUserFieldsFn;
 };

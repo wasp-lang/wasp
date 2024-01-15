@@ -27,7 +27,7 @@ app todoApp {
       //   // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       // },
       email: {
-        // getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
         fromField: {
           name: "ToDO App",
           email: "mihovil@ilakovac.com"

@@ -18,14 +18,14 @@ import {
 } from "../../utils.js"
 import { createSession } from "../../session.js"
 import { type {= authEntityUpper =} } from "../../../entities/index.js"
-import type { ProviderConfig, RequestWithWasp, defineUserFields } from "../types.js"
+import type { ProviderConfig, RequestWithWasp, GetUserFieldsFn } from "../types.js"
 import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
 export function createRouter(provider: ProviderConfig, initData: {
   passportStrategyName: string,
-  getUserFieldsFn?: () => ReturnType<typeof defineUserFields>,
+  getUserFieldsFn?: GetUserFieldsFn,
 }) {
     const { passportStrategyName, getUserFieldsFn } = initData;
 
@@ -74,7 +74,7 @@ export function createRouter(provider: ProviderConfig, initData: {
 async function getAuthIdFromProviderDetails(
   providerId: ProviderId,
   providerProfile: any,
-  getUserFieldsFn?: () => ReturnType<typeof defineUserFields>,
+  getUserFieldsFn?: GetUserFieldsFn,
 ): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {

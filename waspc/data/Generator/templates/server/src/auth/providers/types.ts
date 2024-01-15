@@ -37,3 +37,5 @@ export function defineUserFields(config: {
 type FieldGetter<T> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
+
+export type GetUserFieldsFn = () => ReturnType<typeof defineUserFields>

@@ -14,7 +14,7 @@ import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
-import { defineUserFields, type PossibleUserFields } from './providers/types.js'
+import { type GetUserFieldsFn, type PossibleUserFields } from './providers/types.js'
 
 export type EmailProviderData = {
   hashedPassword: string;
@@ -229,7 +229,7 @@ export async function validateAndGetUserFields(
   data: {
     [key: string]: unknown
   },
-  getUserFields?: () => ReturnType<typeof defineUserFields>,
+  getUserFields?: GetUserFieldsFn,
 ): Promise<Record<string, any>> {
   const {
     password: _password,

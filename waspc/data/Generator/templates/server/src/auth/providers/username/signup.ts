@@ -12,12 +12,12 @@ import {
   ensureValidPassword,
 } from '../../validation.js'
 import { validateAndGetUserFields } from '../../utils.js'
-import { defineUserFields } from '../types.js'
+import { type GetUserFieldsFn } from '../types.js'
 
 export function getSignupRoute({
   getUserFieldsFn,
 }: {
-  getUserFieldsFn?: () => ReturnType<typeof defineUserFields>
+  getUserFieldsFn?: GetUserFieldsFn;
 }) {
   return handleRejection(async function signup(req, res) {
     const fields = req.body ?? {}

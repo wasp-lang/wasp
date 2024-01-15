@@ -7,7 +7,7 @@ export function config() {
   }
 }
 
-export async function getUserFields(_context, args) {
+export function getUserFields({ profile }) {
   console.log('Inside user-supplied Google getUserFields')
   return {}
 }
