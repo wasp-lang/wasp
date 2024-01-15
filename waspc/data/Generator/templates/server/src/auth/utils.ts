@@ -1,32 +1,59 @@
 {{={= =}=}}
-import { sign, verify } from '../core/auth.js'
+import { hashPassword } from './password.js'
+import { verify } from './jwt.js'
 import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
-import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
-import { type {= userEntityUpper =} } from '../entities/index.js'
-import waspServerConfig from '../config.js';
-import { type Prisma } from '@prisma/client';
-{=# isEmailAuthEnabled =}
-import { isValidEmail } from '../core/auth/validators.js'
-import { emailSender } from '../email/index.js';
-import { Email } from '../email/core/types.js';
-{=/ isEmailAuthEnabled =}
+import { sleep } from '../utils.js'
+import {
+  type {= userEntityUpper =},
+  type {= authEntityUpper =},
+  type {= authIdentityEntityUpper =},
+} from '../entities/index.js'
+import { Prisma } from '@prisma/client';
+
+import { throwValidationError } from './validation.js'
+
 {=# additionalSignupFields.isDefined =}
 {=& additionalSignupFields.importStatement =}
 {=/ additionalSignupFields.isDefined =}
 
+import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
 {=# additionalSignupFields.isDefined =}
 const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdentifier =}
 {=/ additionalSignupFields.isDefined =}
 {=^ additionalSignupFields.isDefined =}
-import { createDefineAdditionalSignupFieldsFn } from './providers/types.js'
-const _waspAdditionalSignupFieldsConfig = {} as ReturnType<
-  ReturnType<typeof createDefineAdditionalSignupFieldsFn<never>>
->
+const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
 {=/ additionalSignupFields.isDefined =}
 
-type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
+export type EmailProviderData = {
+  hashedPassword: string;
+  isEmailVerified: boolean;
+  emailVerificationSentAt: string | null;
+  passwordResetSentAt: string | null;
+}
+
+export type UsernameProviderData = {
+  hashedPassword: string;
+}
+
+export type OAuthProviderData = {}
+
+/**
+ * This type is used for type-level programming e.g. to enumerate
+ * all possible provider data types.
+ * 
+ * The keys of this type are the names of the providers and the values
+ * are the types of the provider data.
+ */
+export type PossibleProviderData = {
+  email: EmailProviderData;
+  username: UsernameProviderData;
+  google: OAuthProviderData;
+  github: OAuthProviderData;
+}
+
+export type ProviderName = keyof PossibleProviderData
 
 export const contextWithUserEntity = {
   entities: {
@@ -39,31 +66,113 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findUserBy(where: Prisma.{= userEntityUpper =}WhereUniqueInput): Promise<{= userEntityUpper =}> {
-  return prisma.{= userEntityLower =}.findUnique({ where });
+/**
+ * ProviderId uniquely identifies an auth identity e.g. 
+ * "email" provider with user id "test@test.com" or
+ * "google" provider with user id "1234567890".
+ * 
+ * We use this type to avoid passing the providerName and providerUserId
+ * separately. Also, we can normalize the providerUserId to make sure it's
+ * consistent across different DB operations.
+ */
+export type ProviderId = {
+  providerName: ProviderName;
+  providerUserId: string;
 }
 
-export async function createUser(data: Prisma.{= userEntityUpper =}CreateInput): Promise<{= userEntityUpper =}> {
-  try {
-    return await prisma.{= userEntityLower =}.create({ data })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);
+export function createProviderId(providerName: ProviderName, providerUserId: string): ProviderId {
+  return {
+    providerName,
+    providerUserId: providerUserId.toLowerCase(),
   }
 }
 
-export async function deleteUser(user: {= userEntityUpper =}): Promise<{= userEntityUpper =}> {
-  try {
-    return await prisma.{= userEntityLower =}.delete({ where: { id: user.id } })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);
+export async function findAuthIdentity(providerId: ProviderId): Promise<{= authIdentityEntityUpper =} | null> {
+  return prisma.{= authIdentityEntityLower =}.findUnique({
+    where: {
+      providerName_providerUserId: providerId,
+    }
+  });
+}
+
+/**
+ * Updates the provider data for the given auth identity.
+ * 
+ * This function performs data sanitization and serialization.
+ * Sanitization is done by hashing the password, so this function
+ * expects the password received in the `providerDataUpdates`
+ * **not to be hashed**.
+ */
+export async function updateAuthIdentityProviderData<PN extends ProviderName>(
+  providerId: ProviderId,
+  existingProviderData: PossibleProviderData[PN],
+  providerDataUpdates: Partial<PossibleProviderData[PN]>,
+): Promise<{= authIdentityEntityUpper =}> {
+  // We are doing the sanitization here only on updates to avoid
+  // hashing the password multiple times.
+  const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+  const newProviderData = {
+    ...existingProviderData,
+    ...sanitizedProviderDataUpdates,
   }
+  const serializedProviderData = await serializeProviderData<PN>(newProviderData);
+  return prisma.{= authIdentityEntityLower =}.update({
+    where: {
+      providerName_providerUserId: providerId,
+    },
+    data: { providerData: serializedProviderData },
+  });
 }
 
-export async function createAuthToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id);
+type FindAuthWithUserResult = {= authEntityUpper =} & {
+  {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
 }
 
-export async function verifyToken(token: string): Promise<{ id: any }> {
+export async function findAuthWithUserBy(
+  where: Prisma.{= authEntityUpper =}WhereInput
+): Promise<FindAuthWithUserResult> {
+  return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+}
+
+export async function createUser(
+  providerId: ProviderId,
+  serializedProviderData?: string,
+  userFields?: PossibleAdditionalSignupFields,
+): Promise<{= userEntityUpper =} & {
+  auth: {= authEntityUpper =}
+}> {
+  return prisma.{= userEntityLower =}.create({
+    data: {
+      // Using any here to prevent type errors when userFields are not
+      // defined. We want Prisma to throw an error in that case.
+      ...(userFields ?? {} as any),
+      {= authFieldOnUserEntityName =}: {
+        create: {
+          {= identitiesFieldOnAuthEntityName =}: {
+              create: {
+                  providerName: providerId.providerName,
+                  providerUserId: providerId.providerUserId,
+                  providerData: serializedProviderData,
+              },
+          },
+        }
+      },
+    },
+    // We need to include the Auth entity here because we need `authId`
+    // to be able to create a session.
+    include: {
+      {= authFieldOnUserEntityName =}: true,
+    },
+  })
+}
+
+export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
+  return prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
+    id: authId,
+  } } })
+}
+
+export async function verifyToken<T = unknown>(token: string): Promise<T> {
   return verify(token);
 }
 
@@ -74,168 +183,61 @@ export async function verifyToken(token: string): Promise<{ id: any }> {
 // NOTE: Attacker measuring time to response can still determine
 // if a user exists or not. We'll be able to avoid it when 
 // we implement e-mail sending via jobs.
-export async function doFakeWork() {
+export async function doFakeWork(): Promise<unknown> {
   const timeToWork = Math.floor(Math.random() * 1000) + 1000;
   return sleep(timeToWork);
 }
 
-{=# isEmailAuthEnabled =}
-export async function updateUserEmailVerification(userId: {= userEntityUpper =}Id): Promise<void> {
-  try {
-    await prisma.{= userEntityLower =}.update({
-      where: { id: userId },
-      data: { isEmailVerified: true },
-    })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);
-  }
-}
-
-export async function updateUserPassword(userId: {= userEntityUpper =}Id, password: string): Promise<void> {
-  try {
-    await prisma.{= userEntityLower =}.update({
-      where: { id: userId },
-      data: { password },
-    })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);
-  }
-}
-
-export async function createEmailVerificationLink(user: {= userEntityUpper =}, clientRoute: string): Promise<string> {
-  const token = await createEmailVerificationToken(user);
-  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
-}
-
-export async function createPasswordResetLink(user: {= userEntityUpper =}, clientRoute: string): Promise<string> {
-  const token = await createPasswordResetToken(user);
-  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
-}
-
-async function createEmailVerificationToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id, { expiresIn: '30m' });
-}
-
-async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id, { expiresIn: '30m' });
-}
-
-export async function sendPasswordResetEmail(
-  email: string,
-  content: Email,
-): Promise<void> {
-  return sendEmailAndLogTimestamp(email, content, 'passwordResetSentAt');
-}
-
-export async function sendEmailVerificationEmail(
-  email: string,
-  content: Email,
-): Promise<void> {
-  return sendEmailAndLogTimestamp(email, content, 'emailVerificationSentAt');
-}
-
-async function sendEmailAndLogTimestamp(
-  email: string,
-  content: Email,
-  field: 'emailVerificationSentAt' | 'passwordResetSentAt',
-): Promise<void> {
-  // Set the timestamp first, and then send the email
-  // so the user can't send multiple requests while
-  // the email is being sent.
-  try {
-    await prisma.{= userEntityLower =}.update({
-      where: { email },
-      data: { [field]: new Date() },
-    })
-  } catch (e) {
-    rethrowPossiblePrismaError(e);  
-  }
-  emailSender.send(content).catch((e) => {
-    console.error(`Failed to send email for ${field}`, e);
-  });
-}
-
-export function isEmailResendAllowed(
-  user: {= userEntityUpper =},
-  field: 'emailVerificationSentAt' | 'passwordResetSentAt',
-  resendInterval: number = 1000 * 60,
-): boolean {
-  const sentAt = user[field];
-  if (!sentAt) {
-    return true;
-  }
-  const now = new Date();
-  const diff = now.getTime() - sentAt.getTime();
-  return diff > resendInterval;
-}
-
-const EMAIL_FIELD = 'email';
-const PASSWORD_FIELD = 'password';
-const TOKEN_FIELD = 'token';
-
-const emailValidators = [
-  { validates: EMAIL_FIELD, message: 'email must be present', validator: email => !!email },
-  { validates: EMAIL_FIELD, message: 'email must be a valid email', validator: email => isValidEmail(email) },
-];
-const passwordValidators = [
-  { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
-  { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
-  { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
-];
-const tokenValidators = [
-  { validates: TOKEN_FIELD, message: 'token must be present', validator: token => !!token },
-];
-
-export function ensureValidEmailAndPassword(args: unknown): void {
-  ensureValidEmail(args);
-  ensureValidPassword(args);
-}
-
-export function ensureValidTokenAndNewPassword(args: unknown): void {
-  validate(args, [
-    ...tokenValidators,
-  ]);
-  ensureValidPassword(args);
-}
-
-export function ensureValidEmail(args: unknown): void {
-  validate(args, [
-    ...emailValidators,
-  ]);
-}
-
-export function ensureValidPassword(args: unknown): void {
-  validate(args, [
-    ...passwordValidators,
-  ]);
-}
-
-function validate(args: unknown, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
-  for (const { validates, message, validator } of validators) {
-    if (!validator(args[validates])) {
-      throwValidationError(message);
-    }
-  }
-}
-{=/ isEmailAuthEnabled =}
-
-function rethrowPossiblePrismaError(e: unknown): void {
+export function rethrowPossibleAuthError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
-  } else if (isPrismaError(e)) {
-    throw prismaErrorToHttpError(e)
-  } else {
-    throw new HttpError(500)
   }
-}
+  
+  // Prisma code P2002 is for unique constraint violations.
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+    throw new HttpError(422, 'Save failed', {
+      message: `user with the same identity already exists`,
+    })
+  }
 
-function throwValidationError(message: string): void {
-  throw new HttpError(422, 'Validation failed', { message })
+  if (e instanceof Prisma.PrismaClientValidationError) {
+    // NOTE: Logging the error since this usually means that there are
+    // required fields missing in the request, we want the developer
+    // to know about it.
+    console.error(e)
+    throw new HttpError(422, 'Save failed', {
+      message: 'there was a database error'
+    })
+  }
+
+  // Prisma code P2021 is for missing table errors.
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
+    // NOTE: Logging the error since this usually means that the database
+    // migrations weren't run, we want the developer to know about it.
+    console.error(e)
+    console.info('🐝 This error can happen if you did\'t run the database migrations.')
+    throw new HttpError(500, 'Save failed', {
+      message: `there was a database error`,
+    })
+  }
+
+  // Prisma code P2003 is for foreign key constraint failure
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+    console.error(e)
+    console.info(`🐝 This error can happen if you have some relation on your {= userEntityUpper =} entity
+   but you didn't specify the "onDelete" behaviour to either "Cascade" or "SetNull".
+   Read more at: https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions`)
+    throw new HttpError(500, 'Save failed', {
+      message: `there was a database error`,
+    })
+  }
+
+  throw e
 }
 
 export async function validateAndGetAdditionalFields(data: {
   [key: string]: unknown
-}) {
+}): Promise<Record<string, any>> {
   const {
     password: _password,
     ...sanitizedData
@@ -250,4 +252,54 @@ export async function validateAndGetAdditionalFields(data: {
     }
   }
   return result;
+}
+
+export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
+  providerData: string,
+  { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
+): PossibleProviderData[PN] {
+  // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
+  let data = JSON.parse(providerData) as PossibleProviderData[PN];
+
+  if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
+    delete data.hashedPassword;
+  }
+
+  return data;
+}
+
+export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): Promise<string> {
+  return serializeProviderData(
+    await sanitizeProviderData(providerData)
+  );
+}
+
+function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
+  return JSON.stringify(providerData);
+}
+
+async function sanitizeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): Promise<PossibleProviderData[PN]> {
+  const data = {
+    ...providerData,
+  };
+  if (providerDataHasPasswordField(data)) {
+    data.hashedPassword = await hashPassword(data.hashedPassword);
+  }
+
+  return data;
+}
+
+
+function providerDataHasPasswordField(
+  providerData: PossibleProviderData[keyof PossibleProviderData],
+): providerData is { hashedPassword: string } {
+  return 'hashedPassword' in providerData;
+}
+
+export function throwInvalidCredentialsError(message?: string): void {
+  throw new HttpError(401, 'Invalid credentials', { message })
 }

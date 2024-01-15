@@ -29,6 +29,7 @@ waspMigrate/.wasp/out/server/src/entities/index.ts
 waspMigrate/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspMigrate/.wasp/out/server/src/middleware/index.ts
 waspMigrate/.wasp/out/server/src/middleware/operations.ts
+waspMigrate/.wasp/out/server/src/polyfill.ts
 waspMigrate/.wasp/out/server/src/queries/types.ts
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
@@ -36,7 +37,7 @@ waspMigrate/.wasp/out/server/src/server.ts
 waspMigrate/.wasp/out/server/src/types/index.ts
 waspMigrate/.wasp/out/server/src/universal/types.ts
 waspMigrate/.wasp/out/server/src/universal/url.ts
-waspMigrate/.wasp/out/server/src/utils.js
+waspMigrate/.wasp/out/server/src/utils.ts
 waspMigrate/.wasp/out/server/tsconfig.json
 waspMigrate/.wasp/out/web-app/.env
 waspMigrate/.wasp/out/web-app/.npmrc

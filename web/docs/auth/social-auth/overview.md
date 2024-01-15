@@ -23,15 +23,12 @@ Wasp currently supports the following social login providers:
 
 <SocialAuthGrid />
 
-## Social Login Entity
+## User Entity
 
 Wasp requires you to declare a `userEntity` for all `auth` methods (social or otherwise).
 This field tells Wasp which Entity represents the user.
 
-Additionally, when using `auth` methods that rely on external providers(e.g., _Google_), you must also declare an `externalAuthEntity`.
-This tells Wasp which Entity represents the user's link with the social provider.
-
-Both fields fall under `app.auth`. Here's what the full setup looks like:
+Here's what the full setup looks like:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -45,8 +42,6 @@ app myApp {
   auth: {
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {}
     },
@@ -58,18 +53,6 @@ app myApp {
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -85,8 +68,6 @@ app myApp {
   auth: {
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {}
     },
@@ -98,18 +79,6 @@ app myApp {
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -122,23 +91,23 @@ To learn more about what the fields on these entities represent, look at the [AP
 
 </small>
 
-:::note
-Wasp uses the same `externalAuthEntity` for all social login providers (e.g. both GitHub and Google use the same entity).
-:::
-
 ## Default Behavior
 
 <DefaultBehaviour />
 
 ## Overrides
 
-Wasp lets you override the default behavior. You can create custom setups, such as allowing users to define a custom username rather instead of getting a randomly generated one.
+By default, Wasp doesn't store any information it receives from the social login provider. It only stores the user's ID specific to the provider.
+
+If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `getUserFieldsFn` and `configFn` functions in `main.wasp` for each provider.
+
+You can create custom signup setups, such as allowing users to define a custom username after they sign up with a social provider.
 
 ### Allowing User to Set Their Username
 
 If you want to modify the signup flow (e.g., let users choose their own usernames), you will need to go through three steps:
 
-1. The first step is adding a `isSignupComplete` property to your `User` Entity. This field will signals whether the user has completed the signup process.
+1. The first step is adding a `isSignupComplete` property to your `User` Entity. This field will signal whether the user has completed the signup process.
 2. The second step is overriding the default signup behavior.
 3. The third step is implementing the rest of your signup flow and redirecting users where appropriate.
 
@@ -155,7 +124,6 @@ entity User {=psl
     username                  String?       @unique
     // highlight-next-line
     isSignupComplete          Boolean       @default(false)
-    externalAuthAssociations  SocialLogin[]
 psl=}
 ```
 
@@ -168,7 +136,6 @@ entity User {=psl
     username                  String?       @unique
     // highlight-next-line
     isSignupComplete          Boolean       @default(false)
-    externalAuthAssociations  SocialLogin[]
 psl=}
 ```
 
@@ -190,7 +157,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
         // highlight-next-line
@@ -225,7 +191,6 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
         // highlight-next-line
@@ -396,102 +361,3 @@ For more information on:
 Check the provider-specific API References:
 
 <SocialAuthGrid pagePart="#api-reference" />
-
-### The `externalAuthEntity` and Its Fields
-
-Using social login providers requires you to define _an External Auth Entity_ and declare it with the `app.auth.externalAuthEntity` field.
-This Entity holds the data relevant to the social provider.
-All social providers share the same Entity.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title=main.wasp {4-10}
-// ...
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-
-// ...
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp {4-10}
-// ...
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-
-// ...
-```
-
-</TabItem>
-</Tabs>
-
-:::info
-You don't need to know these details, you can just copy and paste the entity definition above and you are good to go.
-:::
-
-The Entity acting as `app.auth.externalAuthEntity` must include the following fields:
-
-- `provider` - The provider's name (e.g. `google`, `github`, etc.).
-- `providerId` - The user's ID on the provider's platform.
-- `userId` - The user's ID on your platform (this references the `id` field from the Entity acting as `app.auth.userEntity`).
-- `user` - A relation to the `userEntity` (see [the `userEntity` section](#expected-fields-on-the-userentity)) for more details.
-- `createdAt` - A timestamp of when the association was created.
-- `@@unique([provider, providerId, userId])` - A unique constraint on the combination of `provider`, `providerId` and `userId`.
-
-### Expected Fields on the `userEntity`
-
-Using Social login providers requires you to add one extra field to the Entity acting as `app.auth.userEntity`:
-
-- `externalAuthAssociations` - A relation to the `externalAuthEntity` (see [the `externalAuthEntity` section](#the-externalauthentity-and-its-fields) for more details).
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title=main.wasp {6}
-// ...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// ...
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp {6}
-// ...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// ...
-```
-
-</TabItem>
-</Tabs>

@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "a991bc06f81af3a675fc99e6242292b76c0840c649fddba1ae2724e938f2d1df"
+        "dff79e67dd655049c93ff392f6ed0cd5b89b7f501e791bc4188d80913236be2e"
     ],
     [
         [
@@ -137,7 +137,7 @@
             "file",
             "server/src/dbClient.ts"
         ],
-        "20c67ca197da3de2d37528ceaff2e40af910be8177f346c6d5c2b2f983810c43"
+        "f26bfa4a60022d45195f3179548c4b09305f6a9cfe301b5edd1615677a59ae3f"
     ],
     [
         [
@@ -219,6 +219,13 @@
     [
         [
             "file",
+            "server/src/polyfill.ts"
+        ],
+        "66d3dca514bdd01be402714d0dfe3836e76f612346dea57ee595ae4f3da915cf"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/types.ts"
         ],
         "276f022c04936bfe75d593fe8426a0aaf43a0e9c085042ad1b6560ad23041031"
@@ -242,7 +249,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "e28a2e72f8a0cedbfba8c6acfbc36b9ae35db9005aa26484d88ef7e7688efa5b"
+        "d26cf3913b82c3525fe2214e0d94606e36ccb306ca9b036979e003f1e1d44f4b"
     ],
     [
         [
@@ -268,16 +275,16 @@
     [
         [
             "file",
-            "server/src/utils.js"
+            "server/src/utils.ts"
         ],
-        "300e9bb586b163f2608acb27346b5c94ec3e58cdc25dace5381f3d0c6710a7ec"
+        "6a664e44a89efe8ed8cb7559a84bd2871422c38287b276fee2a7aed4680e1d1e"
     ],
     [
         [
             "file",
             "server/tsconfig.json"
         ],
-        "f2632965c1e3678fcc0e63b83d7e33fea1a9008ef5fd5a2f5e7bf278337c3e02"
+        "51a60d6350537a9e0696674aae86b122a7dea2a4497d294fd4fd6bc47b7e9808"
     ],
     [
         [
@@ -326,7 +333,7 @@
             "file",
             "web-app/package.json"
         ],
-        "04a1d1f59d0694ba717f16cd5c10b7d705bdd74f72b6c6eb8613594bd4eec869"
+        "b6441767cacdd06e55f49ca98b4508ba67607e767dda33183a434ef422bff023"
     ],
     [
         [
@@ -382,14 +389,14 @@
             "file",
             "web-app/src/api.ts"
         ],
-        "93118387834981574ce1773d33275308e68ef8ca87408a35be8931c44a8889bf"
+        "850331885230117aa56317186c6d38f696fb1fbd0c56470ff7c6e4f3c1c43104"
     ],
     [
         [
             "file",
             "web-app/src/api/events.ts"
         ],
-        "7220e570cfb823028ad6c076cbcf033d217acfb88537bcac47020f1085757044"
+        "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
     ],
     [
         [

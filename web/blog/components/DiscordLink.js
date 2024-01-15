@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react'
 
 const DiscordLink = (props) => {
   return (
     <span>
-        <a href="https://discord.gg/rzdnErX"> Discord </a>
+      <a href="https://discord.gg/rzdnErX"> Discord </a>
     </span>
-  );
-};
+  )
+}
 
-export default DiscordLink;
+export default DiscordLink

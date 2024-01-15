@@ -24,7 +24,7 @@ Let's walk through enabling Google authentication, explain some of the default s
 Enabling Google Authentication comes down to a series of steps:
 
 1. Enabling Google authentication in the Wasp file.
-1. Adding the necessary Entities.
+1. Adding the `User` entity.
 1. Creating a Google OAuth app.
 1. Adding the neccessary Routes and Pages
 1. Using Auth UI components in our Pages.
@@ -45,17 +45,11 @@ app myApp {
   },
   title: "My App",
   auth: {
-    // highlight-next-line
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    // 2. Specify the SocialLogin entity (we'll define it next)
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
-      // highlight-next-line
-      // 3. Enable Google Auth
+      // 2. Enable Google Auth
       // highlight-next-line
       google: {}
     },
@@ -74,17 +68,11 @@ app myApp {
   },
   title: "My App",
   auth: {
-    // highlight-next-line
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    // 2. Specify the SocialLogin entity (we'll define it next)
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
-      // highlight-next-line
-      // 3. Enable Google Auth
+      // 2. Enable Google Auth
       // highlight-next-line
       google: {}
     },
@@ -96,37 +84,22 @@ app myApp {
 </TabItem>
 </Tabs>
 
-`externalAuthEntity` and `userEntity` are explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
+`userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
 
-### 2. Adding the Entities
+### 2. Adding the User Entity
 
-Let's now define the entities acting as `app.auth.userEntity` and `app.auth.externalAuthEntity`:
+Let's now define the `app.auth.userEntity` entity:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```wasp title="main.wasp"
 // ...
-// highlight-next-line
-// 4. Define the User entity
+// 3. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-// 5. Define the SocialLogin entity
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -135,26 +108,11 @@ psl=}
 
 ```wasp title="main.wasp"
 // ...
-// highlight-next-line
-// 4. Define the User entity
+// 3. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-// 5. Define the SocialLogin entity
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -356,7 +314,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title=main.wasp {10}
+```wasp title=main.wasp
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -364,8 +322,8 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
+      // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
@@ -376,7 +334,7 @@ app myApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title=main.wasp {10}
+```wasp title=main.wasp
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -384,8 +342,8 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
+      // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
@@ -409,7 +367,7 @@ app myApp {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {11-12,22}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -417,10 +375,11 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       }
     },
@@ -432,7 +391,6 @@ entity User {=psl
     id                        Int     @id @default(autoincrement())
     username                  String  @unique
     displayName               String
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 // ...
@@ -459,7 +417,7 @@ export function getConfig() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {11-12,22}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -467,10 +425,11 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       }
     },
@@ -482,7 +441,6 @@ entity User {=psl
     id                        Int     @id @default(autoincrement())
     username                  String  @unique
     displayName               String
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 // ...
@@ -523,7 +481,7 @@ export function getConfig() {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {11-12}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -531,10 +489,11 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       }
     },
@@ -546,7 +505,7 @@ app myApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {11-12}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -554,10 +513,11 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
+        // highlight-next-line
         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       }
     },

@@ -12,15 +12,13 @@ import type {
   {=/ isAuthEnabled =}
   _{= crud.entityUpper =},
 } from "../_types";
-import type {
-  Prisma,
-} from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { Payload } from "../_types/serialization.js";
 import type {
   {= crud.entityUpper =},
 } from "../entities";
 {=# isAuthEnabled =}
-import { throwInvalidCredentialsError } from "../core/auth.js";
+import { throwInvalidCredentialsError } from '../auth/utils.js'
 {=/ isAuthEnabled =}
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}

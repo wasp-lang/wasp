@@ -7,37 +7,39 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Installation
 
-:::tip Try Wasp Without Installing 🤔?
-  Give Wasp a spin in the browser without any setup by running our [Wasp Template for Gitpod](https://github.com/wasp-lang/gitpod-template)
-:::
-
-
 Welcome, new Waspeteer 🐝!
 
-To install Wasp on Linux / OSX / WSL(Win), open your terminal and run: 
+Let's create and run our first Wasp app in 3 short steps:
 
-```shell
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
-```
+1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
 
- ℹ️ Wasp requires Node.js and will warn you if it is missing: check below for [more details](#requirements).
+   ```shell
+   curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+   ```
 
-Then, create a new app by running:
+   ℹ️ Wasp requires Node.js and will warn you if it is missing: check below for [more details](#requirements).
 
-```shell
-wasp new
-```
-and then run the app:
+2. **Then, create a new app by running:**
 
-```shell
-cd <my-project-name>
-wasp start
-```
+   ```shell
+   wasp new
+   ```
 
-That's it 🎉 You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
+3. **Finally, run the app:**
+
+   ```shell
+   cd <my-project-name>
+   wasp start
+   ```
+
+That's it 🎉 You have successfully created and served a new full-stack web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
 
 :::note Something Unclear?
-Check [More Details](#more-details) section below if anything went wrong, or if you have additional questions.
+Check [More Details](#more-details) section below if anything went wrong with the installation, or if you have additional questions.
+:::
+
+:::tip Try Wasp Without Installing 🤔?
+  Give Wasp a spin in the browser without any setup by running our [Wasp Template for Gitpod](https://github.com/wasp-lang/gitpod-template)
 :::
 
 
@@ -46,21 +48,22 @@ Check [More Details](#more-details) section below if anything went wrong, or if 
  - [ ] 👉 **Check out the [Todo App tutorial](../tutorial/01-create.md), which will take you through all the core features of Wasp!** 👈
  - [ ] [Setup your editor](./editor-setup.md) for working with Wasp.
  - [ ] Join us on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
- - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp-lang.dev/#signup . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
+ - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp-lang.dev/#signup . We usually send 1 per month, and [Matija](https://github.com/matijaSos) does his best to unleash his creativity to make them engaging and fun to read :D!
 
 ------
 
-## More details 
+## More details
 
 ### Requirements
 
-You must have Node.js (and NPM) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.2`).
+You must have Node.js (and NPM) installed on your machine and available in `PATH`.
+A version of Node.js must be >= 18.
 
-We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
+If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
 <details>
   <summary style={{cursor: 'pointer', 'textDecoration': 'underline'}}>
-    Quick guide on installing/using nvm
+    A quick guide on installing/using nvm
   </summary>
   <div>
 
@@ -68,12 +71,12 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Then, install a version of Node.js that you need:
   ```shell
-  nvm install 18
+  nvm install 20
   ```
 
   Finally, whenever you need to ensure a specific version of Node.js is used, run:
   ```shell
-  nvm use 18
+  nvm use 20
   ```
   to set the Node.js version for the current shell session.
 

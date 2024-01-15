@@ -2,7 +2,7 @@
 title: Automatic CRUD
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
@@ -89,8 +89,6 @@ app tasksCrudApp {
 
 entity User {=psl
   id       Int @id @default(autoincrement())
-  username String @unique
-  password String
   tasks    Task[]
 psl=}
 

@@ -26,9 +26,10 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       sequence
-        [ genFileCopy [relfile|auth/logout.ts|],
-          genFileCopy [relfile|auth/helpers/user.ts|],
+        [ genFileCopy [relfile|auth/helpers/user.ts|],
           genFileCopy [relfile|auth/types.ts|],
+          genFileCopy [relfile|auth/user.ts|],
+          genFileCopy [relfile|auth/logout.ts|],
           genUseAuth auth,
           genCreateAuthRequiredPage auth
         ]

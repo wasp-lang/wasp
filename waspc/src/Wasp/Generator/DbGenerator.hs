@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Wasp.Generator.DbGenerator
   ( genDb,
     warnIfDbNeedsMigration,
@@ -8,16 +6,19 @@ module Wasp.Generator.DbGenerator
 where
 
 import Data.Aeson (object, (.=))
+import Data.List (find)
 import Data.Maybe (fromMaybe, maybeToList)
 import Data.Text (Text, pack)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
     DbSchemaChecksumOnLastDbConcurrenceFile,
@@ -63,9 +64,11 @@ genPrismaSchema spec = do
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
         else return ("sqlite", "\"file:./dev.db\"")
 
+  entities <- maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
+
   let templateData =
         object
-          [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
+          [ "modelSchemas" .= map entityToPslModelSchema entities,
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaClientOutputDir" .= makeEnvVarField Wasp.Generator.DbGenerator.Common.prismaClientOutputDirEnvVar,
@@ -80,6 +83,14 @@ genPrismaSchema spec = do
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
     dbExtensions = Psl.Generator.Extensions.showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
+
+    userDefinedEntities = getEntities spec
+
+    maybeUserEntity :: Maybe (String, AS.Entity.Entity)
+    maybeUserEntity = do
+      auth <- AS.App.auth $ snd $ getApp spec
+      let userEntityName = AS.refName . AS.Auth.userEntity $ auth
+      find ((== userEntityName) . fst) userDefinedEntities
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =

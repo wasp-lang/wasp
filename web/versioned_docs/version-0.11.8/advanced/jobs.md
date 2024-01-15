@@ -2,7 +2,7 @@
 title: Recurring Jobs
 ---
 
-import { Required } from '@site/src/components/Required'
+import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth.

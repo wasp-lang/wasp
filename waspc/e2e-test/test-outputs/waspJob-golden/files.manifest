@@ -31,6 +31,7 @@ waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.ts
 waspJob/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspJob/.wasp/out/server/src/middleware/index.ts
 waspJob/.wasp/out/server/src/middleware/operations.ts
+waspJob/.wasp/out/server/src/polyfill.ts
 waspJob/.wasp/out/server/src/queries/types.ts
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
@@ -38,7 +39,7 @@ waspJob/.wasp/out/server/src/server.ts
 waspJob/.wasp/out/server/src/types/index.ts
 waspJob/.wasp/out/server/src/universal/types.ts
 waspJob/.wasp/out/server/src/universal/url.ts
-waspJob/.wasp/out/server/src/utils.js
+waspJob/.wasp/out/server/src/utils.ts
 waspJob/.wasp/out/server/tsconfig.json
 waspJob/.wasp/out/web-app/.env
 waspJob/.wasp/out/web-app/.npmrc

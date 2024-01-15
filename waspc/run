@@ -29,7 +29,7 @@ TEST_E2E_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
 TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
 RUN_CMD="cabal run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
-GHCID_TEST_CMD="ghcid --command=cabal repl"
+GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0"
 
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool () {
@@ -97,7 +97,9 @@ print_usage () {
     print_usage_cmd "module-graph" \
                     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
     print_usage_cmd "wasp-packages:compile" \
-                    "Compiles the TS projects in projects/"
+                    "Compiles the TS projects under packages/."
+    print_usage_cmd "ghcup-set" \
+                    "Sets the correct version of GHC and Cabal for this project (via GHCup)."
 }
 
 exitStatusToString () {
@@ -191,6 +193,9 @@ case $COMMAND in
         ;;
     wasp-packages:compile)
         echo_and_eval "$WASP_PACKAGES_COMPILE"
+        ;;
+    ghcup-set)
+        echo_and_eval "$GHCUP_SET"
         ;;
     *)
         print_usage

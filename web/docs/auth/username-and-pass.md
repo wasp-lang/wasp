@@ -2,7 +2,10 @@
 title: Username & Password
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
+import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
+import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
+import GetUsername from './entities/\_get-username.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
 
@@ -10,8 +13,8 @@ Wasp supports username & password authentication out of the box with login and s
 
 To set up username authentication we need to:
 1. Enable username authentication in the Wasp file
-1. Add the user entity
-1. Add the routes and pages
+1. Add the `User` entity
+1. Add the auth routes and pages
 1. Use Auth UI components in our pages
 
 Structure of the `main.wasp` file we will end up with:
@@ -80,17 +83,16 @@ Read more about the `usernameAndPassword` auth method options [here](#fields-in-
 
 ### 2. Add the User Entity
 
-When username authentication is enabled, Wasp expects certain fields in your `userEntity`. Let's add these fields to our `main.wasp` file:
+The `User` entity can be as simple as including only the `id` field:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {4-5}
+```wasp title="main.wasp"
 // 3. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
     // Add your own fields below
     // ...
 psl=}
@@ -98,12 +100,11 @@ psl=}
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {4-5}
+```wasp title="main.wasp"
 // 3. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
     // Add your own fields below
     // ...
 psl=}
@@ -111,7 +112,7 @@ psl=}
 </TabItem>
 </Tabs>
 
-Read more about the `userEntity` fields [here](#userentity-fields).
+<ReadMoreAboutAuthEntities />
 
 ### 3. Add the Routes and Pages
 
@@ -261,17 +262,19 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 That's it! We have set up username authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [using auth docs](../auth/overview).
+Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [auth overview docs](../auth/overview).
+
+<MultipleIdentitiesWarning />
 
 ## Customizing the Auth Flow
 
 The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 
-Read more about the default username and password validation rules and how to override them in the [using auth docs](../auth/overview).
+Read more about the default username and password validation rules in the [auth overview docs](../auth/overview#default-validations).
 
 If you require more control in your authentication flow, you can achieve that in the following ways:
 1. Create your UI and use `signup` and `login` actions.
-1. Create your custom sign-up and login [actions](#) which uses the Prisma client, along with your custom code.
+1. Create your custom sign-up action which uses the lower-level API, along with your custom code.
 
 ### 1. Using the `signup` and `login` actions
 
@@ -294,7 +297,6 @@ You can use it like this:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="client/pages/auth.jsx"
-// Importing the login action 👇
 import login from '@wasp/auth/login'
 
 import { useState } from 'react'
@@ -328,7 +330,6 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-// Importing the login action 👇
 import login from '@wasp/auth/login'
 
 import { useState } from 'react'
@@ -377,9 +378,7 @@ It takes one argument:
   - `password: string` <Required />
 
   :::info
-  Wasp only stores the auth-related fields of the user entity. Adding extra fields to `userFields` will not have any effect.
-
-  If you need to add extra fields to the user entity, we suggest doing it in a separate step after the user logs in for the first time.
+  By default, Wasp will only save the `username` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../auth/overview#customizing-the-signup-process).
   :::
 
 You can use it like this:
@@ -388,7 +387,6 @@ You can use it like this:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="client/pages/auth.jsx"
-// Importing the signup and login actions 👇
 import signup from '@wasp/auth/signup'
 import login from '@wasp/auth/login'
 
@@ -427,7 +425,6 @@ export function Signup() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-// Importing the signup and login actions 👇
 import signup from '@wasp/auth/signup'
 import login from '@wasp/auth/login'
 
@@ -465,7 +462,7 @@ export function Signup() {
 </TabItem>
 </Tabs>
 
-### 2. Creating your custom actions
+### 2. Creating your custom sign-up action
 
 The code of your custom sign-up action can look like this:
 
@@ -475,28 +472,55 @@ The code of your custom sign-up action can look like this:
 ```wasp title="main.wasp"
 // ...
 
-action signupUser {
-  fn: import { signUp } from "@server/auth/signup.js",
-  entities: [User]
+action customSignup {
+  fn: import { signup } from "@server/auth/signup.js",
 }
 ```
 
 
 ```js title="src/server/auth/signup.js"
-export const signUp = async (args, context) => {
-  // Your custom code before sign-up.
-  // ...
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidUsername,
+} from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  createUser,
+} from '@wasp/auth/utils.js'
 
-  const newUser = context.entities.User.create({
-    data: {
-      username: args.username,
-      password: args.password // password hashed automatically by Wasp! 🐝
+export const signup = async (args, _context) => {
+  ensureValidUsername(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
+
+  try {
+    const providerId = createProviderId('username', args.username)
+    const providerData = await sanitizeAndSerializeProviderData({
+      hashedPassword: args.password,
+    })
+
+    await createUser(
+      providerId,
+      providerData,
+      // Any additional data you want to store on the User entity
+      {},
+    )
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
     }
-  })
+  }
 
   // Your custom code after sign-up.
   // ...
-  return newUser
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
 }
 ```
 </TabItem>
@@ -505,40 +529,101 @@ export const signUp = async (args, context) => {
 ```wasp title="main.wasp"
 // ...
 
-action signupUser {
-  fn: import { signUp } from "@server/auth/signup.js",
-  entities: [User]
+action customSignup {
+  fn: import { signup } from "@server/auth/signup.js",
 }
 ```
 
 ```ts title="src/server/auth/signup.ts"
-import type { User } from '@wasp/entities'
-import type { SignupUser } from '@wasp/actions/types'
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidUsername,
+} from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  createUser,
+} from '@wasp/auth/utils.js'
+import type { CustomSignup } from '@wasp/actions/types'
 
-type SignupPayload = Pick<User, 'username' | 'password'>
+type CustomSignupInput = {
+  username: string
+  password: string
+}
+type CustomSignupOutput = {
+  success: boolean
+  message: string
+}
 
-export const signUp: SignupUser<SignupPayload, User> = async (args, context) => {
-  // Your custom code before sign-up.
-  // ...
+export const signup: CustomSignup<
+  CustomSignupInput,
+  CustomSignupOutput
+> = async (args, _context) => {
+  ensureValidUsername(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
 
-  const newUser = context.entities.User.create({
-    data: {
-      username: args.username,
-      password: args.password // password hashed automatically by Wasp! 🐝
+  try {
+    const providerId = createProviderId('username', args.username)
+    const providerData = await sanitizeAndSerializeProviderData<'username'>({
+      hashedPassword: args.password,
+    })
+
+    await createUser(
+      providerId,
+      providerData,
+      // Any additional data you want to store on the User entity
+      {},
+    )
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
     }
-  })
+  }
 
   // Your custom code after sign-up.
   // ...
-  return newUser
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
 }
 ```
 </TabItem>
 </Tabs>
 
+We suggest using the built-in field validators for your authentication flow. You can import them from `@wasp/auth/validation.js`. These are the same validators that Wasp uses internally for the default authentication flow.
+
+#### Username
+
+- `ensureValidUsername(args)`
+
+  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
+
+#### Password
+
+- `ensurePasswordIsPresent(args)`
+
+  Checks if the password is present and throws an error if it's not.
+
+- `ensureValidPassword(args)`
+
+  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
+
 ## Using Auth 
 
-To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](../auth/overview).
+To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../auth/overview).
+
+### `getUsername`
+
+If you are looking to access the user's username in your code, you can do that by accessing the info about the user that is stored in the `user.auth.identities` array.
+
+To make things a bit easier for you, Wasp offers the `getUsername` helper.
+
+<GetUsername />
 
 ## API Reference
 
@@ -562,11 +647,8 @@ app myApp {
   }
 }
 
-// Wasp requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
 psl=}
 ```
 </TabItem>
@@ -587,20 +669,12 @@ app myApp {
   }
 }
 
-// Wasp requires the `userEntity` to have at least the following fields
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
 psl=}
 ```
 </TabItem>
 </Tabs>
-
-Username & password auth requires that `userEntity` specified in `auth` contains:
-
-- `username` field of type `String`
-- `password` field of type `String`
 
 ### Fields in the `usernameAndPassword` dict
 
@@ -649,4 +723,4 @@ app myApp {
 `usernameAndPassword` dict doesn't have any options at the moment.
 :::
 
-You can read about the rest of the `auth` options in the [using auth](../auth/overview) section of the docs.
+You can read about the rest of the `auth` options in the [auth overview](../auth/overview) section of the docs.

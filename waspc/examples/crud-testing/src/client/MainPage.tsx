@@ -1,64 +1,65 @@
-import "./Main.css";
+import './Main.css'
 
-import React, { useState } from "react";
-import { Link, routes } from "@wasp/router";
-import logout from "@wasp/auth/logout";
+import React, { useState } from 'react'
+import { Link, routes } from '@wasp/router'
+import logout from '@wasp/auth/logout'
+import { getUsername } from '@wasp/auth/user'
 
-import { tasks as tasksCrud } from "@wasp/crud/tasks";
-import { User } from "@wasp/entities";
+import { tasks as tasksCrud } from '@wasp/crud/tasks'
+import { User } from '@wasp/entities'
 
-const MainPage = ({ user }: { user: User }) => {
-  const { data: tasks, isLoading } = tasksCrud.getAll.useQuery();
+const MainPage = () => {
+  const { data: tasks, isLoading } = tasksCrud.getAll.useQuery()
 
-  type Task = NonNullable<typeof tasks>[number];
+  type Task = NonNullable<typeof tasks>[number]
 
-  const createTask = tasksCrud.create.useAction();
-  const deleteTask = tasksCrud.delete.useAction();
-  const updateTask = tasksCrud.update.useAction();
+  const createTask = tasksCrud.create.useAction()
+  const deleteTask = tasksCrud.delete.useAction()
+  const updateTask = tasksCrud.update.useAction()
 
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [editTaskTitle, setEditTaskTitle] = useState("");
-  const [error, setError] = useState("");
-  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = useState('')
+  const [editTaskTitle, setEditTaskTitle] = useState('')
+  const [error, setError] = useState('')
+  const [isEditing, setIsEditing] = useState<number | null>(null)
 
   async function handleCreateTask(e: React.FormEvent) {
-    setError("");
-    e.preventDefault();
+    setError('')
+    e.preventDefault()
     try {
       await createTask({
         title: newTaskTitle,
-      });
+      })
     } catch (err: unknown) {
-      setError(`Error creating task: ${err as any}`);
+      setError(`Error creating task: ${err as any}`)
     }
-    setNewTaskTitle("");
+    setNewTaskTitle('')
   }
 
   async function handleUpdateTask(e: React.FormEvent) {
-    setError("");
-    e.preventDefault();
+    setError('')
+    e.preventDefault()
     try {
-      await updateTask({ id: isEditing!, title: editTaskTitle });
+      await updateTask({ id: isEditing!, title: editTaskTitle })
     } catch (err: unknown) {
-      setError("Error updating task.");
+      setError('Error updating task.')
     }
-    setIsEditing(null);
-    setEditTaskTitle("");
+    setIsEditing(null)
+    setEditTaskTitle('')
   }
 
   function handleStartEditing(task: { id: number; title: string }) {
-    setIsEditing(task.id);
-    setEditTaskTitle(task.title);
+    setIsEditing(task.id)
+    setEditTaskTitle(task.title)
   }
 
   async function handleTaskDelete(task: { id: number }) {
     try {
-      if (!confirm("Are you sure you want to delete this task?")) {
-        return;
+      if (!confirm('Are you sure you want to delete this task?')) {
+        return
       }
-      await deleteTask({ id: task.id });
+      await deleteTask({ id: task.id })
     } catch (err: unknown) {
-      setError("Error deleting task.");
+      setError('Error deleting task.')
     }
   }
 
@@ -92,12 +93,13 @@ const MainPage = ({ user }: { user: User }) => {
                   <div className="task__title">
                     <Link
                       to="/:id/:something?"
-                      params={{ id: task.id, something: "else" }}
+                      params={{ id: task.id, something: 'else' }}
                     >
-                      Visit {task.title} at{" "}
+                      Visit {task.title} at{' '}
                       {routes.DetailRoute.build({
-                        params: { id: task.id, something: "else" },
-                      })}
+                        params: { id: task.id, something: 'else' },
+                      })}{' '}
+                      by {getUsername(task.user)}
                     </Link>
                   </div>
                   <button onClick={() => handleTaskDelete(task)}>Delete</button>
@@ -126,7 +128,7 @@ const MainPage = ({ user }: { user: User }) => {
         <button onClick={logout}>Logout</button>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default MainPage;
+export default MainPage

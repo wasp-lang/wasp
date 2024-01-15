@@ -1,6 +1,6 @@
 app crudTesting {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
   head: [
     "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"
@@ -20,7 +20,10 @@ app crudTesting {
     ("zod", "^3.22.2")
   ],
   db: {
-    system: PostgreSQL
+    system: PostgreSQL,
+    seeds: [
+      import { migrateAuth } from "@server/seeds/migrateAuth.js"
+    ]
   }
 }
 
@@ -48,8 +51,6 @@ page DetailPage {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
   address String?
   tasks Task[]
 psl=}
@@ -87,4 +88,8 @@ job simplePrintJob {
     fn: import { simplePrint } from "@server/jobs.js",
   },
   entities: [Task]
+}
+
+action customSignup {
+  fn: import { signup } from "@server/auth.js",
 }

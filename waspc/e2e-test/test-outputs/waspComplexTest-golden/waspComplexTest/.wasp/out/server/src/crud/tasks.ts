@@ -5,14 +5,12 @@ import type {
   AuthenticatedQuery,
   _Task,
 } from "../_types";
-import type {
-  Prisma,
-} from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { Payload } from "../_types/serialization.js";
 import type {
   Task,
 } from "../entities";
-import { throwInvalidCredentialsError } from "../core/auth.js";
+import { throwInvalidCredentialsError } from '../auth/utils.js'
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task

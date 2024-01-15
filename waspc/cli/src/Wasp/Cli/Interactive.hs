@@ -3,7 +3,9 @@
 module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
+    askToChoose',
     askForRequiredInput,
+    IsOption (..),
     Option (..),
   )
 where
@@ -37,22 +39,35 @@ import qualified Wasp.Util.Terminal as Term
   We want to avoid this so users can type the name of the option when answering
   without having to type the quotes as well.
 
-  We introduced the Option class to get different "show" behavior for Strings and other
-  types. If we are using something other then String, an instance of Option needs to be defined,
+  We introduced the IsOption class to get different "show" behavior for Strings and other
+  types. If we are using something other then String, an instance of IsOption needs to be defined,
   but for Strings it just returns the String itself.
 -}
-class Option o where
+class IsOption o where
   showOption :: o -> String
   showOptionDescription :: o -> Maybe String
 
-instance Option [Char] where
+instance IsOption [Char] where
   showOption = id
   showOptionDescription = const Nothing
+
+data Option o = Option
+  { oDisplayName :: !String,
+    oDescription :: !(Maybe String),
+    oValue :: !o
+  }
+
+instance IsOption (Option o) where
+  showOption = oDisplayName
+  showOptionDescription = oDescription
 
 askForRequiredInput :: String -> IO String
 askForRequiredInput = repeatIfNull . askForInput
 
-askToChoose :: forall o. Option o => String -> NonEmpty o -> IO o
+askToChoose' :: String -> NonEmpty (Option o) -> IO o
+askToChoose' question options = oValue <$> askToChoose question options
+
+askToChoose :: forall o. IsOption o => String -> NonEmpty o -> IO o
 askToChoose _ (singleOption :| []) = return singleOption
 askToChoose question options = do
   putStrLn $ Term.applyStyles [Term.Bold] question
@@ -83,18 +98,26 @@ askToChoose question options = do
     showIndexedOptions = intercalate "\n" $ showIndexedOption <$> zip [1 ..] (NE.toList options)
       where
         showIndexedOption (idx, option) =
-          Term.applyStyles [Term.Yellow] indexPrefix
-            <> Term.applyStyles [Term.Bold] (showOption option)
-            <> (if isDefaultOption option then " (default)" else "")
-            <> showDescription option (length indexPrefix)
+          concat
+            [ indexPrefix,
+              optionName,
+              tags,
+              optionDescription
+            ]
           where
-            indexPrefix = showIndex idx <> " "
+            indexPrefix = Term.applyStyles [Term.Yellow] (showIndex idx) <> " "
+            optionName = Term.applyStyles [Term.Bold] (showOption option)
+            tags = whenDefault (Term.applyStyles [Term.Yellow] " (default)")
+            optionDescription = showDescription (idx, option)
+            whenDefault xs = if isDefaultOption option then xs else mempty
 
-        showIndex i = "[" ++ show (i :: Int) ++ "]"
+        showIndex idx = "[" ++ show (idx :: Int) ++ "]"
 
-        showDescription option indentLength = case showOptionDescription option of
+        showDescription (idx, option) = case showOptionDescription option of
           Just description -> "\n" <> replicate indentLength ' ' <> description
           Nothing -> ""
+          where
+            indentLength = length (showIndex idx) + 1
 
     defaultOption :: o
     defaultOption = NE.head options

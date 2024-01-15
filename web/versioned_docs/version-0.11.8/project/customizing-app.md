@@ -2,7 +2,7 @@
 title: Customizing the App
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 
 Each Wasp project can have only one `app` type declaration. It is used to configure your app and its components.
 

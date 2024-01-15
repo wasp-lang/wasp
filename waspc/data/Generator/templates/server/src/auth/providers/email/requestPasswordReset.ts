@@ -1,14 +1,19 @@
 import { Request, Response } from 'express';
 import {
-    createPasswordResetLink,
-    findUserBy,
+    createProviderId,
+    findAuthIdentity,
     doFakeWork,
-    ensureValidEmail,
+    deserializeAndSanitizeProviderData,
+} from "../../utils.js";
+import {
+    createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
-} from "../../utils.js";
+} from "./utils.js";
+import { ensureValidEmail } from "../../validation.js";
 import type { EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';
+import HttpError from '../../../core/HttpError.js';
 
 export function getRequestPasswordResetRoute({
    fromField,
@@ -22,39 +27,47 @@ export function getRequestPasswordResetRoute({
     return async function requestPasswordReset(
         req: Request<{ email: string; }>,
         res: Response,
-    ): Promise<Response<{ success: true } | { success: false; message: string }>> {
-        const args = req.body || {};
+    ): Promise<Response<{ success: true }>> {
+        const args = req.body ?? {};
         ensureValidEmail(args);
 
-        args.email = args.email.toLowerCase();
+        const authIdentity = await findAuthIdentity(
+            createProviderId("email", args.email),
+        );
 
-        const user = await findUserBy({ email: args.email });
-    
-        // User not found or not verified - don't leak information
-        if (!user || !user.isEmailVerified) {
+        /**
+         * By doing fake work, we make it harder to enumerate users by measuring
+         * the time it takes to respond. If we would respond immediately, an attacker
+         * could measure the time it takes to respond and figure out if the user exists.
+         */
+
+        if (!authIdentity) {
             await doFakeWork();
             return res.json({ success: true });
         }
 
-        if (!isEmailResendAllowed(user, 'passwordResetSentAt')) {
-            return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+        const { isResendAllowed, timeLeft } = isEmailResendAllowed(providerData, 'passwordResetSentAt');
+        if (!isResendAllowed) {
+            throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
         }
-    
-        const passwordResetLink = await createPasswordResetLink(user, clientRoute);
+
+        const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
         try {
+            const email = authIdentity.providerUserId
             await sendPasswordResetEmail(
-                user.email,
+                email,
                 {
                     from: fromField,
-                    to: user.email,
+                    to: email,
                     ...getPasswordResetEmailContent({ passwordResetLink }),
-                }
+                },
             );
         } catch (e: any) {
             console.error("Failed to send password reset email:", e);
-            return res.status(500).json({ success: false, message: "Failed to send password reset email." });
+            throw new HttpError(500, "Failed to send password reset email.");
         }
     
-        res.json({ success: true });
+        return res.json({ success: true });
     };
 }

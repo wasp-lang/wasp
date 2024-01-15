@@ -1,5 +1,18 @@
 # Changelog
 
+## [WIP] 0.12.0
+
+### ⚠️ Breaking changes
+
+- Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity. This is a part of auth refactoring that we are doing to make it easier to customize auth. We will be adding more customization options in the future.
+
+### 🎉 [New Feature] Wasp now works with any Node version >= 18
+So far, Wasp required specific Node version that is compatible with latest LTS Node (lately that was 18).
+
+We relaxed that constraint so it now works with any Node version equal to or newer than the oldest LTS version that Wasp supports, meaning that now Wasp works with any Node version >= 18.
+
+--------------------------------------------------------------------------------
+
 ## 0.11.8
 
 ### 🎉 [New Feature] Serving the Client From a Subdirectory
@@ -23,11 +36,14 @@ app todoApp {
 - Fixes a regression where a missing DB on the DB server would prevent project from running. Now, Wasp will tolerate the missing DB error and rely on Prisma to create the DB for you (like before).
 - Fixes an issue on Linux where running Prisma migration command fails when a project has a path that has spaces in it.
 
+--------------------------------------------------------------------------------
+
 ## 0.11.7
 
 ### 🐞 Bug fixes / 🔧 small improvements
 - Fixed a bug with Prisma which prevent connections via SSL with our versions of Alpine and OpenSSL. We upgraded to the latest Prisma 4.X.X which fixes this issue.
 
+--------------------------------------------------------------------------------
 
 ## 0.11.6
 

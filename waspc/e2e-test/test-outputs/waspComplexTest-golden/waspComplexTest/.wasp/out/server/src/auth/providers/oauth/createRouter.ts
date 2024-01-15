@@ -1,21 +1,29 @@
 
 import { Router } from "express"
 import passport from "passport"
-import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
-import { sign } from '../../../core/auth.js'
-import { authConfig, contextWithUserEntity, createUser } from "../../utils.js"
-
-import type { User } from '../../../entities';
+import {
+  type ProviderName,
+  type ProviderId,
+  createProviderId,
+  authConfig,
+  contextWithUserEntity,
+  createUser,
+  findAuthWithUserBy,
+  rethrowPossibleAuthError,
+  sanitizeAndSerializeProviderData,
+} from "../../utils.js"
+import { createSession } from "../../session.js"
+import { type Auth } from "../../../entities/index.js"
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
 import type { GetUserFieldsFn } from "./types.js"
 import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
-export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn: GetUserFieldsFn }) {
+export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn?: GetUserFieldsFn }) {
     const { passportStrategyName, getUserFieldsFn } = initData;
 
     const router = Router();
@@ -41,46 +49,59 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
               throw new Error(`${provider.displayName} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
           }
 
-          // Wrap call to getUserFieldsFn so we can invoke only if needed.
-          const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile });
-          // TODO: In the future we could make this configurable, possibly associating an external account
-          // with the currently logged in account, or by some DB lookup.
-          const user = await findOrCreateUserByExternalAuthAssociation(provider.id, providerProfile.id, getUserFields);
+          const providerId = createProviderId(provider.id, providerProfile.id);
 
-          const token = await sign(user.id);
-          res.json({ token });
+          try {
+            const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, getUserFieldsFn)
+            const session = await createSession(authId)
+            return res.json({
+              sessionId: session.id,
+            })
+          } catch (e) {
+            rethrowPossibleAuthError(e)
+          }
       })
     )
 
     return router;
 }
 
-async function findOrCreateUserByExternalAuthAssociation(
-  provider: string,
-  providerId: string,
-  getUserFields: () => ReturnType<GetUserFieldsFn>,
-): Promise<User> {
-  // Attempt to find a User by an external auth association.
-  const externalAuthAssociation = await prisma.socialLogin.findFirst({
-    where: { provider, providerId },
-    include: { user: true }
+// We need a user id to create the auth token, so we either find an existing user
+// or create a new one if none exists for this provider.
+async function getAuthIdFromProviderDetails(
+  providerId: ProviderId,
+  providerProfile: any,
+  getUserFieldsFn?: GetUserFieldsFn,
+): Promise<Auth['id']> {
+  const existingAuthIdentity = await prisma.authIdentity.findUnique({
+    where: {
+      providerName_providerUserId: providerId,
+    },
+    include: {
+      auth: {
+        include: {
+          user: true
+        }
+      }
+    }
   })
 
-  if (externalAuthAssociation) {
-    return externalAuthAssociation.user
-  }
+  if (existingAuthIdentity) {
+    return existingAuthIdentity.auth.id
+  } else {
+    const userFields = getUserFieldsFn
+      ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
+      : {};
 
-  // No external auth association linkage found. Create a new User using details from
-  // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
-  const userFields = await getUserFields()
-  const userAndExternalAuthAssociation = {
-    ...userFields,
-    // TODO: Decouple social from usernameAndPassword auth.
-    password: uuidv4(),
-    externalAuthAssociations: {
-      create: [{ provider, providerId }]
-    }
-  }
+    // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
+    const providerData = await sanitizeAndSerializeProviderData({})
+  
+    const user = await createUser(
+      providerId,
+      providerData,
+      userFields,
+    )
 
-  return createUser(userAndExternalAuthAssociation)
+    return user.auth.id
+  }
 }

@@ -1,20 +1,35 @@
 import { Request, Response } from 'express';
-import { updateUserEmailVerification, verifyToken } from '../../utils.js';
+import {
+    verifyToken,
+    createProviderId,
+    findAuthIdentity,
+    updateAuthIdentityProviderData,
+    deserializeAndSanitizeProviderData,
+} from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
+import HttpError from '../../../core/HttpError.js';
+
 
 export async function verifyEmail(
     req: Request<{ token: string }>,
     res: Response,
-): Promise<Response<{ success: true } | { success: false, message: string }>> {
+): Promise<Response<{ success: true }>> {
     try {
         const { token } = req.body;
-        const { id: userId } = await verifyToken(token);
-        await updateUserEmailVerification(userId);
+        const { email } = await verifyToken<{ email: string }>(token);
+
+        const providerId = createProviderId('email', email);
+        const authIdentity = await findAuthIdentity(providerId);
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+        await updateAuthIdentityProviderData(providerId, providerData, {
+            isEmailVerified: true,
+        });
     } catch (e) {
         const reason = e.name === tokenVerificationErrors.TokenExpiredError
             ? 'expired'
             : 'invalid';
-        return res.status(400).json({ success: false, message: `Token is ${reason}` });
+        throw new HttpError(400, `Token is ${reason}`);
     }
 
     return res.json({ success: true });

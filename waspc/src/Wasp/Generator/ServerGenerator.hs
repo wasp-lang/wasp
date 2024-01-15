@@ -40,20 +40,21 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
     makeJsonWithEntityData,
     prismaVersion,
   )
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
-import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.AuthG (depsRequiredByAuth, genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
@@ -67,15 +68,15 @@ import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.SemanticVersion (major)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|nodemon.json|],
+      genTsConfigJson,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -116,6 +117,18 @@ genDotEnv spec =
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
+genTsConfigJson :: Generator FileDraft
+genTsConfigJson = do
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|tsconfig.json|])
+      (C.asServerFile [relfile|tsconfig.json|])
+      ( Just $
+          object
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            ]
+      )
+
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
   combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
@@ -127,7 +140,7 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show NodeVersion.nodeVersionRange,
+              "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -165,6 +178,7 @@ npmDepsForWasp spec =
             ("rate-limiter-flexible", "^2.4.1"),
             ("superjson", "^1.12.2")
           ]
+          ++ depsRequiredByAuth spec
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEmail spec
@@ -179,12 +193,14 @@ npmDepsForWasp spec =
             ("typescript", "^5.1.0"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
-            ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1"),
+            ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
+            ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/uuid", "^9.0.0"),
             ("@types/cors", "^2.8.5")
           ]
     }
+  where
+    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
@@ -206,13 +222,14 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|core/AuthError.js|],
       genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genFileCopy [relfile|polyfill.ts|]
     ]
+    <++> genServerUtils spec
     <++> genRoutesDir spec
     <++> genTypesAndEntitiesDirs spec
     <++> genOperationsRoutes spec
@@ -298,7 +315,14 @@ genTypesAndEntitiesDirs spec =
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
-        (Just $ object ["entities" .= allEntities])
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+              ]
+        )
     taggedEntitiesFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/_types/taggedEntities.ts|]
@@ -316,6 +340,10 @@ genTypesAndEntitiesDirs spec =
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust maybeUserEntityName,
                 "userEntityName" .= userEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+                "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
                 "userFieldName" .= toLowerFirst userEntityName
               ]
         )
@@ -430,5 +458,10 @@ genOperationsMiddleware spec =
       (C.asTmplFile [relfile|src/middleware/operations.ts|])
       (C.asServerFile [relfile|src/middleware/operations.ts|])
       (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
+
+genServerUtils :: AppSpec -> Generator [FileDraft]
+genServerUtils spec = return [C.mkTmplFdWithData [relfile|src/utils.ts|] (Just tmplData)]
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

@@ -9,7 +9,7 @@ where
 import Data.Aeson (object, (.=))
 import Data.Char (toLower)
 import Data.List (intercalate)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -26,6 +26,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.App (App (webSocket))
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket (..))
@@ -38,6 +39,7 @@ import Wasp.Generator.Common
     prismaVersion,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import qualified Wasp.Generator.ExternalCodeGenerator.Common as ECC
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
@@ -120,7 +122,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show NodeVersion.nodeVersionRange
+              "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
 
@@ -280,8 +282,16 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
-        (Just $ object ["entities" .= allEntities])
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+              ]
+        )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 getIndexTs :: AppSpec -> Generator FileDraft
 getIndexTs spec =

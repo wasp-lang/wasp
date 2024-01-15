@@ -1,6 +1,14 @@
 import { Request, Response } from 'express';
-import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
-import { findUserBy, createAuthToken, ensureValidEmailAndPassword } from "../../utils.js";
+import { throwInvalidCredentialsError } from '../../utils.js'
+import { verifyPassword } from '../../password.js'
+import {
+    createProviderId,
+    findAuthIdentity,
+    findAuthWithUserBy,
+    deserializeAndSanitizeProviderData,
+} from '../../utils.js'
+import { createSession } from '../../session.js'
+import { ensureValidEmail, ensurePasswordIsPresent } from '../../validation.js'
 
 export function getLoginRoute({
     allowUnverifiedLogin,
@@ -10,27 +18,36 @@ export function getLoginRoute({
     return async function login(
         req: Request<{ email: string; password: string; }>,
         res: Response,
-    ): Promise<Response<{ token: string } | undefined>> {
-        const args = req.body || {}
-        ensureValidEmailAndPassword(args)
+    ): Promise<Response<{ sessionId: string } | undefined>> {
+        const fields = req.body ?? {}
+        ensureValidArgs(fields)
 
-        args.email = args.email.toLowerCase()
-
-        const user = await findUserBy({ email: args.email })
-        if (!user) {
+        const authIdentity = await findAuthIdentity(
+            createProviderId("email", fields.email)
+        )
+        if (!authIdentity) {
             throwInvalidCredentialsError()
         }
-        if (!user.isEmailVerified && !allowUnverifiedLogin) {
+        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
+        if (!providerData.isEmailVerified && !allowUnverifiedLogin) {
             throwInvalidCredentialsError()
         }
         try {
-            await verifyPassword(user.password, args.password);
+            await verifyPassword(providerData.hashedPassword, fields.password);
         } catch(e) {
             throwInvalidCredentialsError()
         }
     
-        const token = await createAuthToken(user)
+        const auth = await findAuthWithUserBy({ id: authIdentity.authId })
+        const session = await createSession(auth.id)
       
-        return res.json({ token })
+        return res.json({
+            sessionId: session.id,
+        })
     };
+}
+
+function ensureValidArgs(args: unknown): void {
+    ensureValidEmail(args);
+    ensurePasswordIsPresent(args);
 }

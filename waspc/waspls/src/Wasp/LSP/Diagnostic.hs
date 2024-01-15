@@ -119,5 +119,5 @@ waspErrorRange err =
 clearMissingExtImportDiagnostics :: [WaspDiagnostic] -> [WaspDiagnostic]
 clearMissingExtImportDiagnostics = filter (not . isMissingImportDiagnostic)
   where
-    isMissingImportDiagnostic (MissingExtImportDiagnostic _ _ _) = True
+    isMissingImportDiagnostic MissingExtImportDiagnostic {} = True
     isMissingImportDiagnostic _ = False
