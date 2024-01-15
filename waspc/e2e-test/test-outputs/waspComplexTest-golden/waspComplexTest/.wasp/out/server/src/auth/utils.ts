@@ -13,9 +13,7 @@ import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
-
-import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
-const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
+import { type GetUserFieldsFn, type PossibleUserFields } from './providers/types.js'
 
 export type EmailProviderData = {
   hashedPassword: string;
@@ -128,7 +126,7 @@ export async function findAuthWithUserBy(
 export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
-  userFields?: PossibleAdditionalSignupFields,
+  userFields?: PossibleUserFields,
 ): Promise<User & {
   auth: Auth
 }> {
@@ -226,15 +224,24 @@ export function rethrowPossibleAuthError(e: unknown): void {
   throw e
 }
 
-export async function validateAndGetAdditionalFields(data: {
-  [key: string]: unknown
-}): Promise<Record<string, any>> {
+export async function validateAndGetUserFields(
+  data: {
+    [key: string]: unknown
+  },
+  getUserFields?: GetUserFieldsFn,
+): Promise<Record<string, any>> {
   const {
     password: _password,
     ...sanitizedData
   } = data;
   const result: Record<string, any> = {};
-  for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
+
+  if (!getUserFields) {
+    return result;
+  }
+
+  const userFields = getUserFields();
+  for (const [field, getFieldValue] of Object.entries(userFields)) {
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value

@@ -11,19 +11,21 @@ import {
   authConfig,
   contextWithUserEntity,
   createUser,
-  findAuthWithUserBy,
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
+  validateAndGetUserFields,
 } from "../../utils.js"
 import { createSession } from "../../session.js"
 import { type Auth } from "../../../entities/index.js"
-import type { ProviderConfig, RequestWithWasp } from "../types.js"
-import type { GetUserFieldsFn } from "./types.js"
+import type { ProviderConfig, RequestWithWasp, GetUserFieldsFn } from "../types.js"
 import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
-export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn?: GetUserFieldsFn }) {
+export function createRouter(provider: ProviderConfig, initData: {
+  passportStrategyName: string,
+  getUserFieldsFn?: GetUserFieldsFn,
+}) {
     const { passportStrategyName, getUserFieldsFn } = initData;
 
     const router = Router();
@@ -89,9 +91,10 @@ async function getAuthIdFromProviderDetails(
   if (existingAuthIdentity) {
     return existingAuthIdentity.auth.id
   } else {
-    const userFields = getUserFieldsFn
-      ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
-      : {};
+    const userFields = await validateAndGetUserFields(
+      { profile: providerProfile },
+      getUserFieldsFn,
+    );
 
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})
@@ -99,7 +102,9 @@ async function getAuthIdFromProviderDetails(
     const user = await createUser(
       providerId,
       providerData,
-      userFields,
+      // Using any here because we want to avoid TypeScript errors and
+      // rely on Prisma to validate the data.
+      userFields as any,
     )
 
     return user.auth.id

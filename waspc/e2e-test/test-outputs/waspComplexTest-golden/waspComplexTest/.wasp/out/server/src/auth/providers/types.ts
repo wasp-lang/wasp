@@ -23,11 +23,11 @@ export type InitData = {
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
-export type PossibleAdditionalSignupFields = Expand<Partial<UserEntityCreateInput>>
+export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>
 
-export function defineAdditionalSignupFields(config: {
-  [key in keyof PossibleAdditionalSignupFields]: FieldGetter<
-    PossibleAdditionalSignupFields[key]
+export function defineUserFields(config: {
+  [key in keyof PossibleUserFields]: FieldGetter<
+    PossibleUserFields[key]
   >
 }) {
   return config
@@ -36,3 +36,5 @@ export function defineAdditionalSignupFields(config: {
 type FieldGetter<T> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
+
+export type GetUserFieldsFn = () => ReturnType<typeof defineUserFields>
