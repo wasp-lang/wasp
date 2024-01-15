@@ -19,7 +19,7 @@ First, we'll create a Todo list for what needs to be done (luckily we have an ap
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it will create [the auth related entities](/docs/auth/entities) for us in the background, that we don't have to worry about. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
+Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for us in the background, that we don't have to worry about. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
 
 ```wasp title="main.wasp"
 // ...
@@ -280,7 +280,7 @@ However, you will notice that if you try logging in as different users and creat
 
 <small>
 
-You might notice some extra Prisma models like `Auth` and `AuthIdentity` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](/docs/auth/entities).
+You might notice some extra Prisma models like `Auth` and `AuthIdentity` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
 
 </small>
 

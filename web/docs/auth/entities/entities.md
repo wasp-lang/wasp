@@ -8,7 +8,7 @@ import MultipleIdentitiesWarning from '../\_multiple-identities-warning.md';
 import GetEmail from './\_get-email.md';
 import GetUsername from './\_get-username.md';
 
-Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](/docs/auth/username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](/docs/auth/email) authentication method, you will need to store the user's email, password and for example, their email verification status.
+Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](./username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](./email) authentication method, you will need to store the user's email, password and for example, their email verification status.
 
 ## Entities Explained
 
@@ -125,7 +125,7 @@ To make things a bit easier for you, Wasp offers a few helper functions that you
 
 The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
 
-[As mentioned before](#authidentity-entity), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need *any* ID that identifies the user in your app.
+[As mentioned before](#authidentity-entity-), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need *any* ID that identifies the user in your app.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -177,6 +177,12 @@ export const createTask: CreateTask<...>  = async (args, context) => {
 ### `findUserIdentity`
 
 You can find a specific auth identity by using the `findUserIdentity` helper function. This function takes a `user` and a `providerName` and returns the first `providerName` identity that it finds or `null` if it doesn't find any.
+
+Possible provider names are:
+- `email`
+- `username`
+- `google`
+- `github`
 
 This can be useful if you want to check if the user has a specific auth identity. For example, you might want to check if the user has an email auth identity or Google auth identity.
 
@@ -257,7 +263,7 @@ Let's take a look at how you can use the `Auth` and `AuthIdentity` entities to c
 
 :::info Custom Signup Examples
 
-In the [Email](/docs/auth/email#creating-a-custom-sign-up-action) section of the docs we give you an example for custom email signup and in the [Username & password](/docs/auth/username-and-pass#2-creating-your-custom-sign-up-action) section of the docs we give you an example for custom username & password signup.
+In the [Email](./email#creating-a-custom-sign-up-action) section of the docs we give you an example for custom email signup and in the [Username & password](./username-and-pass#2-creating-your-custom-sign-up-action) section of the docs we give you an example for custom username & password signup.
 :::
 
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
@@ -415,4 +421,4 @@ export const signup: CustomSignup<
 </TabItem>
 </Tabs>
 
-You can use whichever method suits your needs better: either the `createUser` function or Prisma's `user.create` method. The `createUser` function is a bit more convenient to use because it hides some of the complexity. On the other hand, the `user.create` method gives you more control over the data that is stored in the `Auth` and `AuthIdentity` entities.
+You can use whichever method suits your needs better: either the `createUser` function or Prisma's `User.create` method. The `createUser` function is a bit more convenient to use because it hides some of the complexity. On the other hand, the `User.create` method gives you more control over the data that is stored in the `Auth` and `AuthIdentity` entities.

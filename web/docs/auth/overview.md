@@ -465,15 +465,15 @@ export const updatePassword: UpdatePassword<
 
 ### Default Validations
 
-When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](/docs/auth/ui) or if you use the provided auth actions.
+When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](./ui) or if you use the provided auth actions.
 
-If you decide to create your [custom auth actions](/docs/auth/username-and-pass#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
+If you decide to create your [custom auth actions](./username-and-pass#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
 
 Default validations depend on the auth method you use.
 
 #### Username & Password
 
-If you use [Username & password](../auth/username-and-pass) authentication, the default validations are:
+If you use [Username & password](./username-and-pass) authentication, the default validations are:
 
 - The `username` must not be empty
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -482,7 +482,7 @@ Note that `username`s are stored in a **case-insensitive** manner.
 
 #### Email
 
-If you use [Email](../auth/email) authentication, the default validations are:
+If you use [Email](./email) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address
 - The `password` must not be empty, have at least 8 characters, and contain a number
