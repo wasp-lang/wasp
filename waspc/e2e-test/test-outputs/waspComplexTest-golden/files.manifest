@@ -39,7 +39,6 @@ waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
 waspComplexTest/.wasp/out/server/src/email/core/helpers.ts
 waspComplexTest/.wasp/out/server/src/email/core/index.ts
-waspComplexTest/.wasp/out/server/src/email/core/providers/dummy.ts
 waspComplexTest/.wasp/out/server/src/email/core/providers/sendgrid.ts
 waspComplexTest/.wasp/out/server/src/email/core/types.ts
 waspComplexTest/.wasp/out/server/src/email/index.ts
