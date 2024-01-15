@@ -6,14 +6,16 @@ module Wasp.AppSpec.App.Auth
     AuthMethods (..),
     ExternalAuthConfig (..),
     EmailAuthConfig (..),
-    SignupOptions (..),
-    usernameAndPasswordConfig,
+    UsernameAndPasswordConfig (..),
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
     isEmailVerificationRequired,
+    getEmailUserFieldsFn,
+    getUsernameAndPasswordUserFieldsFn,
+    getExternalAuthUserFieldsFn,
   )
 where
 
@@ -30,7 +32,6 @@ data Auth = Auth
   { userEntity :: Ref Entity,
     externalAuthEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
-    signup :: Maybe SignupOptions,
     onAuthFailedRedirectTo :: String,
     onAuthSucceededRedirectTo :: Maybe String
   }
@@ -45,8 +46,7 @@ data AuthMethods = AuthMethods
   deriving (Show, Eq, Data)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
-  { -- NOTE: Not used right now, but Analyzer does not support an empty data type.
-    configFn :: Maybe ExtImport
+  { getUserFieldsFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
@@ -57,20 +57,13 @@ data ExternalAuthConfig = ExternalAuthConfig
   deriving (Show, Eq, Data)
 
 data EmailAuthConfig = EmailAuthConfig
-  { fromField :: EmailFromField,
+  { getUserFieldsFn :: Maybe ExtImport,
+    fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig,
     allowUnverifiedLogin :: Maybe Bool
   }
   deriving (Show, Eq, Data)
-
-data SignupOptions = SignupOptions
-  { additionalFields :: Maybe ExtImport
-  }
-  deriving (Show, Eq, Data)
-
-usernameAndPasswordConfig :: UsernameAndPasswordConfig
-usernameAndPasswordConfig = UsernameAndPasswordConfig Nothing
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
@@ -91,3 +84,15 @@ isEmailVerificationRequired :: Auth -> Bool
 isEmailVerificationRequired auth = case email . methods $ auth of
   Nothing -> False
   Just emailAuthConfig -> allowUnverifiedLogin emailAuthConfig /= Just True
+
+-- These helper functions are used to avoid ambiguity when using the
+-- `getUserFieldsFn` function (otherwise we need to use the DuplicateRecordFields
+-- extension in each module that uses them).
+getEmailUserFieldsFn :: EmailAuthConfig -> Maybe ExtImport
+getEmailUserFieldsFn = getUserFieldsFn
+
+getUsernameAndPasswordUserFieldsFn :: UsernameAndPasswordConfig -> Maybe ExtImport
+getUsernameAndPasswordUserFieldsFn = getUserFieldsFn
+
+getExternalAuthUserFieldsFn :: ExternalAuthConfig -> Maybe ExtImport
+getExternalAuthUserFieldsFn = getUserFieldsFn

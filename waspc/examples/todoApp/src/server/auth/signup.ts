@@ -1,6 +1,6 @@
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserFields } from '@wasp/auth/index.js'
 
-export const fields = defineAdditionalSignupFields({
+export const fields = defineUserFields({
   address: (data) => {
     if (typeof data.address !== 'string') {
       throw new Error('Address is required.')

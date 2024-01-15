@@ -15,7 +15,9 @@ app todoApp {
   auth: {
     userEntity: User,
     methods: {
-      // usernameAndPassword: {},
+      // usernameAndPassword: {
+      //  getUserFieldsFn: import { getUserFields } from "@server/auth/github.js",
+      // },
       google: {
         configFn: import { config } from "@server/auth/google.js",
         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
@@ -25,6 +27,7 @@ app todoApp {
       //   // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       // },
       email: {
+        // getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
         fromField: {
           name: "ToDO App",
           email: "mihovil@ilakovac.com"
@@ -39,9 +42,6 @@ app todoApp {
         },
         allowUnverifiedLogin: false,
       },
-    },
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"

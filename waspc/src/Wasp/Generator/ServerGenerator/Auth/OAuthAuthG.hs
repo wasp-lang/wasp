@@ -114,7 +114,7 @@ genOAuthConfig provider maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWit
           "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
         ]
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
-    maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< maybeUserConfig
+    maybeGetUserFieldsFn = AS.Auth.getExternalAuthUserFieldsFn =<< maybeUserConfig
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]

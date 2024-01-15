@@ -108,14 +108,11 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
-
-    additionalSignupFields = AS.Auth.signup auth >>= AS.Auth.additionalFields
 
 genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
 genIndexTs auth =

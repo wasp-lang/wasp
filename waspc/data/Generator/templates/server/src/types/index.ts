@@ -13,10 +13,6 @@ export type ServerSetupFnContext = {
 export type { Application } from 'express'
 export type { Server } from 'http'
 
-{=# isExternalAuthEnabled =}
-export type { GetUserFieldsFn } from '../auth/providers/oauth/types';
-{=/ isExternalAuthEnabled =}
-
 {=# isEmailAuthEnabled =}
 export type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from '../auth/providers/email/types';
 {=/ isEmailAuthEnabled =}

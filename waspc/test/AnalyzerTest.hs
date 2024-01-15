@@ -9,6 +9,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import qualified Wasp.AI.GenerateNewProject.Common as Auth
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC
@@ -48,11 +49,12 @@ spec_Analyzer = do
                 "  head: [\"foo\", \"bar\"],",
                 "  auth: {",
                 "    userEntity: User,",
-                "    methods: { usernameAndPassword: {} },",
-                "    onAuthFailedRedirectTo: \"/\",",
-                "    signup: {",
-                "      additionalFields: import { fields } from \"@server/auth/signup.js\",",
+                "    methods: {",
+                "      usernameAndPassword: {",
+                "        getUserFieldsFn: import { getUserFields } from \"@server/auth/signup.js\",",
+                "      }",
                 "    },",
+                "    onAuthFailedRedirectTo: \"/\",",
                 "  },",
                 "  dependencies: [",
                 "    (\"redux\", \"^4.0.5\")",
@@ -139,15 +141,13 @@ spec_Analyzer = do
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
                             Auth.externalAuthEntity = Nothing,
-                            Auth.signup =
-                              Just $
-                                Auth.SignupOptions
-                                  { Auth.additionalFields =
-                                      Just $ ExtImport (ExtImportField "fields") (fromJust $ SP.parseRelFileP "auth/signup.js")
-                                  },
                             Auth.methods =
                               Auth.AuthMethods
-                                { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,
+                                { Auth.usernameAndPassword =
+                                    Just
+                                      Auth.UsernameAndPasswordConfig
+                                        { Auth.getUserFieldsFn = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
+                                        },
                                   Auth.google = Nothing,
                                   Auth.gitHub = Nothing,
                                   Auth.email = Nothing
