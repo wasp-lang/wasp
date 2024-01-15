@@ -2,7 +2,7 @@
 title: Deploying with the Wasp CLI
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 
 Wasp CLI can deploy your full-stack application with only a single command.
 The command automates the manual deployment process and is the recommended way of deploying Wasp apps.
