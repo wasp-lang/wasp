@@ -103,7 +103,7 @@ If you wish to store more information about the user, you can override the defau
 
 You can create custom signup setups, such as allowing users to define a custom username after they sign up with a social provider.
 
-### Allowing User to Set Their Username
+### Example: Allowing User to Set Their Username
 
 If you want to modify the signup flow (e.g., let users choose their own usernames), you will need to go through three steps:
 
@@ -173,9 +173,9 @@ app myApp {
 And implement the imported function.
 
 ```js title=src/server/auth/google.js
-export const getUserFields = async (_context, _args) => {
+export const getUserFields = () => {
   return {
-    isSignupComplete: false,
+    isSignupComplete: () => false,
   }
 }
 ```
@@ -207,13 +207,11 @@ app myApp {
 And implement the imported function:
 
 ```ts title=src/server/auth/google.ts
-import { GetUserFieldsFn } from '@wasp/types'
+import { defineUserFields } from '@wasp/auth/index.js'
 
-export const getUserFields: GetUserFieldsFn = async (_context, _args) => {
-  return {
-    isSignupComplete: false,
-  }
-}
+export const getUserFields = () => defineUserFields({
+  isSignupComplete: () => false,
+})
 ```
 
 <GetUserFieldsType />

@@ -358,10 +358,9 @@ psl=}
 ```js title=src/server/auth/github.js
 import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
 
-export const getUserFields = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername();
-  const displayName = args.profile.displayName;
-  return { username, displayName };
+export const getUserFields = () => {
+  username: () => generateAvailableDictionaryUsername(),
+  displayName: (data) => data.profile.displayName,
 };
 
 export function getConfig() {
@@ -406,14 +405,13 @@ psl=}
 ```
 
 ```ts title=src/server/auth/github.ts
-import type { GetUserFieldsFn } from '@wasp/types'
 import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
+import { defineUserFields } from '@wasp/auth/index.js'
 
-export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername()
-  const displayName = args.profile.displayName
-  return { username, displayName }
-}
+export const getUserFields = () => defineUserFields({
+  username: () => generateAvailableDictionaryUsername(),
+  displayName: (data) => data.profile.displayName,
+})
 
 export function getConfig() {
   return {
@@ -537,12 +535,11 @@ The `gitHub` dict has the following properties:
   ```js title=src/server/auth/github.js
   import { generateAvailableUsername } from '@wasp/core/auth.js'
 
-  export const getUserFields = async (_context, args) => {
-    const username = await generateAvailableUsername(
-      args.profile.displayName.split(' '),
+  export const getUserFields = () => {
+    username: (data) => generateAvailableUsername(
+      data.profile.displayName.split(' '),
       { separator: '.' }
     )
-    return { username }
   }
   ```
 
@@ -550,16 +547,15 @@ The `gitHub` dict has the following properties:
   <TabItem value="ts" label="TypeScript">
 
   ```ts title=src/server/auth/github.ts
-  import type { GetUserFieldsFn } from '@wasp/types'
   import { generateAvailableUsername } from '@wasp/core/auth.js'
+  import { defineUserFields } from '@wasp/auth/index.js'
 
-  export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-    const username = await generateAvailableUsername(
-      args.profile.displayName.split(' '),
+  export const getUserFields = () => defineUserFields({
+    username: (data) => generateAvailableUsername(
+      data.profile.displayName.split(' '),
       { separator: '.' }
     )
-    return { username }
-  }
+  })
   ```
 
   </TabItem>
