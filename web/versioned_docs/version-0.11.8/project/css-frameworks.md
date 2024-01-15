@@ -92,7 +92,7 @@ app todoApp {
   // ...
   dependencies: [
     ("@tailwindcss/forms", "^0.5.3"),
-    ("@tailwindcss/typographjy", "^0.5.7"),
+    ("@tailwindcss/typography", "^0.5.7"),
   ],
   // ...
 }
