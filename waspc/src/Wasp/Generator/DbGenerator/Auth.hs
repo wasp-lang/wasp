@@ -12,6 +12,7 @@ import Wasp.Generator.Monad
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Model as Psl.Model.Field
+import qualified Wasp.Util as Util
 
 {--
 
@@ -64,6 +65,9 @@ sessionEntityName = "Session"
 
 sessionsFieldOnAuthEntityName :: String
 sessionsFieldOnAuthEntityName = "sessions"
+
+authFieldOnSessionEntityName :: String
+authFieldOnSessionEntityName = Util.toLowerFirst authEntityName
 
 injectAuth :: [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
 injectAuth entities (userEntityName, userEntity) = do
@@ -138,13 +142,15 @@ makeSessionEntity = case parsePslBody sessionEntityPslBody of
 
           // Needs to be called `userId` for Lucia to be able to create sessions
           userId String
-          // Needs to be called `auth` for Lucia to be able to get sessions
-          auth   ${authEntityNameText}   @relation(references: [id], fields: [userId], onDelete: Cascade)
+          // The relation needs to be named as lowercased entity name, because that's what Lucia expects.
+          // If the entity is named `Foo`, the relation needs to be named `foo`.
+          ${authFieldOnSessionEntityNameText}   ${authEntityNameText}   @relation(references: [id], fields: [userId], onDelete: Cascade)
 
           @@index([userId])
         |]
 
     authEntityNameText = T.pack authEntityName
+    authFieldOnSessionEntityNameText = T.pack authFieldOnSessionEntityName
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =
