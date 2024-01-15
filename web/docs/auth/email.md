@@ -70,7 +70,6 @@ app myApp {
         passwordReset: {
           clientRoute: PasswordResetRoute,
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -105,7 +104,6 @@ app myApp {
         passwordReset: {
           clientRoute: PasswordResetRoute,
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -466,10 +464,6 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 ### Login
 
 ![Auth UI](/img/authui/login.png)
-
-If logging in with an unverified email is _allowed_, the user will be able to login with an unverified email address. If logging in with an unverified email is _not allowed_, the user will be shown an error message.
-
-Read more about the `allowUnverifiedLogin` option [here](#allowunverifiedlogin-bool-specifies-whether-the-user-can-login-without-verifying-their-e-mail-address).
 
 ### Signup
 
@@ -912,7 +906,6 @@ app myApp {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -944,7 +937,6 @@ app myApp {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -1114,11 +1106,3 @@ It has the following fields:
   </Tabs>
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>
-
-#### `allowUnverifiedLogin: bool`: specifies whether the user can login without verifying their e-mail address
-
-It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
-
-Sometimes you want to allow unverified users to login to provide them a different onboarding experience. Some of the pages can be viewed without verifying the e-mail address, but some of them can't. You can use the `isEmailVerified` field on the user entity to check if the user has verified their e-mail address.
-
-If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).

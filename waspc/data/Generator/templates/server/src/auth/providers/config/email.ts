@@ -53,16 +53,19 @@ const config: ProviderConfig = {
     createRouter() {
         const router = Router();
 
-        const loginRoute = handleRejection(getLoginRoute({
-            allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
-        }));
+        const loginRoute = handleRejection(getLoginRoute());
         router.post('/login', loginRoute);
 
         const signupRoute = handleRejection(getSignupRoute({
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
-            allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
+            {=# isDevelopment =}
+            isEmailAutoVerified: process.env.IS_EMAIL_AUTO_VERIFIED_IN_DEV === 'true',
+            {=/ isDevelopment =}
+            {=^ isDevelopment =}
+            isEmailAutoVerified: false,
+            {=/ isDevelopment =}
         }));
         router.post('/signup', signupRoute);
         
