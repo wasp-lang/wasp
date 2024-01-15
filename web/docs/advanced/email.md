@@ -4,7 +4,7 @@ title: Sending Emails
 
 import SendingEmailsInDevelopment from '../\_sendingEmailsInDevelopment.md'
 
-import { Required } from '@site/src/components/Required'
+import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 # Sending Emails

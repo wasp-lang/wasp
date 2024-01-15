@@ -2,7 +2,7 @@
 title: Username & Password
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
 

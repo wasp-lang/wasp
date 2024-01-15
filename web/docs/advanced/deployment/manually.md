@@ -5,7 +5,7 @@ title: Deploying Manually
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
 import BuildingTheWebClient from './\_building-the-web-client.md'
-import { Required } from '@site/src/components/Required'
+import { Required } from '@site/src/components/Tag'
 
 We'll cover how to deploy your Wasp app manually to a variety of providers:
 

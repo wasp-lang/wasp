@@ -72,8 +72,6 @@ Let's then add the data models for your recipes. We will want to have Users and 
 
 entity User {=psl  // Data models are defined using Prisma Schema Language.
   id          Int @id @default(autoincrement())
-  username    String @unique
-  password    String
   recipes     Recipe[]
 psl=}
 

@@ -19,22 +19,14 @@ First, we'll create a Todo list for what needs to be done (luckily we have an ap
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it expects certain fields to exist on the `User` entity. Specifically, it expects a unique `username` field and a `password` field, both of which should be strings.
+Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for us in the background, that we don't have to worry about. However, we still need to add the `User` entity that will help us keep track of which user owns which tasks.
 
 ```wasp title="main.wasp"
 // ...
 
 entity User {=psl
     id       Int    @id @default(autoincrement())
-    username String @unique
-    password String
 psl=}
-```
-
-As we talked about earlier, we have to remember to update the database schema:
-
-```sh
-wasp db migrate-dev
 ```
 
 ## Adding Auth to the Project
@@ -61,6 +53,12 @@ app TodoApp {
 }
 
 // ...
+```
+
+As we talked about earlier, we have to remember to update the database schema:
+
+```sh
+wasp db migrate-dev
 ```
 
 By doing this, Wasp will create:
@@ -250,9 +248,9 @@ const MainPage = ({ user }) => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx {3} title="src/client/MainPage.tsx"
-import { User } from '@wasp/entities'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 
-const MainPage = ({ user }: { user: User }) => {
+const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   // Do something with the user
 }
 ```
@@ -271,25 +269,31 @@ wasp db studio
 ```
 
 <img alt="Database demonstration - password hashing"
-src={useBaseUrl('img/wasp_db_hash_demonstration.gif')}
+src={useBaseUrl('img/wasp_user_in_db.gif')}
 style={{ border: "1px solid black" }}
 />
 
-We see there is a user and that its password is already hashed 🤯
+
+You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
+
+<small>
+
+You might notice some extra Prisma models like `Auth` and `AuthIdentity` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+
+</small>
 
 ## Defining a User-Task Relation
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp {7,14-15} title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 entity User {=psl
     id       Int     @id @default(autoincrement())
-    username String  @unique
-    password String
+    // highlight-next-line
     tasks    Task[]
 psl=}
 
@@ -297,7 +301,9 @@ entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
+    // highlight-next-line
     user        User?    @relation(fields: [userId], references: [id])
+    // highlight-next-line
     userId      Int?
 psl=}
 

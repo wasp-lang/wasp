@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 
 While Entities enable help you define your app's data model and relationships, Operations are all about working with this data.
 

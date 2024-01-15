@@ -2,7 +2,7 @@
 title: Type-Safe Links
 ---
 
-import { Required } from '@site/src/components/Required'
+import { Required } from '@site/src/components/Tag'
 
 If you are using Typescript, you can use Wasp's custom `Link` component to create type-safe links to other pages on your site.
 

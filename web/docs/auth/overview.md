@@ -1,11 +1,12 @@
 ---
-title: Using Auth
+title: Overview
 ---
 
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
-import { Required } from "@site/src/components/Required";
+import { Required } from '@site/src/components/Tag';
+import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
-Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box.
+Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 
 Here's a 1-minute tour of how full-stack auth works in Wasp:
 
@@ -13,7 +14,7 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
     <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </div>
 
-Enabling auth for your app is optional and can be done by configuring the `auth` field of the `app` declaration.
+Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -24,7 +25,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -47,7 +47,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -152,7 +151,33 @@ const LogoutButton = () => {
 
 ## Accessing the logged-in user
 
-You can get access to the `user` object both in the backend and on the frontend.
+You can get access to the `user` object both on the server and on the client. The `user` object contains the logged-in user's data.
+
+The `user` object has all the fields that you defined in your `User` entity, plus the `auth` field which contains the auth identities connected to the user. For example, if the user signed up with their email, the `user` object might look something like this:
+
+```js
+const user = {
+  id: "19c7d164-b5cb-4dde-a0cc-0daea77cf854",
+
+  // Your entity's fields.
+  address: "My address",
+  // ...
+
+  // Auth identities connected to the user.
+  auth: {
+    id: "26ab6f96-ed76-4ee5-9ac3-2fd0bf19711f",
+    identities: [
+      {
+        providerName: "email",
+        providerUserId: "some@email.com",
+        providerData: { ... },
+      },
+    ]
+  },
+}
+```
+
+<ReadMoreAboutAuthEntities />
 
 ### On the client
 
@@ -206,11 +231,11 @@ page AccountPage {
 ```
 
 ```tsx title="client/pages/Account.tsx"
-import type { User } from '@wasp/entities'
+import { User as AuthenticatedUser } from '@wasp/auth/types'
 import Button from './Button'
 import logout from '@wasp/auth/logout'
 
-const AccountPage = ({ user }: { user: User }) => {
+const AccountPage = ({ user }: { user: AuthenticatedUser }) => {
   return (
     <div>
       <Button onClick={logout}>Logout</Button>
@@ -301,7 +326,7 @@ Since the `user` prop is only available in a page's React component: use the `us
 
 #### Using the `context.user` object
 
-When authentication is enabled, all [queries and actions](../data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
+When authentication is enabled, all [queries and actions](../data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields and the auth identities connected to the user. We strip out the `hashedPassword` field from the identities for security reasons.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -363,23 +388,43 @@ To implement access control in your app, each operation must check `context.user
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](../advanced/web-sockets#websocketfn-function).
 
-## User entity
+## User Entity
 
-### Password hashing
+### Password Hashing
 
-You don't need to worry about hashing the password yourself. Even when directly using the Prisma client and calling `create()` with a plain-text password, Wasp's middleware makes sure to hash the password before storing it in the database.
-For example, if you need to update a user's password, you can safely use the Prisma client to do so, e.g., inside an Action:
+If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
+
+```wasp title="main.wasp"
+// ...
+
+action updatePassword {
+  fn: import { updatePassword } from "@server/auth.js",
+}
+```
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/server/actions.js"
+import {
+    createProviderId,
+    findAuthIdentity,
+    updateAuthIdentityProviderData,
+    deserializeAndSanitizeProviderData,
+} from '@wasp/auth/utils.js';
+
 export const updatePassword = async (args, context) => {
-  return context.entities.User.update({
-    where: { id: args.userId },
-    data: {
-      password: 'New pwd which will be hashed automatically!',
-    },
+  const providerId = createProviderId('email', args.email)
+  const authIdentity = await findAuthIdentity(providerId)
+  if (!authIdentity) {
+      throw new HttpError(400, "Unknown user")
+  }
+  
+  const providerData = deserializeAndSanitizeProviderData(authIdentity.providerData)
+
+  // Updates the password and hashes it automatically.
+  await updateAuthIdentityProviderData(providerId, providerData, {
+      hashedPassword: args.password,
   })
 }
 ```
@@ -388,22 +433,29 @@ export const updatePassword = async (args, context) => {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/server/actions.ts"
+import {
+    createProviderId,
+    findAuthIdentity,
+    updateAuthIdentityProviderData,
+    deserializeAndSanitizeProviderData,
+} from '@wasp/auth/utils.js';
 import type { UpdatePassword } from '@wasp/actions/types'
-import type { User } from '@wasp/entities'
-
-type UpdatePasswordPayload = {
-  userId: User['id']
-}
 
 export const updatePassword: UpdatePassword<
-  UpdatePasswordPayload,
-  User
+  { email: string; password: string },
+  void,
 > = async (args, context) => {
-  return context.entities.User.update({
-    where: { id: args.userId },
-    data: {
-      password: 'New pwd which will be hashed automatically!',
-    },
+  const providerId = createProviderId('email', args.email)
+  const authIdentity = await findAuthIdentity(providerId)
+  if (!authIdentity) {
+      throw new HttpError(400, "Unknown user")
+  }
+  
+  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
+
+  // Updates the password and hashes it automatically.
+  await updateAuthIdentityProviderData(providerId, providerData, {
+      hashedPassword: args.password,
   })
 }
 ```
@@ -411,26 +463,26 @@ export const updatePassword: UpdatePassword<
 </TabItem>
 </Tabs>
 
-### Default validations
+### Default Validations
 
-When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](/docs/auth/ui) or if you use the provided auth actions.
+When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](./ui) or if you use the provided auth actions.
 
-If you decide to create your [custom auth actions](/docs/auth/username-and-pass#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
+If you decide to create your [custom auth actions](./username-and-pass#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
 
 Default validations depend on the auth method you use.
 
-#### Username & password
+#### Username & Password
 
-If you use [Username & password](../auth/username-and-pass) authentication, the default validations are:
+If you use [Username & password](./username-and-pass) authentication, the default validations are:
 
 - The `username` must not be empty
 - The `password` must not be empty, have at least 8 characters, and contain a number
 
-Note that `username`s are stored in a **case-sensitive** manner.
+Note that `username`s are stored in a **case-insensitive** manner.
 
 #### Email
 
-If you use [Email](../auth/email) authentication, the default validations are:
+If you use [Email](./email) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -521,8 +573,6 @@ app crudTesting {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
   address String?
 psl=}
 ```
@@ -566,8 +616,6 @@ app crudTesting {
 
 entity User {=psl
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
   address String?
 psl=}
 ```
@@ -876,7 +924,6 @@ Read more about the render function in the [API Reference](#signupform-customiza
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -900,7 +947,6 @@ app MyApp {
   //...
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -922,74 +968,9 @@ app MyApp {
 
 #### `userEntity: entity` <Required />
 
-The entity representing the user. Its mandatory fields depend on your chosen auth method.
+The entity representing the user connected to your business logic. 
 
-#### `externalAuthEntity: entity`
-
-Wasp requires you to set the field `auth.externalAuthEntity` for all authentication methods relying on an external authorizatino provider (e.g., Google). You also need to tweak the Entity referenced by `auth.userEntity`, as shown below.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp {4,14} title="main.wasp"
-//...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp {4,14} title="main.wasp"
-//...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
-
-</TabItem>
-</Tabs>
-
-:::note
-The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
-:::
-
-See [Google docs](../auth/social-auth/google) and [GitHub docs](../auth/social-auth/github) for more details.
+<ReadMoreAboutAuthEntities />
 
 #### `methods: dict` <Required />
 
