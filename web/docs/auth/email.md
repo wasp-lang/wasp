@@ -70,7 +70,6 @@ app myApp {
         passwordReset: {
           clientRoute: PasswordResetRoute,
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -105,7 +104,6 @@ app myApp {
         passwordReset: {
           clientRoute: PasswordResetRoute,
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -457,10 +455,6 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 ![Auth UI](/img/authui/login.png)
 
-If logging in with an unverified email is _allowed_, the user will be able to login with an unverified email address. If logging in with an unverified email is _not allowed_, the user will be shown an error message.
-
-Read more about the `allowUnverifiedLogin` option [here](#allowunverifiedlogin-bool-specifies-whether-the-user-can-login-without-verifying-their-e-mail-address).
-
 ### Signup
 
 ![Auth UI](/img/authui/signup.png)
@@ -483,6 +477,17 @@ Some of the behavior you get out of the box:
   Read more about the default password validation rules and how to override them in [auth overview docs](../auth/overview).
 
 ## Email Verification Flow
+
+:::info Automatic email verification in development
+
+In development mode, you can skip the email verification step by setting the `SKIP_EMAIL_VERIFICATION_IN_DEV` environment variable to `true` in your `.env.server` file:
+
+```env title=".env.server"
+SKIP_EMAIL_VERIFICATION_IN_DEV=true
+```
+
+This is useful when you are developing your app and don't want to go through the email verification flow every time you sign up. It can be also useful when you are writing automated tests for your app.
+:::
 
 By default, Wasp requires the e-mail to be verified before allowing the user to log in. This is done by sending a verification email to the user's email address and requiring the user to click on a link in the email to verify their email address.
 
@@ -902,7 +907,6 @@ app myApp {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -934,7 +938,6 @@ app myApp {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -1104,11 +1107,3 @@ It has the following fields:
   </Tabs>
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>
-
-#### `allowUnverifiedLogin: bool`: specifies whether the user can login without verifying their e-mail address
-
-It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
-
-Sometimes you want to allow unverified users to login to provide them a different onboarding experience. Some of the pages can be viewed without verifying the e-mail address, but some of them can't. You can use the `isEmailVerified` field on the user entity to check if the user has verified their e-mail address.
-
-If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).

@@ -10,11 +10,7 @@ import {
 import { createSession } from '../../session.js'
 import { ensureValidEmail, ensurePasswordIsPresent } from '../../validation.js'
 
-export function getLoginRoute({
-    allowUnverifiedLogin,
-}: {
-    allowUnverifiedLogin: boolean
-}) {
+export function getLoginRoute() {
     return async function login(
         req: Request<{ email: string; password: string; }>,
         res: Response,
@@ -29,7 +25,7 @@ export function getLoginRoute({
             throwInvalidCredentialsError()
         }
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
-        if (!providerData.isEmailVerified && !allowUnverifiedLogin) {
+        if (!providerData.isEmailVerified) {
             throwInvalidCredentialsError()
         }
         try {

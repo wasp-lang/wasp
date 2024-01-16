@@ -180,8 +180,7 @@ spec_AppSpecValid = do
                     AS.Auth.PasswordReset.PasswordResetConfig
                       { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.allowUnverifiedLogin = Nothing
+                      }
                 }
 
         it "returns no error if app.auth is not set" $ do
@@ -238,8 +237,7 @@ spec_AppSpecValid = do
                     AS.Auth.PasswordReset.PasswordResetConfig
                       { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.allowUnverifiedLogin = Nothing
+                      }
                 }
 
         let makeSpec emailSender isBuild =

@@ -17,7 +17,9 @@ test.describe("signup and login", () => {
 
     await page.waitForSelector("text=Create a new account");
 
-    await expect(page.locator("a[href='http://localhost:3001/auth/google/login']")).toBeVisible();
+    await expect(
+      page.locator("a[href='http://localhost:3001/auth/google/login']")
+    ).toBeVisible();
   });
 
   test("can sign up", async ({ page }) => {
@@ -29,7 +31,9 @@ test.describe("signup and login", () => {
     await page.locator("input[type='password']").fill(password);
     await page.locator("button").click();
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page.locator("body")).toContainText(
+      `You've signed up successfully! Check your email for the confirmation link.`
+    );
   });
 
   test("can log in and create a task", async ({ page }) => {
