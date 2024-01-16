@@ -251,7 +251,8 @@ spec_AppSpecValid = do
       describe "should validate email sender setup." $ do
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
-                { AS.Auth.fromField =
+                { AS.Auth.getUserFieldsFn = Nothing,
+                  AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",
                         AS.EmailSender.name = Nothing
@@ -282,8 +283,7 @@ spec_AppSpecValid = do
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                                    AS.Auth.signup = Nothing
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
                                   },
                             AS.App.emailSender = emailSender
                           },
