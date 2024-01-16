@@ -289,13 +289,6 @@
     [
         [
             "file",
-            "server/src/email/core/providers/dummy.ts"
-        ],
-        "e93a7a02f50c8466f3e8e89255b98bebde598b25f9969ec117b16f07691575ae"
-    ],
-    [
-        [
-            "file",
             "server/src/email/core/providers/sendgrid.ts"
         ],
         "b1a16455eede9723f6ae43c03e628b4129fd96f7300f004f052f1eab31d9b95b"
@@ -305,14 +298,14 @@
             "file",
             "server/src/email/core/types.ts"
         ],
-        "c343f0d87b65d7563816159a88f410b65d78d897822c0bbcd723ca7752e00a20"
+        "0d7c19707f4e7c498a458015b1065b3f84c31e53ba73807707a05b7293473eb2"
     ],
     [
         [
             "file",
             "server/src/email/index.ts"
         ],
-        "c4864d5c83b96a61b1ddfaac7b52c0898f5cff04320c166c8f658b017952ee05"
+        "4443efa3da16d8d950bde84acd2ed6d9bc3a5d211ce3138248e3b5bad5079978"
     ],
     [
         [
