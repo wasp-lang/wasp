@@ -219,6 +219,78 @@ spec_AppSpecValid = do
             `shouldBe` [ ASV.GenericValidationError
                            "Entity 'User' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
                        ]
+
+      describe "should validate email sender setup." $ do
+        let emailAuthConfig =
+              AS.Auth.EmailAuthConfig
+                { AS.Auth.fromField =
+                    AS.EmailSender.EmailFromField
+                      { AS.EmailSender.email = "dummy@info.com",
+                        AS.EmailSender.name = Nothing
+                      },
+                  AS.Auth.emailVerification =
+                    AS.Auth.EmailVerification.EmailVerificationConfig
+                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
+                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
+                      },
+                  AS.Auth.passwordReset =
+                    AS.Auth.PasswordReset.PasswordResetConfig
+                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
+                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
+                      },
+                  AS.Auth.allowUnverifiedLogin = Nothing
+                }
+
+        let makeSpec emailSender isBuild =
+              basicAppSpec
+                { AS.isBuild = isBuild,
+                  AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $
+                        basicApp
+                          { AS.App.auth =
+                              Just
+                                AS.Auth.Auth
+                                  { AS.Auth.methods =
+                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing},
+                                    AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                                    AS.Auth.externalAuthEntity = Nothing,
+                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                                    AS.Auth.signup = Nothing
+                                  },
+                            AS.App.emailSender = emailSender
+                          },
+                      AS.Decl.makeDecl userEntityName $
+                        AS.Entity.makeEntity
+                          ( PslM.Body
+                              [ PslM.ElementField $ makeIdField "id" PslM.String
+                              ]
+                          ),
+                      basicPageDecl,
+                      basicRouteDecl
+                    ]
+                }
+        let mailgunEmailSender =
+              AS.EmailSender.EmailSender
+                { AS.EmailSender.provider = AS.EmailSender.Mailgun,
+                  AS.EmailSender.defaultFrom = Nothing
+                }
+
+        let dummyEmailSender =
+              AS.EmailSender.EmailSender
+                { AS.EmailSender.provider = AS.EmailSender.Dummy,
+                  AS.EmailSender.defaultFrom = Nothing
+                }
+
+        it "returns an error if no email sender is set but email auth is used" $ do
+          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [ASV.GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
+        it "returns no error if email sender is defined while using email auth" $ do
+          ASV.validateAppSpec (makeSpec (Just mailgunEmailSender) False) `shouldBe` []
+        it "returns no error if the Dummy email sender is used in development" $ do
+          ASV.validateAppSpec (makeSpec (Just dummyEmailSender) False) `shouldBe` []
+        it "returns an error if the Dummy email sender is used when building the app" $ do
+          ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
+            `shouldBe` [ASV.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
   where
     makeIdField name typ =
       PslM.Field
