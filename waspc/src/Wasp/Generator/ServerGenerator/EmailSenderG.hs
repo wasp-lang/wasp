@@ -1,13 +1,11 @@
 module Wasp.Generator.ServerGenerator.EmailSenderG where
 
-import Control.Applicative ((<|>))
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe, isJust, maybeToList)
 import qualified Data.Text
 import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -28,12 +26,7 @@ genEmailSender spec = case maybeEmailSender of
       <++> genCore emailSender
   Nothing -> return []
   where
-    maybeEmailSender = AS.App.emailSender (snd $ getApp spec) <|> maybeDummyEmailSender
-    maybeDummyEmailSender =
-      if isDevelopment
-        then Just AS.EmailSender.defaultDummyEmailSender
-        else Nothing
-    isDevelopment = not $ AS.isBuild spec
+    maybeEmailSender = AS.App.emailSender (snd $ getApp spec)
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)

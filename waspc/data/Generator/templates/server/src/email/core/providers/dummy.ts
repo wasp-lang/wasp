@@ -10,18 +10,19 @@ export function initDummyEmailSender(
     return {
         send: async (email) => {
             const fromField = email.from || defaultFromField;
-            // "Development email sender" in a unicode box for easy spotting in the console
-            console.log(yellowColor, "╔══════════════════════════╗");
-            console.log(yellowColor, "║ Development email sender ║");
-            console.log(yellowColor, "╚══════════════════════════╝");
-            console.log(yellowColor, `From:    ${fromField.name} <${fromField.email}>`);
-            console.log(yellowColor, `To:      ${email.to}`);
-            console.log(yellowColor, `Subject: ${email.subject}`);
-            console.log(yellowColor, "--------------------------");
+
+            console.log(yellowColor, '╔═══════════════════════╗');
+            console.log(yellowColor, '║ Dummy email sender ✉️  ║');
+            console.log(yellowColor, '╚═══════════════════════╝');
+            console.log(`From:    ${fromField.name} <${fromField.email}>`);
+            console.log(`To:      ${email.to}`);
+            console.log(`Subject: ${email.subject}`);
+            console.log(yellowColor, '═════════ Text ═════════');
             console.log(email.text);
-            console.log(yellowColor, "--------------------------");
+            console.log(yellowColor, '═════════ HTML ═════════');
             console.log(email.html);
-            console.log(yellowColor, "--------------------------");
+            console.log(yellowColor, '════════════════════════');
+
             return {
                 success: true,
             };

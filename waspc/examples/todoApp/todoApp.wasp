@@ -62,7 +62,7 @@ app todoApp {
     ]
   },
   emailSender: {
-    provider: SMTP,
+    provider: Dummy,
     defaultFrom: {
       email: "mihovil@ilakovac.com"
     },
