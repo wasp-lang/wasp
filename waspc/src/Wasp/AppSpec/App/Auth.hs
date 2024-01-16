@@ -12,7 +12,6 @@ module Wasp.AppSpec.App.Auth
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
-    isEmailVerificationRequired,
     getEmailUserFieldsFn,
     getUsernameAndPasswordUserFieldsFn,
     getExternalAuthUserFieldsFn,
@@ -60,8 +59,7 @@ data EmailAuthConfig = EmailAuthConfig
   { getUserFieldsFn :: Maybe ExtImport,
     fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
-    passwordReset :: PasswordResetConfig,
-    allowUnverifiedLogin :: Maybe Bool
+    passwordReset :: PasswordResetConfig
   }
   deriving (Show, Eq, Data)
 
@@ -79,11 +77,6 @@ isGitHubAuthEnabled = isJust . gitHub . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
-
-isEmailVerificationRequired :: Auth -> Bool
-isEmailVerificationRequired auth = case email . methods $ auth of
-  Nothing -> False
-  Just emailAuthConfig -> allowUnverifiedLogin emailAuthConfig /= Just True
 
 -- These helper functions are used to avoid ambiguity when using the
 -- `getUserFieldsFn` function (otherwise we need to use the DuplicateRecordFields

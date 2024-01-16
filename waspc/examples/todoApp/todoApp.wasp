@@ -40,7 +40,6 @@ app todoApp {
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
           clientRoute: PasswordResetRoute
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",

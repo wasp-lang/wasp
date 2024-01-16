@@ -118,8 +118,7 @@ genLoginSignupForm auth =
           -- Username and password
           "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
           -- Email
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
-          "isEmailVerificationRequired" .= AS.Auth.isEmailVerificationRequired auth
+          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
