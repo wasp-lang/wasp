@@ -61,7 +61,7 @@ const config: ProviderConfig = {
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
             {=# isDevelopment =}
-            isEmailAutoVerified: process.env.IS_EMAIL_AUTO_VERIFIED_IN_DEV === 'true',
+            isEmailAutoVerified: process.env.SKIP_EMAIL_VERIFICATION_IN_DEV === 'true',
             {=/ isDevelopment =}
             {=^ isDevelopment =}
             isEmailAutoVerified: false,

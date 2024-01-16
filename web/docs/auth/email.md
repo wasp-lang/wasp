@@ -488,6 +488,17 @@ Some of the behavior you get out of the box:
 
 ## Email Verification Flow
 
+:::info Automatic email verification in development
+
+In development mode, you can skip the email verification step by setting the `SKIP_EMAIL_VERIFICATION_IN_DEV` environment variable to `true` in your `.env.server` file:
+
+```env title=".env.server"
+SKIP_EMAIL_VERIFICATION_IN_DEV=true
+```
+
+This is useful when you are developing your app and don't want to go through the email verification flow every time you sign up. It can be also useful when you are writing automated tests for your app.
+:::
+
 By default, Wasp requires the e-mail to be verified before allowing the user to log in. This is done by sending a verification email to the user's email address and requiring the user to click on a link in the email to verify their email address.
 
 Our setup looks like this:
