@@ -4,7 +4,7 @@ import SecurePassword from 'secure-password'
 import util from 'util'
 import { randomInt } from 'node:crypto'
 
-import prisma from '../dbClient.js'
+import prisma from 'wasp/server/dbClient'
 import { handleRejection } from '../utils.js'
 import HttpError from '../core/HttpError.js'
 import config from '../config.js'

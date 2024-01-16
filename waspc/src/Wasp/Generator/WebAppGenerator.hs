@@ -31,7 +31,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
@@ -39,8 +39,6 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import qualified Wasp.Generator.ExternalCodeGenerator.Common as ECC
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.JsImport (jsImportToImportJson)
@@ -49,10 +47,6 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
-import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-  ( extClientCodeGeneratorStrategy,
-  )
-import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as EC
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
@@ -67,7 +61,6 @@ import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
-  extClientCodeFileDrafts <- genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
@@ -83,10 +76,7 @@ genWebApp spec = do
       genViteConfig spec
     ]
     <++> genSrcDir spec
-    -- Filip: I don't generate external source folders as we're importing the user's code direclty (see ServerGenerator/JsImport.hs).
-    -- <++> return extClientCodeFileDrafts
-    -- <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
-    <++> genPublicDir spec extClientCodeFileDrafts
+    <++> genPublicDir spec
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
@@ -201,25 +191,24 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
-genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
-genPublicDir spec extCodeFileDrafts =
+genPublicDir :: AppSpec -> Generator [FileDraft]
+genPublicDir spec =
   return $
-    ifUserDidntProvideFile genFaviconFd
+    extPublicFileDrafts
+      ++ ifUserDidntProvideFile genFaviconFd
       ++ ifUserDidntProvideFile genManifestFd
   where
+    publicFiles = AS.externalPublicFiles spec
+    extPublicFileDrafts = map C.mkPublicFileDraft publicFiles
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd = C.mkTmplFdWithData tmplFile tmplData
       where
         tmplData = object ["appName" .= (fst (getApp spec) :: String)]
         tmplFile = C.asTmplFile [relfile|public/manifest.json|]
 
-    ifUserDidntProvideFile fileDraft =
-      if checkIfFileDraftExists fileDraft
-        then []
-        else [fileDraft]
-
+    ifUserDidntProvideFile fileDraft = [fileDraft | not (checkIfFileDraftExists fileDraft)]
     checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
-    existingDstPaths = map FD.getDstPath extCodeFileDrafts
+    existingDstPaths = map FD.getDstPath extPublicFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
@@ -328,6 +317,7 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
     tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]
 
+-- todo(filip): Take care of this as well
 genViteConfig :: AppSpec -> Generator FileDraft
 genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
@@ -343,10 +333,6 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
     makeCustomViteConfigJsImport pathToConfig = makeJsImport importPath importName
       where
         importPath = C.toViteImportPath $ fromJust $ SP.relFileToPosix pathToConfigInSrc
-        pathToConfigInSrc =
-          SP.castRel $
-            C.webAppSrcDirInWebAppRootDir
-              </> EC.extClientCodeDirInWebAppSrcDir
-              </> ECC.castRelPathFromSrcToGenExtCodeDir pathToConfig
+        pathToConfigInSrc = SP.castRel $ C.webAppSrcDirInWebAppRootDir </> SP.castRel pathToConfig
 
         importName = JsImportModule "customViteConfig"

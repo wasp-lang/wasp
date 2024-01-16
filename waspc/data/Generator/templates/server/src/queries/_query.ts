@@ -1,5 +1,5 @@
 {{={= =}=}}
-import prisma from '../dbClient.js'
+import prisma from 'wasp/server/dbClient'
 
 {=& jsFn.importStatement =}
 

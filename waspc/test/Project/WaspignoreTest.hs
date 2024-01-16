@@ -1,8 +1,8 @@
-module WaspignoreFileTest where
+module Project.WaspignoreTest where
 
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck (arbitraryPrintableChar, forAll, listOf, property)
-import Wasp.WaspignoreFile (ignores, parseWaspignoreFile)
+import Wasp.Project.Waspignore (ignores, parseWaspignoreFile)
 
 spec_IgnoreFile :: Spec
 spec_IgnoreFile = do

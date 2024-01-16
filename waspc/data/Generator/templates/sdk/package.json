@@ -24,7 +24,8 @@
       "./operations": "./operations/index.ts",
       "./operations/*": "./operations/*",
       "./universal/url": "./universal/url.ts",
-      "./universal/types": "./universal/url.ts"
+      "./universal/types": "./universal/url.ts",
+      "./server/dbClient": "./server/dbClient.js"
    },
    "license": "ISC",
     "include": [

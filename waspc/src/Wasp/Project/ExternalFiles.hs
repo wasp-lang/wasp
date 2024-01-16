@@ -1,32 +1,37 @@
-module Wasp.ExternalCode
-  ( readFiles,
+module Wasp.Project.ExternalFiles
+  ( readPublicFiles,
+    readCodeFiles,
   )
 where
 
 import Data.Maybe (catMaybes)
 import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
-import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import Wasp.AppSpec.ExternalCode (File (..), SourceExternalCodeDir)
-import qualified Wasp.Util.IO
-import Wasp.WaspignoreFile (ignores, readWaspignoreFile)
+import Wasp.AppSpec.ExternalFiles (CodeFile (CodeFile), PublicFile (PublicFile))
+import Wasp.Project.Common (WaspProjectDir, extCodeDirInWaspProjectDir, extPublicDirInWaspProjectDir)
+import Wasp.Project.Waspignore (getNotIgnoredRelFilePaths, waspIgnorePathInWaspProjectDir)
 
-waspignorePathInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
-waspignorePathInExtCodeDir = [relfile|.waspignore|]
-
--- | Returns all files contained in the specified external code dir, recursively,
+-- | Returns all files contained in the specified ext public dir
 --   except files ignores by the specified waspignore file.
-readFiles :: Path' Abs (Dir SourceExternalCodeDir) -> IO [File]
-readFiles extCodeDirPath = do
-  let waspignoreFilePath = extCodeDirPath </> waspignorePathInExtCodeDir
-  waspignoreFile <- readWaspignoreFile waspignoreFilePath
-  relFilePaths <-
-    filter (not . ignores waspignoreFile . SP.toFilePath)
-      <$> Wasp.Util.IO.listDirectoryDeep extCodeDirPath
-  let absFilePaths = map (extCodeDirPath </>) relFilePaths
+readPublicFiles :: Path' Abs (Dir WaspProjectDir) -> IO [PublicFile]
+readPublicFiles waspProjectDir = do
+  let externalPublicDirPath = waspProjectDir </> extPublicDirInWaspProjectDir
+  let waspignoreFilePath = waspProjectDir </> waspIgnorePathInWaspProjectDir
+  relFilePaths <- getNotIgnoredRelFilePaths waspignoreFilePath externalPublicDirPath
+  return $ map (`PublicFile` externalPublicDirPath) relFilePaths
+
+-- | Returns all files contained in the specified ext code dir
+--   except files ignores by the specified waspignore file.
+readCodeFiles :: Path' Abs (Dir WaspProjectDir) -> IO [CodeFile]
+readCodeFiles waspProjectDir = do
+  let externalCodeDirPath = waspProjectDir </> extCodeDirInWaspProjectDir
+  let waspignoreFilePath = waspProjectDir </> waspIgnorePathInWaspProjectDir
+  relFilePaths <- getNotIgnoredRelFilePaths waspignoreFilePath externalCodeDirPath
+  let absFiles = map (externalCodeDirPath </>) relFilePaths
   -- NOTE: We read text from all the files, regardless if they are text files or not, because
   --   we don't know if they are a text file or not.
   --   Since we do lazy reading (Text.Lazy), this is not a problem as long as we don't try to use
@@ -40,8 +45,8 @@ readFiles extCodeDirPath = do
   --     or create new file draft that will support that.
   --     In generator, when creating TextFileDraft, give it function/logic for text transformation,
   --     and it will be taken care of when draft will be written to the disk.
-  fileTexts <- catMaybes <$> mapM (tryReadFile . SP.toFilePath) absFilePaths
-  let files = zipWith (`File` extCodeDirPath) relFilePaths fileTexts
+  fileTexts <- catMaybes <$> mapM (tryReadFile . SP.toFilePath) absFiles
+  let files = zipWith (`CodeFile` externalCodeDirPath) relFilePaths fileTexts
   return files
   where
     -- NOTE(matija): we had cases (e.g. tmp Vim files) where a file initially existed

@@ -15,8 +15,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Maybe
-  ( fromJust,
-    isJust,
+  ( isJust,
     maybeToList,
   )
 import StrongPath
@@ -26,7 +25,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    reldir,
     reldirP,
     relfile,
     (</>),
@@ -76,9 +74,6 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    -- Filip: I don't generate external source folders as we're importing the user's code direclty (see ServerGenerator/JsImport.hs).
-    -- <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
-    -- <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors spec
@@ -216,7 +211,6 @@ genSrcDir spec =
     [ genFileCopy [relfile|app.js|],
       genFileCopy [relfile|core/AuthError.js|],
       genFileCopy [relfile|core/HttpError.js|],
-      genDbClient spec,
       genConfigFile spec,
       genServerJs spec
     ]
@@ -231,24 +225,6 @@ genSrcDir spec =
     <++> genWebSockets spec
   where
     genFileCopy = return . C.mkSrcTmplFd
-
-genDbClient :: AppSpec -> Generator FileDraft
-genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
-
-    dbClientRelToSrcP = [relfile|dbClient.ts|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile dbClientRelToSrcP
-
-    tmplData =
-      if isJust maybeAuth
-        then
-          object
-            [ "isAuthEnabled" .= True,
-              "userEntityUpper" .= (AS.refName (AS.App.Auth.userEntity $ fromJust maybeAuth) :: String)
-            ]
-        else object []
 
 genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =

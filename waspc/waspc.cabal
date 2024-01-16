@@ -238,7 +238,7 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
     Wasp.AppSpec.Entity.Field
-    Wasp.AppSpec.ExternalCode
+    Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
@@ -255,7 +255,6 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
-    Wasp.ExternalCode
     Wasp.Generator
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
@@ -273,9 +272,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
-    Wasp.Generator.ExternalCodeGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
-    Wasp.Generator.ExternalCodeGenerator.Js
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -306,7 +303,6 @@ library
     Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
-    Wasp.Generator.ServerGenerator.ExternalCodeGenerator
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
@@ -327,7 +323,6 @@ library
     Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG
     Wasp.Generator.WebAppGenerator.RouterGenerator
@@ -351,7 +346,7 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
-    Wasp.Project.WebApp
+    Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
     Wasp.Psl.Ast.Model
@@ -380,7 +375,7 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.WebRouterPath
     Wasp.Version
-    Wasp.WaspignoreFile
+    Wasp.Project.Waspignore
 
 library waspls
   import: common-all
@@ -590,7 +585,6 @@ test-suite waspc-test
     FilePath.ExtraTest
     Fixtures
     Generator.DbGeneratorTest
-    Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
@@ -614,7 +608,7 @@ test-suite waspc-test
     SemanticVersionTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    WaspignoreFileTest
+    Project.WaspignoreTest
     Paths_waspc
     Generator.NpmDependenciesTest
     JsImportTest

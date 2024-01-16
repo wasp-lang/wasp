@@ -2,7 +2,7 @@
 import { hashPassword, sign, verify } from '../core/auth.js'
 import AuthError from '../core/AuthError.js'
 import HttpError from '../core/HttpError.js'
-import prisma from '../dbClient.js'
+import prisma from 'wasp/server/dbClient'
 import { sleep } from '../utils.js'
 import {
   type {= userEntityUpper =},

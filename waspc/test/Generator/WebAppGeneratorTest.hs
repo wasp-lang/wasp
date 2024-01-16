@@ -46,9 +46,8 @@ spec_WebAppGenerator = do
                     }
               ],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
-            AS.externalClientFiles = [],
-            AS.externalServerFiles = [],
-            AS.externalSharedFiles = [],
+            AS.externalCodeFiles = [],
+            AS.externalPublicFiles = [],
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
             AS.devEnvVarsServer = [],

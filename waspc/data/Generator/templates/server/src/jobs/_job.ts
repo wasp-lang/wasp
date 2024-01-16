@@ -1,5 +1,5 @@
 {{={= =}=}}
-import prisma from '../dbClient.js'
+import prisma from 'wasp/server/dbClient'
 import type { JSONValue, JSONObject } from '../_types/serialization.js'
 import { createJob, type JobFn } from './{= jobExecutorRelativePath =}'
 {=& jobPerformFnImportStatement =}

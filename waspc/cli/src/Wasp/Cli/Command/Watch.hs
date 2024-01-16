@@ -15,11 +15,11 @@ import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
-import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import qualified Wasp.Project.Common as ProjectCommon
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -41,9 +41,9 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
   let watchProjectSubdirTree path = FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> path) eventFilter chan
-  _ <- watchProjectSubdirTree Common.extClientCodeDirInWaspProjectDir
-  _ <- watchProjectSubdirTree Common.extServerCodeDirInWaspProjectDir
-  _ <- watchProjectSubdirTree Common.extSharedCodeDirInWaspProjectDir
+  -- todo(filip): check if this still works
+  _ <- watchProjectSubdirTree ProjectCommon.extCodeDirInWaspProjectDir
+  _ <- watchProjectSubdirTree ProjectCommon.extPublicDirInWaspProjectDir
   listenForEvents chan currentTime
   where
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()

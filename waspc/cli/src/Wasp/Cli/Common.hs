@@ -6,9 +6,6 @@ module Wasp.Cli.Common
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
     nodeModulesDirInWaspProjectDir,
-    extServerCodeDirInWaspProjectDir,
-    extClientCodeDirInWaspProjectDir,
-    extSharedCodeDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     buildDirInDotWaspDir,
     waspSays,
@@ -18,7 +15,6 @@ module Wasp.Cli.Common
 where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Wasp.Generator.Common
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Util.Terminal as Term
@@ -48,15 +44,6 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
-
-extServerCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extServerCodeDirInWaspProjectDir = [reldir|src|]
-
-extClientCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extClientCodeDirInWaspProjectDir = [reldir|src|]
-
-extSharedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extSharedCodeDirInWaspProjectDir = [reldir|src|]
 
 waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what

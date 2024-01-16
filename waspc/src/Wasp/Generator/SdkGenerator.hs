@@ -3,27 +3,32 @@
 module Wasp.Generator.SdkGenerator
   ( genSdk,
     installNpmDependencies,
+    genExternalCodeDir,
   )
 where
 
 import Data.Aeson (object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types ((.=))
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe, isJust, mapMaybe)
 import GHC.IO (unsafePerformIO)
 import StrongPath
 import qualified StrongPath as SP
+import qualified System.FilePath as FP
 import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
+import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
@@ -35,7 +40,15 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec = (:) <$> genPackageJson spec <*> genHardcodedSdkModules <++> genSdkModules spec
+genSdk spec =
+  sequence
+    [ genFileCopy [relfile|server/dbClient.js|],
+      genPackageJson spec
+    ]
+    <++> genHardcodedSdkModules
+    <++> genSdkModules spec
+  where
+    genFileCopy = return . mkTmplFd
 
 data SdkRootDir
 
@@ -47,6 +60,7 @@ genSdkModules spec =
     [ genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|]
     ]
+    <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genTypesAndEntitiesDirs spec
   where
     genFileCopy = return . mkTmplFd
@@ -61,7 +75,6 @@ genHardcodedSdkModules =
       copyFolder [reldir|rpc|],
       copyFolder [reldir|server/actions|],
       copyFolder [reldir|server/queries|],
-      copyFile [relfile|server/dbClient.ts|],
       copyFile [relfile|server/utils.ts|],
       copyFolder [reldir|types|],
       copyFolder [reldir|universal|]
@@ -192,8 +205,41 @@ sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk|]
 
+extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
+extSrcDirInSdkRootDir = [reldir|ext-src|]
+
 -- todo(filip): figure out where this belongs
 -- also, fix imports for wasp project
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
   runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
+
+-- todo(filip): consider reorganizing/splitting the file.
+
+-- | Takes external code files from Wasp and generates them in new location as part of the generated project.
+-- It might not just copy them but also do some changes on them, as needed.
+genExternalCodeDir :: [EC.CodeFile] -> Generator [FileDraft]
+genExternalCodeDir = sequence . mapMaybe genFile
+
+genFile :: EC.CodeFile -> Maybe (Generator FileDraft)
+genFile file
+  | fileName == "tsconfig.json" = Nothing
+  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genSourceFile file
+  | otherwise = Just $ genResourceFile file
+  where
+    extension = FP.takeExtension filePath
+    fileName = FP.takeFileName filePath
+    filePath = SP.toFilePath $ EC.filePathInExtCodeDir file
+
+genResourceFile :: EC.CodeFile -> Generator FileDraft
+genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
+  where
+    relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
+    absSrcPath = EC.fileAbsPath file
+
+genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
+genSourceFile file = return $ FD.createTextFileDraft relDstPath text
+  where
+    filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
+    text = EC.fileText file
+    relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir

@@ -1,18 +1,42 @@
-module Wasp.WaspignoreFile
+module Wasp.Project.Waspignore
   ( WaspignoreFile,
     parseWaspignoreFile,
+    getNotIgnoredRelFilePaths,
     readWaspignoreFile,
+    waspIgnorePathInWaspProjectDir,
     ignores,
   )
 where
 
-import StrongPath (Abs, File', Path')
+import StrongPath (Abs, Dir, File', Path', Rel)
+import qualified StrongPath as SP
+import StrongPath.TH (relfile)
 import System.FilePath.Glob (Pattern, compile, match)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
+import Wasp.Project.Common
 import qualified Wasp.Util.IO as IOUtil
 
+class AffectedByWaspignoreFile a
+
 newtype WaspignoreFile = WaspignoreFile [Pattern]
+
+instance AffectedByWaspignoreFile SourceExternalCodeDir
+
+instance AffectedByWaspignoreFile SourceExternalPublicDir
+
+getNotIgnoredRelFilePaths ::
+  AffectedByWaspignoreFile d =>
+  Path' Abs File' ->
+  Path' Abs (Dir d) ->
+  IO [Path' (Rel d) File']
+getNotIgnoredRelFilePaths waspignoreFilePath externalDirPath = do
+  waspignoreFile <- readWaspignoreFile waspignoreFilePath
+  filter (not . ignores waspignoreFile . SP.toFilePath) <$> IOUtil.listDirectoryDeep externalDirPath
+
+waspIgnorePathInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+waspIgnorePathInWaspProjectDir = [relfile|.waspignore|]
 
 -- | These patterns are ignored by every 'WaspignoreFile'
 defaultIgnorePatterns :: [Pattern]

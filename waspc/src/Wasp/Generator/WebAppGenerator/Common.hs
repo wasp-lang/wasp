@@ -6,6 +6,7 @@ module Wasp.Generator.WebAppGenerator.Common
     mkTmplFdWithDst,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
+    mkPublicFileDraft,
     webAppSrcDirInProjectRootDir,
     webAppTemplatesDirInTemplatesDir,
     asTmplFile,
@@ -34,6 +35,8 @@ import System.FilePath (splitExtension)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.ExternalFiles (PublicFile (..))
+import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
   ( GeneratedSrcDir,
@@ -43,7 +46,7 @@ import Wasp.Generator.Common
     WebAppRootDir,
     universalTemplatesDirInTemplatesDir,
   )
-import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
 data WebAppSrcDir
@@ -107,6 +110,14 @@ mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
 
 mkTmplFdWithData :: Path' (Rel WebAppTemplatesDir) File' -> Aeson.Value -> FileDraft
 mkTmplFdWithData src tmplData = mkTmplFdWithDstAndData src (SP.castRel src) (Just tmplData)
+
+mkPublicFileDraft :: PublicFile -> FileDraft
+mkPublicFileDraft (PublicFile _pathInPublicDir _publicDirPath) = createCopyFileDraft dstPath srcPath
+  where
+    dstPath = webAppRootDirInProjectRootDir </> publicDirInWebAppRootDir </> _pathInPublicDir
+    srcPath = _publicDirPath </> _pathInPublicDir
+    publicDirInWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir EF.SourceExternalPublicDir)
+    publicDirInWebAppRootDir = [reldir|public|]
 
 mkTmplFdWithDstAndData ::
   Path' (Rel WebAppTemplatesDir) File' ->
