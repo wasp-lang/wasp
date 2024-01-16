@@ -149,41 +149,6 @@
     [
         [
             "file",
-            "server/src/email/core/helpers.ts"
-        ],
-        "0e8d2e117a1408b9be7fd0ae1348f2bc9f7bd924f42c2bb73b98ff7faf923cf4"
-    ],
-    [
-        [
-            "file",
-            "server/src/email/core/index.ts"
-        ],
-        "8ddf079f5b2404e148fa2dab1a0bfb5b78da6f109d0865dbf7d3d478df20470f"
-    ],
-    [
-        [
-            "file",
-            "server/src/email/core/providers/dummy.ts"
-        ],
-        "702bab3d9d2b3aad2fb3c5d7c7d322332688cbfa4c9fea8db5fa12571347f185"
-    ],
-    [
-        [
-            "file",
-            "server/src/email/core/types.ts"
-        ],
-        "0d7c19707f4e7c498a458015b1065b3f84c31e53ba73807707a05b7293473eb2"
-    ],
-    [
-        [
-            "file",
-            "server/src/email/index.ts"
-        ],
-        "43e78304e7f240977a18fd5e7f1bd4697db343670830b600f59656181bc6da5b"
-    ],
-    [
-        [
-            "file",
             "server/src/entities/index.ts"
         ],
         "c5077f0d9a9224986a1c42b54de449e48af1f2b9ecc8778eb44cd55ebd9d23a7"
