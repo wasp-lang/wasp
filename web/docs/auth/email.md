@@ -414,9 +414,9 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 To support e-mail verification and password reset flows, we need an e-mail sender. Luckily, Wasp supports several email providers out of the box.
 
-We'll use SendGrid in this guide to send our e-mails. You can use any of the supported email providers.
+We'll use the `Dummy` provider to speed up the setup. It just logs the emails to the console instead of sending them. You can use any of the [supported email providers](../advanced/email#providers).
 
-To set up SendGrid to send emails, we will add the following to our `main.wasp` file:
+To set up the `Dummy` provider to send emails, add the following to the `main.wasp` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -426,7 +426,7 @@ app myApp {
   // ...
   // 7. Set up the email sender
   emailSender: {
-    provider: SendGrid,
+    provider: Dummy,
   }
 }
 ```
@@ -438,22 +438,12 @@ app myApp {
   // ...
   // 7. Set up the email sender
   emailSender: {
-    provider: SendGrid,
+    provider: Dummy,
   }
 }
 ```
 </TabItem>
 </Tabs>
-
-... and add the following to our `.env.server` file:
-
-```c title=".env.server"
-SENDGRID_API_KEY=<your key>
-```
-
-If you are not sure how to get a SendGrid API key, read more [here](../advanced/email#getting-the-api-key).
-
-Read more about setting up email senders in the [sending emails docs](../advanced/email).
 
 ### Conclusion
 
