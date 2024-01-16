@@ -39,8 +39,7 @@ genCore email =
   sequence
     [ genCoreIndex email,
       genCoreTypes email,
-      genCoreHelpers email,
-      genFileCopy [relfile|email/core/providers/dummy.ts|]
+      genCoreHelpers email
     ]
     <++> genEmailSenderProviderSetupFn email
 
@@ -94,7 +93,7 @@ depsRequiredByEmail spec = maybeToList maybeNpmDepedency
   where
     maybeProvider :: Maybe Providers.EmailSenderProvider
     maybeProvider = getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
-    maybeNpmDepedency = Providers.npmDependency <$> maybeProvider
+    maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
 
 getEmailProvidersJson :: EmailSender -> Aeson.Value
 getEmailProvidersJson email =
@@ -109,6 +108,7 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SMTP -> Providers.smtp
   AS.EmailSender.SendGrid -> Providers.sendGrid
   AS.EmailSender.Mailgun -> Providers.mailgun
+  AS.EmailSender.Dummy -> Providers.dummy
 
 genFileCopy :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
 genFileCopy = return . C.mkSrcTmplFd
