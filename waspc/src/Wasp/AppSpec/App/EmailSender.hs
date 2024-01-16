@@ -24,15 +24,3 @@ data EmailFromField = EmailFromField
     email :: String
   }
   deriving (Show, Eq, Data)
-
-defaultDummyEmailSender :: EmailSender
-defaultDummyEmailSender =
-  EmailSender
-    { provider = Dummy,
-      defaultFrom =
-        Just
-          EmailFromField
-            { email = "dummy@wasp-lang.dev",
-              name = Just "Wasp Dummy Email Sender"
-            }
-    }
