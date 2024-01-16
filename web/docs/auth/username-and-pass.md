@@ -6,6 +6,8 @@ import { Required } from '@site/src/components/Tag';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 import GetUsername from './entities/\_get-username.md';
+import GetUserFieldsFnExplainer from './\_get-user-fields-fn-explainer.md';
+import UserFieldsExplainer from './\_user-fields.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
 
@@ -676,6 +678,8 @@ psl=}
 </TabItem>
 </Tabs>
 
+<UserFieldsExplainer />
+
 ### Fields in the `usernameAndPassword` dict
 
 <Tabs groupId="js-ts">
@@ -690,7 +694,9 @@ app myApp {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
+      },
     },
     onAuthFailedRedirectTo: "/login"
   }
@@ -709,7 +715,9 @@ app myApp {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
+      },
     },
     onAuthFailedRedirectTo: "/login"
   }
@@ -719,8 +727,6 @@ app myApp {
 </TabItem>
 </Tabs>
 
-:::info 
-`usernameAndPassword` dict doesn't have any options at the moment.
-:::
+#### `getUserFieldsFn: ServerImport`
 
-You can read about the rest of the `auth` options in the [auth overview](../auth/overview) section of the docs.
+<GetUserFieldsFnExplainer />

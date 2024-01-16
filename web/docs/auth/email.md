@@ -6,6 +6,8 @@ import { Required } from '@site/src/components/Tag';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 import GetEmail from './entities/\_get-email.md';
+import GetUserFieldsFnExplainer from './\_get-user-fields-fn-explainer.md';
+import UserFields from './\_user-fields.md';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
@@ -828,7 +830,7 @@ Let's go over the options we can specify when using email authentication.
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {18-21}
+```wasp title="main.wasp"
 app myApp {
   title: "My app",
   // ...
@@ -846,13 +848,15 @@ app myApp {
 }
 
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
 psl=}
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {18-21}
+```wasp title="main.wasp"
 app myApp {
   title: "My app",
   // ...
@@ -870,11 +874,14 @@ app myApp {
 }
 
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
 psl=}
 ```
 </TabItem>
 </Tabs>
+
+<UserFields />
 
 ### Fields in the `email` dict
 
@@ -890,6 +897,7 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
+        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
@@ -922,6 +930,7 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
+        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
@@ -944,6 +953,10 @@ app myApp {
 ```
 </TabItem>
 </Tabs>
+
+#### `getUserFieldsFn: ServerImport`
+
+<GetUserFieldsFnExplainer />
 
 #### `fromField: EmailFromField` <Required />
 `fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by your app. 

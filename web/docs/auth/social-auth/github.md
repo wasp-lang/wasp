@@ -8,9 +8,9 @@ import OverrideIntro from './\_override-intro.md';
 import OverrideExampleIntro from './\_override-example-intro.md';
 import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
-import UsernameGenerateExplanation from './\_username-generate-explanation.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
+import GetUserFieldsFnExplainer from '../\_get-user-fields-fn-explainer.md';
 
 Wasp supports Github Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.
@@ -356,10 +356,8 @@ psl=}
 ```
 
 ```js title=src/server/auth/github.js
-import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
-
 export const getUserFields = () => {
-  username: () => generateAvailableDictionaryUsername(),
+  username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
 };
 
@@ -405,11 +403,10 @@ psl=}
 ```
 
 ```ts title=src/server/auth/github.ts
-import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
 import { defineUserFields } from '@wasp/auth/index.js'
 
 export const getUserFields = () => defineUserFields({
-  username: () => generateAvailableDictionaryUsername(),
+  username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
 })
 
@@ -523,42 +520,4 @@ The `gitHub` dict has the following properties:
 
 - #### `getUserFieldsFn: ServerImport`
 
-  This function should return the user fields to use when creating a new user.
-
-  The `context` contains the `User` entity, and the `args` object contains GitHub profile information.
-  You can do whatever you want with this information (e.g., generate a username).
-
-  Here is how you could generate a username based on the Github display name:
-  <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-
-  ```js title=src/server/auth/github.js
-  import { generateAvailableUsername } from '@wasp/core/auth.js'
-
-  export const getUserFields = () => {
-    username: (data) => generateAvailableUsername(
-      data.profile.displayName.split(' '),
-      { separator: '.' }
-    )
-  }
-  ```
-
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-  ```ts title=src/server/auth/github.ts
-  import { generateAvailableUsername } from '@wasp/core/auth.js'
-  import { defineUserFields } from '@wasp/auth/index.js'
-
-  export const getUserFields = () => defineUserFields({
-    username: (data) => generateAvailableUsername(
-      data.profile.displayName.split(' '),
-      { separator: '.' }
-    )
-  })
-  ```
-
-  </TabItem>
-  </Tabs>
-
-  <UsernameGenerateExplanation />
+  <GetUserFieldsFnExplainer />
