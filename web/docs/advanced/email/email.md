@@ -4,10 +4,11 @@ title: Sending Emails
 
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
+import DummyProviderNote from './_dummy-provider-note.md'
 
 # Sending Emails
 
-With Wasp's email sending feature, you can easily integrate email functionality into your web application.
+With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -46,6 +47,7 @@ app Example {
 
 Choose from one of the providers:
 
+- `Dummy` (development only),
 - `Mailgun`,
 - `SendGrid`
 - or the good old `SMTP`.
@@ -56,7 +58,7 @@ Optionally, define the `defaultFrom` field, so you don't need to provide it when
 
 Before jumping into details about setting up various providers, let's see how easy it is to send emails.
 
-You import the `emailSender` that is provided by the `@wasp/email` module and call the `send` method on it.
+You import the `emailSender` that is provided by the `@wasp/email/index.js` module and call the `send` method on it.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -105,7 +107,42 @@ The `send` method returns an object with the status of the sent email. It varies
 
 ## Providers
 
-For each provider, you'll need to set up env variables in the `.env.server` file at the root of your project.
+We'll go over all of the available providers in the next section. For some of them, you'll need to set up some env variables. You can do that in the `.env.server` file.
+
+### Using the Dummy Provider
+
+<DummyProviderNote />
+
+To speed up development, Wasp offers a `Dummy` email sender that `console.log`s the emails in the console. Since it doesn't send emails for real, it doesn't require any setup.
+
+Set the provider to `Dummy` in your `main.wasp` file.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app Example {
+  ...
+  emailSender: {
+    provider: Dummy,
+  }
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app Example {
+  ...
+  emailSender: {
+    provider: Dummy,
+  }
+}
+```
+
+</TabItem>
+</Tabs>
 
 ### Using the SMTP Provider
 
@@ -281,7 +318,9 @@ The `emailSender` dict has the following fields:
 
 - `provider: Provider` <Required />
 
-  The provider you want to use. Choose from `SMTP`, `Mailgun` or `SendGrid`.
+  The provider you want to use. Choose from `Dummy`, `SMTP`, `Mailgun` or `SendGrid`.
+
+  <DummyProviderNote />
 
 - `defaultFrom: dict`
 
