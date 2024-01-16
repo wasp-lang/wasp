@@ -26,7 +26,7 @@ genEmailSender spec = case maybeEmailSender of
       <++> genCore emailSender
   Nothing -> return []
   where
-    maybeEmailSender = AS.App.emailSender (snd $ getApp spec)
+    maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
