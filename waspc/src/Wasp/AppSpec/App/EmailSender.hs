@@ -4,7 +4,6 @@ module Wasp.AppSpec.App.EmailSender
   ( EmailSender (..),
     EmailProvider (..),
     EmailFromField (..),
-    defaultDummyEmailSender,
   )
 where
 
