@@ -12,12 +12,12 @@ import {
   ensureValidPassword,
 } from '../../validation.js'
 import { validateAndGetUserFields } from '../../utils.js'
-import { type GetUserFieldsFn } from '../types.js'
+import { type UserSignupFields } from '../types.js'
 
 export function getSignupRoute({
-  getUserFieldsFn,
+  userSignupFields,
 }: {
-  getUserFieldsFn?: GetUserFieldsFn;
+  userSignupFields?: UserSignupFields;
 }) {
   return handleRejection(async function signup(req, res) {
     const fields = req.body ?? {}
@@ -25,7 +25,7 @@ export function getSignupRoute({
   
     const userFields = await validateAndGetUserFields(
       fields,
-      getUserFieldsFn,
+      userSignupFields,
     );
   
     const providerId = createProviderId('username', fields.username)
