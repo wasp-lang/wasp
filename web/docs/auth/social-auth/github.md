@@ -10,7 +10,7 @@ import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
-import GetUserFieldsFnExplainer from '../\_get-user-fields-fn-explainer.md';
+import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 
 Wasp supports Github Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.
@@ -520,4 +520,4 @@ The `gitHub` dict has the following properties:
 
 - #### `userSignupFields: ServerImport`
 
-  <GetUserFieldsFnExplainer />
+  <UserSignupFieldsExplainer />

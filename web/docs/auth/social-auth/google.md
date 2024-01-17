@@ -10,7 +10,7 @@ import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
-import GetUserFieldsFnExplainer from '../\_get-user-fields-fn-explainer.md';
+import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
@@ -561,4 +561,4 @@ The `google` dict has the following properties:
 
 - #### `userSignupFields: ServerImport`
 
-  <GetUserFieldsFnExplainer />
+  <UserSignupFieldsExplainer />

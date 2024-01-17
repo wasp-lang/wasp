@@ -552,9 +552,9 @@ We do that by defining an object where the keys represent the field name, and th
 \* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
-First, we add the `auth.methods.{authMethod}.getUserFieldFn` field in our `main.wasp` file. The `{authMethod}` depends on the auth method you are using.
+First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp` file. The `{authMethod}` depends on the auth method you are using.
 
-For example, if you are using [Username & Password](./username-and-pass), you would add the `auth.methods.usernameAndPassword.getUserFieldFn` field:
+For example, if you are using [Username & Password](./username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -579,7 +579,7 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll export the `userSignupFields` object from the `server/auth/signup.js` file:
+Then we'll define the `userSignupFields` object in the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.js"
 import { defineUserSignupFields } from '@wasp/auth/index.js'
@@ -621,7 +621,7 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll export the `userSignupFields` object from the `server/auth/signup.ts` file:
+Then we'll define the `userSignupFields` object in the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.ts"
 import { defineUserSignupFields } from '@wasp/auth/index.js'

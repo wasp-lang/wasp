@@ -6,7 +6,7 @@ import { Required } from '@site/src/components/Tag';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 import GetUsername from './entities/\_get-username.md';
-import GetUserFieldsFnExplainer from './\_get-user-fields-fn-explainer.md';
+import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
 import UserFieldsExplainer from './\_user-fields.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
@@ -729,4 +729,4 @@ app myApp {
 
 #### `userSignupFields: ServerImport`
 
-<GetUserFieldsFnExplainer />
+<UserSignupFieldsExplainer />

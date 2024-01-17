@@ -1,4 +1,4 @@
-`userSignupFields` defines all the extra fields that need to be set on the `User` during the sign-up process. For example, if you have `address` and `phone` fields on your `User` entity, you can set them in the `userSignupFields` function like this:
+`userSignupFields` defines all the extra fields that need to be set on the `User` during the sign-up process. For example, if you have `address` and `phone` fields on your `User` entity, you can set them by defining the `userSignupFields` like this:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
