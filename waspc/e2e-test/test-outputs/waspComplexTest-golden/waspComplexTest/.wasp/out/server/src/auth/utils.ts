@@ -13,7 +13,7 @@ import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
-import { type GetUserFieldsFn, type PossibleUserFields } from './providers/types.js'
+import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
 export type EmailProviderData = {
   hashedPassword: string;
@@ -228,7 +228,7 @@ export async function validateAndGetUserFields(
   data: {
     [key: string]: unknown
   },
-  getUserFields?: GetUserFieldsFn,
+  userSignupFields?: UserSignupFields,
 ): Promise<Record<string, any>> {
   const {
     password: _password,
@@ -236,12 +236,11 @@ export async function validateAndGetUserFields(
   } = data;
   const result: Record<string, any> = {};
 
-  if (!getUserFields) {
+  if (!userSignupFields) {
     return result;
   }
 
-  const userFields = getUserFields();
-  for (const [field, getFieldValue] of Object.entries(userFields)) {
+  for (const [field, getFieldValue] of Object.entries(userSignupFields)) {
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
