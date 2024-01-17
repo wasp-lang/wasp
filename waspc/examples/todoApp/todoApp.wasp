@@ -16,18 +16,18 @@ app todoApp {
     userEntity: User,
     methods: {
       // usernameAndPassword: {
-      //  getUserFieldsFn: import { getUserFields } from "@server/auth/github.js",
+      //  userSignupFields: import { userSignupFields } from "@server/auth/github.js",
       // },
       google: {
         configFn: import { config } from "@server/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       },
       // gitHub: {
       //   // configFn: import { config } from "@server/auth/github.js",
-      //   // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+      //   // userSignupFields: import { getUserFields } from "@server/auth/github.js"
       // },
       email: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/email.js",
         fromField: {
           name: "ToDO App",
           email: "mihovil@ilakovac.com"

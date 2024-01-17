@@ -10,7 +10,7 @@ app crudTesting {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@server/auth.js",
       },
     },
     onAuthFailedRedirectTo: "/login",

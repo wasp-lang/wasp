@@ -2,7 +2,7 @@ import {
   GetPasswordResetEmailContentFn,
   GetVerificationEmailContentFn,
 } from '@wasp/types'
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
 export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
   passwordResetLink,
@@ -26,15 +26,14 @@ export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
     `,
 })
 
-export const getUserFields = () =>
-  defineUserFields({
-    address: (data) => {
-      if (typeof data.address !== 'string') {
-        throw new Error('Address is required.')
-      }
-      if (data.address.length < 10) {
-        throw new Error('Address must be at least 10 characters long.')
-      }
-      return data.address
-    },
-  })
+export const userSignupFields = defineUserSignupFields({
+  address: (data) => {
+    if (typeof data.address !== 'string') {
+      throw new Error('Address is required.')
+    }
+    if (data.address.length < 10) {
+      throw new Error('Address must be at least 10 characters long.')
+    }
+    return data.address
+  },
+})

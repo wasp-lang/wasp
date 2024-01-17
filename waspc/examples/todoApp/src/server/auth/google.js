@@ -7,7 +7,4 @@ export function config() {
   }
 }
 
-export function getUserFields({ profile }) {
-  console.log('Inside user-supplied Google getUserFields')
-  return {}
-}
+export const userSignupFields = {}

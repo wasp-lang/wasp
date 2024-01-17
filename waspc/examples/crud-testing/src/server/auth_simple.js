@@ -1,6 +1,5 @@
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () =>
-  defineUserFields({
-    address: (data) => data.address,
-  })
+export const userSignupFields = defineUserSignupFields({
+  address: (data) => data.address,
+})
