@@ -695,7 +695,7 @@ app myApp {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/email.js",
       },
     },
     onAuthFailedRedirectTo: "/login"
@@ -716,7 +716,7 @@ app myApp {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth/email.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/email.js",
       },
     },
     onAuthFailedRedirectTo: "/login"
@@ -727,6 +727,6 @@ app myApp {
 </TabItem>
 </Tabs>
 
-#### `getUserFieldsFn: ServerImport`
+#### `userSignupFields: ServerImport`
 
 <GetUserFieldsFnExplainer />

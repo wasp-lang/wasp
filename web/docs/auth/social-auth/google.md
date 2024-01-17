@@ -380,7 +380,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -397,7 +397,7 @@ psl=}
 ```
 
 ```js title=src/server/auth/google.js
-export const getUserFields = () => {
+export const userSignupFields = {
   username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
 }
@@ -427,7 +427,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -444,9 +444,9 @@ psl=}
 ```
 
 ```ts title=src/server/auth/google.ts
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
 })
@@ -489,7 +489,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -513,7 +513,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -559,6 +559,6 @@ The `google` dict has the following properties:
   </TabItem>
   </Tabs>
 
-- #### `getUserFieldsFn: ServerImport`
+- #### `userSignupFields: ServerImport`
 
   <GetUserFieldsFnExplainer />

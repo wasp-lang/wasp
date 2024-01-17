@@ -339,7 +339,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -356,7 +356,7 @@ psl=}
 ```
 
 ```js title=src/server/auth/github.js
-export const getUserFields = () => {
+export const userSignupFields = {
   username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
 };
@@ -386,7 +386,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -403,9 +403,9 @@ psl=}
 ```
 
 ```ts title=src/server/auth/github.ts
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
 })
@@ -448,7 +448,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -472,7 +472,7 @@ app myApp {
         // highlight-next-line
         configFn: import { getConfig } from "@server/auth/github.js",
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -518,6 +518,6 @@ The `gitHub` dict has the following properties:
   </TabItem>
   </Tabs>
 
-- #### `getUserFieldsFn: ServerImport`
+- #### `userSignupFields: ServerImport`
 
   <GetUserFieldsFnExplainer />

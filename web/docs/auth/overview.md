@@ -566,7 +566,7 @@ app crudTesting {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -579,12 +579,12 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll export the `getUserFields` function from the `server/auth/signup.js` file:
+Then we'll export the `userSignupFields` object from the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.js"
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -608,7 +608,7 @@ app crudTesting {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -621,12 +621,12 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll export the `getUserFields` function from the `server/auth/signup.ts` file:
+Then we'll export the `userSignupFields` object from the `server/auth/signup.ts` file:
 
 ```ts title="server/auth/signup.ts"
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -645,7 +645,7 @@ export const getUserFields = () => defineUserFields({
 
 <small>
 
-Read more about the `getUserFields` function in the [API Reference](#signup-fields-customization).
+Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
 </small>
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity.
@@ -663,10 +663,10 @@ You can use any validation library you want to validate the fields. For example,
 <TabItem value="js" label="JavaScript">
 
 ```js title="server/auth/signup.js"
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 import * as z from 'zod'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   address: (data) => {
     const AddressSchema = z
       .string({
@@ -687,10 +687,10 @@ export const getUserFields = () => defineUserFields({
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="server/auth/signup.ts"
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 import * as z from 'zod'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   address: (data) => {
     const AddressSchema = z
       .string({
@@ -999,7 +999,7 @@ Read more about the signup process customization API in the [Signup Fields Custo
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.getUserFieldsFn` field in your `main.wasp` file.
+If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp` file.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -1012,7 +1012,7 @@ app crudTesting {
     methods: {
       usernameAndPassword: {
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -1020,12 +1020,12 @@ app crudTesting {
 }
 ```
 
-Then we'll export the `getUserFields` function from the `server/auth/signup.js` file:
+Then we'll export the `userSignupFields` object from the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.js"
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -1050,7 +1050,7 @@ app crudTesting {
     methods: {
       usernameAndPassword: {
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -1058,12 +1058,12 @@ app crudTesting {
 }
 ```
 
-Then we'll export the `getUserFields` function from the `server/auth/signup.ts` file:
+Then we'll export the `userSignupFields` object from the `server/auth/signup.ts` file:
 
 ```ts title="server/auth/signup.ts"
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -1080,13 +1080,13 @@ export const getUserFields = () => defineUserFields({
 </TabItem>
 </Tabs>
 
-The `getUserFields` function returns an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
+The `userSignupFields` object is an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
 
 If the value that the function received is invalid, the function should throw an error.
 
 <small>
 
-\* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
+\* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
 ### `SignupForm` Customization

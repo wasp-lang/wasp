@@ -99,7 +99,7 @@ To learn more about what the fields on these entities represent, look at the [AP
 
 By default, Wasp doesn't store any information it receives from the social login provider. It only stores the user's ID specific to the provider.
 
-If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `getUserFieldsFn` and `configFn` functions in `main.wasp` for each provider.
+If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `userSignupFields` and `configFn` fields in `main.wasp` for each provider.
 
 You can create custom signup setups, such as allowing users to define a custom username after they sign up with a social provider.
 
@@ -144,7 +144,7 @@ psl=}
 
 #### 2. Overriding the Default Behavior
 
-Declare an import under `app.auth.methods.google.getUserFieldsFn` (the example assumes you're using Google):
+Declare an import under `app.auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -160,7 +160,7 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -173,10 +173,8 @@ app myApp {
 And implement the imported function.
 
 ```js title=src/server/auth/google.js
-export const getUserFields = () => {
-  return {
-    isSignupComplete: () => false,
-  }
+export const userSignupFields = {
+  isSignupComplete: () => false,
 }
 ```
 
@@ -194,7 +192,7 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -207,9 +205,9 @@ app myApp {
 And implement the imported function:
 
 ```ts title=src/server/auth/google.ts
-import { defineUserFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields = () => defineUserFields({
+export const userSignupFields = defineUserSignupFields({
   isSignupComplete: () => false,
 })
 ```
@@ -273,7 +271,7 @@ The same general principle applies to more complex signup procedures, just chang
 ### Using the User's Provider Account Details
 
 Account details are provider-specific.
-Each provider has their own rules for defining the `getUserFieldsFn` and `configFn` functions:
+Each provider has their own rules for defining the `userSignupFields` and `configFn` fields:
 
 <SocialAuthGrid pagePart="#overrides" />
 
@@ -354,7 +352,7 @@ If you need even more customization, you can create your custom components using
 For more information on:
 
 - Allowed fields in `app.auth`
-- `getUserFields` and `configFn` functions
+- `userSignupFields` and `configFn` functions
 
 Check the provider-specific API References:
 

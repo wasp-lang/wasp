@@ -902,7 +902,7 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@server/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
@@ -934,7 +934,7 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@server/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
@@ -957,7 +957,7 @@ app myApp {
 </TabItem>
 </Tabs>
 
-#### `getUserFieldsFn: ServerImport`
+#### `userSignupFields: ServerImport`
 
 <GetUserFieldsFnExplainer />
 
