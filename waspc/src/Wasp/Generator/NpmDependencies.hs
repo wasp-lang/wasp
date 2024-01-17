@@ -161,8 +161,8 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
     allWaspDepsByName = waspDepsByName `Map.union` waspDevDepsByName
     conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
     devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
-    remainingWapsDeps = allWaspDepsByName `Map.difference` userDepsByName
-    remainingWaspDevDeps = allWaspDepsByName `Map.difference` userDevDepsByName
+    remainingWapsDeps = waspDepsByName `Map.difference` userDepsByName
+    remainingWaspDevDeps = waspDevDepsByName `Map.difference` userDevDepsByName
 
 type DepsByName = Map.Map String D.Dependency
 
