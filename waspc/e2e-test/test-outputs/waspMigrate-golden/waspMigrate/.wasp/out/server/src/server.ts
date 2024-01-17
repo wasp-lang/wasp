@@ -6,6 +6,8 @@ import config from './config.js'
 
 
 
+import './polyfill.js'
+
 const startServer = async () => {
 
   const port = normalizePort(config.port)

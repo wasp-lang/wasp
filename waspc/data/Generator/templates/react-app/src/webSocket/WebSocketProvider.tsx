@@ -2,7 +2,7 @@
 import { createContext, useState, useEffect } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { getAuthToken } from '../api'
+import { getSessionId } from '../api'
 import { apiEventsEmitter } from '../api/events'
 import config from '../config'
 
@@ -16,7 +16,7 @@ function refreshAuthToken() {
   // NOTE: When we figure out how `auth: true` works for Operations, we should
   // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
-    token: getAuthToken()
+    sessionId: getSessionId()
   }
 
   if (socket.connected) {
@@ -26,8 +26,8 @@ function refreshAuthToken() {
 }
 
 refreshAuthToken()
-apiEventsEmitter.on('authToken.set', refreshAuthToken)
-apiEventsEmitter.on('authToken.clear', refreshAuthToken)
+apiEventsEmitter.on('sessionId.set', refreshAuthToken)
+apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
 
 export const WebSocketContext = createContext({
   socket,

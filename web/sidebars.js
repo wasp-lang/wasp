@@ -105,7 +105,7 @@ module.exports = {
             'advanced/deployment/manually',
           ],
         },
-        'advanced/email',
+        'advanced/email/email',
         'advanced/jobs',
         'advanced/web-sockets',
         'advanced/apis',

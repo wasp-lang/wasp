@@ -24,12 +24,12 @@ export function getSignupRoute({
     fromField,
     clientRoute,
     getVerificationEmailContent,
-    allowUnverifiedLogin,
+    isEmailAutoVerified,
 }: {
     fromField: EmailFromField;
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
-    allowUnverifiedLogin: boolean;
+    isEmailAutoVerified: boolean;
 }) {
     return async function signup(
         req: Request<{ email: string; password: string; }>,
@@ -65,20 +65,7 @@ export function getSignupRoute({
          *     else's email address and therefore permanently making that email
          *     address unavailable for later account creation (by real owner).
          */
-        if (existingAuthIdentity) {
-            if (allowUnverifiedLogin) {
-                /**
-                 * This is the case where we allow unverified login.
-                 * 
-                 * If we pretended that the user was created successfully that would bring
-                 * us little value: the attacker would not be able to login and figure out
-                 * if the user exists or not, anyway.
-                 * 
-                 * So, we throw an error that says that the user already exists.
-                 */
-                throw new HttpError(422, "User with that email already exists.")
-            }
-            
+        if (existingAuthIdentity) {            
             const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData);
 
             // TOOD: faking work makes sense if the time spent on faking the work matches the time
@@ -107,7 +94,7 @@ export function getSignupRoute({
 
         const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
             hashedPassword: fields.password,
-            isEmailVerified: false,
+            isEmailVerified: isEmailAutoVerified ? true : false,
             emailVerificationSentAt: null,
             passwordResetSentAt: null,
         });
@@ -116,10 +103,18 @@ export function getSignupRoute({
             await createUser(
                 providerId,
                 newUserProviderData,
-                userFields,
+                // Using any here because we want to avoid TypeScript errors and
+                // rely on Prisma to validate the data.
+                userFields as any
             );
         } catch (e: unknown) {
             rethrowPossibleAuthError(e);
+        }
+
+        // Wasp allows for auto-verification of emails in development mode to
+        // make writing e2e tests easier.
+        if (isEmailAutoVerified) {
+            return res.json({ success: true });
         }
 
         const verificationLink = await createEmailVerificationLink(fields.email, clientRoute);
@@ -135,7 +130,7 @@ export function getSignupRoute({
         } catch (e: unknown) {
             console.error("Failed to send email verification email:", e);
             throw new HttpError(500, "Failed to send email verification email.");
-        } 
+        }
       
         return res.json({ success: true });
     };

@@ -13,7 +13,6 @@ module Wasp.AppSpec.App.Auth
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
-    isEmailVerificationRequired,
   )
 where
 
@@ -59,8 +58,7 @@ data ExternalAuthConfig = ExternalAuthConfig
 data EmailAuthConfig = EmailAuthConfig
   { fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
-    passwordReset :: PasswordResetConfig,
-    allowUnverifiedLogin :: Maybe Bool
+    passwordReset :: PasswordResetConfig
   }
   deriving (Show, Eq, Data)
 
@@ -86,8 +84,3 @@ isGitHubAuthEnabled = isJust . gitHub . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
-
-isEmailVerificationRequired :: Auth -> Bool
-isEmailVerificationRequired auth = case email . methods $ auth of
-  Nothing -> False
-  Just emailAuthConfig -> allowUnverifiedLogin emailAuthConfig /= Just True

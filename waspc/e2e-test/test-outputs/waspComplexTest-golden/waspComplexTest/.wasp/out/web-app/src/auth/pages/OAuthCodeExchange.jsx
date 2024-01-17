@@ -28,7 +28,7 @@ export default function OAuthCodeExchange({ pathToApiServerRouteHandlingOauthRed
     // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
     const apiServerUrlHandlingOauthRedirect = constructOauthRedirectApiServerUrl(pathToApiServerRouteHandlingOauthRedirect)
 
-    exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthRedirect)
+    exchangeCodeForSessionIdAndRedirect(history, apiServerUrlHandlingOauthRedirect)
     return () => {
       firstRender.current = false
     }
@@ -46,22 +46,22 @@ function constructOauthRedirectApiServerUrl(pathToApiServerRouteHandlingOauthRed
   return `${config.apiUrl}${pathToApiServerRouteHandlingOauthRedirect}${queryParams}`
 }
 
-async function exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthRedirect) {
-  const token = await exchangeCodeForJwt(apiServerUrlHandlingOauthRedirect)
+async function exchangeCodeForSessionIdAndRedirect(history, apiServerUrlHandlingOauthRedirect) {
+  const sessionId = await exchangeCodeForSessionId(apiServerUrlHandlingOauthRedirect)
 
-  if (token !== null) {
-    await initSession(token)
+  if (sessionId !== null) {
+    await initSession(sessionId)
     history.push('/')
   } else {
-    console.error('Error obtaining JWT token')
+    console.error('Error obtaining session ID')
     history.push('/login')
   }
 }
 
-async function exchangeCodeForJwt(url) {
+async function exchangeCodeForSessionId(url) {
   try {
     const response = await api.get(url)
-    return response?.data?.token || null
+    return response?.data?.sessionId || null
   } catch (e) {
     console.error(e)
     return null

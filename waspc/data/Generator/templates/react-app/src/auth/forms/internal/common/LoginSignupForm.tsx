@@ -166,12 +166,6 @@ export const LoginSignupForm = ({
     onLoginSuccess() {
       history.push('{= onAuthSucceededRedirectTo =}')
     },
-    {=# isEmailVerificationRequired =}
-    isEmailVerificationRequired: true,
-    {=/ isEmailVerificationRequired =}
-    {=^ isEmailVerificationRequired =}
-    isEmailVerificationRequired: false,
-    {=/ isEmailVerificationRequired =}
   });
   {=/ isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
