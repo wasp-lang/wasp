@@ -78,7 +78,6 @@ genWebApp spec = do
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
-    <++> genUniversalDir
     <++> genEnvValidationScript
     <++> genCrud spec
   where
@@ -283,18 +282,10 @@ getIndexTs spec =
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
 
-genUniversalDir :: Generator [FileDraft]
-genUniversalDir =
-  return
-    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
-      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
-    ]
-
 genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =
   return
-    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
-      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
     ]
 
 genWebSockets :: AppSpec -> Generator [FileDraft]

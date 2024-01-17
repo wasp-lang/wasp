@@ -1,7 +1,7 @@
 {{={= =}=}}
 import merge from 'lodash.merge'
 
-import { stripTrailingSlash } from "./universal/url.js";
+import { stripTrailingSlash } from "wasp/universal/url";
 
 const env = process.env.NODE_ENV || 'development'
 

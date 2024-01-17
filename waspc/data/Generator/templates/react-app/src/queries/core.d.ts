@@ -1,6 +1,6 @@
 import { type Query } from '.'
 import { Route } from '../types';
-import type { Expand, _Awaited, _ReturnType } from '../universal/types'
+import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
 
 export function createQuery<BackendQuery extends GenericBackendQuery>(
   queryRoute: string,

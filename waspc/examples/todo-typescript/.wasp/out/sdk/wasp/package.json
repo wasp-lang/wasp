@@ -23,7 +23,8 @@
       "./operations": "./dist/operations/index.js",
       "./operations/*": "./dist/operations/*",
       "./universal/url": "./dist/universal/url.js",
-      "./universal/types": "./dist/universal/url.js",
+      "./universal/types": "./dist/universal/types.js",
+      "./universal/validators": "./dist/universal/validators.js",
       "./server/dbClient": "./dist/server/dbClient.js"
    },
    "license": "ISC",

@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand } from '../../universal/types'
+import type { Expand } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput

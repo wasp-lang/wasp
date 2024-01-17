@@ -77,6 +77,7 @@ genSdkReal spec =
       genTsConfigJson,
       genPackageJson spec
     ]
+    <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genTypesAndEntitiesDirs spec
   where
@@ -93,8 +94,7 @@ genSdkHardcoded =
       copyFolder [reldir|server/actions|],
       copyFolder [reldir|server/queries|],
       copyFile [relfile|server/utils.ts|],
-      copyFolder [reldir|types|],
-      copyFolder [reldir|universal|]
+      copyFolder [reldir|types|]
     ]
   where
     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
@@ -278,3 +278,11 @@ genSourceFile file = return $ FD.createTextFileDraft relDstPath text
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
     text = EC.fileText file
     relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
+  return
+    [ mkTmplFd [relfile|universal/url.ts|],
+      mkTmplFd [relfile|universal/types.ts|],
+      mkTmplFd [relfile|universal/validators.js|]
+    ]
