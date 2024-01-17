@@ -143,7 +143,6 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("vite", "^4.3.9"),
             ("typescript", "^5.1.0"),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),

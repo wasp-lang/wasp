@@ -4,9 +4,13 @@ module Wasp.Generator.SdkGenerator
   ( genSdk,
     installNpmDependencies,
     genExternalCodeDir,
+    sdkRootDirInProjectRootDir,
+    buildSdk,
   )
 where
 
+import Control.Concurrent (newChan)
+import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types ((.=))
@@ -14,6 +18,7 @@ import Data.Maybe (fromMaybe, isJust, mapMaybe)
 import GHC.IO (unsafePerformIO)
 import StrongPath
 import qualified StrongPath as SP
+import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
@@ -22,7 +27,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExternalFiles as EC
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -31,42 +36,54 @@ import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTempla
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.Templates (TemplatesDir, getTemplatesDirAbsPath)
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
-
-genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec =
-  sequence
-    [ genFileCopy [relfile|server/dbClient.js|],
-      genPackageJson spec
-    ]
-    <++> genHardcodedSdkModules
-    <++> genSdkModules spec
-  where
-    genFileCopy = return . mkTmplFd
 
 data SdkRootDir
 
 data SdkTemplatesDir
 
-genSdkModules :: AppSpec -> Generator [FileDraft]
-genSdkModules spec =
+genSdk :: AppSpec -> Generator [FileDraft]
+genSdk spec =
+  genSdkHardcoded
+    <++> genSdkReal spec
+
+buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+buildSdk projectRootDir = do
+  chan <- newChan
+  (_, exitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (runNodeCommandAsJob dstDir "npx" ["tsc"] J.Wasp chan)
+  case exitCode of
+    ExitSuccess -> return $ Right ()
+    ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
+  where
+    dstDir = projectRootDir </> sdkRootDirInProjectRootDir
+
+genSdkReal :: AppSpec -> Generator [FileDraft]
+genSdkReal spec =
   sequence
     [ genFileCopy [relfile|api/index.ts|],
-      genFileCopy [relfile|api/events.ts|]
+      genFileCopy [relfile|api/events.ts|],
+      genFileCopy [relfile|server/dbClient.ts|],
+      genTsConfigJson,
+      genPackageJson spec
     ]
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genTypesAndEntitiesDirs spec
   where
     genFileCopy = return . mkTmplFd
 
-genHardcodedSdkModules :: Generator [FileDraft]
-genHardcodedSdkModules =
+genSdkHardcoded :: Generator [FileDraft]
+genSdkHardcoded =
   return
     [ copyFolder [reldir|auth|],
       copyFolder [reldir|core|],
@@ -173,8 +190,26 @@ genPackageJson spec =
                 ("@types/express-serve-static-core", "^4.17.13")
               ]
               ++ depsRequiredForAuth spec,
-          N.devDependencies = AS.Dependency.fromList []
+          N.devDependencies =
+            AS.Dependency.fromList
+              [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
+              ]
         }
+    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+-- todo(filip): remove this duplication, we have almost the same thing in the
+-- ServerGenerator.
+genTsConfigJson :: Generator FileDraft
+genTsConfigJson = do
+  return $
+    mkTmplFdWithDstAndData
+      [relfile|tsconfig.json|]
+      [relfile|tsconfig.json|]
+      ( Just $
+          object
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            ]
+      )
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
