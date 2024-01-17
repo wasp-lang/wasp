@@ -12,9 +12,9 @@ module Wasp.AppSpec.App.Auth
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
-    getEmailUserFieldsFn,
-    getUsernameAndPasswordUserFieldsFn,
-    getExternalAuthUserFieldsFn,
+    userSignupFieldsForEmailAuth,
+    userSignupFieldsForUsernameAuth,
+    userSignupFieldsForExternalAuth,
   )
 where
 
@@ -45,18 +45,18 @@ data AuthMethods = AuthMethods
   deriving (Show, Eq, Data)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
-  { getUserFieldsFn :: Maybe ExtImport
+  { userSignupFields :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
-    getUserFieldsFn :: Maybe ExtImport
+    userSignupFields :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
 data EmailAuthConfig = EmailAuthConfig
-  { getUserFieldsFn :: Maybe ExtImport,
+  { userSignupFields :: Maybe ExtImport,
     fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
@@ -79,13 +79,13 @@ isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
 
 -- These helper functions are used to avoid ambiguity when using the
--- `getUserFieldsFn` function (otherwise we need to use the DuplicateRecordFields
+-- `userSignupFields` function (otherwise we need to use the DuplicateRecordFields
 -- extension in each module that uses them).
-getEmailUserFieldsFn :: EmailAuthConfig -> Maybe ExtImport
-getEmailUserFieldsFn = getUserFieldsFn
+userSignupFieldsForEmailAuth :: EmailAuthConfig -> Maybe ExtImport
+userSignupFieldsForEmailAuth = userSignupFields
 
-getUsernameAndPasswordUserFieldsFn :: UsernameAndPasswordConfig -> Maybe ExtImport
-getUsernameAndPasswordUserFieldsFn = getUserFieldsFn
+userSignupFieldsForUsernameAuth :: UsernameAndPasswordConfig -> Maybe ExtImport
+userSignupFieldsForUsernameAuth = userSignupFields
 
-getExternalAuthUserFieldsFn :: ExternalAuthConfig -> Maybe ExtImport
-getExternalAuthUserFieldsFn = getUserFieldsFn
+userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
+userSignupFieldsForExternalAuth = userSignupFields

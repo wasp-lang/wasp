@@ -111,10 +111,10 @@ genOAuthConfig provider maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWit
           "npmPackage" .= App.Dependency.name (OAuth.passportDependency provider),
           "oAuthConfigProps" .= getJsonForOAuthConfigProps provider,
           "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
-          "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
+          "userSignupFields" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
         ]
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
-    maybeGetUserFieldsFn = AS.Auth.getExternalAuthUserFieldsFn =<< maybeUserConfig
+    maybeUserSignupFields = AS.Auth.userSignupFieldsForExternalAuth =<< maybeUserConfig
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]

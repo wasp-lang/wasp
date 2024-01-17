@@ -49,10 +49,10 @@ genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData
       object
         [ "providerId" .= Local.providerId localAuthProvider,
           "displayName" .= Local.displayName localAuthProvider,
-          "userFieldsFn" .= extImportToImportJson relPathToServerSrcDir maybeGetUserFieldsFn
+          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
         ]
 
-    maybeGetUserFieldsFn = AS.Auth.getUsernameAndPasswordUserFieldsFn usernameAndPasswordConfig
+    maybeUserSignupFields = AS.Auth.userSignupFieldsForUsernameAuth usernameAndPasswordConfig
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|auth/providers/config/username.ts|]

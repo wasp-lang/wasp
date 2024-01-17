@@ -99,7 +99,7 @@ spec_AppSpecValid = do
                 AS.Auth.externalAuthEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
-                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.getUserFieldsFn = Nothing},
+                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
                       AS.Auth.google = Nothing,
                       AS.Auth.gitHub = Nothing,
                       AS.Auth.email = Nothing
@@ -164,7 +164,7 @@ spec_AppSpecValid = do
                 }
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
-                { AS.Auth.getUserFieldsFn = Nothing,
+                { AS.Auth.userSignupFields = Nothing,
                   AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",
@@ -192,7 +192,7 @@ spec_AppSpecValid = do
                     { usernameAndPassword =
                         Just
                           AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.getUserFieldsFn = Nothing
+                            { AS.Auth.userSignupFields = Nothing
                             },
                       google = Nothing,
                       gitHub = Nothing,
@@ -211,7 +211,7 @@ spec_AppSpecValid = do
                     { usernameAndPassword =
                         Just
                           AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.getUserFieldsFn = Nothing
+                            { AS.Auth.userSignupFields = Nothing
                             },
                       google = Nothing,
                       gitHub = Nothing,
@@ -251,7 +251,7 @@ spec_AppSpecValid = do
       describe "should validate email sender setup." $ do
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
-                { AS.Auth.getUserFieldsFn = Nothing,
+                { AS.Auth.userSignupFields = Nothing,
                   AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",

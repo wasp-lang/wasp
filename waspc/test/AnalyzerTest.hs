@@ -51,7 +51,7 @@ spec_Analyzer = do
                 "    userEntity: User,",
                 "    methods: {",
                 "      usernameAndPassword: {",
-                "        getUserFieldsFn: import { getUserFields } from \"@server/auth/signup.js\",",
+                "        userSignupFields: import { getUserFields } from \"@server/auth/signup.js\",",
                 "      }",
                 "    },",
                 "    onAuthFailedRedirectTo: \"/\",",
@@ -146,7 +146,7 @@ spec_Analyzer = do
                                 { Auth.usernameAndPassword =
                                     Just
                                       Auth.UsernameAndPasswordConfig
-                                        { Auth.getUserFieldsFn = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
+                                        { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
                                         },
                                   Auth.google = Nothing,
                                   Auth.gitHub = Nothing,
