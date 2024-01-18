@@ -15,9 +15,9 @@ import Data.Foldable (find)
 import Data.Text (Text)
 import StrongPath (File', Path, Rel, System, reldir, (</>))
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github as Github
-import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 
 data StarterTemplate

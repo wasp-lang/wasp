@@ -14,17 +14,17 @@ import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
-import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
   InWaspProject waspRoot <- require
-  let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
+  let outDir = waspRoot </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 

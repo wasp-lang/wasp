@@ -10,8 +10,7 @@ where
 import Control.Arrow (ArrowChoice (left))
 import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
-import StrongPath.TH (relfile)
+import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)

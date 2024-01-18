@@ -12,13 +12,13 @@ import System.Directory
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir)
 
 clean :: Command ()
 clean = do
   InWaspProject waspProjectDir <- require
-  let dotWaspDirFp = SP.toFilePath $ waspProjectDir SP.</> Common.dotWaspDirInWaspProjectDir
+  let dotWaspDirFp = SP.toFilePath $ waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   cliSendMessageC $ Msg.Start "Deleting .wasp/ directory..."
   doesDotWaspDirExist <- liftIO $ doesDirectoryExist dotWaspDirFp
   if doesDotWaspDirExist
