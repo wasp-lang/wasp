@@ -12,6 +12,14 @@ import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "../email/types.js";
 import { handleRejection } from "../../../utils.js";
 
+{=# userSignupFields.isDefined =}
+{=& userSignupFields.importStatement =}
+const _waspUserSignupFields = {= userSignupFields.importIdentifier =}
+{=/ userSignupFields.isDefined =}
+{=^ userSignupFields.isDefined =}
+const _waspUserSignupFields = undefined
+{=/ userSignupFields.isDefined =}
+
 {=# getVerificationEmailContent.isDefined =}
 {=& getVerificationEmailContent.importStatement =}
 const _waspGetVerificationEmailContent: GetVerificationEmailContentFn = {= getVerificationEmailContent.importIdentifier =};
@@ -57,6 +65,7 @@ const config: ProviderConfig = {
         router.post('/login', loginRoute);
 
         const signupRoute = handleRejection(getSignupRoute({
+            userSignupFields: _waspUserSignupFields,
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,

@@ -529,12 +529,13 @@ try {
 
 ## Customizing the Signup Process
 
-Sometimes you want to include **extra fields** in your signup process, like first name and last name.
+Sometimes you want to include **extra fields** in your signup process, like first name and last name and save them in the `User` entity.
 
-In Wasp, in this case:
+For this to happen:
 
 - you need to define the fields that you want saved in the database,
-- you need to customize the `SignupForm`.
+- you need to customize the `SignupForm` (in the case of [Email](./email) or [Username & Password](./username-and-pass) auth)
+
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
@@ -551,23 +552,24 @@ We do that by defining an object where the keys represent the field name, and th
 \* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
-First, we add the `auth.signup.additionalFields` field in our `main.wasp` file:
+First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp` file. The `{authMethod}` depends on the auth method you are using.
+
+For example, if you are using [Username & Password](./username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {9-11}
+```wasp title="main.wasp"
 app crudTesting {
   // ...
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
   },
 }
 
@@ -577,12 +579,12 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll define and export the `fields` object from the `server/auth/signup.js` file:
+Then we'll define the `userSignupFields` object in the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.js"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -599,18 +601,17 @@ export const fields = defineAdditionalSignupFields({
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {9-11}
+```wasp title="main.wasp"
 app crudTesting {
   // ...
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
   },
 }
 
@@ -620,12 +621,12 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll export the `fields` object from the `server/auth/signup.ts` file:
+Then we'll define the `userSignupFields` object in the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.ts"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -644,7 +645,7 @@ export const fields = defineAdditionalSignupFields({
 
 <small>
 
-Read more about the `fields` object in the [API Reference](#signup-fields-customization).
+Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
 </small>
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity.
@@ -662,10 +663,10 @@ You can use any validation library you want to validate the fields. For example,
 <TabItem value="js" label="JavaScript">
 
 ```js title="server/auth/signup.js"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 import * as z from 'zod'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: (data) => {
     const AddressSchema = z
       .string({
@@ -686,10 +687,10 @@ export const fields = defineAdditionalSignupFields({
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="server/auth/signup.ts"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 import * as z from 'zod'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: (data) => {
     const AddressSchema = z
       .string({
@@ -998,33 +999,33 @@ Read more about the signup process customization API in the [Signup Fields Custo
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.signup.additionalFields` field in your `main.wasp` file.
+If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp` file.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {9-11}
+```wasp title="main.wasp"
 app crudTesting {
   // ...
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
   },
 }
 ```
 
-Then we'll export the `fields` object from the `server/auth/signup.js` file:
+Then we'll export the `userSignupFields` object from the `server/auth/signup.js` file:
 
 ```ts title="server/auth/signup.js"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -1041,28 +1042,28 @@ export const fields = defineAdditionalSignupFields({
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {9-11}
+```wasp title="main.wasp"
 app crudTesting {
   // ...
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@server/auth/signup.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
   },
 }
 ```
 
-Then we'll export the `fields` object from the `server/auth/signup.ts` file:
+Then we'll export the `userSignupFields` object from the `server/auth/signup.ts` file:
 
 ```ts title="server/auth/signup.ts"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
     if (typeof address !== 'string') {
@@ -1079,13 +1080,13 @@ export const fields = defineAdditionalSignupFields({
 </TabItem>
 </Tabs>
 
-The `fields` object is an object where the keys represent the field name, and the values are functions which receive the data sent from the client\* and return the value of the field.
+The `userSignupFields` object is an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
 
-If the field value is invalid, the function should throw an error.
+If the value that the function received is invalid, the function should throw an error.
 
 <small>
 
-\* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
+\* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
 ### `SignupForm` Customization

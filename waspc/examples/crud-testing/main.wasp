@@ -9,12 +9,11 @@ app crudTesting {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        userSignupFields: import { userSignupFields } from "@server/auth.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth.js",
-    },
   },
   dependencies: [
     ("zod", "^3.22.2")

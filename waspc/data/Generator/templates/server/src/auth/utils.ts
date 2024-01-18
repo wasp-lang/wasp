@@ -14,17 +14,7 @@ import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
-{=# additionalSignupFields.isDefined =}
-{=& additionalSignupFields.importStatement =}
-{=/ additionalSignupFields.isDefined =}
-
-import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
-{=# additionalSignupFields.isDefined =}
-const _waspAdditionalSignupFieldsConfig = {= additionalSignupFields.importIdentifier =}
-{=/ additionalSignupFields.isDefined =}
-{=^ additionalSignupFields.isDefined =}
-const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
-{=/ additionalSignupFields.isDefined =}
+import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
 export type EmailProviderData = {
   hashedPassword: string;
@@ -137,7 +127,7 @@ export async function findAuthWithUserBy(
 export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
-  userFields?: PossibleAdditionalSignupFields,
+  userFields?: PossibleUserFields,
 ): Promise<{= userEntityUpper =} & {
   auth: {= authEntityUpper =}
 }> {
@@ -235,15 +225,23 @@ export function rethrowPossibleAuthError(e: unknown): void {
   throw e
 }
 
-export async function validateAndGetAdditionalFields(data: {
-  [key: string]: unknown
-}): Promise<Record<string, any>> {
+export async function validateAndGetUserFields(
+  data: {
+    [key: string]: unknown
+  },
+  userSignupFields?: UserSignupFields,
+): Promise<Record<string, any>> {
   const {
     password: _password,
     ...sanitizedData
   } = data;
   const result: Record<string, any> = {};
-  for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
+
+  if (!userSignupFields) {
+    return result;
+  }
+
+  for (const [field, getFieldValue] of Object.entries(userSignupFields)) {
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value

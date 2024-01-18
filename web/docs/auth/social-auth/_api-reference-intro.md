@@ -1,7 +1,7 @@
 Provider-specific behavior comes down to implementing two functions.
 
 - `configFn`
-- `getUserFieldsFn`
+- `userSignupFields`
 
 The reference shows how to define both.
 

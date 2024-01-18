@@ -17,15 +17,18 @@ import {
 } from "./utils.js";
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
-import { validateAndGetAdditionalFields } from '../../utils.js'
+import { validateAndGetUserFields } from '../../utils.js'
 import HttpError from '../../../core/HttpError.js';
+import { type UserSignupFields } from '../types.js';
 
 export function getSignupRoute({
+    userSignupFields,
     fromField,
     clientRoute,
     getVerificationEmailContent,
     isEmailAutoVerified,
 }: {
+    userSignupFields?: UserSignupFields;
     fromField: EmailFromField;
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
@@ -90,7 +93,10 @@ export function getSignupRoute({
             }
         }
 
-        const userFields = await validateAndGetAdditionalFields(fields);
+        const userFields = await validateAndGetUserFields(
+            fields,
+            userSignupFields,
+        );
 
         const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
             hashedPassword: fields.password,

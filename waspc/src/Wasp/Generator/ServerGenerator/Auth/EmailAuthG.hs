@@ -61,6 +61,7 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
           "passwordResetClientRoute" .= passwordResetClientRoute,
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
           "getVerificationEmailContent" .= getVerificationEmailContent,
+          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields,
           "isDevelopment" .= isDevelopment
         ]
 
@@ -80,6 +81,7 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
     getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
     getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
+    maybeUserSignupFields = AS.Auth.userSignupFieldsForEmailAuth emailAuthConfig
 
     emailVerification = AS.Auth.emailVerification emailAuthConfig
     passwordReset = AS.Auth.passwordReset emailAuthConfig

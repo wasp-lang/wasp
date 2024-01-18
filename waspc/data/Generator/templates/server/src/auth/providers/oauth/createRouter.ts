@@ -12,20 +12,22 @@ import {
   authConfig,
   contextWithUserEntity,
   createUser,
-  findAuthWithUserBy,
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
+  validateAndGetUserFields,
 } from "../../utils.js"
 import { createSession } from "../../session.js"
 import { type {= authEntityUpper =} } from "../../../entities/index.js"
-import type { ProviderConfig, RequestWithWasp } from "../types.js"
-import type { GetUserFieldsFn } from "./types.js"
+import type { ProviderConfig, RequestWithWasp, UserSignupFields } from "../types.js"
 import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
-export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn?: GetUserFieldsFn }) {
-    const { passportStrategyName, getUserFieldsFn } = initData;
+export function createRouter(provider: ProviderConfig, initData: {
+  passportStrategyName: string,
+  userSignupFields?: UserSignupFields,
+}) {
+    const { passportStrategyName, userSignupFields } = initData;
 
     const router = Router();
 
@@ -53,7 +55,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const providerId = createProviderId(provider.id, providerProfile.id);
 
           try {
-            const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, getUserFieldsFn)
+            const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, userSignupFields)
             const session = await createSession(authId)
             return res.json({
               sessionId: session.id,
@@ -72,7 +74,7 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
 async function getAuthIdFromProviderDetails(
   providerId: ProviderId,
   providerProfile: any,
-  getUserFieldsFn?: GetUserFieldsFn,
+  userSignupFields?: UserSignupFields,
 ): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
@@ -90,9 +92,10 @@ async function getAuthIdFromProviderDetails(
   if (existingAuthIdentity) {
     return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
   } else {
-    const userFields = getUserFieldsFn
-      ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
-      : {};
+    const userFields = await validateAndGetUserFields(
+      { profile: providerProfile },
+      userSignupFields,
+    );
 
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})
@@ -100,7 +103,9 @@ async function getAuthIdFromProviderDetails(
     const user = await createUser(
       providerId,
       providerData,
-      userFields,
+      // Using any here because we want to avoid TypeScript errors and
+      // rely on Prisma to validate the data.
+      userFields as any,
     )
 
     return user.auth.id

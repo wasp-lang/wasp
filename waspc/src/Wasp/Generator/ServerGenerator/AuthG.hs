@@ -11,7 +11,6 @@ import StrongPath
     Path',
     Rel,
     reldir,
-    reldirP,
     relfile,
     (</>),
   )
@@ -33,7 +32,6 @@ import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -108,14 +106,11 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "additionalSignupFields" .= extImportToImportJson [reldirP|../|] additionalSignupFields
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
-
-    additionalSignupFields = AS.Auth.signup auth >>= AS.Auth.additionalFields
 
 genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
 genIndexTs auth =
