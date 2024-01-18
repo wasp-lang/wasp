@@ -31,7 +31,7 @@ You **own** the user entity and you can modify it as you wish. You can add new f
 
 <ImgWithCaption alt="Auth Entities in a Wasp App" source="img/auth-entities/model.png" caption="Auth Entities in a Wasp App"/>
 
-On the other hand, the `Auth` and `AuthIdentity` entities are created behind the scenes and are used to store the user's login credentials. You as the developer don't need to care about this entity most of the time. Wasp **owns** these entities.
+On the other hand, the `Auth`, `AuthIdentity` and `Session` entities are created behind the scenes and are used to store the user's login credentials. You as the developer don't need to care about this entity most of the time. Wasp **owns** these entities.
 
 In the case you want to create a custom signup action, you will need to use the `Auth` and `AuthIdentity` entities directly.
 
@@ -51,6 +51,8 @@ If we take a look at an example user in the database, we can see:
 - The `User` is connected to exactly one `Auth` entity.
 - Each `Auth` entity can have multiple `AuthIdentity` entities.
   - In this example, the `Auth` entity has two `AuthIdentity` entities: one for the email-based auth and one for the Google-based auth.
+- Each `Auth` entity can have multiple `Session` entities.
+  - In this example, the `Auth` entity has one `Session` entity.
 
 <MultipleIdentitiesWarning />
 
@@ -65,6 +67,7 @@ entity Auth {=psl
   // Wasp injects this relation on the User entity as well
   user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade) 
   identities AuthIdentity[]
+  sessions   Session[]
 psl=}
 ```
 
@@ -76,6 +79,7 @@ The `Auth` fields:
 - `user` is a relation to the `User` entity.
   - This relation is injected on the `User` entity as well.
 - `identities` is a relation to the `AuthIdentity` entity.
+- `sessions` is a relation to the `Session` entity.
 
 ### `AuthIdentity` Entity <Internal />
 
@@ -103,6 +107,28 @@ The `AuthIdentity` fields:
   - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/prisma/issues/3786).
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
+- `auth` is a relation to the `Auth` entity.
+
+### `Session` Entity <Internal />
+
+The `Session` entity is used to store the user's session information. It is used to keep the user logged in between page refreshes.
+
+```wasp
+entity Session {=psl
+  id        String   @id @unique
+  expiresAt DateTime
+  userId    String
+  auth      Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@index([userId])
+psl=}
+```
+
+The `Session` fields:
+- `id` is a unique identifier of the `Session` entity.
+- `expiresAt` is the date when the session expires.
+- `userId` is a foreign key to the `Auth` entity.
+  - It is used to connect the `Session` entity with the `Auth` entity.
 - `auth` is a relation to the `Auth` entity.
 
 ## Accessing the Auth Fields 
