@@ -10,7 +10,7 @@ where
 import Control.Arrow (ArrowChoice (left))
 import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
 import StrongPath.TH (relfile)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
@@ -24,7 +24,7 @@ import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator.ConfigFile as G.CF
-import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir, findFileInWaspProjectDir)
+import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir, findFileInWaspProjectDir, packageJsonInWaspProjectDir)
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
@@ -127,9 +127,9 @@ analyzePackageJsonContent waspProjectDir =
     Nothing -> return $ Left [fileNotFoundMessage]
   where
     fileNotFoundMessage = "couldn't find package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
-    findPackageJsonFile = findFileInWaspProjectDir waspProjectDir [relfile|package.json|]
+    findPackageJsonFile = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
 
 readPackageJsonFile :: Path' Abs File' -> IO (Either [CompileError] PackageJson)
 readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
-  return $ maybeToEither ["Error reading the package.json file"] $ Aeson.decode byteString
+  return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString

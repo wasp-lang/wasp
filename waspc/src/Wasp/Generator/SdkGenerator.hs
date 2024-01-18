@@ -92,8 +92,8 @@ sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk|]
 
--- todo(filip): figure out where this belongs
--- also, fix imports for wasp project
+-- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
+-- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
   runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
