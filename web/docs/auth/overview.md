@@ -14,7 +14,7 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
     <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </div>
 
-Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration.
+Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -387,6 +387,12 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](../advanced/web-sockets#websocketfn-function).
+
+## Sessions
+
+Wasp's auth uses sessions to keep track of the logged-in user. The session is stored in `localStorage` on the client and in the database on the server. Under the hood, Wasp uses the excellent [Lucia Auth v3](https://v3.lucia-auth.com/) library for session management.
+
+When users log in, Wasp creates a session for them and stores it in the database. The session is then sent to the client and stored in `localStorage`. When users log out, Wasp deletes the session from the database and from `localStorage`.
 
 ## User Entity
 

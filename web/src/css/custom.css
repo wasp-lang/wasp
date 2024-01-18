@@ -137,7 +137,7 @@
 
 /* This hides Docs version dropdown when not on docs (i.e. when we are on blog). */
 .navbar__item:has(.navbar-item-docs-version-dropdown:not(.active)) {
-  display: none
+  display: none;
 }
 
 /******************************/
@@ -148,6 +148,7 @@
   position: relative;
   width: 100%;
   padding-bottom: 56.25%;
+  margin-bottom: 1.5rem;
 }
 
 .video-container iframe {

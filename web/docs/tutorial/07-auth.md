@@ -280,7 +280,7 @@ However, you will notice that if you try logging in as different users and creat
 
 <small>
 
-You might notice some extra Prisma models like `Auth` and `AuthIdentity` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
 
 </small>
 
