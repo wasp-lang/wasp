@@ -26,7 +26,8 @@
       "./universal/url": "./dist/universal/url.js",
       "./universal/types": "./dist/universal/types.js",
       "./universal/validators": "./dist/universal/validators.js",
-      "./server/dbClient": "./dist/server/dbClient.js"
+      "./server/dbClient": "./dist/server/dbClient.js",
+      "./server/utils": "./dist/server/utils.js"
    },
    "license": "ISC",
     "include": [

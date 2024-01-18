@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth.js'
-import { handleRejection } from '../../../utils.js'
+import { handleRejection } from 'wasp/server/utils'
 
 import {
   createProviderId,

@@ -5,7 +5,7 @@ import { readdir } from 'fs'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
-import { type SanitizedUser } from './_types/index.js'
+import { type SanitizedUser } from 'wasp/server/_types/index.js'
 
 type RequestWithExtraFields = Request & {
   user?: SanitizedUser

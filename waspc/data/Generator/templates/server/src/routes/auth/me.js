@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { serialize as superjsonSerialize } from 'superjson'
-import { handleRejection } from '../../utils.js'
+import { handleRejection } from 'wasp/server/utils'
 import { throwInvalidCredentialsError } from '../../core/auth.js'
 
 export default handleRejection(async (req, res) => {

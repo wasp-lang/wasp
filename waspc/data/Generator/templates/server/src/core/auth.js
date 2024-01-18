@@ -5,7 +5,7 @@ import util from 'util'
 import { randomInt } from 'node:crypto'
 
 import prisma from 'wasp/server/dbClient'
-import { handleRejection } from '../utils.js'
+import { handleRejection } from 'wasp/server/utils'
 import HttpError from '../core/HttpError.js'
 import config from '../config.js'
 import { deserializeAndSanitizeProviderData } from '../auth/utils.js'

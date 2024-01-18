@@ -8,7 +8,7 @@ import {
   findAuthIdentity,
   deserializeAndSanitizeProviderData,
   type EmailProviderData,
-} from '../../utils.js';
+} from 'wasp/server/utils';
 import waspServerConfig from '../../../config.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 

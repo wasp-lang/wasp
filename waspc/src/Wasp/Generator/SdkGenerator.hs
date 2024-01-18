@@ -75,6 +75,7 @@ genSdkReal spec =
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|server/dbClient.ts|],
       genTsConfigJson,
+      genServerUtils spec,
       genPackageJson spec
     ]
     <++> genUniversalDir
@@ -93,7 +94,6 @@ genSdkHardcoded =
       copyFolder [reldir|rpc|],
       copyFolder [reldir|server/actions|],
       copyFolder [reldir|server/queries|],
-      copyFile [relfile|server/utils.ts|],
       copyFolder [reldir|types|]
     ]
   where
@@ -103,8 +103,6 @@ genSdkHardcoded =
         RemoveExistingDstDir
         (dstFolder </> castRel modul)
         (srcFolder </> modul)
-    copyFile :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
-    copyFile = mkTmplFd
     dstFolder = sdkRootDirInProjectRootDir
     srcFolder = absSdkTemplatesDir
     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> sdkTemplatesDirInTemplatesDir
@@ -231,6 +229,14 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
 mkTmplFdWithDst :: Path' (Rel SdkTemplatesDir) File' -> Path' (Rel SdkRootDir) File' -> FileDraft
 mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
 
+mkTmplFdWithData ::
+  Path' (Rel SdkTemplatesDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath tmplData
+  where
+    relDstPath = castRel relSrcPath
+
 mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
@@ -286,3 +292,8 @@ genUniversalDir =
       mkTmplFd [relfile|universal/types.ts|],
       mkTmplFd [relfile|universal/validators.js|]
     ]
+
+genServerUtils :: AppSpec -> Generator FileDraft
+genServerUtils spec = return $ mkTmplFdWithData [relfile|server/utils.ts|] (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

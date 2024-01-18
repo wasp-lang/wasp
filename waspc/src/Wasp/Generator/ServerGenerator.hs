@@ -213,7 +213,6 @@ genSrcDir spec =
       genConfigFile spec,
       genServerJs spec
     ]
-    <++> genServerUtils spec
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
@@ -366,10 +365,5 @@ genOperationsMiddleware spec =
       (C.asTmplFile [relfile|src/middleware/operations.ts|])
       (C.asServerFile [relfile|src/middleware/operations.ts|])
       (Just tmplData)
-  where
-    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
-
-genServerUtils :: AppSpec -> Generator [FileDraft]
-genServerUtils spec = return [C.mkTmplFdWithData [relfile|src/utils.ts|] (Just tmplData)]
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

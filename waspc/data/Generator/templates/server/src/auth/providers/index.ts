@@ -3,7 +3,7 @@
 import { join } from 'path'
 import { Router } from "express";
 
-import { getDirPathFromFileUrl, importJsFilesFromDir } from "../../utils.js";
+import { getDirPathFromFileUrl, importJsFilesFromDir } from "wasp/server/utils";
 
 import { ProviderConfig } from "./types";
 

@@ -1,3 +1,4 @@
+{{={= =}=}}
 import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
@@ -5,10 +6,14 @@ import { readdir } from 'fs'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
-import { type SanitizedUser } from './_types/index.js'
+{=# isAuthEnabled =}
+import { type SanitizedUser } from 'wasp/server/_types/index.js'
+{=/ isAuthEnabled =}
 
 type RequestWithExtraFields = Request & {
+  {=# isAuthEnabled =}
   user?: SanitizedUser
+  {=/ isAuthEnabled =}
 }
 
 /**
