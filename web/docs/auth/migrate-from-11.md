@@ -6,7 +6,7 @@ Wasp made a big change in the way authentication works in version 0.12.0. This g
 
 ## What Changed?
 
-### 0.11.X Auth Models
+### 0.11.X Auth
 
 In 0.11.X, authentication was based on the `User` model which the developer needed to set up properly and take care of the auth fields like `email` or `password`.
 
@@ -44,7 +44,9 @@ entity SocialLogin {=psl
 psl=}
 ```
 
-### New Auth Models
+### New Auth
+
+#### Auth Models
 
 From 0.12.X onwards, authentication is based on the auth models which are automatically set up by Wasp. You don't need to take care of the auth fields anymore.
 
@@ -70,6 +72,14 @@ entity User {=psl
 psl=}
 ```
 
+#### Multiple Auth Identities per User
+
+With our old auth implementation, if you set up Google and email auth methods, your users could sign up with Google and then later on reset their password and log in with their email and password. This was the only case when users could have multiple login methods.
+
+**The new auth system doesn't support this scenario anymore.** We plan on adding support for multiple auth identities per user in the future. This will be possible with the introduction of the planned [account merging feature](https://github.com/wasp-lang/wasp/issues/954).
+
+When you migrate to the new auth system, you'll need to pick one of the auth methods and migrate your users to it.
+
 You can read more about the new auth system in the [Auth Entities](./entities) section.
 
 ## How to Migrate?
@@ -82,7 +92,13 @@ Migrating your existing app to the new auth system is a two-step process:
 
 To migrate a deployed app, you need to go through the migration steps while deploying the app in between the steps.
 
-We'll put extra info for migrating a deployed app in a box like this one.
+**We'll put extra info for migrating a deployed app in a box like this one.**
+
+Expect some downtime when migrating a deployed app. To be more precise: the auth system won't work 100% while the migration is in progress.
+
+As soon as you deploy the new auth system, new users will be able to sign up, but existing users won't be able to log in until you run the migration script on the production database.
+
+You should probably back up your database before migrating a deployed app. Testing the changes locally or on a staging environment first is also a good idea.
 :::
 
 ### 1. Migrate to the New Auth System
@@ -122,11 +138,18 @@ If you have an existing app with authentication set up, you can follow these ste
   ```bash
   wasp db seed
   ```
-  If you have multiple migration scripts, you can pick which one to run by selecting it from the list.
+  If you added multiple migration scripts, you can pick which one to run by selecting it from the list.
+
+1. Verify that the auth still works locally by logging in with each of the auth methods.
+1. Update your JS code to use the new auth helper functions for getting the `email` or `username` of the currently logged-in user. Read more about the helpers in the [Auth Entities](./entities#accessing-the-auth-fields) section.
+
+  The helpers you'll probably use are the `getEmail` and `getUsername` helpers.
 
   :::info Migrating a deployed app
 
-    _First, deploy your app_ with the changes from previous steps. Then you'll need to run the migration script on the production database with `wasp db seed` command.
+    After you have run the migration script locally, updated your JS code and saw that it's okay, _deploy the app_ with the changes you have made so far.
+
+    Then you'll need to run the migration script on the production database with `wasp db seed` command.
 
     **Running the migration script on the production database**
 
@@ -135,43 +158,31 @@ If you have an existing app with authentication set up, you can follow these ste
     The instructions should be similar for other deployment providers: setting up some sort of an SSH tunnel from your local machine to the production database and running the migration script locally with `DATABASE_URL` pointing to the production database.
   :::
 
-1. Migrate to using the new auth helper functions for getting the `email` or `username` of the currently logged-in user. Read more about the helpers in the [Auth Entities](./entities#accessing-the-auth-fields) section.
-
-  The helpers you'll probably use are the `getEmail` and `getUsername` helpers.
-
-  :::info Migrating a deployed app
-
-    Now, _deploy the app again_ with the new auth helpers in place.
-
-  :::
-
-1. Verify that the auth still works by logging in with each of the auth methods.
 
 ### 2. Cleanup the Old Auth System
 
-Now we need to clean up the old auth system:
+To finish the migration, we need to clean up the old auth system:
 
 1. Delete auth-related fields from `User` entity.
-1. Remove the `externalAuthEntity` from the `auth` config and the `SocialLogin` entity (if you used it).
+
+    - This means any fields that were used for authentication, like `email`, `password`, `isEmailVerified`, `emailVerificationSentAt`, `passwordResetSentAt`, `username`, etc.
+
+1. Remove the `externalAuthEntity` from the `auth` config and the `SocialLogin` entity if you used Google or GitHub auth.
 1. Run `wasp db migrate-dev` again to remove the redundant fields from the database.
 1. You can now delete the migration script and the `db.seeds` config.
 
 :::info Migrating a deployed app
 
-  One last time, _deploy the app_ with the old auth system cleaned up. Your app should now be migrated to the new auth system.
+  After you make sure things work locally, _deploy the app again_ with the old auth system cleaned up. The database migrations will run on deployment and delete the auth-related `User` columns from the database. 
+  
+  Your app should now be migrated to the new auth system.
 
 :::
 
 
-### Expect Some Downtime
-
-Expect some downtime when migrating a deployed app. The downtime should be minimal, but the auth system won't work 100% while the migration is in progress.
-
-As soon as you deploy the new auth system, users will be able to sign up immediately, but existing users won't be able to log in until you run the migration script on the production database.
-
 ## Example Migration Scripts
 
-The provided migration scripts should be fine to use as-is, but you can also modify them to your needs.
+The migration scripts provided below are written with the typical use cases in mind and you can use them as-is. If your setup requires additional logic, you can use them as a good starting point and modify them to your needs.
 
 ### Username & Password
 
