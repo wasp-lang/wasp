@@ -68,6 +68,7 @@ module.exports = {
           ],
         },
         'auth/entities/entities',
+        'auth/migrate-from-11',
       ],
     },
     {
