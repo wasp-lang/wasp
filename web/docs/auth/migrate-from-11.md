@@ -110,7 +110,7 @@ You can follow these steps to migrate to the new auth system:
   Then you can install that version with:
 
   ```bash
-  curl -sL https://get.wasp-lang.dev | sh -s -- -v 0.12.0
+  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.12.0
   ```
 
   <small>
