@@ -73,7 +73,10 @@ runCodeAgent config codeAgent =
           _isGpt4Available = Nothing
         }
 
-    shortenWithEllipsisTo maxLen text = if length text <= maxLen then text else (take maxLen text) <> "..."
+    shortenWithEllipsisTo maxLen text =
+      if length text <= maxLen
+        then text
+        else take maxLen text <> "..."
 
     showShortException :: forall e. Exception e => e -> String
     showShortException = shortenWithEllipsisTo 30 . displayException

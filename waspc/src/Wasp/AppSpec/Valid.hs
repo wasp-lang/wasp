@@ -28,6 +28,7 @@ import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -70,6 +71,7 @@ validateAppSpec spec =
           validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
+          validateDummyEmailSenderIsNotUsedInProduction spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
@@ -177,12 +179,19 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
   Nothing -> []
   Just auth ->
-    if not $ Auth.isEmailAuthEnabled auth
-      then []
-      else case App.emailSender app of
-        Nothing -> [GenericValidationError "app.emailSender must be specified when using email auth."]
-        Just _ -> []
+    if Auth.isEmailAuthEnabled auth && isNothing (App.emailSender app)
+      then [GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
+      else []
   where
+    app = snd $ getApp spec
+
+validateDummyEmailSenderIsNotUsedInProduction :: AppSpec -> [ValidationError]
+validateDummyEmailSenderIsNotUsedInProduction spec =
+  if AS.isBuild spec && isDummyEmailSenderUsed
+    then [GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
+    else []
+  where
+    isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
     app = snd $ getApp spec
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]

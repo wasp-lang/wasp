@@ -3,8 +3,16 @@
 import { Router } from "express";
 
 import login from "../username/login.js";
-import signup from "../username/signup.js";
+import { getSignupRoute } from "../username/signup.js";
 import { ProviderConfig } from "../types.js";
+
+{=# userSignupFields.isDefined =}
+{=& userSignupFields.importStatement =}
+const _waspUserSignupFields = {= userSignupFields.importIdentifier =}
+{=/ userSignupFields.isDefined =}
+{=^ userSignupFields.isDefined =}
+const _waspUserSignupFields = undefined
+{=/ userSignupFields.isDefined =}
 
 const config: ProviderConfig = {
     id: "{= providerId =}",
@@ -13,7 +21,10 @@ const config: ProviderConfig = {
         const router = Router();
 
         router.post('/login', login);
-        router.post('/signup', signup);
+        const signupRoute = getSignupRoute({
+            userSignupFields: _waspUserSignupFields,
+        });
+        router.post('/signup', signupRoute);
 
         return router;
     },
