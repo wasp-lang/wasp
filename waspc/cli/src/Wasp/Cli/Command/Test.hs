@@ -14,10 +14,10 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
-import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
@@ -28,7 +28,7 @@ test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test clie
 watchAndTest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do
   InWaspProject waspRoot <- require
-  let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
+  let outDir = waspRoot </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 

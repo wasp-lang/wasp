@@ -39,8 +39,8 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
     parseWaspProjectNameIntoAppName,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
-import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util as U
 import qualified Wasp.Util.Aeson as Utils.Aeson
 import qualified Wasp.Util.Terminal as T

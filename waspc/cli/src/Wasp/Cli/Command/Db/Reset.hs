@@ -8,15 +8,15 @@ import StrongPath ((</>))
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import qualified Wasp.Cli.Common as Common
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 reset :: Command ()
 reset = do
   InWaspProject waspProjectDir <- require
   let genProjectDir =
-        waspProjectDir </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
+        waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Resetting the database..."
 

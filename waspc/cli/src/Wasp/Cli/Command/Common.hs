@@ -16,9 +16,9 @@ import System.Directory
   )
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Common (WaspProjectDir)
-import qualified Wasp.Cli.Common as Cli.Common
 import qualified Wasp.Message as Msg
+import Wasp.Project (WaspProjectDir)
+import qualified Wasp.Project.Common as Project.Common
 import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -30,9 +30,9 @@ readWaspCompileInfo waspDir =
     (return "No compile information found")
   where
     dotWaspInfoFile =
-      waspDir </> Cli.Common.dotWaspDirInWaspProjectDir
-        </> Cli.Common.generatedCodeDirInDotWaspDir
-        </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
+      waspDir </> Project.Common.dotWaspDirInWaspProjectDir
+        </> Project.Common.generatedCodeDirInDotWaspDir
+        </> Project.Common.dotWaspInfoFileInGeneratedCodeDir
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do
@@ -59,4 +59,4 @@ deleteDirectoryIfExists dir = do
 deleteDotWaspDirIfExists :: Path' Abs (Dir WaspProjectDir) -> Command ()
 deleteDotWaspDirIfExists waspProjectDir = deleteDirectoryIfExists dotWaspDir
   where
-    dotWaspDir = waspProjectDir SP.</> Cli.Common.dotWaspDirInWaspProjectDir
+    dotWaspDir = waspProjectDir SP.</> Project.Common.dotWaspDirInWaspProjectDir

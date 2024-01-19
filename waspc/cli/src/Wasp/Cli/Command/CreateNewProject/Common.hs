@@ -10,7 +10,7 @@ import Control.Monad.Except (throwError)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.Terminal as Term
 import qualified Wasp.Version as WV

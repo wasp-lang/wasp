@@ -10,11 +10,11 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import qualified Wasp.Cli.Common as Cli.Common
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProjectDir)
 
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
@@ -26,8 +26,8 @@ migrateDev optionalMigrateArgs = do
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
   let projectRootDir =
         waspProjectDir
-          </> Cli.Common.dotWaspDirInWaspProjectDir
-          </> Cli.Common.generatedCodeDirInDotWaspDir
+          </> dotWaspDirInWaspProjectDir
+          </> generatedCodeDirInDotWaspDir
 
   migrateDatabase optionalMigrateArgs projectRootDir waspDbMigrationsDir
 

@@ -172,8 +172,8 @@ makeJobMessagePrefix jobMsg =
   (T.pack . buildPrefix . concat)
     [ [("[", jobStyles)],
       [(jobName, jobStyles)],
-      [("]", jobStyles)],
-      styledFlags
+      styledFlags,
+      [("]", jobStyles)]
     ]
   where
     buildPrefix :: [StyledText] -> String
@@ -187,10 +187,10 @@ makeJobMessagePrefix jobMsg =
         minPrefixLength = 10
 
     (jobName, jobStyles) = case J._jobType jobMsg of
-      J.Wasp -> (" Wasp ", [Term.Yellow])
+      J.Wasp -> ("Wasp", [Term.Yellow])
       J.Server -> ("Server", [Term.Magenta])
       J.WebApp -> ("Client", [Term.Cyan])
-      J.Db -> ("  Db  ", [Term.Blue])
+      J.Db -> ("Db", [Term.Blue])
 
     styledFlags :: [StyledText]
     styledFlags =

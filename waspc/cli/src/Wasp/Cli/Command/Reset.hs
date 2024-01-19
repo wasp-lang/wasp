@@ -9,8 +9,7 @@ import StrongPath.Types (Abs)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExists, deleteDotWaspDirIfExists)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Common (WaspProjectDir)
-import qualified Wasp.Cli.Common as Common
+import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 
 reset :: Command ()
 reset = do
@@ -21,4 +20,4 @@ reset = do
 deleteNodeModulesDirIfExists :: Path' Abs (Dir WaspProjectDir) -> Command ()
 deleteNodeModulesDirIfExists waspProjectDir = deleteDirectoryIfExists nodeModulesDir
   where
-    nodeModulesDir = waspProjectDir SP.</> Common.nodeModulesDirInWaspProjectDir
+    nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
