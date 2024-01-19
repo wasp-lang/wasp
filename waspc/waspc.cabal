@@ -500,7 +500,6 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
-    Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
     Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deps
@@ -509,7 +508,6 @@ library cli-lib
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
-    Wasp.Cli.Command.Reset
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
