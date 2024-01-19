@@ -21,11 +21,12 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true
-  },
-  "paths": {
-    "wasp/*": [
-      "/*"
-    ]
+    // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
+    // "paths": {
+    //   "@wasp/*": [
+    //     "./*.js"
+    //   ]
+    // }
   },
   "include": [
     "."

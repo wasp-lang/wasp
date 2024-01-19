@@ -2,7 +2,7 @@ import {
   type _Task,
   type AuthenticatedAction,
   type Payload,
-} from '../_types'
+} from 'wasp/server/_types'
 
 export type CreateTask<Input extends Payload = never, Output extends Payload = Payload> = 
   AuthenticatedAction<
@@ -30,5 +30,4 @@ export type DeleteTasks<Input extends Payload = never, Output extends Payload = 
     Input,
     Output
   >
-
 

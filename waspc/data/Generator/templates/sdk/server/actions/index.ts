@@ -1,39 +1,26 @@
-import prisma from 'wasp/server/dbClient.js'
-import {
-  updateTask as updateTaskUser,
-  createTask as createTaskUser,
-  deleteTasks as deleteTasksUser,
-} from 'wasp/ext-src/actions.js'
+{{={= =}=}}
+import prisma from 'wasp/server/dbClient'
+{=! TODO: This template is exactly the same at the moment as one for queries,
+          consider in the future if it is worth removing this duplication. =}
 
-export type UpdateTask = typeof updateTask
+{=! TODO: This will generate multiple import statements even though they're
+          importing symbols from the same file. We should improve our importing machinery
+          to support multiple imports from the same file =}
+{=# operations =}
+{=& jsFn.importStatement =}
+{=/ operations =}
+{=# operations =}
 
-export const updateTask = async (args, context) => {
-  return (updateTaskUser as any)(args, {
+export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =} 
+
+export const {= operationName =} = async (args, context) => {
+  return ({= jsFn.importIdentifier =} as any)(args, {
     ...context,
     entities: {
-      Task: prisma.task,
+      {=# entities =}
+      {= name =}: prisma.{= prismaIdentifier =},
+      {=/ entities =}
     },
   })
 }
-
-export type CreateTask = typeof createTask
-
-export const createTask = async (args, context) => {
-  return (createTaskUser as any)(args, {
-    ...context,
-    entities: {
-      Task: prisma.task,
-    },
-  })
-}
-
-export type DeleteTasks = typeof deleteTasks
-
-export const deleteTasks = async (args, context) => {
-  return (deleteTasksUser as any)(args, {
-    ...context,
-    entities: {
-      Task: prisma.task,
-    },
-  })
-}
+{=/ operations =}

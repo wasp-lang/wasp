@@ -21,12 +21,15 @@
       "./api": "./dist/api/index.js",
       "./api/*": "./dist/api/*",
       "./operations": "./dist/operations/index.js",
+      "./ext-src/*": "./dist/ext-src/*.js",
       "./operations/*": "./dist/operations/*",
       "./universal/url": "./dist/universal/url.js",
       "./universal/types": "./dist/universal/types.js",
       "./universal/validators": "./dist/universal/validators.js",
       "./server/dbClient": "./dist/server/dbClient.js",
-      "./server/utils": "./dist/server/utils.js"
+      "./server/utils": "./dist/server/utils.js",
+      "./server/actions": "./dist/server/actions/index.js",
+      "./server/queries": "./dist/server/queries/index.js"
    },
    "license": "ISC",
     "include": [

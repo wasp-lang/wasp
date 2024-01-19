@@ -9,25 +9,56 @@
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
   "exports": {
+      {=! todo(filip): Check all exports when done with SDK generation =}
+      {=!  Some of the statements in the comments might become incorrect. =}
+      {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
+      {=!  Used by users, documented. =}
       "./core/HttpError": "./dist/core/HttpError.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/config": "./dist/core/config.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/stitches.config": "./dist/core/stitches.config.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
+      {=!  Used by users, documented. =}
       "./rpc": "./dist/rpc/index.js",
+      {=!  Used by users, documented. =}
       "./rpc/queries": "./dist/rpc/queries/index.js",
+      {=!  Used by users, documented. =}
       "./rpc/actions": "./dist/rpc/actions/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
+      {=!  Used by users, documented. =}
       "./types": "./dist/types/index.js",
+      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./auth/*": "./dist/auth/*",
+      {=!  Used by users, documented. =}
       "./api": "./dist/api/index.js",
+      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./api/*": "./dist/api/*",
+      {=!  Used by users, documented. =}
       "./operations": "./dist/operations/index.js",
+      {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
+      {=!  expose it here (which leaks it to our users). We could avoid this by =}
+      {=!  using relative imports inside SDK code (instead of library imports), =}
+      {=!  but I didn't have time to implement it. =}
+      "./ext-src/*": "./dist/ext-src/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./operations/*": "./dist/operations/*",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/url": "./dist/universal/url.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/types": "./dist/universal/types.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/dbClient": "./dist/server/dbClient.js",
-      "./server/utils": "./dist/server/utils.js"
+      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
+      "./server/utils": "./dist/server/utils.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/actions": "./dist/server/actions/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/queries": "./dist/server/queries/index.js"
    },
    "license": "ISC",
     "include": [

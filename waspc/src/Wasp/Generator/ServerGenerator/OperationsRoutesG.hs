@@ -8,7 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust, fromMaybe, isJust)
-import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -19,9 +19,15 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
+import Wasp.Generator.SdkGenerator.Common (makeSdkImportPath, relDirToRelFileP)
+import Wasp.Generator.SdkGenerator.ServerOpsGenerator (operationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
-import Wasp.JsImport (JsImportName (..), getJsImportStmtAndIdentifier, makeJsImport)
+import Wasp.JsImport
+  ( JsImportName (..),
+    JsImportPath (ModuleImportPath, RelativeImportPath),
+    getJsImportStmtAndIdentifier,
+    makeJsImport,
+  )
 import qualified Wasp.Util as U
 
 genOperationsRoutes :: AppSpec -> Generator [FileDraft]
@@ -58,21 +64,16 @@ genOperationRoute operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFil
               ]
         ]
 
-    pathToOperationFile =
-      relPosixPathFromOperationsRoutesDirToSrcDir
-        </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
-
-    operationImportPath =
-      fromJust $
-        SP.parseRelFileP $
-          C.toESModulesImportPath $
-            SP.fromRelFileP pathToOperationFile
-
     operationName = AS.Operation.getName operation
 
     (operationImportStmt, operationImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport operationImportPath (JsImportModule operationName)
+        makeJsImport (ModuleImportPath sdkImportPath) (JsImportField operationName)
+    sdkImportPath =
+      makeSdkImportPath $
+        relDirToRelFileP $
+          fromJust $
+            SP.relDirToPosix $ operationsDirInSdkRootDir operation
 
 data OperationsRoutesDir
 
@@ -84,9 +85,6 @@ operationsRoutesDirInServerRootDir = C.serverSrcDirInServerRootDir </> operation
 
 operationRouteFileInOperationsRoutesDir :: AS.Operation.Operation -> Path' (Rel OperationsRoutesDir) File'
 operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $ AS.Operation.getName operation ++ ".js"
-
-relPosixPathFromOperationsRoutesDirToSrcDir :: Path Posix (Rel OperationsRoutesDir) (Dir C.ServerSrcDir)
-relPosixPathFromOperationsRoutesDirToSrcDir = [reldirP|../..|]
 
 genOperationsRouter :: AppSpec -> Generator FileDraft
 genOperationsRouter spec
@@ -107,7 +105,7 @@ genOperationsRouter spec
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
           importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ operationRouteFileInOperationsRoutesDir operation
-          (importStmt, importIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport importPath (JsImportModule operationName)
+          (importStmt, importIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport (RelativeImportPath importPath) (JsImportModule operationName)
        in object
             [ "importIdentifier" .= importIdentifier,
               "importStatement" .= importStmt,

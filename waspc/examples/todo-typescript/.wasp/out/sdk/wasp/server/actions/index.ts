@@ -1,25 +1,13 @@
-import prisma from 'wasp/server/dbClient.js'
-import {
-  updateTask as updateTaskUser,
-  createTask as createTaskUser,
-  deleteTasks as deleteTasksUser,
-} from 'wasp/ext-src/actions.js'
+import prisma from 'wasp/server/dbClient'
 
-export type UpdateTask = typeof updateTask
+import { createTask as createTask_ext } from 'wasp/ext-src/task/actions'
+import { updateTask as updateTask_ext } from 'wasp/ext-src/task/actions'
+import { deleteTasks as deleteTasks_ext } from 'wasp/ext-src/task/actions'
 
-export const updateTask = async (args, context) => {
-  return (updateTaskUser as any)(args, {
-    ...context,
-    entities: {
-      Task: prisma.task,
-    },
-  })
-}
-
-export type CreateTask = typeof createTask
+export type CreateTask = typeof createTask_ext 
 
 export const createTask = async (args, context) => {
-  return (createTaskUser as any)(args, {
+  return (createTask_ext as any)(args, {
     ...context,
     entities: {
       Task: prisma.task,
@@ -27,10 +15,21 @@ export const createTask = async (args, context) => {
   })
 }
 
-export type DeleteTasks = typeof deleteTasks
+export type UpdateTask = typeof updateTask_ext 
+
+export const updateTask = async (args, context) => {
+  return (updateTask_ext as any)(args, {
+    ...context,
+    entities: {
+      Task: prisma.task,
+    },
+  })
+}
+
+export type DeleteTasks = typeof deleteTasks_ext 
 
 export const deleteTasks = async (args, context) => {
-  return (deleteTasksUser as any)(args, {
+  return (deleteTasks_ext as any)(args, {
     ...context,
     entities: {
       Task: prisma.task,

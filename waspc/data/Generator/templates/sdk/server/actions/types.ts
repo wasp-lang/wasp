@@ -1,34 +1,34 @@
+{{={= =}=}}
+{=! TODO: This template is exactly the same at the moment as one for query
+          types, consider whether it makes sense to address this in the future. =}
 import {
-  type _Task,
+  {=# allEntities =}
+  type {= internalTypeName =},
+  {=/ allEntities =}
+  {=# shouldImportNonAuthenticatedOperation =}
+  type Action,
+  {=/ shouldImportNonAuthenticatedOperation =}
+  {=# shouldImportAuthenticatedOperation =}
   type AuthenticatedAction,
+  {=/ shouldImportAuthenticatedOperation =}
   type Payload,
-} from '../_types'
+} from 'wasp/server/_types'
 
-export type CreateTask<Input extends Payload = never, Output extends Payload = Payload> = 
+{=# operations =}
+export type {= typeName =}<Input extends Payload = never, Output extends Payload = Payload> = 
+  {=# usesAuth =}
   AuthenticatedAction<
+  {=/ usesAuth =}
+  {=^ usesAuth =}
+  Action<
+  {=/ usesAuth =}
     [
-      _Task,
+    {=# entities =}
+      {= internalTypeName =},
+    {=/ entities =}
     ],
     Input,
     Output
   >
 
-export type UpdateTask<Input extends Payload = never, Output extends Payload = Payload> = 
-  AuthenticatedAction<
-    [
-      _Task,
-    ],
-    Input,
-    Output
-  >
-
-export type DeleteTasks<Input extends Payload = never, Output extends Payload = Payload> = 
-  AuthenticatedAction<
-    [
-      _Task,
-    ],
-    Input,
-    Output
-  >
-
-
+{=/ operations =}

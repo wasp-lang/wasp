@@ -28,7 +28,7 @@ import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOpera
 import Wasp.Generator.WebAppGenerator.Common (serverRootDirFromWebAppRootDir, toViteImportPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
-import Wasp.JsImport (JsImportName (JsImportField), getJsImportStmtAndIdentifier, makeJsImport)
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RelativeImportPath), getJsImportStmtAndIdentifier, makeJsImport)
 import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -106,7 +106,7 @@ operationTypeData operation = tmplData
 
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport operationImportPath (JsImportField $ toUpperFirst operationName)
+        makeJsImport (RelativeImportPath operationImportPath) (JsImportField $ toUpperFirst operationName)
 
     operationName = AS.Operation.getName operation
 

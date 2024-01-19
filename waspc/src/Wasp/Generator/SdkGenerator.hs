@@ -4,7 +4,6 @@ module Wasp.Generator.SdkGenerator
   ( genSdk,
     installNpmDependencies,
     genExternalCodeDir,
-    sdkRootDirInProjectRootDir,
     buildSdk,
   )
 where
@@ -12,7 +11,6 @@ where
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
-import qualified Data.Aeson as Aeson
 import Data.Aeson.Types ((.=))
 import Data.Maybe (fromMaybe, isJust, mapMaybe)
 import GHC.IO (unsafePerformIO)
@@ -31,8 +29,7 @@ import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import qualified Wasp.Generator.Job as J
@@ -40,15 +37,14 @@ import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.Templates (TemplatesDir, getTemplatesDirAbsPath)
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
+import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import Wasp.Generator.Templates (getTemplatesDirAbsPath)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
-
-data SdkRootDir
-
-data SdkTemplatesDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -66,7 +62,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
   where
-    dstDir = projectRootDir </> sdkRootDirInProjectRootDir
+    dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
 genSdkReal :: AppSpec -> Generator [FileDraft]
 genSdkReal spec =
@@ -78,11 +74,12 @@ genSdkReal spec =
       genServerUtils spec,
       genPackageJson spec
     ]
+    <++> genOperations spec
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genTypesAndEntitiesDirs spec
   where
-    genFileCopy = return . mkTmplFd
+    genFileCopy = return . C.mkTmplFd
 
 genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
@@ -92,8 +89,6 @@ genSdkHardcoded =
       copyFolder [reldir|ext-src|],
       copyFolder [reldir|operations|],
       copyFolder [reldir|rpc|],
-      copyFolder [reldir|server/actions|],
-      copyFolder [reldir|server/queries|],
       copyFolder [reldir|types|]
     ]
   where
@@ -103,9 +98,9 @@ genSdkHardcoded =
         RemoveExistingDstDir
         (dstFolder </> castRel modul)
         (srcFolder </> modul)
-    dstFolder = sdkRootDirInProjectRootDir
+    dstFolder = C.sdkRootDirInProjectRootDir
     srcFolder = absSdkTemplatesDir
-    absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> sdkTemplatesDirInTemplatesDir
+    absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
 genTypesAndEntitiesDirs spec =
@@ -117,7 +112,7 @@ genTypesAndEntitiesDirs spec =
     ]
   where
     entitiesIndexFileDraft =
-      mkTmplFdWithDstAndData
+      C.mkTmplFdWithDstAndData
         [relfile|entities/index.ts|]
         [relfile|entities/index.ts|]
         ( Just $
@@ -129,15 +124,15 @@ genTypesAndEntitiesDirs spec =
               ]
         )
     taggedEntitiesFileDraft =
-      mkTmplFdWithDstAndData
+      C.mkTmplFdWithDstAndData
         [relfile|server/_types/taggedEntities.ts|]
         [relfile|server/_types/taggedEntities.ts|]
         (Just $ object ["entities" .= allEntities])
     serializationFileDraft =
-      mkTmplFd
+      C.mkTmplFd
         [relfile|server/_types/serialization.ts|]
     typesIndexFileDraft =
-      mkTmplFdWithDstAndData
+      C.mkTmplFdWithDstAndData
         [relfile|server/_types/index.ts|]
         [relfile|server/_types/index.ts|]
         ( Just $
@@ -159,7 +154,7 @@ genTypesAndEntitiesDirs spec =
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
   return $
-    mkTmplFdWithDstAndData
+    C.mkTmplFdWithDstAndData
       [relfile|package.json|]
       [relfile|package.json|]
       ( Just $
@@ -200,7 +195,7 @@ genPackageJson spec =
 genTsConfigJson :: Generator FileDraft
 genTsConfigJson = do
   return $
-    mkTmplFdWithDstAndData
+    C.mkTmplFdWithDstAndData
       [relfile|tsconfig.json|]
       [relfile|tsconfig.json|]
       ( Just $
@@ -214,40 +209,6 @@ depsRequiredForAuth spec =
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
-
-mkTmplFdWithDstAndData ::
-  Path' (Rel SdkTemplatesDir) File' ->
-  Path' (Rel SdkRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
-  createTemplateFileDraft
-    (sdkRootDirInProjectRootDir </> relDstPath)
-    (sdkTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
-
-mkTmplFdWithDst :: Path' (Rel SdkTemplatesDir) File' -> Path' (Rel SdkRootDir) File' -> FileDraft
-mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
-
-mkTmplFdWithData ::
-  Path' (Rel SdkTemplatesDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath tmplData
-  where
-    relDstPath = castRel relSrcPath
-
-mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
-mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
-
-sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
-
-sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
-sdkTemplatesDirInTemplatesDir = [reldir|sdk|]
-
-extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
-extSrcDirInSdkRootDir = [reldir|ext-src|]
 
 -- todo(filip): figure out where this belongs
 -- also, fix imports for wasp project
@@ -275,7 +236,7 @@ genFile file
 genResourceFile :: EC.CodeFile -> Generator FileDraft
 genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
-    relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
+    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
     absSrcPath = EC.fileAbsPath file
 
 genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
@@ -283,17 +244,17 @@ genSourceFile file = return $ FD.createTextFileDraft relDstPath text
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
     text = EC.fileText file
-    relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ mkTmplFd [relfile|universal/url.ts|],
-      mkTmplFd [relfile|universal/types.ts|],
-      mkTmplFd [relfile|universal/validators.js|]
+    [ C.mkTmplFd [relfile|universal/url.ts|],
+      C.mkTmplFd [relfile|universal/types.ts|],
+      C.mkTmplFd [relfile|universal/validators.js|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
-genServerUtils spec = return $ mkTmplFdWithData [relfile|server/utils.ts|] (Just tmplData)
+genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] (Just tmplData)
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

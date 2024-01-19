@@ -54,6 +54,7 @@ import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportModule),
+    JsImportPath (RelativeImportPath),
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
@@ -320,7 +321,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
         ]
 
     makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport
-    makeCustomViteConfigJsImport pathToConfig = makeJsImport importPath importName
+    makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
       where
         importPath = C.toViteImportPath $ fromJust $ SP.relFileToPosix pathToConfigInSrc
         pathToConfigInSrc = SP.castRel $ C.webAppSrcDirInWebAppRootDir </> SP.castRel pathToConfig

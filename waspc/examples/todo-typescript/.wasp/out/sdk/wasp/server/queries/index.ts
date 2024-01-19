@@ -1,10 +1,11 @@
-import prisma from 'wasp/server/dbClient.js'
-import { getTasks as getTasksUser } from 'wasp/ext-src/queries.js'
+import prisma from 'wasp/server/dbClient'
 
-export type GetTasks = typeof getTasksUser
+import { getTasks as getTasks_ext } from 'wasp/ext-src/task/queries'
+
+export type GetTasks = typeof getTasks_ext 
 
 export const getTasks = async (args, context) => {
-  return (getTasksUser as any)(args, {
+  return (getTasks_ext as any)(args, {
     ...context,
     entities: {
       Task: prisma.task,

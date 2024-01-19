@@ -26,6 +26,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import Wasp.JsImport (JsImportPath (RelativeImportPath))
 import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
@@ -59,7 +60,7 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
           JI.getJsImportStmtAndIdentifier
             JI.JsImport
               { JI._name = JI.JsImportField name,
-                JI._path = fromJust . SP.relFileToPosix $ getCrudFilePath name "js",
+                JI._path = RelativeImportPath (fromJust . SP.relFileToPosix $ getCrudFilePath name "js"),
                 JI._importAlias = Nothing
               }
 
