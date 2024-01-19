@@ -94,7 +94,7 @@ Migrating your existing app to the new auth system is a two-step process:
 
 While going through these steps, we will focus first on doing the changes locally and your local development database. 
 
-Once we confirm that everything works well, we will also apply those same changes to a deployed instance of your app.
+Once we confirm that everything works well, we will also apply those same changes to the deployed app.
 
 **We'll put extra info for migrating a deployed app in a box like this one.**
 :::
@@ -104,6 +104,21 @@ Once we confirm that everything works well, we will also apply those same change
 You can follow these steps to migrate to the new auth system:
 
 1. Upgrade Wasp to the latest 0.12 version.
+
+  These instructions are for migrating the auth from Wasp `0.11.X` to Wasp `0.12.X`, which means that they work for example for both `0.12.0` and `0.12.5` versions. We suggest that you install the latest 0.12 version of Wasp. Find the available Wasp versions in the [Releases](https://github.com/wasp-lang/wasp/releases) section of our GitHub repo.
+
+  Then you can install that version with:
+
+  ```bash
+  curl -sL https://get.wasp-lang.dev | sh -s -- -v 0.12.0
+  ```
+
+  <small>
+
+  In the above command, replace `0.12.0` with the version you want to install.
+
+  </small>
+
 1. Bump the version to `^0.12.0` in `main.wasp`.
 1. Create the new auth tables in the database by running:
 
