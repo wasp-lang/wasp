@@ -30,9 +30,6 @@ const defaultViteConfig = {
     environment: "jsdom",
     setupFiles: ["./src/test/vitest/setup.ts"],
   },
-  resolve: {
-    dedupe: ["react", "react-dom"],
-  }
 };
 
 // https://vitejs.dev/config/
