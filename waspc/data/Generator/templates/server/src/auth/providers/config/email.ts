@@ -12,6 +12,14 @@ import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "../email/types.js";
 import { handleRejection } from "../../../utils.js";
 
+{=# userSignupFields.isDefined =}
+{=& userSignupFields.importStatement =}
+const _waspUserSignupFields = {= userSignupFields.importIdentifier =}
+{=/ userSignupFields.isDefined =}
+{=^ userSignupFields.isDefined =}
+const _waspUserSignupFields = undefined
+{=/ userSignupFields.isDefined =}
+
 {=# getVerificationEmailContent.isDefined =}
 {=& getVerificationEmailContent.importStatement =}
 const _waspGetVerificationEmailContent: GetVerificationEmailContentFn = {= getVerificationEmailContent.importIdentifier =};
@@ -53,16 +61,20 @@ const config: ProviderConfig = {
     createRouter() {
         const router = Router();
 
-        const loginRoute = handleRejection(getLoginRoute({
-            allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
-        }));
+        const loginRoute = handleRejection(getLoginRoute());
         router.post('/login', loginRoute);
 
         const signupRoute = handleRejection(getSignupRoute({
+            userSignupFields: _waspUserSignupFields,
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
-            allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
+            {=# isDevelopment =}
+            isEmailAutoVerified: process.env.SKIP_EMAIL_VERIFICATION_IN_DEV === 'true',
+            {=/ isDevelopment =}
+            {=^ isDevelopment =}
+            isEmailAutoVerified: false,
+            {=/ isDevelopment =}
         }));
         router.post('/signup', signupRoute);
         

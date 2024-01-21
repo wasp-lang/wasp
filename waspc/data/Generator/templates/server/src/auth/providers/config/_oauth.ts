@@ -6,13 +6,13 @@ import { makeOAuthInit } from "../oauth/init.js";
 import type { ProviderConfig } from "../types.js";
 import type { OAuthConfig } from "../oauth/types.js";
 
-{=# userFieldsFn.isDefined =}
-{=& userFieldsFn.importStatement =}
-const _waspGetUserFieldsFn = {= userFieldsFn.importIdentifier =}
-{=/ userFieldsFn.isDefined =}
-{=^ userFieldsFn.isDefined =}
-const _waspGetUserFieldsFn = undefined
-{=/ userFieldsFn.isDefined =}
+{=# userSignupFields.isDefined =}
+{=& userSignupFields.importStatement =}
+const _waspUserSignupFields = {= userSignupFields.importIdentifier =}
+{=/ userSignupFields.isDefined =}
+{=^ userSignupFields.isDefined =}
+const _waspUserSignupFields = undefined
+{=/ userSignupFields.isDefined =}
 {=# configFn.isDefined =}
 {=& configFn.importStatement =}
 const _waspUserDefinedConfigFn = {= configFn.importIdentifier =}
@@ -32,7 +32,7 @@ const _waspConfig: ProviderConfig = {
     displayName: "{= displayName =}",
     init: makeOAuthInit({
         npmPackage: '{= npmPackage =}',
-        getUserFieldsFn: _waspGetUserFieldsFn,
+        userSignupFields: _waspUserSignupFields,
         userDefinedConfigFn: _waspUserDefinedConfigFn,
         oAuthConfig: _waspOAuthConfig,
     }),

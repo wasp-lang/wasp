@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
@@ -9,9 +9,8 @@ import prisma from '@wasp/dbClient.js'
 import { CustomSignup } from '@wasp/actions/types'
 import { sanitizeAndSerializeProviderData } from '@wasp/auth/utils.js'
 
-export const fields = defineAdditionalSignupFields({
+export const userSignupFields = defineUserSignupFields({
   address: (data) => {
-    console.log('Received data:', data)
     const AddressSchema = z
       .string({
         required_error: 'Address is required',

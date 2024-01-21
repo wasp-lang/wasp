@@ -18,7 +18,7 @@ import type {
   {= crud.entityUpper =},
 } from "../entities";
 {=# isAuthEnabled =}
-import { throwInvalidCredentialsError } from "../core/auth.js";
+import { throwInvalidCredentialsError } from '../auth/utils.js'
 {=/ isAuthEnabled =}
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}

@@ -12,7 +12,8 @@ import { type SanitizedUser } from './_types/index.js'
 
 type RequestWithExtraFields = Request & {
   {=# isAuthEnabled =}
-  user?: SanitizedUser
+  user?: SanitizedUser;
+  sessionId?: string;
   {=/ isAuthEnabled =}
 }
 

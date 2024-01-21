@@ -21,12 +21,16 @@ waspComplexTest/.wasp/out/server/src/actions/MySpecialAction.ts
 waspComplexTest/.wasp/out/server/src/actions/types.ts
 waspComplexTest/.wasp/out/server/src/apis/types.ts
 waspComplexTest/.wasp/out/server/src/app.js
+waspComplexTest/.wasp/out/server/src/auth/jwt.ts
+waspComplexTest/.wasp/out/server/src/auth/lucia.ts
+waspComplexTest/.wasp/out/server/src/auth/password.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/config/google.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/index.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/createRouter.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/init.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/types.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/types.ts
+waspComplexTest/.wasp/out/server/src/auth/session.ts
 waspComplexTest/.wasp/out/server/src/auth/user.ts
 waspComplexTest/.wasp/out/server/src/auth/utils.ts
 waspComplexTest/.wasp/out/server/src/auth/validation.ts
@@ -39,7 +43,6 @@ waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
 waspComplexTest/.wasp/out/server/src/email/core/helpers.ts
 waspComplexTest/.wasp/out/server/src/email/core/index.ts
-waspComplexTest/.wasp/out/server/src/email/core/providers/dummy.ts
 waspComplexTest/.wasp/out/server/src/email/core/providers/sendgrid.ts
 waspComplexTest/.wasp/out/server/src/email/core/types.ts
 waspComplexTest/.wasp/out/server/src/email/index.ts
@@ -60,10 +63,12 @@ waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.ts
 waspComplexTest/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspComplexTest/.wasp/out/server/src/middleware/index.ts
 waspComplexTest/.wasp/out/server/src/middleware/operations.ts
+waspComplexTest/.wasp/out/server/src/polyfill.ts
 waspComplexTest/.wasp/out/server/src/queries/MySpecialQuery.ts
 waspComplexTest/.wasp/out/server/src/queries/types.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js
+waspComplexTest/.wasp/out/server/src/routes/auth/logout.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/me.js
 waspComplexTest/.wasp/out/server/src/routes/crud/index.ts
 waspComplexTest/.wasp/out/server/src/routes/crud/tasks.ts
