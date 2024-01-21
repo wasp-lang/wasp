@@ -135,6 +135,12 @@ sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
 --   to combine them together, returning (Right) a new NpmDepsForPackage
 --   that combines them, and on error (Left), returns a NpmDepsForPackageError
 --   which describes which dependencies are in conflict.
+-- TODO: The comment above and function name are not exactly correct any more,
+-- as user deps don't get combined with the wasp deps any more, instead user deps
+-- are just checked against wasp deps to see if there are any conflicts, and then
+-- wasp deps are more or less returned as they are (maybe with some changes? But certainly no user deps added).
+-- This function deserves rewriting / rethinking. This should be addressed while solving
+-- GH issue https://github.com/wasp-lang/wasp/issues/1644 .
 combineNpmDepsForPackage :: NpmDepsForWasp -> NpmDepsForUser -> Either NpmDepsForPackageError NpmDepsForPackage
 combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
   if null conflictErrors && null devConflictErrors
