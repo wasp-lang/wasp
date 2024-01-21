@@ -9,6 +9,7 @@ module Wasp.Project.Common
     waspProjectDirFromProjectRootDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
+    srcDirInWaspProjectDir,
     extServerCodeDirInWaspProjectDir,
     extClientCodeDirInWaspProjectDir,
     extSharedCodeDirInWaspProjectDir,
@@ -16,6 +17,7 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     CompileError,
     CompileWarning,
+    tsconfigInWaspProjectDir,
   )
 where
 
@@ -57,17 +59,23 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
+srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
+srcDirInWaspProjectDir = [reldir|src|]
+
 extServerCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extServerCodeDirInWaspProjectDir = [reldir|src|]
+extServerCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 extClientCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extClientCodeDirInWaspProjectDir = [reldir|src|]
+extClientCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 extSharedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extSharedCodeDirInWaspProjectDir = [reldir|src|]
+extSharedCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageJsonInWaspProjectDir = [relfile|package.json|]
+
+tsconfigInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
