@@ -1,4 +1,4 @@
-import { handleRejection } from '../../utils.js'
+import { handleRejection } from 'wasp/server/utils'
 import { throwInvalidCredentialsError } from '../../auth/utils.js'
 import { invalidateSession } from '../../auth/session.js'
 

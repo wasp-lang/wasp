@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { Request as ExpressRequest } from "express";
 
-import { type {= userEntityUpper =} } from "../entities/index.js"
-import { type SanitizedUser } from '../_types/index.js'
+import { type {= userEntityUpper =} } from "wasp/entities"
+import { type SanitizedUser } from 'wasp/server/_types'
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
@@ -11,7 +11,7 @@ import {
   deserializeAndSanitizeProviderData,
 } from "./utils.js";
 
-import prisma from '../dbClient.js';
+import prisma from 'wasp/server/dbClient';
 
 // Creates a new session for the `authId` in the database
 export async function createSession(authId: string): Promise<Session> {

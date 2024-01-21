@@ -26,7 +26,7 @@ import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, extClientCodeDirInWaspProjectDir, extServerCodeDirInWaspProjectDir, extSharedCodeDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command [CompileWarning]

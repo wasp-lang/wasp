@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-import prisma from '../dbClient.js'
+import prisma from 'wasp/server/dbClient'
 import config from '../config.js'
-import { type {= userEntityUpper =} } from "../entities/index.js"
+import { type {= userEntityUpper =} } from "wasp/entities"
 
 const prismaAdapter = new PrismaAdapter(
   // Using `as any` here since Lucia's model types are not compatible with Prisma 4
