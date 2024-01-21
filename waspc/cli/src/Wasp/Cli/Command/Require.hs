@@ -37,9 +37,9 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
-import Wasp.Cli.Common (WaspProjectDir)
-import qualified Wasp.Cli.Common as Cli.Common
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
+import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.Project.Common as Project.Common
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
@@ -48,7 +48,10 @@ instance Requirable DbConnectionEstablished where
     -- NOTE: 'InWaspProject' does not depend on this requirement, so this
     -- call to 'require' will not result in an infinite loop.
     InWaspProject waspProjectDir <- require
-    let outDir = waspProjectDir SP.</> Cli.Common.dotWaspDirInWaspProjectDir SP.</> Cli.Common.generatedCodeDirInDotWaspDir
+    let outDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.generatedCodeDirInDotWaspDir
     dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 
     if dbIsRunning
@@ -82,7 +85,7 @@ instance Requirable InWaspProject where
         let absCurrentDirFp = SP.fromAbsDir currentDir
         doesCurrentDirExist <- liftIO $ doesPathExist absCurrentDirFp
         unless doesCurrentDirExist (throwError notFoundError)
-        let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.fromRelFile Cli.Common.dotWaspRootFileInWaspProjectDir
+        let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.fromRelFile Project.Common.dotWaspRootFileInWaspProjectDir
         isCurrentDirRoot <- liftIO $ doesFileExist dotWaspRootFilePath
         if isCurrentDirRoot
           then return $ InWaspProject $ SP.castDir currentDir

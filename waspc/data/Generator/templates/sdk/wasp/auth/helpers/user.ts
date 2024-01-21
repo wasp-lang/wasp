@@ -1,8 +1,8 @@
-import { setAuthToken } from 'wasp/api'
+import { setSessionId } from 'wasp/api'
 import { invalidateAndRemoveQueries } from 'wasp/operations/resources'
 
-export async function initSession(token: string): Promise<void> {
-    setAuthToken(token)
+export async function initSession(sessionId: string): Promise<void> {
+    setSessionId(sessionId)
     // We need to invalidate queries after login in order to get the correct user
     // data in the React components (using `useAuth`).
     // Redirects after login won't work properly without this.

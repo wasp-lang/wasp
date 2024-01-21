@@ -7,5 +7,15 @@
   "devDependencies": {
     "@types/react": "^18.0.37",
     "prisma": "4.16.2"
-  }
+  },
+  "//": [
+    "COMMENTS:",
+    {
+      "devDependencies.prisma": [
+        "We on purpose specify exact version for prisma.",
+        "Check this GH comment for the reasoning behind it:",
+        "https://github.com/wasp-lang/wasp/pull/634#issuecomment-1158802302 ."
+      ]
+    }
+  ]
 }

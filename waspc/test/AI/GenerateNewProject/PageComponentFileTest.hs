@@ -9,7 +9,7 @@ spec_PageComponentFileTest :: Spec
 spec_PageComponentFileTest = do
   describe "getPageComponentFileContentWithFixedImports" $ do
     let mockAllPossibleWaspClientImports =
-          M.fromList $
+          M.fromList
             [ ("useQuery", "import { useQuery } from '@wasp/queries';"),
               ("useAction", "import { useAction } from '@wasp/actions';"),
               ("useAuth", "import useAuth from '@wasp/auth/useAuth';"),

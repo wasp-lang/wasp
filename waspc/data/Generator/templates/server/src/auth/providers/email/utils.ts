@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { signData } from '../../../core/auth.js'
+import { signData } from '../../jwt.js'
 import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
 import {

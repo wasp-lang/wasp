@@ -10,6 +10,7 @@ import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as B
+import Data.Functor ((<&>))
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
@@ -130,12 +131,14 @@ reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
       ]
 
 installNpmDependenciesAndReport :: Job -> Chan JobMessage -> JobType -> IO ExitCode
-installNpmDependenciesAndReport installF chan jobType = do
+installNpmDependenciesAndReport installJob chan jobType = do
   writeChan chan $ J.JobMessage {J._data = J.JobOutput "Starting npm install\n" J.Stdout, J._jobType = jobType}
-  result <- installF chan `race` reportInstallationProgress chan jobType
+  result <- installJob chan `race` reportInstallationProgress chan jobType
   case result of
     Left exitCode -> return exitCode
-    Right _ -> error "This should be impossible"
+    Right _ -> error "This should never happen, reporting installation progress should run forever."
+
+{- HLINT ignore installNpmDependencies "Redundant <$>" -}
 
 -- Run the individual `npm install` commands for both server and webapp projects
 -- It runs these concurrently, collects the output produced by these commands
@@ -143,25 +146,34 @@ installNpmDependenciesAndReport installF chan jobType = do
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 installNpmDependencies projectDir dstDir = do
   messagesChan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (handleProjectInstallMessage messagesChan)
-      (installNpmDependenciesAndReport (SdkGenerator.installNpmDependencies projectDir) messagesChan J.Wasp)
-  case exitCode of
+  installProjectNpmDependencies messagesChan projectDir >>= \case
     ExitFailure code -> return $ Left $ "Project setup failed with exit code " ++ show code ++ "."
-    _ -> do
-      let handleMessagesJob = handleJobMessages messagesChan
-      let runSetupJobs =
-            concurrently
-              (installNpmDependenciesAndReport (ServerSetup.installNpmDependencies dstDir) messagesChan J.Server)
-              (installNpmDependenciesAndReport (WebAppSetup.installNpmDependencies dstDir) messagesChan J.WebApp)
-      (_, results) <- concurrently handleMessagesJob runSetupJobs
-      case results of
-        (ExitSuccess, ExitSuccess) -> return $ Right ()
-        exitCodes -> return $ Left $ setupFailedMessage exitCodes
+    _success -> do
+      installWebAppAndServerNpmDependencies messagesChan dstDir <&> \case
+        (ExitSuccess, ExitSuccess) -> Right ()
+        exitCodes -> Left $ setupFailedMessage exitCodes
   where
-    handleProjectInstallMessage :: Chan J.JobMessage -> IO ()
-    handleProjectInstallMessage = runPrefixedWriter . processMessages
+    setupFailedMessage (serverExitCode, webAppExitCode) =
+      let serverErrorMessage = case serverExitCode of
+            ExitFailure code -> " Server setup failed with exit code " ++ show code ++ "."
+            _success -> ""
+          webAppErrorMessage = case webAppExitCode of
+            ExitFailure code -> " Web app setup failed with exit code " ++ show code ++ "."
+            _success -> ""
+       in "Setup failed!" ++ serverErrorMessage ++ webAppErrorMessage
+
+installProjectNpmDependencies ::
+  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO ExitCode
+installProjectNpmDependencies messagesChan projectDir =
+  snd <$> handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
+  where
+    installProjectDepsJob =
+      installNpmDependenciesAndReport
+        (SdkGenerator.installNpmDependencies projectDir)
+        messagesChan
+        J.Wasp
+    handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
+    handleProjectInstallMessages = runPrefixedWriter . processMessages
       where
         processMessages :: Chan J.JobMessage -> PrefixedWriter ()
         processMessages chan = do
@@ -169,7 +181,16 @@ installNpmDependencies projectDir dstDir = do
           case J._data jobMsg of
             J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
             J.JobExit {} -> return ()
-    handleJobMessages = runPrefixedWriter . processMessages (False, False)
+
+installWebAppAndServerNpmDependencies ::
+  Chan JobMessage -> SP.Path SP.System Abs (Dir ProjectRootDir) -> IO (ExitCode, ExitCode)
+installWebAppAndServerNpmDependencies messagesChan dstDir =
+  snd <$> handleSetupJobsMessages messagesChan `concurrently` (installServerDepsJob `concurrently` installWebAppDepsJob)
+  where
+    installServerDepsJob = installNpmDependenciesAndReport (ServerSetup.installNpmDependencies dstDir) messagesChan J.Server
+    installWebAppDepsJob = installNpmDependenciesAndReport (WebAppSetup.installNpmDependencies dstDir) messagesChan J.WebApp
+
+    handleSetupJobsMessages = runPrefixedWriter . processMessages (False, False)
       where
         processMessages :: (Bool, Bool) -> Chan J.JobMessage -> PrefixedWriter ()
         processMessages (True, True) _ = return ()
@@ -182,14 +203,5 @@ installNpmDependencies projectDir dstDir = do
             J.JobExit {} -> case J._jobType jobMsg of
               J.WebApp -> processMessages (True, isServerDone) chan
               J.Server -> processMessages (isWebAppDone, True) chan
-              J.Db -> error "This should never happen. No db job should be active."
-              J.Wasp -> error "This should never happen. No db job should be active."
-
-    setupFailedMessage (serverExitCode, webAppExitCode) =
-      let serverErrorMessage = case serverExitCode of
-            ExitFailure code -> " Server setup failed with exit code " ++ show code ++ "."
-            _ -> ""
-          webAppErrorMessage = case webAppExitCode of
-            ExitFailure code -> " Web app setup failed with exit code " ++ show code ++ "."
-            _ -> ""
-       in "Setup failed!" ++ serverErrorMessage ++ webAppErrorMessage
+              J.Db -> error "This should never happen. No Db job should be active."
+              J.Wasp -> error "This should never happen. No Wasp job should be active."

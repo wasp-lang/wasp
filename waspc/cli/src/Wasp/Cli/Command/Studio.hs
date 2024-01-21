@@ -29,8 +29,8 @@ import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import qualified Wasp.Project.Studio
 
 studio :: Command ()
@@ -123,8 +123,8 @@ studio = do
           ]
 
   let generatedProjectDir =
-        waspDir </> Common.dotWaspDirInWaspProjectDir
-          </> Common.generatedCodeDirInDotWaspDir
+        waspDir </> dotWaspDirInWaspProjectDir
+          </> generatedCodeDirInDotWaspDir
 
   let waspStudioDataJsonFilePath = generatedProjectDir </> [relfile|.wasp-studio-data.json|]
   liftIO $ do

@@ -19,14 +19,12 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
-import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
-import Wasp.Cli.Command.Reset (reset)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
@@ -50,7 +48,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
-        ["reset"] -> Command.Call.Reset
         ["clean"] -> Command.Call.Clean
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
@@ -101,7 +98,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
-    Command.Call.Reset -> runCommand reset
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
@@ -161,8 +157,7 @@ printUsage =
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd   "    start db              Starts managed development database for you.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
-        cmd   "    clean                 Deletes all generated code and other cached artifacts.",
-        cmd   "    reset                 Deletes all generated code, all cached artifacts, and the node_modules directory.",
+        cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
@@ -204,7 +199,6 @@ dbCli :: [String] -> IO ()
 dbCli args = case args of
   ["start"] -> runCommand Command.Start.Db.start
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["reset"] -> runDbCommand Command.Db.Reset.reset
   ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
   ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runDbCommand Command.Db.Studio.studio
