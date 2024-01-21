@@ -2,7 +2,7 @@
 import http from 'http'
 
 import app from './app.js'
-import config from './config.js'
+import config from 'wasp/server/config'
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
@@ -17,6 +17,8 @@ import './jobs/core/allJobs.js'
 {=# userWebSocketFn.isDefined =}
 import { init as initWebSocket } from './webSocket/initialization.js'
 {=/ userWebSocketFn.isDefined =}
+
+import './polyfill.js'
 
 const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}

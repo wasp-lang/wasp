@@ -304,7 +304,6 @@ library
     Wasp.Generator.ServerGenerator.EmailSenderG
     Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
-    Wasp.Generator.ServerGenerator.ConfigG
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
@@ -491,13 +490,11 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
-    Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
     Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deps
@@ -506,7 +503,6 @@ library cli-lib
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
-    Wasp.Cli.Command.Reset
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry

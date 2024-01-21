@@ -40,9 +40,12 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import Wasp.Generator.Templates (getTemplatesDirAbsPath)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
@@ -69,7 +72,14 @@ genSdkReal spec =
   sequence
     [ genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
+      genFileCopy [relfile|core/config.js|],
+      genFileCopy [relfile|core/auth.js|],
+      genFileCopy [relfile|core/storage.ts|],
+      genFileCopy [relfile|core/stitches.config.js|],
+      genFileCopy [relfile|core/AuthError.js|],
+      genFileCopy [relfile|core/HttpError.js|],
       genFileCopy [relfile|server/dbClient.ts|],
+      genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
       genPackageJson spec
@@ -85,13 +95,12 @@ genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
   return
     [ copyFolder [reldir|auth|],
-      copyFolder [reldir|core|],
-      copyFolder [reldir|ext-src|],
       copyFolder [reldir|operations|],
       copyFolder [reldir|rpc|],
       copyFolder [reldir|types|]
     ]
   where
+    -- copyFile = C.mkTmplFd
     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
     copyFolder modul =
       createCopyDirFileDraft
@@ -176,19 +185,38 @@ genPackageJson spec =
                 ("jsonwebtoken", "^8.5.1"),
                 ("mitt", "3.0.0"),
                 ("react", "^18.2.0"),
+                ("lodash.merge", "^4.6.2"),
                 ("react-router-dom", "^5.3.3"),
                 ("react-hook-form", "^7.45.4"),
                 ("secure-password", "^4.0.0"),
                 ("superjson", "^1.12.2"),
                 ("@types/express-serve-static-core", "^4.17.13")
               ]
-              ++ depsRequiredForAuth spec,
+              ++ depsRequiredForAuth spec
+              -- This must be installed in the SDK because it lists prisma/client as a dependency.
+              -- Installing it inside .wasp/out/server/node_modules would also
+              -- install prisma/client in the same folder, which would cause our
+              -- runtime to load the wrong (uninitialized prisma/client)
+              -- TODO(filip): Find a better way to handle duplicate
+              -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
+              ++ ServerAuthG.depsRequiredByAuth spec,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
               ]
         }
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+genServerConfigFile :: AppSpec -> Generator FileDraft
+genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath (Just tmplData)
+  where
+    relConfigFilePath = [relfile|server/config.js|]
+    tmplData =
+      object
+        [ "isAuthEnabled" .= isAuthEnabled spec,
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
+          "defaultClientUrl" .= WebApp.getDefaultClientUrl spec
+        ]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.
@@ -210,8 +238,8 @@ depsRequiredForAuth spec =
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
--- todo(filip): figure out where this belongs
--- also, fix imports for wasp project
+-- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
+-- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
   runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp

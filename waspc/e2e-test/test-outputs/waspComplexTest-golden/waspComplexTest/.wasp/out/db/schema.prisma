@@ -38,6 +38,7 @@ model Auth {
   userId Int? @unique
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   identities AuthIdentity[]
+  sessions Session[]
 
 }
 model AuthIdentity {
@@ -47,5 +48,13 @@ model AuthIdentity {
   authId String
   auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
   @@id([providerName, providerUserId])
+
+}
+model Session {
+  id String @id @unique
+  expiresAt DateTime
+  userId String
+  auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
+  @@index([userId])
 
 }

@@ -3,20 +3,26 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating where
 import Data.List (foldl')
 import Data.Text (Text)
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, File, Path', relfile, (</>))
+import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
+import Wasp.Project.Analyze (findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 
--- Template file for wasp file has placeholders in it that we want to replace
+-- | Template file for wasp file has placeholders in it that we want to replace
 -- in the .wasp file we have written to the disk.
-replaceTemplatePlaceholdersInWaspFile :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
-replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
-  updateFileContent absMainWaspFile $ replacePlaceholders waspFileReplacements
+-- If no .wasp file was found in the project, do nothing.
+replaceTemplatePlaceholdersInWaspFile ::
+  NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
+replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
+  findWaspFile projectDir >>= \case
+    Nothing -> return ()
+    Just absMainWaspFile ->
+      updateFileContentWith absMainWaspFile (replacePlaceholders waspFileReplacements)
   where
-    updateFileContent :: Path' Abs (File f) -> (Text -> Text) -> IO ()
-    updateFileContent absFilePath updateFn =
+    updateFileContentWith :: Path' Abs (File f) -> (Text -> Text) -> IO ()
+    updateFileContentWith absFilePath updateFn =
       IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
 
     replacePlaceholders :: [(String, String)] -> Text -> Text
@@ -24,7 +30,6 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
       where
         replacePlaceholder content' (placeholder, value) = T.replace (T.pack placeholder) (T.pack value) content'
 
-    absMainWaspFile = projectDir </> [relfile|main.wasp|]
     waspFileReplacements =
       [ ("__waspAppName__", show appName),
         ("__waspProjectName__", show projectName),

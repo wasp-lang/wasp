@@ -107,10 +107,9 @@ buildNpmDepsForFullStack spec forServer forWebApp =
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
   NpmDepsForUser
-    { -- todo(filip): what if package.json has no dependencies field?
-      userDependencies = AS.PackageJson.dependencies $ AS.packageJson spec,
+    { userDependencies = AS.PackageJson.getDependencies $ AS.packageJson spec,
       -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-      userDevDependencies = AS.PackageJson.devDependencies $ AS.packageJson spec
+      userDevDependencies = AS.PackageJson.getDevDependencies $ AS.packageJson spec
     }
 
 conflictErrorToMessage :: DependencyConflictError -> String
@@ -161,8 +160,8 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
     allWaspDepsByName = waspDepsByName `Map.union` waspDevDepsByName
     conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
     devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
-    remainingWapsDeps = allWaspDepsByName `Map.difference` userDepsByName
-    remainingWaspDevDeps = allWaspDepsByName `Map.difference` userDevDepsByName
+    remainingWapsDeps = waspDepsByName `Map.difference` userDepsByName
+    remainingWaspDevDeps = waspDevDepsByName `Map.difference` userDevDepsByName
 
 type DepsByName = Map.Map String D.Dependency
 

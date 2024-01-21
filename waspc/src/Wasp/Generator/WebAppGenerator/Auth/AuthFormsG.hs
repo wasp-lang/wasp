@@ -20,8 +20,7 @@ genAuthForms auth =
     [ genAuthComponent auth,
       genTypes auth,
       genFileCopy [relfile|auth/forms/Login.tsx|],
-      genFileCopy [relfile|auth/forms/Signup.tsx|],
-      genFileCopy [relfile|stitches.config.js|]
+      genFileCopy [relfile|auth/forms/Signup.tsx|]
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
@@ -118,8 +117,7 @@ genLoginSignupForm auth =
           -- Username and password
           "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
           -- Email
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
-          "isEmailVerificationRequired" .= AS.Auth.isEmailVerificationRequired auth
+          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth

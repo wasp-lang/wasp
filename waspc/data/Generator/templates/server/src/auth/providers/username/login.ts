@@ -1,14 +1,15 @@
 {{={= =}=}}
-import { verifyPassword, throwInvalidCredentialsError } from '../../../core/auth.js'
+import { throwInvalidCredentialsError } from '../../utils.js'
 import { handleRejection } from 'wasp/server/utils'
+import { verifyPassword } from '../../password.js'
 
 import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
-  createAuthToken,
   deserializeAndSanitizeProviderData,
 } from '../../utils.js'
+import { createSession } from '../../session.js'
 import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
 
 export default handleRejection(async (req, res) => {
@@ -32,9 +33,12 @@ export default handleRejection(async (req, res) => {
   const auth = await findAuthWithUserBy({
     id: authIdentity.authId
   }) 
-  const token = await createAuthToken(auth.userId)
 
-  return res.json({ token })
+  const session = await createSession(auth.id)
+
+  return res.json({
+      sessionId: session.id,
+  })
 })
 
 function ensureValidArgs(args: unknown): void {

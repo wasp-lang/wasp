@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@lucia-auth/adapter-prisma": "^4.0.0-beta.9",
     "@prisma/client": "4.16.2",
     "@sendgrid/mail": "^7.7.0",
     "cookie-parser": "~1.4.6",
@@ -9,6 +10,7 @@
     "helmet": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash.merge": "^4.6.2",
+    "lucia": "^3.0.0-beta.14",
     "morgan": "~1.10.0",
     "passport": "0.6.0",
     "passport-google-oauth20": "2.0.0",

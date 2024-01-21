@@ -14,12 +14,14 @@
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
       {=!  Used by users, documented. =}
       "./core/HttpError": "./dist/core/HttpError.js",
+      "./core/AuthError": "./dist/core/AuthError.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/config": "./dist/core/config.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/stitches.config": "./dist/core/stitches.config.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
+      "./core/auth": "./dist/core/auth.js",
       {=!  Used by users, documented. =}
       "./rpc": "./dist/rpc/index.js",
       {=!  Used by users, documented. =}
@@ -30,8 +32,22 @@
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
       {=!  Used by users, documented. =}
       "./types": "./dist/types/index.js",
-      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
-      "./auth/*": "./dist/auth/*",
+      {=!  Used by users, documented. =}
+      "./auth/login": "./dist/auth/login.js",
+      {=!  Used by users, documented. =}
+      "./auth/logout": "./dist/auth/logout.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/user": "./dist/auth/user.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/session": "./dist/auth/session.js",
+      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      "./auth/utils": "./dist/auth/utils.js",
+      {=!  Used by users, documented. =}
+      "./auth/forms/Login": "./dist/auth/forms/Login.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/Signup": "./dist/auth/forms/Signup.jsx",
+      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by users, documented. =}
       "./api": "./dist/api/index.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
@@ -53,6 +69,8 @@
       "./universal/validators": "./dist/universal/validators.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/dbClient": "./dist/server/dbClient.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/config": "./dist/server/config.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}

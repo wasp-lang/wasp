@@ -49,7 +49,6 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
@@ -162,7 +161,6 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash.merge", "^4.6.2"),
             ("rate-limiter-flexible", "^2.4.1"),
             ("superjson", "^1.12.2")
           ]
@@ -208,10 +206,8 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genFileCopy [relfile|core/AuthError.js|],
-      genFileCopy [relfile|core/HttpError.js|],
-      genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genFileCopy [relfile|polyfill.ts|]
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec

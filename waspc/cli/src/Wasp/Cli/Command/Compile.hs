@@ -20,13 +20,13 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command [CompileWarning]
@@ -47,8 +47,8 @@ compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
   let outDir =
-        waspProjectDir </> Common.dotWaspDirInWaspProjectDir
-          </> Common.generatedCodeDirInDotWaspDir
+        waspProjectDir </> dotWaspDirInWaspProjectDir
+          </> generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir

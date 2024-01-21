@@ -12,6 +12,7 @@ import Wasp.Generator.Monad
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Model as Psl.Model.Field
+import qualified Wasp.Util as Util
 
 {--
 
@@ -59,12 +60,22 @@ authIdentityEntityName = "AuthIdentity"
 identitiesFieldOnAuthEntityName :: String
 identitiesFieldOnAuthEntityName = "identities"
 
+sessionEntityName :: String
+sessionEntityName = "Session"
+
+sessionsFieldOnAuthEntityName :: String
+sessionsFieldOnAuthEntityName = "sessions"
+
+authFieldOnSessionEntityName :: String
+authFieldOnSessionEntityName = Util.toLowerFirst authEntityName
+
 injectAuth :: [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
 injectAuth entities (userEntityName, userEntity) = do
   authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
   authIdentityEntity <- makeAuthIdentityEntity
+  sessionEntity <- makeSessionEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
-  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity]
+  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
@@ -94,7 +105,7 @@ makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
 
 makeAuthEntity :: Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
 makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEntityPslBody of
-  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating Auth entity: " ++ show err
+  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
     authEntityPslBody =
@@ -104,6 +115,7 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEnt
           userId    ${userEntityIdTypeText}? @unique
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [${userEntityIdFieldName}], onDelete: Cascade)
           ${identitiesFieldOnAuthEntityNameText} ${authIdentityEntityNameText}[]
+          ${sessionsFieldOnAuthEntityNameText}   ${sessionEntityNameText}[]
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType
@@ -111,9 +123,34 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEnt
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
     authIdentityEntityNameText = T.pack authIdentityEntityName
     identitiesFieldOnAuthEntityNameText = T.pack identitiesFieldOnAuthEntityName
+    sessionsFieldOnAuthEntityNameText = T.pack sessionsFieldOnAuthEntityName
+    sessionEntityNameText = T.pack sessionEntityName
 
     userEntityIdTypeText = T.pack $ show . Psl.Model.Field._type $ userEntityIdField
     userEntityIdFieldName = T.pack $ Psl.Model.Field._name userEntityIdField
+
+makeSessionEntity :: Generator (String, AS.Entity.Entity)
+makeSessionEntity = case parsePslBody sessionEntityPslBody of
+  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ sessionEntityName ++ " entity: " ++ show err
+  Right pslBody -> return (sessionEntityName, AS.Entity.makeEntity pslBody)
+  where
+    sessionEntityPslBody =
+      T.unpack
+        [trimming|
+          id        String   @id @unique
+          expiresAt DateTime
+
+          // Needs to be called `userId` for Lucia to be able to create sessions
+          userId String
+          // The relation needs to be named as lowercased entity name, because that's what Lucia expects.
+          // If the entity is named `Foo`, the relation needs to be named `foo`.
+          ${authFieldOnSessionEntityNameText}   ${authEntityNameText}   @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+          @@index([userId])
+        |]
+
+    authEntityNameText = T.pack authEntityName
+    authFieldOnSessionEntityNameText = T.pack authFieldOnSessionEntityName
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =

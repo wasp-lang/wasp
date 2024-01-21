@@ -1,21 +1,28 @@
-import { EmailSender } from "../types.js";
+import { DummyEmailProvider, EmailSender } from "../types.js";
 import { getDefaultFromField } from "../helpers.js";
 
-export function initDummyEmailSender(): EmailSender {
+const yellowColor = "\x1b[33m%s\x1b[0m";
+
+export function initDummyEmailSender(
+    config?: DummyEmailProvider,
+): EmailSender {
     const defaultFromField = getDefaultFromField();
     return {
         send: async (email) => {
             const fromField = email.from || defaultFromField;
-            console.log('Test email (not sent):', {
-                from: {
-                    email: fromField.email,
-                    name: fromField.name,
-                },
-                to: email.to,
-                subject: email.subject,
-                text: email.text,
-                html: email.html,
-            });
+
+            console.log(yellowColor, '╔═══════════════════════╗');
+            console.log(yellowColor, '║ Dummy email sender ✉️  ║');
+            console.log(yellowColor, '╚═══════════════════════╝');
+            console.log(`From:    ${fromField.name} <${fromField.email}>`);
+            console.log(`To:      ${email.to}`);
+            console.log(`Subject: ${email.subject}`);
+            console.log(yellowColor, '═════════ Text ═════════');
+            console.log(email.text);
+            console.log(yellowColor, '═════════ HTML ═════════');
+            console.log(email.html);
+            console.log(yellowColor, '════════════════════════');
+
             return {
                 success: true,
             };

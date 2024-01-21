@@ -4,7 +4,7 @@ import prisma from 'wasp/server/dbClient'
 import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
-import auth from '../../core/auth.js'
+import auth from 'wasp/core/auth'
 import { type SanitizedUser } from '../../_types'
 {=/ isAuthEnabled =}
 

@@ -1,20 +1,19 @@
-import { hashPassword, sign, verify } from 'wasp/core/auth'
-import AuthError from '../core/AuthError.js'
-import HttpError from '../core/HttpError.js'
-import prisma from '../server/dbClient.js'
-import { sleep } from '../server/utils'
+import { hashPassword } from './password.js'
+import { verify } from './jwt.js'
+import AuthError from 'wasp/core/AuthError'
+import HttpError from 'wasp/core/HttpError'
+import prisma from 'wasp/server/dbClient'
+import { sleep } from 'wasp/server/utils'
 import {
   type User,
   type Auth,
   type AuthIdentity,
-} from '../entities'
+} from 'wasp/entities'
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
 
-
-import { defineAdditionalSignupFields, type PossibleAdditionalSignupFields } from './providers/types.js'
-const _waspAdditionalSignupFieldsConfig = {} as ReturnType<typeof defineAdditionalSignupFields>
+import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
 export type EmailProviderData = {
   hashedPassword: string;
@@ -127,8 +126,10 @@ export async function findAuthWithUserBy(
 export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
-  userFields?: PossibleAdditionalSignupFields,
-): Promise<User> {
+  userFields?: PossibleUserFields,
+): Promise<User & {
+  auth: Auth
+}> {
   return prisma.user.create({
     data: {
       // Using any here to prevent type errors when userFields are not
@@ -145,7 +146,12 @@ export async function createUser(
           },
         }
       },
-    }
+    },
+    // We need to include the Auth entity here because we need `authId`
+    // to be able to create a session.
+    include: {
+      auth: true,
+    },
   })
 }
 
@@ -153,12 +159,6 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
   return prisma.user.deleteMany({ where: { auth: {
     id: authId,
   } } })
-}
-
-export async function createAuthToken(
-  userId: User['id']
-): Promise<string> {
-  return sign(userId);
 }
 
 export async function verifyToken<T = unknown>(token: string): Promise<T> {
@@ -179,7 +179,7 @@ export async function doFakeWork(): Promise<unknown> {
 
 export function rethrowPossibleAuthError(e: unknown): void {
   if (e instanceof AuthError) {
-    throwValidationError(e.message);
+    throwValidationError((e as any).message);
   }
   
   // Prisma code P2002 is for unique constraint violations.
@@ -224,15 +224,23 @@ export function rethrowPossibleAuthError(e: unknown): void {
   throw e
 }
 
-export async function validateAndGetAdditionalFields(data: {
-  [key: string]: unknown
-}): Promise<Record<string, any>> {
+export async function validateAndGetUserFields(
+  data: {
+    [key: string]: unknown
+  },
+  userSignupFields?: UserSignupFields,
+): Promise<Record<string, any>> {
   const {
     password: _password,
     ...sanitizedData
   } = data;
   const result: Record<string, any> = {};
-  for (const [field, getFieldValue] of Object.entries(_waspAdditionalSignupFieldsConfig)) {
+
+  if (!userSignupFields) {
+    return result;
+  }
+
+  for (const [field, getFieldValue] of Object.entries(userSignupFields)) {
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
@@ -287,4 +295,8 @@ function providerDataHasPasswordField(
   providerData: PossibleProviderData[keyof PossibleProviderData],
 ): providerData is { hashedPassword: string } {
   return 'hashedPassword' in providerData;
+}
+
+export function throwInvalidCredentialsError(message?: string): void {
+  throw new HttpError(401, 'Invalid credentials', { message })
 }
