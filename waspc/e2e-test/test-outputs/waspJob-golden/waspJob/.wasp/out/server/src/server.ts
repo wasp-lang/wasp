@@ -8,6 +8,8 @@ import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
 import './jobs/core/allJobs.js'
 
 
+import './polyfill.js'
+
 const startServer = async () => {
   await startPgBoss()
 

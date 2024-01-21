@@ -15,7 +15,7 @@ data EmailSender = EmailSender
   }
   deriving (Show, Eq, Data)
 
-data EmailProvider = SMTP | SendGrid | Mailgun
+data EmailProvider = SMTP | SendGrid | Mailgun | Dummy
   deriving (Eq, Data, Show)
 
 data EmailFromField = EmailFromField

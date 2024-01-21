@@ -1,7 +1,7 @@
 import { createTask } from './actions.js'
 import type { DbSeedFn } from '@wasp/dbSeed/types.js'
 import { PrismaClient } from '@prisma/client/index.js'
-import { hashPassword } from '@wasp/core/auth.js'
+import { hashPassword } from '@wasp/auth/password.js'
 
 async function createUser(prismaClient: PrismaClient, data: any) {
   const newUser = await prismaClient.user.create({

@@ -22,8 +22,7 @@ app todoApp {
         passwordReset: {
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
           clientRoute: PasswordResetRoute
-        },
-        allowUnverifiedLogin: true,
+        }
       },
       google: {}
     },

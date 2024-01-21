@@ -7,7 +7,7 @@ export default async function login(username: string, password: string): Promise
     const args = { username, password }
     const response = await api.post('{= loginPath =}', args)
 
-    await initSession(response.data.token)
+    await initSession(response.data.sessionId)
   } catch (error) {
     handleApiError(error)
   }

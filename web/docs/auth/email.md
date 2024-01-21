@@ -2,26 +2,25 @@
 title: Email
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
+import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
+import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
+import GetEmail from './entities/\_get-email.md';
+import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
+import UserFields from './\_user-fields.md';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
-:::caution Using email auth and social auth together
-If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password ✅
-
-If a user signs up with the e-mail and password and then tries to login with a social provider (Google or Github), they won't be able to do that ❌
-
-In the future, we will lift this limitation and enable smarter merging of accounts.
-:::
+<MultipleIdentitiesWarning />
 
 ## Setting Up Email Authentication
 
 We'll need to take the following steps to set up email authentication:
 1. Enable email authentication in the Wasp file
-1. Add the user entity
-1. Add the routes and pages
+1. Add the `User` entity
+1. Add the auth routes and pages
 1. Use Auth UI components in our pages
 1. Set up the email sender
 
@@ -73,7 +72,6 @@ app myApp {
         passwordReset: {
           clientRoute: PasswordResetRoute,
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -108,7 +106,6 @@ app myApp {
         passwordReset: {
           clientRoute: PasswordResetRoute,
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -123,20 +120,16 @@ Read more about the `email` auth method options [here](#fields-in-the-email-dict
 
 ### 2. Add the User Entity
 
-When email authentication is enabled, Wasp expects certain fields in your `userEntity`. Let's add these fields to our `main.wasp` file:
+The `User` entity can be as simple as including only the `id` field:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {4-8}
+```wasp title="main.wasp"
 // 5. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
     // Add your own fields below
     // ...
 psl=}
@@ -144,15 +137,11 @@ psl=}
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {4-8}
+```wasp title="main.wasp"
 // 5. Define the user entity
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
     // Add your own fields below
     // ...
 psl=}
@@ -160,7 +149,8 @@ psl=}
 </TabItem>
 </Tabs>
 
-Read more about the `userEntity` fields [here](#userentity-fields).
+<ReadMoreAboutAuthEntities />
+
 
 ### 3. Add the Routes and Pages
 
@@ -240,7 +230,7 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 ### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](/docs/project/css-frameworks).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
 :::
 
 Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
@@ -418,15 +408,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 </TabItem>
 </Tabs>
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](/docs/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../auth/ui).
 
 ### 5. Set up an Email Sender
 
 To support e-mail verification and password reset flows, we need an e-mail sender. Luckily, Wasp supports several email providers out of the box.
 
-We'll use SendGrid in this guide to send our e-mails. You can use any of the supported email providers.
+We'll use the `Dummy` provider to speed up the setup. It just logs the emails to the console instead of sending them. You can use any of the [supported email providers](../advanced/email#providers).
 
-To set up SendGrid to send emails, we will add the following to our `main.wasp` file:
+To set up the `Dummy` provider to send emails, add the following to the `main.wasp` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -436,7 +426,7 @@ app myApp {
   // ...
   // 7. Set up the email sender
   emailSender: {
-    provider: SendGrid,
+    provider: Dummy,
   }
 }
 ```
@@ -448,38 +438,24 @@ app myApp {
   // ...
   // 7. Set up the email sender
   emailSender: {
-    provider: SendGrid,
+    provider: Dummy,
   }
 }
 ```
 </TabItem>
 </Tabs>
 
-... and add the following to our `.env.server` file:
-
-```c title=".env.server"
-SENDGRID_API_KEY=<your key>
-```
-
-If you are not sure how to get a SendGrid API key, read more [here](/docs/advanced/email#getting-the-api-key).
-
-Read more about setting up email senders in the [sending emails docs](/docs/advanced/email).
-
 ### Conclusion
 
 That's it! We have set up email authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [using auth docs](/docs/auth/overview).
+Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [auth overview](../auth/overview).
 
 ## Login and Signup Flows
 
 ### Login
 
 ![Auth UI](/img/authui/login.png)
-
-If logging in with an unverified email is _allowed_, the user will be able to login with an unverified email address. If logging in with an unverified email is _not allowed_, the user will be shown an error message.
-
-Read more about the `allowUnverifiedLogin` option [here](#allowunverifiedlogin-bool-specifies-whether-the-user-can-login-without-verifying-their-e-mail-address).
 
 ### Signup
 
@@ -500,9 +476,20 @@ Some of the behavior you get out of the box:
 
 4. Password validation
 
-  Read more about the default password validation rules and how to override them in [using auth docs](/docs/auth/overview).
+  Read more about the default password validation rules and how to override them in [auth overview docs](../auth/overview).
 
 ## Email Verification Flow
+
+:::info Automatic email verification in development
+
+In development mode, you can skip the email verification step by setting the `SKIP_EMAIL_VERIFICATION_IN_DEV` environment variable to `true` in your `.env.server` file:
+
+```env title=".env.server"
+SKIP_EMAIL_VERIFICATION_IN_DEV=true
+```
+
+This is useful when you are developing your app and don't want to go through the email verification flow every time you sign up. It can be also useful when you are writing automated tests for your app.
+:::
 
 By default, Wasp requires the e-mail to be verified before allowing the user to log in. This is done by sending a verification email to the user's email address and requiring the user to click on a link in the email to verify their email address.
 
@@ -595,9 +582,249 @@ Users can enter their new password there.
 
 The content of the e-mail can be customized, read more about it [here](#passwordreset-passwordresetconfig-).
 
-## Using The Auth
+## Creating a Custom Sign-up Action
 
-To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [using auth docs](/docs/auth/overview).
+:::caution Creating a custom sign-up action
+
+We don't recommend creating a custom sign-up action unless you have a good reason to do so. It is a complex process and you can easily make a mistake that will compromise the security of your app.
+:::
+
+The code of your custom sign-up action can look like this:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+// ...
+
+action customSignup {
+  fn: import { signup } from "@server/auth/signup.js",
+}
+```
+
+```js title="src/server/auth/signup.js"
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidEmail,
+} from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  deserializeAndSanitizeProviderData,
+  findAuthIdentity,
+  createUser,
+} from '@wasp/auth/utils.js'
+import {
+  createEmailVerificationLink,
+  sendEmailVerificationEmail,
+} from '@wasp/auth/providers/email/utils.js'
+
+export const signup = async (args, _context) => {
+  ensureValidEmail(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
+
+  try {
+    const providerId = createProviderId('email', args.email)
+    const existingAuthIdentity = await findAuthIdentity(providerId)
+
+    if (existingAuthIdentity) {
+      const providerData = deserializeAndSanitizeProviderData(existingAuthIdentity.providerData)
+      // Your custom code here
+    } else {
+      // sanitizeAndSerializeProviderData will hash the user's password
+      const newUserProviderData = await sanitizeAndSerializeProviderData({
+          hashedPassword: args.password,
+          isEmailVerified: false,
+          emailVerificationSentAt: null,
+          passwordResetSentAt: null,
+      })
+      await createUser(
+        providerId,
+        providerData,
+        // Any additional data you want to store on the User entity
+        {},
+      )
+
+      // Verification link links to a client route e.g. /email-verification
+      const verificationLink = await createEmailVerificationLink(args.email, '/email-verification');
+      try {
+          await sendEmailVerificationEmail(
+              args.email,
+              {
+                  from: {
+                    name: "My App Postman",
+                    email: "hello@itsme.com",
+                  },
+                  to: args.email,
+                  subject: "Verify your email",
+                  text: `Click the link below to verify your email: ${verificationLink}`,
+                  html: `
+                      <p>Click the link below to verify your email</p>
+                      <a href="${verificationLink}">Verify email</a>
+                  `,
+              }
+          );
+      } catch (e: unknown) {
+          console.error("Failed to send email verification email:", e);
+          throw new HttpError(500, "Failed to send email verification email.");
+      } 
+    }
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
+    }
+  }
+
+  // Your custom code after sign-up.
+  // ...
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+// ...
+
+action customSignup {
+  fn: import { signup } from "@server/auth/signup.js",
+}
+```
+
+```ts title="src/server/auth/signup.ts"
+import {
+  ensurePasswordIsPresent,
+  ensureValidPassword,
+  ensureValidEmail,
+} from '@wasp/auth/validation.js'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  deserializeAndSanitizeProviderData,
+  findAuthIdentity,
+  createUser,
+} from '@wasp/auth/utils.js'
+import {
+  createEmailVerificationLink,
+  sendEmailVerificationEmail,
+} from '@wasp/auth/providers/email/utils.js'
+import type { CustomSignup } from '@wasp/actions/types'
+
+type CustomSignupInput = {
+  email: string
+  password: string
+}
+type CustomSignupOutput = {
+  success: boolean
+  message: string
+}
+
+export const signup: CustomSignup<CustomSignupInput, CustomSignupOutput> = async (args, _context) => {
+  ensureValidEmail(args)
+  ensurePasswordIsPresent(args)
+  ensureValidPassword(args)
+
+  try {
+    const providerId = createProviderId('email', args.email)
+    const existingAuthIdentity = await findAuthIdentity(providerId)
+
+    if (existingAuthIdentity) {
+      const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData)
+      // Your custom code here
+    } else {
+      // sanitizeAndSerializeProviderData will hash the user's password
+      const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
+          hashedPassword: args.password,
+          isEmailVerified: false,
+          emailVerificationSentAt: null,
+          passwordResetSentAt: null,
+      })
+      await createUser(
+        providerId,
+        providerData,
+        // Any additional data you want to store on the User entity
+        {},
+      )
+
+      // Verification link links to a client route e.g. /email-verification
+      const verificationLink = await createEmailVerificationLink(args.email, '/email-verification');
+      try {
+          await sendEmailVerificationEmail(
+              args.email,
+              {
+                  from: {
+                    name: "My App Postman",
+                    email: "hello@itsme.com",
+                  },
+                  to: args.email,
+                  subject: "Verify your email",
+                  text: `Click the link below to verify your email: ${verificationLink}`,
+                  html: `
+                      <p>Click the link below to verify your email</p>
+                      <a href="${verificationLink}">Verify email</a>
+                  `,
+              }
+          );
+      } catch (e: unknown) {
+          console.error("Failed to send email verification email:", e);
+          throw new HttpError(500, "Failed to send email verification email.");
+      } 
+    }
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
+    }
+  }
+
+  // Your custom code after sign-up.
+  // ...
+
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+We suggest using the built-in field validators for your authentication flow. You can import them from `@wasp/auth/validation.js`. These are the same validators that Wasp uses internally for the default authentication flow.
+
+#### Email
+
+- `ensureValidEmail(args)`
+
+  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
+
+#### Password
+
+- `ensurePasswordIsPresent(args)`
+
+  Checks if the password is present and throws an error if it's not.
+
+- `ensureValidPassword(args)`
+
+  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
+
+## Using Auth
+
+To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../auth/overview).
+
+### `getEmail`
+
+If you are looking to access the user's email in your code, you can do that by accessing the info about the user that is stored in the `user.auth.identities` array.
+
+To make things a bit easier for you, Wasp offers the `getEmail` helper.
+
+<GetEmail />
 
 ## API Reference
 
@@ -608,7 +835,7 @@ Let's go over the options we can specify when using email authentication.
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {18-25}
+```wasp title="main.wasp"
 app myApp {
   title: "My app",
   // ...
@@ -625,20 +852,16 @@ app myApp {
   // ...
 }
 
-// Using email auth requires the `userEntity` to have at least the following fields
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
 psl=}
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {18-25}
+```wasp title="main.wasp"
 app myApp {
   title: "My app",
   // ...
@@ -655,26 +878,15 @@ app myApp {
   // ...
 }
 
-// Using email auth requires the `userEntity` to have at least the following fields
 entity User {=psl
+    // highlight-next-line
     id                        Int           @id @default(autoincrement())
-    email                     String?       @unique
-    password                  String?
-    isEmailVerified           Boolean       @default(false)
-    emailVerificationSentAt   DateTime?
-    passwordResetSentAt       DateTime?
 psl=}
 ```
 </TabItem>
 </Tabs>
 
-Email auth requires that `userEntity` specified in `auth` contains:
-
-- optional `email` field of type `String`
-- optional `password` field of type `String`
-- `isEmailVerified` field of type `Boolean` with a default value of `false`
-- optional `emailVerificationSentAt` field of type `DateTime`
-- optional `passwordResetSentAt` field of type `DateTime`
+<UserFields />
 
 ### Fields in the `email` dict
 
@@ -690,6 +902,7 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
+        userSignupFields: import { userSignupFields } from "@server/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
@@ -702,7 +915,6 @@ app myApp {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -722,6 +934,7 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
+        userSignupFields: import { userSignupFields } from "@server/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
@@ -734,7 +947,6 @@ app myApp {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
-        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -744,6 +956,10 @@ app myApp {
 ```
 </TabItem>
 </Tabs>
+
+#### `userSignupFields: ServerImport`
+
+<UserSignupFieldsExplainer />
 
 #### `fromField: EmailFromField` <Required />
 `fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by your app. 
@@ -904,11 +1120,3 @@ It has the following fields:
   </Tabs>
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>
-
-#### `allowUnverifiedLogin: bool`: specifies whether the user can login without verifying their e-mail address
-
-It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
-
-Sometimes you want to allow unverified users to login to provide them a different onboarding experience. Some of the pages can be viewed without verifying the e-mail address, but some of them can't. You can use the `isEmailVerified` field on the user entity to check if the user has verified their e-mail address.
-
-If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).

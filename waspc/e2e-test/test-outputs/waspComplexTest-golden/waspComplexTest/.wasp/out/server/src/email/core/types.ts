@@ -1,4 +1,4 @@
-export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider;
+export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider | DummyEmailProvider;
 
 export type SMTPEmailProvider = {
   type: "smtp";
@@ -18,6 +18,10 @@ export type MailgunEmailProvider = {
   apiKey: string;
   domain: string;
 };
+
+export type DummyEmailProvider = {
+  type: "dummy";
+}
 
 export type EmailSender = {
   send: (email: Email) => Promise<SentMessageInfo>;

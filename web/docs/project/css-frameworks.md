@@ -85,7 +85,7 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 
 ### Adding Tailwind Plugins
 
-To add Tailwind plugins, install them as npm development [dependencies](/docs/project/dependencies) and add them to the plugins list in your `tailwind.config.cjs` file:
+To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the plugins list in your `tailwind.config.cjs` file:
 
 ```shell
 npm install -D @tailwindcss/forms
