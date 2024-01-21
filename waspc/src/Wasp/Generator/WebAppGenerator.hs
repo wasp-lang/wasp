@@ -10,6 +10,7 @@ import Data.Aeson (object, (.=))
 import Data.Char (toLower)
 import Data.List (intercalate)
 import Data.Maybe (fromJust, isJust)
+import qualified FilePath.Extra as FP.Extra
 import StrongPath
   ( Dir,
     File',
@@ -31,7 +32,6 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
@@ -58,6 +58,7 @@ import Wasp.JsImport
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
+import qualified Wasp.Project.Common as Project
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -289,10 +290,10 @@ genEnvValidationScript =
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-    sequence
-      [ genFileCopy [relfile|webSocket.ts|],
-        genWebSocketProvider spec
-      ]
+      sequence
+        [ genFileCopy [relfile|webSocket.ts|],
+          genWebSocketProvider spec
+        ]
   | otherwise = return []
   where
     genFileCopy = return . C.mkSrcTmplFd
@@ -317,10 +318,17 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
           "defaultClientPort" .= C.defaultClientPort
         ]
 
-    makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport
+    makeCustomViteConfigJsImport :: Path' (Rel Project.WaspProjectDir) File' -> JsImport
     makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
       where
-        importPath = C.toViteImportPath $ fromJust $ SP.relFileToPosix pathToConfigInSrc
-        pathToConfigInSrc = SP.castRel $ C.webAppSrcDirInWebAppRootDir </> SP.castRel pathToConfig
+        importPath = SP.castRel $ C.toViteImportPath relPathToConfigInProjectDir
+        relPathToConfigInProjectDir = relPathFromWebAppRootDirWaspProjectDir </> (fromJust . SP.relFileToPosix $ pathToConfig)
+
+        relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir Project.WaspProjectDir)
+        relPathFromWebAppRootDirWaspProjectDir =
+          fromJust $
+            SP.parseRelDirP $
+              FP.Extra.reversePosixPath $
+                SP.fromRelDir (Project.dotWaspDirInWaspProjectDir </> Project.generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
         importName = JsImportModule "customViteConfig"

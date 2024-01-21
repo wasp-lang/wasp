@@ -4,6 +4,8 @@ import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 {=# customViteConfig.isDefined =}
+// Ignoring the TS error because we are importing a file outside of TS root dir.
+// @ts-ignore
 {=& customViteConfig.importStatement =}
 const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
 {=/ customViteConfig.isDefined =}
