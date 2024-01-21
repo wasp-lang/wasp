@@ -40,6 +40,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import Wasp.Generator.Templates (getTemplatesDirAbsPath)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
@@ -182,7 +183,14 @@ genPackageJson spec =
                 ("superjson", "^1.12.2"),
                 ("@types/express-serve-static-core", "^4.17.13")
               ]
-              ++ depsRequiredForAuth spec,
+              ++ depsRequiredForAuth spec
+              -- This must be installed in the SDK because it lists prisma/client as a dependency.
+              -- Installing it inside .wasp/out/server/node_modules would also
+              -- install prisma/client in the same folder, which would cause our
+              -- runtime to load the wrong (uninitialized prisma/client)
+              -- TODO(filip): Find a better way to handle duplicate
+              -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
+              ++ ServerAuthG.depsRequiredByAuth spec,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
@@ -210,8 +218,8 @@ depsRequiredForAuth spec =
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
--- todo(filip): figure out where this belongs
--- also, fix imports for wasp project
+-- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
+-- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
   runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp

@@ -16,13 +16,13 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning)
+import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -35,8 +35,8 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
   let buildDir =
-        waspProjectDir </> Common.dotWaspDirInWaspProjectDir
-          </> Common.buildDirInDotWaspDir
+        waspProjectDir </> dotWaspDirInWaspProjectDir
+          </> buildDirInDotWaspDir
       buildDirFilePath = SP.fromAbsDir buildDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDirFilePath
@@ -58,7 +58,7 @@ build = do
         CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found"
 
 buildIO ::
-  Path' Abs (Dir Common.WaspProjectDir) ->
+  Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
   IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir

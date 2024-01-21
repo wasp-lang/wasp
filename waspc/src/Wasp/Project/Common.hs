@@ -1,23 +1,76 @@
 module Wasp.Project.Common
-  ( findFileInWaspProjectDir,
-    extCodeDirInWaspProjectDir,
-    extPublicDirInWaspProjectDir,
+  ( WaspProjectDir,
+    DotWaspDir,
+    NodeModulesDir,
     CompileError,
     CompileWarning,
-    WaspProjectDir,
+    findFileInWaspProjectDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+    buildDirInDotWaspDir,
+    waspProjectDirFromProjectRootDir,
+    dotWaspRootFileInWaspProjectDir,
+    dotWaspInfoFileInGeneratedCodeDir,
+    packageJsonInWaspProjectDir,
+    nodeModulesDirInWaspProjectDir,
+    extCodeDirInWaspProjectDir,
+    extPublicDirInWaspProjectDir,
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
-import StrongPath.TH (reldir)
+import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
-
-data WaspProjectDir -- Root dir of Wasp project, containing source files.
+import qualified Wasp.Generator.Common
 
 type CompileError = String
 
 type CompileWarning = String
+
+data WaspProjectDir -- Root dir of Wasp project, containing source files.
+
+data NodeModulesDir
+
+data DotWaspDir -- Here we put everything that wasp generates.
+
+-- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
+-- TODO: SHould this be renamed to include word "root"?
+dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
+dotWaspDirInWaspProjectDir = [reldir|.wasp|]
+
+nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
+nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
+
+-- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
+-- TODO: Hm this has different name than it has in Generator.
+generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)
+generatedCodeDirInDotWaspDir = [reldir|out|]
+
+-- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
+buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)
+buildDirInDotWaspDir = [reldir|build|]
+
+-- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,
+-- @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@., which are the three functions just above.
+-- Also, it assumes @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@ have same depth.
+-- If any of those change significantly (their depth), this path should be adjusted.
+waspProjectDirFromProjectRootDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) (Dir WaspProjectDir)
+waspProjectDirFromProjectRootDir = [reldir|../../|]
+
+dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
+
+dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
+dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
+
+packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+packageJsonInWaspProjectDir = [relfile|package.json|]
+
+extCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
+extCodeDirInWaspProjectDir = [reldir|src|]
+
+extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
+extPublicDirInWaspProjectDir = [reldir|public|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -27,9 +80,3 @@ findFileInWaspProjectDir waspDir file = do
   let fileAbsFp = waspDir </> file
   fileExists <- doesFileExist $ toFilePath fileAbsFp
   return $ if fileExists then Just fileAbsFp else Nothing
-
-extCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extCodeDirInWaspProjectDir = [reldir|src|]
-
-extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
-extPublicDirInWaspProjectDir = [reldir|public|]

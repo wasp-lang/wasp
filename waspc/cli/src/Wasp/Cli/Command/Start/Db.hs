@@ -22,8 +22,8 @@ import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Dev (makeDevDbUniqueId)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres

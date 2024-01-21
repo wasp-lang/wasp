@@ -61,7 +61,8 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
           "passwordResetClientRoute" .= passwordResetClientRoute,
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
           "getVerificationEmailContent" .= getVerificationEmailContent,
-          "allowUnverifiedLogin" .= fromMaybe False (AS.Auth.allowUnverifiedLogin emailAuthConfig)
+          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields,
+          "isDevelopment" .= isDevelopment
         ]
 
     fromFieldJson =
@@ -74,10 +75,13 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
     maybeName = AS.EmailSender.name fromField
     email = AS.EmailSender.email fromField
 
+    isDevelopment = not $ AS.isBuild spec
+
     emailVerificationClientRoute = getRoutePathFromRef spec $ AS.Auth.EmailVerification.clientRoute emailVerification
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
     getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
     getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
+    maybeUserSignupFields = AS.Auth.userSignupFieldsForEmailAuth emailAuthConfig
 
     emailVerification = AS.Auth.emailVerification emailAuthConfig
     passwordReset = AS.Auth.passwordReset emailAuthConfig

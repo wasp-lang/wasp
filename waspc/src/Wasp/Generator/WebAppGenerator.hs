@@ -147,7 +147,7 @@ npmDepsForWasp spec =
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@types/react-router-dom", "^5.3.3"),
-            ("@vitejs/plugin-react-swc", "^3.0.0"),
+            ("@vitejs/plugin-react", "^4.2.1"),
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions

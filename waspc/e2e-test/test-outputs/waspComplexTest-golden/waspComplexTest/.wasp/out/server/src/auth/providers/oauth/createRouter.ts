@@ -11,20 +11,22 @@ import {
   authConfig,
   contextWithUserEntity,
   createUser,
-  findAuthWithUserBy,
-  createAuthToken,
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
+  validateAndGetUserFields,
 } from "../../utils.js"
-import { type User } from "../../../entities/index.js"
-import type { ProviderConfig, RequestWithWasp } from "../types.js"
-import type { GetUserFieldsFn } from "./types.js"
+import { createSession } from "../../session.js"
+import { type Auth } from "../../../entities/index.js"
+import type { ProviderConfig, RequestWithWasp, UserSignupFields } from "../types.js"
 import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
-export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn?: GetUserFieldsFn }) {
-    const { passportStrategyName, getUserFieldsFn } = initData;
+export function createRouter(provider: ProviderConfig, initData: {
+  passportStrategyName: string,
+  userSignupFields?: UserSignupFields,
+}) {
+    const { passportStrategyName, userSignupFields } = initData;
 
     const router = Router();
 
@@ -52,9 +54,11 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
           const providerId = createProviderId(provider.id, providerProfile.id);
 
           try {
-            const userId = await getUserIdFromProviderDetails(providerId, providerProfile, getUserFieldsFn)
-            const token = await createAuthToken(userId)
-            res.json({ token })
+            const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, userSignupFields)
+            const session = await createSession(authId)
+            return res.json({
+              sessionId: session.id,
+            })
           } catch (e) {
             rethrowPossibleAuthError(e)
           }
@@ -66,11 +70,11 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
 
 // We need a user id to create the auth token, so we either find an existing user
 // or create a new one if none exists for this provider.
-async function getUserIdFromProviderDetails(
+async function getAuthIdFromProviderDetails(
   providerId: ProviderId,
   providerProfile: any,
-  getUserFieldsFn?: GetUserFieldsFn,
-): Promise<User['id']> {
+  userSignupFields?: UserSignupFields,
+): Promise<Auth['id']> {
   const existingAuthIdentity = await prisma.authIdentity.findUnique({
     where: {
       providerName_providerUserId: providerId,
@@ -85,11 +89,12 @@ async function getUserIdFromProviderDetails(
   })
 
   if (existingAuthIdentity) {
-    return existingAuthIdentity.auth.user.id
+    return existingAuthIdentity.auth.id
   } else {
-    const userFields = getUserFieldsFn
-      ? await getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
-      : {};
+    const userFields = await validateAndGetUserFields(
+      { profile: providerProfile },
+      userSignupFields,
+    );
 
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})
@@ -97,9 +102,11 @@ async function getUserIdFromProviderDetails(
     const user = await createUser(
       providerId,
       providerData,
-      userFields,
+      // Using any here because we want to avoid TypeScript errors and
+      // rely on Prisma to validate the data.
+      userFields as any,
     )
 
-    return user.id
+    return user.auth.id
   }
 }

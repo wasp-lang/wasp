@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Wasp.Generator.DbGenerator
   ( genDb,
     warnIfDbNeedsMigration,

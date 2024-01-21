@@ -18,16 +18,12 @@ import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common
-  ( MigrateArgs (..),
-    dbSchemaFileInProjectRootDir,
-    waspProjectDirFromProjectRootDir,
-  )
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
@@ -142,10 +138,9 @@ seed projectRootDir seedName =
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir ProjectRootDir) -> J.Job
 dbExecuteTest projectRootDir =
-  let absSchemaPath = projectRootDir </> dbSchemaFileInProjectRootDir
-   in runPrismaCommandAsJob
-        projectRootDir
-        ["db", "execute", "--stdin", "--schema", SP.fromAbsFile absSchemaPath]
+  runPrismaCommandAsJob projectRootDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+  where
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
@@ -156,13 +151,9 @@ runStudio projectRootDir =
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectRootDir =
-  runPrismaCommandAsJob projectRootDir cmdArgs
+  runPrismaCommandAsJob projectRootDir ["generate", "--schema", SP.fromAbsFile schema]
   where
-    cmdArgs =
-      [ "generate",
-        "--schema",
-        SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
-      ]
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 runPrismaCommandAsJob :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
 runPrismaCommandAsJob projectRootDir cmdArgs =

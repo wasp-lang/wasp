@@ -2,7 +2,7 @@
 // We have them duplicated in this file and in data/Generator/templates/server/src/auth/user.ts
 // If you are changing the logic here, make sure to change it there as well.
 
-import type { User, ProviderName, DeserializedAuthEntity } from './types' 
+import type { User, ProviderName, DeserializedAuthIdentity } from './types' 
 
 export function getEmail(user: User): string | null {
   return findUserIdentity(user, "email")?.providerUserId ?? null;
@@ -20,7 +20,7 @@ export function getFirstProviderUserId(user?: User): string | null {
   return user.auth.identities[0].providerUserId ?? null;
 }
 
-export function findUserIdentity(user: User, providerName: ProviderName): DeserializedAuthEntity | undefined {
+export function findUserIdentity(user: User, providerName: ProviderName): DeserializedAuthIdentity | undefined {
   return user.auth.identities.find(
     (identity) => identity.providerName === providerName
   );

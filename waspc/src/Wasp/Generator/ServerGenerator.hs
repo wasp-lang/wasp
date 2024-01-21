@@ -211,7 +211,8 @@ genSrcDir spec =
       genFileCopy [relfile|core/AuthError.js|],
       genFileCopy [relfile|core/HttpError.js|],
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genFileCopy [relfile|polyfill.ts|]
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec

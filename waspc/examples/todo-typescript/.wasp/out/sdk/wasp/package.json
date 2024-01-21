@@ -48,7 +48,9 @@
   "secure-password": "^4.0.0",
   "superjson": "^1.12.2",
   "@types/express-serve-static-core": "^4.17.13",
-  "@stitches/react": "^1.2.8"
+  "@stitches/react": "^1.2.8",
+  "lucia": "^3.0.0-beta.14",
+  "@lucia-auth/adapter-prisma": "^4.0.0-beta.9"
 },
   "devDependencies": {"@tsconfig/node18": "latest"
 }

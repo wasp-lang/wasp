@@ -6,14 +6,15 @@ module Wasp.AppSpec.App.Auth
     AuthMethods (..),
     ExternalAuthConfig (..),
     EmailAuthConfig (..),
-    SignupOptions (..),
-    usernameAndPasswordConfig,
+    UsernameAndPasswordConfig (..),
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
-    isEmailVerificationRequired,
+    userSignupFieldsForEmailAuth,
+    userSignupFieldsForUsernameAuth,
+    userSignupFieldsForExternalAuth,
   )
 where
 
@@ -30,7 +31,6 @@ data Auth = Auth
   { userEntity :: Ref Entity,
     externalAuthEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
-    signup :: Maybe SignupOptions,
     onAuthFailedRedirectTo :: String,
     onAuthSucceededRedirectTo :: Maybe String
   }
@@ -45,32 +45,23 @@ data AuthMethods = AuthMethods
   deriving (Show, Eq, Data)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
-  { -- NOTE: Not used right now, but Analyzer does not support an empty data type.
-    configFn :: Maybe ExtImport
+  { userSignupFields :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
-    getUserFieldsFn :: Maybe ExtImport
+    userSignupFields :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
 data EmailAuthConfig = EmailAuthConfig
-  { fromField :: EmailFromField,
+  { userSignupFields :: Maybe ExtImport,
+    fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
-    passwordReset :: PasswordResetConfig,
-    allowUnverifiedLogin :: Maybe Bool
+    passwordReset :: PasswordResetConfig
   }
   deriving (Show, Eq, Data)
-
-data SignupOptions = SignupOptions
-  { additionalFields :: Maybe ExtImport
-  }
-  deriving (Show, Eq, Data)
-
-usernameAndPasswordConfig :: UsernameAndPasswordConfig
-usernameAndPasswordConfig = UsernameAndPasswordConfig Nothing
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
@@ -87,7 +78,14 @@ isGitHubAuthEnabled = isJust . gitHub . methods
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
 
-isEmailVerificationRequired :: Auth -> Bool
-isEmailVerificationRequired auth = case email . methods $ auth of
-  Nothing -> False
-  Just emailAuthConfig -> allowUnverifiedLogin emailAuthConfig /= Just True
+-- These helper functions are used to avoid ambiguity when using the
+-- `userSignupFields` function (otherwise we need to use the DuplicateRecordFields
+-- extension in each module that uses them).
+userSignupFieldsForEmailAuth :: EmailAuthConfig -> Maybe ExtImport
+userSignupFieldsForEmailAuth = userSignupFields
+
+userSignupFieldsForUsernameAuth :: UsernameAndPasswordConfig -> Maybe ExtImport
+userSignupFieldsForUsernameAuth = userSignupFields
+
+userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
+userSignupFieldsForExternalAuth = userSignupFields

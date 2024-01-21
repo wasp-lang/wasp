@@ -4,7 +4,6 @@ import { login } from '../../../email/actions/login'
 export function useEmail({
   onError,
   showEmailVerificationPending,
-  isEmailVerificationRequired,
   onLoginSuccess,
   isLogin,
 }: {
@@ -12,7 +11,6 @@ export function useEmail({
   showEmailVerificationPending: () => void
   onLoginSuccess: () => void
   isLogin: boolean
-  isEmailVerificationRequired: boolean
 }) {
   async function handleSubmit(data) {
     try {
@@ -21,12 +19,7 @@ export function useEmail({
         onLoginSuccess()
       } else {
         await signup(data)
-        if (isEmailVerificationRequired) {
-          showEmailVerificationPending()
-        } else {
-          await login(data)
-          onLoginSuccess()
-        }
+        showEmailVerificationPending()
       }
     } catch (err: unknown) {
       onError(err as Error)

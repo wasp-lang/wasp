@@ -16,7 +16,6 @@ module Wasp.Generator.DbGenerator.Common
     serverRootDirFromDbRootDir,
     webAppRootDirFromDbRootDir,
     dbSchemaFileInProjectRootDir,
-    waspProjectDirFromProjectRootDir,
     DbSchemaChecksumFile,
   )
 where
@@ -24,7 +23,6 @@ where
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir, ServerRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
@@ -89,9 +87,6 @@ dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-gene
 
 dbSchemaChecksumOnLastGenerateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
-
-waspProjectDirFromProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WaspProjectDir)
-waspProjectDirFromProjectRootDir = [reldir|../../|]
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,

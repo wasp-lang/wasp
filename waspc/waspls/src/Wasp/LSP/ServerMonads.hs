@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Wasp.LSP.ServerMonads
   ( -- * LSP Server Monads
@@ -105,6 +104,8 @@ sendToReactor act = do
   env <- LSP.getLspEnv
   rin <- handler $ asks (^. reactorIn)
   liftIO $ atomically $ writeTChan rin $ ReactorAction $ LSP.runLspT env $ runRLspM stateTVar act
+
+{- HLINT ignore "Redundant <$>" -}
 
 instance HasProjectRootDir HandlerM where
   -- Returns the folder that contains the active .wasp file, which is assumed
