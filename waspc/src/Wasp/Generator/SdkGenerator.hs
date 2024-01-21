@@ -95,7 +95,6 @@ genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
   return
     [ copyFolder [reldir|auth|],
-      copyFolder [reldir|ext-src|],
       copyFolder [reldir|operations|],
       copyFolder [reldir|rpc|],
       copyFolder [reldir|types|]
