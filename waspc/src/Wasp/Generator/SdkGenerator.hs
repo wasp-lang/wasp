@@ -90,7 +90,7 @@ genSdkReal spec =
     <++> genOperations spec
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
-    <++> genTypesAndEntitiesDirs spec
+    <++> genEntitiesAndServerTypesDirs spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -113,8 +113,8 @@ genSdkHardcoded =
     srcFolder = absSdkTemplatesDir
     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
 
-genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
-genTypesAndEntitiesDirs spec =
+genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
+genEntitiesAndServerTypesDirs spec =
   return
     [ entitiesIndexFileDraft,
       taggedEntitiesFileDraft,

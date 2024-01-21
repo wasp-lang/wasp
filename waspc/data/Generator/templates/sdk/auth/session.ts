@@ -77,7 +77,7 @@ async function getUser(userId: User['id']): Promise<SanitizedUser> {
     throwInvalidCredentialsError()
   }
 
-  // TODO: This logic must match the type in _types/index.ts (if we remove the
+  // TODO: This logic must match the type in server/_types/index.ts (if we remove the
   // password field from the object here, we must to do the same there).
   // Ideally, these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965

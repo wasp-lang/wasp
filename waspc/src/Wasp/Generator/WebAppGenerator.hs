@@ -233,7 +233,6 @@ genSrcDir spec =
     [ genFileCopy [relfile|logo.png|],
       genFileCopy [relfile|queryClient.js|],
       genFileCopy [relfile|utils.js|],
-      genFileCopy [relfile|types.ts|],
       genFileCopy [relfile|vite-env.d.ts|],
       getIndexTs spec
     ]

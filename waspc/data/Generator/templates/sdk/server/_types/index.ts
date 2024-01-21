@@ -88,7 +88,7 @@ type Context<Entities extends _Entity[]> = Expand<{
 {=# isAuthEnabled =}
 type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser }>
 
-// TODO: This type must match the logic in core/session.js (if we remove the
+// TODO: This type must match the logic in auth/session.js (if we remove the
 // password field from the object there, we must do the same here). Ideally,
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
