@@ -1,8 +1,8 @@
-import { callOperation, makeOperationRoute } from '../operations'
+import { callOperation, makeOperationRoute } from 'wasp/operations'
 import {
   registerActionInProgress,
   registerActionDone,
-} from '../operations/resources'
+} from 'wasp/operations/resources'
 
 export function createAction(relativeActionRoute, entitiesUsed) {
   const actionRoute = makeOperationRoute(relativeActionRoute)

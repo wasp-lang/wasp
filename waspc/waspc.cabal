@@ -325,7 +325,6 @@ library
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.OperationsGenerator
-    Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start

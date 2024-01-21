@@ -1,8 +1,8 @@
-import { callOperation, makeOperationRoute } from '../operations'
+import { callOperation, makeOperationRoute } from 'wasp/operations'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '../operations/resources'
+} from 'wasp/operations/resources'
 
 export function createQuery(relativeQueryPath, entitiesUsed) {
   const queryRoute = makeOperationRoute(relativeQueryPath)

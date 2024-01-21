@@ -27,19 +27,11 @@ import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.Generator.WebAppGenerator.Common (serverRootDirFromWebAppRootDir, toViteImportPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RelativeImportPath), getJsImportStmtAndIdentifier, makeJsImport)
 import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
-genOperations spec =
-  genQueries spec
-    <++> genActions spec
-    <++> Resources.genResources spec
-    <++> return
-      [ C.mkSrcTmplFd [relfile|operations/index.ts|],
-        C.mkSrcTmplFd [relfile|operations/updateHandlersMap.js|]
-      ]
+genOperations spec = genQueries spec <++> genActions spec
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =

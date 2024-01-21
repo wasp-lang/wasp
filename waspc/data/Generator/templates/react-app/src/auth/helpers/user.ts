@@ -1,5 +1,5 @@
-import { setSessionId } from '../../api'
-import { invalidateAndRemoveQueries } from '../../operations/resources'
+import { setSessionId } from 'wasp/api'
+import { invalidateAndRemoveQueries } from 'wasp/operations/resources'
 
 export async function initSession(sessionId: string): Promise<void> {
     setSessionId(sessionId)

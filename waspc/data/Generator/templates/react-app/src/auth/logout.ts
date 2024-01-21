@@ -1,5 +1,5 @@
-import api, { removeLocalUserData } from '../api'
-import { invalidateAndRemoveQueries } from '../operations/resources'
+import api, { removeLocalUserData } from 'wasp/api'
+import { invalidateAndRemoveQueries } from 'wasp/operations/resources'
 
 export default async function logout(): Promise<void> {
   try {

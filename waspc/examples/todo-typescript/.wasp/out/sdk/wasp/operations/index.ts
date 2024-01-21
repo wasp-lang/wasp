@@ -3,7 +3,7 @@ import { HttpMethod } from 'wasp/types'
 import {
   serialize as superjsonSerialize,
   deserialize as superjsonDeserialize,
-} from 'superjson'
+ } from 'superjson'
 
 export type OperationRoute = { method: HttpMethod, path: string }
 

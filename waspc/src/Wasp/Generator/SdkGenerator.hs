@@ -78,6 +78,9 @@ genSdkReal spec =
       genFileCopy [relfile|core/stitches.config.js|],
       genFileCopy [relfile|core/AuthError.js|],
       genFileCopy [relfile|core/HttpError.js|],
+      genFileCopy [relfile|operations/resources.js|],
+      genFileCopy [relfile|operations/index.ts|],
+      genFileCopy [relfile|operations/updateHandlersMap.js|],
       genFileCopy [relfile|server/dbClient.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
@@ -95,7 +98,6 @@ genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
   return
     [ copyFolder [reldir|auth|],
-      copyFolder [reldir|operations|],
       copyFolder [reldir|rpc|],
       copyFolder [reldir|types|]
     ]
