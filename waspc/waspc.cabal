@@ -293,6 +293,11 @@ library
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
+    Wasp.Generator.SdkGenerator.AuthG
+    Wasp.Generator.SdkGenerator.Auth.AuthFormsG
+    Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
+    Wasp.Generator.SdkGenerator.Auth.LocalAuthG
+    Wasp.Generator.SdkGenerator.Auth.EmailAuthG
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -318,10 +323,6 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
-    Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
-    Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
-    Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
-    Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.OperationsGenerator

@@ -1,4 +1,4 @@
-module Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
+module Wasp.Generator.SdkGenerator.Auth.AuthFormsG
   ( genAuthForms,
   )
 where
@@ -10,8 +10,9 @@ import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Common as C
+-- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
-import Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Util ((<++>))
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
@@ -25,13 +26,13 @@ genAuthForms auth =
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
   where
-    genFileCopy = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkTmplFd
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/forms/Auth.tsx|]
+      [relfile|auth/forms/Auth.tsx|]
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
@@ -40,7 +41,7 @@ genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/forms/types.ts|]
+      [relfile|auth/forms/types.ts|]
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
@@ -54,7 +55,7 @@ genEmailForms auth =
         genFileCopy [relfile|auth/forms/VerifyEmail.tsx|]
       ]
   where
-    genFileCopy = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkTmplFd
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
@@ -92,14 +93,14 @@ genInternalAuthComponents auth =
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
-    copyInternalAuthComponent = return . C.mkSrcTmplFd . (pathToInternalInAuth </>)
+    copyInternalAuthComponent = return . C.mkTmplFd . (pathToInternalInAuth </>)
     pathToInternalInAuth = [reldir|auth/forms/internal|]
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginSignupForm auth =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/forms/internal/common/LoginSignupForm.tsx|]
+      [relfile|auth/forms/internal/common/LoginSignupForm.tsx|]
       tmplData
   where
     tmplData =

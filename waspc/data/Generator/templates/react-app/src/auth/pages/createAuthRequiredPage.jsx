@@ -2,7 +2,7 @@
 import React from 'react'
 
 import { Redirect } from 'react-router-dom'
-import useAuth from '../useAuth'
+import useAuth from 'wasp/auth/useAuth'
 
 
 const createAuthRequiredPage = (Page) => {

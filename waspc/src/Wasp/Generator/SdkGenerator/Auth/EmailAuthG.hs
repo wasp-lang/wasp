@@ -1,4 +1,4 @@
-module Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
+module Wasp.Generator.SdkGenerator.Auth.EmailAuthG
   ( genEmailAuth,
   )
 where
@@ -16,7 +16,7 @@ import Wasp.Generator.AuthProviders.Email
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -29,7 +29,7 @@ genEmailAuth auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
-genIndex = return $ C.mkSrcTmplFd [relfile|auth/email/index.ts|]
+genIndex = return $ C.mkTmplFd [relfile|auth/email/index.ts|]
 
 genActions :: Generator [FileDraft]
 genActions =
@@ -44,21 +44,21 @@ genLoginAction :: Generator FileDraft
 genLoginAction =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/email/actions/login.ts|]
+      [relfile|auth/email/actions/login.ts|]
       (object ["loginPath" .= serverLoginUrl emailAuthProvider])
 
 genSignupAction :: Generator FileDraft
 genSignupAction =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/email/actions/signup.ts|]
+      [relfile|auth/email/actions/signup.ts|]
       (object ["signupPath" .= serverSignupUrl emailAuthProvider])
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/email/actions/passwordReset.ts|]
+      [relfile|auth/email/actions/passwordReset.ts|]
       ( object
           [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
             "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
@@ -69,5 +69,5 @@ genVerifyEmailAction :: Generator FileDraft
 genVerifyEmailAction =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/email/actions/verifyEmail.ts|]
+      [relfile|auth/email/actions/verifyEmail.ts|]
       (object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider])

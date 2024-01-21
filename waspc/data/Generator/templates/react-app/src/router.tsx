@@ -12,7 +12,7 @@ import type {
 {=/ rootComponent.isDefined =}
 
 {=# isAuthEnabled =}
-import createAuthRequiredPage from "wasp/auth/pages/createAuthRequiredPage"
+import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 {=/ isAuthEnabled =}
 
 {=# pagesToImport =}

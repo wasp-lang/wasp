@@ -6,33 +6,21 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WebAppGenerator.Auth.AuthFormsG (genAuthForms)
-import Wasp.Generator.WebAppGenerator.Auth.EmailAuthG (genEmailAuth)
-import Wasp.Generator.WebAppGenerator.Auth.LocalAuthG (genLocalAuth)
-import Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG (genOAuthAuth)
+import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Util ((<++>))
+  ( mkTmplFdWithData,
+  )
 
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec =
   case maybeAuth of
     Nothing -> return []
-    Just auth ->
-      sequence
-        [ genUseAuth auth,
-          genCreateAuthRequiredPage auth
-        ]
-        <++> genAuthForms auth
-        <++> genLocalAuth auth
-        <++> genOAuthAuth auth
-        <++> genEmailAuth auth
+    Just auth -> (:) <$> genCreateAuthRequiredPage auth <*> genOAuthAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -44,11 +32,16 @@ genCreateAuthRequiredPage auth =
       [relfile|src/auth/pages/createAuthRequiredPage.jsx|]
       (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
 
--- | Generates React hook that Wasp developer can use in a component to get
---   access to the currently logged in user (and check whether user is logged in
---   ot not).
-genUseAuth :: AS.Auth.Auth -> Generator FileDraft
-genUseAuth auth = return $ C.mkTmplFdWithData [relfile|src/auth/useAuth.ts|] tmplData
-  where
-    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
+genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genOAuthAuth auth = sequence [genOAuthCodeExchange auth | AS.Auth.isExternalAuthEnabled auth]
+
+genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
+genOAuthCodeExchange auth =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/pages/OAuthCodeExchange.jsx|]
+      ( object
+          [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+            "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
+          ]
+      )

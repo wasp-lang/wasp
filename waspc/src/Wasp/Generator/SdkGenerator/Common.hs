@@ -29,9 +29,9 @@ mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
 
 mkTmplFdWithData ::
   Path' (Rel SdkTemplatesDir) File' ->
-  Maybe Aeson.Value ->
+  Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath tmplData
+mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath (Just tmplData)
   where
     relDstPath = castRel relSrcPath
 

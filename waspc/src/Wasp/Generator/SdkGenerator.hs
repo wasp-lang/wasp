@@ -37,6 +37,7 @@ import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
@@ -98,23 +99,11 @@ genSdkReal spec =
 genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
   return
-    [ copyFile [relfile|auth/forms/Auth.tsx|],
-      copyFile [relfile|auth/forms/Login.tsx|],
-      copyFile [relfile|auth/forms/Signup.tsx|],
-      copyFile [relfile|auth/forms/internal/Form.tsx|],
-      copyFile [relfile|auth/forms/internal/Message.tsx|],
-      copyFile [relfile|auth/forms/internal/common/LoginSignupForm.tsx|],
-      copyFile [relfile|auth/forms/internal/usernameAndPassword/useUsernameAndPassword.ts|],
-      copyFile [relfile|auth/forms/types.ts|],
-      copyFile [relfile|auth/jwt.ts|],
-      copyFile [relfile|auth/login.ts|],
+    [ copyFile [relfile|auth/jwt.ts|],
       copyFile [relfile|auth/lucia.ts|],
-      copyFile [relfile|auth/pages/createAuthRequiredPage.jsx|],
       copyFile [relfile|auth/password.ts|],
       copyFile [relfile|auth/providers/types.ts|],
       copyFile [relfile|auth/session.ts|],
-      copyFile [relfile|auth/signup.ts|],
-      copyFile [relfile|auth/useAuth.ts|],
       copyFile [relfile|auth/utils.ts|],
       copyFile [relfile|auth/validation.ts|],
       copyFolder [reldir|rpc|],
@@ -131,17 +120,6 @@ genSdkHardcoded =
     dstFolder = C.sdkRootDirInProjectRootDir
     srcFolder = absSdkTemplatesDir
     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
-
-genAuth :: AppSpec -> Generator [FileDraft]
-genAuth spec =
-  sequence
-    [ genFileCopy [relfile|auth/helpers/user.ts|],
-      genFileCopy [relfile|auth/types.ts|],
-      genFileCopy [relfile|auth/user.ts|],
-      genFileCopy [relfile|auth/logout.ts|]
-    ]
-  where
-    genFileCopy = return . C.mkTmplFd
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
@@ -240,7 +218,7 @@ genPackageJson spec =
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath (Just tmplData)
+genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
   where
     relConfigFilePath = [relfile|server/config.js|]
     tmplData =
@@ -315,6 +293,6 @@ genUniversalDir =
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
-genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] (Just tmplData)
+genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

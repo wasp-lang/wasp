@@ -2,7 +2,7 @@ import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery } from 'wasp/rpc'
 import api, { handleApiError } from 'wasp/api'
 import { HttpMethod } from 'wasp/types'
-import type { User } from './types'
+import type { User } from './types' 
 import { addMetadataToQuery } from 'wasp/rpc/queries'
 
 export const getMe = createUserGetter()

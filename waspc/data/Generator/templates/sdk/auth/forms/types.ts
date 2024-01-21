@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { createTheme } from '@stitches/react'
 import { UseFormReturn, RegisterOptions } from 'react-hook-form'
 import type { LoginSignupFormFields } from './internal/common/LoginSignupForm'
@@ -5,6 +6,11 @@ import type { LoginSignupFormFields } from './internal/common/LoginSignupForm'
 export enum State {
   Login = 'login',
   Signup = 'signup',
+  {=# isEmailAuthEnabled =}
+  ForgotPassword = 'forgot-password',
+  ResetPassword = 'reset-password',
+  VerifyEmail = 'verify-email',
+  {=/ isEmailAuthEnabled =}
 }
 
 export type CustomizationOptions = {

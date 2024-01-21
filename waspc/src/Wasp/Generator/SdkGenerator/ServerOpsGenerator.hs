@@ -36,7 +36,7 @@ genOperations spec =
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData relPath (Just tmplData)
+genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
   where
     relPath = [relfile|server/queries/index.ts|]
     tmplData =
@@ -45,7 +45,7 @@ genQueriesIndex spec = return $ mkTmplFdWithData relPath (Just tmplData)
         ]
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData relPath (Just tmplData)
+genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
   where
     relPath = [relfile|server/actions/index.ts|]
     tmplData =

@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { useState, createContext } from 'react'
 import { createTheme } from '@stitches/react'
 import { styled } from 'wasp/core/stitches.config'
@@ -10,6 +11,11 @@ import {
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { MessageError, MessageSuccess } from './internal/Message'
+{=# isEmailAuthEnabled =}
+import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
+import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
+import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
+{=/ isEmailAuthEnabled =}
 
 const logoStyle = {
   height: '3rem'
@@ -51,6 +57,11 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
   const titles: Record<State, string> = {
     login: 'Log in to your account',
     signup: 'Create a new account',
+    {=# isEmailAuthEnabled =}
+    "forgot-password": "Forgot your password?",
+    "reset-password": "Reset your password",
+    "verify-email": "Email verification",
+    {=/ isEmailAuthEnabled =}
   }
   const title = titles[state]
 
@@ -77,6 +88,11 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
             additionalSignupFields={additionalSignupFields}
           />
         )}
+        {=# isEmailAuthEnabled =}
+        {state === 'forgot-password' && (<ForgotPasswordForm />)}
+        {state === 'reset-password' && (<ResetPasswordForm />)}
+        {state === 'verify-email' && (<VerifyEmailForm />)}
+        {=/ isEmailAuthEnabled =}
       </AuthContext.Provider>
     </Container>
   )
