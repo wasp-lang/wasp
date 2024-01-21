@@ -10,7 +10,6 @@ import StrongPath
   ( File',
     Path',
     Rel,
-    reldir,
     relfile,
     (</>),
   )
@@ -39,8 +38,7 @@ genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
   Just auth ->
     sequence
-      [ genCoreAuth auth,
-        genAuthRoutesIndex auth,
+      [ genAuthRoutesIndex auth,
         genFileCopy [relfile|routes/auth/me.js|],
         genFileCopy [relfile|routes/auth/logout.ts|],
         genUtils auth,
@@ -61,21 +59,6 @@ genAuth spec = case maybeAuth of
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     genFileCopy = return . C.mkSrcTmplFd
-
--- | Generates core/auth file which contains auth middleware and createUser() function.
-genCoreAuth :: AS.Auth.Auth -> Generator FileDraft
-genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    coreAuthRelToSrc = [relfile|core/auth.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> coreAuthRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile coreAuthRelToSrc
-
-    tmplData =
-      let userEntityName = AS.refName $ AS.Auth.userEntity auth
-       in object
-            [ "userEntityUpper" .= (userEntityName :: String),
-              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
-            ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

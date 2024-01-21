@@ -1,7 +1,6 @@
 import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import prisma from '../server/dbClient.js'
-import config from 'wasp/core/config'
 import { type User } from "../entities/index.js"
 
 const prismaAdapter = new PrismaAdapter(

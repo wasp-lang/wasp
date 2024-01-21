@@ -20,8 +20,7 @@ genAuthForms auth =
     [ genAuthComponent auth,
       genTypes auth,
       genFileCopy [relfile|auth/forms/Login.tsx|],
-      genFileCopy [relfile|auth/forms/Signup.tsx|],
-      genFileCopy [relfile|stitches.config.js|]
+      genFileCopy [relfile|auth/forms/Signup.tsx|]
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth

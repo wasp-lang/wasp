@@ -1,14 +1,14 @@
 import { hashPassword } from './password.js'
 import { verify } from './jwt.js'
-import AuthError from '../core/AuthError.js'
-import HttpError from '../core/HttpError.js'
-import prisma from '../server/dbClient.js'
-import { sleep } from '../server/utils'
+import AuthError from 'wasp/core/AuthError'
+import HttpError from 'wasp/core/HttpError'
+import prisma from 'wasp/server/dbClient'
+import { sleep } from 'wasp/server/utils'
 import {
   type User,
   type Auth,
   type AuthIdentity,
-} from '../entities'
+} from 'wasp/entities'
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
@@ -179,7 +179,7 @@ export async function doFakeWork(): Promise<unknown> {
 
 export function rethrowPossibleAuthError(e: unknown): void {
   if (e instanceof AuthError) {
-    throwValidationError(e.message);
+    throwValidationError((e as any).message);
   }
   
   // Prisma code P2002 is for unique constraint violations.

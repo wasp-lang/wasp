@@ -1,7 +1,4 @@
-import { randomInt } from 'node:crypto'
-
-import prisma from '../server/dbClient.js'
-import { handleRejection } from '../utils.js'
+import { handleRejection } from 'wasp/server/utils'
 import { getSessionAndUserFromBearerToken } from 'wasp/auth/session'
 import { throwInvalidCredentialsError } from 'wasp/auth/utils'
 
