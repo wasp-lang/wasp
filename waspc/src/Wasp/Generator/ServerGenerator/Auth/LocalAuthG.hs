@@ -5,10 +5,14 @@ where
 
 import Data.Aeson (object, (.=))
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -20,20 +24,23 @@ import qualified Wasp.Generator.AuthProviders.Local as Local
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Util as Util
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genLocalAuth auth
-  | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
-      sequence
-        [ genLoginRoute auth,
-          genSignupRoute auth,
-          genLocalAuthConfig
-        ]
-  | otherwise = return []
+genLocalAuth auth = case usernameAndPasswordAuth of
+  Just usernameAndPasswordAuthConfig ->
+    sequence
+      [ genLocalAuthConfig usernameAndPasswordAuthConfig,
+        genLoginRoute auth,
+        genSignupRoute auth
+      ]
+  Nothing -> return []
+  where
+    usernameAndPasswordAuth = AS.Auth.usernameAndPassword $ AS.Auth.methods auth
 
-genLocalAuthConfig :: Generator FileDraft
-genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genLocalAuthConfig :: AS.Auth.UsernameAndPasswordConfig -> Generator FileDraft
+genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
@@ -41,11 +48,17 @@ genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
     tmplData =
       object
         [ "providerId" .= Local.providerId localAuthProvider,
-          "displayName" .= Local.displayName localAuthProvider
+          "displayName" .= Local.displayName localAuthProvider,
+          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
         ]
+
+    maybeUserSignupFields = AS.Auth.userSignupFieldsForUsernameAuth usernameAndPasswordConfig
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|auth/providers/config/username.ts|]
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|../../../|]
 
 genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
 genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

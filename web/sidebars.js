@@ -6,8 +6,8 @@ module.exports = {
       collapsed: false,
       collapsible: false,
       items: [
-        'introduction/what-is-wasp',
-        'introduction/getting-started',
+        'introduction/introduction',
+        'introduction/quick-start',
         'introduction/editor-setup',
       ],
     },
@@ -67,6 +67,7 @@ module.exports = {
             'auth/social-auth/google',
           ],
         },
+        'auth/entities/entities',
       ],
     },
     {
@@ -103,7 +104,7 @@ module.exports = {
             'advanced/deployment/manually',
           ],
         },
-        'advanced/email',
+        'advanced/email/email',
         'advanced/jobs',
         'advanced/web-sockets',
         'advanced/apis',

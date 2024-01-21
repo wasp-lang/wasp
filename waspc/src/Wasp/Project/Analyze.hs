@@ -4,6 +4,7 @@ module Wasp.Project.Analyze
   ( analyzeWaspProject,
     readPackageJsonFile,
     analyzeWaspFileContent,
+    findWaspFile,
   )
 where
 

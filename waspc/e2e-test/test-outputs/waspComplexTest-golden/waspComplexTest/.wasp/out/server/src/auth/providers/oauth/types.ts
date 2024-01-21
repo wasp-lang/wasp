@@ -11,8 +11,3 @@ export type OAuthConfig = {
 export type UserFieldsFromOAuthSignup = Prisma.UserCreateInput
 
 export type UserDefinedConfigFn = () => { [key: string]: any }
-
-export type GetUserFieldsFn = (
-    context: typeof contextWithUserEntity,
-    args: { profile: { [key: string]: any } },
-) => Promise<UserFieldsFromOAuthSignup>

@@ -2,7 +2,7 @@
 title: Customizing the App
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 
 Each Wasp project can have only one `app` type declaration. It is used to configure your app and its components.
 
@@ -110,24 +110,24 @@ The rest of the fields are covered in dedicated sections of the docs:
 
 - `auth: dict`
 
-  Authentication configuration. Read more in the [authentication section](/docs/auth/overview) of the docs.
+  Authentication configuration. Read more in the [authentication section](../auth/overview) of the docs.
 
 - `client: dict`
 
-  Configuration for the client side of your app. Read more in the [client configuration section](/docs/project/client-config) of the docs.
+  Configuration for the client side of your app. Read more in the [client configuration section](../project/client-config) of the docs.
 
 - `server: dict`
 
-  Configuration for the server side of your app. Read more in the [server configuration section](/docs/project/server-config) of the docs.
+  Configuration for the server side of your app. Read more in the [server configuration section](../project/server-config) of the docs.
 
 - `db: dict`
 
-  Database configuration. Read more in the [database configuration section](/docs/data-model/backends) of the docs.
+  Database configuration. Read more in the [database configuration section](../data-model/backends) of the docs.
 
 - `emailSender: dict`
 
-  Email sender configuration. Read more in the [email sending section](/docs/advanced/email) of the docs.
+  Email sender configuration. Read more in the [email sending section](../advanced/email) of the docs.
 
 - `webSocket: dict`
 
-  WebSocket configuration. Read more in the [WebSocket section](/docs/advanced/web-sockets) of the docs.
+  WebSocket configuration. Read more in the [WebSocket section](../advanced/web-sockets) of the docs.

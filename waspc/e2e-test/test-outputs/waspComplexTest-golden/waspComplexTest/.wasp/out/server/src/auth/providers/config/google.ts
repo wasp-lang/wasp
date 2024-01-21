@@ -5,7 +5,7 @@ import { makeOAuthInit } from "../oauth/init.js";
 import type { ProviderConfig } from "../types.js";
 import type { OAuthConfig } from "../oauth/types.js";
 
-const _waspGetUserFieldsFn = undefined
+const _waspUserSignupFields = undefined
 const _waspUserDefinedConfigFn = undefined
 
 const _waspOAuthConfig: OAuthConfig = {
@@ -19,7 +19,7 @@ const _waspConfig: ProviderConfig = {
     displayName: "Google",
     init: makeOAuthInit({
         npmPackage: 'passport-google-oauth20',
-        getUserFieldsFn: _waspGetUserFieldsFn,
+        userSignupFields: _waspUserSignupFields,
         userDefinedConfigFn: _waspUserDefinedConfigFn,
         oAuthConfig: _waspOAuthConfig,
     }),

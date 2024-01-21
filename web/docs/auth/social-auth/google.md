@@ -8,9 +8,9 @@ import OverrideIntro from './\_override-intro.md';
 import OverrideExampleIntro from './\_override-example-intro.md';
 import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
-import UsernameGenerateExplanation from './\_username-generate-explanation.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
+import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
@@ -24,7 +24,7 @@ Let's walk through enabling Google authentication, explain some of the default s
 Enabling Google Authentication comes down to a series of steps:
 
 1. Enabling Google authentication in the Wasp file.
-1. Adding the necessary Entities.
+1. Adding the `User` entity.
 1. Creating a Google OAuth app.
 1. Adding the neccessary Routes and Pages
 1. Using Auth UI components in our Pages.
@@ -45,17 +45,11 @@ app myApp {
   },
   title: "My App",
   auth: {
-    // highlight-next-line
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    // 2. Specify the SocialLogin entity (we'll define it next)
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
-      // highlight-next-line
-      // 3. Enable Google Auth
+      // 2. Enable Google Auth
       // highlight-next-line
       google: {}
     },
@@ -74,17 +68,11 @@ app myApp {
   },
   title: "My App",
   auth: {
-    // highlight-next-line
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
     userEntity: User,
-    // highlight-next-line
-    // 2. Specify the SocialLogin entity (we'll define it next)
-    // highlight-next-line
-    externalAuthEntity: SocialLogin,
     methods: {
-      // highlight-next-line
-      // 3. Enable Google Auth
+      // 2. Enable Google Auth
       // highlight-next-line
       google: {}
     },
@@ -96,37 +84,22 @@ app myApp {
 </TabItem>
 </Tabs>
 
-`externalAuthEntity` and `userEntity` are explained in [the social auth overview](/docs/auth/social-auth/overview#social-login-entity).
+`userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
 
-### 2. Adding the Entities
+### 2. Adding the User Entity
 
-Let's now define the entities acting as `app.auth.userEntity` and `app.auth.externalAuthEntity`:
+Let's now define the `app.auth.userEntity` entity:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```wasp title="main.wasp"
 // ...
-// highlight-next-line
-// 4. Define the User entity
+// 3. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-// 5. Define the SocialLogin entity
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -135,26 +108,11 @@ psl=}
 
 ```wasp title="main.wasp"
 // ...
-// highlight-next-line
-// 4. Define the User entity
+// 3. Define the User entity
 // highlight-next-line
 entity User {=psl
     id          Int     @id @default(autoincrement())
     // ...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-// 5. Define the SocialLogin entity
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 ```
 
@@ -271,7 +229,7 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 ### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](/docs/project/css-frameworks).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
 :::
 
 Let's now create a `auth.{jsx,tsx}` file in the `client/pages`.
@@ -337,7 +295,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 </Tabs>
 
 :::info Auth UI
-Our pages use an automatically-generated Auth UI component. Read more about Auth UI components [here](/docs/auth/ui).
+Our pages use an automatically-generated Auth UI component. Read more about Auth UI components [here](../../auth/ui).
 :::
 
 ### Conclusion
@@ -347,7 +305,7 @@ Yay, we've successfully set up Google Auth! 🎉
 ![Google Auth](/img/auth/google.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
-To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](/docs/auth/overview).
+To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).
 
 ## Default Behaviour
 
@@ -356,7 +314,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title=main.wasp {10}
+```wasp title=main.wasp
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -364,8 +322,8 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
+      // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
@@ -376,7 +334,7 @@ app myApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title=main.wasp {10}
+```wasp title=main.wasp
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -384,8 +342,8 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
+      // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
@@ -409,7 +367,7 @@ app myApp {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {11-12,22}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -417,11 +375,12 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -432,19 +391,15 @@ entity User {=psl
     id                        Int     @id @default(autoincrement())
     username                  String  @unique
     displayName               String
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 // ...
 ```
 
 ```js title=src/server/auth/google.js
-import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
-
-export const getUserFields = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername()
-  const displayName = args.profile.displayName
-  return { username, displayName }
+export const userSignupFields = {
+  username: () => "hardcoded-username",
+  displayName: (data) => data.profile.displayName,
 }
 
 export function getConfig() {
@@ -459,7 +414,7 @@ export function getConfig() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {11-12,22}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -467,11 +422,12 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -482,21 +438,18 @@ entity User {=psl
     id                        Int     @id @default(autoincrement())
     username                  String  @unique
     displayName               String
-    externalAuthAssociations  SocialLogin[]
 psl=}
 
 // ...
 ```
 
 ```ts title=src/server/auth/google.ts
-import type { GetUserFieldsFn } from '@wasp/types'
-import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
+import { defineUserSignupFields } from '@wasp/auth/index.js'
 
-export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-  const username = await generateAvailableDictionaryUsername()
-  const displayName = args.profile.displayName
-  return { username, displayName }
-}
+export const userSignupFields = defineUserSignupFields({
+  username: () => "hardcoded-username",
+  displayName: (data) => data.profile.displayName,
+})
 
 export function getConfig() {
   return {
@@ -523,7 +476,7 @@ export function getConfig() {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp" {11-12}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -531,11 +484,12 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -546,7 +500,7 @@ app myApp {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp" {11-12}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -554,11 +508,12 @@ app myApp {
   title: "My App",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
+        // highlight-next-line
         configFn: import { getConfig } from "@server/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -604,48 +559,6 @@ The `google` dict has the following properties:
   </TabItem>
   </Tabs>
 
-- #### `getUserFieldsFn: ServerImport`
+- #### `userSignupFields: ServerImport`
 
-  This function must return the user fields to use when creating a new user.
-
-  The `context` contains the `User` entity, and the `args` object contains Google profile information.
-  You can do whatever you want with this information (e.g., generate a username).
-
-  Here is how to generate a username based on the Google display name:
-  <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-
-  ```js title=src/server/auth/google.js
-  import { generateAvailableUsername } from '@wasp/core/auth.js'
-
-  export const getUserFields = async (_context, args) => {
-    const username = await generateAvailableUsername(
-      args.profile.displayName.split(' '),
-      { separator: '.' }
-    )
-    return { username }
-  }
-  ```
-
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-  ```ts title=src/server/auth/google.ts
-  import type { GetUserFieldsFn } from '@wasp/types'
-  import { generateAvailableUsername } from '@wasp/core/auth.js'
-
-  export const getUserFields: GetUserFieldsFn = async (_context, args) => {
-    const username = await generateAvailableUsername(
-      args.profile.displayName.split(' '),
-      { separator: '.' }
-    )
-    return { username }
-  }
-  ```
-
-  <GetUserFieldsType />
-
-  </TabItem>
-  </Tabs>
-
-  <UsernameGenerateExplanation />
+  <UserSignupFieldsExplainer />
