@@ -67,6 +67,7 @@ constructAppSpec ::
 constructAppSpec waspDir options packageJson decls = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
+  customViteConfigPath <- findCustomViteConfigPath waspDir
 
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
@@ -75,7 +76,6 @@ constructAppSpec waspDir options packageJson decls = do
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
-  let customViteConfigPath = findCustomViteConfigPath externalCodeFiles
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,

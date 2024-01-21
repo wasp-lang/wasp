@@ -36,7 +36,6 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
-import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO
   ( collectJobTextOutputUntilExitReceived,
     printJobMsgsUntilExitReceived,
