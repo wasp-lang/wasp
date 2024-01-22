@@ -19,33 +19,50 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common (extClientCodeDirInWaspProjectDir, extServerCodeDirInWaspProjectDir, extSharedCodeDirInWaspProjectDir)
+import Wasp.Project.Common (extClientCodeDirInWaspProjectDir, extServerCodeDirInWaspProjectDir, extSharedCodeDirInWaspProjectDir, srcDirInWaspProjectDir)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
 --   be ready for the case when there is no .gitignore, that could be possible.
 
--- | Forever listens for any file changes in waspProjectDir, and if there is a change,
---   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
---   It will defer recompilation until no new change was detected in the last second.
---   It also takes 'ongoingCompilationResultMVar' MVar, into which it stores the result
---   (warnings, errors) of the latest (re)compile whenever it happens. If there is already
---   something in the MVar, it will get overwritten.
+-- | Forever listens for any file changes at the very top level of @waspProjectDir@, and also for
+-- any changes at any depth in the @waspProjectDir@/src/ dir. If there is a change, compiles Wasp
+-- source files in @waspProjectDir@ and regenerates files in @outDir@. It will defer recompilation
+-- until no new change was detected in the last second. It also takes 'ongoingCompilationResultMVar'
+-- MVar, into which it stores the result (warnings, errors) of the latest (re)compile whenever it
+-- happens. If there is already something in the MVar, it will get overwritten.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
   MVar ([CompileWarning], [CompileError]) ->
   IO ()
 watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
-  currentTime <- getCurrentTime
   chan <- newChan
-  _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
-  let watchProjectSubdirTree path = FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> path) eventFilter chan
-  _ <- watchProjectSubdirTree extClientCodeDirInWaspProjectDir
-  _ <- watchProjectSubdirTree extServerCodeDirInWaspProjectDir
-  _ <- watchProjectSubdirTree extSharedCodeDirInWaspProjectDir
-  listenForEvents chan currentTime
+  _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
+  _ <- watchFilesAtAllLevelsOfSrcDirInWaspProjectDir mgr chan
+  listenForEvents chan =<< getCurrentTime
   where
+    watchFilesAtTopLevelOfWaspProjectDir mgr chan =
+      FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
+      where
+        eventFilter :: FSN.Event -> Bool
+        eventFilter event =
+          -- TODO: Might be valuable to also filter out files from .gitignore.
+          not (isEditorTmpFile filename)
+            && filename /= "package-lock.json"
+          where
+            filename = FP.takeFileName $ FSN.eventPath event
+
+    watchFilesAtAllLevelsOfSrcDirInWaspProjectDir mgr chan =
+      FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> srcDirInWaspProjectDir) eventFilter chan
+      where
+        eventFilter :: FSN.Event -> Bool
+        eventFilter event =
+          -- TODO: Might be valuable to also filter out files from .gitignore.
+          not (isEditorTmpFile filename)
+          where
+            filename = FP.takeFileName $ FSN.eventPath event
+
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
     listenForEvents chan lastCompileTime = do
       event <- readChan chan
@@ -114,12 +131,13 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     --   create next to the source code. Bad thing here is that users can't modify this,
     --   so better approach would be probably to use information from .gitignore instead, or
     --   maybe combining the two somehow.
-    eventFilter :: FSN.Event -> Bool
-    eventFilter event =
-      let filename = FP.takeFileName $ FSN.eventPath event
-       in not (null filename)
-            && take 2 filename /= ".#" -- Ignore emacs lock files.
-            && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
-            && last filename /= '~' -- Ignore emacs and vim backup files.
-            && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
-            && not (head filename == '.' && ".un~" `isSuffixOf` filename) -- Ignore vim undo files.
+    isEditorTmpFile :: String -> Bool
+    isEditorTmpFile "" = False
+    isEditorTmpFile filename =
+      or
+        [ take 2 filename == ".#", -- Emacs lock files.
+          head filename == '#' && last filename == '#', -- Emacs auto-save files.
+          last filename == '~', -- Emacs and vim backup files.
+          head filename == '.' && ".swp" `isSuffixOf` filename, -- Vim swp files.
+          head filename == '.' && ".un~" `isSuffixOf` filename -- Vim undo files.
+        ]
