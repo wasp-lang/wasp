@@ -27,8 +27,12 @@
       "./rpc": "./dist/rpc/index.js",
       {=!  Used by users, documented. =}
       "./rpc/queries": "./dist/rpc/queries/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./rpc/queries/core": "./dist/rpc/queries/core.js",
       {=!  Used by users, documented. =}
       "./rpc/actions": "./dist/rpc/actions/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./rpc/actions/core": "./dist/rpc/actions/core.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
       {=!  Used by users, documented. =}
@@ -95,7 +99,11 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/actions": "./dist/server/actions/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./server/queries": "./dist/server/queries/index.js"
+      "./server/queries": "./dist/server/queries/index.js",
+      {=!  Used by users, documented. =}
+      "./crud/*": "./dist/crud/*",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/crud/*": "./dist/server/crud/*"
    },
    "license": "ISC",
     "include": [

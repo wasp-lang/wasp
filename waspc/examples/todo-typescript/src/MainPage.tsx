@@ -8,9 +8,12 @@ import waspLogo from "./waspLogo.png";
 import type { Task } from "wasp/entities";
 import type { User } from "wasp/auth/types";
 import { getFirstProviderUserId } from "wasp/auth/user";
+import { Tasks } from "wasp/crud/Tasks";
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
+
+  const { data: allTasks } = Tasks.getAll.useQuery();
 
   if (isLoading) return "Loading...";
   if (error) return "Error: " + error;
@@ -28,6 +31,8 @@ export const MainPage = ({ user }: { user: User }) => {
       )}
       <NewTaskForm />
       {tasks && <TasksList tasks={tasks} />}
+      <h2>All</h2>
+      {allTasks && <TasksList tasks={allTasks} />}
       <div className="buttons">
         <button
           className="logout"

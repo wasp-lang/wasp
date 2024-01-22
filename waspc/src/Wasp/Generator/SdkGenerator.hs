@@ -40,6 +40,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import Wasp.Generator.Templates (getTemplatesDirAbsPath)
@@ -94,6 +95,7 @@ genSdkReal spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 

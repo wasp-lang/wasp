@@ -16,7 +16,7 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (makeJsonWithEntityData)
+import Wasp.Generator.Common (dropExtensionFromImportPath, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
@@ -140,21 +140,18 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
       _importAlias = Just $ EI.importIdentifier extImport ++ "_ext"
     }
   where
-    importPath = C.makeSdkImportPath $ extCodeDirP </> SP.castRel extImportPath
+    importPath = C.makeSdkImportPath $ extCodeDirP </> importPathWithoutExtension
+    -- We are dropping extensions here because of the way the "exports" field works in package.json.
+    -- If we left the extension, it would resolve the import e.g. ext-src/foo.js to ext-src/foo.js.js,
+    -- which is not what we want.
+    importPathWithoutExtension = dropExtensionFromImportPath (SP.castRel extImportPath)
     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName
 
--- extImportToImportJson :: EI.ExtImport -> Aeson.Value
--- extImportToImportJson extImport@(EI.ExtImport importName importPath) =
---   object
---     [ "isDefined" .= True,
---       "importStatement" .= Debug.trace jsImportStmt jsImportStmt,
---       "importIdentifier" .= importAlias
---     ]
+-- extImportToImportJson ::
+--   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
+--   Maybe EI.ExtImport ->
+--   Aeson.Value
+-- extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
 --   where
---     jsImportStmt = case importName of
---       EI.ExtImportModule n -> "import " ++ n ++ " from '" ++ importPathStr ++ "'"
---       EI.ExtImportField n -> "import { " ++ n ++ " as " ++ importAlias ++ " } from '" ++ importPathStr ++ "'"
---     importPathStr = C.makeSdkImportPath $ extCodeDirP </> SP.castRel importPath
---     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
--- importAlias = EI.importIdentifier extImport ++ "User"
+--     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport

@@ -16,7 +16,9 @@
       "./core/auth": "./dist/core/auth.js",
       "./rpc": "./dist/rpc/index.js",
       "./rpc/queries": "./dist/rpc/queries/index.js",
+      "./rpc/queries/core": "./dist/rpc/queries/core.js",
       "./rpc/actions": "./dist/rpc/actions/index.js",
+      "./rpc/actions/core": "./dist/rpc/actions/core.js",
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
       "./types": "./dist/types/index.js",
       "./auth/login": "./dist/auth/login.js",
@@ -48,7 +50,9 @@
       "./server/config": "./dist/server/config.js",
       "./server/utils": "./dist/server/utils.js",
       "./server/actions": "./dist/server/actions/index.js",
-      "./server/queries": "./dist/server/queries/index.js"
+      "./server/queries": "./dist/server/queries/index.js",
+      "./crud/*": "./dist/crud/*",
+      "./server/crud/*": "./dist/server/crud/*"
    },
    "license": "ISC",
     "include": [

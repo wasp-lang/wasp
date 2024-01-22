@@ -11,14 +11,14 @@ import type {
   Query,
   {=/ isAuthEnabled =}
   _{= crud.entityUpper =},
-} from "../_types";
+} from "wasp/server/_types";
 import type { Prisma } from "@prisma/client";
-import { Payload } from "../_types/serialization.js";
+import { Payload } from "wasp/server/_types/serialization";
 import type {
   {= crud.entityUpper =},
-} from "../entities";
+} from "wasp/entities";
 {=# isAuthEnabled =}
-import { throwInvalidCredentialsError } from '../auth/utils.js'
+import { throwInvalidCredentialsError } from 'wasp/auth/utils'
 {=/ isAuthEnabled =}
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}
