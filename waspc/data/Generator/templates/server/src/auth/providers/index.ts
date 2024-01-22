@@ -5,7 +5,7 @@ import { Router } from "express";
 
 import { getDirPathFromFileUrl, importJsFilesFromDir } from "wasp/server/utils";
 
-import { ProviderConfig } from "./types";
+import { ProviderConfig } from "wasp/auth/providers/types";
 
 const whitelistedProviderConfigFileNames = [
   {=# enabledProviderIds =}

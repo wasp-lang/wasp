@@ -99,18 +99,11 @@ genSdkReal spec =
 genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
   return
-    [ copyFile [relfile|auth/jwt.ts|],
-      copyFile [relfile|auth/lucia.ts|],
-      copyFile [relfile|auth/password.ts|],
-      copyFile [relfile|auth/providers/types.ts|],
-      copyFile [relfile|auth/session.ts|],
-      copyFile [relfile|auth/utils.ts|],
-      copyFile [relfile|auth/validation.ts|],
-      copyFolder [reldir|rpc|],
+    [ copyFolder [reldir|rpc|],
       copyFolder [reldir|types|]
     ]
   where
-    copyFile = C.mkTmplFd
+    -- copyFile = C.mkTmplFd
     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
     copyFolder modul =
       createCopyDirFileDraft

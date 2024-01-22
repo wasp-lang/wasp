@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import { throwInvalidCredentialsError } from '../../utils.js'
-import { verifyPassword } from '../../password.js'
+import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { verifyPassword } from 'wasp/auth/password'
 import {
     createProviderId,
     findAuthIdentity,
     findAuthWithUserBy,
     deserializeAndSanitizeProviderData,
-} from '../../utils.js'
-import { createSession } from '../../session.js'
-import { ensureValidEmail, ensurePasswordIsPresent } from '../../validation.js'
+} from 'wasp/auth/utils'
+import { createSession } from 'wasp/auth/session'
+import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
 
 export function getLoginRoute() {
     return async function login(

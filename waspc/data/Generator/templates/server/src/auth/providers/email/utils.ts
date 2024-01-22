@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { signData } from '../../jwt.js'
+import { signData } from 'wasp/auth/jwt'
 import { emailSender } from '../../../email/index.js';
 import { Email } from '../../../email/core/types.js';
 import {
@@ -9,8 +9,8 @@ import {
   deserializeAndSanitizeProviderData,
   type EmailProviderData,
 } from 'wasp/server/utils';
-import waspServerConfig from '../../../config.js';
-import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
+import waspServerConfig from 'wasp/server/config';
+import { type {= userEntityUpper =}, type {= authEntityUpper =} } from 'wasp/entities'
 
 export async function createEmailVerificationLink(
   email: string,

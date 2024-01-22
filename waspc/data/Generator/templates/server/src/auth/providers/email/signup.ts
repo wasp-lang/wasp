@@ -9,17 +9,17 @@ import {
     deserializeAndSanitizeProviderData,
     sanitizeAndSerializeProviderData,
     rethrowPossibleAuthError,
-} from "../../utils.js";
+} from 'wasp/auth/utils';
 import {
     createEmailVerificationLink,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
 } from "./utils.js";
-import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
+import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from 'wasp/auth/validation';
 import { GetVerificationEmailContentFn } from './types.js';
-import { validateAndGetUserFields } from '../../utils.js'
+import { validateAndGetUserFields } from 'wasp/auth/utils'
 import HttpError from 'wasp/core/HttpError';
-import { type UserSignupFields } from '../types.js';
+import { type UserSignupFields } from 'wasp/auth/providers/types';
 
 export function getSignupRoute({
     userSignupFields,

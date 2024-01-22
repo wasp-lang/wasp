@@ -14,6 +14,7 @@
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
       {=!  Used by users, documented. =}
       "./core/HttpError": "./dist/core/HttpError.js",
+      {=!  Used by users, documented. =}
       "./core/AuthError": "./dist/core/AuthError.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/config": "./dist/core/config.js",
@@ -44,6 +45,10 @@
       "./auth/session": "./dist/auth/session.js",
       {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
       "./auth/utils": "./dist/auth/utils.js",
+      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      "./auth/password": "./dist/auth/password.js",
+      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      "./auth/validation": "./dist/auth/validation.js",
       {=!  Used by users, documented. =}
       "./auth/forms/Login": "./dist/auth/forms/Login.jsx",
       {=!  Used by users, documented. =}

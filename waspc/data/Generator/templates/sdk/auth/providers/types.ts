@@ -1,9 +1,10 @@
+{{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
-type UserEntityCreateInput = Prisma.UserCreateInput
+type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths

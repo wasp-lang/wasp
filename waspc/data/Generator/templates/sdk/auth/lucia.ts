@@ -1,14 +1,15 @@
+{{={= =}=}}
 import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-import prisma from '../server/dbClient.js'
-import { type User } from "../entities/index.js"
+import prisma from 'wasp/server/dbClient'
+import { type {= userEntityUpper =} } from "wasp/entities"
 
 const prismaAdapter = new PrismaAdapter(
   // Using `as any` here since Lucia's model types are not compatible with Prisma 4
   // model types. This is a temporary workaround until we migrate to Prisma 5.
   // This **works** in runtime, but Typescript complains about it.
-  prisma.session as any,
-  prisma.auth as any
+  prisma.{= sessionEntityLower =} as any,
+  prisma.{= authEntityLower =} as any
 );
 
 /**
@@ -23,7 +24,7 @@ const prismaAdapter = new PrismaAdapter(
  *    make fetching the User easier.
  */
 export const auth = new Lucia<{}, {
-  userId: User['id']
+  userId: {= userEntityUpper =}['id']
 }>(prismaAdapter, {
   // Since we are not using cookies, we don't need to set any cookie options.
   // But in the future, if we decide to use cookies, we can set them here.
@@ -48,7 +49,7 @@ declare module "lucia" {
     Lucia: typeof auth;
     DatabaseSessionAttributes: {};
     DatabaseUserAttributes: {
-      userId: User['id']
+      userId: {= userEntityUpper =}['id']
     };
   }
 }

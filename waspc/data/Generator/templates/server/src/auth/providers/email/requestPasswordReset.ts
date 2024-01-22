@@ -4,13 +4,13 @@ import {
     findAuthIdentity,
     doFakeWork,
     deserializeAndSanitizeProviderData,
-} from "../../utils.js";
+} from 'wasp/auth/utils';
 import {
     createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
 } from "./utils.js";
-import { ensureValidEmail } from "../../validation.js";
+import { ensureValidEmail } from 'wasp/auth/validation';
 import type { EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';
 import HttpError from 'wasp/core/HttpError';

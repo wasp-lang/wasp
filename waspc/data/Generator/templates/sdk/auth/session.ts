@@ -1,7 +1,8 @@
+{{={= =}=}}
 import { Request as ExpressRequest } from "express";
 
-import { type User } from "wasp/entities"
-import { type SanitizedUser } from 'wasp/server/_types/index.js'
+import { type {= userEntityUpper =} } from "wasp/entities"
+import { type SanitizedUser } from 'wasp/server/_types'
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
@@ -10,7 +11,7 @@ import {
   deserializeAndSanitizeProviderData,
 } from "./utils.js";
 
-import prisma from 'wasp/server/dbClient'
+import prisma from 'wasp/server/dbClient';
 
 // Creates a new session for the `authId` in the database
 export async function createSession(authId: string): Promise<Session> {
@@ -60,14 +61,14 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
   }
 }
 
-async function getUser(userId: User['id']): Promise<SanitizedUser> {
-  const user = await prisma.user
+async function getUser(userId: {= userEntityUpper =}['id']): Promise<SanitizedUser> {
+  const user = await prisma.{= userEntityLower =}
     .findUnique({
       where: { id: userId },
       include: {
-        auth: {
+        {= authFieldOnUserEntityName =}: {
           include: {
-            identities: true
+            {= identitiesFieldOnAuthEntityName =}: true
           }
         }
       }
@@ -77,11 +78,11 @@ async function getUser(userId: User['id']): Promise<SanitizedUser> {
     throwInvalidCredentialsError()
   }
 
-  // TODO: This logic must match the type in server/_types/index.ts (if we remove the
+  // TODO: This logic must match the type in _types/index.ts (if we remove the
   // password field from the object here, we must to do the same there).
   // Ideally, these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965
-  const deserializedIdentities = user.auth.identities.map((identity) => {
+  const deserializedIdentities = user.{= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =}.map((identity) => {
     const deserializedProviderData = deserializeAndSanitizeProviderData(
       identity.providerData,
       {

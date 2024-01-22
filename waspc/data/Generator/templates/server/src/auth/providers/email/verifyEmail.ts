@@ -5,7 +5,7 @@ import {
     findAuthIdentity,
     updateAuthIdentityProviderData,
     deserializeAndSanitizeProviderData,
-} from '../../utils.js';
+} from 'wasp/auth/utils';
 import { tokenVerificationErrors } from './types.js';
 import HttpError from 'wasp/core/HttpError';
 

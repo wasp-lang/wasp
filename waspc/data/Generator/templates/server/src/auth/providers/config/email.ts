@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Router, Request, Response, NextFunction } from "express";
 
-import { ProviderConfig } from "../types.js";
+import { ProviderConfig } from "wasp/auth/providers/types";
 import type { EmailFromField } from '../../../email/core/types.js';
 
 import { getLoginRoute } from "../email/login.js";
@@ -10,7 +10,7 @@ import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "../email/types.js";
-import { handleRejection } from "../../../utils.js";
+import { handleRejection } from "wasp/server/utils";
 
 {=# userSignupFields.isDefined =}
 {=& userSignupFields.importStatement =}

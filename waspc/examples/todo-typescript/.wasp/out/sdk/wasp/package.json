@@ -25,6 +25,8 @@
       "./auth/user": "./dist/auth/user.js",
       "./auth/session": "./dist/auth/session.js",
       "./auth/utils": "./dist/auth/utils.js",
+      "./auth/password": "./dist/auth/password.js",
+      "./auth/validation": "./dist/auth/validation.js",
       "./auth/forms/Login": "./dist/auth/forms/Login.jsx",
       "./auth/forms/Signup": "./dist/auth/forms/Signup.jsx",
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
