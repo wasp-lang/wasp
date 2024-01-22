@@ -15,10 +15,10 @@ import qualified Wasp.Message as Msg
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec dstDir sendMessage = do
   installNpmDependenciesWithInstallRecord spec dstDir >>= \case
-    warnsAndErrors@(_, _errors@[]) -> do
+    Right () -> do
       sendMessage $ Msg.Success "Successfully completed npm install."
-      (warnsAndErrors <>) <$> setUpDatabase spec dstDir sendMessage
-    warnsAndErrors -> return warnsAndErrors
+      setUpDatabase spec dstDir sendMessage
+    Left e -> return ([], [e])
 
 setUpDatabase :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 setUpDatabase spec dstDir sendMessage = do

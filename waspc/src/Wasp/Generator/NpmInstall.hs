@@ -5,15 +5,13 @@ where
 
 import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad (when)
+import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy as B
+import Data.Function ((&))
 import Data.Functor ((<&>))
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
-import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
 import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
@@ -21,55 +19,48 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Job (Job, JobMessage, JobType)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
-import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.Monad (GeneratorError (..))
+import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
+import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
-import Wasp.Generator.ServerGenerator as SG
 import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
-import Wasp.Generator.WebAppGenerator as WG
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 import Wasp.Project.Common (WaspProjectDir)
 
 -- Runs `npm install` for:
---   1. User's Wasp project (based on their package.json).
---   2. Wasp's generated webapp project.
---   3. Wasp's generated server project.
+--   1. User's Wasp project (based on their package.json): user deps.
+--   2. Wasp's generated webapp project: wasp deps.
+--   3. Wasp's generated server project: wasp deps.
 -- (1) runs first, (2) and (3) run concurrently after it.
 -- It collects the output produced by these commands to pass them along to IO with a prefix.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
   Path' Abs (Dir ProjectRootDir) ->
-  IO ([GeneratorWarning], [GeneratorError])
-installNpmDependenciesWithInstallRecord spec dstDir = do
-  messagesChan <- newChan
+  IO (Either GeneratorError ())
+installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
+  messagesChan <- liftIO newChan
 
-  installProjectNpmDependencies messagesChan (waspProjectDir spec) >>= \case
-    Left npmInstallError -> do
-      return ([], [GenericGeneratorError $ "npm install failed: " ++ npmInstallError])
-    Right () -> installWebAppAndServerNpmDependenciesIfNeeded messagesChan
+  allNpmDeps <- getAllNpmDeps spec & onLeftThrowError
+
+  liftIO (areThereNpmDepsToInstall allNpmDeps dstDir) >>= \case
+    False -> pure ()
+    True -> do
+      -- In case anything fails during installation that would leave node modules in
+      -- a broken state, we remove the log of installed npm deps before we start npm install.
+      liftIO $ forgetInstalledNpmDepsLog dstDir
+
+      liftIO (installProjectNpmDependencies messagesChan (waspProjectDir spec))
+        >>= onLeftThrowError
+
+      liftIO (installWebAppAndServerNpmDependencies messagesChan dstDir)
+        >>= onLeftThrowError
+
+      liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
+
+      pure ()
   where
-    installWebAppAndServerNpmDependenciesIfNeeded messagesChan = do
-      -- For webapp and server deps, we have this file where we write down what we previously installed,
-      -- so we can skip `npm install` if nothing changed since then.
-      -- Notice we don't currently have this for project/user deps, but could have.
-      isWaspNpmInstallNeeded spec dstDir >>= \case
-        Left errorMessage -> return ([], [GenericGeneratorError errorMessage])
-        Right maybeFullStackDeps -> case maybeFullStackDeps of
-          Nothing -> return ([], [])
-          Just fullStackDeps -> do
-            -- In case anything fails during installation that would leave node modules in
-            -- a broken state, we remove the file before we start npm install.
-            fileExists <- doesFileExist dependenciesInstalledFp
-            when fileExists $ removeFile dependenciesInstalledFp
-            installWebAppAndServerNpmDependencies messagesChan dstDir >>= \case
-              Left npmInstallError -> do
-                return ([], [GenericGeneratorError $ "npm install failed: " ++ npmInstallError])
-              Right () -> do
-                -- On successful npm install, record what we installed.
-                B.writeFile dependenciesInstalledFp (Aeson.encode fullStackDeps)
-                return ([], [])
-
-    dependenciesInstalledFp = SP.fromAbsFile $ dstDir </> installedFullStackWaspNpmDependenciesFileInProjectRootDir
+    onLeftThrowError =
+      either (\e -> throwError $ GenericGeneratorError $ "npm install failed: " ++ e) pure
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
@@ -82,10 +73,7 @@ installProjectNpmDependencies messagesChan projectDir =
       _success -> Right ()
   where
     installProjectDepsJob =
-      installNpmDependenciesAndReport
-        (SdkGenerator.installNpmDependencies projectDir)
-        messagesChan
-        J.Wasp
+      installNpmDependenciesAndReport (SdkGenerator.installNpmDependencies projectDir) messagesChan J.Wasp
     handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
     handleProjectInstallMessages = runPrefixedWriter . processMessages
       where
@@ -163,45 +151,20 @@ reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
         "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
       ]
 
--- | Figure out if installation of npm deps for Wasp code (web app, server) is needed.
---
--- Redundant npm installs can be avoided if the dependencies specified
--- by wasp have not changed since the last time this ran.
+-- | Figure out if installation of npm deps is needed, be it for user npm deps (top level
+-- package.json) or for wasp npm deps (web app, server).
 --
 -- To this end, this code keeps track of the dependencies installed with a metadata file, which
 -- it updates after each install.
-isWaspNpmInstallNeeded :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Either String (Maybe N.NpmDepsForFullStack))
-isWaspNpmInstallNeeded spec dstDir = do
-  let errorOrNpmDepsForFullStack = N.buildNpmDepsForFullStack spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
-  case errorOrNpmDepsForFullStack of
-    Left message -> return $ Left $ "determining npm deps to install failed: " ++ message
-    Right npmDepsForFullStack -> do
-      isInstallNeeded <- isWaspNpmInstallDifferent npmDepsForFullStack dstDir
-      return $
-        Right $
-          if isInstallNeeded
-            then Just npmDepsForFullStack
-            else Nothing
-
--- Returns True only if the stored wasp's full stack dependencies are different from the
--- the full stack dependencies in the argument. If an installation record is missing
--- then it's always different.
-isWaspNpmInstallDifferent :: N.NpmDepsForFullStack -> Path' Abs (Dir ProjectRootDir) -> IO Bool
-isWaspNpmInstallDifferent appSpecFullStackNpmDependencies dstDir = do
-  installedFullStackNpmDependencies <- loadInstalledFullStackWaspNpmDependencies dstDir
-  return $ Just appSpecFullStackNpmDependencies /= installedFullStackNpmDependencies
-
--- TODO: we probably want to put this in a `waspmeta` directory in the future
-installedFullStackWaspNpmDependenciesFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
-installedFullStackWaspNpmDependenciesFileInProjectRootDir = [relfile|installedFullStackNpmDependencies.json|]
-
--- Load the record of the Wasp's (webapp + server) npm dependencies we installed from disk.
-loadInstalledFullStackWaspNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe N.NpmDepsForFullStack)
-loadInstalledFullStackWaspNpmDependencies dstDir = do
-  let dependenciesInstalledFp = SP.fromAbsFile $ dstDir </> installedFullStackWaspNpmDependenciesFileInProjectRootDir
-  fileExists <- doesFileExist dependenciesInstalledFp
-  if fileExists
-    then do
-      fileContents <- B.readFile dependenciesInstalledFp
-      return (Aeson.decode fileContents :: Maybe N.NpmDepsForFullStack)
-    else return Nothing
+--
+-- TODO(martin): Here, we do a single check for all the deps. This means we don't know if user deps
+--   or wasp deps need installing, and so the user of this function will likely run `npm install`
+--   for all of them, which means 3 times (for user npm deps, for wasp webapp npm deps, for wasp
+--   server npm deps). We could, relatively easily, since we already differentiate all these deps,
+--   return exact info on which deps need installation, and therefore run only needed npm installs.
+--   We could return such info by either returning a triple (Bool, Bool, Bool) for (user, webapp, server) deps,
+--   or we could return a list of enum which says which deps to install.
+areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+areThereNpmDepsToInstall allNpmDeps dstDir = do
+  installedNpmDeps <- loadInstalledNpmDepsLog dstDir
+  return $ installedNpmDeps /= Just allNpmDeps

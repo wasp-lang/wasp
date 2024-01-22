@@ -4,6 +4,7 @@ module Wasp.Generator.NpmDependencies
   ( DependencyConflictError (..),
     getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
+    getUserNpmDepsForPackage,
     combineNpmDepsForPackage,
     NpmDepsForPackage (..),
     NpmDepsForPackageError (..),
@@ -12,7 +13,7 @@ module Wasp.Generator.NpmDependencies
     NpmDepsForFullStack,
     NpmDepsForWasp (..),
     NpmDepsForUser (..),
-    buildNpmDepsForFullStack,
+    buildWaspNpmDepsForFullStack,
   )
 where
 
@@ -33,8 +34,7 @@ data NpmDepsForFullStack = NpmDepsForFullStack
   }
   deriving (Show, Eq, Generic)
 
-instance ToJSON NpmDepsForFullStack where
-  toEncoding = genericToEncoding defaultOptions
+instance ToJSON NpmDepsForFullStack
 
 instance FromJSON NpmDepsForFullStack
 
@@ -43,6 +43,10 @@ data NpmDepsForPackage = NpmDepsForPackage
     devDependencies :: [D.Dependency]
   }
   deriving (Show, Generic)
+
+instance ToJSON NpmDepsForPackage
+
+instance FromJSON NpmDepsForPackage
 
 data NpmDepsForWasp = NpmDepsForWasp
   { waspDependencies :: [D.Dependency],
@@ -54,12 +58,11 @@ data NpmDepsForUser = NpmDepsForUser
   { userDependencies :: [D.Dependency],
     userDevDependencies :: [D.Dependency]
   }
-  deriving (Show)
+  deriving (Show, Eq, Generic)
 
-instance ToJSON NpmDepsForPackage where
-  toEncoding = genericToEncoding defaultOptions
+instance ToJSON NpmDepsForUser
 
-instance FromJSON NpmDepsForPackage
+instance FromJSON NpmDepsForUser
 
 data NpmDepsForPackageError = NpmDepsForPackageError
   { dependenciesConflictErrors :: [DependencyConflictError],
@@ -89,8 +92,8 @@ genNpmDepsForPackage spec npmDepsForWasp =
                   ++ devDependenciesConflictErrors conflictErrorDeps
               )
 
-buildNpmDepsForFullStack :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFullStack
-buildNpmDepsForFullStack spec forServer forWebApp =
+buildWaspNpmDepsForFullStack :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFullStack
+buildWaspNpmDepsForFullStack spec forServer forWebApp =
   case (combinedServerDeps, combinedWebAppDeps) of
     (Right a, Right b) ->
       Right
