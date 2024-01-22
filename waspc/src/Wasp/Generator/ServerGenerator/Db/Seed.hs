@@ -22,11 +22,8 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
-  return $
-    dbSeedTypesFd :
-    maybeToList dbSeedFd
+  return $ maybeToList dbSeedFd
   where
-    dbSeedTypesFd = C.mkSrcTmplFd [relfile|dbSeed/types.ts|]
     dbSeedFd =
       dbSeedsToTemplateData (getDbSeeds spec) <&> \tmplData ->
         C.mkTmplFdWithData
