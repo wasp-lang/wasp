@@ -7,25 +7,27 @@ app TodoTypescript {
   auth: {
     userEntity: User,
     methods: {
-      // usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
-      google: {
-        userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
+      usernameAndPassword: {
+        userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js"
       },
-      gitHub: {
-        userSignupFields: import { githubUserSignupFields } from "@src/user/userSignupFields.js"
-      },
-      email: {
-        userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
-        fromField: {
-          email: "waspy@app.com"
-        },
-        emailVerification: {
-          clientRoute: EmailVerificationRoute,
-        },
-        passwordReset: {
-          clientRoute: PasswordResetRoute,
-        }
-      } // https://wasp-lang.dev/docs/guides/email-auth
+      // google: {
+      //   userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
+      // },
+      // gitHub: {
+      //   userSignupFields: import { githubUserSignupFields } from "@src/user/userSignupFields.js"
+      // },
+      // email: {
+      //   userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
+      //   fromField: {
+      //     email: "waspy@app.com"
+      //   },
+      //   emailVerification: {
+      //     clientRoute: EmailVerificationRoute,
+      //   },
+      //   passwordReset: {
+      //     clientRoute: PasswordResetRoute,
+      //   }
+      // } // https://wasp-lang.dev/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
   },
@@ -68,21 +70,21 @@ page SignupPage {
   component: import { SignupPage } from "@src/user/auth.tsx"
 }
 
-route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
-page EmailVerification {
-  component: import { EmailVerificationPage } from "@src/user/auth.tsx"
-}
+// route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
+// page EmailVerification {
+//   component: import { EmailVerificationPage } from "@src/user/auth.tsx"
+// }
 
-route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
-page RequestPasswordReset {
-  component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
-}
+// route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
+// page RequestPasswordReset {
+//   component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
+// }
 
 
-route PasswordResetRoute { path: "/password-reset", to: PasswordReset }
-page PasswordReset {
-  component: import { PasswordResetPage } from "@src/user/auth.tsx"
-}
+// route PasswordResetRoute { path: "/password-reset", to: PasswordReset }
+// page PasswordReset {
+//   component: import { PasswordResetPage } from "@src/user/auth.tsx"
+// }
 
 query getTasks {
   // We specify the JS implementation of our query (which is an async JS function)
@@ -108,3 +110,8 @@ action deleteTasks {
   fn: import { deleteTasks } from "@src/task/actions",
   entities: [Task],
 }
+
+// api fooBar {
+//   fn: import { fooBar } from "@src/api.js",
+//   httpRoute: (GET, "/foo/bar")
+// }
