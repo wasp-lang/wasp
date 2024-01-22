@@ -7,12 +7,30 @@ app TodoTypescript {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
-      //google: {}, //https://wasp-lang.dev/docs/integrations/google
-      //gitHub: {}, //https://wasp-lang.dev/docs/integrations/github
-      //email: {} //https://wasp-lang.dev/docs/guides/email-auth
+      // usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
+      google: {
+        userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
+      },
+      gitHub: {
+        userSignupFields: import { githubUserSignupFields } from "@src/user/userSignupFields.js"
+      },
+      email: {
+        userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
+        fromField: {
+          email: "waspy@app.com"
+        },
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute,
+        }
+      } // https://wasp-lang.dev/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
+  },
+  emailSender: {
+    provider: Dummy
   }
 }
 
@@ -21,6 +39,7 @@ app TodoTypescript {
 // Then run `wasp db studio` to open Prisma Studio and view your db models
 entity User {=psl
   id          Int     @id @default(autoincrement())
+  address     String
   tasks       Task[]
 psl=}
 
@@ -41,12 +60,28 @@ page MainPage {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/user/LoginPage.tsx"
+  component: import { LoginPage } from "@src/user/auth.tsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@src/user/SignupPage.tsx"
+  component: import { SignupPage } from "@src/user/auth.tsx"
+}
+
+route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
+page EmailVerification {
+  component: import { EmailVerificationPage } from "@src/user/auth.tsx"
+}
+
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
+page RequestPasswordReset {
+  component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
+}
+
+
+route PasswordResetRoute { path: "/password-reset", to: PasswordReset }
+page PasswordReset {
+  component: import { PasswordResetPage } from "@src/user/auth.tsx"
 }
 
 query getTasks {
