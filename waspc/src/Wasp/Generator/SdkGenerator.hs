@@ -37,6 +37,7 @@ import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
@@ -94,6 +95,7 @@ genSdkReal spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genApis spec
   where
     genFileCopy = return . C.mkTmplFd
 

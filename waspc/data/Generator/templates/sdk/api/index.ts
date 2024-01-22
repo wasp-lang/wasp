@@ -2,7 +2,7 @@ import axios, { type AxiosError } from 'axios'
 
 import config from 'wasp/core/config'
 import { storage } from 'wasp/core/storage'
-import { apiEventsEmitter } from './events'
+import { apiEventsEmitter } from './events.js'
 
 const api = axios.create({
   baseURL: config.apiUrl,
