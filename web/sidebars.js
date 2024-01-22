@@ -91,6 +91,13 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'Wasp AI',
+      collapsed: false,
+      collapsible: false,
+      items: ['wasp-ai/creating-new-app', 'wasp-ai/developing-existing-app'],
+    },
+    {
+      type: 'category',
       label: 'Advanced Features',
       collapsed: false,
       collapsible: false,
