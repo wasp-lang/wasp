@@ -13,7 +13,6 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (fromMaybe, isJust, mapMaybe)
-import GHC.IO (unsafePerformIO)
 import StrongPath
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -29,20 +28,18 @@ import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft)
+import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
-import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import Wasp.Generator.Templates (getTemplatesDirAbsPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
@@ -51,9 +48,7 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec =
-  genSdkHardcoded
-    <++> genSdkReal spec
+genSdk spec = genSdkReal spec
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 buildSdk projectRootDir = do
@@ -89,6 +84,7 @@ genSdkReal spec =
       genServerUtils spec,
       genPackageJson spec
     ]
+    <++> genRpc spec
     <++> genAuth spec
     <++> genOperations spec
     <++> genUniversalDir
@@ -97,22 +93,20 @@ genSdkReal spec =
   where
     genFileCopy = return . C.mkTmplFd
 
-genSdkHardcoded :: Generator [FileDraft]
-genSdkHardcoded =
-  return
-    [ copyFolder [reldir|rpc|]
-    ]
-  where
-    -- copyFile = C.mkTmplFd
-    copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
-    copyFolder modul =
-      createCopyDirFileDraft
-        RemoveExistingDstDir
-        (dstFolder </> castRel modul)
-        (srcFolder </> modul)
-    dstFolder = C.sdkRootDirInProjectRootDir
-    srcFolder = absSdkTemplatesDir
-    absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
+-- genSdkHardcoded :: Generator [FileDraft]
+-- genSdkHardcoded =
+--   return []
+--   where
+--     copyFile = C.mkTmplFd
+--     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
+--     copyFolder modul =
+--       createCopyDirFileDraft
+--         RemoveExistingDstDir
+--         (dstFolder </> castRel modul)
+--         (srcFolder </> modul)
+--     dstFolder = C.sdkRootDirInProjectRootDir
+--     srcFolder = absSdkTemplatesDir
+--     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =

@@ -10,9 +10,6 @@ import {
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { MessageError, MessageSuccess } from './internal/Message'
-import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
-import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
-import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
 
 const logoStyle = {
   height: '3rem'
@@ -54,9 +51,6 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
   const titles: Record<State, string> = {
     login: 'Log in to your account',
     signup: 'Create a new account',
-    "forgot-password": "Forgot your password?",
-    "reset-password": "Reset your password",
-    "verify-email": "Email verification",
   }
   const title = titles[state]
 
@@ -83,9 +77,6 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
             additionalSignupFields={additionalSignupFields}
           />
         )}
-        {state === 'forgot-password' && (<ForgotPasswordForm />)}
-        {state === 'reset-password' && (<ResetPasswordForm />)}
-        {state === 'verify-email' && (<VerifyEmailForm />)}
       </AuthContext.Provider>
     </Container>
   )
