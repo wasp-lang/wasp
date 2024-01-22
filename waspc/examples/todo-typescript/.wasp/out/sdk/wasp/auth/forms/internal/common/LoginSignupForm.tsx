@@ -92,6 +92,7 @@ const SocialAuthButtons = styled('div', {
     }
 })
 const googleSignInUrl = `${config.apiUrl}/auth/google/login`
+const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 
 export type LoginSignupFormFields = {
   [key: string]: string;
@@ -148,6 +149,7 @@ export const LoginSignupForm = ({
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
 
+              <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
           </SocialAuthButtons>
         </SocialAuth>
         <OrContinueWith>

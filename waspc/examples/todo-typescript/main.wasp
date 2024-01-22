@@ -10,8 +10,10 @@ app TodoTypescript {
       // usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
       google: {
         userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
-      }, //https://wasp-lang.dev/docs/integrations/google
-      //gitHub: {}, //https://wasp-lang.dev/docs/integrations/github
+      },
+      gitHub: {
+        userSignupFields: import { githubUserSignupFields } from "@src/user/userSignupFields.js"
+      },
       email: {
         userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
         fromField: {
