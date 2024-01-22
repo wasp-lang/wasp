@@ -7,10 +7,10 @@ import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from '../../queries'
-import config from '../../config'
-import { HttpMethod, Route } from '../../types'
+import config from 'wasp/core/config'
+import { HttpMethod, Route } from 'wasp/types'
 
-export type { Route } from '../../types'
+export type { Route } from 'wasp/types'
 
 export type MockQuery = <Input, Output, MockOutput extends Output>(
   query: Query<Input, Output>,

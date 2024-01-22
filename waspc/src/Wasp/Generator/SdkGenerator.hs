@@ -83,6 +83,7 @@ genSdkReal spec =
       genFileCopy [relfile|operations/index.ts|],
       genFileCopy [relfile|operations/updateHandlersMap.js|],
       genFileCopy [relfile|server/dbClient.ts|],
+      genFileCopy [relfile|types/index.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -99,8 +100,7 @@ genSdkReal spec =
 genSdkHardcoded :: Generator [FileDraft]
 genSdkHardcoded =
   return
-    [ copyFolder [reldir|rpc|],
-      copyFolder [reldir|types|]
+    [ copyFolder [reldir|rpc|]
     ]
   where
     -- copyFile = C.mkTmplFd
