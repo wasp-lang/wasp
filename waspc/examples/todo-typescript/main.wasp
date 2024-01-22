@@ -116,7 +116,7 @@ action deleteTasks {
   entities: [Task],
 }
 
-// api fooBar {
-//   fn: import { fooBar } from "@src/api.js",
-//   httpRoute: (GET, "/foo/bar")
-// }
+api fooBar {
+  fn: import { fooBar } from "@src/api.js",
+  httpRoute: (GET, "/foo/bar")
+}
