@@ -42,18 +42,30 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/user": "./dist/auth/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/helpers/user": "./dist/auth/helpers/user.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/session": "./dist/auth/session.js",
-      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      {=!  Used by user, documented. =}
+      "./auth/providers/types": "./dist/auth/providers/types.js",
+      {=!  Used by user, documented. =}
       "./auth/utils": "./dist/auth/utils.js",
-      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/password": "./dist/auth/password.js",
-      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/jwt": "./dist/auth/jwt.js",
+      {=!  Used by user, documented. =}
       "./auth/validation": "./dist/auth/validation.js",
       {=!  Used by users, documented. =}
       "./auth/forms/Login": "./dist/auth/forms/Login.jsx",
       {=!  Used by users, documented. =}
       "./auth/forms/Signup": "./dist/auth/forms/Signup.jsx",
-      {=!  Not sure who uses this, ask Miho. Our code definitely does, I don't know about the users =}
+      {=!  Used by users, documented. =}
+      "./auth/forms/VerifyEmail": "./dist/auth/forms/VerifyEmail.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/ForgotPassword": "./dist/auth/forms/ForgotPassword.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/ResetPassword": "./dist/auth/forms/ResetPassword.jsx",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by users, documented. =}
       "./api": "./dist/api/index.js",

@@ -17,9 +17,9 @@ import {
   validateAndGetUserFields,
 } from 'wasp/auth/utils'
 import { createSession } from "wasp/auth/session"
-import { type {= authEntityUpper =} } from "wasp/auth/entities"
+import { type {= authEntityUpper =} } from "wasp/entities"
 import type { ProviderConfig, RequestWithWasp, UserSignupFields } from "wasp/auth/providers/types"
-import { handleRejection } from "wasp/auth/utils"
+import { handleRejection } from "wasp/server/utils"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.

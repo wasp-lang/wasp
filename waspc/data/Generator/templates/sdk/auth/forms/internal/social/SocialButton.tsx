@@ -1,4 +1,4 @@
-import { styled } from 'wasp/stitches.config'
+import { styled } from 'wasp/core/stitches.config'
 
 export const SocialButton = styled('a', {
   display: 'flex',
