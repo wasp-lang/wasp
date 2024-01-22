@@ -107,9 +107,9 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
     getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
-operationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel C.SdkRootDir) Dir'
-operationsDirInSdkRootDir (AS.Operation.QueryOp _ _) = [reldir|server/queries|]
-operationsDirInSdkRootDir (AS.Operation.ActionOp _ _) = [reldir|server/actions|]
+serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel C.SdkRootDir) Dir'
+serverOperationsDirInSdkRootDir (AS.Operation.QueryOp _ _) = [reldir|server/queries|]
+serverOperationsDirInSdkRootDir (AS.Operation.ActionOp _ _) = [reldir|server/actions|]
 
 getOperationTmplData :: AS.Operation.Operation -> Aeson.Value
 getOperationTmplData operation =

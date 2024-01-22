@@ -47,7 +47,6 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.JsImport
@@ -235,7 +234,6 @@ genSrcDir spec =
       genFileCopy [relfile|vite-env.d.ts|],
       getIndexTs spec
     ]
-    <++> genOperations spec
     <++> genEntitiesDir spec
     <++> genAuth spec
     <++> genWebSockets spec
@@ -288,10 +286,10 @@ genEnvValidationScript =
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-      sequence
-        [ genFileCopy [relfile|webSocket.ts|],
-          genWebSocketProvider spec
-        ]
+    sequence
+      [ genFileCopy [relfile|webSocket.ts|],
+        genWebSocketProvider spec
+      ]
   | otherwise = return []
   where
     genFileCopy = return . C.mkSrcTmplFd

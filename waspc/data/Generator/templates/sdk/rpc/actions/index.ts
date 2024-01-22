@@ -1,14 +1,12 @@
+{{={= =}=}}
 import { createAction } from './core'
-import { CreateTask, UpdateTask } from 'wasp/server/actions'
+{=# actions =}
+{=& operationTypeImportStmt =}
+{=/ actions =}
+{=# actions =}
 
-export const updateTask = createAction<UpdateTask>('operations/update-task', [
-  'Task',
-])
-
-export const createTask = createAction<CreateTask>('operations/create-task', [
-  'Task',
-])
-
-export const deleteTasks = createAction<CreateTask>('operations/delete-tasks', [
-  'Task',
-])
+export const {= operationName =} = createAction<{= operationTypeName =}>(
+  '{= actionRoute =}',
+  {=& entitiesArray =},
+)
+{=/ actions =}

@@ -1,8 +1,8 @@
 import prisma from 'wasp/server/dbClient'
 
-import { createTask as createTask_ext } from 'wasp/ext-src/task/actions'
-import { updateTask as updateTask_ext } from 'wasp/ext-src/task/actions'
-import { deleteTasks as deleteTasks_ext } from 'wasp/ext-src/task/actions'
+import { createTask as createTask_ext } from 'wasp/ext-src/task/actions.js'
+import { updateTask as updateTask_ext } from 'wasp/ext-src/task/actions.js'
+import { deleteTasks as deleteTasks_ext } from 'wasp/ext-src/task/actions.js'
 
 export type CreateTask = typeof createTask_ext 
 
