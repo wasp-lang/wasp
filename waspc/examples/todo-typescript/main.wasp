@@ -40,6 +40,9 @@ app TodoTypescript {
     ],
     system: PostgreSQL
   },
+  server: {
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup.js"
+  }
 }
 
 // Use Prisma Schema Language (PSL) to define our entities: https://www.prisma.io/docs/concepts/components/prisma-schema
@@ -120,4 +123,9 @@ action deleteTasks {
 api fooBar {
   fn: import { fooBar } from "@src/api.js",
   httpRoute: (GET, "/foo/bar")
+}
+
+apiNamespace fooBarNamespace {
+  middlewareConfigFn: import { fooBarNamespace } from "@src/serverSetup.js",
+  path: "/foo/bar"
 }
