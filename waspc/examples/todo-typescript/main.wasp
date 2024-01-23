@@ -38,6 +38,7 @@ app TodoTypescript {
     seeds: [
       import { seedMyDb } from "@src/db/seeds.js"
     ]
+    system: PostgreSQL,
   }
 }
 
@@ -113,5 +114,13 @@ action updateTask {
 
 action deleteTasks {
   fn: import { deleteTasks } from "@src/task/actions.js",
+  entities: [Task],
+}
+
+job PrintTimeAndNumberOfTasks {
+  executor: PgBoss,
+  perform: {
+    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
+  },
   entities: [Task],
 }
