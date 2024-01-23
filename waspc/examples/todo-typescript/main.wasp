@@ -37,8 +37,9 @@ app TodoTypescript {
   db: {
     seeds: [
       import { seedMyDb } from "@src/db/seeds.js"
-    ]
-  }
+    ],
+    system: PostgreSQL
+  },
 }
 
 // Use Prisma Schema Language (PSL) to define our entities: https://www.prisma.io/docs/concepts/components/prisma-schema
