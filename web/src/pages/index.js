@@ -53,8 +53,6 @@ const Index = () => {
         <meta property='twitter:url' content='https://wasp-lang.dev/' />
         <meta property='twitter:title' content='Develop full-stack web apps without boilerplate.' />
         <meta property='twitter:image' content={coverPhotoAbsoluteUrl} />
-
-        <script id="wasp-langdev-2392a8eb" src="https://letsask.ai/widget.js"></script>
       </Head>
       <Nav />
       <div className='min-h-screen'>
