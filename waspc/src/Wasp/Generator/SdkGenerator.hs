@@ -93,6 +93,7 @@ genSdkReal spec =
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genApis spec
+    <++> genMiddleware spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -286,3 +287,10 @@ genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
+
+genMiddleware :: AppSpec -> Generator [FileDraft]
+genMiddleware _spec =
+  sequence
+    [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
+      return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    ]
