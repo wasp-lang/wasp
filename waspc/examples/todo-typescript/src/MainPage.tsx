@@ -1,4 +1,4 @@
-import "./Main.css";
+import './Main.css'
 import React, { useEffect, FormEventHandler, FormEvent } from 'react'
 import logout from 'wasp/auth/logout'
 import { useQuery, useAction } from 'wasp/rpc' // Wasp uses a thin wrapper around react-query
@@ -15,8 +15,8 @@ export const MainPage = ({ user }: { user: User }) => {
 
   const { data: allTasks } = Tasks.getAll.useQuery()
 
-  if (isLoading) return "Loading..."
-  if (error) return "Error: " + error
+  if (isLoading) return 'Loading...'
+  if (error) return 'Error: ' + error
 
   const completed = tasks?.filter((task) => task.isDone).map((task) => task.id)
 

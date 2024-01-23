@@ -148,10 +148,17 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName
 
--- extImportToImportJson ::
---   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
---   Maybe EI.ExtImport ->
---   Aeson.Value
--- extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
+-- extImportToImportJson :: EI.ExtImport -> Aeson.Value
+-- extImportToImportJson extImport@(EI.ExtImport importName importPath) =
+--   object
+--     [ "isDefined" .= True,
+--       "importStatement" .= Debug.trace jsImportStmt jsImportStmt,
+--       "importIdentifier" .= importAlias
+--     ]
 --   where
---     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
+--     jsImportStmt = case importName of
+--       EI.ExtImportModule n -> "import " ++ n ++ " from '" ++ importPathStr ++ "'"
+--       EI.ExtImportField n -> "import { " ++ n ++ " as " ++ importAlias ++ " } from '" ++ importPathStr ++ "'"
+--     importPathStr = C.makeSdkImportPath $ extCodeDirP </> SP.castRel importPath
+--     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
+-- importAlias = EI.importIdentifier extImport ++ "User"
