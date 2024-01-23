@@ -38,7 +38,7 @@ app TodoTypescript {
     seeds: [
       import { seedMyDb } from "@src/db/seeds.js"
     ]
-    system: PostgreSQL,
+    system: PostgreSQL
   }
 }
 
