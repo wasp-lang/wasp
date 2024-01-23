@@ -80,6 +80,7 @@ genSdkReal spec =
       genFileCopy [relfile|operations/updateHandlersMap.js|],
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
+      genFileCopy [relfile|dbSeed/types.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,

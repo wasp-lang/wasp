@@ -33,6 +33,11 @@ app TodoTypescript {
   },
   emailSender: {
     provider: Dummy
+  },
+  db: {
+    seeds: [
+      import { seedMyDb } from "@src/db/seeds.js"
+    ]
   }
 }
 

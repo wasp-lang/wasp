@@ -103,7 +103,9 @@
       {=!  Used by users, documented. =}
       "./crud/*": "./dist/crud/*",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./server/crud/*": "./dist/server/crud/*"
+      "./server/crud/*": "./dist/server/crud/*",
+      {=!  Used by users, documented. =}
+      "./dbSeed/types": "./dist/dbSeed/types.js"
    },
    "license": "ISC",
     "include": [
