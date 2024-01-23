@@ -48,7 +48,8 @@
       "./server/config": "./dist/server/config.js",
       "./server/utils": "./dist/server/utils.js",
       "./server/actions": "./dist/server/actions/index.js",
-      "./server/queries": "./dist/server/queries/index.js"
+      "./server/queries": "./dist/server/queries/index.js",
+      "./dbSeed/types": "./dist/dbSeed/types.js"
    },
    "license": "ISC",
     "include": [

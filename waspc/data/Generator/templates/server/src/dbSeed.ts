@@ -7,7 +7,7 @@
 //   maintaining access to logic from the server/ .
 
 import prismaClient from 'wasp/server/dbClient'
-import type { DbSeedFn } from './dbSeed/types.js'
+import type { DbSeedFn } from 'wasp/dbSeed/types'
 
 {=# dbSeeds =}
 {=& importStatement =}

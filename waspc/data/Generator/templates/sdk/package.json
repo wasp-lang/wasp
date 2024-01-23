@@ -95,7 +95,9 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/actions": "./dist/server/actions/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./server/queries": "./dist/server/queries/index.js"
+      "./server/queries": "./dist/server/queries/index.js",
+      {=!  Used by users, documented. =}
+      "./dbSeed/types": "./dist/dbSeed/types.js"
    },
    "license": "ISC",
     "include": [
