@@ -10,7 +10,6 @@ import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as B
-import Data.Functor ((<&>))
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
@@ -26,9 +25,7 @@ import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.ServerGenerator as SG
-import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
 import Wasp.Generator.WebAppGenerator as WG
-import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | Figure out if npm install is needed.
@@ -76,7 +73,7 @@ installNpmDependenciesWithInstallRecord npmDepsForFullStack waspProjectDir dstDi
   fileExists <- doesFileExist dependenciesInstalledFp
   when fileExists $ removeFile dependenciesInstalledFp
   -- now actually do the installation
-  npmInstallResult <- installNpmDependencies waspProjectDir dstDir
+  npmInstallResult <- installNpmDependencies waspProjectDir
   case npmInstallResult of
     Left npmInstallError -> do
       return ([], [GenericGeneratorError $ "npm install failed: " ++ npmInstallError])
@@ -143,24 +140,12 @@ installNpmDependenciesAndReport installJob chan jobType = do
 -- Run the individual `npm install` commands for both server and webapp projects
 -- It runs these concurrently, collects the output produced by these commands
 -- to pass them along to IO with a prefix
-installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-installNpmDependencies projectDir dstDir = do
+installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+installNpmDependencies projectDir = do
   messagesChan <- newChan
   installProjectNpmDependencies messagesChan projectDir >>= \case
     ExitFailure code -> return $ Left $ "Project setup failed with exit code " ++ show code ++ "."
-    _success -> do
-      installWebAppAndServerNpmDependencies messagesChan dstDir <&> \case
-        (ExitSuccess, ExitSuccess) -> Right ()
-        exitCodes -> Left $ setupFailedMessage exitCodes
-  where
-    setupFailedMessage (serverExitCode, webAppExitCode) =
-      let serverErrorMessage = case serverExitCode of
-            ExitFailure code -> " Server setup failed with exit code " ++ show code ++ "."
-            _success -> ""
-          webAppErrorMessage = case webAppExitCode of
-            ExitFailure code -> " Web app setup failed with exit code " ++ show code ++ "."
-            _success -> ""
-       in "Setup failed!" ++ serverErrorMessage ++ webAppErrorMessage
+    _ -> return $ Right ()
 
 installProjectNpmDependencies ::
   Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO ExitCode
@@ -181,27 +166,3 @@ installProjectNpmDependencies messagesChan projectDir =
           case J._data jobMsg of
             J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
             J.JobExit {} -> return ()
-
-installWebAppAndServerNpmDependencies ::
-  Chan JobMessage -> SP.Path SP.System Abs (Dir ProjectRootDir) -> IO (ExitCode, ExitCode)
-installWebAppAndServerNpmDependencies messagesChan dstDir =
-  snd <$> handleSetupJobsMessages messagesChan `concurrently` (installServerDepsJob `concurrently` installWebAppDepsJob)
-  where
-    installServerDepsJob = installNpmDependenciesAndReport (ServerSetup.installNpmDependencies dstDir) messagesChan J.Server
-    installWebAppDepsJob = installNpmDependenciesAndReport (WebAppSetup.installNpmDependencies dstDir) messagesChan J.WebApp
-
-    handleSetupJobsMessages = runPrefixedWriter . processMessages (False, False)
-      where
-        processMessages :: (Bool, Bool) -> Chan J.JobMessage -> PrefixedWriter ()
-        processMessages (True, True) _ = return ()
-        processMessages (isWebAppDone, isServerDone) chan = do
-          jobMsg <- liftIO $ readChan chan
-          case J._data jobMsg of
-            J.JobOutput {} ->
-              printJobMessagePrefixed jobMsg
-                >> processMessages (isWebAppDone, isServerDone) chan
-            J.JobExit {} -> case J._jobType jobMsg of
-              J.WebApp -> processMessages (True, isServerDone) chan
-              J.Server -> processMessages (isWebAppDone, True) chan
-              J.Db -> error "This should never happen. No Db job should be active."
-              J.Wasp -> error "This should never happen. No Wasp job should be active."
