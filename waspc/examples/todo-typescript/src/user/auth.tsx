@@ -1,8 +1,8 @@
-//import { ResetPasswordForm } from "wasp/auth/forms/ResetPassword";
+// import { ResetPasswordForm } from "wasp/auth/forms/ResetPassword";
 import { LoginForm } from "wasp/auth/forms/Login";
-//import { VerifyEmailForm } from "wasp/auth/forms/VerifyEmail";
+// import { VerifyEmailForm } from "wasp/auth/forms/VerifyEmail";
 import { SignupForm } from "wasp/auth/forms/Signup";
-//import { ForgotPasswordForm } from "wasp/auth/forms/ForgotPassword";
+// import { ForgotPasswordForm } from "wasp/auth/forms/ForgotPassword";
 import { Link } from "react-router-dom";
 
 export function SignupPage() {
@@ -46,14 +46,14 @@ export function LoginPage() {
   );
 }
 
-/* export function RequestPasswordResetPage() {
-*   return <ForgotPasswordForm />;
-* }
-* 
-* export function PasswordResetPage() {
-*   return <ResetPasswordForm />;
-* }
-* 
-* export function EmailVerificationPage() {
-*   return <VerifyEmailForm />;
-* } */
+// export function RequestPasswordResetPage() {
+//   return <ForgotPasswordForm />;
+// }
+
+// export function PasswordResetPage() {
+//   return <ResetPasswordForm />;
+// }
+
+// export function EmailVerificationPage() {
+//   return <VerifyEmailForm />;
+// }

@@ -33,6 +33,11 @@ app TodoTypescript {
   },
   emailSender: {
     provider: Dummy
+  },
+  db: {
+    seeds: [
+      import { seedMyDb } from "@src/db/seeds.js"
+    ]
   }
 }
 
@@ -90,24 +95,24 @@ query getTasks {
   // We specify the JS implementation of our query (which is an async JS function)
   // Even if you use TS and have a queries.ts file, you will still need to import it using the .js extension.
   // see here for more info: https://wasp-lang.dev/docs/tutorials/todo-app/03-listing-tasks#wasp-declaration
-  fn: import { getTasks } from "@src/task/queries",
+  fn: import { getTasks } from "@src/task/queries.js",
   // We tell Wasp that this query is doing something with the `Task` entity. With that, Wasp will
   // automatically refresh the results of this query when tasks change.
   entities: [Task]
 }
 
 action createTask {
-  fn: import { createTask } from "@src/task/actions",
+  fn: import { createTask } from "@src/task/actions.js",
   entities: [Task]
 }
 
 action updateTask {
-  fn: import { updateTask } from "@src/task/actions",
+  fn: import { updateTask } from "@src/task/actions.js",
   entities: [Task]
 }
 
 action deleteTasks {
-  fn: import { deleteTasks } from "@src/task/actions",
+  fn: import { deleteTasks } from "@src/task/actions.js",
   entities: [Task],
 }
 

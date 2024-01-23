@@ -1,6 +1,14 @@
+{{={= =}=}}
 import { createQuery } from './core'
-import { GetTasks } from 'wasp/server/queries'
+{=# queries =}
+{=& operationTypeImportStmt =}
+{=/ queries =}
+{=# queries =}
 
-export const getTasks = createQuery<GetTasks>('operations/get-tasks', ['Task'])
+export const {= operationName =} = createQuery<{= operationTypeName =}>(
+  '{= queryRoute =}',
+  {=& entitiesArray =},
+)
+{=/ queries =}
 
 export { addMetadataToQuery } from './core'

@@ -1,4 +1,4 @@
-import { type Action } from '.'
+import { type Action } from '..'
 import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
 
 export function createAction<BackendAction extends GenericBackendAction>(
