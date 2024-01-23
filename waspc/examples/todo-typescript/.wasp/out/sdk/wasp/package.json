@@ -49,7 +49,9 @@
       "./server/utils": "./dist/server/utils.js",
       "./server/actions": "./dist/server/actions/index.js",
       "./server/queries": "./dist/server/queries/index.js",
-      "./dbSeed/types": "./dist/dbSeed/types.js"
+      "./dbSeed/types": "./dist/dbSeed/types.js",
+      "./jobs/*": "./dist/jobs/*",
+      "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js"
    },
    "license": "ISC",
     "include": [

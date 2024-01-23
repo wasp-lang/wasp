@@ -37,6 +37,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -80,6 +81,7 @@ genSdkReal spec =
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],
+      genFileCopy [relfile|jobs/pgBoss/types.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -91,6 +93,7 @@ genSdkReal spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genJobTypes spec
   where
     genFileCopy = return . C.mkTmplFd
 

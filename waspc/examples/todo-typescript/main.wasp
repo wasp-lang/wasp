@@ -123,4 +123,7 @@ job PrintTimeAndNumberOfTasks {
     fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
   },
   entities: [Task],
+  schedule: {
+    cron: "* * * * *"
+  }
 }
