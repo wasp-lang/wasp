@@ -88,8 +88,10 @@
       "./universal/validators": "./dist/universal/validators.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/dbClient": "./dist/server/dbClient.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by users and by our code, documented. =}
       "./server/config": "./dist/server/config.js",
+      {=!  Used by users and by our code, documented. =}
+      "./server/middleware": "./dist/server/middleware/index.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
