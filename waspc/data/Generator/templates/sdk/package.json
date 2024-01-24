@@ -33,6 +33,8 @@
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
       {=!  Used by users, documented. =}
       "./types": "./dist/types/index.js",
+      {=!  Used by user, documented. =}
+      "./auth": "./dist/auth/index.js",
       {=!  Used by users, documented. =}
       "./auth/login": "./dist/auth/login.js",
       {=!  Used by users, documented. =}
@@ -47,7 +49,7 @@
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/session": "./dist/auth/session.js",
-      {=!  Used by user, documented. =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/providers/types": "./dist/auth/providers/types.js",
       {=!  Used by user, documented. =}
       "./auth/utils": "./dist/auth/utils.js",

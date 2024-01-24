@@ -27,6 +27,7 @@
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
       "./auth/session": "./dist/auth/session.js",
       "./auth/providers/types": "./dist/auth/providers/types.js",
+      "./auth": "./dist/auth/index.js",
       "./auth/utils": "./dist/auth/utils.js",
       "./auth/password": "./dist/auth/password.js",
       "./auth/jwt": "./dist/auth/jwt.js",
