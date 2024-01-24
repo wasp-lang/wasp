@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Wasp.Generator.SdkGenerator.RouterGenerator
   ( genRouter,
   )
@@ -28,12 +26,7 @@ genRouter spec =
     genFileCopy = return . C.mkTmplFd
 
 genRouterTsx :: AppSpec -> Generator FileDraft
-genRouterTsx spec = do
-  return $
-    C.mkTmplFdWithDstAndData
-      [relfile|router/index.ts|]
-      [relfile|router/index.ts|]
-      (Just tmplData)
+genRouterTsx spec = return $ C.mkTmplFdWithData [relfile|router/index.ts|] tmplData
   where
     tmplData =
       object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]

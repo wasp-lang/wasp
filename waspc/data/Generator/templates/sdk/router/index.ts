@@ -3,6 +3,7 @@ import { interpolatePath } from './linkHelpers'
 import type {
   RouteDefinitionsToRoutes,
   OptionalRouteOptions,
+  ParamValue,
 } from './types'
 
 export const routes = {
