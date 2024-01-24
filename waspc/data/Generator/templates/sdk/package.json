@@ -43,7 +43,7 @@
       "./auth/signup": "./dist/auth/signup.js",
       {=!  Used by users, documented. =}
       "./auth/useAuth": "./dist/auth/useAuth.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by users, documented. =}
       "./auth/user": "./dist/auth/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
