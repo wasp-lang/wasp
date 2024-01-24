@@ -73,6 +73,10 @@
       "./auth/forms/ForgotPassword": "./dist/auth/forms/ForgotPassword.jsx",
       {=!  Used by users, documented. =}
       "./auth/forms/ResetPassword": "./dist/auth/forms/ResetPassword.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/internal/Form": "./dist/auth/forms/internal/Form.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/helpers/*": "./dist/auth/helpers/*.jsx",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by users, documented. =}
