@@ -78,7 +78,6 @@ genServer spec =
     <++> genJobExecutors spec
     <++> genPatches spec
     <++> genEnvValidationScript
-    <++> genExportedTypesDir spec
     <++> genApis spec
     <++> genCrud spec
   where
@@ -314,19 +313,6 @@ genEnvValidationScript =
   return
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
     ]
-
-genExportedTypesDir :: AppSpec -> Generator [FileDraft]
-genExportedTypesDir spec =
-  return
-    [ C.mkTmplFdWithData [relfile|src/types/index.ts|] (Just tmplData)
-    ]
-  where
-    tmplData =
-      object
-        [ "isEmailAuthEnabled" .= isEmailAuthEnabled
-        ]
-    isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
-    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =
