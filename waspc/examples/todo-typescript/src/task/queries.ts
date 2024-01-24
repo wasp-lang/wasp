@@ -1,4 +1,5 @@
 import HttpError from 'wasp/core/HttpError'
+import AuthError from 'wasp/core/AuthError'
 import type { GetTasks } from 'wasp/server/queries/types'
 import type { Task } from 'wasp/entities'
 import { ensureValidEmail } from 'wasp/auth/validation'
@@ -9,6 +10,8 @@ export const getTasks = ((_args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
+
+  console.log(AuthError);
 
   console.log(createProviderId);
   ensureValidEmail({ email: "wasp@gmail.com"});
