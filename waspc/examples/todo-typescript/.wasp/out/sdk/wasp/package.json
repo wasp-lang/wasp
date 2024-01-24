@@ -37,7 +37,7 @@
       "./auth/forms/ResetPassword": "./dist/auth/forms/ResetPassword.jsx",
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       "./api": "./dist/api/index.js",
-      "./api/*": "./dist/api/*",
+      "./api/events": "./dist/api/events.js",
       "./operations": "./dist/operations/index.js",
       "./ext-src/*": "./dist/ext-src/*.js",
       "./operations/*": "./dist/operations/*",
