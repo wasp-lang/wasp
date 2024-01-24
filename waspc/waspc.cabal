@@ -300,6 +300,7 @@ library
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.RpcGenerator
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
+    Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
