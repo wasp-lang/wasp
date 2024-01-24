@@ -41,8 +41,11 @@ app TodoTypescript {
     system: PostgreSQL
   },
   server: {
-    setupFn: import { serverSetup } from "@src/serverSetup.js",
-    middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup.js"
+    setupFn: import { serverSetup } from "@src/setup/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/setup/serverSetup.js"
+  },
+  client: {
+    setupFn: import setup from "@src/setup/clientSetup.js"
   }
 }
 
@@ -127,6 +130,6 @@ api fooBar {
 }
 
 apiNamespace fooBarNamespace {
-  middlewareConfigFn: import { fooBarNamespace } from "@src/serverSetup.js",
+  middlewareConfigFn: import { fooBarNamespace } from "@src/setup/serverSetup.js",
   path: "/foo/bar"
 }
