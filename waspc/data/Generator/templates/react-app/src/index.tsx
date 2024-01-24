@@ -14,7 +14,7 @@ import {
 {=/ setupFn.isDefined =}
 
 {=# areWebSocketsUsed =}
-import { WebSocketProvider } from './webSocket/WebSocketProvider'
+import { WebSocketProvider } from 'wasp/webSocket/WebSocketProvider'
 {=/ areWebSocketsUsed =}
 
 startApp()

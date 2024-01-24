@@ -8,6 +8,7 @@ import waspLogo from './waspLogo.png'
 import type { Task } from 'wasp/entities'
 import type { User } from 'wasp/auth/types'
 import { getFirstProviderUserId } from 'wasp/auth/user'
+import { Link } from "react-router-dom"
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -20,6 +21,9 @@ export const MainPage = ({ user }: { user: User }) => {
   return (
     <main>
       <img src={waspLogo} alt="wasp logo" />
+      <Link to="/chat">
+        Wonna chat?
+      </Link>
       {user && (
         <h1>
           {getFirstProviderUserId(user)}

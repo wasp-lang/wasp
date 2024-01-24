@@ -40,6 +40,10 @@ app TodoTypescript {
     ],
     system: PostgreSQL
   },
+  webSocket: {
+    fn: import { webSocketFn } from "@src/websocket/index.js",
+    autoConnect: true,
+  },
 }
 
 // Use Prisma Schema Language (PSL) to define our entities: https://www.prisma.io/docs/concepts/components/prisma-schema
@@ -74,6 +78,11 @@ page LoginPage {
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
   component: import { SignupPage } from "@src/user/auth.tsx"
+}
+
+route ChatRoute { path: "/chat", to: Chat }
+page Chat {
+  component: import { ChatPage } from "@src/ChatPage.tsx"
 }
 
 // route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
