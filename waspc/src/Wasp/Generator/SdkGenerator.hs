@@ -39,6 +39,7 @@ import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
+import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -96,6 +97,9 @@ genSdkReal spec =
     <++> genEntitiesAndServerTypesDirs spec
     <++> genJobTypes spec
     <++> genApis spec
+    <++> genRouter spec
+    <++> genMiddleware spec
+    <++> genExportedTypesDir spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -289,3 +293,14 @@ genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
+
+genExportedTypesDir :: AppSpec -> Generator [FileDraft]
+genExportedTypesDir _spec =
+  return [C.mkTmplFd [relfile|server/types/index.ts|]]
+
+genMiddleware :: AppSpec -> Generator [FileDraft]
+genMiddleware _spec =
+  sequence
+    [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
+      return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    ]

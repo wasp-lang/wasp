@@ -39,6 +39,13 @@ app TodoTypescript {
       import { seedMyDb } from "@src/db/seeds.js"
     ],
     system: PostgreSQL
+  },
+  server: {
+    setupFn: import { serverSetup } from "@src/setup/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/setup/serverSetup.js"
+  },
+  client: {
+    setupFn: import setup from "@src/setup/clientSetup.js"
   }
 }
 
@@ -131,4 +138,9 @@ job PrintTimeAndNumberOfTasks {
 api fooBar {
   fn: import { fooBar } from "@src/api.js",
   httpRoute: (GET, "/foo/bar")
+}
+
+apiNamespace fooBarNamespace {
+  middlewareConfigFn: import { fooBarNamespace } from "@src/setup/serverSetup.js",
+  path: "/foo/bar"
 }
