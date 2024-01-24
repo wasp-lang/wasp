@@ -3,7 +3,7 @@ import { LoginForm } from "wasp/auth/forms/Login";
 // import { VerifyEmailForm } from "wasp/auth/forms/VerifyEmail";
 import { SignupForm } from "wasp/auth/forms/Signup";
 // import { ForgotPasswordForm } from "wasp/auth/forms/ForgotPassword";
-import { Link } from "react-router-dom";
+import { Link, routes } from "wasp/router";
 
 export function SignupPage() {
   return (
@@ -27,6 +27,7 @@ export function SignupPage() {
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
+      <span>The link to the login page is {routes.LoginRoute.build()}.</span>
     </main>
   );
 }
