@@ -8,8 +8,8 @@ app TodoTypescript {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-         userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
-      }, // this is a very naive implementation, use 'email' in production instead
+        userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js"
+      },
       // google: {
       //   userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
       // },
@@ -37,8 +37,9 @@ app TodoTypescript {
   db: {
     seeds: [
       import { seedMyDb } from "@src/db/seeds.js"
-    ]
-  }
+    ],
+    system: PostgreSQL
+  },
 }
 
 // Use Prisma Schema Language (PSL) to define our entities: https://www.prisma.io/docs/concepts/components/prisma-schema
@@ -127,4 +128,9 @@ action updateTask {
 action deleteTasks {
   fn: import { deleteTasks } from "@src/task/actions.js",
   entities: [Task],
+}
+
+api fooBar {
+  fn: import { fooBar } from "@src/api.js",
+  httpRoute: (GET, "/foo/bar")
 }

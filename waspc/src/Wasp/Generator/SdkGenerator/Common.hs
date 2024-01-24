@@ -13,6 +13,9 @@ data SdkRootDir
 
 data SdkTemplatesDir
 
+asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
+asTmplFile = SP.castRel
+
 mkTmplFdWithDstAndData ::
   Path' (Rel SdkTemplatesDir) File' ->
   Path' (Rel SdkRootDir) File' ->

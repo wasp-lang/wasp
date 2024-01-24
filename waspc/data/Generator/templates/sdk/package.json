@@ -73,8 +73,8 @@
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by users, documented. =}
       "./api": "./dist/api/index.js",
-      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
-      "./api/*": "./dist/api/*",
+      {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
+      "./api/events": "./dist/api/events.js",
       {=!  Used by users, documented. =}
       "./operations": "./dist/operations/index.js",
       {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
