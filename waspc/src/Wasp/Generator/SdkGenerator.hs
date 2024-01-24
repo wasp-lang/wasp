@@ -38,6 +38,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -95,6 +96,7 @@ genSdkReal spec =
     <++> genApis spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
+    <++> genEmailSender spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -201,7 +203,8 @@ genPackageJson spec =
               -- runtime to load the wrong (uninitialized prisma/client)
               -- TODO(filip): Find a better way to handle duplicate
               -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
-              ++ ServerAuthG.depsRequiredByAuth spec,
+              ++ ServerAuthG.depsRequiredByAuth spec
+              ++ depsRequiredByEmail spec,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")

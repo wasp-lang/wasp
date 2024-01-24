@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { signData } from 'wasp/auth/jwt'
-import { emailSender } from '../../../email/index.js';
-import { Email } from '../../../email/core/types.js';
+import { emailSender } from 'wasp/email';
+import { Email } from 'wasp/email/core/types';
 import {
   createProviderId,
   updateAuthIdentityProviderData,

@@ -107,7 +107,11 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/queries": "./dist/server/queries/index.js",
       {=!  Used by users, documented. =}
-      "./dbSeed/types": "./dist/dbSeed/types.js"
+      "./dbSeed/types": "./dist/dbSeed/types.js",
+      {=!  Used by users, documented. =}
+      "./email": "./dist/email/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./email/core/types": "./dist/email/core/types.js"
    },
    "license": "ISC",
     "include": [

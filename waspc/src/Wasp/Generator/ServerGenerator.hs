@@ -51,7 +51,6 @@ import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
-import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -166,7 +165,6 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -213,7 +211,6 @@ genSrcDir spec =
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
-    <++> genEmailSender spec
     <++> genDbSeed spec
     <++> genMiddleware spec
     <++> genWebSockets spec
