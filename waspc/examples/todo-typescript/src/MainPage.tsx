@@ -8,12 +8,17 @@ import waspLogo from './waspLogo.png'
 import type { Task } from 'wasp/entities'
 import type { User } from 'wasp/auth/types'
 import { getFirstProviderUserId } from 'wasp/auth/user'
+import login from 'wasp/auth/login'
+import signup from 'wasp/auth/signup'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
 
   if (isLoading) return 'Loading...'
   if (error) return 'Error: ' + error
+
+  console.log(login);
+  console.log(signup);
 
   const completed = tasks?.filter((task) => task.isDone).map((task) => task.id)
 
