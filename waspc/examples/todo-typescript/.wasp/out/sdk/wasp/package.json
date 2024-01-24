@@ -46,6 +46,7 @@
       "./universal/validators": "./dist/universal/validators.js",
       "./server/dbClient": "./dist/server/dbClient.js",
       "./server/config": "./dist/server/config.js",
+      "./server/types": "./dist/server/types/index.js",
       "./server/utils": "./dist/server/utils.js",
       "./server/actions": "./dist/server/actions/index.js",
       "./server/queries": "./dist/server/queries/index.js",

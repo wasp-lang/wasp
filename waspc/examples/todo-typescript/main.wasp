@@ -41,6 +41,7 @@ app TodoTypescript {
     system: PostgreSQL
   },
   server: {
+    setupFn: import { serverSetup } from "@src/serverSetup.js",
     middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup.js"
   }
 }
