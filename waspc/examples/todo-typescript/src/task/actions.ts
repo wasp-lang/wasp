@@ -18,10 +18,10 @@ export const createTask: CreateTask<CreateArgs, Task> = async (
   }
 
   emailSender.send({
-    to: 'mihovil@ilakovac.com',
+    to: 'test@test.com',
     from: {
       name: 'Test',
-      email: 'mihovil@ilakovac.com'
+      email: 'test@test.com'
     },
     subject: 'Test email',
     text: 'Thank you for using our app!',
