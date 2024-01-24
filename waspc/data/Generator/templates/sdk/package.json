@@ -38,6 +38,8 @@
       {=!  Used by users, documented. =}
       "./auth/logout": "./dist/auth/logout.js",
       {=!  Used by users, documented. =}
+      "./auth/signup": "./dist/auth/signup.js",
+      {=!  Used by users, documented. =}
       "./auth/useAuth": "./dist/auth/useAuth.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/user": "./dist/auth/user.js",
@@ -86,10 +88,14 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by users and by our code, documented =}
       "./server/dbClient": "./dist/server/dbClient.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by users and by our code, documented. =}
       "./server/config": "./dist/server/config.js",
+      {=!  Used by users and by our code, documented. =}
+      "./server/types": "./dist/server/types/index.js",
+      {=!  Used by users and by our code, documented. =}
+      "./server/middleware": "./dist/server/middleware/index.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
