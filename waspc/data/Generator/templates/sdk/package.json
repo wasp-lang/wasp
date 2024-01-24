@@ -86,7 +86,7 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by users and by our code, documented =}
       "./server/dbClient": "./dist/server/dbClient.js",
       {=!  Used by users and by our code, documented. =}
       "./server/config": "./dist/server/config.js",
