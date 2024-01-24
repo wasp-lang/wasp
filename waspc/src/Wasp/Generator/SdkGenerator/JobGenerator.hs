@@ -1,17 +1,18 @@
-module Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes) where
+module Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes, getImportPathForJobName, getJobExecutorTypesImportPath) where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
-import StrongPath (reldir, relfile, (</>))
+import StrongPath (File', Path, Posix, Rel, reldir, relfile, relfileP, (</>))
 import qualified StrongPath as SP
+import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.Job (Job)
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss))
 import qualified Wasp.AppSpec.Job as J
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.Job (jobExecutorTypesImportPathFromSdk)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Common (makeSdkImportPath)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Util
 
@@ -36,4 +37,12 @@ genJobType (jobName, job) =
           "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job)
         ]
 
-    jobExecutorTypesImportPath = jobExecutorTypesImportPathFromSdk (J.executor job)
+    jobExecutorTypesImportPath = getJobExecutorTypesImportPath (J.executor job)
+
+getImportPathForJobName :: String -> Path Posix (Rel d) File'
+getImportPathForJobName jobName = makeSdkImportPath $ [reldirP|jobs|] </> fromJust (SP.parseRelFileP jobName)
+
+-- | We are importing relevant types per executor e.g. JobFn, this functions maps
+--   the executor to the import path of the relevant types.
+getJobExecutorTypesImportPath :: JobExecutor -> Path Posix (Rel r) File'
+getJobExecutorTypesImportPath PgBoss = makeSdkImportPath [relfileP|jobs/pgBoss/types|]

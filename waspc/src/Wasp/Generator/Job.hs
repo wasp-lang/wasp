@@ -4,16 +4,12 @@ module Wasp.Generator.Job
     JobMessageData (..),
     JobOutputType (..),
     JobType (..),
-    jobExecutorTypesImportPathFromSdk,
   )
 where
 
 import Control.Concurrent (Chan)
 import Data.Text (Text)
-import StrongPath (File', Path, Posix, Rel, relfileP)
 import System.Exit (ExitCode)
-import Wasp.AppSpec.Job (JobExecutor (..))
-import Wasp.Generator.SdkGenerator.Common (makeSdkImportPath)
 
 -- | Job is an IO action that communicates progress by writing messages to given channel
 --   until it is done, when it returns exit code.
@@ -33,8 +29,3 @@ data JobMessageData
 data JobOutputType = Stdout | Stderr deriving (Show, Eq)
 
 data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
-
--- | We are importing relevant types per executor e.g. JobFn, this functions maps
---   the executor to the import path of the relevant types.
-jobExecutorTypesImportPathFromSdk :: JobExecutor -> Path Posix (Rel r) File'
-jobExecutorTypesImportPathFromSdk PgBoss = makeSdkImportPath [relfileP|jobs/pgBoss/types|]

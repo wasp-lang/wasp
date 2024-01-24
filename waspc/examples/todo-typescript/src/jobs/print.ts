@@ -1,4 +1,5 @@
 import { PrintTimeAndNumberOfTasks } from "wasp/jobs/PrintTimeAndNumberOfTasks";
+
 export const printTimeAndNumberOfTasks: PrintTimeAndNumberOfTasks<
   {},
   void

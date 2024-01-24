@@ -26,23 +26,23 @@ import StrongPath
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
+import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.Job (jobExecutorTypesImportPathFromSdk)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (makeSdkImportPath)
+import Wasp.Generator.SdkGenerator.JobGenerator (getImportPathForJobName, getJobExecutorTypesImportPath)
 import Wasp.Generator.ServerGenerator.Common
   ( ServerTemplatesDir,
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import qualified Wasp.Generator.ServerGenerator.JsImport as SJI
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), makeJsImport)
+import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toUpperFirst)
 
@@ -69,14 +69,23 @@ genJob (jobName, job) =
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
             "jobExecutorRelativePath" .= toFilePath (executorJobTemplateInJobsDir "js" (J.executor job)),
             "jobExecutorTypesImportPath" .= SP.fromRelFileP jobExecutorTypesImportPath,
-            "jobTypesImportPath" .= SP.fromRelFileP jobTypesImportPath,
-            "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job)
+            "jobEntitiesImportStatement" .= jobEntitiesImportStatement,
+            "jobEntitiesIdentifier" .= jobEntitiesIdentifier
           ]
     )
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir </> [relfile|_job.ts|]
     dstFile = jobsDirInServerRootDir </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
-    (jobPerformFnImportStatement, jobPerformFnName) = getJsImportStmtAndIdentifier relPathFromJobsDirToServerSrcDir $ (J.fn . J.perform) job
+
+    -- Users import job types from the SDK, so the types for each job are generated
+    -- separately and imported from the SDK.
+    (jobEntitiesImportStatement, jobEntitiesIdentifier) =
+      JI.getJsImportStmtAndIdentifier $
+        makeJsImport (ModuleImportPath $ getImportPathForJobName jobName) (JsImportField "entities")
+
+    (jobPerformFnImportStatement, jobPerformFnName) =
+      SJI.getJsImportStmtAndIdentifier relPathFromJobsDirToServerSrcDir $ (J.fn . J.perform) job
+
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object
@@ -86,11 +95,7 @@ genJob (jobName, job) =
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
 
-    jobExecutorTypesImportPath = jobExecutorTypesImportPathFromSdk (J.executor job)
-
-    -- Users import job types from the SDK, so the types for each job are generated
-    -- separately and imported from the SDK.
-    jobTypesImportPath = makeSdkImportPath $ [reldirP|jobs|] </> fromJust (SP.parseRelFileP $ jobName <> ".js")
+    jobExecutorTypesImportPath = getJobExecutorTypesImportPath (J.executor job)
 
     relPathFromJobsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromJobsDirToServerSrcDir = [reldirP|../|]

@@ -50,7 +50,7 @@
       "./server/actions": "./dist/server/actions/index.js",
       "./server/queries": "./dist/server/queries/index.js",
       "./dbSeed/types": "./dist/dbSeed/types.js",
-      "./jobs/*": "./dist/jobs/*",
+      "./jobs/*": "./dist/jobs/*.js",
       "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js"
    },
    "license": "ISC",

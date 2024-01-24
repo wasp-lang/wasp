@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { createJob } from './{= jobExecutorRelativePath =}'
-import { entities } from '{= jobTypesImportPath =}'
+{=& jobEntitiesImportStatement =}
 {=& jobPerformFnImportStatement =}
 
 export const {= jobName =} = createJob({
@@ -8,5 +8,5 @@ export const {= jobName =} = createJob({
   jobFn: {= jobPerformFnName =},
   defaultJobOptions: {=& jobPerformOptions =},
   jobSchedule: {=& jobSchedule =},
-  entities,
+  {= jobEntitiesIdentifier =},
 })
