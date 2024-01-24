@@ -47,6 +47,8 @@
       "./auth/useAuth": "./dist/auth/useAuth.js",
       {=!  Used by users, documented. =}
       "./auth/user": "./dist/auth/user.js",
+      {=!  Used by users, documented. =}
+      "./auth/email": "./dist/auth/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
