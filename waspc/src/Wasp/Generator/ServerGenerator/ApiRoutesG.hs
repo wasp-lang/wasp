@@ -1,12 +1,13 @@
 module Wasp.Generator.ServerGenerator.ApiRoutesG
   ( genApis,
+    getApiEntitiesObject,
+    isAuthEnabledForApi,
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
-import Data.List (nub)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldirP, relfile)
 import qualified StrongPath as SP
@@ -20,15 +21,13 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (getAliasedJsImportStmtAndIdentifier)
-import Wasp.Util (toUpperFirst)
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
   if areThereAnyCustomApiRoutes
     then
       sequence
-        [ genApiRoutes spec,
-          genApiTypes spec
+        [ genApiRoutes spec
         ]
     else return []
   where
@@ -87,31 +86,6 @@ genApiRoutes spec =
 
 relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]
-
-genApiTypes :: AppSpec -> Generator FileDraft
-genApiTypes spec =
-  return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    namedApis = AS.getApis spec
-    apis = snd <$> namedApis
-    tmplData =
-      object
-        [ "apiRoutes" .= map getTmplData namedApis,
-          "shouldImportAuthenticatedApi" .= any usesAuth apis,
-          "shouldImportNonAuthenticatedApi" .= not (all usesAuth apis),
-          "allEntities" .= nub (concatMap getApiEntitiesObject apis)
-        ]
-    usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
-    tmplFile = C.asTmplFile [relfile|src/apis/types.ts|]
-    dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
-
-    getTmplData :: (String, Api.Api) -> Aeson.Value
-    getTmplData (name, api) =
-      object
-        [ "typeName" .= toUpperFirst name,
-          "entities" .= getApiEntitiesObject api,
-          "usesAuth" .= isAuthEnabledForApi spec api
-        ]
 
 getApiEntitiesObject :: Api.Api -> [Aeson.Value]
 getApiEntitiesObject api = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
