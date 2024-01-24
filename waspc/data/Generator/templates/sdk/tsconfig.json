@@ -20,7 +20,8 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "dist",
-    "allowJs": true
+    "allowJs": true,
+    "types": ["@testing-library/jest-dom"],
     // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
     // "paths": {
     //   "@wasp/*": [

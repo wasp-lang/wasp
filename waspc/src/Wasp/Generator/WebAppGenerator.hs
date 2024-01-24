@@ -67,8 +67,6 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|src/test/vitest/setup.ts|],
-      genFileCopy [relfile|src/test/vitest/helpers.tsx|],
-      genFileCopy [relfile|src/test/index.ts|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
@@ -170,12 +168,9 @@ depsRequiredByTailwind spec =
 depsRequiredForTesting :: [AS.Dependency.Dependency]
 depsRequiredForTesting =
   AS.Dependency.fromList
-    [ ("vitest", "^0.29.3"),
-      ("@vitest/ui", "^0.29.3"),
-      ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^14.0.0"),
-      ("@testing-library/jest-dom", "^5.16.5"),
-      ("msw", "^1.1.0")
+    [ ("vitest", "^1.2.1"),
+      ("@testing-library/react", "^14.1.2"),
+      ("@testing-library/jest-dom", "^6.3.0")
     ]
 
 depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
@@ -288,10 +283,10 @@ genEnvValidationScript =
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-    sequence
-      [ genFileCopy [relfile|webSocket.ts|],
-        genWebSocketProvider spec
-      ]
+      sequence
+        [ genFileCopy [relfile|webSocket.ts|],
+          genWebSocketProvider spec
+        ]
   | otherwise = return []
   where
     genFileCopy = return . C.mkSrcTmplFd

@@ -49,7 +49,9 @@
       "./server/utils": "./dist/server/utils.js",
       "./server/actions": "./dist/server/actions/index.js",
       "./server/queries": "./dist/server/queries/index.js",
-      "./dbSeed/types": "./dist/dbSeed/types.js"
+      "./dbSeed/types": "./dist/dbSeed/types.js",
+      "./test": "./dist/test/index.js",
+      "./test/*": "./dist/test/*"
    },
    "license": "ISC",
     "include": [
@@ -71,7 +73,13 @@
   "@types/express-serve-static-core": "^4.17.13",
   "@stitches/react": "^1.2.8",
   "lucia": "^3.0.0-beta.14",
-  "@lucia-auth/adapter-prisma": "^4.0.0-beta.9"
+  "@lucia-auth/adapter-prisma": "^4.0.0-beta.9",
+  "vitest": "^1.2.1",
+  "@vitest/ui": "^1.2.1",
+  "jsdom": "^21.1.1",
+  "@testing-library/react": "^14.1.2",
+  "@testing-library/jest-dom": "^6.3.0",
+  "msw": "^1.1.0"
 },
   "devDependencies": {"@tsconfig/node18": "latest"
 }

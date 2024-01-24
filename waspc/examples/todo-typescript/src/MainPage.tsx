@@ -1,13 +1,14 @@
 import './Main.css'
-import React, { useEffect, FormEventHandler, FormEvent } from 'react'
+import React, { FormEvent } from 'react'
 import logout from 'wasp/auth/logout'
-import { useQuery, useAction } from 'wasp/rpc' // Wasp uses a thin wrapper around react-query
+import { useQuery } from 'wasp/rpc' // Wasp uses a thin wrapper around react-query
 import { getTasks } from 'wasp/rpc/queries'
-import { createTask, updateTask, deleteTasks } from 'wasp/rpc/actions'
+import { createTask, deleteTasks } from 'wasp/rpc/actions'
 import waspLogo from './waspLogo.png'
 import type { Task } from 'wasp/entities'
 import type { User } from 'wasp/auth/types'
 import { getFirstProviderUserId } from 'wasp/auth/user'
+import { Todo } from './Todo'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -40,36 +41,6 @@ export const MainPage = ({ user }: { user: User }) => {
         </button>
       </div>
     </main>
-  )
-}
-
-function Todo({ id, isDone, description }: Task) {
-  const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (
-    event
-  ) => {
-    try {
-      await updateTask({
-        id,
-        isDone: event.currentTarget.checked,
-      })
-    } catch (err: any) {
-      window.alert('Error while updating task ' + err?.message)
-    }
-  }
-
-  return (
-    <li>
-      <span className="todo-item">
-        <input
-          type="checkbox"
-          id={id.toString()}
-          checked={isDone}
-          onChange={handleIsDoneChange}
-        />
-        <span>{description}</span>
-        <button onClick={() => void deleteTasks([id])}>Delete</button>
-      </span>
-    </li>
   )
 }
 
