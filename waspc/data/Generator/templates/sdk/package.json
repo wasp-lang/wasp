@@ -36,6 +36,8 @@
       {=!  Used by user, documented. =}
       "./auth": "./dist/auth/index.js",
       {=!  Used by users, documented. =}
+      "./auth/types": "./dist/auth/types.js",
+      {=!  Used by users, documented. =}
       "./auth/login": "./dist/auth/login.js",
       {=!  Used by users, documented. =}
       "./auth/logout": "./dist/auth/logout.js",
