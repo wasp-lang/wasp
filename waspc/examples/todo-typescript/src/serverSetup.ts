@@ -3,6 +3,7 @@ import cors from 'cors'
 import type { MiddlewareConfigFn } from 'wasp/server/middleware'
 import config from 'wasp/server/config'
 import type { Application, ServerSetupFn } from 'wasp/server/types'
+import prismaClient from 'wasp/server/dbClient'
 
 export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   // Example of adding an extra domains to CORS.
@@ -28,4 +29,5 @@ export const serverSetup: ServerSetupFn = async ({ app }: { app: Application}) =
     res.send('I am a custom route')
   })
   console.log("I am a server setup function!");
+  console.log("Executed raw prisma client call: ", await prismaClient.$executeRaw``);
 }
