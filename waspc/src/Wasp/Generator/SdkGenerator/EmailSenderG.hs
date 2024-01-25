@@ -1,4 +1,4 @@
-module Wasp.Generator.ServerGenerator.EmailSenderG where
+module Wasp.Generator.SdkGenerator.EmailSenderG where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
@@ -13,8 +13,8 @@ import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.ServerGenerator.Common as C
-import qualified Wasp.Generator.ServerGenerator.EmailSender.Providers as Providers
+import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
 genEmailSender :: AppSpec -> Generator [FileDraft]
@@ -29,9 +29,9 @@ genEmailSender spec = case maybeEmailSender of
     maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
-genIndex email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+genIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|src/email/index.ts|]
+    tmplPath = [relfile|email/index.ts|]
     tmplData = getEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
@@ -44,24 +44,24 @@ genCore email =
     <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
-genCoreIndex email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+genCoreIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|src/email/core/index.ts|]
+    tmplPath = [relfile|email/core/index.ts|]
     tmplData = getEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
-genCoreTypes email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|src/email/core/types.ts|]
+    tmplPath = [relfile|email/core/types.ts|]
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
-genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|src/email/core/helpers.ts|]
+    tmplPath = [relfile|email/core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"
@@ -86,7 +86,7 @@ genEmailSenderProviderSetupFn email =
     provider :: Providers.EmailSenderProvider
     provider = getEmailSenderProvider email
 
-    tmplPath = Providers.providersDirInServerSrc </> Providers.setupFnFile provider
+    tmplPath = Providers.providersDirInSdkTemplatesDir </> Providers.setupFnFile provider
 
 depsRequiredByEmail :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
@@ -110,5 +110,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.Mailgun -> Providers.mailgun
   AS.EmailSender.Dummy -> Providers.dummy
 
-genFileCopy :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
-genFileCopy = return . C.mkSrcTmplFd
+genFileCopy :: Path' (Rel C.SdkTemplatesDir) File' -> Generator FileDraft
+genFileCopy = return . C.mkTmplFd

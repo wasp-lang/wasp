@@ -38,6 +38,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
@@ -102,6 +103,7 @@ genSdkReal spec =
     <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
+    <++> genEmailSender spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -209,6 +211,7 @@ genPackageJson spec =
               -- TODO(filip): Find a better way to handle duplicate
               -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
               ++ ServerAuthG.depsRequiredByAuth spec
+              ++ depsRequiredByEmail spec
               ++ depsRequiredByWebSockets spec,
           N.devDependencies =
             AS.Dependency.fromList

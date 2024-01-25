@@ -116,6 +116,10 @@
       "./server/auth/email": "./dist/server/auth/email/index.js",
       {=!  Used by users, documented. =}
       "./dbSeed/types": "./dist/dbSeed/types.js",
+      {=!  Used by users, documented. =}
+      "./email": "./dist/email/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./email/core/types": "./dist/email/core/types.js",
       {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
       "./jobs/*": "./dist/jobs/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}

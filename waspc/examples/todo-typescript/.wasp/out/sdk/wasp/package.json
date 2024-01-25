@@ -59,6 +59,8 @@
       "./server/queries": "./dist/server/queries/index.js",
       "./server/auth/email": "./dist/server/auth/email/index.js",
       "./dbSeed/types": "./dist/dbSeed/types.js",
+      "./email": "./dist/email/index.js",
+      "./email/core/types": "./dist/email/core/types.js",
       "./jobs/*": "./dist/jobs/*.js",
       "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
       "./router": "./dist/router/index.js",
