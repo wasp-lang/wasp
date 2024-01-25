@@ -2,11 +2,11 @@
 import { createContext, useState, useEffect } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { getSessionId } from '../api'
-import { apiEventsEmitter } from '../api/events'
-import config from '../config'
+import { getSessionId } from 'wasp/api'
+import { apiEventsEmitter } from 'wasp/api/events'
+import config from 'wasp/core/config'
 
-import type { ClientToServerEvents, ServerToClientEvents } from '../webSocket';
+import type { ClientToServerEvents, ServerToClientEvents } from 'wasp/server/webSocket';
 
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.

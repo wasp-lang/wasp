@@ -39,9 +39,11 @@ import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
+import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
@@ -83,6 +85,7 @@ genSdkReal spec =
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],
+      genFileCopy [relfile|jobs/pgBoss/types.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -94,7 +97,9 @@ genSdkReal spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genJobTypes spec
     <++> genApis spec
+    <++> genWebSockets spec
     <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
@@ -206,7 +211,8 @@ genPackageJson spec =
               -- TODO(filip): Find a better way to handle duplicate
               -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
               ++ ServerAuthG.depsRequiredByAuth spec
-              ++ depsRequiredByEmail spec,
+              ++ depsRequiredByEmail spec
+              ++ depsRequiredByWebSockets spec,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")

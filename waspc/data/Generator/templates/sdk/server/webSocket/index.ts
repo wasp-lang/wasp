@@ -5,7 +5,7 @@ import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import prisma from 'wasp/server/dbClient'
 {=# isAuthEnabled =}
-import { type SanitizedUser } from '../_types/index.js'
+import { type SanitizedUser } from 'wasp/server/_types/index.js'
 {=/ isAuthEnabled =}
 
 {=& userWebSocketFn.importStatement =}
