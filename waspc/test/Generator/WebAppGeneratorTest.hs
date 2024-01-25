@@ -1,5 +1,6 @@
 module Generator.WebAppGeneratorTest where
 
+import qualified Data.Map as M
 import Fixtures
 import qualified StrongPath as SP
 import System.FilePath ((</>))
@@ -8,6 +9,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
+import qualified Wasp.AppSpec.PackageJson as AS.PJS
 import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
@@ -39,7 +41,6 @@ spec_WebAppGenerator = do
                       AS.App.server = Nothing,
                       AS.App.client = Nothing,
                       AS.App.auth = Nothing,
-                      AS.App.dependencies = Nothing,
                       AS.App.head = Nothing,
                       AS.App.emailSender = Nothing,
                       AS.App.webSocket = Nothing
@@ -49,6 +50,12 @@ spec_WebAppGenerator = do
             AS.externalClientFiles = [],
             AS.externalServerFiles = [],
             AS.externalSharedFiles = [],
+            AS.packageJson =
+              AS.PJS.PackageJson
+                { AS.PJS.name = "testApp",
+                  AS.PJS.dependencies = M.empty,
+                  AS.PJS.devDependencies = M.empty
+                },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
             AS.devEnvVarsServer = [],
