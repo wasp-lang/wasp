@@ -5,13 +5,16 @@ import {
   sendPasswordResetEmail,
 } from "wasp/server/auth/email/utils";
 
-const link = createPasswordResetLink("mihovil@ilakovac.com", "/password-reset");
-const secondLink = createEmailVerificationLink(
-  "mihovil@ilakovac.com",
-  "/email-verify"
-);
-
 export async function send() {
+  const link = await createPasswordResetLink(
+    "mihovil@ilakovac.com",
+    "/password-reset"
+  );
+  const secondLink = await createEmailVerificationLink(
+    "mihovil@ilakovac.com",
+    "/email-verify"
+  );
+
   // Send email verification email.
   await sendEmailVerificationEmail("mihovil@ilakovac.com", {
     from: {

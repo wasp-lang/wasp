@@ -32,7 +32,9 @@ export const MainPage = ({ user }: { user: User }) => {
   return (
     <main>
       <img src={waspLogo} alt="wasp logo" />
-      <button onClick={customEmailSending}>customEmailSending</button>
+      <button onClick={() => customEmailSending(undefined)}>
+        customEmailSending
+      </button>
       {user && (
         <h1>
           {getFirstProviderUserId(user)}
