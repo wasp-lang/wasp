@@ -32,9 +32,9 @@ const defaultViteConfig = {
   test: {
     globals: true,
     environment: "jsdom",
+    // vitest is running from the root of the project, so we need
+    // to specify the path to the setup file relative to the root.
     setupFiles: ["./.wasp/out/web-app/src/test/vitest/setup.ts"],
-    // This is a hack to make Vite's test runner work with user files living
-    // outside of the web app root dir.
     exclude: [...defaultExclude, ".wasp/**/*"]
   },
   // resolve: {
