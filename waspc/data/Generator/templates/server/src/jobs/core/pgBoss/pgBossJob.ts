@@ -1,8 +1,9 @@
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
-import type { JSONValue, JSONObject } from '../../../_types/serialization.js'
-import { PrismaDelegate } from '../../../_types/index.js'
+import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
+import { PrismaDelegate } from 'wasp/server/_types'
+import type { JobFn } from 'wasp/jobs/pgBoss/types'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
@@ -76,12 +77,6 @@ export function createJob<
 
   return new PgBossJob<Input, Output>(jobName, defaultJobOptions)
 }
-
-export type JobFn<
-  Input extends JSONObject,
-  Output extends JSONValue | void,
-  Entities extends Partial<PrismaDelegate>
-> = (data: Input, context: { entities: Entities }) => Promise<Output>
 
 /**
  * This is an interface repesenting a job that can be submitted to pg-boss.

@@ -114,6 +114,11 @@
       "./server/queries": "./dist/server/queries/index.js",
       {=!  Used by users, documented. =}
       "./dbSeed/types": "./dist/dbSeed/types.js",
+      {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
+      "./jobs/*": "./dist/jobs/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
+      "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
       {=!  Used by users, documented. =}
       "./router": "./dist/router/index.js"
    },

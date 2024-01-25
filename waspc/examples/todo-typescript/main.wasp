@@ -124,6 +124,17 @@ action deleteTasks {
   entities: [Task],
 }
 
+job PrintTimeAndNumberOfTasks {
+  executor: PgBoss,
+  perform: {
+    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
+  },
+  entities: [Task],
+  schedule: {
+    cron: "* * * * *"
+  }
+}
+
 api fooBar {
   fn: import { fooBar } from "@src/api.js",
   httpRoute: (GET, "/foo/bar")

@@ -299,6 +299,7 @@ library
     Wasp.Generator.SdkGenerator.AuthG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.RpcGenerator
+    Wasp.Generator.SdkGenerator.JobGenerator
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
     Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.ServerGenerator
