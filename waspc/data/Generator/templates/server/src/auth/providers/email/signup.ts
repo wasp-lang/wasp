@@ -14,7 +14,7 @@ import {
     createEmailVerificationLink,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
-} from "./utils.js";
+} from "wasp/server/auth/email/utils";
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from 'wasp/auth/validation';
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetUserFields } from 'wasp/auth/utils'
