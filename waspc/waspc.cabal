@@ -302,6 +302,7 @@ library
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
     Wasp.Generator.SdkGenerator.EmailSenderG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG

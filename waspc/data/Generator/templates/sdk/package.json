@@ -47,6 +47,8 @@
       "./auth/useAuth": "./dist/auth/useAuth.js",
       {=!  Used by users, documented. =}
       "./auth/user": "./dist/auth/user.js",
+      {=!  Used by users, documented. =}
+      "./auth/email": "./dist/auth/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -71,6 +73,10 @@
       "./auth/forms/ForgotPassword": "./dist/auth/forms/ForgotPassword.jsx",
       {=!  Used by users, documented. =}
       "./auth/forms/ResetPassword": "./dist/auth/forms/ResetPassword.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/internal/Form": "./dist/auth/forms/internal/Form.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/helpers/*": "./dist/auth/helpers/*.jsx",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by users, documented. =}
@@ -111,7 +117,9 @@
       {=!  Used by users, documented. =}
       "./email": "./dist/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./email/core/types": "./dist/email/core/types.js"
+      "./email/core/types": "./dist/email/core/types.js",
+      {=!  Used by users, documented. =}
+      "./router": "./dist/router/index.js"
    },
    "license": "ISC",
     "include": [
