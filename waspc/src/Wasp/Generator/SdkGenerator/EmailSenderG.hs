@@ -86,7 +86,7 @@ genEmailSenderProviderSetupFn email =
     provider :: Providers.EmailSenderProvider
     provider = getEmailSenderProvider email
 
-    tmplPath = Providers.providersDirInSdkSrc </> Providers.setupFnFile provider
+    tmplPath = Providers.providersDirInSdkTemplatesDir </> Providers.setupFnFile provider
 
 depsRequiredByEmail :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
