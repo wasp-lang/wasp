@@ -60,7 +60,7 @@
       "./server/actions": "./dist/server/actions/index.js",
       "./server/queries": "./dist/server/queries/index.js",
       "./dbSeed/types": "./dist/dbSeed/types.js",
-      "./crud/*": "./dist/crud/*",
+      "./crud/*": "./dist/crud/*.js",
       "./server/crud/*": "./dist/server/crud/*",
       "./jobs/*": "./dist/jobs/*.js",
       "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",

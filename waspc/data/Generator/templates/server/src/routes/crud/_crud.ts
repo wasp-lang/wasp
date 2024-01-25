@@ -1,6 +1,6 @@
 {{={= =}=}}
 import express from 'express'
-import * as crud from 'wasp/server/crud/{= crud.name =}.js'
+import * as crud from '../../crud/{= crud.name =}.js'
 import { createAction, createQuery } from '../../middleware/operations.js'
 {=# isAuthEnabled =}
 import auth from 'wasp/core/auth'

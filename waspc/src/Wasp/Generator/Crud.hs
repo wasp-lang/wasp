@@ -6,6 +6,7 @@ module Wasp.Generator.Crud
     getCrudFilePath,
     makeCrudOperationKeyAndJsonPair,
     crudDeclarationToOperationsList,
+    getCrudTypesImportPath,
   )
 where
 
@@ -51,6 +52,9 @@ getCrudOperationJson crudOperationName crud idField =
 
 getCrudFilePath :: String -> String -> Path' (Rel r) File'
 getCrudFilePath crudName ext = fromJust (SP.parseRelFile (crudName ++ "." ++ ext))
+
+getCrudTypesImportPath :: String -> String
+getCrudTypesImportPath name = "wasp/server/crud/" ++ name
 
 crudDeclarationToOperationsList :: AS.Crud.Crud -> [(AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions)]
 crudDeclarationToOperationsList crud =

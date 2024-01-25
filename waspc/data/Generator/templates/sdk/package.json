@@ -119,7 +119,7 @@
       {=!  Used by users, documented. =}
       "./dbSeed/types": "./dist/dbSeed/types.js",
       {=!  Used by users, documented. =}
-      "./crud/*": "./dist/crud/*",
+      "./crud/*": "./dist/crud/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*",
       {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
