@@ -122,8 +122,6 @@
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
       "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
       {=!  Used by users, documented. =}
-      "./dbSeed/types": "./dist/dbSeed/types.js",
-      {=!  Used by users, documented. =}
       "./router": "./dist/router/index.js",
       {=!  Used by users, documented. =}
       "./server/webSocket": "./dist/server/webSocket/index.js",

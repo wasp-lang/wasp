@@ -61,7 +61,6 @@
       "./dbSeed/types": "./dist/dbSeed/types.js",
       "./jobs/*": "./dist/jobs/*.js",
       "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
-      "./dbSeed/types": "./dist/dbSeed/types.js",
       "./router": "./dist/router/index.js",
       "./server/webSocket": "./dist/server/webSocket/index.js",
       "./webSocket": "./dist/webSocket/index.js",
