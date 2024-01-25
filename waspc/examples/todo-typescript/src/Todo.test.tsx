@@ -7,11 +7,21 @@ import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
 import type { User } from 'wasp/auth/types'
 import { getMe } from 'wasp/auth/useAuth'
+import { Tasks } from 'wasp/crud/Tasks'
 
 const mockTasks = [
   {
     id: 1,
     description: 'test todo 1',
+    isDone: true,
+    userId: 1,
+  },
+]
+
+const mockAllTasks = [
+  {
+    id: 2,
+    description: 'test todo 2',
     isDone: true,
     userId: 1,
   },
@@ -49,12 +59,14 @@ const mockUser = {
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks)
   mockQuery(getMe, mockUser)
+  mockQuery(Tasks.getAll.query, mockAllTasks)
 
   renderInContext(<MainPage user={mockUser} />)
 
   await screen.findByText('test todo 1')
+  await screen.findByText('test todo 2')
 
-  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(screen.getAllByRole('checkbox')[0]).toBeChecked()
 
   screen.debug()
 })
