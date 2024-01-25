@@ -147,7 +147,6 @@ npmDepsForWasp spec =
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^2.0.0")
           ]
-          ++ depsRequiredForTesting
     }
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
@@ -160,14 +159,6 @@ depsRequiredByTailwind spec =
           ("autoprefixer", "^10.4.13")
         ]
     else []
-
-depsRequiredForTesting :: [AS.Dependency.Dependency]
-depsRequiredForTesting =
-  AS.Dependency.fromList
-    [ ("vitest", "^1.2.1"),
-      ("@testing-library/react", "^14.1.2"),
-      ("@testing-library/jest-dom", "^6.3.0")
-    ]
 
 genGitignore :: Generator FileDraft
 genGitignore =

@@ -1,4 +1,3 @@
-import 'wasp/test/vitest/setup'
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
@@ -7,6 +6,7 @@ import { getTasks } from 'wasp/rpc/queries'
 import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
 import type { User } from 'wasp/auth/types'
+import { getMe } from 'wasp/auth/useAuth'
 
 const mockTasks = [
   {
@@ -43,14 +43,14 @@ const mockUser = {
       },
     ],
   },
-  address: ""
+  address: '',
 } satisfies User
-
 
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks)
+  mockQuery(getMe, mockUser)
 
-  renderInContext(<MainPage user={mockUser}/>)
+  renderInContext(<MainPage user={mockUser} />)
 
   await screen.findByText('test todo 1')
 

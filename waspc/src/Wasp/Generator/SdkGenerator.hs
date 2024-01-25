@@ -85,7 +85,6 @@ genSdkReal spec =
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],
       genFileCopy [relfile|test/vitest/helpers.tsx|],
-      genFileCopy [relfile|test/vitest/setup.ts|],
       genFileCopy [relfile|test/index.ts|],
       genFileCopy [relfile|jobs/pgBoss/types.ts|],
       genServerConfigFile spec,

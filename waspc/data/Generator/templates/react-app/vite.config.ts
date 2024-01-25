@@ -2,6 +2,7 @@
 /// <reference types="vitest" />
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { defaultExclude } from "vitest/config"
 
 {=# customViteConfig.isDefined =}
 // Ignoring the TS error because we are importing a file outside of TS root dir.
@@ -31,11 +32,10 @@ const defaultViteConfig = {
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: ["./.wasp/out/web-app/test/vitest/setup.ts"],
+    setupFiles: ["./.wasp/out/web-app/src/test/vitest/setup.ts"],
     // This is a hack to make Vite's test runner work with user files living
     // outside of the web app root dir.
-    root: "../../..",
-    exclude: [".wasp/**/*", "**/node_modules/**"]
+    exclude: [...defaultExclude, ".wasp/**/*"]
   },
   // resolve: {
   //   dedupe: ["react", "react-dom"],
