@@ -57,11 +57,17 @@
       "./server/utils": "./dist/server/utils.js",
       "./server/actions": "./dist/server/actions/index.js",
       "./server/queries": "./dist/server/queries/index.js",
+      "./server/auth/email": "./dist/server/auth/email/index.js",
       "./dbSeed/types": "./dist/dbSeed/types.js",
       "./email": "./dist/email/index.js",
       "./email/core/types": "./dist/email/core/types.js",
+      "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
+      "./jobs/*": "./dist/jobs/*.js",
+      "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
       "./router": "./dist/router/index.js",
-      "./server/auth/email/utils": "./dist/server/auth/email/utils.js"
+      "./server/webSocket": "./dist/server/webSocket/index.js",
+      "./webSocket": "./dist/webSocket/index.js",
+      "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx"
    },
    "license": "ISC",
     "include": [
@@ -83,7 +89,10 @@
   "@types/express-serve-static-core": "^4.17.13",
   "@stitches/react": "^1.2.8",
   "lucia": "^3.0.0-beta.14",
-  "@lucia-auth/adapter-prisma": "^4.0.0-beta.9"
+  "@lucia-auth/adapter-prisma": "^4.0.0-beta.9",
+  "socket.io": "^4.6.1",
+  "socket.io-client": "^4.6.1",
+  "@socket.io/component-emitter": "^4.0.0"
 },
   "devDependencies": {"@tsconfig/node18": "latest"
 }

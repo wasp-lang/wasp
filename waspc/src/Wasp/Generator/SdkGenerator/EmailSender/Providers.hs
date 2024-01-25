@@ -3,7 +3,7 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     dummy,
-    providersDirInSdkSrc,
+    providersDirInSdkTemplatesDir,
     EmailSenderProvider (..),
   )
 where
@@ -23,6 +23,9 @@ data EmailSenderProvider = EmailSenderProvider
   deriving (Show, Eq)
 
 data ProvidersDir
+
+providersDirInSdkTemplatesDir :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
+providersDirInSdkTemplatesDir = [reldir|email/core/providers|]
 
 smtp :: EmailSenderProvider
 smtp =
@@ -73,6 +76,3 @@ dummy =
       setupFnFile = [relfile|dummy.ts|],
       isEnabledKey = "isDummyProviderUsed"
     }
-
-providersDirInSdkSrc :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
-providersDirInSdkSrc = [reldir|email/core/providers|]

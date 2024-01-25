@@ -30,6 +30,7 @@ genEmailAuth auth
           genServerUtils auth
         ]
         <++> genActions
+        <++> genServer
   | otherwise = return []
 
 genIndex :: Generator FileDraft
@@ -42,6 +43,12 @@ genActions =
       genSignupAction,
       genPasswordResetActions,
       genVerifyEmailAction
+    ]
+
+genServer :: Generator [FileDraft]
+genServer =
+  return
+    [ C.mkTmplFd [relfile|server/auth/email/index.ts|]
     ]
 
 genLoginAction :: Generator FileDraft

@@ -40,6 +40,10 @@ app TodoTypescript {
     ],
     system: PostgreSQL
   },
+  webSocket: {
+    fn: import { webSocketFn } from "@src/websocket/index.js",
+    autoConnect: true,
+  },
   server: {
     setupFn: import { serverSetup } from "@src/setup/serverSetup.js",
     middlewareConfigFn: import { serverMiddlewareFn } from "@src/setup/serverSetup.js"
@@ -88,6 +92,16 @@ page EmailVerification {
   component: import { EmailVerificationPage } from "@src/user/auth.tsx"
 }
 
+route ChatRoute { path: "/chat", to: Chat }
+page Chat {
+  component: import { ChatPage } from "@src/ChatPage.tsx"
+}
+
+// route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
+// page EmailVerification {
+//   component: import { EmailVerificationPage } from "@src/user/auth.tsx"
+// }
+
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
 page RequestPasswordReset {
   component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
@@ -122,6 +136,17 @@ action updateTask {
 action deleteTasks {
   fn: import { deleteTasks } from "@src/task/actions.js",
   entities: [Task],
+}
+
+job PrintTimeAndNumberOfTasks {
+  executor: PgBoss,
+  perform: {
+    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
+  },
+  entities: [Task],
+  schedule: {
+    cron: "* * * * *"
+  }
 }
 
 api fooBar {
