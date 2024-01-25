@@ -70,6 +70,19 @@ entity Task {=psl
   userId      Int
 psl=}
 
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      overrideFn: import { getAllQuery } from "@src/task/crud.js",
+    },
+    create: {},
+    update: {},
+    get: {},
+    delete: {}
+  }
+}
+
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,

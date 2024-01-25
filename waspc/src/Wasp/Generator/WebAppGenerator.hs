@@ -43,7 +43,6 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.Generator.WebSocket as AS.WS
@@ -77,7 +76,6 @@ genWebApp spec = do
     <++> genPublicDir spec
     <++> genDotEnv spec
     <++> genEnvValidationScript
-    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 

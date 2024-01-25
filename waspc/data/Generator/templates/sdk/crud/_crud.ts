@@ -1,8 +1,8 @@
 {{={= =}=}}
-import { createAction } from "../actions/core";
-import { useAction } from "../actions";
-import { createQuery } from "../queries/core";
-import { useQuery } from "../queries";
+import { createAction } from "wasp/rpc/actions/core";
+import { useAction } from "wasp/rpc";
+import { createQuery } from "wasp/rpc/queries/core";
+import { useQuery } from "wasp/rpc";
 import { 
     {=# operations.Get =}
     GetQueryResolved,
@@ -19,7 +19,7 @@ import {
     {=# operations.Delete =}
     DeleteActionResolved,
     {=/ operations.Delete =}
-} from '../../../server/src/crud/{= name =}'
+} from 'wasp/server/crud/{= name =}'
 
 function createCrud() {
     {=# operations.Get =}
