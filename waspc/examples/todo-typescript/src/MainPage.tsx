@@ -3,14 +3,19 @@ import React, { useEffect, FormEventHandler, FormEvent } from "react";
 import logout from "wasp/auth/logout";
 import { useQuery, useAction } from "wasp/rpc"; // Wasp uses a thin wrapper around react-query
 import { getTasks } from "wasp/rpc/queries";
-import { createTask, updateTask, deleteTasks } from "wasp/rpc/actions";
+import {
+  createTask,
+  updateTask,
+  deleteTasks,
+  customEmailSending,
+} from "wasp/rpc/actions";
 import waspLogo from "./waspLogo.png";
 import type { Task } from "wasp/entities";
 import type { User } from "wasp/auth/types";
 import { getFirstProviderUserId } from "wasp/auth/user";
 import { Link } from "react-router-dom";
-import login from "wasp/auth/login";
-import signup from "wasp/auth/signup";
+// import login from "wasp/auth/login";
+// import signup from "wasp/auth/signup";
 import useAuth from 'wasp/auth/useAuth'
 
 export const MainPage = ({ user }: { user: User }) => {
@@ -20,14 +25,17 @@ export const MainPage = ({ user }: { user: User }) => {
   if (isLoading) return "Loading...";
   if (error) return "Error: " + error;
 
-  console.log(login);
-  console.log(signup);
+  // console.log(login);
+  // console.log(signup);
 
   const completed = tasks?.filter((task) => task.isDone).map((task) => task.id);
 
   return (
     <main>
       <img src={waspLogo} alt="wasp logo" />
+      <button onClick={() => customEmailSending(undefined)}>
+        customEmailSending
+      </button>
       <Link to="/chat">Wonna chat?</Link>
       {user && (
         <h1>

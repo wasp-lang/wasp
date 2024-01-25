@@ -120,6 +120,8 @@
       "./email": "./dist/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./email/core/types": "./dist/email/core/types.js",
+      {=!  Used by users, documented. =}
+      "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
       {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
       "./jobs/*": "./dist/jobs/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
