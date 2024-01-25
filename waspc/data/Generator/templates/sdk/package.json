@@ -119,7 +119,9 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./email/core/types": "./dist/email/core/types.js",
       {=!  Used by users, documented. =}
-      "./router": "./dist/router/index.js"
+      "./router": "./dist/router/index.js",
+      {=!  Used by users, documented. =}
+      "./server/auth/email/utils": "./dist/server/auth/email/utils.js"
    },
    "license": "ISC",
     "include": [

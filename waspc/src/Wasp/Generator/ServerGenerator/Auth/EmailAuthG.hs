@@ -25,21 +25,18 @@ import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Util (getRoutePathFromRef)
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as Email
-import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
-import qualified Wasp.Util as Util
 
 genEmailAuth :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth spec auth = case emailAuth of
   Just emailAuthConfig ->
     sequence
       [ genEmailAuthConfig spec emailAuthConfig,
-        genTypes emailAuthConfig,
-        genUtils auth
+        genTypes emailAuthConfig
       ]
       <++> genRoutes
   Nothing -> return []
@@ -109,17 +106,3 @@ genTypes _emailAuthConfig = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/email/types.ts|]
     tmplData = object []
-
-genUtils :: AS.Auth.Auth -> Generator FileDraft
-genUtils auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
-  where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/email/utils.ts|]
-    tmplData =
-      object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
-        ]
