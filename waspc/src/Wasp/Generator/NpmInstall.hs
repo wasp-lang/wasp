@@ -10,6 +10,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import qualified Data.Text as T
+import Debug.Pretty.Simple (pTrace)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -152,18 +153,19 @@ reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
       ]
 
 -- | Figure out if installation of npm deps is needed, be it for user npm deps (top level
--- package.json) or for wasp npm deps (web app, server).
+-- package.json), for wasp framework npm deps (web app, server), or for wasp sdk npm deps.
 --
 -- To this end, this code keeps track of the dependencies installed with a metadata file, which
 -- it updates after each install.
 --
 -- TODO(martin): Here, we do a single check for all the deps. This means we don't know if user deps
---   or wasp deps need installing, and so the user of this function will likely run `npm install`
---   for all of them, which means 3 times (for user npm deps, for wasp webapp npm deps, for wasp
---   server npm deps). We could, relatively easily, since we already differentiate all these deps,
---   return exact info on which deps need installation, and therefore run only needed npm installs.
---   We could return such info by either returning a triple (Bool, Bool, Bool) for (user, webapp, server) deps,
---   or we could return a list of enum which says which deps to install.
+--   or wasp sdk deps or wasp framework deps need installing, and so the user of this function will
+--   likely run `npm install` for all of them, which means 3 times (for user npm deps (+ wasp sdk
+--   deps, those are all done with single npm install), for wasp webapp npm deps, for wasp server
+--   npm deps). We could, relatively easily, since we already differentiate all these deps, return
+--   exact info on which deps need installation, and therefore run only needed npm installs. We
+--   could return such info by either returning a triple (Bool, Bool, Bool) for (user+sdk, webapp,
+--   server) deps, or we could return a list of enum which says which deps to install.
 areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir ProjectRootDir) -> IO Bool
 areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir

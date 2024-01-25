@@ -10,10 +10,10 @@ module Wasp.Generator.NpmDependencies
     NpmDepsForPackageError (..),
     conflictErrorToMessage,
     genNpmDepsForPackage,
-    NpmDepsForFullStack,
+    NpmDepsForFramework,
     NpmDepsForWasp (..),
     NpmDepsForUser (..),
-    buildWaspNpmDepsForFullStack,
+    buildWaspFrameworkNpmDeps,
   )
 where
 
@@ -28,15 +28,15 @@ import qualified Wasp.AppSpec.App.Dependency as D
 import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
-data NpmDepsForFullStack = NpmDepsForFullStack
+data NpmDepsForFramework = NpmDepsForFramework
   { npmDepsForServer :: NpmDepsForPackage,
     npmDepsForWebApp :: NpmDepsForPackage
   }
   deriving (Show, Eq, Generic)
 
-instance ToJSON NpmDepsForFullStack
+instance ToJSON NpmDepsForFramework
 
-instance FromJSON NpmDepsForFullStack
+instance FromJSON NpmDepsForFramework
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
@@ -92,12 +92,12 @@ genNpmDepsForPackage spec npmDepsForWasp =
                   ++ devDependenciesConflictErrors conflictErrorDeps
               )
 
-buildWaspNpmDepsForFullStack :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFullStack
-buildWaspNpmDepsForFullStack spec forServer forWebApp =
+buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFramework
+buildWaspFrameworkNpmDeps spec forServer forWebApp =
   case (combinedServerDeps, combinedWebAppDeps) of
     (Right a, Right b) ->
       Right
-        NpmDepsForFullStack
+        NpmDepsForFramework
           { npmDepsForServer = a,
             npmDepsForWebApp = b
           }

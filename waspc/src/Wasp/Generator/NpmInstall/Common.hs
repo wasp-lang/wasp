@@ -10,12 +10,14 @@ import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.NpmDependencies as N
+import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator as SG
 import qualified Wasp.Generator.WebAppGenerator as WG
 
 data AllNpmDeps = AllNpmDeps
   { _userNpmDeps :: !N.NpmDepsForUser, -- Deps coming from user's package.json .
-    _waspNpmDeps :: !N.NpmDepsForFullStack -- Deps coming from Wasp's framework code (webapp, server) package.jsons.
+    _waspFrameworkNpmDeps :: !N.NpmDepsForFramework, -- Deps coming from Wasp's framework code (webapp, server) package.jsons.
+    _waspSdkNpmDeps :: !N.NpmDepsForPackage -- Deps coming from Wasp's SDK's package.json .
   }
   deriving (Eq, Show, Generic)
 
@@ -26,7 +28,15 @@ instance FromJSON AllNpmDeps
 getAllNpmDeps :: AppSpec -> Either String AllNpmDeps
 getAllNpmDeps spec =
   let userNpmDeps = N.getUserNpmDepsForPackage spec
-      errorOrWaspNpmDeps = N.buildWaspNpmDepsForFullStack spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
-   in case errorOrWaspNpmDeps of
+      errorOrWaspFrameworkNpmDeps =
+        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
+      waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec
+   in case errorOrWaspFrameworkNpmDeps of
         Left message -> Left $ "determining npm deps to install failed: " ++ message
-        Right waspNpmDeps -> Right $ AllNpmDeps {_userNpmDeps = userNpmDeps, _waspNpmDeps = waspNpmDeps}
+        Right waspFrameworkNpmDeps ->
+          Right $
+            AllNpmDeps
+              { _userNpmDeps = userNpmDeps,
+                _waspFrameworkNpmDeps = waspFrameworkNpmDeps,
+                _waspSdkNpmDeps = waspSdkNpmDeps
+              }
