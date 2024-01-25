@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { EmailFromField } from "../../../email/core/types.js";
+import { EmailFromField } from "wasp/email/core/types";
 import {
     createUser,
     createProviderId,
@@ -14,9 +14,9 @@ import {
     createEmailVerificationLink,
     sendEmailVerificationEmail,
     isEmailResendAllowed,
-} from "./utils.js";
+} from "wasp/server/auth/email/utils";
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from 'wasp/auth/validation';
-import { GetVerificationEmailContentFn } from './types.js';
+import { GetVerificationEmailContentFn } from 'wasp/server/auth/email';
 import { validateAndGetUserFields } from 'wasp/auth/utils'
 import HttpError from 'wasp/core/HttpError';
 import { type UserSignupFields } from 'wasp/auth/providers/types';

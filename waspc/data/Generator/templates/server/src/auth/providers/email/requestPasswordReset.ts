@@ -9,10 +9,10 @@ import {
     createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
-} from "./utils.js";
+} from "wasp/server/auth/email/utils";
 import { ensureValidEmail } from 'wasp/auth/validation';
-import type { EmailFromField } from '../../../email/core/types.js';
-import { GetPasswordResetEmailContentFn } from './types.js';
+import type { EmailFromField } from 'wasp/email/core/types';
+import { GetPasswordResetEmailContentFn } from 'wasp/server/auth/email';
 import HttpError from 'wasp/core/HttpError';
 
 export function getRequestPasswordResetRoute({

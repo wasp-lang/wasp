@@ -302,6 +302,9 @@ library
     Wasp.Generator.SdkGenerator.RpcGenerator
     Wasp.Generator.SdkGenerator.JobGenerator
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
+    Wasp.Generator.SdkGenerator.EmailSenderG
+    Wasp.Generator.SdkGenerator.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
@@ -311,8 +314,6 @@ library
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
     Wasp.Generator.ServerGenerator.Db.Seed
-    Wasp.Generator.ServerGenerator.EmailSenderG
-    Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG

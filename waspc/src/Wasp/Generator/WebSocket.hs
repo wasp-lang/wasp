@@ -1,7 +1,7 @@
 module Wasp.Generator.WebSocket
   ( areWebSocketsUsed,
     serverDepsRequiredForWebSockets,
-    clientDepsRequiredForWebSockets,
+    sdkDepsRequiredForWebSockets,
   )
 where
 
@@ -27,8 +27,9 @@ serverDepsRequiredForWebSockets =
     AS.Dependency.make ("@socket.io/component-emitter", show socketIoComponentEmitterVersionRange)
   ]
 
-clientDepsRequiredForWebSockets :: [AS.Dependency.Dependency]
-clientDepsRequiredForWebSockets =
-  [ AS.Dependency.make ("socket.io-client", show socketIoVersionRange),
+sdkDepsRequiredForWebSockets :: [AS.Dependency.Dependency]
+sdkDepsRequiredForWebSockets =
+  [ AS.Dependency.make ("socket.io", show socketIoVersionRange),
+    AS.Dependency.make ("socket.io-client", show socketIoVersionRange),
     AS.Dependency.make ("@socket.io/component-emitter", show socketIoComponentEmitterVersionRange)
   ]

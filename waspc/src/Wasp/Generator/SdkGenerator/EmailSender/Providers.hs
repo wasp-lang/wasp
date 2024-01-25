@@ -1,16 +1,16 @@
-module Wasp.Generator.ServerGenerator.EmailSender.Providers
+module Wasp.Generator.SdkGenerator.EmailSender.Providers
   ( smtp,
     sendGrid,
     mailgun,
     dummy,
-    providersDirInServerSrc,
+    providersDirInSdkTemplatesDir,
     EmailSenderProvider (..),
   )
 where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.Generator.ServerGenerator.Common as C
+import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
@@ -23,6 +23,9 @@ data EmailSenderProvider = EmailSenderProvider
   deriving (Show, Eq)
 
 data ProvidersDir
+
+providersDirInSdkTemplatesDir :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
+providersDirInSdkTemplatesDir = [reldir|email/core/providers|]
 
 smtp :: EmailSenderProvider
 smtp =
@@ -73,6 +76,3 @@ dummy =
       setupFnFile = [relfile|dummy.ts|],
       isEnabledKey = "isDummyProviderUsed"
     }
-
-providersDirInServerSrc :: Path' (Rel C.ServerTemplatesSrcDir) (Dir ProvidersDir)
-providersDirInServerSrc = [reldir|email/core/providers|]

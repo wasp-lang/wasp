@@ -20,7 +20,7 @@ import type {
   FormState,
 } from '../../types'
 import { useHistory } from 'react-router-dom'
-import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
+import { useEmail } from '../email/useEmail'
 
 
 export type LoginSignupFormFields = {
@@ -50,10 +50,14 @@ export const LoginSignupForm = ({
   };
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
-  const { handleSubmit } = useUsernameAndPassword({
+  const { handleSubmit } = useEmail({
     isLogin,
     onError: onErrorHandler,
-    onSuccess() {
+    showEmailVerificationPending() {
+      hookForm.reset()
+      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
+    },
+    onLoginSuccess() {
       history.push('/')
     },
   });
@@ -71,15 +75,15 @@ export const LoginSignupForm = ({
   return (<>
         <Form onSubmit={hookFormHandleSubmit(onSubmit)}>
           <FormItemGroup>
-            <FormLabel>Username</FormLabel>
+            <FormLabel>E-mail</FormLabel>
             <FormInput
-              {...register('username', {
-                required: 'Username is required',
+              {...register('email', {
+                required: 'Email is required',
               })}
-              type="text"
+              type="email"
               disabled={isLoading}
             />
-            {errors.username && <FormError>{errors.username.message}</FormError>}
+            {errors.email && <FormError>{errors.email.message}</FormError>}
           </FormItemGroup>
           <FormItemGroup>
             <FormLabel>Password</FormLabel>

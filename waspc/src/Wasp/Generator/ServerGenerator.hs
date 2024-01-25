@@ -51,7 +51,6 @@ import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
-import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -78,7 +77,6 @@ genServer spec =
     <++> genJobExecutors spec
     <++> genPatches spec
     <++> genEnvValidationScript
-    <++> genExportedTypesDir spec
     <++> genApis spec
     <++> genCrud spec
   where
@@ -166,7 +164,6 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -213,7 +210,6 @@ genSrcDir spec =
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
-    <++> genEmailSender spec
     <++> genDbSeed spec
     <++> genMiddleware spec
     <++> genWebSockets spec
@@ -314,19 +310,6 @@ genEnvValidationScript =
   return
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
     ]
-
-genExportedTypesDir :: AppSpec -> Generator [FileDraft]
-genExportedTypesDir spec =
-  return
-    [ C.mkTmplFdWithData [relfile|src/types/index.ts|] (Just tmplData)
-    ]
-  where
-    tmplData =
-      object
-        [ "isEmailAuthEnabled" .= isEmailAuthEnabled
-        ]
-    isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
-    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =

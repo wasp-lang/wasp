@@ -2,6 +2,7 @@ import { createAction } from './core'
 import { CreateTask } from 'wasp/server/actions'
 import { UpdateTask } from 'wasp/server/actions'
 import { DeleteTasks } from 'wasp/server/actions'
+import { CustomEmailSending } from 'wasp/server/actions'
 
 export const createTask = createAction<CreateTask>(
   'operations/create-task',
@@ -16,4 +17,9 @@ export const updateTask = createAction<UpdateTask>(
 export const deleteTasks = createAction<DeleteTasks>(
   'operations/delete-tasks',
   ['Task'],
+)
+
+export const customEmailSending = createAction<CustomEmailSending>(
+  'operations/custom-email-sending',
+  ['User'],
 )

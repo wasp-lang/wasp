@@ -1,4 +1,4 @@
-import { DummyEmailProvider, EmailSender } from "../types.js";
+import { DummyEmailProvider, EmailSender } from "wasp/email/core/types";
 import { getDefaultFromField } from "../helpers.js";
 
 const yellowColor = "\x1b[33m%s\x1b[0m";

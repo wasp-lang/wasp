@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { EmailFromField } from "./types";
+import { EmailFromField } from "wasp/email/core/types";
 
 // Formats an email address and an optional name into a string that can be used
 // as the "from" field in an email.
