@@ -1,14 +1,9 @@
 import { useContext, useEffect } from 'react'
-import { WebSocketContext } from './webSocket/WebSocketProvider'
+import { WebSocketContext } from './WebSocketProvider'
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
-} from '../../server/src/webSocket'
-
-export type {
-  ClientToServerEvents,
-  ServerToClientEvents,
-} from '../../server/src/webSocket'
+} from 'wasp/server/webSocket'
 
 export type ServerToClientPayload<Event extends keyof ServerToClientEvents> =
   Parameters<ServerToClientEvents[Event]>[0]

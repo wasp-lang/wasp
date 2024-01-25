@@ -1,4 +1,4 @@
-import { defineUserSignupFields } from "wasp/auth/providers/types";
+import { defineUserSignupFields } from "wasp/auth";
 
 export const googleUserSignupFields = defineUserSignupFields({
   address: () => "Placeholder address",

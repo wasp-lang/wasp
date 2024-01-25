@@ -33,6 +33,10 @@
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
       {=!  Used by users, documented. =}
       "./types": "./dist/types/index.js",
+      {=!  Used by user, documented. =}
+      "./auth": "./dist/auth/index.js",
+      {=!  Used by users, documented. =}
+      "./auth/types": "./dist/auth/types.js",
       {=!  Used by users, documented. =}
       "./auth/login": "./dist/auth/login.js",
       {=!  Used by users, documented. =}
@@ -41,13 +45,15 @@
       "./auth/signup": "./dist/auth/signup.js",
       {=!  Used by users, documented. =}
       "./auth/useAuth": "./dist/auth/useAuth.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by users, documented. =}
       "./auth/user": "./dist/auth/user.js",
+      {=!  Used by users, documented. =}
+      "./auth/email": "./dist/auth/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/session": "./dist/auth/session.js",
-      {=!  Used by user, documented. =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/providers/types": "./dist/auth/providers/types.js",
       {=!  Used by user, documented. =}
       "./auth/utils": "./dist/auth/utils.js",
@@ -67,6 +73,10 @@
       "./auth/forms/ForgotPassword": "./dist/auth/forms/ForgotPassword.jsx",
       {=!  Used by users, documented. =}
       "./auth/forms/ResetPassword": "./dist/auth/forms/ResetPassword.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/internal/Form": "./dist/auth/forms/internal/Form.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/helpers/*": "./dist/auth/helpers/*.jsx",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by users, documented. =}
@@ -102,12 +112,27 @@
       "./server/actions": "./dist/server/actions/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/queries": "./dist/server/queries/index.js",
+      {=!  Used by users and also by our code, documented. =}
+      "./server/auth/email": "./dist/server/auth/email/index.js",
       {=!  Used by users, documented. =}
       "./dbSeed/types": "./dist/dbSeed/types.js",
       {=!  Used by users, documented. =}
       "./test": "./dist/test/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./test/*": "./dist/test/*"
+      "./test/*": "./dist/test/*.js",
+      {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
+      "./jobs/*": "./dist/jobs/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
+      "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
+      {=!  Used by users, documented. =}
+      "./router": "./dist/router/index.js",
+      {=!  Used by users, documented. =}
+      "./server/webSocket": "./dist/server/webSocket/index.js",
+      {=!  Used by users, documented. =}
+      "./webSocket": "./dist/webSocket/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx"
    },
    "license": "ISC",
     "include": [

@@ -7,7 +7,6 @@ module Wasp.Generator.WebAppGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Char (toLower)
 import Data.List (intercalate)
 import Data.Maybe (fromJust, isJust)
 import qualified FilePath.Extra as FP.Extra
@@ -25,12 +24,10 @@ import StrongPath
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.App (App (webSocket))
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
@@ -135,8 +132,7 @@ npmDepsForWasp spec =
             -- Used for Auth UI
             ("react-hook-form", "^7.45.4")
           ]
-          ++ depsRequiredByTailwind spec
-          ++ depsRequiredForWebSockets spec,
+          ++ depsRequiredByTailwind spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
@@ -172,11 +168,6 @@ depsRequiredForTesting =
       ("@testing-library/react", "^14.1.2"),
       ("@testing-library/jest-dom", "^6.3.0")
     ]
-
-depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredForWebSockets spec
-  | AS.WS.areWebSocketsUsed spec = AS.WS.clientDepsRequiredForWebSockets
-  | otherwise = []
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -233,7 +224,6 @@ genSrcDir spec =
     ]
     <++> genEntitiesDir spec
     <++> genAuth spec
-    <++> genWebSockets spec
     <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
@@ -279,25 +269,6 @@ genEnvValidationScript =
   return
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
     ]
-
-genWebSockets :: AppSpec -> Generator [FileDraft]
-genWebSockets spec
-  | AS.WS.areWebSocketsUsed spec =
-      sequence
-        [ genFileCopy [relfile|webSocket.ts|],
-          genWebSocketProvider spec
-        ]
-  | otherwise = return []
-  where
-    genFileCopy = return . C.mkSrcTmplFd
-
-genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
-  where
-    maybeWebSocket = webSocket $ snd $ getApp spec
-    shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
-    tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]
 
 -- todo(filip): Take care of this as well
 genViteConfig :: AppSpec -> Generator FileDraft
