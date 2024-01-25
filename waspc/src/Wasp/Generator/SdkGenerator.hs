@@ -42,6 +42,7 @@ import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
@@ -97,6 +98,7 @@ genSdkReal spec =
     <++> genEntitiesAndServerTypesDirs spec
     <++> genJobTypes spec
     <++> genApis spec
+    <++> genWebSockets spec
     <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
@@ -206,7 +208,8 @@ genPackageJson spec =
               -- runtime to load the wrong (uninitialized prisma/client)
               -- TODO(filip): Find a better way to handle duplicate
               -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
-              ++ ServerAuthG.depsRequiredByAuth spec,
+              ++ ServerAuthG.depsRequiredByAuth spec
+              ++ depsRequiredByWebSockets spec,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")

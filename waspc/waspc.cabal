@@ -301,6 +301,7 @@ library
     Wasp.Generator.SdkGenerator.RpcGenerator
     Wasp.Generator.SdkGenerator.JobGenerator
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
+    Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
