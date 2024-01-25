@@ -5,6 +5,7 @@ import type {
   DeleteTasks,
 } from 'wasp/server/actions/types'
 import type { Task } from 'wasp/entities'
+import { emailSender } from 'wasp/email'
 
 type CreateArgs = Pick<Task, 'description'>
 
@@ -15,6 +16,17 @@ export const createTask: CreateTask<CreateArgs, Task> = async (
   if (!context.user) {
     throw new HttpError(401)
   }
+
+  emailSender.send({
+    to: 'test@test.com',
+    from: {
+      name: 'Test',
+      email: 'test@test.com'
+    },
+    subject: 'Test email',
+    text: 'Thank you for using our app!',
+    html: '<h1>Thank you for using our app!</h1>',
+  })
 
   return context.entities.Task.create({
     data: {
