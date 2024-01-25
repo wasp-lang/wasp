@@ -28,13 +28,13 @@ genHelpers auth =
         [googleHelpers | AS.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.jsx|]
-    googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.jsx|]
+    gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
+    googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.tsx|]
 
     mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     mkHelpersFd provider helpersFp =
       mkTmplFdWithDstAndData
-        [relfile|auth/helpers/Generic.jsx|]
+        [relfile|auth/helpers/Generic.tsx|]
         (SP.castRel $ [reldir|auth/helpers|] SP.</> helpersFp)
         (Just tmplData)
       where

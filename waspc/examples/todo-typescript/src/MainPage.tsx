@@ -11,9 +11,11 @@ import { getFirstProviderUserId } from 'wasp/auth/user'
 import { Tasks } from 'wasp/crud/Tasks'
 import login from 'wasp/auth/login'
 import signup from 'wasp/auth/signup'
+import useAuth from 'wasp/auth/useAuth'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
+  const { data: userAgain } = useAuth()
 
   const { data: allTasks } = Tasks.getAll.useQuery()
 

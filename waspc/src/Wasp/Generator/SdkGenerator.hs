@@ -39,6 +39,8 @@ import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
+import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -82,6 +84,7 @@ genSdkReal spec =
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],
+      genFileCopy [relfile|jobs/pgBoss/types.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -94,7 +97,9 @@ genSdkReal spec =
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCrud spec
+    <++> genJobTypes spec
     <++> genApis spec
+    <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
   where

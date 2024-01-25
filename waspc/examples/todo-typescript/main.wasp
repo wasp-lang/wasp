@@ -41,8 +41,11 @@ app TodoTypescript {
     system: PostgreSQL
   },
   server: {
-    setupFn: import { serverSetup } from "@src/serverSetup.js",
-    middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup.js"
+    setupFn: import { serverSetup } from "@src/setup/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/setup/serverSetup.js"
+  },
+  client: {
+    setupFn: import setup from "@src/setup/clientSetup.js"
   }
 }
 
@@ -134,12 +137,23 @@ action deleteTasks {
   entities: [Task],
 }
 
+job PrintTimeAndNumberOfTasks {
+  executor: PgBoss,
+  perform: {
+    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
+  },
+  entities: [Task],
+  schedule: {
+    cron: "* * * * *"
+  }
+}
+
 api fooBar {
   fn: import { fooBar } from "@src/api.js",
   httpRoute: (GET, "/foo/bar")
 }
 
 apiNamespace fooBarNamespace {
-  middlewareConfigFn: import { fooBarNamespace } from "@src/serverSetup.js",
+  middlewareConfigFn: import { fooBarNamespace } from "@src/setup/serverSetup.js",
   path: "/foo/bar"
 }
