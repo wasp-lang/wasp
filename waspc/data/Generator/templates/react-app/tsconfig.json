@@ -7,7 +7,6 @@
     "strict": false,
     // Allow importing pages with the .tsx extension.
     "allowImportingTsExtensions": true,
-    "types": ["@testing-library/jest-dom"]
   },
   "include": [
     "src"
