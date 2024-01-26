@@ -10,13 +10,38 @@ const env = process.env.NODE_ENV || 'development'
 //   - Use convict library to define schema and validate env vars.
 //  https://codingsans.com/blog/node-config-best-practices
 
-const config = {
+type BaseConfig = {
+  allowedCORSOrigins: string | string[];
+  {=# isAuthEnabled =}
+  auth: {
+    jwtSecret: string | undefined;
+  }
+  {=/ isAuthEnabled =}
+}
+
+type CommonConfig = BaseConfig & {
+  env: string;
+  isDevelopment: boolean;
+  port: number;
+  databaseUrl: string | undefined;
+}
+
+type EnvConfig = BaseConfig & {
+  frontendUrl: string;
+}
+
+type Config = CommonConfig & EnvConfig
+
+const config: {
+  all: CommonConfig,
+  development: EnvConfig,
+  production: EnvConfig,
+} = {
   all: {
     env,
     isDevelopment: env === 'development',
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.{= databaseUrlEnvVarName =},
-    frontendUrl: undefined,
     allowedCORSOrigins: [],
     {=# isAuthEnabled =}
     auth: {
@@ -28,10 +53,10 @@ const config = {
   production: getProductionConfig(),
 }
 
-const resolvedConfig = merge(config.all, config[env])
+const resolvedConfig = merge(config.all, config[env]) as Config
 export default resolvedConfig
 
-function getDevelopmentConfig() {
+function getDevelopmentConfig(): EnvConfig {
   const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL || '{= defaultClientUrl =}');
   return {
     frontendUrl,
@@ -44,7 +69,7 @@ function getDevelopmentConfig() {
   }
 }
 
-function getProductionConfig() {
+function getProductionConfig(): EnvConfig {
   const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL);
   return {
     frontendUrl,

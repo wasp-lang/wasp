@@ -1,5 +1,8 @@
 class HttpError extends Error {
-  constructor (statusCode, message, data, ...params) {
+  public statusCode: number
+  public data: unknown
+  
+  constructor (statusCode: number, message?: string, data?: Record<string, unknown>, ...params: unknown[]) {
     super(message, ...params)
 
     if (Error.captureStackTrace) {

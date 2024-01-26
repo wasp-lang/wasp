@@ -1,4 +1,4 @@
-export function isValidAbsoluteURL(rawUrl) {
+export function isValidAbsoluteURL(rawUrl: string): boolean {
     try {
         const url = new URL(rawUrl);
         /*
@@ -14,7 +14,7 @@ export function isValidAbsoluteURL(rawUrl) {
     }
 }
 
-export function throwIfNotValidAbsoluteURL(value, name) {
+export function throwIfNotValidAbsoluteURL(value: string | undefined, name: string): void {
     if (value && !isValidAbsoluteURL(value)) {
         throw new Error(`${name} must be a valid absolute URL`);
     }

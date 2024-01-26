@@ -179,7 +179,7 @@ export async function doFakeWork(): Promise<unknown> {
 
 export function rethrowPossibleAuthError(e: unknown): void {
   if (e instanceof AuthError) {
-    throwValidationError((e as any).message);
+    throwValidationError(e.message);
   }
   
   // Prisma code P2002 is for unique constraint violations.

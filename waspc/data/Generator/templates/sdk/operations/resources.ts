@@ -5,7 +5,7 @@ import { hashQueryKey } from '@tanstack/react-query'
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
-const resourceToQueryCacheKeys = new Map()
+const resourceToQueryCacheKeys: Map<string, Set<string[]>> = new Map()
 
 const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
 /**
@@ -14,7 +14,7 @@ const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
  * @param {string[]} queryCacheKey - Unique key under used to identify query in the cache.
  * @param {string[]} resources - Names of resources that query is using.
  */
-export function addResourcesUsedByQuery(queryCacheKey, resources) {
+export function addResourcesUsedByQuery(queryCacheKey: string[], resources: string[]): void {
   for (const resource of resources) {
     let cacheKeys = resourceToQueryCacheKeys.get(resource)
     if (!cacheKeys) {
@@ -25,22 +25,27 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
   }
 }
 
-export function registerActionInProgress(optimisticUpdateTuples) {
+type OptimisticUpdateTuple = {
+  queryKey: string[],
+  updateQuery: () => void
+}
+
+export function registerActionInProgress(optimisticUpdateTuples: OptimisticUpdateTuple[]): void {
   optimisticUpdateTuples.forEach(
     ({ queryKey, updateQuery }) => updateHandlers.add(queryKey, updateQuery)
   )
 }
 
-export async function registerActionDone(resources, optimisticUpdateTuples) {
+export async function registerActionDone(resources: string[], optimisticUpdateTuples: OptimisticUpdateTuple[]): Promise<void> {
   optimisticUpdateTuples.forEach(({ queryKey }) => updateHandlers.remove(queryKey))
   await invalidateQueriesUsing(resources)
 }
 
-export function getActiveOptimisticUpdates(queryKey) {
+export function getActiveOptimisticUpdates(queryKey: string[]): (() => void)[] {
   return updateHandlers.getUpdateHandlers(queryKey)
 }
 
-export async function invalidateAndRemoveQueries() {
+export async function invalidateAndRemoveQueries(): Promise<void> {
   const queryClient = await queryClientInitialized
   // If we don't reset the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
@@ -59,7 +64,7 @@ export async function invalidateAndRemoveQueries() {
  * Invalidates all queries that are using specified resources.
  * @param {string[]} resources - Names of resources.
  */
-async function invalidateQueriesUsing(resources) {
+async function invalidateQueriesUsing(resources: string[]): Promise<void> {
   const queryClient = await queryClientInitialized
 
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
@@ -72,10 +77,10 @@ async function invalidateQueriesUsing(resources) {
  * @param {string} resource - Resource name.
  * @returns {string[]} Array of "query cache keys" of queries that use specified resource.
  */
-function getQueriesUsingResource(resource) {
+function getQueriesUsingResource(resource: string): string[][] {
   return Array.from(resourceToQueryCacheKeys.get(resource) || [])
 }
 
-function getQueriesUsingResources(resources) {
+function getQueriesUsingResources(resources: string[]): string[][] {
   return Array.from(new Set(resources.flatMap(getQueriesUsingResource)))
 }
