@@ -34,8 +34,11 @@ const defaultViteConfig = {
     environment: "jsdom",
     // vitest is running from the root of the project, so we need
     // to specify the path to the setup file relative to the root.
-    setupFiles: {=& vitestSetupFilesArray =},
-    exclude: [...defaultExclude, ".wasp/**/*"]
+    setupFiles: {=& vitest.setupFilesArray =},
+    exclude: [
+      ...defaultExclude,
+      "{= vitest.excludeWaspArtefactsPattern =}",
+    ]
   },
 };
 

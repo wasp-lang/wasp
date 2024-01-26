@@ -272,7 +272,11 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
           "defaultClientPort" .= C.defaultClientPort,
-          "vitestSetupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles
+          "vitest"
+            .= object
+              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
+                "excludeWaspArtefactsPattern" .= SP.fromRelFile (dotWaspDirInWaspProjectDir </> [relfile|**/*|])
+              ]
         ]
     vitestSetupFiles =
       [ SP.fromRelFile $
