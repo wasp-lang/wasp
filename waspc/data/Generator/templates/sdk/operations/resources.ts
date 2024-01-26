@@ -1,5 +1,5 @@
 import { queryClientInitialized } from 'wasp/rpc/queryClient'
-import { makeUpdateHandlersMap } from './updateHandlersMap'
+import { makeUpdateHandlersMap, type UpdateQueryFn } from './updateHandlersMap'
 import { hashQueryKey } from '@tanstack/react-query'
 
 // Map where key is resource name and value is Set
@@ -27,7 +27,7 @@ export function addResourcesUsedByQuery(queryCacheKey: string[], resources: stri
 
 type OptimisticUpdateTuple = {
   queryKey: string[],
-  updateQuery: () => void
+  updateQuery: (...args: any[]) => any,
 }
 
 export function registerActionInProgress(optimisticUpdateTuples: OptimisticUpdateTuple[]): void {
@@ -41,7 +41,7 @@ export async function registerActionDone(resources: string[], optimisticUpdateTu
   await invalidateQueriesUsing(resources)
 }
 
-export function getActiveOptimisticUpdates(queryKey: string[]): (() => void)[] {
+export function getActiveOptimisticUpdates(queryKey: string[]): UpdateQueryFn[] {
   return updateHandlers.getUpdateHandlers(queryKey)
 }
 

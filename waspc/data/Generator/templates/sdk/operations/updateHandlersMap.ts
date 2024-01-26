@@ -1,10 +1,3 @@
-type UpdateHandler = {
-  queryKey: string[];
-  updateQuery: UpdateQueryFn;
-}
-
-type UpdateQueryFn = () => any;
-
 export function makeUpdateHandlersMap(calculateHash: (queryKey: string[]) => string): {
   add: (queryKey: string[], updateQuery: UpdateQueryFn) => void,
   remove: (queryKey: string[]) => void,
@@ -45,4 +38,11 @@ export function makeUpdateHandlersMap(calculateHash: (queryKey: string[]) => str
     remove,
     getUpdateHandlers,
   }
+}
+
+export type UpdateQueryFn = (...args: any[]) => any;
+
+type UpdateHandler = {
+  queryKey: string[];
+  updateQuery: UpdateQueryFn;
 }
