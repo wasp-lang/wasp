@@ -141,7 +141,11 @@
       {=!  Used by users, documented. =}
       "./webSocket": "./dist/webSocket/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx"
+      "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
+
+      {=! ================= NEW API HERE =================== =}
+      {=! Public: { type MyEntity1, type MyEntity2, ... }  =}
+      "./server/api": "./dist/server/api/index.js"
    },
    "license": "ISC",
     "include": [

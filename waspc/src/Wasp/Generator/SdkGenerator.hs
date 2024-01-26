@@ -35,7 +35,6 @@ import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
@@ -43,6 +42,7 @@ import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSe
 import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
+import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -100,7 +100,7 @@ genSdkReal spec =
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCrud spec
     <++> genJobTypes spec
-    <++> genApis spec
+    <++> genServerApi spec
     <++> genWebSockets spec
     <++> genRouter spec
     <++> genMiddleware spec
