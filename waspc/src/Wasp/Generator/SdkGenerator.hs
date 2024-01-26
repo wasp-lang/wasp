@@ -216,7 +216,8 @@ genPackageJson spec =
               -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
               ++ ServerAuthG.depsRequiredByAuth spec
               ++ depsRequiredByEmail spec
-              ++ depsRequiredByWebSockets spec,
+              ++ depsRequiredByWebSockets spec
+              ++ depsRequiredForTesting,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")

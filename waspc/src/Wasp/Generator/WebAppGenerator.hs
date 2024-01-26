@@ -32,7 +32,8 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
-  ( makeJsonWithEntityData,
+  ( makeJsArrayFromHaskellList,
+    makeJsonWithEntityData,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -42,6 +43,7 @@ import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
+import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir, webAppSrcDirInWebAppRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
@@ -53,6 +55,7 @@ import Wasp.JsImport
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import qualified Wasp.Project.Common as Project
 import Wasp.Util ((<++>))
 
@@ -268,8 +271,17 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
-          "defaultClientPort" .= C.defaultClientPort
+          "defaultClientPort" .= C.defaultClientPort,
+          "vitestSetupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles
         ]
+    vitestSetupFiles =
+      [ SP.fromRelFile $
+          dotWaspDirInWaspProjectDir
+            </> generatedCodeDirInDotWaspDir
+            </> webAppRootDirInProjectRootDir
+            </> webAppSrcDirInWebAppRootDir
+            </> [relfile|test/vitest/setup.ts|]
+      ]
 
     makeCustomViteConfigJsImport :: Path' (Rel Project.WaspProjectDir) File' -> JsImport
     makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
