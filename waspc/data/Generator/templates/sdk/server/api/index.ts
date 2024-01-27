@@ -14,8 +14,8 @@ import {
   {=/ shouldImportAuthenticatedApi =}
 } from '../_types'
 
-// PUBLIC API
 
+// PUBLIC API
 {=# apiRoutes =}
 export type {= typeName =}<
   P extends ExpressParams = ExpressParams,
@@ -23,7 +23,7 @@ export type {= typeName =}<
   ReqBody = any,
   ReqQuery extends ExpressQuery = ExpressQuery,
   Locals extends Record<string, any> = Record<string, any>
-> = 
+> =
   {=# usesAuth =}
   AuthenticatedApi<
   {=/ usesAuth =}
@@ -41,5 +41,4 @@ export type {= typeName =}<
     ReqQuery,
     Locals
   >
-
 {=/ apiRoutes =}

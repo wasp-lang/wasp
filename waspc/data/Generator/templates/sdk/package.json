@@ -83,8 +83,6 @@
       "./auth/helpers/*": "./dist/auth/helpers/*.jsx",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
-      {=!  Used by users, documented. =}
-      "./api": "./dist/api/index.js",
       {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
       "./api/events": "./dist/api/events.js",
       {=!  Used by users, documented. =}
@@ -144,13 +142,29 @@
       "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
 
       {=! ================= NEW API HERE =================== =}
-      {=! Public: { type MyEntity1, type MyEntity2, ... }  =}
-      "./server/api": "./dist/server/api/index.js"
+      {=! Public: { type MyEntity1, type MyEntity2, ... } =}
+      {=! Private: [] =}
+      "./server/api": "./dist/server/api/index.js",
+      {=! Public: { api }  =}
+      {=! Private: [sdk] =}
+      "./client/api": "./dist/api/index.js"
+   },
+   {=!
+     TypeScript doesn't care about the redirects we define above in "exports" field; those
+     are used only in runtime. TypeScript instead follows exact path as stated in an import when
+     trying to find the type declarations. Therefore, when "exports" redirect doesn't match the path
+     it redirects to, we need to also let TypeScript know about it, and that can be done with
+     `typesVersions` field below.
+    =}
+   "typesVersions": {
+     "*": {
+       "client/api": ["api/index.ts"]
+     }
    },
    "license": "ISC",
     "include": [
       "src/**/*"
    ],
-  {=& depsChunk =},
-  {=& devDepsChunk =}
+   {=& depsChunk =},
+   {=& devDepsChunk =}
 }
