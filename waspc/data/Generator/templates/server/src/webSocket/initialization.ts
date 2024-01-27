@@ -4,8 +4,7 @@ import http from 'http'
 import { Server, Socket } from 'socket.io'
 import type { ServerType } from 'wasp/server/webSocket'
 
-import config from 'wasp/server/config'
-import prisma from 'wasp/server/dbClient'
+import { config, prisma } from 'wasp/server'
 
 {=# isAuthEnabled =}
 import { getSessionAndUserFromSessionId } from 'wasp/auth/session'

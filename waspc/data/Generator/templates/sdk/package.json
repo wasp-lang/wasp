@@ -100,12 +100,6 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
-      {=!  Used by users and by our code, documented =}
-      "./server/dbClient": "./dist/server/dbClient.js",
-      {=!  Used by users and by our code, documented. =}
-      "./server/config": "./dist/server/config.js",
-      {=!  Used by users and by our code, documented. =}
-      "./server/types": "./dist/server/types/index.js",
       {=!  Used by users and by our code, documented. =}
       "./server/middleware": "./dist/server/middleware/index.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
@@ -144,7 +138,13 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
 
+      {=! Still needed, reconsider during refactoring =}
+      "./server/types": "./dist/server/types/index.js",
+
       {=! ================= NEW API HERE =================== =}
+      {=! Public: { config, prisma, type ServerSetupFn } =}
+      {=! Private: [] =}
+      "./server": "./dist/server/index.js",
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
       {=! Private: [] =}
       "./server/api": "./dist/server/api/index.js",
@@ -158,7 +158,7 @@
      trying to find the type declarations. Therefore, when "exports" redirect doesn't match the path
      it redirects to, we need to also let TypeScript know about it, and that can be done with
      `typesVersions` field below.
-    =}
+   =}
    "typesVersions": {
      "*": {
        "client/api": ["api/index.ts"]

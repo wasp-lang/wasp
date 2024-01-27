@@ -54,6 +54,7 @@ const config: {
 }
 
 const resolvedConfig: Config = merge(config.all, config[env])
+// PUBLIC API
 export default resolvedConfig
 
 function getDevelopmentConfig(): EnvConfig {

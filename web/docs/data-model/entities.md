@@ -77,9 +77,9 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
 <TabItem value="js" label="JavaScript">
 
 ```js
-import prismaClient from '@wasp/dbClient'`
+import prisma from '@wasp/dbClient'`
 
-prismaClient.task.create({
+prisma.task.create({
     description: "Read the Entities doc",
     isDone: true // almost :)
 })
@@ -89,9 +89,9 @@ prismaClient.task.create({
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import prismaClient from '@wasp/dbClient'`
+import prisma from '@wasp/dbClient'`
 
-prismaClient.task.create({
+prisma.task.create({
     description: "Read the Entities doc",
     isDone: true // almost :)
 })

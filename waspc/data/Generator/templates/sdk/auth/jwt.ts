@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import util from 'util'
 
-import config from 'wasp/server/config'
+import { config } from 'wasp/server'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)

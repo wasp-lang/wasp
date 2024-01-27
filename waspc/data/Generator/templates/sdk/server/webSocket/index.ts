@@ -3,7 +3,7 @@
 import { Server } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 {=# isAuthEnabled =}
 import { type SanitizedUser } from 'wasp/server/_types/index.js'
 {=/ isAuthEnabled =}

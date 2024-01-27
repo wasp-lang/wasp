@@ -1,6 +1,6 @@
 import passport from "passport";
 
-import waspServerConfig from 'wasp/server/config';
+import { config as waspServerConfig } from 'wasp/server';
 
 import type { InitData, ProviderConfig, RequestWithWasp, UserSignupFields } from "wasp/auth/providers/types";
 import type { OAuthConfig, UserDefinedConfigFn  } from "./types.js";

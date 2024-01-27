@@ -1,3 +1,3 @@
 import type { PrismaClient } from '@prisma/client'
 
-export type DbSeedFn = (prismaClient: PrismaClient) => Promise<void>
+export type DbSeedFn = (prisma: PrismaClient) => Promise<void>
