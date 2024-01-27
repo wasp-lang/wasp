@@ -1,5 +1,5 @@
 {{={= =}=}}
-import api, { handleApiError } from 'wasp/api'
+import { api, handleApiError } from 'wasp/client/api'
 
 export default async function signup(userFields: { username: string; password: string }): Promise<void> {
   try {

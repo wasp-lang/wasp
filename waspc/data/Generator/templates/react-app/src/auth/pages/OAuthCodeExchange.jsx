@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import config from 'wasp/core/config'
-import api from 'wasp/api'
+import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
 
 // After a user authenticates via an Oauth 2.0 provider, this is the page that
