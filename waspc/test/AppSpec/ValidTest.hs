@@ -2,6 +2,7 @@
 
 module AppSpec.ValidTest where
 
+import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
@@ -17,6 +18,7 @@ import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
+import qualified Wasp.AppSpec.PackageJson as AS.PJS
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
@@ -344,7 +346,6 @@ spec_AppSpecValid = do
           AS.App.server = Nothing,
           AS.App.client = Nothing,
           AS.App.auth = Nothing,
-          AS.App.dependencies = Nothing,
           AS.App.head = Nothing,
           AS.App.emailSender = Nothing,
           AS.App.webSocket = Nothing
@@ -358,6 +359,12 @@ spec_AppSpecValid = do
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
           AS.externalPublicFiles = [],
+          AS.packageJson =
+            AS.PJS.PackageJson
+              { AS.PJS.name = "testApp",
+                AS.PJS.dependencies = M.empty,
+                AS.PJS.devDependencies = M.empty
+              },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.devEnvVarsClient = [],

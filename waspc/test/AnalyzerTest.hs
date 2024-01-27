@@ -18,7 +18,6 @@ import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as Db
-import qualified Wasp.AppSpec.App.Dependency as Dependency
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
@@ -51,25 +50,22 @@ spec_Analyzer = do
                 "    userEntity: User,",
                 "    methods: {",
                 "      usernameAndPassword: {",
-                "        userSignupFields: import { getUserFields } from \"@server/auth/signup.js\",",
+                "        userSignupFields: import { getUserFields } from \"@src/auth/signup.js\",",
                 "      }",
                 "    },",
                 "    onAuthFailedRedirectTo: \"/\",",
                 "  },",
-                "  dependencies: [",
-                "    (\"redux\", \"^4.0.5\")",
-                "  ],",
                 "  server: {",
-                "    setupFn: import { setupServer } from \"@server/bar.js\"",
+                "    setupFn: import { setupServer } from \"@src/bar.js\"",
                 "  },",
                 "  client: {",
-                "    rootComponent: import { App } from \"@client/App.jsx\",",
-                "    setupFn: import { setupClient } from \"@client/baz.js\",",
+                "    rootComponent: import { App } from \"@src/App.jsx\",",
+                "    setupFn: import { setupClient } from \"@src/baz.js\",",
                 "    baseDir: \"/\"",
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL,",
-                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ],",
+                "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds.js\" ],",
                 "    prisma: {",
                 "      clientPreviewFeatures: [\"extendedWhereUnique\"],",
                 "      dbExtensions: [{ name: \"pg_trgm\", version: \"1.0.0\" }]",
@@ -89,23 +85,23 @@ spec_Analyzer = do
                 "psl=}",
                 "",
                 "page HomePage {",
-                "  component: import Home from \"@client/pages/Main\"",
+                "  component: import Home from \"@src/pages/Main\"",
                 "}",
                 "",
                 "page ProfilePage {",
-                "  component: import { profilePage } from \"@client/pages/Profile\",",
+                "  component: import { profilePage } from \"@src/pages/Profile\",",
                 "  authRequired: true",
                 "}",
                 "",
                 "route HomeRoute { path: \"/\", to: HomePage }",
                 "",
                 "query getUsers {",
-                "  fn: import { getAllUsers } from \"@server/foo.js\",",
+                "  fn: import { getAllUsers } from \"@src/foo.js\",",
                 "  entities: [User]",
                 "}",
                 "",
                 "action updateUser {",
-                "  fn: import { updateUser } from \"@server/foo.js\",",
+                "  fn: import { updateUser } from \"@src/foo.js\",",
                 "  entities: [User],",
                 "  auth: true",
                 "}",
@@ -113,7 +109,7 @@ spec_Analyzer = do
                 "job BackgroundJob {",
                 "  executor: PgBoss,",
                 "  perform: {",
-                "    fn: import { backgroundJob } from \"@server/jobs/baz.js\",",
+                "    fn: import { backgroundJob } from \"@src/jobs/baz.js\",",
                 "    executorOptions: {",
                 "      pgBoss: {=json { \"retryLimit\": 1 } json=}",
                 "    }",
@@ -155,10 +151,6 @@ spec_Analyzer = do
                             Auth.onAuthFailedRedirectTo = "/",
                             Auth.onAuthSucceededRedirectTo = Nothing
                           },
-                    App.dependencies =
-                      Just
-                        [ Dependency.Dependency {Dependency.name = "redux", Dependency.version = "^4.0.5"}
-                        ],
                     App.server =
                       Just
                         Server.Server
@@ -350,7 +342,7 @@ spec_Analyzer = do
       let source =
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
-                "page HomePage { component: import Home from \"@client/HomePage.js\" }"
+                "page HomePage { component: import Home from \"@src/HomePage.js\" }"
               ]
       isRight (analyze source) `shouldBe` True
 
@@ -360,22 +352,22 @@ spec_Analyzer = do
               unlines
                 [ "app MyApp {",
                   "  title: \"My app\",",
-                  "  dependencies: [",
-                  "    (\"bar\", 13),",
-                  "    (\"foo\", 14)",
-                  "  ]",
+                  "  db: {",
+                  "    seeds: [ (\"foo\", \"bar\") ],",
+                  "  }",
                   "}"
                 ]
         analyze source
-          `errorMessageShouldBe` ( ctx (4, 5) (4, 15),
+          `errorMessageShouldBe` ( ctx (4, 14) (4, 27),
                                    intercalate
                                      "\n"
                                      [ "Type error:",
-                                       "  Expected type: (string, string)",
-                                       "  Actual type:   (string, number)",
+                                       "  Expected type: external import",
+                                       "  Actual type:   (string, string)",
                                        "",
-                                       "  -> For dictionary field 'dependencies':",
-                                       "    -> In list"
+                                       "  -> For dictionary field 'db':",
+                                       "    -> For dictionary field 'seeds':",
+                                       "      -> In list"
                                      ]
                                  )
 
@@ -384,22 +376,19 @@ spec_Analyzer = do
               unlines
                 [ "app MyApp {",
                   "  title: \"My app\",",
-                  "  dependencies: [",
-                  "    { name: \"bar\", version: 13 },",
-                  "    { name: \"foo\", version: \"1.2.3\" }",
-                  "  ]",
+                  "  db: {",
+                  "    seeds: [ 42, \"foo\" ],",
+                  "  }",
                   "}"
                 ]
         analyze source
-          `errorMessageShouldBe` ( ctx (5, 29) (5, 35),
+          `errorMessageShouldBe` ( ctx (4, 18) (4, 22),
                                    intercalate
                                      "\n"
                                      [ "Type error:",
                                        "  Can't mix the following types:",
                                        "   - number",
-                                       "   - string",
-                                       "",
-                                       "  -> For dictionary field 'version'"
+                                       "   - string"
                                      ]
                                  )
 

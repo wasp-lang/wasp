@@ -13,7 +13,7 @@ module Wasp.Project.Common
     dotWaspInfoFileInGeneratedCodeDir,
     packageJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
-    extCodeDirInWaspProjectDir,
+    srcDirInWaspProjectDir,
     extPublicDirInWaspProjectDir,
   )
 where
@@ -66,8 +66,8 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageJsonInWaspProjectDir = [relfile|package.json|]
 
-extCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extCodeDirInWaspProjectDir = [reldir|src|]
+srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
+srcDirInWaspProjectDir = [reldir|src|]
 
 extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
 extPublicDirInWaspProjectDir = [reldir|public|]
