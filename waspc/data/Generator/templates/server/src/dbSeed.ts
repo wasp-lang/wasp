@@ -6,7 +6,7 @@
 // TODO: Consider in the future moving it into a a separate project (maybe db/ ?), while still
 //   maintaining access to logic from the server/ .
 
-import prismaClient from 'wasp/server/dbClient'
+import { prismaClient } from 'wasp/server'
 import type { DbSeedFn } from 'wasp/dbSeed/types'
 
 {=# dbSeeds =}

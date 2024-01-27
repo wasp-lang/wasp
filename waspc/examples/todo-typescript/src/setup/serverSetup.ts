@@ -1,9 +1,7 @@
-import express from 'express'
+import express, { Application } from 'express'
 import cors from 'cors'
 import type { MiddlewareConfigFn } from 'wasp/server/middleware'
-import config from 'wasp/server/config'
-import type { Application, ServerSetupFn } from 'wasp/server/types'
-import prismaClient from 'wasp/server/dbClient'
+import { config, ServerSetupFn, prismaClient } from 'wasp/server'
 
 export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   // Example of adding an extra domains to CORS.

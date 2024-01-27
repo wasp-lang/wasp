@@ -100,12 +100,6 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
-      {=!  Used by users and by our code, documented =}
-      "./server/dbClient": "./dist/server/dbClient.js",
-      {=!  Used by users and by our code, documented. =}
-      "./server/config": "./dist/server/config.js",
-      {=!  Used by users and by our code, documented. =}
-      "./server/types": "./dist/server/types/index.js",
       {=!  Used by users and by our code, documented. =}
       "./server/middleware": "./dist/server/middleware/index.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
@@ -141,7 +135,13 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
 
+      {=! Still needed, remove when refactoring =}
+      "./server/types": "./dist/server/types/index.js",
+
       {=! ================= NEW API HERE =================== =}
+      {=! Public: { config, prismaClient, type ServerSetupFn } =}
+      {=! Private: [] =}
+      "./server": "./dist/server/index.js",
       {=! Public: { type MyEntity1, type MyEntity2, ... } =}
       {=! Private: [] =}
       "./server/api": "./dist/server/api/index.js",

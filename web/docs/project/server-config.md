@@ -72,7 +72,8 @@ function addCustomRoute(app) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/server/myServerSetupCode.ts"
-import { ServerSetupFn, Application } from '@wasp/types'
+import { ServerSetupFn } from 'wasp/server'
+import { Application } from 'express'
 
 export const mySetupFunction: ServerSetupFn = async ({ app }) => {
   addCustomRoute(app)

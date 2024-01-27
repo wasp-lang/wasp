@@ -9,4 +9,5 @@ const createDbClient = () => {
 
 const dbClient = createDbClient()
 
+// PUBLIC API
 export default dbClient
