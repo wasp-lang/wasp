@@ -61,6 +61,8 @@
       "./server/queries": "./dist/server/queries/index.js",
       "./server/auth/email": "./dist/server/auth/email/index.js",
       "./dbSeed/types": "./dist/dbSeed/types.js",
+      "./test": "./dist/test/index.js",
+      "./test/*": "./dist/test/*.js",
       "./crud/*": "./dist/crud/*.js",
       "./server/crud/*": "./dist/server/crud/*",
       "./email": "./dist/email/index.js",
@@ -96,7 +98,13 @@
   "@lucia-auth/adapter-prisma": "^4.0.0-beta.9",
   "socket.io": "^4.6.1",
   "socket.io-client": "^4.6.1",
-  "@socket.io/component-emitter": "^4.0.0"
+  "@socket.io/component-emitter": "^4.0.0",
+  "vitest": "^1.2.1",
+  "@vitest/ui": "^1.2.1",
+  "jsdom": "^21.1.1",
+  "@testing-library/react": "^14.1.2",
+  "@testing-library/jest-dom": "^6.3.0",
+  "msw": "^1.1.0"
 },
   "devDependencies": {"@tsconfig/node18": "latest"
 }

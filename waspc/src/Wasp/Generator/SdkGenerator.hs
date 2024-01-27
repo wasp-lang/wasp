@@ -86,6 +86,8 @@ genSdkReal spec =
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],
+      genFileCopy [relfile|test/vitest/helpers.tsx|],
+      genFileCopy [relfile|test/index.ts|],
       genFileCopy [relfile|jobs/pgBoss/types.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
@@ -214,13 +216,25 @@ genPackageJson spec =
               -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
               ++ ServerAuthG.depsRequiredByAuth spec
               ++ depsRequiredByEmail spec
-              ++ depsRequiredByWebSockets spec,
+              ++ depsRequiredByWebSockets spec
+              ++ depsRequiredForTesting,
           N.devDependencies =
             AS.Dependency.fromList
               [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
               ]
         }
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^1.2.1"),
+      ("@vitest/ui", "^1.2.1"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^14.1.2"),
+      ("@testing-library/jest-dom", "^6.3.0"),
+      ("msw", "^1.1.0")
+    ]
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData

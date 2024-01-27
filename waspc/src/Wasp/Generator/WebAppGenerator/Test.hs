@@ -3,13 +3,20 @@ module Wasp.Generator.WebAppGenerator.Test
   )
 where
 
-import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.Generator.Common (ProjectRootDir)
+import StrongPath (Abs, Dir, Path', relfile, (</>))
+import qualified StrongPath as SP
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
-import qualified Wasp.Generator.WebAppGenerator.Common as Common
+import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
-testWebApp :: [String] -> Path' Abs (Dir ProjectRootDir) -> J.Job
+testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job
 testWebApp args projectDir = do
-  let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  runNodeCommandAsJob webAppDir "npx" ("vitest" : args) J.WebApp
+  runNodeCommandAsJob projectDir "npx" (vitestCommand ++ args) J.WebApp
+  where
+    vitestCommand = ["vitest", "--config", SP.fromRelFile viteConfigPath]
+    viteConfigPath =
+      dotWaspDirInWaspProjectDir
+        </> generatedCodeDirInDotWaspDir
+        </> webAppRootDirInProjectRootDir
+        </> [relfile|vite.config.ts|]

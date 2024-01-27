@@ -6,7 +6,7 @@
     "allowJs": true,
     "strict": false,
     // Allow importing pages with the .tsx extension.
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
   },
   "include": [
     "src"

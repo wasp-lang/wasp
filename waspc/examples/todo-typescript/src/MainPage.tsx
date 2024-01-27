@@ -15,9 +15,10 @@ import type { User } from 'wasp/auth/types'
 import { getFirstProviderUserId } from 'wasp/auth/user'
 import { Link } from 'react-router-dom'
 import { Tasks } from 'wasp/crud/Tasks'
-// import login from "wasp/auth/login";
-// import signup from "wasp/auth/signup";
+// import login from 'wasp/auth/login'
+// import signup from 'wasp/auth/signup'
 import useAuth from 'wasp/auth/useAuth'
+import { Todo } from './Todo'
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -28,8 +29,8 @@ export const MainPage = ({ user }: { user: User }) => {
   if (isLoading) return 'Loading...'
   if (error) return 'Error: ' + error
 
-  // console.log(login);
-  // console.log(signup);
+  // console.log(login)
+  // console.log(signup)
 
   const completed = tasks?.filter((task) => task.isDone).map((task) => task.id)
 
@@ -62,36 +63,6 @@ export const MainPage = ({ user }: { user: User }) => {
         </button>
       </div>
     </main>
-  )
-}
-
-function Todo({ id, isDone, description }: Task) {
-  const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (
-    event
-  ) => {
-    try {
-      await updateTask({
-        id,
-        isDone: event.currentTarget.checked,
-      })
-    } catch (err: any) {
-      window.alert('Error while updating task ' + err?.message)
-    }
-  }
-
-  return (
-    <li>
-      <span className="todo-item">
-        <input
-          type="checkbox"
-          id={id.toString()}
-          checked={isDone}
-          onChange={handleIsDoneChange}
-        />
-        <span>{description}</span>
-        <button onClick={() => void deleteTasks([id])}>Delete</button>
-      </span>
-    </li>
   )
 }
 
