@@ -19,13 +19,12 @@ where
 import Data.Aeson
 import Data.List (intercalate, sort)
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
 import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as D
-import qualified Wasp.AppSpec.Valid as ASV
+import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFullStack = NpmDepsForFullStack
@@ -108,9 +107,9 @@ buildNpmDepsForFullStack spec forServer forWebApp =
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
   NpmDepsForUser
-    { userDependencies = fromMaybe [] $ AS.App.dependencies $ snd $ ASV.getApp spec,
+    { userDependencies = AS.PackageJson.getDependencies $ AS.packageJson spec,
       -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-      userDevDependencies = []
+      userDevDependencies = AS.PackageJson.getDevDependencies $ AS.packageJson spec
     }
 
 conflictErrorToMessage :: DependencyConflictError -> String
@@ -142,8 +141,8 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
     then
       Right $
         NpmDepsForPackage
-          { dependencies = waspDependencies npmDepsForWasp ++ remainingUserDeps,
-            devDependencies = waspDevDependencies npmDepsForWasp ++ remainingUserDevDeps
+          { dependencies = Map.elems remainingWapsDeps,
+            devDependencies = Map.elems remainingWaspDevDeps
           }
     else
       Left $
@@ -159,8 +158,8 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
     allWaspDepsByName = waspDepsByName `Map.union` waspDevDepsByName
     conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
     devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
-    remainingUserDeps = getRemainingUserDeps allWaspDepsByName userDepsByName
-    remainingUserDevDeps = getRemainingUserDeps allWaspDepsByName userDevDepsByName
+    remainingWapsDeps = allWaspDepsByName `Map.difference` userDepsByName
+    remainingWaspDevDeps = allWaspDepsByName `Map.difference` userDevDepsByName
 
 type DepsByName = Map.Map String D.Dependency
 
@@ -178,12 +177,6 @@ determineConflictErrors waspDepsByName userDepsByName =
       if D.version waspDep /= D.version userDep
         then Just $ DependencyConflictError waspDep userDep
         else Nothing
-
--- Given a map of wasp dependencies and a map of user dependencies, construct a
--- a list of user dependencies that remain once any overlapping wasp dependencies
--- have been removed. This assumes conflict detection was already passed.
-getRemainingUserDeps :: DepsByName -> DepsByName -> [D.Dependency]
-getRemainingUserDeps waspDepsByName userDepsByName = Map.elems $ userDepsByName `Map.difference` waspDepsByName
 
 -- Construct a map of dependency keyed by dependency name.
 makeDepsByName :: [D.Dependency] -> DepsByName

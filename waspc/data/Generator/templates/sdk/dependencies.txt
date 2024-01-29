@@ -125,3 +125,8 @@ depsRequiredByWebSockets spec,
             ("@types/cors", "^2.8.5")
           ]
     }
+
+
+LOG:
+- react moved from web-app to project package.json
+- react-dom moved from web-app to project package.json

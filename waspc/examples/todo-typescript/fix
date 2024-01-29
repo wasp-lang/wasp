@@ -1,0 +1,1 @@
+rm -r .wasp/out/web-app/node_modules/{react,.vite}
