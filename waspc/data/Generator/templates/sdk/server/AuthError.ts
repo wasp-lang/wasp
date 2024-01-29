@@ -1,7 +1,7 @@
-class AuthError extends Error {
+export class AuthError extends Error {
   public data: unknown
 
-  constructor (message: string, data?: unknown, ...params: unknown[]) {
+  constructor(message: string, data?: unknown, ...params: unknown[]) {
     super(message, ...params)
 
     if (Error.captureStackTrace) {
@@ -15,5 +15,3 @@ class AuthError extends Error {
     }
   }
 }
-
-export default AuthError

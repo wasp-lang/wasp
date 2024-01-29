@@ -12,10 +12,6 @@
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
-      {=!  Used by users, documented. =}
-      "./core/HttpError": "./dist/core/HttpError.js",
-      {=!  Used by users, documented. =}
-      "./core/AuthError": "./dist/core/AuthError.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/config": "./dist/core/config.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -70,8 +66,6 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
-      {=!  Used by users and by our code, documented. =}
-      "./server/middleware": "./dist/server/middleware/index.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -80,8 +74,6 @@
       "./server/queries": "./dist/server/queries/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
-      {=!  Used by users, documented. =}
-      "./dbSeed/types": "./dist/dbSeed/types.js",
       {=!  Used by users, documented. =}
       "./test": "./dist/test/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -108,11 +100,13 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
 
-      {=! Still needed, reconsider during refactoring =}
+      {=! Still needed, reconsider during refactoring. =}
       "./server/types": "./dist/server/types/index.js",
+      {=! Still used by the server code, reconsider during refactoring. =}
+      "./server/middleware": "./dist/server/middleware/index.js",
 
       {=! ================= NEW API HERE =================== =}
-      {=! Public: { config, prisma, type ServerSetupFn } =}
+      {=! Public: { config, prisma, type ServerSetupFn, HttpError, AuthError, type DbSeedFn, type MiddlewareConfigFn } =}
       {=! Private: [] =}
       "./server": "./dist/server/index.js",
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}

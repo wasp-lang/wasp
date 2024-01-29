@@ -7,7 +7,7 @@ import {
     deserializeAndSanitizeProviderData,
 } from 'wasp/auth/utils';
 import { tokenVerificationErrors } from './types.js';
-import HttpError from 'wasp/core/HttpError';
+import { HttpError } from 'wasp/server';
 
 
 export async function verifyEmail(
