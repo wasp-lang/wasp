@@ -1,19 +1,22 @@
 module Wasp.Project.Common
-  ( findFileInWaspProjectDir,
-    CompileError,
-    CompileWarning,
-    WaspProjectDir,
-    packageJsonInWaspProjectDir,
+  ( WaspProjectDir,
     DotWaspDir,
+    NodeModulesDir,
+    findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
-    dotWaspRootFileInWaspProjectDir,
-    dotWaspInfoFileInGeneratedCodeDir,
-    extServerCodeDirInWaspProjectDir,
-    extClientCodeDirInWaspProjectDir,
-    extSharedCodeDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     buildDirInDotWaspDir,
     waspProjectDirFromProjectRootDir,
+    dotWaspRootFileInWaspProjectDir,
+    dotWaspInfoFileInGeneratedCodeDir,
+    srcDirInWaspProjectDir,
+    extServerCodeDirInWaspProjectDir,
+    extClientCodeDirInWaspProjectDir,
+    extSharedCodeDirInWaspProjectDir,
+    packageJsonInWaspProjectDir,
+    nodeModulesDirInWaspProjectDir,
+    CompileError,
+    CompileWarning,
   )
 where
 
@@ -25,6 +28,8 @@ import qualified Wasp.Generator.Common
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
 
 data DotWaspDir -- Here we put everything that wasp generates.
+
+data NodeModulesDir
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
@@ -53,17 +58,23 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
+srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
+srcDirInWaspProjectDir = [reldir|src|]
+
 extServerCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extServerCodeDirInWaspProjectDir = [reldir|src|]
+extServerCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 extClientCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extClientCodeDirInWaspProjectDir = [reldir|src|]
+extClientCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 extSharedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extSharedCodeDirInWaspProjectDir = [reldir|src|]
+extSharedCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageJsonInWaspProjectDir = [relfile|package.json|]
+
+nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
+nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->

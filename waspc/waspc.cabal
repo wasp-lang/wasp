@@ -293,6 +293,8 @@ library
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
+    Wasp.Generator.NpmInstall.Common
+    Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.SdkGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
@@ -499,7 +501,6 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
-    Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
     Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deps

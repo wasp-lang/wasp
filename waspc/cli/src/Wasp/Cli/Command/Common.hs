@@ -1,15 +1,21 @@
 module Wasp.Cli.Command.Common
   ( readWaspCompileInfo,
     throwIfExeIsNotAvailable,
+    deleteDirectoryIfExistsVerbosely,
   )
 where
 
 import Control.Monad.Except
 import qualified Control.Monad.Except as E
 import StrongPath (Abs, Dir, Path')
+import qualified StrongPath as SP
 import StrongPath.Operations
-import System.Directory (findExecutable)
+import System.Directory
+  ( findExecutable,
+  )
 import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Message (cliSendMessageC)
+import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 import Wasp.Util (ifM)
@@ -34,3 +40,16 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Nothing ->
       E.throwError $
         CommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
+
+deleteDirectoryIfExistsVerbosely :: Path' Abs (Dir d) -> Command ()
+deleteDirectoryIfExistsVerbosely dir = do
+  cliSendMessageC $ Msg.Start $ "Deleting the " ++ dirName ++ " directory..."
+  dirExist <- liftIO $ IOUtil.doesDirectoryExist dir
+  if dirExist
+    then do
+      liftIO $ IOUtil.removeDirectory dir
+      cliSendMessageC $ Msg.Success $ "Deleted the " ++ dirName ++ " directory."
+    else do
+      cliSendMessageC $ Msg.Success $ "Nothing to delete: The " ++ dirName ++ " directory does not exist."
+  where
+    dirName = SP.toFilePath $ basename dir

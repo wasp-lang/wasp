@@ -43,39 +43,42 @@ genPackageJson spec =
       [relfile|package.json|]
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDepsForSdk,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDepsForSdk
+            [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps
             ]
       )
   where
-    npmDepsForSdk =
-      N.NpmDepsForPackage
-        { N.dependencies =
-            AS.Dependency.fromList
-              [ ("@prisma/client", show prismaVersion),
-                ("prisma", show prismaVersion),
-                ("@tanstack/react-query", "^4.29.0"),
-                ("axios", "^1.4.0"),
-                ("express", "~4.18.1"),
-                ("jsonwebtoken", "^8.5.1"),
-                ("mitt", "3.0.0"),
-                ("react", "^18.2.0"),
-                ("react-router-dom", "^5.3.3"),
-                ("react-hook-form", "^7.45.4"),
-                ("secure-password", "^4.0.0"),
-                ("superjson", "^1.12.2"),
-                ("@types/express-serve-static-core", "^4.17.13")
-              ]
-              ++ depsRequiredForAuth spec
-              -- This must be installed in the SDK because it lists prisma/client as a dependency.
-              -- Installing it inside .wasp/out/server/node_modules would also
-              -- install prisma/client in the same folder, which would cause our
-              -- runtime to load the wrong (uninitialized prisma/client)
-              -- TODO(filip): Find a better way to handle duplicate
-              -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
-              ++ ServerAuthG.depsRequiredByAuth spec,
-          N.devDependencies = AS.Dependency.fromList []
-        }
+    npmDeps = npmDepsForSdk spec
+
+npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
+npmDepsForSdk spec =
+  N.NpmDepsForPackage
+    { N.dependencies =
+        AS.Dependency.fromList
+          [ ("@prisma/client", show prismaVersion),
+            ("prisma", show prismaVersion),
+            ("@tanstack/react-query", "^4.29.0"),
+            ("axios", "^1.4.0"),
+            ("express", "~4.18.1"),
+            ("jsonwebtoken", "^8.5.1"),
+            ("mitt", "3.0.0"),
+            ("react", "^18.2.0"),
+            ("react-router-dom", "^5.3.3"),
+            ("react-hook-form", "^7.45.4"),
+            ("secure-password", "^4.0.0"),
+            ("superjson", "^1.12.2"),
+            ("@types/express-serve-static-core", "^4.17.13")
+          ]
+          ++ depsRequiredForAuth spec
+          -- This must be installed in the SDK because it lists prisma/client as a dependency.
+          -- Installing it inside .wasp/out/server/node_modules would also
+          -- install prisma/client in the same folder, which would cause our
+          -- runtime to load the wrong (uninitialized prisma/client)
+          -- TODO(filip): Find a better way to handle duplicate
+          -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
+          ++ ServerAuthG.depsRequiredByAuth spec,
+      N.devDependencies = AS.Dependency.fromList []
+    }
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =

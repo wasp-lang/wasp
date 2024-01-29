@@ -26,7 +26,26 @@ bashCompletion = do
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
     _ -> liftIO . putStrLn $ ""
   where
-    commands = ["new", "version", "waspls", "start", "db", "clean", "uninstall", "build", "telemetry", "deps", "info", "completion", "completion:generate"]
+    commands =
+      [ "new",
+        "new:ai",
+        "version",
+        "waspls",
+        "completion",
+        "completion:generate",
+        "uninstall",
+        "start",
+        "db",
+        "clean",
+        "build",
+        "deploy",
+        "telemetry",
+        "deps",
+        "dockerfile",
+        "info",
+        "test",
+        "studio"
+      ]
     dbSubCommands = ["migrate-dev", "studio"]
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList

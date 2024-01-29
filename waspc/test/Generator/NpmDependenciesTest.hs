@@ -45,7 +45,7 @@ spec_combineNpmDepsForPackage = do
             devDependenciesConflictErrors = []
           }
 
-  it "wasp deps completely overlap with user deps, no duplication" $ do
+  it "wasp deps completely overlap with user deps: all wasp deps are dropped" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -53,26 +53,18 @@ spec_combineNpmDepsForPackage = do
             }
     let npmDepsForUser =
           NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("a", "1"),
-                    ("b", "2")
-                  ],
+            { userDependencies = waspDeps,
               userDevDependencies = []
             }
 
     combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
         NpmDepsForPackage
-          { dependencies =
-              D.fromList
-                [ ("a", "1"),
-                  ("b", "2")
-                ],
+          { dependencies = [],
             devDependencies = []
           }
 
-  it "user dependencies supplement wasp dependencies" $ do
+  it "user dependencies have no overlap with wasp deps: wasp deps remain the same" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -91,17 +83,11 @@ spec_combineNpmDepsForPackage = do
     combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
         NpmDepsForPackage
-          { dependencies =
-              D.fromList
-                [ ("a", "1"),
-                  ("b", "2"),
-                  ("c", "3"),
-                  ("d", "4")
-                ],
+          { dependencies = waspDeps,
             devDependencies = []
           }
 
-  it "user dependencies partially overlap wasp dependencies, so only non-overlapping supplement" $ do
+  it "user dependencies partially overlap wasp dependencies, so intersection gets removed from wasp deps" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -120,12 +106,7 @@ spec_combineNpmDepsForPackage = do
     combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
         NpmDepsForPackage
-          { dependencies =
-              D.fromList
-                [ ("a", "1"),
-                  ("b", "2"),
-                  ("d", "4")
-                ],
+          { dependencies = D.fromList [("b", "2")],
             devDependencies = []
           }
 
@@ -183,7 +164,7 @@ spec_combineNpmDepsForPackage = do
             devDependenciesConflictErrors = []
           }
 
-  it "dev dependencies are also combined" $ do
+  it "both dev deps and normal deps are same for user and wasp: all wasp deps are removed" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -192,35 +173,17 @@ spec_combineNpmDepsForPackage = do
 
     let npmDepsForUser =
           NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("a", "1"),
-                    ("d", "4")
-                  ],
-              userDevDependencies =
-                D.fromList
-                  [ ("alpha", "10"),
-                    ("gamma", "30")
-                  ]
+            { userDependencies = waspDeps,
+              userDevDependencies = waspDevDeps
             }
     combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
         NpmDepsForPackage
-          { dependencies =
-              D.fromList
-                [ ("a", "1"),
-                  ("b", "2"),
-                  ("d", "4")
-                ],
-            devDependencies =
-              D.fromList
-                [ ("alpha", "10"),
-                  ("beta", "20"),
-                  ("gamma", "30")
-                ]
+          { dependencies = [],
+            devDependencies = []
           }
 
-  it "wasp dev dependency overlaps with user dependency, should remain devDependency" $ do
+  it "wasp dev dependency overlaps with user non-dev dependency: should have no effect" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -239,16 +202,8 @@ spec_combineNpmDepsForPackage = do
     combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
         NpmDepsForPackage
-          { dependencies =
-              D.fromList
-                [ ("a", "1"),
-                  ("b", "2")
-                ],
-            devDependencies =
-              D.fromList
-                [ ("alpha", "10"),
-                  ("beta", "20")
-                ]
+          { dependencies = waspDeps,
+            devDependencies = waspDevDeps
           }
 
   it "conflictErrorToMessage" $ do
