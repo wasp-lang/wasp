@@ -75,14 +75,16 @@ genSdkReal spec =
   sequence
     [ genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/config.js|],
-      genFileCopy [relfile|core/auth.js|],
+      genFileCopy [relfile|core/config.ts|],
+      genFileCopy [relfile|core/auth.ts|],
       genFileCopy [relfile|core/storage.ts|],
-      genFileCopy [relfile|core/stitches.config.js|],
-      genFileCopy [relfile|core/AuthError.js|],
-      genFileCopy [relfile|core/HttpError.js|],
+      genFileCopy [relfile|core/stitches.config.ts|],
+      genFileCopy [relfile|core/AuthError.ts|],
+      genFileCopy [relfile|core/HttpError.ts|],
+      -- Not migrated to TS yet
       genFileCopy [relfile|operations/resources.js|],
       genFileCopy [relfile|operations/index.ts|],
+      -- Not migrated to TS yet
       genFileCopy [relfile|operations/updateHandlersMap.js|],
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
@@ -242,7 +244,7 @@ depsRequiredForTesting =
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
   where
-    relConfigFilePath = [relfile|server/config.js|]
+    relConfigFilePath = [relfile|server/config.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -311,7 +313,7 @@ genUniversalDir =
   return
     [ C.mkTmplFd [relfile|universal/url.ts|],
       C.mkTmplFd [relfile|universal/types.ts|],
-      C.mkTmplFd [relfile|universal/validators.js|]
+      C.mkTmplFd [relfile|universal/validators.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft

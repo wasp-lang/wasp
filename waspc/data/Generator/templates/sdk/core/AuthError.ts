@@ -1,5 +1,7 @@
 class AuthError extends Error {
-  constructor (message, data, ...params) {
+  public data: unknown
+
+  constructor (message: string, data?: unknown, ...params: unknown[]) {
     super(message, ...params)
 
     if (Error.captureStackTrace) {
