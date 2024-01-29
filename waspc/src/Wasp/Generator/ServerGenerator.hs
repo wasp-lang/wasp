@@ -217,8 +217,6 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genFileCopy [relfile|core/AuthError.js|],
-      genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec,

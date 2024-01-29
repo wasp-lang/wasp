@@ -68,6 +68,7 @@ module.exports = {
           ],
         },
         'auth/entities/entities',
+        'auth/migrate-from-11',
       ],
     },
     {
@@ -87,6 +88,13 @@ module.exports = {
         'project/css-frameworks',
         'project/custom-vite-config',
       ],
+    },
+    {
+      type: 'category',
+      label: 'Wasp AI',
+      collapsed: false,
+      collapsible: false,
+      items: ['wasp-ai/creating-new-app', 'wasp-ai/developing-existing-app'],
     },
     {
       type: 'category',

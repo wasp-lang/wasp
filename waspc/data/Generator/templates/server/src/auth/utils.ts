@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { hashPassword } from './password.js'
 import { verify } from './jwt.js'
-import AuthError from '../core/AuthError.js'
-import HttpError from '../core/HttpError.js'
+import AuthError from 'wasp/core/AuthError'
+import HttpError from 'wasp/core/HttpError'
 import prisma from '../dbClient.js'
 import { sleep } from '../utils.js'
 import {
