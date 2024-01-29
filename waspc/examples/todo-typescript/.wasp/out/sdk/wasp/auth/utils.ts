@@ -2,7 +2,7 @@ import { hashPassword } from './password.js'
 import { verify } from './jwt.js'
 import AuthError from 'wasp/core/AuthError'
 import HttpError from 'wasp/core/HttpError'
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
   type User,

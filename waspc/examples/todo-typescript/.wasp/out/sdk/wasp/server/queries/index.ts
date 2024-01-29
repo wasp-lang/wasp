@@ -1,4 +1,4 @@
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 
 import { getTasks as getTasks_ext } from 'wasp/ext-src/task/queries.js'
 

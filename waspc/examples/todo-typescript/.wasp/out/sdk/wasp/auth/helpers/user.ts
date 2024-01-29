@@ -1,4 +1,4 @@
-import { setSessionId } from 'wasp/api'
+import { setSessionId } from 'wasp/client/api'
 import { invalidateAndRemoveQueries } from 'wasp/operations/resources'
 
 export async function initSession(sessionId: string): Promise<void> {

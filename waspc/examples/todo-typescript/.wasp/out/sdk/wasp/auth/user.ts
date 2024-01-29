@@ -1,7 +1,3 @@
-// We decided not to deduplicate these helper functions in the server and the client.
-// We have them duplicated in this file and in data/Generator/templates/server/src/auth/user.ts
-// If you are changing the logic here, make sure to change it there as well.
-
 import type { User, ProviderName, DeserializedAuthIdentity } from './types'
 
 export function getEmail(user: User): string | null {

@@ -1,4 +1,4 @@
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 
 import { createTask as createTask_ext } from 'wasp/ext-src/task/actions.js'
 import { updateTask as updateTask_ext } from 'wasp/ext-src/task/actions.js'
