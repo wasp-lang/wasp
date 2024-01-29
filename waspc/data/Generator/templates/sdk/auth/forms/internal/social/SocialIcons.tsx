@@ -5,6 +5,7 @@ const defaultStyles = css({
   height: '1.25rem',
 })
 
+// PRIVATE API
 export const Google = () => (
   <svg
     className={defaultStyles()}
@@ -23,6 +24,7 @@ export const Google = () => (
   </svg>
 )
 
+// PRIVATE API
 export const GitHub = () => (
   <svg
     className={defaultStyles()}

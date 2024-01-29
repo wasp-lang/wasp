@@ -1,6 +1,7 @@
 import { signup } from '../../../email/actions/signup'
 import { login } from '../../../email/actions/login'
 
+// PRIVATE API
 export function useEmail({
   onError,
   showEmailVerificationPending,

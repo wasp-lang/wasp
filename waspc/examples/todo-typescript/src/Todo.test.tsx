@@ -6,7 +6,7 @@ import { getTasks } from 'wasp/rpc/queries'
 import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
 import type { AuthUser } from 'wasp/auth'
-import { getMe } from 'wasp/auth/useAuth'
+import { getMe } from 'wasp/client/auth'
 import { Tasks } from 'wasp/crud/Tasks'
 
 const mockTasks = [

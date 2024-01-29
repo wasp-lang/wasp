@@ -117,10 +117,12 @@ const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 // know the exact shape of the form values. We are assuming that the form values
 // will be a flat object with string values.
 =}
+// PRIVATE API
 export type LoginSignupFormFields = {
   [key: string]: string;
 }
 
+// PRIVATE API
 export const LoginSignupForm = ({
     state,
     socialButtonsDirection = 'horizontal',

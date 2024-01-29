@@ -4,6 +4,7 @@ import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
 import { AuthContext } from '../../Auth'
 
+// PRIVATE API
 export const VerifyEmailForm = () => {
   const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
   const location = useLocation()

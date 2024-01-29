@@ -12,6 +12,7 @@ const prismaAdapter = new PrismaAdapter(
   prisma.{= authEntityLower =} as any
 );
 
+// PRIVATE API
 /**
  * We are using Lucia for session management.
  * 

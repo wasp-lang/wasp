@@ -1,6 +1,7 @@
 import { setSessionId } from 'wasp/client/api'
 import { invalidateAndRemoveQueries } from 'wasp/operations/resources'
 
+// PRIVATE API
 export async function initSession(sessionId: string): Promise<void> {
     setSessionId(sessionId)
     // We need to invalidate queries after login in order to get the correct user

@@ -5,6 +5,7 @@ import {
   State,
 } from './types'
 
+// PUBLIC API
 export function SignupForm({
   appearance,
   logo,

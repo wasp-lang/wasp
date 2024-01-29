@@ -1,15 +1,18 @@
 import { styled } from 'wasp/core/stitches.config'
 
+// PRIVATE API
 export const Form = styled('form', {
   marginTop: '1.5rem',
 })
 
+// PUBLIC API
 export const FormItemGroup = styled('div', {
   '& + div': {
     marginTop: '1.5rem',
   },
 })
 
+// PUBLIC API
 export const FormLabel = styled('label', {
   display: 'block',
   fontSize: '$sm',
@@ -48,10 +51,13 @@ const commonInputStyles = {
   margin: 0,
 }
 
+// PUBLIC API
 export const FormInput = styled('input', commonInputStyles)
 
+// PUBLIC API
 export const FormTextarea = styled('textarea', commonInputStyles)
 
+// PUBLIC API
 export const FormError = styled('div', {
   display: 'block',
   fontSize: '$sm',
@@ -60,6 +66,7 @@ export const FormError = styled('div', {
   marginTop: '0.5rem',
 })
 
+// PRIVATE API
 export const SubmitButton = styled('button', {
   display: 'flex',
   justifyContent: 'center',
