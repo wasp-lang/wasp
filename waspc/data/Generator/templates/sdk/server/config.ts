@@ -53,7 +53,7 @@ const config: {
   production: getProductionConfig(),
 }
 
-const resolvedConfig = merge(config.all, config[env]) as Config
+const resolvedConfig: Config = merge(config.all, config[env])
 export default resolvedConfig
 
 function getDevelopmentConfig(): EnvConfig {
