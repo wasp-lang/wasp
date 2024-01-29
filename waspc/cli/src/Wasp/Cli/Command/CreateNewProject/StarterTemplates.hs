@@ -15,10 +15,10 @@ import Data.Foldable (find)
 import Data.Text (Text)
 import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
 import qualified System.FilePath as FP
-import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import qualified Wasp.Util.Terminal as Term
 
