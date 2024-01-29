@@ -10,6 +10,7 @@
     },
   "exports": {
       "./core/HttpError": "./core/HttpError.js",
+      "./core/AuthError": "./core/AuthError.js",
       "./core/config": "./core/config.js",
       "./core/stitches.config": "./core/stitches.config.js",
       "./core/storage": "./core/storage.ts",

@@ -105,7 +105,7 @@ module.exports = {
             {
               label: 'Todo app tutorial',
               to: 'docs/tutorial/create',
-            }
+            },
           ],
         },
         {
@@ -140,7 +140,7 @@ module.exports = {
       // ContextualSearch is useful when you are doing versioning,
       // it searches only in v1 docs if you are searching from v1 docs.
       // Therefore we have it enabled, since we have multiple doc versions.
-      contextualSearch: true
+      contextualSearch: true,
     },
     image: 'img/wasp_twitter_cover.png',
     metadata: [{ name: 'twitter:card', content: 'summary_large_image' }],
@@ -163,6 +163,11 @@ module.exports = {
 
           // "current" docs (under /docs) are in-progress docs, so we show them only in development.
           includeCurrentVersion: process.env.NODE_ENV === 'development',
+          // In development, we want "current" docs to be the default docs (served at /docs),
+          // to make it easier for us a bit. Otherwise, by default, the latest versioned docs
+          // will be served under /docs.
+          lastVersion:
+            process.env.NODE_ENV === 'development' ? 'current' : undefined,
 
           // Uncomment line below to build and show only current docs, for faster build times
           // during development, if/when needed.
@@ -171,15 +176,18 @@ module.exports = {
           // "versions" option here enables us to customize each version of docs individually,
           // and there are also other options if we ever need to customize versioned docs further.
           versions: {
-            ...(
-              (process.env.NODE_ENV === 'development') ? {
-                "current": {
-                  path: "next", // Token used in the URL to address this version of docs: {baseUrl}/docs/{path}.
-                  label: "Next", // Label shown in the documentation to address this version of docs.
-                  noIndex: true, // these are un-released docs, we don't want search engines indexing them.
+            // We provide config for `current` only during development because otherwise
+            // we don't even build them (due to includeCurrentVersion above), so this config
+            // would cause error in that case.
+            ...(process.env.NODE_ENV === 'development'
+              ? {
+                  current: {
+                    label: 'Next', // Label shown in the documentation to address this version of docs.
+                    noIndex: true, // these are un-released docs, we don't want search engines indexing them.
+                  },
                 }
-              } : {}
-            ),
+              : {}),
+
             // Configuration example:
             // "0.11.1": {
             //   path: "0.11.1",  // default, but can be anything.
@@ -187,10 +195,9 @@ module.exports = {
             //   banner: "unmaintained"
             //   // and more!
             // },
-          }
+          },
 
           // ------------------------------------------------------ //
-
         },
         blog: {
           showReadingTime: true,
