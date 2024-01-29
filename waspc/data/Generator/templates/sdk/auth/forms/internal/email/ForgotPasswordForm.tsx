@@ -4,6 +4,7 @@ import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
 import { AuthContext } from '../../Auth'
 
+// PRIVATE API
 export const ForgotPasswordForm = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<{ email: string }>()
   const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)

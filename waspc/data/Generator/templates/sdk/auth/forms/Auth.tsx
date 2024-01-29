@@ -33,6 +33,7 @@ const HeaderText = styled('h2', {
 })
 
 
+// PRIVATE API
 export const AuthContext = createContext({
   isLoading: false,
   setIsLoading: (isLoading: boolean) => {},
@@ -98,4 +99,5 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
   )
 }
 
+// PRIVATE API
 export default Auth;

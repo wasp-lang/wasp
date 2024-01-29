@@ -1,5 +1,6 @@
 import { styled } from 'wasp/core/stitches.config'
 
+// PRIVATE API
 export const SocialButton = styled('a', {
   display: 'flex',
   justifyContent: 'center',

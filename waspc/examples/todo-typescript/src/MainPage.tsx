@@ -1,6 +1,5 @@
 import './Main.css'
 import React, { useEffect, FormEventHandler, FormEvent } from 'react'
-import logout from 'wasp/auth/logout'
 import { useQuery, useAction } from 'wasp/rpc' // Wasp uses a thin wrapper around react-query
 import { getTasks } from 'wasp/rpc/queries'
 import {
@@ -16,8 +15,8 @@ import { Link } from 'react-router-dom'
 import { Tasks } from 'wasp/crud/Tasks'
 // import login from 'wasp/auth/login'
 // import signup from 'wasp/auth/signup'
-import useAuth from 'wasp/auth/useAuth'
 import { Todo } from './Todo'
+import { logout, useAuth } from 'wasp/client/auth'
 
 export const MainPage = ({ user }: { user: AuthUser }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
