@@ -37,6 +37,7 @@ import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
+import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
@@ -112,6 +113,8 @@ genSdkReal spec =
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
     <++> genEmailSender spec
+    -- New API
+    <++> genNewClientAuth spec
   where
     genFileCopy = return . C.mkTmplFd
 

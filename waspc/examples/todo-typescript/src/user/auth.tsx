@@ -1,13 +1,15 @@
-import { ResetPasswordForm } from "wasp/auth/forms/ResetPassword";
-import { LoginForm } from "wasp/auth/forms/Login";
-import { VerifyEmailForm } from "wasp/auth/forms/VerifyEmail";
-import { SignupForm } from "wasp/auth/forms/Signup";
 import {
+  LoginForm,
+  SignupForm,
+  VerifyEmailForm,
+  ResetPasswordForm,
+  ForgotPasswordForm,
   FormError,
   FormInput,
   FormItemGroup,
   FormLabel,
-} from "wasp/auth/forms/internal/Form";
+} from 'wasp/client/auth'
+
 // import {
 //   SignInButton as GitHubSignInButton,
 //   signInUrl as gitHubSignInUrl,
@@ -17,8 +19,7 @@ import {
 //   signInUrl as googleSignInUrl,
 // } from "wasp/auth/helpers/Google";
 
-import { ForgotPasswordForm } from "wasp/auth/forms/ForgotPassword";
-import { Link, routes } from "wasp/router";
+import { Link, routes } from 'wasp/router'
 
 export function SignupPage() {
   return (
@@ -32,15 +33,15 @@ export function SignupPage() {
             <FormItemGroup>
               <FormLabel>Address</FormLabel>
               <FormInput
-                {...register("address", {
-                  required: "Address is required",
+                {...register('address', {
+                  required: 'Address is required',
                 })}
               />
               {errors.address && (
                 <FormError>{errors.address.message}</FormError>
               )}
             </FormItemGroup>
-          );
+          )
         }}
       />
       {/* <div style={{ marginTop: "1rem" }}>
@@ -55,7 +56,7 @@ export function SignupPage() {
       </span>
       <span>The link to the login page is {routes.LoginRoute.build()}.</span>
     </main>
-  );
+  )
 }
 
 export function LoginPage() {
@@ -70,17 +71,17 @@ export function LoginPage() {
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
     </main>
-  );
+  )
 }
 
 export function RequestPasswordResetPage() {
-  return <ForgotPasswordForm />;
+  return <ForgotPasswordForm />
 }
 
 export function PasswordResetPage() {
-  return <ResetPasswordForm />;
+  return <ResetPasswordForm />
 }
 
 export function EmailVerificationPage() {
-  return <VerifyEmailForm />;
+  return <VerifyEmailForm />
 }

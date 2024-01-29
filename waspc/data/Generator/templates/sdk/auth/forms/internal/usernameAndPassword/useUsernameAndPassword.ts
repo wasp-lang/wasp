@@ -1,6 +1,7 @@
 import signup from '../../../signup'
 import login from '../../../login'
 
+// PRIVATE API
 export function useUsernameAndPassword({
   onError,
   onSuccess,
