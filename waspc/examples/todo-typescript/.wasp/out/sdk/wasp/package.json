@@ -63,7 +63,8 @@
       "./client/api": "./dist/api/index.js",
       "./auth": "./dist/auth/index.js",
       "./client/auth": "./dist/client/auth/index.js",
-      "./server/auth": "./dist/server/auth/index.js"
+      "./server/auth": "./dist/server/auth/index.js",
+      "./server/crud": "./dist/server/crud/index.js"
    },
    "typesVersions": {
      "*": {

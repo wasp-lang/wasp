@@ -123,7 +123,8 @@
       "./client/api": "./dist/api/index.js",
       "./auth": "./dist/auth/index.js",
       "./client/auth": "./dist/client/auth/index.js",
-      "./server/auth": "./dist/server/auth/index.js"
+      "./server/auth": "./dist/server/auth/index.js",
+      "./server/crud": "./dist/server/crud/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those
