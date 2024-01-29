@@ -8,7 +8,7 @@ import {
 } from "../../utils.js";
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
 import { tokenVerificationErrors } from "./types.js";
-import HttpError from '../../../core/HttpError.js';
+import HttpError from 'wasp/core/HttpError';
 
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,

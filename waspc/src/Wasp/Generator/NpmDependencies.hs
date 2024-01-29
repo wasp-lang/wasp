@@ -140,8 +140,6 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
   if null conflictErrors && null devConflictErrors
     then
       Right $
-        -- todo(filip): check whether dependency updates and npm install work properly
-        -- todo(filip): reconsider whether we want to change the {sever,web-app}/package.json dynamically
         NpmDepsForPackage
           { dependencies = Map.elems remainingWapsDeps,
             devDependencies = Map.elems remainingWaspDevDeps
