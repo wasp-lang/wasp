@@ -25,8 +25,7 @@ import Wasp.LSP.ExtImport.ExportsCache (refreshExportsForAllExtImports)
 import Wasp.LSP.ServerMonads (HandlerM, ServerM, handler, modify, sendToReactor)
 import qualified Wasp.LSP.ServerState as State
 
--- | Finds diagnostics on a wasp file and sends the diagnostics to the LSP
--- client.
+-- | Finds diagnostics on a wasp file and sends the diagnostics to the LSP client.
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
   analyzeWaspFile uri

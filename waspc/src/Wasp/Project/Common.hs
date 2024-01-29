@@ -17,6 +17,7 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     CompileError,
     CompileWarning,
+    tsconfigInWaspProjectDir,
   )
 where
 
@@ -72,6 +73,9 @@ extSharedCodeDirInWaspProjectDir = srcDirInWaspProjectDir
 
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageJsonInWaspProjectDir = [relfile|package.json|]
+
+tsconfigInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]

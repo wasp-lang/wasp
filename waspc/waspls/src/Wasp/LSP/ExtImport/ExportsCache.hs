@@ -15,12 +15,14 @@ import Control.Monad.Reader.Class (asks)
 import qualified Data.HashMap.Strict as M
 import Data.List (find)
 import Data.Maybe (catMaybes, mapMaybe)
+import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule))
-import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath, absPathToCachePath, cachePathToAbsPath, tryGetTsconfigForAbsPath, waspStylePathToCachePath)
+import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath, absPathToCachePath, cachePathToAbsPath, waspStylePathToCachePath)
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einName, einPath), getAllExtImports)
 import Wasp.LSP.ServerMonads (HandlerM, ServerM, getProjectRootDir, handler, modify)
 import qualified Wasp.LSP.ServerState as State
+import Wasp.Project.Common (tsconfigInWaspProjectDir)
 import qualified Wasp.TypeScript.Inspect.Exports as TS
 
 -- | Based on the files imported in the external imports of the current concrete
@@ -47,7 +49,7 @@ refreshExportsOfFiles files = do
   getProjectRootDir >>= \case
     Nothing -> pure ()
     Just projectRootDir -> do
-      let exportRequests = mapMaybe (getExportRequestForFile projectRootDir) files
+      let exportRequests = getExportRequestForFile projectRootDir <$> files
       response <- liftIO (TS.getExportsOfTsFiles exportRequests)
       -- Clear cache for all the files that were requested to be updated. This
       -- takes care of removing deleted files from the cache.
@@ -58,16 +60,11 @@ refreshExportsOfFiles files = do
         Right res -> do
           updateExportsCache res
   where
-    -- Find the tsconfig for a given file and return an export request including
-    -- that tsconfig. If a tsconfig can not be found (see 'tryGetTsConfigForAbsPath'
-    -- for why that might happen), no export request is no returned.
-    getExportRequestForFile projectRootDir file = do
-      tsconfigPath <- tryGetTsconfigForAbsPath projectRootDir file
-      return $
-        TS.TsExportsRequest
-          { TS.filepaths = [SP.fromAbsFile file],
-            TS.tsconfig = Just $ SP.fromAbsFile tsconfigPath
-          }
+    getExportRequestForFile projectRootDir file =
+      TS.TsExportsRequest
+        { TS.filepaths = [SP.fromAbsFile file],
+          TS.tsconfig = Just $ SP.fromAbsFile $ projectRootDir </> tsconfigInWaspProjectDir
+        }
 
     -- Replaces entries in the exports cache with the exports lists in the
     -- response.
