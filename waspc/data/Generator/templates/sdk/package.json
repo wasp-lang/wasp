@@ -43,7 +43,7 @@
       "./auth/session": "./dist/auth/session.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/providers/types": "./dist/auth/providers/types.js",
-      {=!  Used by user, documented. =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/utils": "./dist/auth/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/password": "./dist/auth/password.js",
@@ -78,7 +78,7 @@
       "./server/actions": "./dist/server/actions/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/queries": "./dist/server/queries/index.js",
-      {=!  Used by users and also by our code, documented. =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
       {=!  Used by users, documented. =}
       "./dbSeed/types": "./dist/dbSeed/types.js",
@@ -92,7 +92,7 @@
       "./email": "./dist/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./email/core/types": "./dist/email/core/types.js",
-      {=!  Used by users, documented. =}
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
       {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
       "./jobs/*": "./dist/jobs/*.js",
@@ -122,7 +122,8 @@
       {=! Private: [sdk] =}
       "./client/api": "./dist/api/index.js",
       "./auth": "./dist/auth/index.js",
-      "./client/auth": "./dist/client/auth/index.js"
+      "./client/auth": "./dist/client/auth/index.js",
+      "./server/auth": "./dist/server/auth/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those

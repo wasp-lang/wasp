@@ -1,4 +1,3 @@
-{{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand } from 'wasp/universal/types'
@@ -9,7 +8,7 @@ export function defineUserSignupFields(fields: UserSignupFields) {
   return fields
 }
 
-type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
+type UserEntityCreateInput = Prisma.UserCreateInput
 
 // PRIVATE API
 export type ProviderConfig = {

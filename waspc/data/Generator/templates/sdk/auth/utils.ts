@@ -16,6 +16,7 @@ import { throwValidationError } from './validation.js'
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
+// PRIVATE API
 export type EmailProviderData = {
   hashedPassword: string;
   isEmailVerified: boolean;
@@ -23,12 +24,15 @@ export type EmailProviderData = {
   passwordResetSentAt: string | null;
 }
 
+// PRIVATE API
 export type UsernameProviderData = {
   hashedPassword: string;
 }
 
+// PRIVATE API
 export type OAuthProviderData = {}
 
+// PRIVATE API
 /**
  * This type is used for type-level programming e.g. to enumerate
  * all possible provider data types.
@@ -43,19 +47,23 @@ export type PossibleProviderData = {
   github: OAuthProviderData;
 }
 
+// PRIVATE API
 export type ProviderName = keyof PossibleProviderData
 
+// PRIVATE API
 export const contextWithUserEntity = {
   entities: {
     {= userEntityUpper =}: prisma.{= userEntityLower =}
   }
 }
 
+// PRIVATE API
 export const authConfig = {
   failureRedirectPath: "{= failureRedirectPath =}",
   successRedirectPath: "{= successRedirectPath =}",
 }
 
+// PRIVATE API
 /**
  * ProviderId uniquely identifies an auth identity e.g. 
  * "email" provider with user id "test@test.com" or
@@ -70,6 +78,7 @@ export type ProviderId = {
   providerUserId: string;
 }
 
+// PUBLIC API
 export function createProviderId(providerName: ProviderName, providerUserId: string): ProviderId {
   return {
     providerName,
@@ -77,6 +86,7 @@ export function createProviderId(providerName: ProviderName, providerUserId: str
   }
 }
 
+// PUBLIC API
 export async function findAuthIdentity(providerId: ProviderId): Promise<{= authIdentityEntityUpper =} | null> {
   return prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
@@ -85,6 +95,7 @@ export async function findAuthIdentity(providerId: ProviderId): Promise<{= authI
   });
 }
 
+// PUBLIC API
 /**
  * Updates the provider data for the given auth identity.
  * 
@@ -118,12 +129,14 @@ type FindAuthWithUserResult = {= authEntityUpper =} & {
   {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
 }
 
+// PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.{= authEntityUpper =}WhereInput
 ): Promise<FindAuthWithUserResult> {
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
+// PUBLIC API
 export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
@@ -156,16 +169,19 @@ export async function createUser(
   })
 }
 
+// PRIVATE API
 export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
   return prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
     id: authId,
   } } })
 }
 
+// PRIVATE API
 export async function verifyToken<T = unknown>(token: string): Promise<T> {
   return verify(token);
 }
 
+// PRIVATE API
 // If an user exists, we don't want to leak information
 // about it. Pretending that we're doing some work
 // will make it harder for an attacker to determine
@@ -178,6 +194,7 @@ export async function doFakeWork(): Promise<unknown> {
   return sleep(timeToWork);
 }
 
+// PRIVATE API
 export function rethrowPossibleAuthError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
@@ -225,6 +242,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
   throw e
 }
 
+// PRIVATE API
 export async function validateAndGetUserFields(
   data: {
     [key: string]: unknown
@@ -252,6 +270,7 @@ export async function validateAndGetUserFields(
   return result;
 }
 
+// PUBLIC API
 export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   providerData: string,
   { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
@@ -266,6 +285,7 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   return data;
 }
 
+// PUBLIC API
 export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
 ): Promise<string> {
@@ -298,6 +318,7 @@ function providerDataHasPasswordField(
   return 'hashedPassword' in providerData;
 }
 
+// PRIVATE API
 export function throwInvalidCredentialsError(message?: string): void {
   throw new HttpError(401, 'Invalid credentials', { message })
 }
