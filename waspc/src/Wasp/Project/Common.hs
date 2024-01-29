@@ -15,6 +15,7 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     extPublicDirInWaspProjectDir,
+    tsconfigInWaspProjectDir,
   )
 where
 
@@ -71,6 +72,9 @@ srcDirInWaspProjectDir = [reldir|src|]
 
 extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
 extPublicDirInWaspProjectDir = [reldir|public|]
+
+tsconfigInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->

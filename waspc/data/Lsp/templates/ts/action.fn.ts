@@ -1,4 +1,4 @@
-import { {{upperDeclName}} } from '@wasp/actions/types'
+import { {{upperDeclName}} } from 'wasp/server/actions/types'
 
 type {{upperDeclName}}Input = void
 type {{upperDeclName}}Output = void

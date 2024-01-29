@@ -10,23 +10,21 @@ module Wasp.LSP.ExtImport.Path
     absPathToCachePath,
     cachePathToAbsPathWithoutExt,
     cachePathToAbsPath,
-    tryGetTsconfigForAbsPath,
     ExtensionType,
     allowedExts,
   )
 where
 
-import Control.Applicative ((<|>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Hashable (Hashable (hashWithSalt))
-import Data.List (isPrefixOf, stripPrefix)
+import Data.List (stripPrefix)
 import GHC.Generics (Generic)
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.LSP.ServerMonads.HasProjectRootDir (HasProjectRootDir (getProjectRootDir))
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir)
 import Wasp.Util.IO (doesFileExist)
 import qualified Wasp.Util.StrongPath as SP
 
@@ -51,24 +49,20 @@ instance Hashable ExtFileCachePath where
 -- | A path that would appear in an external import, exactly as it is written in
 -- Wasp source code.
 --
--- For example, @\"\@server/queries.js\"@ is a wasp style path, but @\"src\/server\/queries.js\"@
+-- For example, @\"\@src/queries.js\"@ is a wasp style path, but @\"src\/queries.js\"@
 -- is not.
 newtype WaspStyleExtFilePath = WaspStyleExtFilePath String deriving (Show, Eq)
 
 waspStylePathToCachePath :: WaspStyleExtFilePath -> Maybe ExtFileCachePath
 waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) =
-  case stripPrefix "@" waspStylePath >>= SP.parseRelFile of
+  case stripPrefix "@src/" waspStylePath >>= SP.parseRelFile of
     Nothing -> Nothing
     Just relPath ->
+      -- TODO(martin): This code below might need more rethinking with the new restructuring.
       Just $ case SP.splitRelExtension relPath of
         Nothing -> ExtFileCachePath relPath DotAnyTS
         Just (relPathWithoutExt, ext) ->
-          if useExactExtension
-            then ExtFileCachePath relPathWithoutExt (DotExact ext)
-            else ExtFileCachePath relPathWithoutExt (widenExtension ext)
-  where
-    -- Filip: todo - update for new structure
-    useExactExtension = "@client" `isPrefixOf` waspStylePath
+          ExtFileCachePath relPathWithoutExt (widenExtension ext)
 
 absPathToCachePath :: HasProjectRootDir m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
 absPathToCachePath absFile = do
@@ -77,7 +71,7 @@ absPathToCachePath absFile = do
   case maybeProjectDir of
     Nothing -> pure Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) ->
-      let srcDir = projectRootDir SP.</> srcDirInProjectRootDir
+      let srcDir = projectRootDir SP.</> srcDirInWaspProjectDir
        in case SP.stripProperPrefix srcDir absFile of
             Nothing -> pure Nothing
             Just relFile -> case SP.splitRelExtension relFile of
@@ -91,7 +85,7 @@ cachePathToAbsPathWithoutExt (ExtFileCachePath cachePath _) = do
   case maybeProjectDir of
     Nothing -> return Nothing
     Just (projectRootDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)) -> do
-      return $ Just $ projectRootDir SP.</> srcDirInProjectRootDir SP.</> cachePath
+      return $ Just $ projectRootDir SP.</> srcDirInWaspProjectDir SP.</> cachePath
 
 cachePathToAbsPath :: forall m a. (MonadIO m, HasProjectRootDir m) => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File a)))
 cachePathToAbsPath cp@(ExtFileCachePath _ extType) =
@@ -109,27 +103,6 @@ cachePathToAbsPath cp@(ExtFileCachePath _ extType) =
           if fileWithExtExists
             then pure $ Just $ SP.fromPathAbsFile fileWithExt
             else useFirstExtensionThatExists file exts
-
--- | Try to find the @tsconfig.json@ file based on the location of the given
--- file.
---
--- Returns either @src/client/tsconfig.json@ or @src/server/tsconfig.json@,
--- depending on which directory the file is in. Does not check if those
--- config files exist.
---
--- IF the given path is not in either @src/@ subdirectory, returns nothing.
-tryGetTsconfigForAbsPath :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> SP.Path' SP.Abs (SP.File a) -> Maybe (SP.Path' SP.Abs (SP.File a))
-tryGetTsconfigForAbsPath projectRootDir file = tsconfigPath [SP.reldir|src/client|] <|> tsconfigPath [SP.reldir|src/server|]
-  where
-    tsconfigPath :: SP.Path' (SP.Rel WaspProjectDir) SP.Dir' -> Maybe (SP.Path' SP.Abs (SP.File a))
-    tsconfigPath folder =
-      let absFolder = projectRootDir SP.</> folder
-       in if SP.toPathAbsDir absFolder `P.isProperPrefixOf` SP.toPathAbsFile file
-            then Just $ absFolder SP.</> [SP.relfile|tsconfig.json|]
-            else Nothing
-
-srcDirInProjectRootDir :: SP.Path' (SP.Rel WaspProjectDir) (SP.Dir SourceExternalCodeDir)
-srcDirInProjectRootDir = [SP.reldir|src|]
 
 -- | The \"type\" of an extension. This type is related to how TypeScript resolves
 -- module extensions.
