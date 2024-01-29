@@ -1,7 +1,7 @@
 {{={= =}=}}
 /// <reference types="vitest" />
 import { mergeConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 
 {=# customViteConfig.isDefined =}
 {=& customViteConfig.importStatement =}
@@ -30,9 +30,6 @@ const defaultViteConfig = {
     environment: "jsdom",
     setupFiles: ["./src/test/vitest/setup.ts"],
   },
-  // resolve: {
-  //   dedupe: ["react", "react-dom"],
-  // },
 };
 
 // https://vitejs.dev/config/

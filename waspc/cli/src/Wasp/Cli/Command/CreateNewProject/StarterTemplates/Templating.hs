@@ -17,8 +17,8 @@ replaceTemplatePlaceholdersInWaspFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
   findWaspFile projectDir >>= \case
-    Nothing -> return ()
-    Just absMainWaspFile ->
+    Left _ -> return ()
+    Right absMainWaspFile ->
       updateFileContentWith absMainWaspFile (replacePlaceholders waspFileReplacements)
   where
     updateFileContentWith :: Path' Abs (File f) -> (Text -> Text) -> IO ()

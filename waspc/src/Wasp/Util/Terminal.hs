@@ -18,14 +18,6 @@ data Style
   | Magenta
   | Cyan
   | White
-  | BlackBg
-  | RedBg
-  | GreenBg
-  | YellowBg
-  | BlueBg
-  | MagentaBg
-  | CyanBg
-  | WhiteBg
   | Bold
   | Underline
   | Blink
@@ -49,14 +41,6 @@ styleCode Blue = "[34m"
 styleCode Magenta = "[35m"
 styleCode Cyan = "[36m"
 styleCode White = "[37m"
-styleCode BlackBg = "[40m"
-styleCode RedBg = "[41m"
-styleCode GreenBg = "[42m"
-styleCode YellowBg = "[43m"
-styleCode BlueBg = "[44m"
-styleCode MagentaBg = "[45m"
-styleCode CyanBg = "[46m"
-styleCode WhiteBg = "[47m"
 styleCode Bold = "[1m"
 styleCode Underline = "[4m"
 styleCode Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).

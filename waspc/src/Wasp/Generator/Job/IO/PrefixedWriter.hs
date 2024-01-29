@@ -1,5 +1,4 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TupleSections #-}
 
 module Wasp.Generator.Job.IO.PrefixedWriter
   ( printJobMessagePrefixed,
@@ -11,13 +10,10 @@ where
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.State (get, put)
 import Control.Monad.State.Strict (MonadState, StateT, runStateT)
-import Data.List (maximumBy)
-import Data.Ord (comparing)
 import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush, stderr)
-import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Common (getJobMessageContent, getJobMessageOutHandle)
 import qualified Wasp.Util.Terminal as Term
@@ -173,44 +169,30 @@ getJobMessageOutput jm =
 
 makeJobMessagePrefix :: J.JobMessage -> T.Text
 makeJobMessagePrefix jobMsg =
-  T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
-    [ [(startDelimiter, jobStyles)],
-      [unstyled namePaddingFront],
+  (T.pack . buildPrefix . concat)
+    [ [("[", jobStyles)],
       [(jobName, jobStyles)],
-      [unstyled namePaddingBack],
       styledFlags,
-      [(endDelimiter, jobStyles)],
-      [unstyled " "]
+      [("]", jobStyles)]
     ]
   where
-    (namePaddingFront, namePaddingBack) =
-      ( replicate namePaddingLengthFront ' ',
-        replicate namePaddingLengthBack ' '
-      )
+    buildPrefix :: [StyledText] -> String
+    buildPrefix styledTexts =
+      concatMap styledTextToTermText styledTexts <> replicate paddingLength ' '
       where
-        namePaddingLengthFront = paddingLength `div` 2
-        namePaddingLengthBack = paddingLength `div` 2 + paddingLength `mod` 2 - length (concatMap fst styledFlags)
+        numVisibleChars = length $ concatMap fst styledTexts
         paddingLength = max 0 (minPrefixLength - numVisibleChars)
-        numVisibleChars = length . concat $ [startDelimiter, jobName, endDelimiter]
-        minPrefixLength = length $ startDelimiter <> " " <> longestJobName <> " " <> endDelimiter
-        longestJobName =
-          maximumBy (comparing length) $
-            fst . getJobNameAndStyles <$> [(minBound :: JobType) .. maxBound]
+        styledTextToTermText (text, styles) = Term.applyStyles styles text
+        -- NOTE: Adjust this number if you expect longer prefixes!
+        minPrefixLength = 10
 
-    (startDelimiter, endDelimiter) = ("[", "]")
-
-    styledFlags :: [StyledText]
-    styledFlags =
-      [("!", [Term.Red, Term.Bold]) | getJobMessageOutHandle jobMsg == stderr]
-
-    (jobName, jobStyles) = getJobNameAndStyles $ J._jobType jobMsg
-
-    getJobNameAndStyles = \case
-      J.Wasp -> ("Wasp", [Term.Yellow])
+    (jobName, jobStyles) = case J._jobType jobMsg of
       J.Server -> ("Server", [Term.Magenta])
       J.WebApp -> ("Client", [Term.Cyan])
       J.Db -> ("Db", [Term.Blue])
 
-    unstyled = (,[])
+    styledFlags :: [StyledText]
+    styledFlags =
+      [("!", [Term.Red]) | getJobMessageOutHandle jobMsg == stderr]
 
 type StyledText = (String, [Term.Style])
