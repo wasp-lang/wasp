@@ -9,7 +9,8 @@ const Announcement = () => {
   let history = useHistory();
 
   const handleLink = () => {
-    window.open('https://magic-app-generator.wasp-lang.dev/')
+    // window.open('https://magic-app-generator.wasp-lang.dev/')
+    window.open('https://www.producthunt.com/products/open-saas')
     //history.push('/blog/2023/06/30/tutorial-jam')
     //history.push('/#signup')
 
@@ -40,7 +41,7 @@ const Announcement = () => {
         `}
       >
         <span className='item-center flex gap-2 px-3'>
-          <span>Try our GPT-Powered Web App Starter!</span>
+          <span>Our free SaaS starter is live on Product Hunt!</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
@@ -50,7 +51,8 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Generate your app 🤖 →
+            {/* Generate your app 🤖 → */}
+            Support Open SaaS 🙏 →
           </span>
         </span>
       </div>
