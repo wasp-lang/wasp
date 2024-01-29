@@ -135,7 +135,7 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
 
-      {=! Still needed, remove when refactoring =}
+      {=! Still needed, reconsider during refactoring =}
       "./server/types": "./dist/server/types/index.js",
 
       {=! ================= NEW API HERE =================== =}
