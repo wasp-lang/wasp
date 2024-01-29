@@ -35,7 +35,11 @@ Let's create and run our first Wasp app in 3 short steps:
 That's it 🎉 You have successfully created and served a new full-stack web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
 
 :::note Something Unclear?
-Check [More Details](#more-details) section below if anything went wrong with the installation, or if you have additional questions.
+  Check [More Details](#more-details) section below if anything went wrong with the installation, or if you have additional questions.
+:::
+
+:::tip Want an even faster start?
+  Try out [Wasp AI](../wasp-ai/creating-new-app.md) 🤖 to generate a new Wasp app in minutes just from a title and short description!
 :::
 
 :::tip Try Wasp Without Installing 🤔?
