@@ -3,13 +3,13 @@ name: WASPC-CI
 on:
   push:
     paths:
-      - "waspc/**"
+      - 'waspc/**'
     branches:
       - main
       - release
   pull_request:
     paths:
-      - "waspc/**"
+      - 'waspc/**'
   create: { tags: [v*] }
   schedule:
     # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
@@ -40,9 +40,9 @@ jobs:
     strategy:
       matrix:
         ghc:
-          - "8.10.7"
+          - '8.10.7'
         cabal:
-          - "3.6.2.0"
+          - '3.6.2.0'
         os:
           # Using Ubuntu 20.04 due to recent GLIBC_2.34 version mismatch errors for
           # users and other services. The strategy here is to pick a slightly older LTS
@@ -53,7 +53,6 @@ jobs:
           # Ref: https://github.com/wasp-lang/wasp/issues/650
           - ubuntu-20.04
           - macos-latest
-          - windows-latest
 
     steps:
       - name: Configure git
@@ -205,7 +204,7 @@ jobs:
         with:
           draft: true
           allowUpdates: true
-          artifacts: "waspc/artifacts/*"
+          artifacts: 'waspc/artifacts/*'
           artifactErrorsFailBuild: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
