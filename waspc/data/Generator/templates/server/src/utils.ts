@@ -7,12 +7,12 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 {=# isAuthEnabled =}
-import { type SanitizedUser } from 'wasp/server/_types/index.js'
+import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 
 type RequestWithExtraFields = Request & {
   {=# isAuthEnabled =}
-  user?: SanitizedUser;
+  user?: AuthUser;
   sessionId?: string;
   {=/ isAuthEnabled =}
 }

@@ -1,20 +1,17 @@
-{{={= =}=}}
 import { type Expand } from 'wasp/universal/types';
 import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import { prisma } from 'wasp/server'
-{=# isAuthEnabled =}
 import {
-  type {= userEntityName =},
-  type {= authEntityName =},
-  type {= authIdentityEntityName =},
+  type User,
+  type Auth,
+  type AuthIdentity,
 } from "wasp/entities"
 import {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
 } from 'wasp/auth/utils'
-{=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
 import { type Payload } from "./serialization";
 
@@ -27,7 +24,6 @@ export type Query<Entities extends _Entity[], Input extends Payload, Output exte
 export type Action<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   Operation<Entities, Input, Output>
 
-{=# isAuthEnabled =}
 export type AuthenticatedQuery<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
@@ -52,7 +48,6 @@ export type AuthenticatedApi<
   context: ContextWithUser<Entities>,
 ) => void
 
-{=/ isAuthEnabled =}
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
   context: Context<Entities>,
@@ -76,16 +71,14 @@ type EntityMap<Entities extends _Entity[]> = {
 }
 
 export type PrismaDelegate = {
-  {=# entities =}
-  "{= name =}": typeof prisma.{= prismaIdentifier =},
-  {=/ entities =}
+  "User": typeof prisma.user,
+  "Task": typeof prisma.task,
 }
 
 type Context<Entities extends _Entity[]> = Expand<{
   entities: Expand<EntityMap<Entities>>
 }>
 
-{=# isAuthEnabled =}
 type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: AuthUser }>
 
 // TODO: This type must match the logic in auth/session.js (if we remove the
@@ -93,15 +86,14 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { 
 // these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
 
-export type DeserializedAuthIdentity = Expand<Omit<{= authIdentityEntityName =}, 'providerData'> & {
+export type DeserializedAuthIdentity = Expand<Omit<AuthIdentity, 'providerData'> & {
   providerData: Omit<EmailProviderData, 'password'> | Omit<UsernameProviderData, 'password'> | OAuthProviderData
 }>
 
-export type AuthUser = {= userEntityName =} & {
-  {= authFieldOnUserEntityName =}: {= authEntityName =} & {
-    {= identitiesFieldOnAuthEntityName =}: DeserializedAuthIdentity[]
+export type AuthUser = User & {
+  auth: Auth & {
+    identities: DeserializedAuthIdentity[]
   } | null
 }
 
 export type { ProviderName } from 'wasp/auth/utils'
-{=/ isAuthEnabled =}

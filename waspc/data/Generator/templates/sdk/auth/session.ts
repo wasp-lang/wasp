@@ -2,7 +2,7 @@
 import { Request as ExpressRequest } from "express";
 
 import { type {= userEntityUpper =} } from "wasp/entities"
-import { type SanitizedUser } from 'wasp/server/_types'
+import { type AuthUser } from 'wasp/auth'
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
@@ -19,7 +19,7 @@ export async function createSession(authId: string): Promise<Session> {
 }
 
 export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<{
-  user: SanitizedUser | null,
+  user: AuthUser | null,
   session: Session | null,
 }> {
   const authorizationHeader = req.headers["authorization"];
@@ -43,7 +43,7 @@ export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Pro
 }
 
 export async function getSessionAndUserFromSessionId(sessionId: string): Promise<{
-  user: SanitizedUser | null,
+  user: AuthUser | null,
   session: Session | null,
 }> {
   const { session, user: authEntity } = await auth.validateSession(sessionId);
@@ -61,7 +61,7 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
   }
 }
 
-async function getUser(userId: {= userEntityUpper =}['id']): Promise<SanitizedUser> {
+async function getUser(userId: {= userEntityUpper =}['id']): Promise<AuthUser> {
   const user = await prisma.{= userEntityLower =}
     .findUnique({
       where: { id: userId },
