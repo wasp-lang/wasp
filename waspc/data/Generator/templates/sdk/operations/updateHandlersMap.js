@@ -1,26 +1,22 @@
-export function makeUpdateHandlersMap(calculateHash: (queryKey: string[]) => string): {
-  add: (queryKey: string[], updateQuery: UpdateQueryFn) => void,
-  remove: (queryKey: string[]) => void,
-  getUpdateHandlers: (queryKey: string[]) => UpdateQueryFn[]
-} {
-  const updateHandlers: Map<string, UpdateHandler[]> = new Map()
+export function makeUpdateHandlersMap(calculateHash) {
+  const updateHandlers = new Map()
 
-  function getHandlerTuples(queryKeyHash: string): UpdateHandler[] {
+  function getHandlerTuples(queryKeyHash) {
     return updateHandlers.get(queryKeyHash) || [];
   }
 
-  function add(queryKey: string[], updateQuery: UpdateQueryFn) {
+  function add(queryKey, updateQuery) {
     const queryKeyHash = calculateHash(queryKey)
     const handlers = getHandlerTuples(queryKeyHash);
     updateHandlers.set(queryKeyHash, [...handlers, { queryKey, updateQuery }])
   }
 
-  function getUpdateHandlers(queryKey: string[]): UpdateQueryFn[] {
+  function getUpdateHandlers(queryKey) {
     const queryKeyHash = calculateHash(queryKey)
     return getHandlerTuples(queryKeyHash).map(({ updateQuery }) => updateQuery)
   }
 
-  function remove(queryKeyToRemove: string[]): void {
+  function remove(queryKeyToRemove) {
     const queryKeyHash = calculateHash(queryKeyToRemove)
     const filteredHandlers = getHandlerTuples(queryKeyHash).filter(
       ({ queryKey }) => queryKey !== queryKeyToRemove
@@ -38,11 +34,4 @@ export function makeUpdateHandlersMap(calculateHash: (queryKey: string[]) => str
     remove,
     getUpdateHandlers,
   }
-}
-
-export type UpdateQueryFn = (...args: any[]) => any;
-
-type UpdateHandler = {
-  queryKey: string[];
-  updateQuery: UpdateQueryFn;
 }

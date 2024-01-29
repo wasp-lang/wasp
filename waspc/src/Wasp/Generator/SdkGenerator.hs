@@ -80,9 +80,11 @@ genSdkReal spec =
       genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|core/AuthError.ts|],
       genFileCopy [relfile|core/HttpError.ts|],
-      genFileCopy [relfile|operations/resources.ts|],
+      -- Not migrated to TS yet
+      genFileCopy [relfile|operations/resources.js|],
       genFileCopy [relfile|operations/index.ts|],
-      genFileCopy [relfile|operations/updateHandlersMap.ts|],
+      -- Not migrated to TS yet
+      genFileCopy [relfile|operations/updateHandlersMap.js|],
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],
