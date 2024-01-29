@@ -10,9 +10,9 @@ import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.NpmDependencies as N
+import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator as SG
 import qualified Wasp.Generator.WebAppGenerator as WG
-import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 
 data AllNpmDeps = AllNpmDeps
   { _userNpmDeps :: !N.NpmDepsForUser, -- Deps coming from user's package.json .

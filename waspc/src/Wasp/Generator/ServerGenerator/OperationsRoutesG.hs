@@ -61,7 +61,7 @@ genOperationRoute operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFil
         [ "operation"
             .= object
               [ "importIdentifier" .= operationImportIdentifier,
-                "importStatement" .=  operationImportStmt
+                "importStatement" .= operationImportStmt
               ]
         ]
 

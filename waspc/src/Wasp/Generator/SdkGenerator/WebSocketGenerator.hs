@@ -24,11 +24,11 @@ import qualified Wasp.Generator.WebSocket as AS.WS
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-    sequence
-      [ genWebSocketServerIndex spec,
-        genFileCopy [relfile|webSocket/index.ts|],
-        genWebSocketProvider spec
-      ]
+      sequence
+        [ genWebSocketServerIndex spec,
+          genFileCopy [relfile|webSocket/index.ts|],
+          genWebSocketProvider spec
+        ]
   | otherwise = return []
   where
     genFileCopy = return . C.mkTmplFd
