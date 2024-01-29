@@ -9,6 +9,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import qualified Wasp.AI.GenerateNewProject.Common as Auth
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC

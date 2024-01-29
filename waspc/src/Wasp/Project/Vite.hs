@@ -1,23 +1,20 @@
 module Wasp.Project.Vite where
 
 import Data.List (find)
-import StrongPath (File', Path', Rel, relfile)
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
-import qualified Wasp.AppSpec.ExternalCode as ExternalCode
+import StrongPath (Abs, Dir, File', Path', Rel, relfile)
+import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.Util.IO as Util.IO
 
-findCustomViteConfigPath :: [ExternalCode.File] -> Maybe (Path' (Rel SourceExternalCodeDir) File')
-findCustomViteConfigPath externalClientCodeFiles = ExternalCode._pathInExtCodeDir <$> maybeCustomViteConfigPath
+findCustomViteConfigPath :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' (Rel WaspProjectDir) File'))
+findCustomViteConfigPath waspProjectDir = do
+  waspProjectDirFiles <- fst <$> Util.IO.listDirectory waspProjectDir
+
+  return $ find isCustomViteConfig waspProjectDirFiles
   where
-    maybeCustomViteConfigPath = find isCustomViteConfig externalClientCodeFiles
+    isCustomViteConfig path = path == pathToViteTsConfig || path == pathToViteJsConfig
 
-    isCustomViteConfig :: ExternalCode.File -> Bool
-    isCustomViteConfig
-      ExternalCode.File
-        { _pathInExtCodeDir = path
-        } = path == pathToViteTsConfig || path == pathToViteJsConfig
-
-    pathToViteTsConfig :: Path' (Rel SourceExternalCodeDir) File'
+    pathToViteTsConfig :: Path' (Rel WaspProjectDir) File'
     pathToViteTsConfig = [relfile|vite.config.ts|]
 
-    pathToViteJsConfig :: Path' (Rel SourceExternalCodeDir) File'
+    pathToViteJsConfig :: Path' (Rel WaspProjectDir) File'
     pathToViteJsConfig = [relfile|vite.config.js|]

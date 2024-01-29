@@ -16,11 +16,17 @@
       "esnext"
     ],
     "allowJs": true,
+    "types": [
+      // This is needed to properly support Vitest testing with jest-dom matchers.
+      // Types for jest-dom are not recognized automatically and Typescript complains
+      // about missing types e.g. when using `toBeInTheDocument` and other matchers.
+      "@testing-library/jest-dom"
+    ],
     // Since this TS config is used only for IDE support and not for
     // compilation, the following directory doesn't exist. We need to specify
     // it to prevent this error:
     // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
-    "outDir": "phantom"
+    "outDir": "phantom",
   },
   "exclude": [
     "phantom"

@@ -9,23 +9,142 @@
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
   "exports": {
-      "./core/HttpError": "./core/HttpError.js",
-      "./core/AuthError": "./core/AuthError.js",
-      "./core/config": "./core/config.js",
-      "./core/stitches.config": "./core/stitches.config.js",
-      "./core/storage": "./core/storage.ts",
-      "./rpc": "./rpc/index.ts",
-      "./rpc/queries": "./rpc/queries/index.ts",
-      "./rpc/actions": "./rpc/actions/index.ts",
-      "./rpc/queryClient": "./rpc/queryClient.ts",
-      "./types": "./types/index.ts",
-      "./auth/*": "./auth/*",
-      "./api": "./api/index.ts",
-      "./api/*": "./api/*",
-      "./operations": "./operations/index.ts",
-      "./operations/*": "./operations/*",
-      "./universal/url": "./universal/url.ts",
-      "./universal/types": "./universal/url.ts"
+      {=! todo(filip): Check all exports when done with SDK generation =}
+      {=!  Some of the statements in the comments might become incorrect. =}
+      {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
+      {=!  Used by users, documented. =}
+      "./core/HttpError": "./dist/core/HttpError.js",
+      {=!  Used by users, documented. =}
+      "./core/AuthError": "./dist/core/AuthError.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./core/config": "./dist/core/config.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./core/stitches.config": "./dist/core/stitches.config.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./core/storage": "./dist/core/storage.js",
+      "./core/auth": "./dist/core/auth.js",
+      {=!  Used by users, documented. =}
+      "./rpc": "./dist/rpc/index.js",
+      {=!  Used by users, documented. =}
+      "./rpc/queries": "./dist/rpc/queries/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./rpc/queries/core": "./dist/rpc/queries/core.js",
+      {=!  Used by users, documented. =}
+      "./rpc/actions": "./dist/rpc/actions/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./rpc/actions/core": "./dist/rpc/actions/core.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./rpc/queryClient": "./dist/rpc/queryClient.js",
+      {=!  Used by users, documented. =}
+      "./types": "./dist/types/index.js",
+      {=!  Used by user, documented. =}
+      "./auth": "./dist/auth/index.js",
+      {=!  Used by users, documented. =}
+      "./auth/types": "./dist/auth/types.js",
+      {=!  Used by users, documented. =}
+      "./auth/login": "./dist/auth/login.js",
+      {=!  Used by users, documented. =}
+      "./auth/logout": "./dist/auth/logout.js",
+      {=!  Used by users, documented. =}
+      "./auth/signup": "./dist/auth/signup.js",
+      {=!  Used by users, documented. =}
+      "./auth/useAuth": "./dist/auth/useAuth.js",
+      {=!  Used by users, documented. =}
+      "./auth/user": "./dist/auth/user.js",
+      {=!  Used by users, documented. =}
+      "./auth/email": "./dist/auth/email/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/helpers/user": "./dist/auth/helpers/user.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/session": "./dist/auth/session.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/providers/types": "./dist/auth/providers/types.js",
+      {=!  Used by user, documented. =}
+      "./auth/utils": "./dist/auth/utils.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/password": "./dist/auth/password.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/jwt": "./dist/auth/jwt.js",
+      {=!  Used by user, documented. =}
+      "./auth/validation": "./dist/auth/validation.js",
+      {=!  Used by users, documented. =}
+      "./auth/forms/Login": "./dist/auth/forms/Login.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/Signup": "./dist/auth/forms/Signup.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/VerifyEmail": "./dist/auth/forms/VerifyEmail.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/ForgotPassword": "./dist/auth/forms/ForgotPassword.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/ResetPassword": "./dist/auth/forms/ResetPassword.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/forms/internal/Form": "./dist/auth/forms/internal/Form.jsx",
+      {=!  Used by users, documented. =}
+      "./auth/helpers/*": "./dist/auth/helpers/*.jsx",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
+      {=!  Used by users, documented. =}
+      "./api": "./dist/api/index.js",
+      {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
+      "./api/events": "./dist/api/events.js",
+      {=!  Used by users, documented. =}
+      "./operations": "./dist/operations/index.js",
+      {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
+      {=!  expose it here (which leaks it to our users). We could avoid this by =}
+      {=!  using relative imports inside SDK code (instead of library imports), =}
+      {=!  but I didn't have time to implement it. =}
+      "./ext-src/*": "./dist/ext-src/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./operations/*": "./dist/operations/*",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./universal/url": "./dist/universal/url.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./universal/types": "./dist/universal/types.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./universal/validators": "./dist/universal/validators.js",
+      {=!  Used by users and by our code, documented =}
+      "./server/dbClient": "./dist/server/dbClient.js",
+      {=!  Used by users and by our code, documented. =}
+      "./server/config": "./dist/server/config.js",
+      {=!  Used by users and by our code, documented. =}
+      "./server/types": "./dist/server/types/index.js",
+      {=!  Used by users and by our code, documented. =}
+      "./server/middleware": "./dist/server/middleware/index.js",
+      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
+      "./server/utils": "./dist/server/utils.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/actions": "./dist/server/actions/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/queries": "./dist/server/queries/index.js",
+      {=!  Used by users and also by our code, documented. =}
+      "./server/auth/email": "./dist/server/auth/email/index.js",
+      {=!  Used by users, documented. =}
+      "./dbSeed/types": "./dist/dbSeed/types.js",
+      {=!  Used by users, documented. =}
+      "./test": "./dist/test/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./test/*": "./dist/test/*.js",
+      "./crud/*": "./dist/crud/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/crud/*": "./dist/server/crud/*",
+      "./email": "./dist/email/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./email/core/types": "./dist/email/core/types.js",
+      {=!  Used by users, documented. =}
+      "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
+      {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
+      "./jobs/*": "./dist/jobs/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
+      "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
+      {=!  Used by users, documented. =}
+      "./router": "./dist/router/index.js",
+      {=!  Used by users, documented. =}
+      "./server/webSocket": "./dist/server/webSocket/index.js",
+      {=!  Used by users, documented. =}
+      "./webSocket": "./dist/webSocket/index.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx"
    },
    "license": "ISC",
     "include": [

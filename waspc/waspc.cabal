@@ -238,7 +238,7 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
     Wasp.AppSpec.Entity.Field
-    Wasp.AppSpec.ExternalCode
+    Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
@@ -255,7 +255,6 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
-    Wasp.ExternalCode
     Wasp.Generator
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
@@ -273,9 +272,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
-    Wasp.Generator.ExternalCodeGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
-    Wasp.Generator.ExternalCodeGenerator.Js
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -296,6 +293,21 @@ library
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.SdkGenerator
+    Wasp.Generator.SdkGenerator.ApiRoutesG
+    Wasp.Generator.SdkGenerator.Auth.AuthFormsG
+    Wasp.Generator.SdkGenerator.Auth.EmailAuthG
+    Wasp.Generator.SdkGenerator.CrudG
+    Wasp.Generator.SdkGenerator.Auth.LocalAuthG
+    Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
+    Wasp.Generator.SdkGenerator.AuthG
+    Wasp.Generator.SdkGenerator.Common
+    Wasp.Generator.SdkGenerator.RpcGenerator
+    Wasp.Generator.SdkGenerator.JobGenerator
+    Wasp.Generator.SdkGenerator.ServerOpsGenerator
+    Wasp.Generator.SdkGenerator.EmailSenderG
+    Wasp.Generator.SdkGenerator.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.WebSocketGenerator
+    Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -304,11 +316,7 @@ library
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
     Wasp.Generator.ServerGenerator.Db.Seed
-    Wasp.Generator.ServerGenerator.EmailSenderG
-    Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
-    Wasp.Generator.ServerGenerator.ConfigG
-    Wasp.Generator.ServerGenerator.ExternalCodeGenerator
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
@@ -323,21 +331,13 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
-    Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
-    Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
-    Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
-    Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-    Wasp.Generator.WebAppGenerator.OperationsGenerator
-    Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
-    Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
     Wasp.Message
@@ -353,7 +353,7 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
-    Wasp.Project.WebApp
+    Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
     Wasp.Psl.Ast.Model
@@ -382,7 +382,7 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.WebRouterPath
     Wasp.Version
-    Wasp.WaspignoreFile
+    Wasp.Project.Waspignore
 
 library waspls
   import: common-all
@@ -589,7 +589,6 @@ test-suite waspc-test
     FilePath.ExtraTest
     Fixtures
     Generator.DbGeneratorTest
-    Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
@@ -613,7 +612,7 @@ test-suite waspc-test
     SemanticVersionTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    WaspignoreFileTest
+    Project.WaspignoreTest
     Paths_waspc
     Generator.NpmDependenciesTest
     JsImportTest

@@ -22,13 +22,7 @@ import qualified Wasp.Generator
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common
-  ( buildDirInDotWaspDir,
-    dotWaspDirInWaspProjectDir,
-    extClientCodeDirInWaspProjectDir,
-    extServerCodeDirInWaspProjectDir,
-    extSharedCodeDirInWaspProjectDir,
-  )
+import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -71,9 +65,7 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
   where
     options =
       CompileOptions
-        { externalClientCodeDirPath = waspProjectDir </> extClientCodeDirInWaspProjectDir,
-          externalServerCodeDirPath = waspProjectDir </> extServerCodeDirInWaspProjectDir,
-          externalSharedCodeDirPath = waspProjectDir </> extSharedCodeDirInWaspProjectDir,
+        { waspProjectDirPath = waspProjectDir,
           isBuild = True,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

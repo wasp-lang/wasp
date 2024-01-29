@@ -1,54 +1,195 @@
-module Wasp.Generator.SdkGenerator where
+{-# LANGUAGE TypeApplications #-}
 
+module Wasp.Generator.SdkGenerator
+  ( genSdk,
+    installNpmDependencies,
+    genExternalCodeDir,
+    buildSdk,
+    npmDepsForSdk,
+  )
+where
+
+import Control.Concurrent (newChan)
+import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
-import qualified Data.Aeson as Aeson
 import Data.Aeson.Types ((.=))
-import GHC.IO (unsafePerformIO)
+import Data.Maybe (fromMaybe, isJust, mapMaybe)
 import StrongPath
+import qualified StrongPath as SP
+import System.Exit (ExitCode (..))
+import qualified System.FilePath as FP
 import Wasp.AppSpec
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
-import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
+import qualified Wasp.AppSpec.Entity as AS.Entity
+import qualified Wasp.AppSpec.ExternalFiles as EC
+import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
+import qualified Wasp.AppSpec.Valid as AS.Valid
+import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.FileDraft as FD
 import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.SdkGenerator.ApiRoutesG (genApis)
+import Wasp.Generator.SdkGenerator.AuthG (genAuth)
+import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
+import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
+import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
+import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
+import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import Wasp.Generator.Templates (TemplatesDir, getTemplatesDirAbsPath)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Util (toLowerFirst, (<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec = sequence [genSdkModules, genPackageJson spec]
+genSdk spec = genSdkReal spec
 
-data SdkRootDir
+buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+buildSdk projectRootDir = do
+  chan <- newChan
+  (_, exitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (runNodeCommandAsJob dstDir "npx" ["tsc"] J.Wasp chan)
+  case exitCode of
+    ExitSuccess -> return $ Right ()
+    ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
+  where
+    dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
-data SdkTemplatesDir
+genSdkReal :: AppSpec -> Generator [FileDraft]
+genSdkReal spec =
+  sequence
+    [ genFileCopy [relfile|api/index.ts|],
+      genFileCopy [relfile|api/events.ts|],
+      genFileCopy [relfile|core/config.ts|],
+      genFileCopy [relfile|core/auth.ts|],
+      genFileCopy [relfile|core/storage.ts|],
+      genFileCopy [relfile|core/stitches.config.ts|],
+      genFileCopy [relfile|core/AuthError.ts|],
+      genFileCopy [relfile|core/HttpError.ts|],
+      -- Not migrated to TS yet
+      genFileCopy [relfile|operations/resources.js|],
+      genFileCopy [relfile|operations/index.ts|],
+      -- Not migrated to TS yet
+      genFileCopy [relfile|operations/updateHandlersMap.js|],
+      genFileCopy [relfile|server/dbClient.ts|],
+      genFileCopy [relfile|types/index.ts|],
+      genFileCopy [relfile|dbSeed/types.ts|],
+      genFileCopy [relfile|test/vitest/helpers.tsx|],
+      genFileCopy [relfile|test/index.ts|],
+      genFileCopy [relfile|jobs/pgBoss/types.ts|],
+      genServerConfigFile spec,
+      genTsConfigJson,
+      genServerUtils spec,
+      genPackageJson spec
+    ]
+    <++> genRpc spec
+    <++> genAuth spec
+    <++> genOperations spec
+    <++> genUniversalDir
+    <++> genExternalCodeDir (AS.externalCodeFiles spec)
+    <++> genEntitiesAndServerTypesDirs spec
+    <++> genCrud spec
+    <++> genJobTypes spec
+    <++> genApis spec
+    <++> genWebSockets spec
+    <++> genRouter spec
+    <++> genMiddleware spec
+    <++> genExportedTypesDir spec
+    <++> genEmailSender spec
+  where
+    genFileCopy = return . C.mkTmplFd
 
-genSdkModules :: Generator FileDraft
-genSdkModules =
-  return $
-    createCopyDirFileDraft
-      RemoveExistingDstDir
-      sdkRootDirInProjectRootDir
-      (unsafePerformIO getTemplatesDirAbsPath </> sdkTemplatesDirInTemplatesDir </> [reldir|wasp|])
+-- genSdkHardcoded :: Generator [FileDraft]
+-- genSdkHardcoded =
+--   return []
+--   where
+--     copyFile = C.mkTmplFd
+--     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
+--     copyFolder modul =
+--       createCopyDirFileDraft
+--         RemoveExistingDstDir
+--         (dstFolder </> castRel modul)
+--         (srcFolder </> modul)
+--     dstFolder = C.sdkRootDirInProjectRootDir
+--     srcFolder = absSdkTemplatesDir
+--     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
+
+genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
+genEntitiesAndServerTypesDirs spec =
+  return
+    [ entitiesIndexFileDraft,
+      taggedEntitiesFileDraft,
+      serializationFileDraft,
+      typesIndexFileDraft
+    ]
+  where
+    entitiesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|entities/index.ts|]
+        [relfile|entities/index.ts|]
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+              ]
+        )
+    taggedEntitiesFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|server/_types/taggedEntities.ts|]
+        [relfile|server/_types/taggedEntities.ts|]
+        (Just $ object ["entities" .= allEntities])
+    serializationFileDraft =
+      C.mkTmplFd
+        [relfile|server/_types/serialization.ts|]
+    typesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|server/_types/index.ts|]
+        [relfile|server/_types/index.ts|]
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "userEntityName" .= userEntityName,
+                "authEntityName" .= DbAuth.authEntityName,
+                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+                "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+                "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+                "userFieldName" .= toLowerFirst userEntityName
+              ]
+        )
+    userEntityName = fromMaybe "" maybeUserEntityName
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
   return $
-    mkTmplFdWithDstAndData
+    C.mkTmplFdWithDstAndData
       [relfile|package.json|]
       [relfile|package.json|]
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps
+            [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
             ]
       )
-  where
-    npmDeps = npmDepsForSdk spec
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
@@ -63,6 +204,7 @@ npmDepsForSdk spec =
             ("jsonwebtoken", "^8.5.1"),
             ("mitt", "3.0.0"),
             ("react", "^18.2.0"),
+            ("lodash.merge", "^4.6.2"),
             ("react-router-dom", "^5.3.3"),
             ("react-hook-form", "^7.45.4"),
             ("secure-password", "^4.0.0"),
@@ -76,9 +218,53 @@ npmDepsForSdk spec =
           -- runtime to load the wrong (uninitialized prisma/client)
           -- TODO(filip): Find a better way to handle duplicate
           -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
-          ++ ServerAuthG.depsRequiredByAuth spec,
-      N.devDependencies = AS.Dependency.fromList []
+          ++ ServerAuthG.depsRequiredByAuth spec
+          ++ depsRequiredByEmail spec
+          ++ depsRequiredByWebSockets spec
+          ++ depsRequiredForTesting,
+      N.devDependencies =
+        AS.Dependency.fromList
+          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
+          ]
     }
+  where
+    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^1.2.1"),
+      ("@vitest/ui", "^1.2.1"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^14.1.2"),
+      ("@testing-library/jest-dom", "^6.3.0"),
+      ("msw", "^1.1.0")
+    ]
+
+genServerConfigFile :: AppSpec -> Generator FileDraft
+genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+  where
+    relConfigFilePath = [relfile|server/config.ts|]
+    tmplData =
+      object
+        [ "isAuthEnabled" .= isAuthEnabled spec,
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
+          "defaultClientUrl" .= WebApp.getDefaultClientUrl spec
+        ]
+
+-- todo(filip): remove this duplication, we have almost the same thing in the
+-- ServerGenerator.
+genTsConfigJson :: Generator FileDraft
+genTsConfigJson = do
+  return $
+    C.mkTmplFdWithDstAndData
+      [relfile|tsconfig.json|]
+      [relfile|tsconfig.json|]
+      ( Just $
+          object
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            ]
+      )
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
@@ -86,25 +272,62 @@ depsRequiredForAuth spec =
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
-mkTmplFdWithDstAndData ::
-  Path' (Rel SdkTemplatesDir) File' ->
-  Path' (Rel SdkRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
-  createTemplateFileDraft
-    (sdkRootDirInProjectRootDir </> relDstPath)
-    (sdkTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
-
-sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
-
-sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
-sdkTemplatesDirInTemplatesDir = [reldir|sdk|]
-
 -- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
   runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
+
+-- todo(filip): consider reorganizing/splitting the file.
+
+-- | Takes external code files from Wasp and generates them in new location as part of the generated project.
+-- It might not just copy them but also do some changes on them, as needed.
+genExternalCodeDir :: [EC.CodeFile] -> Generator [FileDraft]
+genExternalCodeDir = sequence . mapMaybe genFile
+
+genFile :: EC.CodeFile -> Maybe (Generator FileDraft)
+genFile file
+  | fileName == "tsconfig.json" = Nothing
+  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genSourceFile file
+  | otherwise = Just $ genResourceFile file
+  where
+    extension = FP.takeExtension filePath
+    fileName = FP.takeFileName filePath
+    filePath = SP.toFilePath $ EC.filePathInExtCodeDir file
+
+genResourceFile :: EC.CodeFile -> Generator FileDraft
+genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
+  where
+    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
+    absSrcPath = EC.fileAbsPath file
+
+genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
+genSourceFile file = return $ FD.createTextFileDraft relDstPath text
+  where
+    filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
+    text = EC.fileText file
+    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
+  return
+    [ C.mkTmplFd [relfile|universal/url.ts|],
+      C.mkTmplFd [relfile|universal/types.ts|],
+      C.mkTmplFd [relfile|universal/validators.ts|]
+    ]
+
+genServerUtils :: AppSpec -> Generator FileDraft
+genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
+
+genExportedTypesDir :: AppSpec -> Generator [FileDraft]
+genExportedTypesDir _spec =
+  return [C.mkTmplFd [relfile|server/types/index.ts|]]
+
+genMiddleware :: AppSpec -> Generator [FileDraft]
+genMiddleware _spec =
+  sequence
+    [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
+      return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    ]

@@ -5,8 +5,8 @@ import {
     updateAuthIdentityProviderData,
     verifyToken,
     deserializeAndSanitizeProviderData,
-} from "../../utils.js";
-import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from "../../validation.js";
+} from 'wasp/auth/utils';
+import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
 import { tokenVerificationErrors } from "./types.js";
 import HttpError from 'wasp/core/HttpError';
 

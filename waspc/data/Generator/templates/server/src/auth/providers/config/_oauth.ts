@@ -3,7 +3,7 @@
 import { createRouter } from "../oauth/createRouter.js";
 import { makeOAuthInit } from "../oauth/init.js";
 
-import type { ProviderConfig } from "../types.js";
+import type { ProviderConfig } from "wasp/auth/providers/types";
 import type { OAuthConfig } from "../oauth/types.js";
 
 {=# userSignupFields.isDefined =}

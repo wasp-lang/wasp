@@ -2,13 +2,13 @@
 
 import http from 'http'
 import { Server, Socket } from 'socket.io'
-import type { ServerType } from './index.js'
+import type { ServerType } from 'wasp/server/webSocket'
 
-import config from '../config.js'
-import prisma from '../dbClient.js'
+import config from 'wasp/server/config'
+import prisma from 'wasp/server/dbClient'
 
 {=# isAuthEnabled =}
-import { getSessionAndUserFromSessionId } from '../auth/session.js'
+import { getSessionAndUserFromSessionId } from 'wasp/auth/session'
 {=/ isAuthEnabled =}
 
 {=& userWebSocketFn.importStatement =}

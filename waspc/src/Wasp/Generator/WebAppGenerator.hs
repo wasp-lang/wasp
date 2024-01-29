@@ -7,9 +7,9 @@ module Wasp.Generator.WebAppGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Char (toLower)
 import Data.List (intercalate)
 import Data.Maybe (fromJust, isJust)
+import qualified FilePath.Extra as FP.Extra
 import StrongPath
   ( Dir,
     File',
@@ -24,57 +24,48 @@ import StrongPath
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.App (App (webSocket))
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
-  ( makeJsonWithEntityData,
+  ( makeJsArrayFromHaskellList,
+    makeJsonWithEntityData,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import qualified Wasp.Generator.ExternalCodeGenerator.Common as ECC
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
+import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir, webAppSrcDirInWebAppRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
-import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-  ( extClientCodeGeneratorStrategy,
-  )
-import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as EC
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportModule),
+    JsImportPath (RelativeImportPath),
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import qualified Wasp.Project.Common as Project
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
-  extClientCodeFileDrafts <- genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|src/test/vitest/setup.ts|],
-      genFileCopy [relfile|src/test/vitest/helpers.tsx|],
-      genFileCopy [relfile|src/test/index.ts|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
@@ -83,14 +74,9 @@ genWebApp spec = do
       genViteConfig spec
     ]
     <++> genSrcDir spec
-    -- Filip: I don't generate external source folders as we're importing the user's code direclty (see ServerGenerator/JsImport.hs).
-    -- <++> return extClientCodeFileDrafts
-    -- <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
-    <++> genPublicDir spec extClientCodeFileDrafts
+    <++> genPublicDir spec
     <++> genDotEnv spec
-    <++> genUniversalDir
     <++> genEnvValidationScript
-    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -147,13 +133,11 @@ npmDepsForWasp spec =
             -- Used for Auth UI
             ("react-hook-form", "^7.45.4")
           ]
-          ++ depsRequiredByTailwind spec
-          ++ depsRequiredForWebSockets spec,
+          ++ depsRequiredByTailwind spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("vite", "^4.3.9"),
             ("typescript", "^5.1.0"),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
@@ -164,7 +148,6 @@ npmDepsForWasp spec =
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^2.0.0")
           ]
-          ++ depsRequiredForTesting
     }
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
@@ -178,22 +161,6 @@ depsRequiredByTailwind spec =
         ]
     else []
 
-depsRequiredForTesting :: [AS.Dependency.Dependency]
-depsRequiredForTesting =
-  AS.Dependency.fromList
-    [ ("vitest", "^0.29.3"),
-      ("@vitest/ui", "^0.29.3"),
-      ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^14.0.0"),
-      ("@testing-library/jest-dom", "^5.16.5"),
-      ("msw", "^1.1.0")
-    ]
-
-depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredForWebSockets spec
-  | AS.WS.areWebSocketsUsed spec = AS.WS.clientDepsRequiredForWebSockets
-  | otherwise = []
-
 genGitignore :: Generator FileDraft
 genGitignore =
   return $
@@ -201,25 +168,24 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
-genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
-genPublicDir spec extCodeFileDrafts =
+genPublicDir :: AppSpec -> Generator [FileDraft]
+genPublicDir spec =
   return $
-    ifUserDidntProvideFile genFaviconFd
+    extPublicFileDrafts
+      ++ ifUserDidntProvideFile genFaviconFd
       ++ ifUserDidntProvideFile genManifestFd
   where
+    publicFiles = AS.externalPublicFiles spec
+    extPublicFileDrafts = map C.mkPublicFileDraft publicFiles
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd = C.mkTmplFdWithData tmplFile tmplData
       where
         tmplData = object ["appName" .= (fst (getApp spec) :: String)]
         tmplFile = C.asTmplFile [relfile|public/manifest.json|]
 
-    ifUserDidntProvideFile fileDraft =
-      if checkIfFileDraftExists fileDraft
-        then []
-        else [fileDraft]
-
+    ifUserDidntProvideFile fileDraft = [fileDraft | not (checkIfFileDraftExists fileDraft)]
     checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
-    existingDstPaths = map FD.getDstPath extCodeFileDrafts
+    existingDstPaths = map FD.getDstPath extPublicFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
@@ -243,21 +209,13 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|logo.png|],
-      genFileCopy [relfile|config.js|],
       genFileCopy [relfile|queryClient.js|],
       genFileCopy [relfile|utils.js|],
-      genFileCopy [relfile|types.ts|],
       genFileCopy [relfile|vite-env.d.ts|],
-      -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      genFileCopy [relfile|api.ts|],
-      genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|storage.ts|],
       getIndexTs spec
     ]
-    <++> genOperations spec
     <++> genEntitiesDir spec
     <++> genAuth spec
-    <++> genWebSockets spec
     <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
@@ -298,39 +256,13 @@ getIndexTs spec =
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
 
-genUniversalDir :: Generator [FileDraft]
-genUniversalDir =
-  return
-    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
-      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
-    ]
-
 genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =
   return
-    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
-      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
     ]
 
-genWebSockets :: AppSpec -> Generator [FileDraft]
-genWebSockets spec
-  | AS.WS.areWebSocketsUsed spec =
-    sequence
-      [ genFileCopy [relfile|webSocket.ts|],
-        genWebSocketProvider spec
-      ]
-  | otherwise = return []
-  where
-    genFileCopy = return . C.mkSrcTmplFd
-
-genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
-  where
-    maybeWebSocket = webSocket $ snd $ getApp spec
-    shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
-    tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]
-
+-- todo(filip): Take care of this as well
 genViteConfig :: AppSpec -> Generator FileDraft
 genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
@@ -339,17 +271,33 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
-          "defaultClientPort" .= C.defaultClientPort
+          "defaultClientPort" .= C.defaultClientPort,
+          "vitest"
+            .= object
+              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
+                "excludeWaspArtefactsPattern" .= SP.fromRelFile (dotWaspDirInWaspProjectDir </> [relfile|**/*|])
+              ]
         ]
+    vitestSetupFiles =
+      [ SP.fromRelFile $
+          dotWaspDirInWaspProjectDir
+            </> generatedCodeDirInDotWaspDir
+            </> webAppRootDirInProjectRootDir
+            </> webAppSrcDirInWebAppRootDir
+            </> [relfile|test/vitest/setup.ts|]
+      ]
 
-    makeCustomViteConfigJsImport :: Path' (Rel SourceExternalCodeDir) File' -> JsImport
-    makeCustomViteConfigJsImport pathToConfig = makeJsImport importPath importName
+    makeCustomViteConfigJsImport :: Path' (Rel Project.WaspProjectDir) File' -> JsImport
+    makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
       where
-        importPath = C.toViteImportPath $ fromJust $ SP.relFileToPosix pathToConfigInSrc
-        pathToConfigInSrc =
-          SP.castRel $
-            C.webAppSrcDirInWebAppRootDir
-              </> EC.extClientCodeDirInWebAppSrcDir
-              </> ECC.castRelPathFromSrcToGenExtCodeDir pathToConfig
+        importPath = SP.castRel $ C.toViteImportPath relPathToConfigInProjectDir
+        relPathToConfigInProjectDir = relPathFromWebAppRootDirWaspProjectDir </> (fromJust . SP.relFileToPosix $ pathToConfig)
+
+        relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir Project.WaspProjectDir)
+        relPathFromWebAppRootDirWaspProjectDir =
+          fromJust $
+            SP.parseRelDirP $
+              FP.Extra.reversePosixPath $
+                SP.fromRelDir (Project.dotWaspDirInWaspProjectDir </> Project.generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
         importName = JsImportModule "customViteConfig"

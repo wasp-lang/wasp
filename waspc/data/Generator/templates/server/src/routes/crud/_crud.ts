@@ -3,7 +3,7 @@ import express from 'express'
 import * as crud from '../../crud/{= crud.name =}.js'
 import { createAction, createQuery } from '../../middleware/operations.js'
 {=# isAuthEnabled =}
-import auth from '../../core/auth.js'
+import auth from 'wasp/core/auth'
 {=/ isAuthEnabled =}
 
 const _waspRouter = express.Router()

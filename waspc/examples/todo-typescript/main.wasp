@@ -7,12 +7,49 @@ app TodoTypescript {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
-      //google: {}, //https://wasp-lang.dev/docs/integrations/google
-      //gitHub: {}, //https://wasp-lang.dev/docs/integrations/github
-      //email: {} //https://wasp-lang.dev/docs/guides/email-auth
+      // usernameAndPassword: {
+      //   userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js"
+      // },
+      // google: {
+      //   userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
+      // },
+      // gitHub: {
+      //   userSignupFields: import { githubUserSignupFields } from "@src/user/userSignupFields.js"
+      // },
+      email: {
+        userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
+        fromField: {
+          email: "waspy@app.com"
+        },
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute,
+        }
+      } // https://wasp-lang.dev/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
+  },
+  emailSender: {
+    provider: Dummy
+  },
+  db: {
+    seeds: [
+      import { seedMyDb } from "@src/db/seeds.js"
+    ],
+    system: PostgreSQL
+  },
+  webSocket: {
+    fn: import { webSocketFn } from "@src/websocket/index.js",
+    autoConnect: true,
+  },
+  server: {
+    setupFn: import { serverSetup } from "@src/setup/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/setup/serverSetup.js"
+  },
+  client: {
+    setupFn: import setup from "@src/setup/clientSetup.js"
   }
 }
 
@@ -21,6 +58,7 @@ app TodoTypescript {
 // Then run `wasp db studio` to open Prisma Studio and view your db models
 entity User {=psl
   id          Int     @id @default(autoincrement())
+  address     String
   tasks       Task[]
 psl=}
 
@@ -32,6 +70,19 @@ entity Task {=psl
   userId      Int
 psl=}
 
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      overrideFn: import { getAllQuery } from "@src/task/crud.js",
+    },
+    create: {},
+    update: {},
+    get: {},
+    delete: {}
+  }
+}
+
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
@@ -41,12 +92,38 @@ page MainPage {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/user/LoginPage.tsx"
+  component: import { LoginPage } from "@src/user/auth.tsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@src/user/SignupPage.tsx"
+  component: import { SignupPage } from "@src/user/auth.tsx"
+}
+
+route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
+page EmailVerification {
+  component: import { EmailVerificationPage } from "@src/user/auth.tsx"
+}
+
+route ChatRoute { path: "/chat", to: Chat }
+page Chat {
+  component: import { ChatPage } from "@src/ChatPage.tsx"
+}
+
+// route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
+// page EmailVerification {
+//   component: import { EmailVerificationPage } from "@src/user/auth.tsx"
+// }
+
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
+page RequestPasswordReset {
+  component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
+}
+
+
+route PasswordResetRoute { path: "/password-reset", to: PasswordReset }
+page PasswordReset {
+  component: import { PasswordResetPage } from "@src/user/auth.tsx"
 }
 
 query getTasks {
@@ -72,4 +149,30 @@ action updateTask {
 action deleteTasks {
   fn: import { deleteTasks } from "@src/task/actions.js",
   entities: [Task],
+}
+
+job PrintTimeAndNumberOfTasks {
+  executor: PgBoss,
+  perform: {
+    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
+  },
+  entities: [Task],
+  schedule: {
+    cron: "* * * * *"
+  }
+}
+
+api fooBar {
+  fn: import { fooBar } from "@src/api.js",
+  httpRoute: (GET, "/foo/bar")
+}
+
+apiNamespace fooBarNamespace {
+  middlewareConfigFn: import { fooBarNamespace } from "@src/setup/serverSetup.js",
+  path: "/foo/bar"
+}
+
+action customEmailSending {
+  fn: import { send } from "@src/user/customEmailSending.js",
+  entities: [User]
 }

@@ -1,18 +1,18 @@
 {{={= =}=}}
-import { handleRejection } from '../../../utils.js'
+import { handleRejection } from 'wasp/server/utils'
 import {
   createProviderId,
   createUser,
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
-} from '../../utils.js'
+} from 'wasp/auth/utils'
 import {
   ensureValidUsername,
   ensurePasswordIsPresent,
   ensureValidPassword,
-} from '../../validation.js'
-import { validateAndGetUserFields } from '../../utils.js'
-import { type UserSignupFields } from '../types.js'
+} from 'wasp/auth/validation'
+import { validateAndGetUserFields } from 'wasp/auth/utils'
+import { type UserSignupFields } from 'wasp/auth/providers/types'
 
 export function getSignupRoute({
   userSignupFields,

@@ -22,7 +22,7 @@ import GHC.Generics (Generic)
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.LSP.ServerMonads.HasProjectRootDir (HasProjectRootDir (getProjectRootDir))
 import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir)
 import Wasp.Util.IO (doesFileExist)

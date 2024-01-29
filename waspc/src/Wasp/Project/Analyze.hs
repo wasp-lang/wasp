@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
     readPackageJsonFile,
@@ -22,13 +20,13 @@ import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
-import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir, findFileInWaspProjectDir, packageJsonInWaspProjectDir)
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
@@ -67,14 +65,10 @@ constructAppSpec ::
   [AS.Decl] ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 constructAppSpec waspDir options packageJson decls = do
-  externalServerCodeFiles <-
-    ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
+  externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
+  externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
+  customViteConfigPath <- findCustomViteConfigPath waspDir
 
-  let externalClientCodeDirPath = CompileOptions.externalClientCodeDirPath options
-  externalClientCodeFiles <- ExternalCode.readFiles externalClientCodeDirPath
-
-  externalSharedCodeFiles <-
-    ExternalCode.readFiles (CompileOptions.externalSharedCodeDirPath options)
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
@@ -82,15 +76,13 @@ constructAppSpec waspDir options packageJson decls = do
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
-  let customViteConfigPath = findCustomViteConfigPath externalClientCodeFiles
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
             AS.packageJson = packageJson,
             AS.waspProjectDir = waspDir,
-            AS.externalClientFiles = externalClientCodeFiles,
-            AS.externalServerFiles = externalServerCodeFiles,
-            AS.externalSharedFiles = externalSharedCodeFiles,
+            AS.externalCodeFiles = externalCodeFiles,
+            AS.externalPublicFiles = externalPublicFiles,
             AS.migrationsDir = maybeMigrationsDir,
             AS.devEnvVarsServer = serverEnvVars,
             AS.devEnvVarsClient = clientEnvVars,

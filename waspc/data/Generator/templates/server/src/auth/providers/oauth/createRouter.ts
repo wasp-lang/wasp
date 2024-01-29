@@ -3,8 +3,8 @@
 import { Router } from "express"
 import passport from "passport"
 
-import prisma from '../../../dbClient.js'
-import waspServerConfig from '../../../config.js'
+import prisma from 'wasp/server/dbClient'
+import waspServerConfig from 'wasp/server/config'
 import {
   type ProviderName,
   type ProviderId,
@@ -15,11 +15,11 @@ import {
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
-} from "../../utils.js"
-import { createSession } from "../../session.js"
-import { type {= authEntityUpper =} } from "../../../entities/index.js"
-import type { ProviderConfig, RequestWithWasp, UserSignupFields } from "../types.js"
-import { handleRejection } from "../../../utils.js"
+} from 'wasp/auth/utils'
+import { createSession } from "wasp/auth/session"
+import { type {= authEntityUpper =} } from "wasp/entities"
+import type { ProviderConfig, RequestWithWasp, UserSignupFields } from "wasp/auth/providers/types"
+import { handleRejection } from "wasp/server/utils"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.

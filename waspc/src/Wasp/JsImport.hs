@@ -3,12 +3,13 @@
 module Wasp.JsImport
   ( JsImport (..),
     JsImportName (..),
+    JsImportPath (..),
     JsImportAlias,
-    JsImportPath,
     JsImportIdentifier,
     JsImportStatement,
     makeJsImport,
     applyJsImportAlias,
+    getImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportStmtAndIdentifierRaw,
   )
@@ -33,7 +34,10 @@ data JsImport = JsImport
   }
   deriving (Show, Eq, Data)
 
-type JsImportPath = Path Posix (Rel Dir') File'
+data JsImportPath
+  = RelativeImportPath (Path Posix (Rel Dir') File')
+  | ModuleImportPath (Path Posix (Rel Dir') File')
+  deriving (Show, Eq, Data)
 
 -- Note (filip): not a fan of so many aliases for regular types
 type JsImportAlias = String
@@ -54,6 +58,11 @@ type JsImportClause = String
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
 
+getImportIdentifier :: JsImport -> JsImportIdentifier
+getImportIdentifier JsImport {_name = name} = case name of
+  JsImportModule identifier -> identifier
+  JsImportField identifier -> identifier
+
 makeJsImport :: JsImportPath -> JsImportName -> JsImport
 makeJsImport importPath importName = JsImport importPath importName Nothing
 
@@ -62,12 +71,14 @@ applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
-  getJsImportStmtAndIdentifierRaw normalizedPath importName maybeImportAlias
+  getJsImportStmtAndIdentifierRaw filePath importName maybeImportAlias
   where
-    filePath = SP.fromRelFileP importPath
-    normalizedPath = if ".." `isPrefixOf` filePath then filePath else "./" ++ filePath
+    filePath = case importPath of
+      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
+      ModuleImportPath pathString -> SP.fromRelFileP pathString
+    normalizePath path = if ".." `isPrefixOf` path then path else "./" ++ path
 
--- filip: attempt to simplify how we generate imports. I wanted to generate a
+-- todo(filip): attempt to simplify how we generate imports. I wanted to generate a
 -- module import (e.g., '@ext-src/something') and couldn't do it. This is one of
 -- the funtions I implemented while I was trying to pull it off.
 getJsImportStmtAndIdentifierRaw ::

@@ -1,16 +1,16 @@
 {{={= =}=}}
-import { throwInvalidCredentialsError } from '../../utils.js'
-import { handleRejection } from '../../../utils.js'
-import { verifyPassword } from '../../password.js'
+import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { handleRejection } from 'wasp/server/utils'
+import { verifyPassword } from 'wasp/auth/password'
 
 import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
   deserializeAndSanitizeProviderData,
-} from '../../utils.js'
-import { createSession } from '../../session.js'
-import { ensureValidUsername, ensurePasswordIsPresent } from '../../validation.js'
+} from 'wasp/auth/utils'
+import { createSession } from 'wasp/auth/session'
+import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
 
 export default handleRejection(async (req, res) => {
   const fields = req.body ?? {}

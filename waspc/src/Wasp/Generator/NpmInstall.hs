@@ -10,7 +10,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import qualified Data.Text as T
-import Debug.Pretty.Simple (pTrace)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))

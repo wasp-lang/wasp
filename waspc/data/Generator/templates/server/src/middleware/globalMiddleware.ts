@@ -5,7 +5,9 @@ import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
 
-import config from '../config.js'
+import config from 'wasp/server/config'
+import type { MiddlewareConfig, MiddlewareConfigFn } from 'wasp/server/middleware'
+export type { MiddlewareConfig, MiddlewareConfigFn } from 'wasp/server/middleware'
 
 {=# globalMiddlewareConfigFn.isDefined =}
 {=& globalMiddlewareConfigFn.importStatement =}
@@ -13,10 +15,6 @@ import config from '../config.js'
 {=^ globalMiddlewareConfigFn.isDefined =}
 const {=& globalMiddlewareConfigFn.importAlias =} = (mc: MiddlewareConfig) => mc
 {=/ globalMiddlewareConfigFn.isDefined =}
-
-export type MiddlewareConfig = Map<string, express.RequestHandler>
-
-export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
 
 // This is the set of middleware Wasp supplies by default.
 // NOTE: Remember to update the docs of these change.

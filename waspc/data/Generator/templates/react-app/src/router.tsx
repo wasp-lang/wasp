@@ -1,18 +1,12 @@
 {{={= =}=}}
 import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
-import { interpolatePath } from './router/linkHelpers'
-import type {
-  RouteDefinitionsToRoutes,
-  OptionalRouteOptions,
-  ParamValue,
-} from './router/types'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
 
 {=# isAuthEnabled =}
-import createAuthRequiredPage from "wasp/auth/pages/createAuthRequiredPage"
+import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 {=/ isAuthEnabled =}
 
 {=# pagesToImport =}
@@ -23,28 +17,13 @@ import createAuthRequiredPage from "wasp/auth/pages/createAuthRequiredPage"
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 {=/ isExternalAuthEnabled =}
 
-export const routes = {
+import { routes } from 'wasp/router'
+
+export const routeNameToRouteComponent = {
   {=# routes =}
-  {= name =}: {
-    to: "{= urlPath =}",
-    component: {= targetComponent =},
-    {=#  hasUrlParams =}
-    build: (
-      options: {
-        params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}
-      } & OptionalRouteOptions,
-    ) => interpolatePath("{= urlPath =}", options.params, options.search, options.hash),
-    {=/ hasUrlParams =}
-    {=^ hasUrlParams =}
-    build: (
-      options?: OptionalRouteOptions,
-    ) => interpolatePath("{= urlPath =}", undefined, options.search, options.hash),
-    {=/ hasUrlParams =}
-  },
+  {= name =}: {= targetComponent =},
   {=/ routes =}
 } as const;
-
-export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 const router = (
   <Router basename="{= baseDir =}">
@@ -57,7 +36,7 @@ const router = (
           exact
           key={routeKey}
           path={route.to}
-          component={route.component}
+          component={routeNameToRouteComponent[routeKey]}
         />
       ))}
       {=# isExternalAuthEnabled =}
@@ -77,5 +56,3 @@ const router = (
 )
 
 export default router
-
-export { Link } from './router/Link'

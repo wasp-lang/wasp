@@ -6,6 +6,7 @@ module Wasp.Generator.WebAppGenerator.Common
     mkTmplFdWithDst,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
+    mkPublicFileDraft,
     webAppSrcDirInProjectRootDir,
     webAppTemplatesDirInTemplatesDir,
     asTmplFile,
@@ -27,13 +28,14 @@ module Wasp.Generator.WebAppGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, File, File', Path, Path', Posix, Rel, absdirP, reldir, (</>))
 import qualified StrongPath as SP
-import System.FilePath (splitExtension)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.ExternalFiles (PublicFile (..))
+import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
   ( GeneratedSrcDir,
@@ -41,9 +43,10 @@ import Wasp.Generator.Common
     ServerRootDir,
     UniversalTemplatesDir,
     WebAppRootDir,
+    dropExtensionFromImportPath,
     universalTemplatesDirInTemplatesDir,
   )
-import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
 data WebAppSrcDir
@@ -108,6 +111,14 @@ mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
 mkTmplFdWithData :: Path' (Rel WebAppTemplatesDir) File' -> Aeson.Value -> FileDraft
 mkTmplFdWithData src tmplData = mkTmplFdWithDstAndData src (SP.castRel src) (Just tmplData)
 
+mkPublicFileDraft :: PublicFile -> FileDraft
+mkPublicFileDraft (PublicFile _pathInPublicDir _publicDirPath) = createCopyFileDraft dstPath srcPath
+  where
+    dstPath = webAppRootDirInProjectRootDir </> publicDirInWebAppRootDir </> _pathInPublicDir
+    srcPath = _publicDirPath </> _pathInPublicDir
+    publicDirInWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir EF.SourceExternalPublicDir)
+    publicDirInWebAppRootDir = [reldir|public|]
+
 mkTmplFdWithDstAndData ::
   Path' (Rel WebAppTemplatesDir) File' ->
   Path' (Rel WebAppRootDir) File' ->
@@ -127,9 +138,7 @@ mkUniversalTmplFdWithDst relSrcPath relDstPath =
     Nothing
 
 toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
-toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
-  where
-    dropExtension = fst . splitExtension
+toViteImportPath = dropExtensionFromImportPath
 
 getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
 getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir

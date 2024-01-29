@@ -13,7 +13,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel)
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 
 data ExtImport = ExtImport
   { -- | What is being imported.

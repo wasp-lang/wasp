@@ -38,8 +38,7 @@ import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
-import qualified Wasp.AppSpec.ExternalCode as ExternalCode
+import qualified Wasp.AppSpec.ExternalFiles as ExternalFiles
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -64,13 +63,9 @@ data AppSpec = AppSpec
     packageJson :: PackageJson,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
-    -- | List of external server code files (they are referenced/used in the declarations).
-    externalServerFiles :: [ExternalCode.File],
-    -- | List of external client code files (they are referenced/used in the declarations).
-    externalClientFiles :: [ExternalCode.File],
-    -- | List of files with external code shared between the server and the client.
-    externalSharedFiles :: [ExternalCode.File],
-    -- | Absolute path to the directory in wasp project source that contains external code files.
+    -- | List of external code files (they are referenced/used in the declarations).
+    externalCodeFiles :: [ExternalFiles.CodeFile],
+    externalPublicFiles :: [ExternalFiles.PublicFile],
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Env variables to be provided to the server only during the development.
     devEnvVarsServer :: [EnvVar],
@@ -86,7 +81,7 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    customViteConfigPath :: Maybe (Path' (Rel SourceExternalCodeDir) File')
+    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File')
   }
 
 -- TODO: Make this return "Named" declarations?
