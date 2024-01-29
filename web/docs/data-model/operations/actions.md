@@ -476,55 +476,6 @@ Again, annotating the Actions is optional, but greatly improves **full-stack typ
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
-### Prisma Error Helpers
-
-In your Operations, you may wish to handle general Prisma errors with HTTP-friendly responses.
-
-Wasp exposes two helper functions, `isPrismaError`, and `prismaErrorToHttpError`, for this purpose. As of now, we convert two specific Prisma errors (which we will continue to expand), with the rest being `500`. See the [source here](https://github.com/wasp-lang/wasp/blob/main/waspc/e2e-test/test-outputs/waspMigrate-golden/waspMigrate/.wasp/out/server/src/utils.js).
-
-Here's how you can import and use them:
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js
-import { isPrismaError, prismaErrorToHttpError } from "@wasp/utils.js";
-
-// ...
-
-try {
-  await context.entities.Task.create({...})
-} catch (e) {
-  if (isPrismaError(e)) {
-    throw prismaErrorToHttpError(e)
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```js
-import { isPrismaError, prismaErrorToHttpError } from "@wasp/utils.js";
-
-// ...
-
-try {
-  await context.entities.Task.create({...})
-} catch (e) {
-  if (isPrismaError(e)) {
-    throw prismaErrorToHttpError(e)
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
 ## Cache Invalidation
 
 One of the trickiest parts of managing a web app's state is making sure the data returned by the Queries is up to date.

@@ -18,7 +18,7 @@ import {
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from "../../validation.js";
 import { GetVerificationEmailContentFn } from './types.js';
 import { validateAndGetUserFields } from '../../utils.js'
-import HttpError from '../../../core/HttpError.js';
+import HttpError from 'wasp/core/HttpError';
 import { type UserSignupFields } from '../types.js';
 
 export function getSignupRoute({

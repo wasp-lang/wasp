@@ -383,6 +383,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
 - Publish new [docs](/web#deployment) from the `release` branch as well.
 - Publish new [Mage](/mage#deployment) from the `release` branch as well, if needed.
+- Publish new [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), if needed.
 - Announce new release in Discord.
 
 #### Determining next version
