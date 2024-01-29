@@ -8,6 +8,12 @@
     // Allow importing pages with the .tsx extension.
     "allowImportingTsExtensions": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

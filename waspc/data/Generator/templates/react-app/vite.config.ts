@@ -14,6 +14,9 @@ const _waspUserProvidedConfig = {};
 const defaultViteConfig = {
   base: "{= baseDir =}",
   plugins: [react()],
+  optimizeDeps: {
+    exclude: ['wasp']
+  },
   server: {
     port: {= defaultClientPort =},
     host: "0.0.0.0",

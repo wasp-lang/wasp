@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "scripts": {
     "build": "npx tsc",
-    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/.wasp/out/server/src/server.js",
     "build-and-start": "npm run build && npm run start",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",

@@ -21,6 +21,7 @@ import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
+import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
@@ -54,6 +55,7 @@ genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
   genWebApp spec
     <++> genServer spec
+    <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genConfigFiles spec

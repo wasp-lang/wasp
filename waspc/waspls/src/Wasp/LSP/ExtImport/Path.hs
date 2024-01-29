@@ -67,6 +67,7 @@ waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) =
             then ExtFileCachePath relPathWithoutExt (DotExact ext)
             else ExtFileCachePath relPathWithoutExt (widenExtension ext)
   where
+    -- Filip: todo - update for new structure
     useExactExtension = "@client" `isPrefixOf` waspStylePath
 
 absPathToCachePath :: HasProjectRootDir m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)

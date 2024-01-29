@@ -292,6 +292,7 @@ library
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
+    Wasp.Generator.SdkGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG

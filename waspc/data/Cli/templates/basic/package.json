@@ -1,0 +1,10 @@
+{
+  "name": "prototype",
+  "dependencies": {
+    "wasp": "file:.wasp/out/sdk/wasp",
+    "react": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.37"
+  }
+}

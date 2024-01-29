@@ -48,7 +48,6 @@ import Wasp.Generator.Common
     prismaVersion,
   )
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -60,7 +59,6 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -82,8 +80,9 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
-    <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
+    -- Filip: I don't generate external source folders as we're importing the user's code direclty (see ServerGenerator/JsImport.hs).
+    -- <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
+    -- <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors spec
@@ -222,8 +221,6 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genFileCopy [relfile|core/AuthError.js|],
-      genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec,

@@ -1,13 +1,11 @@
 module Wasp.Generator.ServerGenerator.JsImport where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust)
 import StrongPath (Dir, Path, Posix, Rel)
-import qualified StrongPath as SP
+import StrongPath.TH (reldirP)
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.JsImport
   ( JsImport,
     JsImportAlias,
@@ -44,4 +42,7 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport serverExtDir
   where
-    serverExtDir = fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
+    -- filip: Instead of generating the ext-src folder with the user's code and referencing that, we reference user code directly.
+    -- This gives us proper error messages (with user's file names and line numbers).
+    -- It works great with Vite (Vite outputs absolute file paths), but less great on the server (TS outputs relative paths, resulting in ../../src/something)
+    serverExtDir = [reldirP|../../../../src|]
