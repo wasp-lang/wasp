@@ -21,7 +21,7 @@ export const createTask: CreateTask<CreateArgs, Task> = async (
     to: 'test@test.com',
     from: {
       name: 'Test',
-      email: 'test@test.com'
+      email: 'test@test.com',
     },
     subject: 'Test email',
     text: 'Thank you for using our app!',

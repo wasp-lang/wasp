@@ -25,11 +25,13 @@ import Wasp.Project.Common (extPublicDirInWaspProjectDir, srcDirInWaspProjectDir
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
 --   be ready for the case when there is no .gitignore, that could be possible.
 
--- | Forever listens for any file changes at the very top level of @waspProjectDir@, and also for
--- any changes at any depth in the @waspProjectDir@/src/ dir. If there is a change, compiles Wasp
--- source files in @waspProjectDir@ and regenerates files in @outDir@. It will defer recompilation
--- until no new change was detected in the last second. It also takes 'ongoingCompilationResultMVar'
--- MVar, into which it stores the result (warnings, errors) of the latest (re)compile whenever it
+-- | Forever listens for any file changes at the very top level of
+-- @waspProjectDir@, and also for any changes at any depth in the
+-- @waspProjectDir@/src/ and @WaspProjectDir@/public dirs. If there is a change,
+-- compiles Wasp source files in @waspProjectDir@ and regenerates files in
+-- @outDir@. It will defer recompilation until no new change was detected in the
+-- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
+-- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
