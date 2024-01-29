@@ -43,6 +43,7 @@ import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
+import Wasp.AppSpec.PackageJson (PackageJson)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -59,6 +60,8 @@ import qualified Wasp.SemanticVersion as SV
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
+    -- | The contents of the package.json file found in the root directory of the wasp project.
+    packageJson :: PackageJson,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     -- | List of external server code files (they are referenced/used in the declarations).
