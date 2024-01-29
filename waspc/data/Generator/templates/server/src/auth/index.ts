@@ -1,1 +1,1 @@
-export { defineAdditionalSignupFields } from './providers/types.js';
+export { defineUserSignupFields } from './providers/types.js';

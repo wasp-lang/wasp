@@ -2,6 +2,7 @@
 
 module AppSpec.ValidTest where
 
+import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
@@ -17,6 +18,7 @@ import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
+import qualified Wasp.AppSpec.PackageJson as AS.PJS
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
@@ -99,14 +101,13 @@ spec_AppSpecValid = do
                 AS.Auth.externalAuthEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
-                    { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,
+                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
                       AS.Auth.google = Nothing,
                       AS.Auth.gitHub = Nothing,
                       AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
-                AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                AS.Auth.signup = Nothing
+                AS.Auth.onAuthSucceededRedirectTo = Nothing
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -149,8 +150,7 @@ spec_AppSpecValid = do
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                                    AS.Auth.signup = Nothing
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
                                   },
                             AS.App.emailSender =
                               Just
@@ -166,7 +166,8 @@ spec_AppSpecValid = do
                 }
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
-                { AS.Auth.fromField =
+                { AS.Auth.userSignupFields = Nothing,
+                  AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",
                         AS.EmailSender.name = Nothing
@@ -180,19 +181,47 @@ spec_AppSpecValid = do
                     AS.Auth.PasswordReset.PasswordResetConfig
                       { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.allowUnverifiedLogin = Nothing
+                      }
                 }
 
         it "returns no error if app.auth is not set" $ do
           ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
 
         it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec
+            ( makeSpec
+                ( AS.Auth.AuthMethods
+                    { usernameAndPassword =
+                        Just
+                          AS.Auth.UsernameAndPasswordConfig
+                            { AS.Auth.userSignupFields = Nothing
+                            },
+                      google = Nothing,
+                      gitHub = Nothing,
+                      email = Nothing
+                    }
+                )
+                validUserEntity
+            )
+            `shouldBe` []
           ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
 
         it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig, google = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity)
+          ASV.validateAppSpec
+            ( makeSpec
+                ( AS.Auth.AuthMethods
+                    { usernameAndPassword =
+                        Just
+                          AS.Auth.UsernameAndPasswordConfig
+                            { AS.Auth.userSignupFields = Nothing
+                            },
+                      google = Nothing,
+                      gitHub = Nothing,
+                      email = Just emailAuthConfig
+                    }
+                )
+                validUserEntity
+            )
             `shouldContain` [ASV.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
@@ -220,6 +249,77 @@ spec_AppSpecValid = do
             `shouldBe` [ ASV.GenericValidationError
                            "Entity 'User' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
                        ]
+
+      describe "should validate email sender setup." $ do
+        let emailAuthConfig =
+              AS.Auth.EmailAuthConfig
+                { AS.Auth.userSignupFields = Nothing,
+                  AS.Auth.fromField =
+                    AS.EmailSender.EmailFromField
+                      { AS.EmailSender.email = "dummy@info.com",
+                        AS.EmailSender.name = Nothing
+                      },
+                  AS.Auth.emailVerification =
+                    AS.Auth.EmailVerification.EmailVerificationConfig
+                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
+                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
+                      },
+                  AS.Auth.passwordReset =
+                    AS.Auth.PasswordReset.PasswordResetConfig
+                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
+                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
+                      }
+                }
+
+        let makeSpec emailSender isBuild =
+              basicAppSpec
+                { AS.isBuild = isBuild,
+                  AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $
+                        basicApp
+                          { AS.App.auth =
+                              Just
+                                AS.Auth.Auth
+                                  { AS.Auth.methods =
+                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, google = Nothing, gitHub = Nothing},
+                                    AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                                    AS.Auth.externalAuthEntity = Nothing,
+                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
+                                  },
+                            AS.App.emailSender = emailSender
+                          },
+                      AS.Decl.makeDecl userEntityName $
+                        AS.Entity.makeEntity
+                          ( PslM.Body
+                              [ PslM.ElementField $ makeIdField "id" PslM.String
+                              ]
+                          ),
+                      basicPageDecl,
+                      basicRouteDecl
+                    ]
+                }
+        let mailgunEmailSender =
+              AS.EmailSender.EmailSender
+                { AS.EmailSender.provider = AS.EmailSender.Mailgun,
+                  AS.EmailSender.defaultFrom = Nothing
+                }
+
+        let dummyEmailSender =
+              AS.EmailSender.EmailSender
+                { AS.EmailSender.provider = AS.EmailSender.Dummy,
+                  AS.EmailSender.defaultFrom = Nothing
+                }
+
+        it "returns an error if no email sender is set but email auth is used" $ do
+          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [ASV.GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
+        it "returns no error if email sender is defined while using email auth" $ do
+          ASV.validateAppSpec (makeSpec (Just mailgunEmailSender) False) `shouldBe` []
+        it "returns no error if the Dummy email sender is used in development" $ do
+          ASV.validateAppSpec (makeSpec (Just dummyEmailSender) False) `shouldBe` []
+        it "returns an error if the Dummy email sender is used when building the app" $ do
+          ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
+            `shouldBe` [ASV.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
   where
     makeIdField name typ =
       PslM.Field
@@ -246,7 +346,6 @@ spec_AppSpecValid = do
           AS.App.server = Nothing,
           AS.App.client = Nothing,
           AS.App.auth = Nothing,
-          AS.App.dependencies = Nothing,
           AS.App.head = Nothing,
           AS.App.emailSender = Nothing,
           AS.App.webSocket = Nothing
@@ -261,6 +360,12 @@ spec_AppSpecValid = do
           AS.externalClientFiles = [],
           AS.externalServerFiles = [],
           AS.externalSharedFiles = [],
+          AS.packageJson =
+            AS.PJS.PackageJson
+              { AS.PJS.name = "testApp",
+                AS.PJS.dependencies = M.empty,
+                AS.PJS.devDependencies = M.empty
+              },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.devEnvVarsClient = [],

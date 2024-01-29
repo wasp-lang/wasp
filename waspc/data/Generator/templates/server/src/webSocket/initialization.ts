@@ -8,7 +8,7 @@ import config from '../config.js'
 import prisma from '../dbClient.js'
 
 {=# isAuthEnabled =}
-import { getUserFromToken } from '../core/auth.js'
+import { getSessionAndUserFromSessionId } from '../auth/session.js'
 {=/ isAuthEnabled =}
 
 {=& userWebSocketFn.importStatement =}
@@ -40,10 +40,11 @@ export async function init(server: http.Server): Promise<void> {
 
 {=# isAuthEnabled =}
 async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {
-  const token = socket.handshake.auth.token
-  if (token) {
+  const sessionId = socket.handshake.auth.sessionId
+  if (sessionId) {
     try {
-      socket.data = { ...socket.data, user: await getUserFromToken(token) }
+      const { user } =  await getSessionAndUserFromSessionId(sessionId)
+      socket.data = { ...socket.data, user }
     } catch (err) { }
   }
   next()

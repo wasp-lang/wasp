@@ -2,13 +2,13 @@
 title: Actions
 ---
 
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './\_superjson-note.md';
 
 We'll explain what Actions are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 
-Actions are quite similar to [Queries](/docs/data-model/operations/queries.md), but with a key distinction: Actions are designed to modify and add data, while Queries are solely for reading data. Examples of Actions include adding a comment to a blog post, liking a video, or updating a product's price.
+Actions are quite similar to [Queries](../../data-model/operations/queries.md), but with a key distinction: Actions are designed to modify and add data, while Queries are solely for reading data. Examples of Actions include adding a comment to a blog post, liking a video, or updating a product's price.
 
 Actions and Queries work together to keep data caches up-to-date.
 
@@ -373,7 +373,7 @@ export const createTask: CreateTask = async (args, context) => {
 
 ### Using Entities in Actions
 
-In most cases, resources used in Actions will be [Entities](/docs/data-model/entities.md).
+In most cases, resources used in Actions will be [Entities](../../data-model/entities.md).
 To use an Entity in your Action, add it to the `action` declaration in Wasp:
 
 <Tabs groupId="js-ts">
@@ -476,55 +476,6 @@ Again, annotating the Actions is optional, but greatly improves **full-stack typ
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
-### Prisma Error Helpers
-
-In your Operations, you may wish to handle general Prisma errors with HTTP-friendly responses.
-
-Wasp exposes two helper functions, `isPrismaError`, and `prismaErrorToHttpError`, for this purpose. As of now, we convert two specific Prisma errors (which we will continue to expand), with the rest being `500`. See the [source here](https://github.com/wasp-lang/wasp/blob/main/waspc/e2e-test/test-outputs/waspMigrate-golden/waspMigrate/.wasp/out/server/src/utils.js).
-
-Here's how you can import and use them:
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js
-import { isPrismaError, prismaErrorToHttpError } from "@wasp/utils.js";
-
-// ...
-
-try {
-  await context.entities.Task.create({...})
-} catch (e) {
-  if (isPrismaError(e)) {
-    throw prismaErrorToHttpError(e)
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```js
-import { isPrismaError, prismaErrorToHttpError } from "@wasp/utils.js";
-
-// ...
-
-try {
-  await context.entities.Task.create({...})
-} catch (e) {
-  if (isPrismaError(e)) {
-    throw prismaErrorToHttpError(e)
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
 ## Cache Invalidation
 
 One of the trickiest parts of managing a web app's state is making sure the data returned by the Queries is up to date.
@@ -626,7 +577,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
 2. `context` (type depends on the Action)
 
-   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](/docs/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
+   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
 
@@ -704,7 +655,7 @@ In this case, the Action expects to receive an object with a `bar` field of type
 
 ### The `useAction` Hook and Optimistic Updates
 
-Make sure you understand how [Queries](/docs/data-model/operations/queries.md) and [Cache Invalidation](#cache-invalidation) work before reading this chapter.
+Make sure you understand how [Queries](../../data-model/operations/queries.md) and [Cache Invalidation](#cache-invalidation) work before reading this chapter.
 
 When using Actions in components, you can enhance them with the help of the `useAction` hook. This hook comes bundled with Wasp, and is used for decorating Wasp Actions.
 In other words, the hook returns a function whose API matches the original Action while also doing something extra under the hood (depending on how you configure it).

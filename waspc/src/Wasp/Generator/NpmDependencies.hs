@@ -4,15 +4,16 @@ module Wasp.Generator.NpmDependencies
   ( DependencyConflictError (..),
     getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
+    getUserNpmDepsForPackage,
     combineNpmDepsForPackage,
     NpmDepsForPackage (..),
     NpmDepsForPackageError (..),
     conflictErrorToMessage,
     genNpmDepsForPackage,
-    NpmDepsForFullStack,
+    NpmDepsForFramework,
     NpmDepsForWasp (..),
     NpmDepsForUser (..),
-    buildNpmDepsForFullStack,
+    buildWaspFrameworkNpmDeps,
   )
 where
 
@@ -27,22 +28,25 @@ import qualified Wasp.AppSpec.App.Dependency as D
 import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
-data NpmDepsForFullStack = NpmDepsForFullStack
+data NpmDepsForFramework = NpmDepsForFramework
   { npmDepsForServer :: NpmDepsForPackage,
     npmDepsForWebApp :: NpmDepsForPackage
   }
   deriving (Show, Eq, Generic)
 
-instance ToJSON NpmDepsForFullStack where
-  toEncoding = genericToEncoding defaultOptions
+instance ToJSON NpmDepsForFramework
 
-instance FromJSON NpmDepsForFullStack
+instance FromJSON NpmDepsForFramework
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency]
   }
   deriving (Show, Generic)
+
+instance ToJSON NpmDepsForPackage
+
+instance FromJSON NpmDepsForPackage
 
 data NpmDepsForWasp = NpmDepsForWasp
   { waspDependencies :: [D.Dependency],
@@ -54,12 +58,11 @@ data NpmDepsForUser = NpmDepsForUser
   { userDependencies :: [D.Dependency],
     userDevDependencies :: [D.Dependency]
   }
-  deriving (Show)
+  deriving (Show, Eq, Generic)
 
-instance ToJSON NpmDepsForPackage where
-  toEncoding = genericToEncoding defaultOptions
+instance ToJSON NpmDepsForUser
 
-instance FromJSON NpmDepsForPackage
+instance FromJSON NpmDepsForUser
 
 data NpmDepsForPackageError = NpmDepsForPackageError
   { dependenciesConflictErrors :: [DependencyConflictError],
@@ -89,12 +92,12 @@ genNpmDepsForPackage spec npmDepsForWasp =
                   ++ devDependenciesConflictErrors conflictErrorDeps
               )
 
-buildNpmDepsForFullStack :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFullStack
-buildNpmDepsForFullStack spec forServer forWebApp =
+buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFramework
+buildWaspFrameworkNpmDeps spec forServer forWebApp =
   case (combinedServerDeps, combinedWebAppDeps) of
     (Right a, Right b) ->
       Right
-        NpmDepsForFullStack
+        NpmDepsForFramework
           { npmDepsForServer = a,
             npmDepsForWebApp = b
           }
@@ -135,13 +138,17 @@ sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
 --   to combine them together, returning (Right) a new NpmDepsForPackage
 --   that combines them, and on error (Left), returns a NpmDepsForPackageError
 --   which describes which dependencies are in conflict.
+-- TODO: The comment above and function name are not exactly correct any more,
+-- as user deps don't get combined with the wasp deps any more, instead user deps
+-- are just checked against wasp deps to see if there are any conflicts, and then
+-- wasp deps are more or less returned as they are (maybe with some changes? But certainly no user deps added).
+-- This function deserves rewriting / rethinking. This should be addressed while solving
+-- GH issue https://github.com/wasp-lang/wasp/issues/1644 .
 combineNpmDepsForPackage :: NpmDepsForWasp -> NpmDepsForUser -> Either NpmDepsForPackageError NpmDepsForPackage
 combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
   if null conflictErrors && null devConflictErrors
     then
       Right $
-        -- todo(filip): check whether dependency updates and npm install work properly
-        -- todo(filip): reconsider whether we want to change the {sever,web-app}/package.json dynamically
         NpmDepsForPackage
           { dependencies = Map.elems remainingWapsDeps,
             devDependencies = Map.elems remainingWaspDevDeps

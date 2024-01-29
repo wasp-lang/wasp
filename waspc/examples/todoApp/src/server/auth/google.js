@@ -7,7 +7,4 @@ export function config() {
   }
 }
 
-export async function getUserFields(_context, args) {
-  console.log('Inside user-supplied Google getUserFields')
-  return {}
-}
+export const userSignupFields = {}

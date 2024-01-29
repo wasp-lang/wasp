@@ -8,7 +8,8 @@ import { fileURLToPath } from 'url'
 import { type SanitizedUser } from './_types/index.js'
 
 type RequestWithExtraFields = Request & {
-  user?: SanitizedUser
+  user?: SanitizedUser;
+  sessionId?: string;
 }
 
 /**

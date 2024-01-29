@@ -3,7 +3,7 @@ title: Web Sockets
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import { Required } from '@site/src/components/Required';
+import { Required } from '@site/src/components/Tag';
 
 Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](https://socket.io/) on the client and server. 
 
@@ -71,10 +71,11 @@ This is how we can define our `webSocketFn` function:
 
 ```ts title=src/server/webSocket.js
 import { v4 as uuidv4 } from 'uuid'
+import { getFirstProviderUserId } from '@wasp/auth/user.js'
 
 export const webSocketFn = (io, context) => {
   io.on('connection', (socket) => {
-    const username = socket.data.user?.email || socket.data.user?.username || 'unknown'
+    const username = getFirstProviderUserId(socket.data.user) ?? 'Unknown'
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {
@@ -92,10 +93,11 @@ export const webSocketFn = (io, context) => {
 ```ts title=src/server/webSocket.ts
 import type { WebSocketDefinition, WaspSocketData } from '@wasp/webSocket'
 import { v4 as uuidv4 } from 'uuid'
+import { getFirstProviderUserId } from '@wasp/auth/user.js'
 
 export const webSocketFn: WebSocketFn = (io, context) => {
   io.on('connection', (socket) => {
-    const username = socket.data.user?.email || socket.data.user?.username || 'unknown'
+    const username = getFirstProviderUserId(socket.data.user) ?? 'Unknown'
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {

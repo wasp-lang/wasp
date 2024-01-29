@@ -1,7 +1,7 @@
 # Waspleau
 
 Welcome to the Waspleau example! This is a small Wasp project that tracks status of wasp-lang/wasp repo via a nice looking dashboard.
-It pulls in data via [Jobs](https://wasp-lang.dev/docs/language/features#jobs) and stores them in the database.
+It pulls in data via [Jobs](https://wasp-lang.dev/docs/advanced/jobs) and stores them in the database.
 
 This example project can serve as a good starting point for building your own dashboard with Wasp, that regularly pulls in external data by using Jobs Wasp feature.
 
