@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { prismaClient as prisma } from 'wasp/server'
+import { prisma } from 'wasp/server'
 {=! TODO: This template is exactly the same at the moment as one for actions,
           consider in the future if it is worth removing this duplication. =}
 

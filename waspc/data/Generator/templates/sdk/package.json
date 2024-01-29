@@ -139,7 +139,7 @@
       "./server/types": "./dist/server/types/index.js",
 
       {=! ================= NEW API HERE =================== =}
-      {=! Public: { config, prismaClient, type ServerSetupFn } =}
+      {=! Public: { config, prisma, type ServerSetupFn } =}
       {=! Private: [] =}
       "./server": "./dist/server/index.js",
       {=! Public: { type MyEntity1, type MyEntity2, ... } =}

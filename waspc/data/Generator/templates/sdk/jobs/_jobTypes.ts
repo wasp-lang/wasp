@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { prismaClient as prisma } from 'wasp/server'
+import { prisma } from 'wasp/server'
 import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
 import { type JobFn } from '{= jobExecutorTypesImportPath =}'
 

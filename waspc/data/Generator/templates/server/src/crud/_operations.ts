@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { prismaClient as prisma } from 'wasp/server';
+import { prisma } from 'wasp/server';
 
 import type { Prisma } from "@prisma/client";
 import type {

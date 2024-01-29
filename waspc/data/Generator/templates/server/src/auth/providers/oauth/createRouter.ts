@@ -3,7 +3,7 @@
 import { Router } from "express"
 import passport from "passport"
 
-import { prismaClient as prisma, config as waspServerConfig } from 'wasp/server'
+import { prisma, config as waspServerConfig } from 'wasp/server'
 import {
   type ProviderName,
   type ProviderId,

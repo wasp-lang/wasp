@@ -6,7 +6,7 @@
 // TODO: Consider in the future moving it into a a separate project (maybe db/ ?), while still
 //   maintaining access to logic from the server/ .
 
-import { prismaClient } from 'wasp/server'
+import { prisma } from 'wasp/server'
 import type { DbSeedFn } from 'wasp/dbSeed/types'
 
 {=# dbSeeds =}
@@ -26,13 +26,13 @@ async function main() {
   } else {
     console.error('Name of the seed to run not specified!')
   }
-  await (seeds[nameOfSeedToRun] satisfies DbSeedFn)(prismaClient)
+  await (seeds[nameOfSeedToRun] satisfies DbSeedFn)(prisma)
 }
 
 main()
-  .then(async () => { await prismaClient.$disconnect() })
+  .then(async () => { await prisma.$disconnect() })
   .catch(async (e) => {
     console.error(e)
-    await prismaClient.$disconnect()
+    await prisma.$disconnect()
     process.exit(1)
   })
