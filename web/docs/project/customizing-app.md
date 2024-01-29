@@ -76,6 +76,9 @@ app todoApp {
   db: {
     // ...
   },
+  dependencies: [
+    // ...
+  ],
   emailSender: {
     // ...
   },
@@ -123,6 +126,10 @@ The rest of the fields are covered in dedicated sections of the docs:
 - `db: dict`
 
   Database configuration. Read more in the [database configuration section](../data-model/backends) of the docs.
+
+- `dependencies: [(string, string)]`
+
+  List of npm dependencies for your app. Read more in the [dependencies section](../project/dependencies) of the docs.
 
 - `emailSender: dict`
 

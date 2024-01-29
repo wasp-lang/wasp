@@ -1,1 +1,0 @@
-rm -r .wasp node_modules package-lock.json migrations; cabal run wasp-cli db migrate-dev -- --name init && ./fix; cabal run wasp-cli start 

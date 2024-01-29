@@ -17,6 +17,7 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Arrow (left)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8

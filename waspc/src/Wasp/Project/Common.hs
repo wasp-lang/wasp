@@ -3,11 +3,10 @@ module Wasp.Project.Common
     CompileError,
     CompileWarning,
     WaspProjectDir,
-    packageJsonInWaspProjectDir,
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
 import System.Directory (doesFileExist)
 
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
@@ -15,9 +14,6 @@ data WaspProjectDir -- Root dir of Wasp project, containing source files.
 type CompileError = String
 
 type CompileWarning = String
-
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-packageJsonInWaspProjectDir = [relfile|package.json|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
