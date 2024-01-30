@@ -5,7 +5,7 @@ import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from 'wasp/core/auth'
-import { type SanitizedUser } from 'wasp/server/_types'
+import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 
 {=# apiNamespaces =}
@@ -45,7 +45,7 @@ router.{= routeMethod =}(
   {=/ usesAuth =}
   handleRejection(
     (
-      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: SanitizedUser }{=/ usesAuth =},
+      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUser }{=/ usesAuth =},
       res: Parameters<typeof {= importIdentifier =}>[1],
     ) => {
       const context = {

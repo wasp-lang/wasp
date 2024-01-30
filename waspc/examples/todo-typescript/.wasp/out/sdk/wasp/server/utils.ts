@@ -1,4 +1,3 @@
-{{={= =}=}}
 import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
@@ -6,15 +5,11 @@ import { readdir } from 'fs'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
-{=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
-{=/ isAuthEnabled =}
 
 type RequestWithExtraFields = Request & {
-  {=# isAuthEnabled =}
   user?: AuthUser;
   sessionId?: string;
-  {=/ isAuthEnabled =}
 }
 
 /**
