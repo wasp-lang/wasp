@@ -8,7 +8,7 @@ import type {
 {=# isAuthEnabled =}
 import { throwInvalidCredentialsError } from 'wasp/auth/utils'
 {=/ isAuthEnabled =}
-import type { GetAllQuery, GetQuery, CreateAction, UpdateAction, DeleteAction } from "{= crudTypesImportPath =}";
+import type { {= crud.name =} } from "wasp/server/crud";
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}
 {=/ overrides.GetAll.isDefined =}
@@ -41,7 +41,7 @@ const entities = {
 {=^ overrides.GetAll.isDefined =}
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
-const _waspGetAllQuery: GetAllQuery<GetAllInput, GetAllOutput> = ((args, context) => {
+const _waspGetAllQuery: {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput> = ((args, context) => {
   {=^ crud.operations.GetAll.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.GetAll.isPublic =}
@@ -75,7 +75,7 @@ export async function getAllFn(args, context) {
 {=^ overrides.Get.isDefined =}
 type GetInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
-const _waspGetQuery: GetQuery<GetInput, GetOutput> = ((args, context) => {
+const _waspGetQuery: {= crud.name =}.GetQuery<GetInput, GetOutput> = ((args, context) => {
   {=^ crud.operations.Get.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Get.isPublic =}
@@ -99,7 +99,7 @@ export async function getFn(args, context) {
 {=^ overrides.Create.isDefined =}
 type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
 type CreateOutput = _WaspEntity
-const _waspCreateAction: CreateAction<CreateInput, CreateOutput> = ((args, context) => {
+const _waspCreateAction: {= crud.name =}.CreateAction<CreateInput, CreateOutput> = ((args, context) => {
   {=^ crud.operations.Create.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Create.isPublic =}
@@ -123,7 +123,7 @@ export async function createFn(args, context) {
 {=^ overrides.Update.isDefined =}
 type UpdateInput = Prisma.{= crud.entityUpper =}UpdateInput & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type UpdateOutput = _WaspEntity
-const _waspUpdateAction: UpdateAction<UpdateInput, UpdateOutput> = ((args, context) => {
+const _waspUpdateAction: {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput> = ((args, context) => {
   {=^ crud.operations.Update.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Update.isPublic =}
@@ -151,7 +151,7 @@ export async function updateFn(args, context) {
 {=^ overrides.Delete.isDefined =}
 type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
-const _waspDeleteAction: DeleteAction<DeleteInput, DeleteOutput> = ((args, context) => {
+const _waspDeleteAction: {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput> = ((args, context) => {
   {=^ crud.operations.Delete.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Delete.isPublic =}
