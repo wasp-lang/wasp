@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.RouterGenerator
-  ( genRouter,
+module Wasp.Generator.SdkGenerator.Client.RouterGenerator
+  ( genNewClientRouterApi,
   )
 where
 
@@ -14,19 +14,19 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Util.WebRouterPath (Param (Optional, Required), extractPathParams)
 
-genRouter :: AppSpec -> Generator [FileDraft]
-genRouter spec =
+genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
+genNewClientRouterApi spec =
   sequence
     [ genRouterTsx spec,
-      genFileCopy [relfile|router/types.ts|],
-      genFileCopy [relfile|router/linkHelpers.ts|],
-      genFileCopy [relfile|router/Link.tsx|]
+      genFileCopy [relfile|client/router/types.ts|],
+      genFileCopy [relfile|client/router/linkHelpers.ts|],
+      genFileCopy [relfile|client/router/Link.tsx|]
     ]
   where
     genFileCopy = return . C.mkTmplFd
 
 genRouterTsx :: AppSpec -> Generator FileDraft
-genRouterTsx spec = return $ C.mkTmplFdWithData [relfile|router/index.ts|] tmplData
+genRouterTsx spec = return $ C.mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
   where
     tmplData =
       object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]

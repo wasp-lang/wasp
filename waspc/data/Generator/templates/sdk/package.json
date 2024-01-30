@@ -90,8 +90,6 @@
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
       "./server/jobs/pgBoss/types": "./dist/server/jobs/pgBoss/types.js",
       {=!  Used by users, documented. =}
-      "./router": "./dist/router/index.js",
-      {=!  Used by users, documented. =}
       "./server/webSocket": "./dist/server/webSocket/index.js",
       {=!  Used by users, documented. =}
       "./webSocket": "./dist/webSocket/index.js",
@@ -119,7 +117,8 @@
       "./server/crud": "./dist/server/crud/index.js",
       "./client/crud": "./dist/client/crud/index.js",
       "./server/email": "./dist/server/email/index.js",
-      "./server/jobs": "./dist/server/jobs/index.js"
+      "./server/jobs": "./dist/server/jobs/index.js",
+      "./client/router": "./dist/client/router/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those

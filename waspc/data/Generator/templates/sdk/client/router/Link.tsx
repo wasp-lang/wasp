@@ -5,6 +5,7 @@ import { type Routes } from './index'
 
 type RouterLinkProps = Parameters<typeof RouterLink>[0]
 
+// PUBLIC API
 export function Link(
   { to, params, search, hash, ...restOfProps }: Omit<RouterLinkProps, "to">
   & {

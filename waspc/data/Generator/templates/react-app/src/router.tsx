@@ -17,7 +17,7 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 {=/ isExternalAuthEnabled =}
 
-import { routes } from 'wasp/router'
+import { routes } from 'wasp/client/router'
 
 export const routeNameToRouteComponent = {
   {=# routes =}
