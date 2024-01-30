@@ -1,23 +1,15 @@
 module Wasp.Generator.SdkGenerator.CrudG
   ( genCrud,
-    getCrudTypesImportPathForName,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson.Types as Aeson.Types
-import Data.Maybe (fromJust)
 import StrongPath
-  ( File',
-    Path,
-    Posix,
-    Rel,
-    reldir,
-    reldirP,
+  ( reldir,
     relfile,
     (</>),
   )
-import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -28,32 +20,17 @@ import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, ge
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (makeSdkImportPath)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (extImportToJsImport)
-import Wasp.Util ((<++>))
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
   if areThereAnyCruds
-    then
-      genCrudOperations spec cruds
-        <++> genCrudServerOperations spec cruds
+    then genCrudServerOperations spec cruds
     else return []
   where
     cruds = getCruds spec
     areThereAnyCruds = not $ null cruds
-
-genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
-genCrudOperations spec cruds = return $ map genCrudOperation cruds
-  where
-    genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
-      where
-        tmplPath = [relfile|crud/_crud.ts|]
-        destPath = [reldir|crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
-        tmplData = getCrudOperationJson name crud idField
-        idField = getIdFieldFromCrudEntity spec crud
 
 genCrudServerOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
 genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
@@ -91,6 +68,3 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
           where
             importJson = GJI.jsImportToImportJson $ extImportToJsImport <$> AS.Crud.overrideFn options
-
-getCrudTypesImportPathForName :: String -> Path Posix (Rel r) File'
-getCrudTypesImportPathForName crudName = makeSdkImportPath $ [reldirP|server/crud|] </> fromJust (SP.parseRelFileP crudName)

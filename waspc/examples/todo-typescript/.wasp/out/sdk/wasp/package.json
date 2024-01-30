@@ -44,7 +44,6 @@
       "./dbSeed/types": "./dist/dbSeed/types.js",
       "./test": "./dist/test/index.js",
       "./test/*": "./dist/test/*.js",
-      "./crud/*": "./dist/crud/*.js",
       "./server/crud/*": "./dist/server/crud/*",
       "./email": "./dist/email/index.js",
       "./email/core/types": "./dist/email/core/types.js",
@@ -64,7 +63,8 @@
       "./auth": "./dist/auth/index.js",
       "./client/auth": "./dist/client/auth/index.js",
       "./server/auth": "./dist/server/auth/index.js",
-      "./server/crud": "./dist/server/crud/index.js"
+      "./server/crud": "./dist/server/crud/index.js",
+      "./client/crud": "./dist/client/crud/index.js"
    },
    "typesVersions": {
      "*": {
