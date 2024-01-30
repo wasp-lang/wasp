@@ -310,6 +310,7 @@ library
     Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.AuthG
     Wasp.Generator.SdkGenerator.Server.AuthG
+    Wasp.Generator.SdkGenerator.Server.CrudG
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
