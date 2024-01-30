@@ -1,4 +1,4 @@
-import api, { handleApiError } from 'wasp/api'
+import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/types'
 import {
   serialize as superjsonSerialize,

@@ -1,5 +1,5 @@
 {{={= =}=}}
-import api, { handleApiError } from 'wasp/api';
+import { api, handleApiError } from 'wasp/client/api';
 
 export async function requestPasswordReset(data: { email: string; }): Promise<{ success: boolean }> {
     try {

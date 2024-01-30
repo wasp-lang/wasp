@@ -1,5 +1,5 @@
 {{={= =}=}}
-import api, { handleApiError } from 'wasp/api'
+import { api, handleApiError } from 'wasp/client/api'
 import { initSession } from './helpers/user'
 
 export default async function login(username: string, password: string): Promise<void> {
