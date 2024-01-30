@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { EmailFromField } from "wasp/email/core/types";
+import { EmailFromField } from "wasp/server/email/core/types";
 import {
     createUser,
     createProviderId,

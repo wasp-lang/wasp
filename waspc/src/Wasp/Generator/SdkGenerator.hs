@@ -38,15 +38,15 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
-import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientrudApi)
+import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
+import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -114,12 +114,12 @@ genSdkReal spec =
     <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
-    <++> genEmailSender spec
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
     <++> genNewServerCrudApi spec
-    <++> genNewClientrudApi spec
+    <++> genNewClientCrudApi spec
+    <++> genNewEmailSenderApi spec
   where
     genFileCopy = return . C.mkTmplFd
 

@@ -1,7 +1,8 @@
 import { createTransport } from "nodemailer";
 import { formatFromField, getDefaultFromField } from "../helpers.js";
-import type { SMTPEmailProvider, EmailSender } from "wasp/email/core/types";
+import type { SMTPEmailProvider, EmailSender } from "../types";
 
+// PRIVATE API
 export function initSmtpEmailSender(config: SMTPEmailProvider): EmailSender {
   const transporter = createTransport({
     host: config.host,

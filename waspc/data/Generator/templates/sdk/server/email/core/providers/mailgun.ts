@@ -1,7 +1,8 @@
 import { NodeMailgun } from "ts-mailgun";
 import { getDefaultFromField } from "../helpers.js";
-import type { MailgunEmailProvider, EmailSender } from "wasp/email/core/types";
+import type { MailgunEmailProvider, EmailSender } from "../types";
 
+// PRIVATE API
 export function initMailgunEmailSender(
   config: MailgunEmailProvider
 ): EmailSender {
