@@ -1,6 +1,0 @@
-rsync -a .wasp/out/web-app/node_modules/ node_modules/
-rsync -a .wasp/out/server/node_modules/ node_modules/
-# rsync -a node_modules_wasp/ node_modules
-cabal run wasp-cli db migrate-dev
-find .wasp/out/server/node_modules -mindepth 1 -type d | grep -Eiv 'prisma|\.bin' | xargs rm -r 2> /dev/null
-rm -r .wasp/out/web-app/node_modules
