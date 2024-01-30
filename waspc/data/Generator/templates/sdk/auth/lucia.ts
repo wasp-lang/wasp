@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 import { type {= userEntityUpper =} } from "wasp/entities"
 
 const prismaAdapter = new PrismaAdapter(

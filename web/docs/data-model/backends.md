@@ -144,7 +144,7 @@ app MyApp {
 </TabItem>
 </Tabs>
 
-Each seed function must be an async function that takes one argument, `prismaClient`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
+Each seed function must be an async function that takes one argument, `prisma`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
 This is the same Prisma Client instance that Wasp uses internally and thus includes all of the usual features (e.g., password hashing).
 
 Since a seed function falls under server-side code, it can import other server-side functions. This is convenient because you might want to seed the database using Actions.
@@ -157,20 +157,20 @@ Here's an example of a seed function that imports an Action:
 ```js
 import { createTask } from "./actions.js";
 
-export const devSeedSimple = async (prismaClient) => {
-  const user = await createUser(prismaClient, {
+export const devSeedSimple = async (prisma) => {
+  const user = await createUser(prisma, {
     username: "RiuTheDog",
     password: "bark1234",
   });
 
   await createTask(
     { description: "Chase the cat" },
-    { user, entities: { Task: prismaClient.task } }
+    { user, entities: { Task: prisma.task } }
   );
 };
 
-async function createUser(prismaClient, data) {
-  const { password, ...newUser } = await prismaClient.user.create({ data });
+async function createUser(prisma, data) {
+  const { password, ...newUser } = await prisma.user.create({ data });
   return newUser;
 }
 ```
@@ -185,23 +185,23 @@ import { PrismaClient } from "@prisma/client";
 
 type SanitizedUser = Omit<User, "password">;
 
-export const devSeedSimple = async (prismaClient: PrismaClient) => {
-  const user = await createUser(prismaClient, {
+export const devSeedSimple = async (prisma: PrismaClient) => {
+  const user = await createUser(prisma, {
     username: "RiuTheDog",
     password: "bark1234",
   });
 
   await createTask(
     { description: "Chase the cat", isDone: false },
-    { user, entities: { Task: prismaClient.task } }
+    { user, entities: { Task: prisma.task } }
   );
 };
 
 async function createUser(
-  prismaClient: PrismaClient,
+  prisma: PrismaClient,
   data: Pick<User, "username" | "password">
 ): Promise<SanitizedUser> {
-  const { password, ...newUser } = await prismaClient.user.create({ data });
+  const { password, ...newUser } = await prisma.user.create({ data });
   return newUser;
 }
 ```

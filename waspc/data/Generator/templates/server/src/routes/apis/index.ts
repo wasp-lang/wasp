@@ -1,6 +1,6 @@
 {{={= =}=}}
 import express from 'express'
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}

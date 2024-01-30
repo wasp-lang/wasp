@@ -3,7 +3,7 @@ import { hashPassword } from 'wasp/auth/password'
 import { verify } from 'wasp/auth/jwt'
 import AuthError from 'wasp/core/AuthError'
 import HttpError from 'wasp/core/HttpError'
-import prisma from 'wasp/server/dbClient'
+import { prisma } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
   type {= userEntityUpper =},

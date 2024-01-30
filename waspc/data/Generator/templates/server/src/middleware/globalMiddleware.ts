@@ -5,7 +5,7 @@ import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
 
-import config from 'wasp/server/config'
+import { config } from 'wasp/server'
 import type { MiddlewareConfig, MiddlewareConfigFn } from 'wasp/server/middleware'
 export type { MiddlewareConfig, MiddlewareConfigFn } from 'wasp/server/middleware'
 
