@@ -37,10 +37,6 @@
       "./rpc/queryClient": "./dist/rpc/queryClient.js",
       {=!  Used by users, documented. =}
       "./types": "./dist/types/index.js",
-      {=!  Used by user, documented. =}
-      "./auth": "./dist/auth/index.js",
-      {=!  Used by users, documented. =}
-      "./auth/types": "./dist/auth/types.js",
       {=!  Used by users, documented. =}
       "./auth/login": "./dist/auth/login.js",
       {=!  Used by users, documented. =}
@@ -49,8 +45,6 @@
       "./auth/signup": "./dist/auth/signup.js",
       {=!  Used by users, documented. =}
       "./auth/useAuth": "./dist/auth/useAuth.js",
-      {=!  Used by users, documented. =}
-      "./auth/user": "./dist/auth/user.js",
       {=!  Used by users, documented. =}
       "./auth/email": "./dist/auth/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -150,7 +144,8 @@
       "./server/api": "./dist/server/api/index.js",
       {=! Public: { api }  =}
       {=! Private: [sdk] =}
-      "./client/api": "./dist/api/index.js"
+      "./client/api": "./dist/api/index.js",
+      "./auth": "./dist/auth/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those

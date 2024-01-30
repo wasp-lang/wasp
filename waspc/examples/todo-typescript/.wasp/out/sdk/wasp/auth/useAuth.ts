@@ -1,4 +1,3 @@
-{{={= =}=}}
 import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery } from 'wasp/rpc'
 import { api, handleApiError } from 'wasp/client/api'
@@ -32,7 +31,7 @@ function createUserGetter() {
   addMetadataToQuery(getMe, {
     relativeQueryPath: getMeRelativePath,
     queryRoute: getMeRoute,
-    entitiesUsed: {=& entitiesGetMeDependsOn =},
+    entitiesUsed: ['User'],
   })
 
   return getMe

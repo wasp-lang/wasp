@@ -5,7 +5,7 @@ import { mockServer, renderInContext } from 'wasp/test'
 import { getTasks } from 'wasp/rpc/queries'
 import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
-import type { User } from 'wasp/auth/types'
+import type { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/auth/useAuth'
 import { Tasks } from 'wasp/crud/Tasks'
 
@@ -54,7 +54,7 @@ const mockUser = {
     ],
   },
   address: '',
-} satisfies User
+} satisfies AuthUser
 
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks)

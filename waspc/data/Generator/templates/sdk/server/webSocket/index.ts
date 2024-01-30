@@ -5,7 +5,7 @@ import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import { prisma } from 'wasp/server'
 {=# isAuthEnabled =}
-import { type SanitizedUser } from 'wasp/server/_types/index.js'
+import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 
 {=& userWebSocketFn.importStatement =}
@@ -33,7 +33,7 @@ export type WebSocketDefinition<
 
 export interface WaspSocketData {
   {=# isAuthEnabled =}
-  user?: SanitizedUser
+  user?: AuthUser
   {=/ isAuthEnabled =}
 }
 

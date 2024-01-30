@@ -11,8 +11,7 @@ import {
 } from 'wasp/rpc/actions'
 import waspLogo from './waspLogo.png'
 import type { Task } from 'wasp/entities'
-import type { User } from 'wasp/auth/types'
-import { getFirstProviderUserId } from 'wasp/auth/user'
+import { AuthUser, getFirstProviderUserId } from 'wasp/auth'
 import { Link } from 'react-router-dom'
 import { Tasks } from 'wasp/crud/Tasks'
 // import login from 'wasp/auth/login'
@@ -20,7 +19,7 @@ import { Tasks } from 'wasp/crud/Tasks'
 import useAuth from 'wasp/auth/useAuth'
 import { Todo } from './Todo'
 
-export const MainPage = ({ user }: { user: User }) => {
+export const MainPage = ({ user }: { user: AuthUser }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
   const { data: userAgain } = useAuth()
 
