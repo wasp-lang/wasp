@@ -3,7 +3,7 @@ import {
   createEmailVerificationLink,
   sendEmailVerificationEmail,
   sendPasswordResetEmail,
-} from 'wasp/server/auth/email/utils'
+} from 'wasp/server/auth'
 
 export async function send() {
   const userEmail = 'mihovil@ilakovac.com'

@@ -13,11 +13,13 @@ import {
 
 import { prisma } from 'wasp/server';
 
+// PRIVATE API
 // Creates a new session for the `authId` in the database
 export async function createSession(authId: string): Promise<Session> {
   return auth.createSession(authId, {});
 }
 
+// PRIVATE API
 export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<{
   user: AuthUser | null,
   session: Session | null,
@@ -42,6 +44,7 @@ export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Pro
   return getSessionAndUserFromSessionId(sessionId);
 }
 
+// PRIVATE API
 export async function getSessionAndUserFromSessionId(sessionId: string): Promise<{
   user: AuthUser | null,
   session: Session | null,
@@ -103,6 +106,7 @@ async function getUser(userId: {= userEntityUpper =}['id']): Promise<AuthUser> {
   }
 }
 
+// PRIVATE API
 export function invalidateSession(sessionId: string): Promise<void> {
   return auth.invalidateSession(sessionId);
 }

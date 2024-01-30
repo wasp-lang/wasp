@@ -12,6 +12,7 @@ import {
 import { config as waspServerConfig } from 'wasp/server';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from 'wasp/entities'
 
+// PUBLIC API
 export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,
@@ -20,6 +21,7 @@ export async function createEmailVerificationLink(
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
+// PUBLIC API
 export async function createPasswordResetLink(
   email: string,
   clientRoute: string,
@@ -33,6 +35,7 @@ async function createEmailJwtToken(email: string): Promise<{ jwtToken: string; }
   return { jwtToken };
 }
 
+// PUBLIC API
 export async function sendPasswordResetEmail(
   email: string,
   content: Email,
@@ -42,6 +45,7 @@ export async function sendPasswordResetEmail(
   });
 }
 
+// PUBLIC API
 export async function sendEmailVerificationEmail(
   email: string,
   content: Email,
@@ -68,6 +72,7 @@ async function sendEmailAndSaveMetadata(
   });
 }
 
+// PUBLIC API
 export function isEmailResendAllowed<Field extends 'emailVerificationSentAt' | 'passwordResetSentAt'>(
   fields: {
     [field in Field]: string | null

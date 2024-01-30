@@ -309,6 +309,7 @@ library
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.AuthG
+    Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
