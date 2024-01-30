@@ -2,11 +2,12 @@
 import http from 'http'
 
 import app from './app.js'
-import config from 'wasp/server/config'
+import { config } from 'wasp/server'
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
-import { ServerSetupFn, ServerSetupFnContext } from 'wasp/server/types'
+import { ServerSetupFn } from 'wasp/server'
+import { ServerSetupFnContext } from 'wasp/server/types'
 {=/ setupFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}

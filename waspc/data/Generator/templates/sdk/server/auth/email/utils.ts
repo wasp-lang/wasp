@@ -9,7 +9,7 @@ import {
   deserializeAndSanitizeProviderData,
   type EmailProviderData,
 } from 'wasp/auth/utils';
-import waspServerConfig from 'wasp/server/config';
+import { config as waspServerConfig } from 'wasp/server';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from 'wasp/entities'
 
 export async function createEmailVerificationLink(

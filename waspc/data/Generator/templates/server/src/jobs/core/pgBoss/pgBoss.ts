@@ -1,5 +1,5 @@
 import PgBoss from 'pg-boss'
-import config from 'wasp/server/config'
+import { config } from 'wasp/server'
 
 const boss = createPgBoss()
 

@@ -86,6 +86,7 @@ genSdkReal spec =
       genFileCopy [relfile|operations/index.ts|],
       -- Not migrated to TS yet
       genFileCopy [relfile|operations/updateHandlersMap.js|],
+      genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|dbSeed/types.ts|],

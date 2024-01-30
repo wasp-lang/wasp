@@ -11,7 +11,7 @@ import {
   deserializeAndSanitizeProviderData,
 } from "./utils.js";
 
-import prisma from 'wasp/server/dbClient';
+import { prisma } from 'wasp/server';
 
 // Creates a new session for the `authId` in the database
 export async function createSession(authId: string): Promise<Session> {
