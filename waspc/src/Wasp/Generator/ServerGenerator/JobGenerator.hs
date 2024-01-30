@@ -34,7 +34,7 @@ import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.JobGenerator (getImportPathForJobName, getJobExecutorTypesImportPath)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (getImportPathForJobName, getJobExecutorTypesImportPath)
 import Wasp.Generator.ServerGenerator.Common
   ( ServerTemplatesDir,
     srcDirInServerTemplatesDir,
