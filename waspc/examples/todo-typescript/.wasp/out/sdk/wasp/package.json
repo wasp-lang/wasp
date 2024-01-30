@@ -62,7 +62,8 @@
       "./server/api": "./dist/server/api/index.js",
       "./client/api": "./dist/api/index.js",
       "./auth": "./dist/auth/index.js",
-      "./client/auth": "./dist/client/auth/index.js"
+      "./client/auth": "./dist/client/auth/index.js",
+      "./server/auth": "./dist/server/auth/index.js"
    },
    "typesVersions": {
      "*": {
