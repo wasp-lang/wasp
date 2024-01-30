@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.ApiRoutesG
-  ( genApis,
+module Wasp.Generator.SdkGenerator.ServerApiG
+  ( genServerApi,
   )
 where
 
@@ -19,19 +19,19 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ApiRoutesG (getApiEntitiesObject, isAuthEnabledForApi)
 import Wasp.Util (toUpperFirst)
 
-genApis :: AppSpec -> Generator [FileDraft]
-genApis spec =
+genServerApi :: AppSpec -> Generator [FileDraft]
+genServerApi spec =
   if areThereAnyCustomApiRoutes
     then
       sequence
-        [ genApiTypes spec
+        [ genIndexTsWithApiRoutes spec
         ]
     else return []
   where
     areThereAnyCustomApiRoutes = not . null $ getApis spec
 
-genApiTypes :: AppSpec -> Generator FileDraft
-genApiTypes spec =
+genIndexTsWithApiRoutes :: AppSpec -> Generator FileDraft
+genIndexTsWithApiRoutes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     namedApis = AS.getApis spec
@@ -44,7 +44,7 @@ genApiTypes spec =
           "allEntities" .= nub (concatMap getApiEntitiesObject apis)
         ]
     usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
-    tmplFile = C.asTmplFile [relfile|server/apis/types.ts|]
+    tmplFile = C.asTmplFile [relfile|server/api/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel C.SdkRootDir) File'
 
     getTmplData :: (String, Api.Api) -> Aeson.Value
