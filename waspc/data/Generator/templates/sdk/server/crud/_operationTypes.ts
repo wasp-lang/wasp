@@ -34,13 +34,42 @@ import type {
 type _WaspEntityTagged = _{= crud.entityUpper =}
 type _WaspEntity = {= crud.entityUpper =}
 
+/**
+ * PUBLIC API
+ */
+export namespace {= crud.name =} {
+  {=# crud.operations.GetAll =}
+  export type GetAllQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+  {=/ crud.operations.GetAll =}
+
+  {=# crud.operations.Get =}
+  export type GetQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+  {=/ crud.operations.Get =}
+
+  {=# crud.operations.Create =}
+  export type CreateAction<Input extends Payload, Output extends Payload>= {= actionType =}<[_WaspEntityTagged], Input, Output>
+  {=/ crud.operations.Create =}
+
+  {=# crud.operations.Update =}
+  export type UpdateAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
+  {=/ crud.operations.Update =}
+
+  {=# crud.operations.Delete =}
+  export type DeleteAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
+  {=/ crud.operations.Delete =}
+}
+
+/**
+ * PRIVATE API
+ * 
+ * The types with the `Resolved` suffix are the types that are used internally by the Wasp client
+ * to implement full-stack type safety.
+ */
 {=# crud.operations.GetAll =}
-// Get All query
-export type GetAllQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.GetAll.isDefined =}
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
-export type GetAllQueryResolved = GetAllQuery<GetAllInput, GetAllOutput>
+export type GetAllQueryResolved = {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput>
 {=/ overrides.GetAll.isDefined =}
 {=# overrides.GetAll.isDefined =}
 const _waspGetAllQuery = {= overrides.GetAll.importIdentifier =}
@@ -49,12 +78,10 @@ export type GetAllQueryResolved = typeof _waspGetAllQuery
 {=/ crud.operations.GetAll =}
 
 {=# crud.operations.Get =}
-// Get query
-export type GetQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Get.isDefined =}
 type GetInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
-export type GetQueryResolved = GetQuery<GetInput, GetOutput>
+export type GetQueryResolved = {= crud.name =}.GetQuery<GetInput, GetOutput>
 {=/ overrides.Get.isDefined =}
 {=# overrides.Get.isDefined =}
 const _waspGetQuery = {= overrides.Get.importIdentifier =}
@@ -63,12 +90,10 @@ export type GetQueryResolved = typeof _waspGetQuery
 {=/ crud.operations.Get =}
 
 {=# crud.operations.Create =}
-// Create action
-export type CreateAction<Input extends Payload, Output extends Payload>= {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Create.isDefined =}
 type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
 type CreateOutput = _WaspEntity
-export type CreateActionResolved = CreateAction<CreateInput, CreateOutput>
+export type CreateActionResolved = {= crud.name =}.CreateAction<CreateInput, CreateOutput>
 {=/ overrides.Create.isDefined =}
 {=# overrides.Create.isDefined =}
 const _waspCreateAction = {= overrides.Create.importIdentifier =}
@@ -77,12 +102,10 @@ export type CreateActionResolved = typeof _waspCreateAction
 {=/ crud.operations.Create =}
 
 {=# crud.operations.Update =}
-// Update action
-export type UpdateAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Update.isDefined =}
 type UpdateInput = Prisma.{= crud.entityUpper =}UpdateInput & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type UpdateOutput = _WaspEntity
-export type UpdateActionResolved = UpdateAction<UpdateInput, UpdateOutput>
+export type UpdateActionResolved = {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>
 {=/ overrides.Update.isDefined =}
 {=# overrides.Update.isDefined =}
 const _waspUpdateAction = {= overrides.Update.importIdentifier =}
@@ -91,12 +114,10 @@ export type UpdateActionResolved = typeof _waspUpdateAction
 {=/ crud.operations.Update =}
 
 {=# crud.operations.Delete =}
-// Delete action
-export type DeleteAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Delete.isDefined =}
 type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
-export type DeleteActionResolved = DeleteAction<DeleteInput, DeleteOutput>
+export type DeleteActionResolved = {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>
 {=/ overrides.Delete.isDefined =}
 {=# overrides.Delete.isDefined =}
 const _waspDeleteAction = {= overrides.Delete.importIdentifier =}

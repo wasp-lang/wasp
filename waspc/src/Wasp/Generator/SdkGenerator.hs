@@ -45,6 +45,7 @@ import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
+import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -117,6 +118,7 @@ genSdkReal spec =
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
+    <++> genNewServerCrudApi spec
   where
     genFileCopy = return . C.mkTmplFd
 

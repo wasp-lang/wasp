@@ -1,6 +1,6 @@
-import { Task } from "wasp/entities";
-import { GetAllQuery } from "wasp/server/crud/Tasks";
+import { Task } from 'wasp/entities'
+import { Tasks } from 'wasp/server/crud'
 
 export const getAllQuery = ((args, context) => {
-  return context.entities.Task.findMany({});
-}) satisfies GetAllQuery<{}, Task[]>;
+  return context.entities.Task.findMany({})
+}) satisfies Tasks.GetAllQuery<{}, Task[]>
