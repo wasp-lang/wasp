@@ -2,7 +2,7 @@
 import { createContext, useState, useEffect } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { getSessionId } from 'wasp/api'
+import { getSessionId } from 'wasp/client/api'
 import { apiEventsEmitter } from 'wasp/api/events'
 import config from 'wasp/core/config'
 

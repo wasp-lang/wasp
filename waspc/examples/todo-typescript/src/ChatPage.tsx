@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import api from 'wasp/api'
+import { api } from 'wasp/client/api'
 import {
   useSocket,
   useSocketListener,

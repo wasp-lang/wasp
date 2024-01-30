@@ -1,5 +1,5 @@
 {{={= =}=}}
-import api, { handleApiError } from 'wasp/api'
+import { api, handleApiError } from 'wasp/client/api'
 
 export async function verifyEmail(data: {
   token: string

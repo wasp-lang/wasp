@@ -4,7 +4,8 @@ import config from 'wasp/core/config'
 import { storage } from 'wasp/core/storage'
 import { apiEventsEmitter } from './events.js'
 
-const api = axios.create({
+// PUBLIC API
+export const api = axios.create({
   baseURL: config.apiUrl,
 })
 
@@ -12,22 +13,26 @@ const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
 let waspAppAuthSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
 
+// PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
   waspAppAuthSessionId = sessionId
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
   apiEventsEmitter.emit('sessionId.set')
 }
 
+// PRIVATE API (sdk)
 export function getSessionId(): string | undefined {
   return waspAppAuthSessionId
 }
 
+// PRIVATE API (sdk)
 export function clearSessionId(): void {
   waspAppAuthSessionId = undefined
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
   apiEventsEmitter.emit('sessionId.clear')
 }
 
+// PRIVATE API (sdk)
 export function removeLocalUserData(): void {
   waspAppAuthSessionId = undefined
   storage.clear()
@@ -66,6 +71,7 @@ window.addEventListener('storage', (event) => {
   }
 })
 
+// PRIVATE API (sdk)
 /**
  * Takes an error returned by the app's API (as returned by axios), and transforms into a more
  * standard format to be further used by the client. It is also assumed that given API
@@ -100,5 +106,3 @@ class WaspHttpError extends Error {
     this.data = data
   }
 }
-
-export default api
