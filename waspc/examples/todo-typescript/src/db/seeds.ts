@@ -1,4 +1,4 @@
-import { DbSeedFn } from "wasp/dbSeed/types";
+import { DbSeedFn } from 'wasp/server';
 
 export const seedMyDb: DbSeedFn = async (prisma) => {
   const user = await prisma.user.findFirst({});
