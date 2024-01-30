@@ -1,7 +1,7 @@
-class HttpError extends Error {
+export class HttpError extends Error {
   public statusCode: number
   public data: unknown
-  
+
   constructor (statusCode: number, message?: string, data?: Record<string, unknown>, ...params: unknown[]) {
     super(message, ...params)
 
@@ -21,5 +21,3 @@ class HttpError extends Error {
     }
   }
 }
-
-export default HttpError

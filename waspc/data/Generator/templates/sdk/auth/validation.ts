@@ -1,4 +1,4 @@
-import HttpError from 'wasp/core/HttpError';
+import { HttpError } from 'wasp/server';
 
 export const PASSWORD_FIELD = 'password';
 const USERNAME_FIELD = 'username';

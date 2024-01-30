@@ -18,7 +18,7 @@ import {
 import { ensureValidEmail, ensureValidPassword, ensurePasswordIsPresent } from 'wasp/auth/validation';
 import { GetVerificationEmailContentFn } from 'wasp/server/auth/email';
 import { validateAndGetUserFields } from 'wasp/auth/utils'
-import HttpError from 'wasp/core/HttpError';
+import { HttpError } from 'wasp/server';
 import { type UserSignupFields } from 'wasp/auth/providers/types';
 
 export function getSignupRoute({

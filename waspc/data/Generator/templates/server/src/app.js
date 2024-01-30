@@ -1,6 +1,6 @@
 import express from 'express'
 
-import HttpError from 'wasp/core/HttpError'
+import { HttpError } from 'wasp/server'
 import indexRouter from './routes/index.js'
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that

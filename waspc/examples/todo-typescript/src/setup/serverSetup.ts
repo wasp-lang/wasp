@@ -1,6 +1,6 @@
 import express, { Application } from 'express'
 import cors from 'cors'
-import type { MiddlewareConfigFn } from 'wasp/server/middleware'
+import { type MiddlewareConfigFn } from 'wasp/server'
 import { config, ServerSetupFn, prisma } from 'wasp/server'
 
 export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
