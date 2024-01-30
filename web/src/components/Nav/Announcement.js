@@ -10,7 +10,7 @@ const Announcement = () => {
 
   const handleLink = () => {
     // window.open('https://magic-app-generator.wasp-lang.dev/')
-    window.open('https://www.producthunt.com/products/open-saas')
+    window.open('https://www.producthunt.com/posts/open-saas')
     //history.push('/blog/2023/06/30/tutorial-jam')
     //history.push('/#signup')
 
