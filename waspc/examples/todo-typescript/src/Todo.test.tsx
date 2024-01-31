@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockServer, renderInContext } from 'wasp/test'
+import { mockServer, renderInContext } from 'wasp/client/test'
 import { getTasks } from 'wasp/rpc/queries'
 import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
