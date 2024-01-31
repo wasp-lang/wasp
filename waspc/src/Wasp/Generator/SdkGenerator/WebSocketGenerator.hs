@@ -26,7 +26,7 @@ genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
         [ genWebSocketServerIndex spec,
-          genFileCopy [relfile|webSocket/index.ts|],
+          genFileCopy [relfile|client/webSocket/index.ts|],
           genWebSocketProvider spec
         ]
   | otherwise = return []
@@ -46,7 +46,7 @@ genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSo
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
 genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|webSocket/WebSocketProvider.tsx|] tmplData
+genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)

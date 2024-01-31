@@ -4,7 +4,7 @@ import {
   useSocket,
   useSocketListener,
   ServerToClientPayload,
-} from 'wasp/webSocket'
+} from 'wasp/client/webSocket'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
