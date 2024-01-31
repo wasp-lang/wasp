@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { useAction, useQuery } from "wasp/client/operations";
-import { createAction } from "../client/operations/actions/core.js";
-import { createQuery } from "../client/operations/queries/core.js";
+import { createAction } from "../operations/actions/core.js";
+import { createQuery } from "../operations/queries/core.js";
 import { 
     {=# operations.Get =}
     GetQueryResolved,

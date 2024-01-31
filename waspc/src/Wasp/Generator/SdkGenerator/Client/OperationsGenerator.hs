@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.ClientOpsGenerator (genOperations) where
+module Wasp.Generator.SdkGenerator.Client.OperationsGenerator (genOperations) where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
