@@ -24,7 +24,6 @@ import Wasp.Generator.Crud
 import qualified Wasp.Generator.Crud.Routes as Routes
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.CrudG (getCrudTypesImportPathForName)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.JsImport (JsImportPath (RelativeImportPath))
@@ -96,8 +95,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
               "userEntityUpper" .= maybeUserEntity,
               "overrides" .= object overrides,
               "queryType" .= queryTsType,
-              "actionType" .= actionTsType,
-              "crudTypesImportPath" .= SP.fromRelFileP (getCrudTypesImportPathForName name)
+              "actionType" .= actionTsType
             ]
         idField = getIdFieldFromCrudEntity spec crud
         maybeUserEntity = AS.refName . AS.Auth.userEntity <$> maybeAuth
