@@ -8,11 +8,12 @@ import config from 'wasp/core/config'
 
 import type { ClientToServerEvents, ServerToClientEvents } from 'wasp/server/webSocket';
 
+// PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(config.apiUrl, { autoConnect: {= autoConnect =} })
 
-function refreshAuthToken() {  
+function refreshAuthToken() {
   // NOTE: When we figure out how `auth: true` works for Operations, we should
   // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
@@ -29,11 +30,13 @@ refreshAuthToken()
 apiEventsEmitter.on('sessionId.set', refreshAuthToken)
 apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
 
+// PRIVATE API
 export const WebSocketContext = createContext({
   socket,
   isConnected: false,
 });
 
+// PRIVATE API
 export function WebSocketProvider({ children }: { children: JSX.Element }) {
   const [isConnected, setIsConnected] = useState(socket.connected)
 
