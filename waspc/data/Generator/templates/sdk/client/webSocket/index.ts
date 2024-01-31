@@ -5,15 +5,19 @@ import type {
   ServerToClientEvents,
 } from 'wasp/server/webSocket'
 
+// PUBLIC API
 export type ServerToClientPayload<Event extends keyof ServerToClientEvents> =
   Parameters<ServerToClientEvents[Event]>[0]
+// PUBLIC API
 export type ClientToServerPayload<Event extends keyof ClientToServerEvents> =
   Parameters<ClientToServerEvents[Event]>[0]
 
+// PUBLIC API
 export function useSocket() {
   return useContext(WebSocketContext)
 }
 
+// PUBLIC API
 export function useSocketListener<Event extends keyof ServerToClientEvents>(
   event: Event,
   handler: ServerToClientEvents[Event]
