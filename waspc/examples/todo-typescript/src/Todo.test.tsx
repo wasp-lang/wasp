@@ -7,7 +7,7 @@ import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
 import type { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
-import { Tasks } from 'wasp/crud/Tasks'
+import { Tasks } from 'wasp/client/crud'
 
 const mockTasks = [
   {

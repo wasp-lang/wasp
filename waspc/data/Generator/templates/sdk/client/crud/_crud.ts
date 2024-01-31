@@ -96,4 +96,5 @@ function createCrud() {
     }
 }
 
+// PUBLIC API
 export const {= name =} = createCrud();
