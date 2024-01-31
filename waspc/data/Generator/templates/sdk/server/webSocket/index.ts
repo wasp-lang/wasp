@@ -10,6 +10,7 @@ import { type AuthUser } from 'wasp/auth'
 
 {=& userWebSocketFn.importStatement =}
 
+// Public API
 export type WebSocketDefinition<
   ClientToServerEvents extends EventsMap = DefaultEventsMap,
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
@@ -31,15 +32,19 @@ export type WebSocketDefinition<
   }
 ) => Promise<void> | void
 
+// PUBLIC API
 export interface WaspSocketData {
   {=# isAuthEnabled =}
   user?: AuthUser
   {=/ isAuthEnabled =}
 }
 
+// PRIVATE API
 export type ServerType = Parameters<WebSocketFn>[0]
 
+// PRIVATE API
 export type ClientToServerEvents = Events[0]
+// PRIVATE API
 export type ServerToClientEvents = Events[1]
 
 type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}

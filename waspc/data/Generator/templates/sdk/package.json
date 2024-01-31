@@ -87,8 +87,6 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
       "./server/jobs/pgBoss/types": "./dist/server/jobs/pgBoss/types.js",
-      {=!  Used by users, documented. =}
-      "./server/webSocket": "./dist/server/webSocket/index.js",
 
       {=! Used by the framework client code, reconsider during refactoring. =}
       "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
@@ -110,6 +108,9 @@
       {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
       {=! Private: [] =}
       "./client/webSocket": "./dist/client/webSocket/index.js",
+      {=! Public: { type WebSocketDefinition, type WaspSocketData } =}
+      {=! Private: [server, sdk] =}
+      "./server/webSocket": "./dist/server/webSocket/index.js",
       "./auth": "./dist/auth/index.js",
       "./client/auth": "./dist/client/auth/index.js",
       "./server/auth": "./dist/server/auth/index.js",
