@@ -1,12 +1,12 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.ServerOpsGenerator where
+module Wasp.Generator.SdkGenerator.Server.OperationsGenerator where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir, Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -20,11 +20,19 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (mkTmplFdWithData)
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
 import qualified Wasp.JsImport as JI
 import Wasp.Util (toUpperFirst)
+
+data ServerOpsTemplatesDir
+
+serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerOpsTemplatesDir)
+serverOpsDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
+
+genServerOpsFileCopy :: Path' (Rel ServerOpsTemplatesDir) File' -> Generator FileDraft
+genServerOpsFileCopy path = return $ C.mkTmplFd $ serverOpsDirInSdkTemplatesDir </> path
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -32,13 +40,14 @@ genOperations spec =
     [ genQueryTypesFile spec,
       genActionTypesFile spec,
       genQueriesIndex spec,
-      genActionsIndex spec
+      genActionsIndex spec,
+      genServerOpsFileCopy [relfile|index.ts|]
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
   where
-    relPath = [relfile|server/queries/index.ts|]
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
         [ "operations" .= map getQueryData (AS.getQueries spec)
@@ -47,25 +56,23 @@ genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
   where
-    relPath = [relfile|server/actions/index.ts|]
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "operations" .= map getActionData (AS.getActions spec)
         ]
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
-genQueryTypesFile spec = genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally
+genQueryTypesFile spec = genOperationTypesFile relPath operations isAuthEnabledGlobally
   where
-    tmplFile = [relfile|server/queries/types.ts|]
-    dstFile = [relfile|server/queries/types.ts|]
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|]
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
-genActionTypesFile spec = genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally
+genActionTypesFile spec = genOperationTypesFile relPath operations isAuthEnabledGlobally
   where
-    tmplFile = [relfile|server/actions/types.ts|]
-    dstFile = [relfile|server/actions/types.ts|]
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|]
     operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
@@ -84,12 +91,11 @@ getActionData (actionName, action) = getOperationTmplData operation
 
 genOperationTypesFile ::
   Path' (Rel C.SdkTemplatesDir) File' ->
-  Path' (Rel C.SdkRootDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
-genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
-  return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplData =
       object
@@ -108,8 +114,10 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
 serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel C.SdkRootDir) Dir'
-serverOperationsDirInSdkRootDir (AS.Operation.QueryOp _ _) = [reldir|server/queries|]
-serverOperationsDirInSdkRootDir (AS.Operation.ActionOp _ _) = [reldir|server/actions|]
+serverOperationsDirInSdkRootDir =
+  SP.castRel . (serverOpsDirInSdkTemplatesDir </>) . \case
+    (AS.Operation.QueryOp _ _) -> [reldir|queries|]
+    (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
 getOperationTmplData :: AS.Operation.Operation -> Aeson.Value
 getOperationTmplData operation =
@@ -143,18 +151,3 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
     importPath = C.makeSdkImportPath $ extCodeDirP </> SP.castRel extImportPath
     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName
-
--- extImportToImportJson :: EI.ExtImport -> Aeson.Value
--- extImportToImportJson extImport@(EI.ExtImport importName importPath) =
---   object
---     [ "isDefined" .= True,
---       "importStatement" .= Debug.trace jsImportStmt jsImportStmt,
---       "importIdentifier" .= importAlias
---     ]
---   where
---     jsImportStmt = case importName of
---       EI.ExtImportModule n -> "import " ++ n ++ " from '" ++ importPathStr ++ "'"
---       EI.ExtImportField n -> "import { " ++ n ++ " as " ++ importAlias ++ " } from '" ++ importPathStr ++ "'"
---     importPathStr = C.makeSdkImportPath $ extCodeDirP </> SP.castRel importPath
---     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
--- importAlias = EI.importIdentifier extImport ++ "User"

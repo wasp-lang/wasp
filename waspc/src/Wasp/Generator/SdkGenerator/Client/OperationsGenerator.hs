@@ -16,7 +16,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, clientTemplatesDirInSdkTemplatesDir, makeSdkImportPath, relDirToRelFileP)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.ServerOpsGenerator (serverOperationsDirInSdkRootDir)
+import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)

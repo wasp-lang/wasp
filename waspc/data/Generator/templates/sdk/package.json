@@ -56,10 +56,10 @@
       "./universal/validators": "./dist/universal/validators.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./server/actions": "./dist/server/actions/index.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./server/queries": "./dist/server/queries/index.js",
+      {=!  Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
+      "./server/opeations/actions": "./dist/server/actions/index.js",
+      {=!  Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
+      "./server/operations/queries": "./dist/server/queries/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -107,6 +107,7 @@
       "./client/crud": "./dist/client/crud/index.js",
       "./server/email": "./dist/server/email/index.js",
       "./server/jobs": "./dist/server/jobs/index.js",
+      "./server/operations": "./dist/server/operations/index.js",
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js"
    },
