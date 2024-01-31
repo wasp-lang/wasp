@@ -303,12 +303,12 @@ library
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
-    Wasp.Generator.SdkGenerator.JobGenerator
     Wasp.Generator.SdkGenerator.RouterGenerator
     Wasp.Generator.SdkGenerator.RpcGenerator
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
     Wasp.Generator.SdkGenerator.Server.EmailSenderG
+    Wasp.Generator.SdkGenerator.Server.JobGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
     Wasp.Generator.SdkGenerator.WebSocketGenerator

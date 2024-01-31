@@ -41,12 +41,12 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
 import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (genNewJobsApi)
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -95,7 +95,7 @@ genSdkReal spec =
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|test/vitest/helpers.tsx|],
       genFileCopy [relfile|test/index.ts|],
-      genFileCopy [relfile|jobs/pgBoss/types.ts|],
+      genFileCopy [relfile|server/jobs/pgBoss/types.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -108,7 +108,6 @@ genSdkReal spec =
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCrud spec
-    <++> genJobTypes spec
     <++> genServerApi spec
     <++> genWebSockets spec
     <++> genRouter spec
@@ -120,6 +119,7 @@ genSdkReal spec =
     <++> genNewServerCrudApi spec
     <++> genNewClientCrudApi spec
     <++> genNewEmailSenderApi spec
+    <++> genNewJobsApi spec
   where
     genFileCopy = return . C.mkTmplFd
 
