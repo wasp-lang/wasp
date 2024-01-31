@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Client.CrudG
-  ( genNewClientrudApi,
+  ( genNewClientCrudApi,
   )
 where
 
@@ -17,8 +17,8 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Util ((<++>))
 
-genNewClientrudApi :: AppSpec -> Generator [FileDraft]
-genNewClientrudApi spec =
+genNewClientCrudApi :: AppSpec -> Generator [FileDraft]
+genNewClientCrudApi spec =
   if areThereAnyCruds
     then
       sequence
