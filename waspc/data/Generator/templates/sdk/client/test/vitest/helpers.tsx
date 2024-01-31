@@ -10,15 +10,19 @@ import { Query } from 'wasp/rpc'
 import config from 'wasp/core/config'
 import { HttpMethod, Route } from 'wasp/types'
 
+// PRIVATE API
 export type { Route } from 'wasp/types'
 
+// PRIVATE API
 export type MockQuery = <Input, Output, MockOutput extends Output>(
   query: Query<Input, Output>,
   resJson: MockOutput
 ) => void
 
+// PRIVATE API
 export type MockApi = (route: Route, resJson: unknown) => void
 
+// PUBLIC API
 // Inspired by the Tanstack React Query helper:
 // https://github.com/TanStack/query/blob/4ae99561ca3383d6de3f4aad656a49ba4a17b57a/packages/react-query/src/__tests__/utils.tsx#L7-L26
 export function renderInContext(ui: ReactElement): RenderResult {
@@ -39,6 +43,7 @@ export function renderInContext(ui: ReactElement): RenderResult {
   }
 }
 
+// PUBLIC API
 export function mockServer(): {
   server: SetupServer
   mockQuery: MockQuery

@@ -74,10 +74,8 @@
       "./server/queries": "./dist/server/queries/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
-      {=!  Used by users, documented. =}
-      "./test": "./dist/test/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./test/*": "./dist/test/*.js",
+      "./client/test/*": "./dist/client/test/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -118,7 +116,8 @@
       "./client/crud": "./dist/client/crud/index.js",
       "./server/email": "./dist/server/email/index.js",
       "./server/jobs": "./dist/server/jobs/index.js",
-      "./client/router": "./dist/client/router/index.js"
+      "./client/router": "./dist/client/router/index.js",
+      "./client/test": "./dist/client/test/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those
