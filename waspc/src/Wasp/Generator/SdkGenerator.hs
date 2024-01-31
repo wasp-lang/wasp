@@ -38,14 +38,15 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
-import qualified Wasp.Generator.SdkGenerator.ClientOpsGenerator as ClientOpsGen
+import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
+import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
+import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
-import Wasp.Generator.SdkGenerator.JobGenerator (genJobTypes)
-import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
+import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (genNewJobsApi)
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.ServerOpsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -87,9 +88,9 @@ genSdkReal spec =
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|server/AuthError.ts|],
       genFileCopy [relfile|types/index.ts|],
-      genFileCopy [relfile|test/vitest/helpers.tsx|],
-      genFileCopy [relfile|test/index.ts|],
-      genFileCopy [relfile|jobs/pgBoss/types.ts|],
+      genFileCopy [relfile|server/jobs/pgBoss/types.ts|],
+      genFileCopy [relfile|client/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|client/test/index.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -102,17 +103,18 @@ genSdkReal spec =
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCrud spec
-    <++> genJobTypes spec
     <++> genServerApi spec
     <++> genWebSockets spec
-    <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
-    <++> genEmailSender spec
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
     <++> genNewServerCrudApi spec
+    <++> genNewClientCrudApi spec
+    <++> genNewEmailSenderApi spec
+    <++> genNewJobsApi spec
+    <++> genNewClientRouterApi spec
   where
     genFileCopy = return . C.mkTmplFd
 

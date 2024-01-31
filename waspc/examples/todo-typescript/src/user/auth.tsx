@@ -19,7 +19,7 @@ import {
 //   signInUrl as googleSignInUrl,
 // } from "wasp/auth/helpers/Google";
 
-import { Link, routes } from 'wasp/router'
+import { Link, routes } from 'wasp/client/router'
 
 export function SignupPage() {
   return (

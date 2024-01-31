@@ -62,25 +62,19 @@
       "./server/queries": "./dist/server/queries/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
-      {=!  Used by users, documented. =}
-      "./test": "./dist/test/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./test/*": "./dist/test/*.js",
-      "./crud/*": "./dist/crud/*.js",
+      "./client/test/*": "./dist/client/test/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*",
-      "./email": "./dist/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./email/core/types": "./dist/email/core/types.js",
+      "./server/email/core/types": "./dist/server/email/core/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
-      {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
-      "./jobs/*": "./dist/jobs/*.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./server/jobs/*": "./dist/server/jobs/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
-      "./jobs/pgBoss/types": "./dist/jobs/pgBoss/types.js",
-      {=!  Used by users, documented. =}
-      "./router": "./dist/router/index.js",
+      "./server/jobs/pgBoss/types": "./dist/server/jobs/pgBoss/types.js",
       {=!  Used by users, documented. =}
       "./server/webSocket": "./dist/server/webSocket/index.js",
       {=!  Used by users, documented. =}
@@ -105,9 +99,14 @@
       "./client/api": "./dist/api/index.js",
       "./auth": "./dist/auth/index.js",
       "./client/auth": "./dist/client/auth/index.js",
+      "./client/operations": "./dist/client/operations/index.js"
       "./server/auth": "./dist/server/auth/index.js",
       "./server/crud": "./dist/server/crud/index.js",
-      "./client/operations": "./dist/client/operations/index.js"
+      "./client/crud": "./dist/client/crud/index.js",
+      "./server/email": "./dist/server/email/index.js",
+      "./server/jobs": "./dist/server/jobs/index.js",
+      "./client/router": "./dist/client/router/index.js",
+      "./client/test": "./dist/client/test/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those

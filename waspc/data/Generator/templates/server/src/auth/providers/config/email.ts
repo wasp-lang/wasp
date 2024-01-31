@@ -2,7 +2,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 
 import { ProviderConfig } from "wasp/auth/providers/types";
-import type { EmailFromField } from "wasp/email/core/types";
+import type { EmailFromField } from "wasp/server/email/core/types";
 
 import { getLoginRoute } from "../email/login.js";
 import { getSignupRoute } from "../email/signup.js";

@@ -25,7 +25,7 @@ data EmailSenderProvider = EmailSenderProvider
 data ProvidersDir
 
 providersDirInSdkTemplatesDir :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
-providersDirInSdkTemplatesDir = [reldir|email/core/providers|]
+providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
 
 smtp :: EmailSenderProvider
 smtp =

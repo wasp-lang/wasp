@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockServer, renderInContext } from 'wasp/test'
+import { mockServer, renderInContext } from 'wasp/client/test'
 import { Todo, areThereAnyTasks } from './Todo'
 import { MainPage } from './MainPage'
 import type { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
-import { Tasks } from 'wasp/crud/Tasks'
 import { getTasks } from 'wasp/client/operations'
+import { Tasks } from 'wasp/client/crud'
 
 const mockTasks = [
   {
