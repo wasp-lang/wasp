@@ -13,6 +13,8 @@ data SdkRootDir
 
 data SdkTemplatesDir
 
+data ClientTemplatesDir
+
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
 asTmplFile = SP.castRel
 
@@ -60,3 +62,6 @@ makeSdkImportPath path = [reldirP|wasp|] </> path
 
 extCodeDirInSdkRootDir :: Path' (Rel SdkRootDir) Dir'
 extCodeDirInSdkRootDir = [reldir|ext-src|]
+
+clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
+clientTemplatesDirInSdkTemplatesDir = [reldir|client|]

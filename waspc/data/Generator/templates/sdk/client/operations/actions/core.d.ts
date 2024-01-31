@@ -1,6 +1,7 @@
-import { type Action } from '..'
+import { type Action } from '../core.js'
 import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
 
+// PRIVATE API
 export function createAction<BackendAction extends GenericBackendAction>(
   actionRoute: string,
   entitiesUsed: unknown[]

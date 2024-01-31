@@ -1,12 +1,14 @@
-import { type Query } from '..'
+import { type Query } from '../core.js'
 import { Route } from 'wasp/types'
 import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
 
+// PRIVATE API
 export function createQuery<BackendQuery extends GenericBackendQuery>(
   queryRoute: string,
   entitiesUsed: any[]
 ): QueryFor<BackendQuery>
 
+// PRIVATE API
 export function addMetadataToQuery(
   query: (...args: any[]) => Promise<unknown>,
   metadata: {
