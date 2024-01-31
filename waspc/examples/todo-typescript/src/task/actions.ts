@@ -5,7 +5,7 @@ import type {
   DeleteTasks,
 } from 'wasp/server/actions/types'
 import type { Task } from 'wasp/entities'
-import { emailSender } from 'wasp/email'
+import { emailSender } from 'wasp/server/email'
 
 type CreateArgs = Pick<Task, 'description'>
 

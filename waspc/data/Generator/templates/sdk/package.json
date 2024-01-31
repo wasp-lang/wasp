@@ -80,9 +80,8 @@
       "./test/*": "./dist/test/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*",
-      "./email": "./dist/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./email/core/types": "./dist/email/core/types.js",
+      "./server/email/core/types": "./dist/server/email/core/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
       {=!  Parts are used by users and documented (types), other parts are used by the framework code (entities). =}
@@ -118,7 +117,8 @@
       "./client/auth": "./dist/client/auth/index.js",
       "./server/auth": "./dist/server/auth/index.js",
       "./server/crud": "./dist/server/crud/index.js",
-      "./client/crud": "./dist/client/crud/index.js"
+      "./client/crud": "./dist/client/crud/index.js",
+      "./server/email": "./dist/server/email/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those

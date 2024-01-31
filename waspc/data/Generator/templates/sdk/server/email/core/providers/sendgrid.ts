@@ -1,7 +1,8 @@
 import SendGrid from "@sendgrid/mail";
 import { getDefaultFromField } from "../helpers.js";
-import type { SendGridProvider, EmailSender } from "wasp/email/core/types";
+import type { SendGridProvider, EmailSender } from from "../types";
 
+// PRIVATE API
 export function initSendGridEmailSender(
   provider: SendGridProvider
 ): EmailSender {

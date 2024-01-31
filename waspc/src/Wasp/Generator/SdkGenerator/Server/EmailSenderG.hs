@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.EmailSenderG where
+module Wasp.Generator.SdkGenerator.Server.EmailSenderG where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
@@ -17,8 +17,8 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
-genEmailSender :: AppSpec -> Generator [FileDraft]
-genEmailSender spec = case maybeEmailSender of
+genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]
+genNewEmailSenderApi spec = case maybeEmailSender of
   Just emailSender ->
     sequence
       [ genIndex emailSender
@@ -31,7 +31,7 @@ genEmailSender spec = case maybeEmailSender of
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|email/index.ts|]
+    tmplPath = [relfile|server/email/index.ts|]
     tmplData = getEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
@@ -46,13 +46,13 @@ genCore email =
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|email/core/index.ts|]
+    tmplPath = [relfile|server/email/core/index.ts|]
     tmplData = getEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
 genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|email/core/types.ts|]
+    tmplPath = [relfile|server/email/core/types.ts|]
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
@@ -61,7 +61,7 @@ genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
 genCoreHelpers :: EmailSender -> Generator FileDraft
 genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|email/core/helpers.ts|]
+    tmplPath = [relfile|server/email/core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"

@@ -29,4 +29,5 @@ const emailProvider = {
 } as const;
 {=/ isDummyProviderUsed =}
 
+// PUBLIC API
 export const emailSender = initEmailSender(emailProvider);

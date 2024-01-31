@@ -1,6 +1,7 @@
 {{={= =}=}}
-import { EmailFromField } from "wasp/email/core/types";
+import { EmailFromField } from "./types";
 
+// PRIVATE API
 // Formats an email address and an optional name into a string that can be used
 // as the "from" field in an email.
 // { email: "test@test.com, name: "Test" } -> "Test <test@test.com>"
@@ -18,6 +19,7 @@ export function formatFromField({
 }
 
 {=# isDefaultFromFieldDefined =}
+// PRIVATE API
 export function getDefaultFromField(): EmailFromField {
   return {
     email: "{= defaultFromField.email =}",
@@ -28,6 +30,7 @@ export function getDefaultFromField(): EmailFromField {
 }
 {=/ isDefaultFromFieldDefined =}
 {=^ isDefaultFromFieldDefined =}
+// PRIVATE API
 export function getDefaultFromField(): EmailFromField {
   return {
     email: "",
