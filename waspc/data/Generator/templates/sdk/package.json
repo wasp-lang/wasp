@@ -89,14 +89,12 @@
       "./server/jobs/pgBoss/types": "./dist/server/jobs/pgBoss/types.js",
       {=!  Used by users, documented. =}
       "./server/webSocket": "./dist/server/webSocket/index.js",
-      {=!  Used by users, documented. =}
-      "./webSocket": "./dist/webSocket/index.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./webSocket/WebSocketProvider": "./dist/webSocket/WebSocketProvider.jsx",
 
+      {=! Used by the framework client code, reconsider during refactoring. =}
+      "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
       {=! Still needed, reconsider during refactoring. =}
       "./server/types": "./dist/server/types/index.js",
-      {=! Still used by the server code, reconsider during refactoring. =}
+      {=! Used by the framework server code, reconsider during refactoring. =}
       "./server/middleware": "./dist/server/middleware/index.js",
 
       {=! ================= NEW API HERE =================== =}
@@ -109,6 +107,9 @@
       {=! Public: { api }  =}
       {=! Private: [sdk] =}
       "./client/api": "./dist/api/index.js",
+      {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
+      {=! Private: [] =}
+      "./client/webSocket": "./dist/client/webSocket/index.js",
       "./auth": "./dist/auth/index.js",
       "./client/auth": "./dist/client/auth/index.js",
       "./server/auth": "./dist/server/auth/index.js",
