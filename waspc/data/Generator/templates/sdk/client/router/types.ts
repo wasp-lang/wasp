@@ -1,13 +1,18 @@
+// PRIVATE API
 export type RouteDefinitionsToRoutes<Routes extends RoutesDefinition> =
   RouteDefinitionsToRoutesObj<Routes>[keyof RouteDefinitionsToRoutesObj<Routes>]
 
+  // PRIVATE API
 export type OptionalRouteOptions = {
   search?: Search
   hash?: string
 }
 
+// PRIVATE API
 export type ParamValue = string | number
+// PRIVATE API
 export type Params = { [name: string]: ParamValue }
+// PRIVATE API
 export type Search =
   | string[][]
   | Record<string, string>
