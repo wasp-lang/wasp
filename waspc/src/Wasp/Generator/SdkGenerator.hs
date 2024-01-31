@@ -47,8 +47,8 @@ import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
 import Wasp.Generator.SdkGenerator.Server.JobGenerator (genNewJobsApi)
+import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
-import qualified Wasp.Generator.SdkGenerator.ServerOpsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -96,9 +96,9 @@ genSdkReal spec =
       genServerUtils spec,
       genPackageJson spec
     ]
+    <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> ServerOpsGen.genOperations spec
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec

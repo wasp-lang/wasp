@@ -309,8 +309,8 @@ library
     Wasp.Generator.SdkGenerator.Server.CrudG
     Wasp.Generator.SdkGenerator.Server.EmailSenderG
     Wasp.Generator.SdkGenerator.Server.JobGenerator
+    Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
-    Wasp.Generator.SdkGenerator.ServerOpsGenerator
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport

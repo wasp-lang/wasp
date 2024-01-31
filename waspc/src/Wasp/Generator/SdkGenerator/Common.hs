@@ -15,6 +15,8 @@ data SdkTemplatesDir
 
 data ClientTemplatesDir
 
+data ServerTemplatesDir
+
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
 asTmplFile = SP.castRel
 
@@ -65,3 +67,6 @@ extCodeDirInSdkRootDir = [reldir|ext-src|]
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
+
+serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
+serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
