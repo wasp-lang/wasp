@@ -1,13 +1,12 @@
 import './Main.css'
 import React, { useEffect, FormEventHandler, FormEvent } from 'react'
-import { useQuery, useAction } from 'wasp/rpc' // Wasp uses a thin wrapper around react-query
-import { getTasks } from 'wasp/rpc/queries'
 import {
   createTask,
-  updateTask,
-  deleteTasks,
   customEmailSending,
-} from 'wasp/rpc/actions'
+  deleteTasks,
+  getTasks,
+  useQuery,
+} from 'wasp/client/operations'
 import waspLogo from './waspLogo.png'
 import type { Task } from 'wasp/entities'
 import { AuthUser, getFirstProviderUserId } from 'wasp/auth'

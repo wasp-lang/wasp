@@ -1,6 +1,6 @@
-import { FormEventHandler } from "react"
-import { Task } from "wasp/entities"
-import { updateTask, deleteTasks } from 'wasp/rpc/actions'
+import { FormEventHandler } from 'react'
+import { Task } from 'wasp/entities'
+import { updateTask, deleteTasks } from 'wasp/client/operations'
 
 export function Todo({ id, isDone, description }: Task) {
   const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (

@@ -301,7 +301,7 @@ library
     Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
     Wasp.Generator.SdkGenerator.AuthG
     Wasp.Generator.SdkGenerator.Common
-    Wasp.Generator.SdkGenerator.RpcGenerator
+    Wasp.Generator.SdkGenerator.ClientOpsGenerator
     Wasp.Generator.SdkGenerator.JobGenerator
     Wasp.Generator.SdkGenerator.ServerOpsGenerator
     Wasp.Generator.SdkGenerator.EmailSenderG

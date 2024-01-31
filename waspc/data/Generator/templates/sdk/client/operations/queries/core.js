@@ -1,9 +1,10 @@
-import { callOperation, makeOperationRoute } from 'wasp/operations'
+import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from 'wasp/operations/resources'
+} from '../internal/resources'
 
+// PRIVATE API
 export function createQuery(relativeQueryPath, entitiesUsed) {
   const queryRoute = makeOperationRoute(relativeQueryPath)
 
@@ -20,6 +21,7 @@ export function createQuery(relativeQueryPath, entitiesUsed) {
   return query
 }
 
+// PRIVATE API
 export function addMetadataToQuery(
   query,
   { relativeQueryPath, queryRoute, entitiesUsed }
