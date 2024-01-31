@@ -1,5 +1,5 @@
 import { HttpError, AuthError } from 'wasp/server'
-import type { GetTasks } from 'wasp/server/queries/types'
+import type { GetTasks } from 'wasp/server/operations'
 import type { Task } from 'wasp/entities'
 import { ensureValidEmail, createProviderId } from 'wasp/server/auth'
 

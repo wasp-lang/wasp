@@ -3,7 +3,7 @@ import type {
   CreateTask,
   UpdateTask,
   DeleteTasks,
-} from 'wasp/server/actions/types'
+} from 'wasp/server/operations'
 import type { Task } from 'wasp/entities'
 import { emailSender } from 'wasp/server/email'
 
