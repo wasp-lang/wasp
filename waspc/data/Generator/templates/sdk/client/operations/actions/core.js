@@ -1,11 +1,10 @@
-import { callOperation, makeOperationRoute } from 'wasp/operations'
+import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   registerActionInProgress,
   registerActionDone,
-} from 'wasp/operations/resources'
+} from '../internal/resources.js'
 
-// todo(filip) - turn helpers and core into the same thing
-
+// PRIVATE API
 export function createAction(relativeActionRoute, entitiesUsed) {
   const actionRoute = makeOperationRoute(relativeActionRoute)
 

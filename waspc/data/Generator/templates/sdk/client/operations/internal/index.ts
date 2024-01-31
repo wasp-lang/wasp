@@ -5,8 +5,10 @@ import {
   deserialize as superjsonDeserialize,
  } from 'superjson'
 
+// PRIVATE API
 export type OperationRoute = { method: HttpMethod, path: string }
 
+// PRIVATE API
 export async function callOperation(operationRoute: OperationRoute & { method: HttpMethod.Post }, args: any) {
   try {
     const superjsonArgs = superjsonSerialize(args)
@@ -17,6 +19,7 @@ export async function callOperation(operationRoute: OperationRoute & { method: H
   }
 }
 
+// PRIVATE API
 export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
   return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
 }

@@ -1,10 +1,9 @@
 {{={= =}=}}
 import { deserialize as superjsonDeserialize } from 'superjson'
-import { useQuery } from 'wasp/rpc'
+import { useQuery, addMetadataToQuery } from 'wasp/client/operations'
 import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/types'
 import type { AuthUser } from './types'
-import { addMetadataToQuery } from 'wasp/rpc/queries'
 
 // PUBLIC API
 export const getMe = createUserGetter()

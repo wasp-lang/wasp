@@ -1,4 +1,4 @@
-import { configureQueryClient } from 'wasp/rpc'
+import { configureQueryClient } from "wasp/client/operations"
 
 export default async function mySetupFunction(): Promise<void> {
   console.log('Setting up client...')

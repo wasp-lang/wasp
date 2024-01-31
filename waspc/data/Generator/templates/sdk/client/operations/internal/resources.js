@@ -1,4 +1,4 @@
-import { queryClientInitialized } from 'wasp/rpc/queryClient'
+import { queryClientInitialized } from '../queryClient.js'
 import { makeUpdateHandlersMap } from './updateHandlersMap'
 import { hashQueryKey } from '@tanstack/react-query'
 
@@ -8,6 +8,8 @@ import { hashQueryKey } from '@tanstack/react-query'
 const resourceToQueryCacheKeys = new Map()
 
 const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
+
+// PRIVATE API
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.

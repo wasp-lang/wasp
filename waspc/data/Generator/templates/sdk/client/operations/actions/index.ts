@@ -5,6 +5,7 @@ import { createAction } from './core'
 {=/ actions =}
 {=# actions =}
 
+// PUBLIC API
 export const {= operationName =} = createAction<{= operationTypeName =}>(
   '{= actionRoute =}',
   {=& entitiesArray =},

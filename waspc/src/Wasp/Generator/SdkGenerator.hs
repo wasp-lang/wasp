@@ -39,16 +39,16 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
+import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
 import Wasp.Generator.SdkGenerator.Server.JobGenerator (genNewJobsApi)
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
-import Wasp.Generator.SdkGenerator.ServerOpsGenerator (genOperations)
+import qualified Wasp.Generator.SdkGenerator.ServerOpsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -83,11 +83,6 @@ genSdkReal spec =
       genFileCopy [relfile|core/auth.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|core/stitches.config.ts|],
-      -- Not migrated to TS yet
-      genFileCopy [relfile|operations/resources.js|],
-      genFileCopy [relfile|operations/index.ts|],
-      -- Not migrated to TS yet
-      genFileCopy [relfile|operations/updateHandlersMap.js|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -101,9 +96,9 @@ genSdkReal spec =
       genServerUtils spec,
       genPackageJson spec
     ]
-    <++> genRpc spec
+    <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> genOperations spec
+    <++> ServerOpsGen.genOperations spec
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec

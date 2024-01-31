@@ -6,14 +6,14 @@ let queryClientConfig: QueryClientConfig,
   resolveQueryClientInitialized: (...args: any[]) => any,
   isQueryClientInitialized: boolean;
 
-// Used in framework code, shouldn't be public
+// PRIVATE API (framework code)
 export const queryClientInitialized: Promise<QueryClient> = new Promise(
   (resolve) => {
     resolveQueryClientInitialized = resolve;
   }
 );
 
-// Used by users, should be public
+// PUBLIC API
 export function configureQueryClient(config: QueryClientConfig): void {
   if (isQueryClientInitialized) {
     throw new Error(
@@ -24,7 +24,7 @@ export function configureQueryClient(config: QueryClientConfig): void {
   queryClientConfig = config;
 }
 
-// Used in framework code, shouldn't be public
+// PRIVATE API (framework code)
 export function initializeQueryClient(): void {
   const queryClient = new QueryClient(
     queryClientConfig ?? defaultQueryClientConfig

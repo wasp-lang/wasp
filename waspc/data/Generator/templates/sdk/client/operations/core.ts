@@ -9,16 +9,19 @@ import {
 } from "@tanstack/react-query";
 export { configureQueryClient } from "./queryClient";
 
+// PRIVATE API (but should maybe be public, users use values of this type)
 export type Query<Input, Output> = {
   (queryCacheKey: string[], args: Input): Promise<Output>;
 };
 
+// PUBLIC API
 export function useQuery<Input, Output>(
   queryFn: Query<Input, Output>,
   queryFnArgs?: Input,
   options?: any
 ): UseQueryResult<Output, Error>;
 
+// PUBLIC API
 export function useQuery(queryFn, queryFnArgs, options) {
   if (typeof queryFn !== "function") {
     throw new TypeError("useQuery requires queryFn to be a function.");
@@ -40,12 +43,12 @@ export function useQuery(queryFn, queryFnArgs, options) {
   });
 }
 
-// todo - turn helpers and core into the same thing
-
+// PRIVATE API (but should maybe be public, users use values of this type)
 export type Action<Input, Output> = [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
   : (args: Input) => Promise<Output>;
 
+// PRIVATE API (but should maybe be public, users define values of this type)
 /**
  * An options object passed into the `useAction` hook and used to enhance the
  * action with extra options.
@@ -55,6 +58,7 @@ export type ActionOptions<ActionInput> = {
   optimisticUpdates: OptimisticUpdateDefinition<ActionInput, any>[];
 };
 
+// PUBLIC API
 /**
  * A documented (public) way to define optimistic updates.
  */
@@ -63,6 +67,7 @@ export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
   updateQuery: UpdateQuery<ActionInput, CachedData>;
 };
 
+// PRIVATE API (but should maybe be public, users define values of this type)
 /**
  * A function that takes an item and returns a Wasp Query specifier.
  */
@@ -70,6 +75,7 @@ export type GetQuerySpecifier<ActionInput, CachedData> = (
   item: ActionInput
 ) => QuerySpecifier<unknown, CachedData>;
 
+// PRIVATE API (but should maybe be public, users define values of this type)
 /**
  * A function that takes an item and the previous state of the cache, and returns
  * the desired (new) state of the cache.
@@ -79,12 +85,14 @@ export type UpdateQuery<ActionInput, CachedData> = (
   oldData: CachedData | undefined
 ) => CachedData;
 
+// PRIVATE API (but should maybe be public, users define values of this type)
 /**
  * A public query specifier used for addressing Wasp queries. See our docs for details:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
  */
 export type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]];
 
+// PUBLIC API
 /**
  * A hook for adding extra behavior to a Wasp Action (e.g., optimistic updates).
  *
