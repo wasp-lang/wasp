@@ -39,9 +39,9 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
+import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.SdkGenerator.RpcGenerator (genRpc)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
@@ -110,7 +110,6 @@ genSdkReal spec =
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
-    <++> genRouter spec
     <++> genMiddleware spec
     <++> genExportedTypesDir spec
     -- New API
@@ -120,6 +119,7 @@ genSdkReal spec =
     <++> genNewClientCrudApi spec
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
+    <++> genNewClientRouterApi spec
   where
     genFileCopy = return . C.mkTmplFd
 

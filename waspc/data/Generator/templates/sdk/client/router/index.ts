@@ -6,6 +6,7 @@ import type {
   ParamValue,
 } from './types'
 
+// PUBLIC API
 export const routes = {
   {=# routes =}
   {= name =}: {
@@ -26,6 +27,8 @@ export const routes = {
   {=/ routes =}
 } as const;
 
+// PRIVATE API
 export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
+// PUBLIC API
 export { Link } from './Link'
