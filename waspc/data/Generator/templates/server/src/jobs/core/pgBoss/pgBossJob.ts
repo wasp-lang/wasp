@@ -3,7 +3,7 @@ import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
 import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
 import { PrismaDelegate } from 'wasp/server/_types'
-import type { JobFn } from 'wasp/jobs/pgBoss/types'
+import type { JobFn } from 'wasp/server/jobs/pgBoss/types'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
