@@ -20,6 +20,8 @@ genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       genTypes auth,
+      -- todo (move this to somewhere more meaningful)
+      genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|auth/forms/Login.tsx|],
       genFileCopy [relfile|auth/forms/Signup.tsx|]
     ]
