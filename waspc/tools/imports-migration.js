@@ -20,9 +20,6 @@ const refactoringRules = [
    null
   ],
 
-  [["@wasp/queryClient",      "configureQueryClient"],
-   ["wasp/client/operations", same]
-  ],
   [["@wasp/actions",          "useAction", type("OptimisticUpdateDefinition")],
    ["wasp/client/operations", same, same]
   ],
@@ -30,6 +27,18 @@ const refactoringRules = [
    ["wasp/client/operations",   same]
   ],
   [["@wasp/actions/types",    userDef(type("MyAction"))],
+   ["wasp/server/operations", same]
+  ],
+  [["@wasp/queryClient",      "configureQueryClient"],
+   ["wasp/client/operations", same]
+  ],
+  [["@wasp/queries",          "useQuery"],
+   ["wasp/client/operations", same]
+  ],
+  [["@wasp/queries/<myQuery>", userDef(dflt("myQuery"))],
+   ["wasp/client/operations",  same]
+  ],
+  [["@wasp/queries/types",    userDef(type("MyQuery"))],
    ["wasp/server/operations", same]
   ],
 
@@ -58,6 +67,9 @@ const refactoringRules = [
   [["@wasp/auth/providers/email/utils.js", "createEmailVerificationLink", "sendEmailVerificationEmail"],
    ["wasp/server/auth",                    same, same]
   ],
+  [["@wasp/types",      type("GetVerificationEmailContentFn"), type("GetPasswordResetEmailContentFn")],
+   ["wasp/server/auth", same, same]
+  ],
   [["@wasp/auth/forms/ForgotPassword", "ForgotPasswordForm"],
    ["wasp/client/auth",                same]
   ],
@@ -75,6 +87,68 @@ const refactoringRules = [
   ],
   [["@wasp/auth/forms/types", type("CustomizationOptions")],
    ["wasp/client/auth",       same]
+  ],
+  [["@wasp/auth/helpers/GitHub", "SignInButton", "signInUrl"],
+   ["wasp/client/auth",          "GitHubSignInButton", "gitHubSignInUrl"]
+  ],
+  [["@wasp/auth/helpers/Google", "SignInButton", "signInUrl"],
+   ["wasp/client/auth",          "GoogleSignInButton", "googleSignInUrl"]
+  ],
+
+  [["@wasp/core/AuthError", dflt("AuthError")],
+   ["wasp/server",          same]
+  ],
+  [["@wasp/core/HttpError", dflt("HttpError")],
+   ["wasp/server",          same]
+  ],
+  [["@wasp/dbSeed/types.js", type("DbSeedFn")],
+   ["wasp/server",           same]
+  ],
+  [["@wasp/middleware", type("MiddlewareConfigFn")],
+   ["wasp/server",      same]
+  ],
+  [["@wasp/types", type("ServerSetupFn")],
+   ["wasp/server", same]
+  ],
+
+  [["@wasp/email", "emailSender"],
+   ["wasp/email",  same]
+  ],
+
+  // NOTE: I think this one they will have to migrate manually, because multiple exports
+  //   are getting replaced with a single export. Not sure if we can easily define this programmatically.
+  [["@wasp/crud/<MyCrud>", type("GetAllQuery"), type("GetQuery"), type("CreateAction"),
+                           type("UpdateAction"), type("DeleteAction")],
+   ["wasp/server/crud",    userDef(type("MyCrud"))]
+  ],
+  [["@wasp/crud/<MyCrud>", "Crud"],
+   ["wasp/client/crud",    userDef("MyCrud")]
+  ],
+
+  [["@wasp/entities", userDef(type("MyEntity"))],
+   ["wasp/entities",  same]
+  ],
+
+  [["@wasp/jobs/<MyJob>", userDef("myJob")],
+   ["wasp/server/jobs",   same]
+  ],
+
+  [["@wasp/router",       "Link", "routes"],
+   ["wasp/client/router", same, same]
+  ],
+
+  [["@wasp/test",       "mockServer", "renderInContext"],
+   ["wasp/client/test", same, same]
+  ],
+
+  // NOTE: A bit unique situation, because we replace them with external import from `express`,
+  // not a new wasp import.
+  [["@wasp/types", type("Application"), type("Express")],
+   ["express",     same, same]
+  ],
+
+  [["@wasp/webSocket",       type("WebSocketDefinition"), type("WaspSocketData")],
+   ["wasp/server/webSocket", same, same]
   ],
 
   // -------- NEW: came with new Auth -------- //
@@ -99,18 +173,6 @@ const refactoringRules = [
    ["wasp/client/auth",               same, same, same, same]
   ],
   // ----------------------------------------- //
-
-  [["@wasp/email", "emailSender"],
-   ["wasp/email",  same]
-  ],
-
-  // TODO: Stopped in https://www.notion.so/wasp-lang/Imports-2c9595550213449897cee07064b6ff4b at
-  //   import { SignInButton as GitHubSignInButton, signInUrl as gitHubSignInUrl } from @wasp/auth/helpers/GitHub
-
-  // Template, TODO: remove once done:
-  [["@wasp/ ", dflt("")],
-   ["wasp/ ", ""]
-  ],
 ]
 
 // There are also some completely new imports!
