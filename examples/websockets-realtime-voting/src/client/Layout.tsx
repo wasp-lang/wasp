@@ -1,11 +1,9 @@
-// @ts-check
 import "./Main.css";
 
 import { Flowbite, Dropdown, Navbar, Avatar } from "flowbite-react";
 import Logo from "./logo.png";
 import useAuth from "@wasp/auth/useAuth";
-import { getUsername } from "@wasp/auth/user";
-import logout from "@wasp/auth/logout";
+import logout from '@wasp/auth/logout';
 
 const customTheme = {
   button: {
@@ -15,7 +13,7 @@ const customTheme = {
   },
 };
 
-export const Layout = ({ children }) => {
+export const Layout = ({ children }:{children:React.ReactNode}) => {
   const { data: user } = useAuth();
 
   return (
@@ -35,15 +33,13 @@ export const Layout = ({ children }) => {
                 label={
                   <Avatar
                     alt="User settings"
-                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${getUsername(
-                      user
-                    )}`}
+                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${user.username}`}
                     rounded
                   />
                 }
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">{getUsername(user)}</span>
+                  <span className="block text-sm">{user.username}</span>
                 </Dropdown.Header>
                 <Dropdown.Item>Dashboard</Dropdown.Item>
                 <Dropdown.Item>Settings</Dropdown.Item>

@@ -5,10 +5,9 @@ import {
   useSocket,
   ServerToClientPayload,
 } from "@wasp/webSocket";
-import useAuth from "@wasp/auth/useAuth";
+import { User } from '@wasp/entities'
 
-const MainPage = () => {
-  const { data: user } = useAuth();
+const MainPage = ({user}:{user:User}) => {
   const [poll, setPoll] = useState<ServerToClientPayload<"updateState"> | null>(
     null
   );
