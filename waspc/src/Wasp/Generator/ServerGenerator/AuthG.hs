@@ -5,10 +5,12 @@ module Wasp.Generator.ServerGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (fromJust)
 import StrongPath
   ( File',
     Path',
     Rel,
+    reldirP,
     relfile,
     (</>),
   )
@@ -23,11 +25,13 @@ import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -61,15 +65,24 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
   where
-    tmplData = object ["enabledProviderIds" .= (enabledProviderIds :: [String])]
+    tmplData = object ["providers" .= providers]
 
-    enabledProviderIds =
+    providers =
       concat
-        [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
-          [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
-          [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-          [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
+        [ [makeConfigImportJson $ OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+          [makeConfigImportJson $ OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+          [makeConfigImportJson $ LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
+          [makeConfigImportJson $ EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
         ]
+
+    makeConfigImportJson providerId =
+      jsImportToImportJson $
+        Just $
+          JI.JsImport
+            { JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
+              JI._name = JI.JsImportModule providerId,
+              JI._importAlias = Nothing
+            }
 
 depsRequiredByAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
