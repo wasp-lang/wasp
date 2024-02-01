@@ -112,11 +112,11 @@ const importMappings = [
    ["wasp/email",  same]
   ],
 
-  // NOTE: I think this one they will have to migrate manually, because multiple exports
-  //   are getting replaced with a single export. Not sure if we can easily define this programmatically.
+  // NOTE: This is a special case because multiple exports are getting replaced with a single export.
   [["@wasp/crud/<MyCrud>", type("GetAllQuery"), type("GetQuery"), type("CreateAction"),
                            type("UpdateAction"), type("DeleteAction")],
-   ["wasp/server/crud",    userDef(type("MyCrud"))]
+   ["wasp/server/crud",    userDef(type("MyCrud")), userDef(type("MyCrud")), userDef(type("MyCrud")),
+                           userDef(type("MyCrud")), userDef(type("MyCrud"))]
   ],
   [["@wasp/crud/<MyCrud>", "Crud"],
    ["wasp/client/crud",    userDef("MyCrud")]
@@ -191,7 +191,7 @@ function resolveImportMapping([oldImport, newImport]) {
   const newNames = newNamesUnresolved.map((name, i) => {
     if (name !== same) return resolveName(name);
     if (name === same) {
-      const newName = { ...oldNames[i] };
+      const newName = { ...oldNames[i], isSame: true };
       delete newName.isDefault;
       return newName;
     } else {
@@ -222,8 +222,25 @@ function resolveName(s) {
   }
 }
 
-for (const mapping of importMappings.map(resolveImportMapping)) {
-  console.log(util.inspect(mapping, { depth: null, colors: true }));
-  //console.log(JSON.stringify(mapping));
+const importMappingsAsObjects = importMappings.map(resolveImportMapping);
+
+function printMappingsAsNiceObjects() {
+  for (const mapping of importMappingsAsObjects) {
+    console.log(util.inspect(mapping, { depth: null, colors: true }));
+  }
 }
 
+function printMappingsAsCsv() {
+  console.log('oldPath,oldName,isDefault,isType,isUserDef,newPath,newName,isSame');
+  for (const m of importMappingsAsObjects) {
+    const oldPath = m.old.path;
+    const newPath = m.new?.path ?? null;
+    for (let i = 0; i < m.old.names.length; i++) {
+      const oldName = m.old.names[i];
+      const newName = m.new?.names[i] ?? null;
+      console.log(`${oldPath},${oldName.name},${!!oldName.isDefault},${!!oldName.isType},${!!oldName.isUserDef},${newPath},${newName?.name ?? null},${!!newName?.isSame}`);
+    }
+  }
+}
+
+printMappingsAsCsv();
