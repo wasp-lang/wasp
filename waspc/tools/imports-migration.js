@@ -1,14 +1,11 @@
-
-function dflt(x) { return x; }
-function type(x) { return x; }
-function userDef(x) { return x; }
+const util = require('util');
 
 // `same` means that new export is same as old one. Same name, also type, also user defined.
 // The only thing that we impliclty assume will change even for `same` is that new exports are always
 // considered to be named exports, even if original one was default.
 const same = Symbol("SAME")
 
-const refactoringRules = [
+const importMappings = [
   [["@wasp/config.js", dflt("config")],
    ["wasp/server",     same]
   ],
@@ -88,10 +85,10 @@ const refactoringRules = [
   [["@wasp/auth/forms/types", type("CustomizationOptions")],
    ["wasp/client/auth",       same]
   ],
-  [["@wasp/auth/helpers/GitHub", "SignInButton", "signInUrl"],
+  [["@wasp/auth/helpers/GitHub", "SignInButton", "signInUrl"],  // Renaming
    ["wasp/client/auth",          "GitHubSignInButton", "gitHubSignInUrl"]
   ],
-  [["@wasp/auth/helpers/Google", "SignInButton", "signInUrl"],
+  [["@wasp/auth/helpers/Google", "SignInButton", "signInUrl"],  // Renaming
    ["wasp/client/auth",          "GoogleSignInButton", "googleSignInUrl"]
   ],
 
@@ -162,7 +159,7 @@ const refactoringRules = [
    ["wasp/auth",        type("AuthUser")]
   ],
   [["@wasp/auth/validation.js", "ensurePasswordIsPresent", "ensureValidPassword", "ensureValidEmail",
-                                "ensureValidUsername"]
+                                "ensureValidUsername"],
    ["wasp/server/auth",         same, same, same, same]
   ],
   [["@wasp/auth/utils.js", "createProviderId", "sanitizeAndSerializeProviderData", "updateAuthIdentityProviderData",
@@ -177,3 +174,56 @@ const refactoringRules = [
 
 // There are also some completely new imports!
 // TODO: List them here?
+
+function resolveImportMapping([oldImport, newImport]) {
+  const [oldPath, ...oldNamesUnresolved] = oldImport;
+  const oldNames = oldNamesUnresolved.map(resolveName);
+  const oldImportResolved = {
+    path: oldPath,
+    names: oldNames
+  }
+
+  if (newImport === null) {
+    return { old: oldImportResolved, new: null };
+  }
+
+  const [newPath, ...newNamesUnresolved] = newImport;
+  const newNames = newNamesUnresolved.map((name, i) => {
+    if (name !== same) return resolveName(name);
+    if (name === same) {
+      const newName = { ...oldNames[i] };
+      delete newName.isDefault;
+      return newName;
+    } else {
+      return resolveName(name);
+    }
+  })
+  const newImportResolved = {
+    path: newPath,
+    names: newNames
+  }
+
+  return { old: oldImportResolved, new: newImportResolved }
+}
+
+function dflt(x) { return "default:" + x; }
+function type(x) { return "type:" + x; }
+function userDef(x) { return "userDef:" + x; }
+
+function resolveName(s) {
+  const tokens = s.split(':')
+  const name = tokens.slice(-1)[0]
+  const flags = tokens.slice(0, -1)
+  return {
+    name,
+    ...(flags.includes('default') ? { isDefault: true } : null),
+    ...(flags.includes('type') ? { isType: true } : null),
+    ...(flags.includes('userDef') ? { isUserDef: true } : null),
+  }
+}
+
+for (const mapping of importMappings.map(resolveImportMapping)) {
+  console.log(util.inspect(mapping, { depth: null, colors: true }));
+  //console.log(JSON.stringify(mapping));
+}
+
