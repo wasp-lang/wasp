@@ -43,7 +43,8 @@ genAuth spec =
         <++> genEmailAuth auth
         -- server stuff
         <++> sequence
-          [ genFileCopy [relfile|auth/validation.ts|],
+          [ genFileCopy [relfile|core/auth.ts|],
+            genFileCopy [relfile|auth/validation.ts|],
             genFileCopy [relfile|auth/password.ts|],
             genFileCopy [relfile|auth/jwt.ts|],
             genSessionTs auth,

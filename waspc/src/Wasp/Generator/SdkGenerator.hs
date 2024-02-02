@@ -77,12 +77,11 @@ buildSdk projectRootDir = do
 genSdkReal :: AppSpec -> Generator [FileDraft]
 genSdkReal spec =
   sequence
-    [ genFileCopy [relfile|api/index.ts|],
+    [ genFileCopy [relfile|vite-env.d.ts|],
+      genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/config.ts|],
-      genFileCopy [relfile|core/auth.ts|],
       genFileCopy [relfile|core/storage.ts|],
-      genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
