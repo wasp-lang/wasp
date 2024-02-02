@@ -1,37 +1,25 @@
 import esbuild from 'rollup-plugin-esbuild'
 
-/** @type {import('rollup')['RollupOptions']} */
 export default [
-  {
-    input: 'src/server.ts',
-    plugins: [
-      esbuild({
-        target: 'esnext',
-      }),
-    ],
-    output: [
-      {
-        file: `bundle/server.js`,
-        format: 'es',
-        sourcemap: true,
-      },
-    ],
-    external: (id) => !/^[./]/.test(id),
-  },
-  {
-    input: 'src/dbSeed.ts',
-    plugins: [
-      esbuild({
-        target: 'esnext',
-      }),
-    ],
-    output: [
-      {
-        file: `bundle/dbSeed.js`,
-        format: 'es',
-        sourcemap: true,
-      },
-    ],
-    external: (id) => !/^[./]/.test(id),
-  },
+  createBundle('src/server.ts', 'bundle/server.js'),
+  createBundle('src/dbSeed.ts', 'bundle/dbSeed.js'),
 ]
+
+function createBundle(inputFilePath, outputFilePath) {
+  return {
+    input: inputFilePath,
+    output: {
+      file: outputFilePath,
+      format: 'es',
+      sourcemap: true,
+    },
+    plugins: [
+      esbuild({
+        target: 'esnext',
+      }),
+    ],
+    // We don't want to bundle any of the node_module deps
+    // as we want to keep them as external dependencies
+    external: (id) => !/^[./]/.test(id),
+  }
+}
