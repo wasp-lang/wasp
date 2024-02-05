@@ -29,7 +29,7 @@ COPY db/schema.prisma ./db/
 RUN cd server && npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
 {=/ usingPrisma =}
 # Building the server should come after Prisma generation.
-RUN cd server && npm run build
+RUN cd server && npm run bundle
 
 
 # TODO: Use pm2?
