@@ -6,7 +6,7 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Project.Analyze (findWaspFile)
+import Wasp.Project.Analyze (findPackageJsonFile, findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -18,19 +18,27 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
   findWaspFile projectDir >>= \case
     Nothing -> return ()
-    Just absMainWaspFile ->
-      updateFileContentWith absMainWaspFile (replacePlaceholders waspFileReplacements)
+    Just absMainWaspFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
+
+replaceTemplatePlaceholdersInPackageJsonFile ::
+  NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
+replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir = do
+  findPackageJsonFile projectDir >>= \case
+    Nothing -> return ()
+    Just absPackageJsonFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absPackageJsonFile
+
+replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
+replaceTemplatePlaceholdersInFileOnDisk appName projectName = updateFileContentWith (replacePlaceholders waspTemplateReplacements)
   where
-    updateFileContentWith :: Path' Abs (File f) -> (Text -> Text) -> IO ()
-    updateFileContentWith absFilePath updateFn =
-      IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
+    updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()
+    updateFileContentWith updateFn absFilePath = IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
 
     replacePlaceholders :: [(String, String)] -> Text -> Text
     replacePlaceholders replacements content = foldl' replacePlaceholder content replacements
       where
         replacePlaceholder content' (placeholder, value) = T.replace (T.pack placeholder) (T.pack value) content'
 
-    waspFileReplacements =
+    waspTemplateReplacements =
       [ ("__waspAppName__", show appName),
         ("__waspProjectName__", show projectName),
         ("__waspVersion__", defaultWaspVersionBounds)
