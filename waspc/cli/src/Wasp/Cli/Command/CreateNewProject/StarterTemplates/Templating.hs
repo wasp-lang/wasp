@@ -23,7 +23,7 @@ replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
 -- If no .wasp file was found in the project, do nothing.
 replaceTemplatePlaceholdersInWaspFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
-replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
+replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Nothing -> return ()
     Just absMainWaspFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
@@ -33,13 +33,14 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
 -- If no package.json file was found in the project, do nothing.
 replaceTemplatePlaceholdersInPackageJsonFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
-replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir = do
+replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
   findPackageJsonFile projectDir >>= \case
     Nothing -> return ()
     Just absPackageJsonFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absPackageJsonFile
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
-replaceTemplatePlaceholdersInFileOnDisk appName projectName = updateFileContentWith (replacePlaceholders waspTemplateReplacements)
+replaceTemplatePlaceholdersInFileOnDisk appName projectName =
+  updateFileContentWith (replacePlaceholders waspTemplateReplacements)
   where
     updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()
     updateFileContentWith updateFn absFilePath = IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
