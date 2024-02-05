@@ -32,7 +32,7 @@ app TodoTypescript {
     onAuthFailedRedirectTo: "/login",
   },
   emailSender: {
-    provider: Dummy
+    provider: Mailgun
   },
   db: {
     seeds: [
@@ -41,7 +41,7 @@ app TodoTypescript {
     system: PostgreSQL
   },
   webSocket: {
-    fn: import { webSocketFn } from "@src/websocket",
+    fn: import { webSocketFn } from "@src/websocket/index",
     autoConnect: true,
   },
   server: {
