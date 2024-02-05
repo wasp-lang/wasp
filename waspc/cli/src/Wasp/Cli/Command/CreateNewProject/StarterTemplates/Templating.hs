@@ -1,4 +1,7 @@
-module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating where
+module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
+  ( replaceTemplatePlaceholdersInTemplateFiles,
+  )
+where
 
 import Data.List (foldl')
 import Data.Text (Text)
@@ -10,6 +13,11 @@ import Wasp.Project.Analyze (findPackageJsonFile, findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 
+replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
+replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
+  replaceTemplatePlaceholdersInWaspFile appName projectName projectDir
+  replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir
+
 -- | Template file for wasp file has placeholders in it that we want to replace
 -- in the .wasp file we have written to the disk.
 -- If no .wasp file was found in the project, do nothing.
@@ -20,6 +28,9 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = do
     Nothing -> return ()
     Just absMainWaspFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
 
+-- | Template file for package.json file has placeholders in it that we want to replace
+-- in the package.json file we have written to the disk.
+-- If no package.json file was found in the project, do nothing.
 replaceTemplatePlaceholdersInPackageJsonFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir = do

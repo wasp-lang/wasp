@@ -7,10 +7,7 @@ import Path.IO (copyDirRecur)
 import StrongPath (Abs, Dir, Dir', Path', Rel', reldir, (</>))
 import StrongPath.Path (toPathAbsDir)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
-  ( replaceTemplatePlaceholdersInPackageJsonFile,
-    replaceTemplatePlaceholdersInWaspFile,
-  )
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import qualified Wasp.Data as Data
 import Wasp.Project (WaspProjectDir)
 
@@ -18,8 +15,7 @@ createProjectOnDiskFromLocalTemplate ::
   Path' Abs (Dir WaspProjectDir) -> NewProjectName -> NewProjectAppName -> Path' Rel' Dir' -> IO ()
 createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName templatePath = do
   copyLocalTemplateToNewProjectDir templatePath
-  replaceTemplatePlaceholdersInWaspFile appName projectName absWaspProjectDir
-  replaceTemplatePlaceholdersInPackageJsonFile appName projectName absWaspProjectDir
+  replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
   where
     copyLocalTemplateToNewProjectDir :: Path' Rel' Dir' -> IO ()
     copyLocalTemplateToNewProjectDir templateDir = do
