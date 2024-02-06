@@ -2,27 +2,15 @@
 
 module Wasp.AI.GenerateNewProject.PageComponentFile
   ( fixPageComponent,
-    fixImportsInPageComponentFile,
-    -- NOTE: Exports below are exported only for testing!
-    getPageComponentFileContentWithFixedImports,
-    partitionComponentFileByImports,
-    getImportedNamesFromImport,
-    getAllPossibleWaspJsClientImports,
   )
 where
 
-import Control.Arrow (first)
 import Data.Aeson (FromJSON)
-import Data.List (intercalate, isInfixOf, isPrefixOf, partition, stripPrefix)
-import Data.List.Extra (nub)
-import Data.Map (Map)
-import qualified Data.Map as M
-import Data.Maybe (fromJust, fromMaybe, mapMaybe)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Text.Printf (printf)
 import Wasp.AI.CodeAgent (getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( CodeAgent,
@@ -33,93 +21,8 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionBlock)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Operation (Operation)
-import qualified Wasp.AI.GenerateNewProject.Operation as Operation
 import Wasp.AI.GenerateNewProject.Page (makePageDocPrompt)
-import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
-import Wasp.Util (trim)
-
-fixImportsInPageComponentFile :: FilePath -> [Operation] -> [Operation] -> CodeAgent ()
-fixImportsInPageComponentFile pageComponentPath queries actions = do
-  currentPageComponentContent <- fromMaybe (error "couldn't find page file to fix") <$> getFile pageComponentPath
-  let fixedComponentContent = getPageComponentFileContentWithFixedImports currentPageComponentContent allPossibleWaspImports
-  writeToFile pageComponentPath (const fixedComponentContent)
-  where
-    allPossibleWaspImports = getAllPossibleWaspJsClientImports $ queries ++ actions
-
-getPageComponentFileContentWithFixedImports :: Text -> Map String String -> Text
-getPageComponentFileContentWithFixedImports pageComponentContent allPossibleWaspImports =
-  T.intercalate "\n" [nonWaspImportsText, fixedWaspImportsText, remainingCodeText]
-  where
-    fixedWaspImportsText = T.pack $ intercalate "\n" $ mapMaybe (`M.lookup` allPossibleWaspImports) importedNames
-    nonWaspImportsText = T.pack $ intercalate "\n" nonWaspImports
-    remainingCodeText = T.pack $ intercalate "\n" remainingCode
-    importedNames = nub $ concatMap getImportedNamesFromImport waspImports
-    (waspImports, nonWaspImports, remainingCode) = partitionComponentFileByImports pageComponentContent
-
--- NOTE: Doesn't work correctly for imports that use `as` keyword!
-getImportedNamesFromImport :: String -> [String]
-getImportedNamesFromImport =
-  nub
-    . words
-    . map convertSpecialCharToSpace
-    . trim
-    . removeSuffix "from"
-    . trim
-    . removePrefix "import"
-    . trim
-    . takeWhile (not . (`elem` ['"', '\'']))
-  where
-    convertSpecialCharToSpace char
-      | char `elem` [',', '}', '{'] = ' '
-      | otherwise = char
-
-    removePrefix prefix = fromJust . stripPrefix prefix
-
-    removeSuffix suffix = reverse . removePrefix (reverse suffix) . reverse
-
-partitionComponentFileByImports :: Text -> ([String], [String], [String])
-partitionComponentFileByImports componentContent = (waspImportLines, nonWaspImportLines, "" : remainingCodeLines)
-  where
-    (waspImportLines, nonWaspImportLines) = partition isWaspImportLine importLines
-    (importLines, remainingCodeLines) =
-      first cleanUpImportLines $
-        span isImportLineOrEmpty $ lines $ T.unpack componentContent
-
-    isImportLineOrEmpty l = let l' = trim l in "import" `isPrefixOf` l' || null l'
-    isWaspImportLine = ("@wasp" `isInfixOf`)
-    cleanUpImportLines = filter (not . null) . fmap trim
-
--- | Given a list of all operations in the app, it returns a list of all possible @@wasp imports
--- that a Page could import. Those are imports for the specified operations, but also some general
--- imports like login/logouts, hooks, ... .
--- Each entry in the returned map is one possible @@wasp import, where key is imported symbol
--- while import statement is the value.
-getAllPossibleWaspJsClientImports :: [Operation] -> M.Map String String
-getAllPossibleWaspJsClientImports operations = M.fromList $ possibleUnchangingImports ++ map makeOperationImport operations
-  where
-    possibleUnchangingImports :: [(String, String)]
-    possibleUnchangingImports =
-      [ ("logout", "import logout from '@wasp/auth/logout';"),
-        ("useAuth", "import useAuth from '@wasp/auth/useAuth';"),
-        ("useQuery", "import { useQuery } from '@wasp/queries';"),
-        ("useAction", "import { useAction } from '@wasp/actions';")
-      ]
-
-    makeOperationImport :: Operation -> (String, String)
-    makeOperationImport operation = (opName, opImport)
-      where
-        opImport :: String
-        opImport = printf "import %s from '@wasp/%s/%s';" opName opType opName
-
-        opName :: String
-        opName = Plan.opName $ Operation.opPlan operation
-
-        opType :: String
-        opType = case Operation.opType operation of
-          Operation.Action -> "actions"
-          Operation.Query -> "queries"
 
 fixPageComponent :: NewProjectDetails -> FilePath -> FilePath -> CodeAgent ()
 fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
@@ -169,6 +72,10 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
             - If there are any js imports of local modules (`from "./`, `from "../`),
               remove them and instead add the needed implementation directly in the file we are fixing right now.
             - Remove redundant imports, but don't change any of the remaining ones.
+            - Feel free to merge together imports from the same path.
+              e.g. if you have `import { useQuery } from 'wasp/client/operations';` and
+              `import { useAction } from 'wasp/client/operations';`, you can merge those into
+              `import { useQuery, useAction } from 'wasp/client/operations';`.
             - Make sure that the component is exported as a default export.
 
           With this in mind, generate a new, fixed React component (${pageComponentPathText}).

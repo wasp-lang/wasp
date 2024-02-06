@@ -52,6 +52,7 @@ data-files:
   Cli/templates/basic/main.wasp
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
+  Cli/templates/skeleton/public/.gitignore
   Cli/templates/skeleton/src/.waspignore
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
@@ -573,7 +574,6 @@ test-suite waspc-test
     , tasty-quickcheck      ^>= 0.10
     , tasty-golden          ^>= 2.3.5
   other-modules:
-    AI.GenerateNewProject.PageComponentFileTest
     AI.GenerateNewProject.LogMsgTest
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest

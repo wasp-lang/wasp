@@ -97,7 +97,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
         Example of response:
         { "opWaspDecl": "${operationTypeText} ${operationName} {\n  fn: import { ${operationName} } from \"${operationFnPath}\",\n  entities: [Task]\n}",
           "opJsImpl": "export const {$operationName} = async (args, context) => { ... }",
-          "opJsImports": "import HttpError from '@wasp/core/HttpError.js'"
+          "opJsImports": "import { HttpError } from 'wasp/server'"
         }
         "opWaspDecl" and "opJsImpl" are required, "opJsImports" you can skip if none are needed.
         There should be no other text in the response, just valid JSON.
@@ -108,7 +108,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
            Instead, always write real implementation!
          - Don't import prisma client in the JS imports, it is not needed.
          - In wasp declaration (`opWaspDecl`), make sure to use ',' before `entities:`.
-           Also, make sure to use full import statement for `fn:`: `import { getTasks } from "@server/actions.js"`,
+           Also, make sure to use full import statement for `fn:`: `import { getTasks } from "@src/actions.js"`,
            don't provide just the file path.
          - In NodeJS implementation, you will typically want to check if user is authenticated, by doing `if (!context.user) { throw new HttpError(401) }` at the start of the operation.
 
@@ -160,14 +160,14 @@ actionDocPrompt =
     - Wasp declaration:
     ```wasp
     action updateTask {
-      fn: import { updateTask } from "@server/taskActions.js",
+      fn: import { updateTask } from "@src/taskActions.js",
       entities: [Task] // Entities that action mutates.
     }
     ```
 
     - NodeJS implementation (with imports):
     ```js
-    import HttpError from '@wasp/core/HttpError.js'
+    import { HttpError } from 'wasp/server'
 
     export const updateTask = async (args, context) => {
       if (!context.user) { throw new HttpError(401) }; // If user needs to be authenticated.
@@ -189,14 +189,14 @@ actionDocPrompt =
 
     ```wasp
     action deleteList {
-      fn: import { deleteList } from "@server/actions.js",
+      fn: import { deleteList } from "@src/actions.js",
       entities: [List, Card]
     }
     ```
 
     - NodeJS implementation (with imports):
     ```js
-    import HttpError from '@wasp/core/HttpError.js'
+    import { HttpError } from 'wasp/server'
 
     export const deleteList = async ({ listId }, context) => {
       if (!context.user) { throw new HttpError(401) };
@@ -232,14 +232,14 @@ queryDocPrompt =
     - Wasp declaration:
     ```wasp
     query fetchFilteredTasks {
-      fn: import { getFilteredTasks } from "@server/taskQueries.js",
+      fn: import { getFilteredTasks } from "@src/taskQueries.js",
       entities: [Task] // Entities that query uses.
     }
     ```
 
     - NodeJS implementation (with imports):
     ```js
-    import HttpError from '@wasp/core/HttpError.js'
+    import { HttpError } from 'wasp/server'
 
     export const getFilteredTasks = async (args, context) => {
       if (!context.user) { throw new HttpError(401) }; // If user needs to be authenticated.
@@ -259,29 +259,28 @@ queryDocPrompt =
     - Wasp declaration:
     ```wasp
     query getAuthor {
-      fn: import { getAuthor } from "@server/author/queries.js",
+      fn: import { getAuthor } from "@src/author/queries.js",
       entities: [Author]
     }
     ```
 
     - NodeJS implementation (with imports):
     ```js
-    import HttpError from '@wasp/core/HttpError.js'
+    import { HttpError } from 'wasp/server'
 
-    export const getAuthor = async ({ username }, context) => {
+    export const getAuthor = async ({ id }, context) => {
       // Here we don't check if user is authenticated as this query is public.
 
       const author = await context.entities.Author.findUnique({
-        where: { username },
+        where: { id },
         select: {
-          username: true,
           id: true,
           bio: true,
           profilePictureUrl: true
         }
       });
 
-      if (!author) throw new HttpError(404, 'No author with username ' + username);
+      if (!author) throw new HttpError(404, 'No author with id ' + id);
 
       return author;
     }
@@ -355,9 +354,8 @@ writeOperationToJsFile operation =
 getOperationJsFilePath :: Operation -> FilePath
 getOperationJsFilePath operation = resolvePath $ Plan.opFnPath $ opPlan operation
   where
-    pathPrefix = "@server/"
-    resolvePath p | pathPrefix `isPrefixOf` p = "src/" <> drop (length ("@" :: String)) p
-    resolvePath _ = error "path incorrectly formatted, should start with " <> pathPrefix <> "."
+    resolvePath p | "@src/" `isPrefixOf` p = drop (length ("@" :: String)) p
+    resolvePath _ = error "path incorrectly formatted, should start with @src/ ."
 
 writeOperationToWaspFile :: FilePath -> Operation -> CodeAgent ()
 writeOperationToWaspFile waspFilePath operation =
