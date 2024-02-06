@@ -1,5 +1,5 @@
 {
-  "name": "prototype",
+  "name": "__waspAppName__",
   "dependencies": {
     "wasp": "file:.wasp/out/sdk/wasp",
     "react": "^18.2.0"

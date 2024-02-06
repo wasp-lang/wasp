@@ -3,6 +3,7 @@ module Wasp.Project.Analyze
     readPackageJsonFile,
     analyzeWaspFileContent,
     findWaspFile,
+    findPackageJsonFile,
   )
 where
 
@@ -114,12 +115,14 @@ findWaspFile waspDir = do
 
 analyzePackageJsonContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
 analyzePackageJsonContent waspProjectDir =
-  findPackageJsonFile >>= \case
+  findPackageJsonFile waspProjectDir >>= \case
     Just packageJsonFile -> readPackageJsonFile packageJsonFile
     Nothing -> return $ Left [fileNotFoundMessage]
   where
     fileNotFoundMessage = "couldn't find package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
-    findPackageJsonFile = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
+
+findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
 
 readPackageJsonFile :: Path' Abs File' -> IO (Either [CompileError] PackageJson)
 readPackageJsonFile packageJsonFile = do

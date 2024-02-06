@@ -8,7 +8,7 @@ import StrongPath (Abs, Dir, Dir', Path', Rel')
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInWaspFile)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import Wasp.Cli.GithubRepo (GithubRepoRef, fetchFolderFromGithubRepoToDisk)
 import Wasp.Project (WaspProjectDir)
 
@@ -21,7 +21,7 @@ createProjectOnDiskFromGhRepoTemplate ::
   Command ()
 createProjectOnDiskFromGhRepoTemplate absWaspProjectDir projectName appName ghRepoRef templatePathInRepo = do
   fetchTheTemplateFromGhToDisk >>= either throwProjectCreationError pure
-  liftIO $ replaceTemplatePlaceholdersInWaspFile appName projectName absWaspProjectDir
+  liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
   where
     fetchTheTemplateFromGhToDisk = do
       liftIO $ fetchFolderFromGithubRepoToDisk ghRepoRef templatePathInRepo absWaspProjectDir
