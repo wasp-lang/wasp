@@ -83,7 +83,6 @@ genSdkReal spec =
       genFileCopy [relfile|core/config.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
-      genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|server/AuthError.ts|],
       genFileCopy [relfile|types/index.ts|],
@@ -93,7 +92,8 @@ genSdkReal spec =
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
-      genPackageJson spec
+      genPackageJson spec,
+      genDbClient spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -334,3 +334,12 @@ genMiddleware _spec =
     [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
       return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
     ]
+
+genDbClient :: AppSpec -> Generator FileDraft
+genDbClient spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|server/dbClient.ts|]
+      tmplData
+  where
+    tmplData = object ["areThereAnyEntitiesDefined" .= (not . null . AS.getEntities $ spec)]
