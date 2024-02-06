@@ -68,12 +68,13 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     tmplData = object ["providers" .= providers]
 
     providers =
-      concat
-        [ [makeConfigImportJson $ OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
-          [makeConfigImportJson $ OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
-          [makeConfigImportJson $ LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-          [makeConfigImportJson $ EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
-        ]
+      makeConfigImportJson
+        <$> concat
+          [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+            [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+            [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
+            [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
+          ]
 
     makeConfigImportJson providerId =
       jsImportToImportJson $
