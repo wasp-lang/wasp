@@ -52,6 +52,7 @@ data-files:
   Cli/templates/basic/main.wasp
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
+  Cli/templates/skeleton/public/.gitkeep
   Cli/templates/skeleton/src/.waspignore
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts

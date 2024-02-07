@@ -4,11 +4,73 @@ title: Migration from 0.11.X to 0.12.X
 
 Wasp made a big change in the way authentication works in version 0.12.0. This guide will help you migrate your app from 0.11.X to 0.12.X.
 
-## What Changed?
+## What's new in Wasp 0.12.0?
 
-### 0.11.X Auth
+### New project structure
+Here's a file tree of a fresh Wasp project created with the previous version of Wasp.
+More precisely, this is what you'll get if you run `wasp new project` using Wasp 0.11.x:
 
-In 0.11.X, authentication was based on the `User` model which the developer needed to set up properly and take care of the auth fields like `email` or `password`.
+```
+.
+├── .gitignore
+├── main.wasp
+├── src
+│   ├── client
+│   │   ├── Main.css
+│   │   ├── MainPage.jsx
+│   │   ├── react-app-env.d.ts
+│   │   ├── tsconfig.json
+│   │   └── waspLogo.png
+│   ├── server
+│   │   └── tsconfig.json
+│   ├── shared
+│   │   └── tsconfig.json
+│   └── .waspignore
+└── .wasproot
+```
+
+Compare that with the file tree of a fresh Wasp project created with Wasp
+0.12.0. In other words, this is what you will get by running `wasp new project`
+from this point onwards):
+
+```
+.
+├── .gitignore
+├── main.wasp
+├── package.json
+├── public
+│   └── .gitkeep
+├── src
+│   ├── Main.css
+│   ├── MainPage.jsx
+│   ├── queries.ts
+│   ├── vite-env.d.ts
+│   ├── .waspignore
+│   └── waspLogo.png
+├── tsconfig.json
+├── vite.config.ts
+└── .wasproot
+
+```
+
+The main differences are:
+
+- The server/client code separation is no longer necessary. You can now organize
+  your code however you want, as long as it's inside the `src` directory.
+- Wasp declarations must import all code with `import foo from '@src/bar.js'`
+  where `@src` refers to the `src`.
+- Your project now features a top-level `public` dir. Wasp will publicly serve
+  all the files it finds in this directory. Read more about it
+  [here](https://wasp-lang.dev/docs/project/static-assets).
+
+Our [Overview docs](https://wasp-lang.dev/docs/language/overview) explain the new
+structure in detail, but we'll also provide a quick guide for migrating existing
+projects.
+
+
+### New auth
+
+In Wasp 0.11.X, authentication was based on the `User` model which the developer needed to set up properly and take care of the auth fields like `email` or `password`.
 
 ```wasp title="main.wasp"
 app myApp {
@@ -44,9 +106,6 @@ entity SocialLogin {=psl
 psl=}
 ```
 
-### New Auth
-
-#### Auth Models
 
 From 0.12.X onwards, authentication is based on the auth models which are automatically set up by Wasp. You don't need to take care of the auth fields anymore.
 
@@ -86,9 +145,124 @@ You can read more about the new auth system in the [Auth Entities](./entities) s
 
 ## How to Migrate?
 
+### Migrating your project to the new structure
+
+You can easily migrate your old Wasp project to the new structure by following a
+series of steps. Assuming you have a project called `foo` inside the
+directory `foo`, you should:
+
+0. Make sure to backup or save your project before starting the procedure (e.g.,
+   by committing it to source control or creating a copy).
+1. Install the latest version of Wasp
+2. Rename your project's root directory to something like `foo_old`
+3. Create a new project by running `wasp new foo`
+4. Delete all files of `foo/src` except `vite-env.d.ts`.
+5. Copy the contents of `foo_old/src` into `foo/src`. `foo/src` should now contain three
+   `vite-env.d.ts` and three subdirectories (`server`, `client`, and `shared`).
+   Don't change anything about this structure yet.
+6. Delete the files:
+     - `foo/src/client/vite-env.d.ts`
+     - `foo/src/client/tsconfig.json`
+     - `foo/src/server/tsconfig.json`
+     - `foo/src/shared/tsconfig.json`
+5. Update all `@wasp` imports in your source files (i.e., the `src` directory).
+   You can easily do this using
+  [wasp-codemod](https://github.com/wasp-lang/wasp-codemod), a tool we developed
+  specifically for this purpose. **Running this command modifies files in place**,
+  so make sure you have them stored somewhere.
+  Alternatively, you can find all
+  mappings of old imports to new ones in [this table](https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit#gid=1725669920).
+6. Replace the Wasp file in `foo` with the Wasp file from `foo_old`
+7. Change the Wasp version field in your Wasp file (now residing in `foo`) to `"^0.12.0"`.
+8. Correct external imports in your Wasp file (now residing in `foo`).
+   imports. You can do this by running search-and-replace inside the file
+
+   - Change all occurences of `@server` to `@src/server`
+   - Change all occurences of `@client` to `@src/client`
+
+   For example, if you previously had something like:
+
+   ```js
+   page LoginPage {
+     // This previously resolved to src/client/LoginPage.js
+     component: import Login from "@client/LoginPage"
+   }
+
+   // ...
+
+   query getTasks {
+     // This previously resolved to src/server/queries.js
+     fn: import { getTasks } from "@server/queries.js",
+   }
+   ```
+
+   You should change it to:
+
+   ```js
+   page LoginPage {
+     // This now resolves to src/client/LoginPage.js
+     component: import Login from "@src/client/LoginPage"
+   }
+
+   // ...
+
+   query getTasks {
+     // This now resolves to src/server/queries.js
+     fn: import { getTasks } from "@src/server/queries.js",
+   }
+   ```
+
+   Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of strings `"@server"` or `"@client"`
+
+9. Take all the dependencies from `app.dependencies` declaration in
+   `foo/main.wasp` and move them to `foo/package.json`. Make sure to remove the `app.dependencies` field from `foo/main.wasp`.
+
+   For example, if `foo_old/main.waps` had:
+
+   ```css
+   app Foo {
+     // ...
+     dependencies: [ ('redux', '^4.0.5'), ('reacjt-redux', '^7.1.3')];
+   }
+   ```
+
+   Your `package.json` in `foo` should now list these dependencies (Wasp already generated most of the file, you just have to list additional dependencies).
+
+   ```json
+   {
+     "name": "foo",
+     "dependencies": {
+       "wasp": "file:.wasp/out/sdk/wasp",
+       "react": "^18.2.0",
+       "redux": "^4.0.5",
+       "reactjs-redux": "^7.1.3"
+     },
+     "devDependencies": {
+       "typescript": "^5.1.0",
+       "vite": "^4.3.9",
+       "@types/react": "^18.0.37",
+       "prisma": "4.16.2"
+     }
+   }
+   ```
+
+10. Copy all lines you might have added to `foo_old/.gitignore` into
+    `foo/.gitignore`
+11. Copy the rest of the top-level files (excluding `gitignore` and the `.wasp`
+    file) in `foo_old/` into `foo/` (overwrite the existing files in `foo`)
+12. Run `wasp clean`.
+
+
+That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
+Your app probably doesn't quite work yet due to the breaking changes in Auth.
+
+No worries, just keep reading and we'll take care of those in the next section. 
+
+### Migrating auth
+
 Migrating your existing app to the new auth system is a two-step process:
 1. Migrate to the new auth system
-1. Cleanup the old auth system
+1. Clean up the old auth system
 
 :::info Migrating a deployed app
 
@@ -99,7 +273,7 @@ Once we confirm that everything works well, we will also apply those same change
 **We'll put extra info for migrating a deployed app in a box like this one.**
 :::
 
-### 1. Migrate to the New Auth System
+#### 1. Migrate to the New Auth System
 
 You can follow these steps to migrate to the new auth system:
 
@@ -188,7 +362,7 @@ You can follow these steps to migrate to the new auth system:
     :::
 
 
-### 2. Cleanup the Old Auth System
+#### 2. Clean up the Old Auth System
 
 Your app should be working correctly and using new auth, but to finish the migration, we need to clean up the old auth system:
 
@@ -213,11 +387,11 @@ Your app should be working correctly and using new auth, but to finish the migra
 :::
 
 
-## Example Migration Functions
+### Example Migration Functions
 
 The migration functions provided below are written with the typical use cases in mind and you can use them as-is. If your setup requires additional logic, you can use them as a good starting point and modify them to your needs.
 
-### Username & Password
+#### Username & Password
 
 ```ts title="src/server/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
@@ -267,7 +441,7 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
 ```
 
 
-### Email
+#### Email
 
 ```ts title="src/server/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
@@ -321,7 +495,7 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
 ```
 
 
-### Google & GitHub
+#### Google & GitHub
 
 ```ts title="src/server/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
