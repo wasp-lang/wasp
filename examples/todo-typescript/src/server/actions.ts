@@ -1,6 +1,6 @@
-import HttpError from "@wasp/core/HttpError.js";
-import type { CreateTask, UpdateTask, DeleteTasks } from "@wasp/actions/types";
-import type { Task } from "@wasp/entities";
+import { type Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import { type CreateTask, type UpdateTask, type DeleteTasks } from "wasp/server/operations";
 
 type CreateArgs = Pick<Task, "description">;
 
