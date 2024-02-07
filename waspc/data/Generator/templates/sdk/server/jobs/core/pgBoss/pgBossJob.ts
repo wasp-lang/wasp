@@ -3,40 +3,60 @@ import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
 import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
 import { PrismaDelegate } from 'wasp/server/_types'
-import type { JobFn } from 'wasp/server/jobs/pgBoss/types'
+import type { JobFn } from 'wasp/server/jobs/core/pgBoss'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
+type JobSchedule = {
+  cron: Parameters<PgBoss['schedule']>[1]
+  args: Parameters<PgBoss['schedule']>[2]
+  options: Parameters<PgBoss['schedule']>[3]
+}
+
+// PRIVATE API
 /**
- * Creates an instance of PgBossJob and initializes the PgBoss executor by registering this job function.
- * We expect this to be called once per job name. If called multiple times with the same name and different
- * functions, we will override the previous calls.
+ * Creates an instance of PgBossJob
  */
-export function createJob<
+export function createJobDefinition<
   Input extends JSONObject,
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 >({
   jobName,
-  jobFn,
   defaultJobOptions,
   jobSchedule,
   entities,
 }: {
   // jobName - The user-defined job name in their .wasp file.
   jobName: Parameters<PgBoss['schedule']>[0]
-  // jobFn - The user-defined async job callback function.
-  jobFn: JobFn<Input, Output, Entities>
   // defaultJobOptions - pg-boss specific options for `boss.send()` applied to every `submit()` invocation,
   // which can overriden in that call.
   defaultJobOptions: PgBoss.Schedule['options']
-  jobSchedule?: {
-    cron: Parameters<PgBoss['schedule']>[1]
-    args: Parameters<PgBoss['schedule']>[2]
-    options: Parameters<PgBoss['schedule']>[3]
-  }
+  jobSchedule: JobSchedule | null
   // Entities used by job, passed into callback context.
   entities: Entities
+}) {
+  return new PgBossJob<Input, Output, Entities>(
+    jobName,
+    defaultJobOptions,
+    entities,
+    jobSchedule,
+  )
+}
+
+// PRIVATE API
+/**
+ * Initializes the PgBoss executor by registering this job function.
+ * We expect this to be called once per job name. If called multiple times with the same name and different
+ * functions, we will override the previous calls.
+ */
+export function registerJob<
+  Input extends JSONObject,
+  Output extends JSONValue | void,
+  Entities extends Partial<PrismaDelegate>
+>({ job, jobFn }: {
+  job: PgBossJob<Input, Output, Entities>,
+  jobFn: JobFn<Input, Output, Entities>,
 }) {
   // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job
   // template, or else the NodeJS module bootstrapping process will block and fail as it would then depend
@@ -49,33 +69,31 @@ export function createJob<
   pgBossStarted.then(async (boss) => {
     // As a safety precaution against undefined behavior of registering different
     // functions for the same job name, remove all registered functions first.
-    await boss.offWork(jobName)
+    await boss.offWork(job.jobName)
 
     // This tells pg-boss to run given worker function when job with that name is submitted.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
     await boss.work<Input, Output>(
-      jobName,
-      pgBossCallbackWrapper<Input, Output, Entities>(jobFn, entities)
+      job.jobName,
+      pgBossCallbackWrapper<Input, Output, Entities>(jobFn, job.entities)
     )
 
     // If a job schedule is provided, we should schedule the recurring job.
     // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
-    if (jobSchedule) {
+    if (job.jobSchedule) {
       const options: PgBoss.ScheduleOptions = {
-        ...defaultJobOptions,
-        ...jobSchedule.options,
+        ...job.defaultJobOptions,
+        ...job.jobSchedule.options,
       }
       await boss.schedule(
-        jobName,
-        jobSchedule.cron,
-        jobSchedule.args || null,
+        job.jobName,
+        job.jobSchedule.cron,
+        job.jobSchedule.args || null,
         options
       )
     }
   })
-
-  return new PgBossJob<Input, Output>(jobName, defaultJobOptions)
 }
 
 /**
@@ -85,24 +103,33 @@ export function createJob<
  */
 class PgBossJob<
   Input extends JSONObject,
-  Output extends JSONValue | void
+  Output extends JSONValue | void,
+  Entities extends Partial<PrismaDelegate>
 > extends Job {
   public readonly defaultJobOptions: Parameters<PgBoss['send']>[2]
   public readonly startAfter: number | string | Date
+  public readonly entities: Entities
+  public readonly jobSchedule: JobSchedule | null
 
   constructor(
     jobName: string,
     defaultJobOptions: Parameters<PgBoss['send']>[2],
+    entities: Entities,
+    jobSchedule: JobSchedule | null,
     startAfter?: number | string | Date
   ) {
     super(jobName, PG_BOSS_EXECUTOR_NAME)
     this.defaultJobOptions = defaultJobOptions
+    this.entities = entities
+    this.jobSchedule = jobSchedule
     this.startAfter = startAfter
   }
   delay(startAfter: number | string | Date) {
-    return new PgBossJob<Input, Output>(
+    return new PgBossJob<Input, Output, Entities>(
       this.jobName,
       this.defaultJobOptions,
+      this.entities,
+      this.jobSchedule,
       startAfter
     )
   }
@@ -113,7 +140,7 @@ class PgBossJob<
       ...(this.startAfter && { startAfter: this.startAfter }),
       ...jobOptions,
     })
-    return new PgBossSubmittedJob<Input, Output>(boss, this, jobId)
+    return new PgBossSubmittedJob<Input, Output, Entities>(boss, this, jobId)
   }
 }
 
@@ -122,7 +149,8 @@ class PgBossJob<
  */
 class PgBossSubmittedJob<
   Input extends JSONObject,
-  Output extends JSONValue | void
+  Output extends JSONValue | void,
+  Entities extends Partial<PrismaDelegate>
 > extends SubmittedJob {
   public readonly pgBoss: {
     readonly cancel: () => ReturnType<PgBoss['cancel']>
@@ -132,7 +160,7 @@ class PgBossSubmittedJob<
 
   constructor(
     boss: PgBoss,
-    job: PgBossJob<Input, Output>,
+    job: PgBossJob<Input, Output, Entities>,
     jobId: SubmittedJob['jobId']
   ) {
     super(job, jobId)

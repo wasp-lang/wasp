@@ -74,7 +74,7 @@
       "./server/jobs/*": "./dist/server/jobs/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
-      "./server/jobs/pgBoss/types": "./dist/server/jobs/pgBoss/types.js",
+      "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
 
       {=! Used by the framework client code, reconsider during refactoring. =}
       "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",

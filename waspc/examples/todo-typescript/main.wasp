@@ -151,7 +151,7 @@ action deleteTasks {
   entities: [Task],
 }
 
-job PrintTimeAndNumberOfTasks {
+job printTimeAndNumberOfTasks {
   executor: PgBoss,
   perform: {
     fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print"
