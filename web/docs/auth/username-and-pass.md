@@ -169,9 +169,8 @@ Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the fo
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/pages/auth.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { SignupForm } from "@wasp/auth/forms/Signup";
-import { Link } from "react-router-dom";
+import { LoginForm, SignupForm } from 'wasp/client/auth'
+import { Link } from 'react-router-dom'
 
 export function Login() {
   return (
@@ -214,9 +213,8 @@ export function Layout({ children }) {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { SignupForm } from "@wasp/auth/forms/Signup";
-import { Link } from "react-router-dom";
+import { LoginForm, SignupForm } from 'wasp/client/auth'
+import { Link } from 'react-router-dom'
 
 export function Login() {
   return (
@@ -299,11 +297,10 @@ You can use it like this:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="client/pages/auth.jsx"
-import login from '@wasp/auth/login'
+import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
@@ -332,11 +329,10 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-import login from '@wasp/auth/login'
+import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
@@ -389,8 +385,7 @@ You can use it like this:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="client/pages/auth.jsx"
-import signup from '@wasp/auth/signup'
-import login from '@wasp/auth/login'
+import { signup, login } from 'wasp/client/auth'
 
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -427,8 +422,7 @@ export function Signup() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-import signup from '@wasp/auth/signup'
-import login from '@wasp/auth/login'
+import { signup, login } from 'wasp/client/auth'
 
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -485,12 +479,10 @@ import {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
-} from '@wasp/auth/validation.js'
-import {
   createProviderId,
   sanitizeAndSerializeProviderData,
   createUser,
-} from '@wasp/auth/utils.js'
+} from 'wasp/server/auth'
 
 export const signup = async (args, _context) => {
   ensureValidUsername(args)
@@ -541,13 +533,11 @@ import {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
-} from '@wasp/auth/validation.js'
-import {
   createProviderId,
   sanitizeAndSerializeProviderData,
   createUser,
-} from '@wasp/auth/utils.js'
-import type { CustomSignup } from '@wasp/actions/types'
+} from 'wasp/server/auth'
+import type { CustomSignup } from 'wasp/server/operations'
 
 type CustomSignupInput = {
   username: string
@@ -597,7 +587,7 @@ export const signup: CustomSignup<
 </TabItem>
 </Tabs>
 
-We suggest using the built-in field validators for your authentication flow. You can import them from `@wasp/auth/validation.js`. These are the same validators that Wasp uses internally for the default authentication flow.
+We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
 
 #### Username
 

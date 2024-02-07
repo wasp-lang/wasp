@@ -4,7 +4,7 @@ The `getEmail` helper returns the user's email or `null` if the user doesn't hav
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/client/MainPage.jsx"
-import { getEmail } from '@wasp/auth/user'
+import { getEmail } from 'wasp/auth'
 
 const MainPage = ({ user }) => {
   const email = getEmail(user)
@@ -13,7 +13,7 @@ const MainPage = ({ user }) => {
 ```
 
 ```js title=src/server/tasks.js
-import { getEmail } from '@wasp/auth/user.js'
+import { getEmail } from 'wasp/auth'
 
 export const createTask = async (args, context) => {
   const email = getEmail(context.user)
@@ -26,8 +26,8 @@ export const createTask = async (args, context) => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/client/MainPage.tsx"
-import { getEmail } from '@wasp/auth/user'
-import { User as AuthenticatedUser } from '@wasp/auth/types'
+import { getEmail } from 'wasp/auth'
+import { AuthUser } from 'wasp/auth'
 
 const MainPage = ({ user }: { user: AuthenticatedUser }) => {
   const email = getEmail(user)
@@ -36,7 +36,7 @@ const MainPage = ({ user }: { user: AuthenticatedUser }) => {
 ```
 
 ```ts title=src/server/tasks.ts
-import { getEmail } from '@wasp/auth/user.js'
+import { getEmail } from 'wasp/auth'
 
 export const createTask: CreateTask<...>  = async (args, context) => {
   const email = getEmail(context.user)

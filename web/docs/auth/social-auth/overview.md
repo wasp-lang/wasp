@@ -205,7 +205,7 @@ app myApp {
 And implement the imported function:
 
 ```ts title=src/server/auth/google.ts
-import { defineUserSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   isSignupComplete: () => false,
@@ -231,7 +231,7 @@ For example:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title=client/HomePage.jsx
-import useAuth from '@wasp/auth/useAuth'
+import { useAuth } from 'wasp/client/auth'
 import { Redirect } from 'react-router-dom'
 
 export function HomePage() {
@@ -249,7 +249,7 @@ export function HomePage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title=client/HomePage.tsx
-import useAuth from '@wasp/auth/useAuth'
+import { useAuth } from 'wasp/client/auth'
 import { Redirect } from 'react-router-dom'
 
 export function HomePage() {
@@ -293,13 +293,11 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
 
 ```jsx title=client/LoginPage.jsx
 import {
-  SignInButton as GoogleSignInButton,
-  signInUrl as googleSignInUrl,
-} from '@wasp/auth/helpers/Google'
-import {
-  SignInButton as GitHubSignInButton,
-  signInUrl as gitHubSignInUrl,
-} from '@wasp/auth/helpers/GitHub'
+  GoogleSignInButton,
+  googleSignInUrl,
+  GitHubSignInButton,
+  gitHubSignInUrl,
+} from 'wasp/client/auth'
 
 export const LoginPage = () => {
   return (
@@ -319,13 +317,11 @@ export const LoginPage = () => {
 
 ```tsx title=client/LoginPage.tsx
 import {
-  SignInButton as GoogleSignInButton,
-  signInUrl as googleSignInUrl,
-} from '@wasp/auth/helpers/Google'
-import {
-  SignInButton as GitHubSignInButton,
-  signInUrl as gitHubSignInUrl,
-} from '@wasp/auth/helpers/GitHub'
+  GoogleSignInButton,
+  googleSignInUrl,
+  GitHubSignInButton,
+  gitHubSignInUrl,
+} from 'wasp/client/auth'
 
 export const LoginPage = () => {
   return (

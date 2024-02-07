@@ -239,7 +239,7 @@ It should have the following code:
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/pages/auth.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 export function Login() {
   return (
@@ -267,7 +267,7 @@ export function Layout({ children }) {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/pages/auth.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 export function Login() {
   return (
@@ -444,7 +444,7 @@ psl=}
 ```
 
 ```ts title=src/server/auth/google.ts
-import { defineUserSignupFields } from '@wasp/auth/index.js'
+import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   username: () => "hardcoded-username",

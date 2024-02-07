@@ -129,7 +129,7 @@ page LoginPage {
 ```
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 // Use it like this
 export function LoginPage() {
@@ -150,7 +150,7 @@ page LoginPage {
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 // Use it like this
 export function LoginPage() {
@@ -184,7 +184,7 @@ page SignupPage {
 ```
 
 ```tsx title="client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { SignupForm } from 'wasp/client/auth'
 
 // Use it like this
 export function SignupPage() {
@@ -205,7 +205,7 @@ page SignupPage {
 ```
 
 ```tsx title="client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { SignupForm } from 'wasp/client/auth'
 
 // Use it like this
 export function SignupPage() {
@@ -243,7 +243,7 @@ page RequestPasswordResetPage {
 ```
 
 ```tsx title="client/ForgotPasswordPage.jsx"
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+import { ForgotPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ForgotPasswordPage() {
@@ -264,7 +264,7 @@ page RequestPasswordResetPage {
 ```
 
 ```tsx title="client/ForgotPasswordPage.tsx"
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+import { ForgotPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ForgotPasswordPage() {
@@ -298,7 +298,7 @@ page PasswordResetPage {
 ```
 
 ```tsx title="client/ResetPasswordPage.jsx"
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { ResetPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ResetPasswordPage() {
@@ -319,7 +319,7 @@ page PasswordResetPage {
 ```
 
 ```tsx title="client/ResetPasswordPage.tsx"
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { ResetPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ResetPasswordPage() {
@@ -353,7 +353,7 @@ page EmailVerificationPage {
 ```
 
 ```tsx title="client/VerifyEmailPage.jsx"
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+import { VerifyEmailForm } from 'wasp/client/auth'
 
 // Use it like this
 export function VerifyEmailPage() {
@@ -374,7 +374,7 @@ page EmailVerificationPage {
 ```
 
 ```tsx title="client/VerifyEmailPage.tsx"
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+import { VerifyEmailForm } from 'wasp/client/auth'
 
 // Use it like this
 export function VerifyEmailPage() {
@@ -419,7 +419,7 @@ export const authAppearance = {
 ```
 
 ```jsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 import { authAppearance } from './appearance'
 
 export function LoginPage() {
@@ -436,7 +436,7 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="client/appearance.ts"
-import type { CustomizationOptions } from '@wasp/auth/forms/types'
+import type { CustomizationOptions } from 'wasp/client/auth'
 
 export const authAppearance: CustomizationOptions['appearance'] = {
   colors: {
@@ -448,7 +448,7 @@ export const authAppearance: CustomizationOptions['appearance'] = {
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 import { authAppearance } from './appearance'
 
 export function LoginPage() {
@@ -474,7 +474,7 @@ You can add your logo to the Auth UI by passing the `logo` prop to any of the co
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 import Logo from './logo.png'
 
 export function LoginPage() {
@@ -491,7 +491,7 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 import Logo from './logo.png'
 
 export function LoginPage() {
@@ -517,7 +517,7 @@ If we pass in `vertical`:
 <TabItem value="js" label="JavaScript">
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 export function LoginPage() {
   return (
@@ -533,7 +533,7 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 export function LoginPage() {
   return (
@@ -570,7 +570,7 @@ export const appearance = {
 ```
 
 ```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 import { authAppearance } from './appearance'
 import todoLogo from './todoLogo.png'
@@ -584,7 +584,7 @@ export function LoginPage() {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="client/appearance.ts"
-import type { CustomizationOptions } from '@wasp/auth/forms/types'
+import type { CustomizationOptions } from 'wasp/client/auth'
 
 export const appearance: CustomizationOptions['appearance'] = {
   colors: {
@@ -596,7 +596,7 @@ export const appearance: CustomizationOptions['appearance'] = {
 ```
 
 ```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
 import { authAppearance } from './appearance'
 import todoLogo from './todoLogo.png'
