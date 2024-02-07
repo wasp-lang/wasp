@@ -41,7 +41,7 @@ app TodoTypescript {
     system: PostgreSQL
   },
   webSocket: {
-    fn: import { webSocketFn } from "@src/websocket/index.js",
+    fn: import { webSocketFn } from "@src/websocket/index",
     autoConnect: true,
   },
   server: {
@@ -74,7 +74,7 @@ crud Tasks {
   entity: Task,
   operations: {
     getAll: {
-      overrideFn: import { getAllQuery } from "@src/task/crud.js",
+      overrideFn: import { getAllQuery } from "@src/task/crud",
     },
     create: {},
     update: {},
@@ -137,24 +137,24 @@ query getTasks {
 }
 
 action createTask {
-  fn: import { createTask } from "@src/task/actions.js",
+  fn: import { createTask } from "@src/task/actions",
   entities: [Task]
 }
 
 action updateTask {
-  fn: import { updateTask } from "@src/task/actions.js",
+  fn: import { updateTask } from "@src/task/actions",
   entities: [Task]
 }
 
 action deleteTasks {
-  fn: import { deleteTasks } from "@src/task/actions.js",
+  fn: import { deleteTasks } from "@src/task/actions",
   entities: [Task],
 }
 
 job PrintTimeAndNumberOfTasks {
   executor: PgBoss,
   perform: {
-    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print.js"
+    fn: import { printTimeAndNumberOfTasks } from "@src/jobs/print"
   },
   entities: [Task],
   schedule: {
@@ -173,6 +173,6 @@ apiNamespace fooBarNamespace {
 }
 
 action customEmailSending {
-  fn: import { send } from "@src/user/customEmailSending.js",
+  fn: import { send } from "@src/user/customEmailSending",
   entities: [User]
 }

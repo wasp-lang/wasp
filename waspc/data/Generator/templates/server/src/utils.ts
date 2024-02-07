@@ -40,33 +40,3 @@ async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
 }
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((r) => setTimeout(r, ms))
-
-export function getDirPathFromFileUrl(fileUrl: string): string {
-  return fileURLToPath(dirname(fileUrl))
-}
-
-export async function importJsFilesFromDir(
-  pathToDir: string,
-  whitelistedFileNames: string[] | null = null
-): Promise<any[]> {
-  return new Promise((resolve, reject) => {
-    readdir(pathToDir, async (err, files) => {
-      if (err) {
-        return reject(err)
-      }
-      const importPromises = files
-        .filter((file) => file.endsWith('.js') && isWhitelistedFileName(file))
-        .map((file) => import(`${pathToDir}/${file}`))
-      resolve(Promise.all(importPromises))
-    })
-  })
-
-  function isWhitelistedFileName(fileName: string) {
-    // No whitelist means all files are whitelisted
-    if (!Array.isArray(whitelistedFileNames)) {
-      return true
-    }
-    
-    return whitelistedFileNames.some((whitelistedFileName) => fileName === whitelistedFileName)
-  }
-}

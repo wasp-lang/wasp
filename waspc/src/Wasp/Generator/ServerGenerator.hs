@@ -66,6 +66,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|nodemon.json|],
+      genFileCopy [relfile|rollup.config.js|],
       genTsConfigJson,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
@@ -177,7 +178,9 @@ npmDepsForWasp spec =
             ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/uuid", "^9.0.0"),
-            ("@types/cors", "^2.8.5")
+            ("@types/cors", "^2.8.5"),
+            ("rollup", "^4.9.6"),
+            ("rollup-plugin-esbuild", "^6.1.1")
           ]
     }
   where
