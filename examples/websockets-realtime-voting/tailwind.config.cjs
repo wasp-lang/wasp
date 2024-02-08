@@ -1,8 +1,10 @@
+const { makeProjectGlobPattern } = require('wasp/client')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
+    makeProjectGlobPattern("./src/**/*.{js,jsx,ts,tsx}"),
+    makeProjectGlobPattern("node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}"),
   ],
   theme: {
     extend: {},

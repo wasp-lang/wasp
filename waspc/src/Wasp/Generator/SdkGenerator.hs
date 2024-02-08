@@ -90,6 +90,7 @@ genSdkReal spec =
       genFileCopy [relfile|server/jobs/pgBoss/types.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
+      genFileCopy [relfile|client/index.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,

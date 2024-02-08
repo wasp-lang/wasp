@@ -109,7 +109,8 @@
       "./server/jobs": "./dist/server/jobs/index.js",
       "./server/operations": "./dist/server/operations/index.js",
       "./client/router": "./dist/client/router/index.js",
-      "./client/test": "./dist/client/test/index.js"
+      "./client/test": "./dist/client/test/index.js",
+      "./client": "./dist/client/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those
