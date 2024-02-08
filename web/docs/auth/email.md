@@ -976,7 +976,7 @@ It has the following fields:
   <TabItem value="js" label="JavaScript">
 
   ```js title="src/pages/EmailVerificationPage.jsx"
-  import { verifyEmail } from 'wasp/client/auth';
+  import { verifyEmail } from 'wasp/client/auth'
   ...
   await verifyEmail({ token });
   ```
@@ -984,7 +984,7 @@ It has the following fields:
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="src/pages/EmailVerificationPage.tsx"
-  import { verifyEmail } from 'wasp/client/auth';
+  import { verifyEmail } from 'wasp/client/auth'
   ...
   await verifyEmail({ token });
   ```
@@ -1047,13 +1047,13 @@ It has the following fields:
   <TabItem value="js" label="JavaScript">
 
   ```js title="src/pages/ForgotPasswordPage.jsx"
-  import { requestPasswordReset } from 'wasp/client/auth';
+  import { requestPasswordReset } from 'wasp/client/auth'
   ...
   await requestPasswordReset({ email });
   ```
 
   ```js title="src/pages/PasswordResetPage.jsx"
-  import { resetPassword } from 'wasp/client/auth';
+  import { resetPassword } from 'wasp/client/auth'
   ...
   await resetPassword({ password, token })
   ```
@@ -1061,13 +1061,13 @@ It has the following fields:
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="src/pages/ForgotPasswordPage.tsx"
-  import { requestPasswordReset } from 'wasp/client/auth';
+  import { requestPasswordReset } from 'wasp/client/auth'
   ...
   await requestPasswordReset({ email });
   ```
 
   ```ts title="src/pages/PasswordResetPage.tsx"
-  import { resetPassword } from 'wasp/client/auth';
+  import { resetPassword } from 'wasp/client/auth'
   ...
   await resetPassword({ password, token })
   ```

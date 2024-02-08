@@ -828,8 +828,7 @@ Instead of passing in a list of extra fields, you can pass in a render function 
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/SignupPage.jsx"
-import { SignupForm } from 'wasp/client/auth'
-import { FormItemGroup } from 'wasp/client/auth'
+import { SignupForm, FormItemGroup } from 'wasp/client/auth'
 
 export const SignupPage = () => {
   return (
@@ -853,7 +852,7 @@ export const SignupPage = () => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/SignupPage.tsx"
-import { SignupForm, FormItemGroup} from 'wasp/client/auth'
+import { SignupForm, FormItemGroup } from 'wasp/client/auth'
 
 export const SignupPage = () => {
   return (

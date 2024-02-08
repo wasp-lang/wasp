@@ -1291,7 +1291,7 @@ The extra fields can be either **objects** or **render functions** (you can comb
    The render function has the following signature:
 
    ```ts
-   ;(form: UseFormReturn, state: FormState) => React.ReactNode
+   (form: UseFormReturn, state: FormState) => React.ReactNode
    ```
 
    - `form` <Required />
