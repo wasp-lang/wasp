@@ -189,7 +189,6 @@ entity Task {=psl ... psl=} // Your Prisma data model.
 
       </div>
 
-
       {/* 1-min video */}
       {/*
       <div className='flex justify-center mt-20'>

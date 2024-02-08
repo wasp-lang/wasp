@@ -20,6 +20,7 @@ import waspCoverPhoto from '../../static/img/wasp_twitter_cover.png'
 import styles from './styles.module.css'
 import './index.css'
 import './preflight.css'
+import { DiscordCallout } from '../components/DiscordCallout'
 
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
@@ -70,6 +71,7 @@ const Index = () => {
             <Newsletter />
             <Roadmap />
             <Faq />
+            <DiscordCallout />
           </div>
           {/* eof container */}
         </main>
