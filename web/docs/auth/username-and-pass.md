@@ -130,11 +130,11 @@ Add the following to the `main.wasp` file:
 // 4. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.jsx"
+  component: import { Login } from "@src/pages/auth.jsx"
 }
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/pages/auth.jsx"
+  component: import { Signup } from "@src/pages/auth.jsx"
 }
 ```
 </TabItem>
@@ -145,17 +145,17 @@ page SignupPage {
 // 4. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.tsx"
+  component: import { Login } from "@src/pages/auth.tsx"
 }
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/pages/auth.tsx"
+  component: import { Signup } from "@src/pages/auth.tsx"
 }
 ```
 </TabItem>
 </Tabs>
 
-We'll define the React components for these pages in the `client/pages/auth.{jsx,tsx}` file below.
+We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
 ### 4. Create the Client Pages
 
@@ -163,12 +163,12 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
 :::
 
-Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
+Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/pages/auth.jsx"
+```tsx title="src/pages/auth.jsx"
 import { LoginForm, SignupForm } from 'wasp/client/auth'
 import { Link } from 'react-router-dom'
 
@@ -212,7 +212,7 @@ export function Layout({ children }) {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/pages/auth.tsx"
+```tsx title="src/pages/auth.tsx"
 import { LoginForm, SignupForm } from 'wasp/client/auth'
 import { Link } from 'react-router-dom'
 
@@ -296,7 +296,7 @@ You can use it like this:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="client/pages/auth.jsx"
+```jsx title="src/pages/auth.jsx"
 import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
@@ -328,7 +328,7 @@ export function LoginPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/pages/auth.tsx"
+```tsx title="src/pages/auth.tsx"
 import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
@@ -384,7 +384,7 @@ You can use it like this:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="client/pages/auth.jsx"
+```jsx title="src/pages/auth.jsx"
 import { signup, login } from 'wasp/client/auth'
 
 import { useState } from 'react'
@@ -421,7 +421,7 @@ export function Signup() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/pages/auth.tsx"
+```tsx title="src/pages/auth.tsx"
 import { signup, login } from 'wasp/client/auth'
 
 import { useState } from 'react'
@@ -469,12 +469,12 @@ The code of your custom sign-up action can look like this:
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
 }
 ```
 
 
-```js title="src/server/auth/signup.js"
+```js title="src/auth/signup.js"
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
@@ -524,11 +524,11 @@ export const signup = async (args, _context) => {
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
 }
 ```
 
-```ts title="src/server/auth/signup.ts"
+```ts title="src/auth/signup.ts"
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
@@ -685,7 +685,7 @@ app myApp {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@server/auth/email.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/email.js",
       },
     },
     onAuthFailedRedirectTo: "/login"
@@ -706,7 +706,7 @@ app myApp {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@server/auth/email.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/email.js",
       },
     },
     onAuthFailedRedirectTo: "/login"

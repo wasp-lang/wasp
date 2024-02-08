@@ -3,7 +3,7 @@
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```ts title="server/auth.js"
+```ts title="src/auth.js"
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
@@ -20,7 +20,7 @@ export const userSignupFields = defineUserSignupFields({
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="server/auth.ts"
+```ts title="src/auth.ts"
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({

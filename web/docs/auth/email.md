@@ -167,27 +167,27 @@ Add the following to the `main.wasp` file:
 // 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.jsx"
+  component: import { Login } from "@src/pages/auth.jsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/pages/auth.jsx"
+  component: import { Signup } from "@src/pages/auth.jsx"
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { RequestPasswordReset } from "@client/pages/auth.jsx",
+  component: import { RequestPasswordReset } from "@src/pages/auth.jsx",
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { PasswordReset } from "@client/pages/auth.jsx",
+  component: import { PasswordReset } from "@src/pages/auth.jsx",
 }
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { EmailVerification } from "@client/pages/auth.jsx",
+  component: import { EmailVerification } from "@src/pages/auth.jsx",
 }
 ```
 </TabItem>
@@ -199,33 +199,33 @@ page EmailVerificationPage {
 // 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.tsx"
+  component: import { Login } from "@src/pages/auth.tsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/pages/auth.tsx"
+  component: import { Signup } from "@src/pages/auth.tsx"
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { RequestPasswordReset } from "@client/pages/auth.tsx",
+  component: import { RequestPasswordReset } from "@src/pages/auth.tsx",
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { PasswordReset } from "@client/pages/auth.tsx",
+  component: import { PasswordReset } from "@src/pages/auth.tsx",
 }
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { EmailVerification } from "@client/pages/auth.tsx",
+  component: import { EmailVerification } from "@src/pages/auth.tsx",
 }
 ```
 </TabItem>
 </Tabs>
 
-We'll define the React components for these pages in the `client/pages/auth.{jsx,tsx}` file below.
+We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
 ### 4. Create the Client Pages
 
@@ -233,12 +233,12 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
 :::
 
-Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
+Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/pages/auth.jsx"
+```tsx title="src/pages/auth.jsx"
 import {
   LoginForm,
   SignupForm,
@@ -325,7 +325,7 @@ export function Layout({ children }) {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/pages/auth.tsx"
+```tsx title="src/pages/auth.tsx"
 import {
   LoginForm,
   SignupForm,
@@ -602,11 +602,11 @@ The code of your custom sign-up action can look like this:
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
 }
 ```
 
-```js title="src/server/auth/signup.js"
+```js title="src/auth/signup.js"
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
@@ -694,11 +694,11 @@ export const signup = async (args, _context) => {
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
 }
 ```
 
-```ts title="src/server/auth/signup.ts"
+```ts title="src/auth/signup.ts"
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
@@ -898,18 +898,18 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
-        userSignupFields: import { userSignupFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@src/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
         },
         emailVerification: {
           clientRoute: EmailVerificationRoute,
-          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email.js",
         },
         passwordReset: {
           clientRoute: PasswordResetRoute,
-          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email.js",
         },
       },
     },
@@ -930,18 +930,18 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
-        userSignupFields: import { userSignupFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@src/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
         },
         emailVerification: {
           clientRoute: EmailVerificationRoute,
-          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email.js",
         },
         passwordReset: {
           clientRoute: PasswordResetRoute,
-          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email.js",
         },
       },
     },
@@ -1002,7 +1002,7 @@ It has the following fields:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```ts title="server/email.js"
+  ```ts title="src/email.js"
   export const getVerificationEmailContent = ({ verificationLink }) => ({
     subject: 'Verify your email',
     text: `Click the link below to verify your email: ${verificationLink}`,
@@ -1015,7 +1015,7 @@ It has the following fields:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title="server/email.ts"
+  ```ts title="src/email.ts"
   import { GetVerificationEmailContentFn } from 'wasp/server/auth'
 
   export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
@@ -1085,7 +1085,7 @@ It has the following fields:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```ts title="server/email.js"
+  ```ts title="src/email.js"
   export const getPasswordResetEmailContent = ({ passwordResetLink }) => ({
     subject: 'Password reset',
     text: `Click the link below to reset your password: ${passwordResetLink}`,
@@ -1098,7 +1098,7 @@ It has the following fields:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title="server/email.ts"
+  ```ts title="src/email.ts"
   import { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
 
   export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({

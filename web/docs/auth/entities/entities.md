@@ -156,7 +156,7 @@ The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` o
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/MainPage.jsx"
+```jsx title="src/MainPage.jsx"
 import { getFirstProviderUserId } from 'wasp/auth'
 
 const MainPage = ({ user }) => {
@@ -165,7 +165,7 @@ const MainPage = ({ user }) => {
 }
 ```
 
-```js title=src/server/tasks.js
+```js title=src/tasks.js
 import { getFirstProviderUserId } from 'wasp/auth'
 
 export const createTask = async (args, context) => {
@@ -178,17 +178,16 @@ export const createTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/MainPage.tsx"
-import { getFirstProviderUserId } from 'wasp/auth'
-import { AuthUser } from 'wasp/auth'
+```tsx title="src/MainPage.tsx"
+import { getFirstProviderUserId, AuthUser } from 'wasp/auth'
 
-const MainPage = ({ user }: { user: AuthenticatedUser }) => {
+const MainPage = ({ user }: { user: AuthUser }) => {
   const userId = getFirstProviderUserId(user)
   // ...
 }
 ```
 
-```ts title=src/server/tasks.ts
+```ts title=src/tasks.ts
 import { getFirstProviderUserId } from 'wasp/auth'
 
 export const createTask: CreateTask<...>  = async (args, context) => {
@@ -215,7 +214,7 @@ This can be useful if you want to check if the user has a specific auth identity
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/MainPage.jsx"
+```jsx title="src/MainPage.jsx"
 import { findUserIdentity } from 'wasp/auth'
 
 const MainPage = ({ user }) => {
@@ -230,7 +229,7 @@ const MainPage = ({ user }) => {
 }
 ```
 
-```js title=src/server/tasks.js
+```js title=src/tasks.js
 import { findUserIdentity } from 'wasp/client/auth'
 
 export const createTask = async (args, context) => {
@@ -249,11 +248,10 @@ export const createTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/MainPage.tsx"
-import { findUserIdentity } from 'wasp/auth'
-import { AuthUser } from 'wasp/auth'
+```tsx title="src/MainPage.tsx"
+import { findUserIdentity, AuthUser } from 'wasp/auth'
 
-const MainPage = ({ user }: { user: AuthenticatedUser }) => {
+const MainPage = ({ user }: { user: AuthUser }) => {
   const emailIdentity = findUserIdentity(user, 'email')
   const googleIdentity = findUserIdentity(user, 'google')
   if (emailIdentity) {
@@ -265,7 +263,7 @@ const MainPage = ({ user }: { user: AuthenticatedUser }) => {
 }
 ```
 
-```ts title=src/server/tasks.ts
+```ts title=src/tasks.ts
 import { findUserIdentity } from 'wasp/client/auth'
 
 export const createTask: CreateTask<...>  = async (args, context) => {
@@ -301,13 +299,13 @@ Below is a simplified version of a custom signup action which you probably would
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
   entities: [User]
 }
 ```
 
 
-```js title="src/server/auth/signup.js"
+```js title="src/auth/signup.js"
 import {
   createProviderId,
   sanitizeAndSerializeProviderData,
@@ -370,12 +368,12 @@ export const signup = async (args, { entities: { User } }) => {
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
   entities: [User]
 }
 ```
 
-```ts title="src/server/auth/signup.ts"
+```ts title="src/auth/signup.ts"
 import {
   createProviderId,
   sanitizeAndSerializeProviderData,

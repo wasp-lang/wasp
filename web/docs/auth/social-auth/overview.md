@@ -160,7 +160,7 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -172,7 +172,7 @@ app myApp {
 
 And implement the imported function.
 
-```js title=src/server/auth/google.js
+```js title=src/auth/google.js
 export const userSignupFields = {
   isSignupComplete: () => false,
 }
@@ -192,7 +192,7 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -204,7 +204,7 @@ app myApp {
 
 And implement the imported function:
 
-```ts title=src/server/auth/google.ts
+```ts title=src/auth/google.ts
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
