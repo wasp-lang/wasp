@@ -1,8 +1,11 @@
+{{={= =}=}}
 import esbuild from 'rollup-plugin-esbuild'
 
 export default [
   createBundle('src/server.ts', 'bundle/server.js'),
+  {=# areDbSeedsDefined =}
   createBundle('src/dbSeed.ts', 'bundle/dbSeed.js'),
+  {=/ areDbSeedsDefined =}
 ]
 
 function createBundle(inputFilePath, outputFilePath) {
