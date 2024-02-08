@@ -15,7 +15,8 @@ type JobSchedule = {
 
 // PRIVATE API
 /**
- * Creates an instance of PgBossJob
+ * Creates an instance of PgBossJob which contains all of the necessary
+ * information to submit a job to pg-boss.
  */
 export function createJobDefinition<
   Input extends JSONObject,
@@ -46,7 +47,7 @@ export function createJobDefinition<
 
 // PRIVATE API
 /**
- * Initializes the PgBoss executor by registering this job function.
+ * Uses the info about a job in PgBossJob to register a user defined job handler with pg-boss.
  * We expect this to be called once per job name. If called multiple times with the same name and different
  * functions, we will override the previous calls.
  */
