@@ -2,6 +2,7 @@ module Wasp.Generator.ServerGenerator.Db.Seed
   ( genDbSeed,
     getPackageJsonPrismaSeedField,
     dbSeedNameEnvVarName,
+    getDbSeeds,
   )
 where
 
