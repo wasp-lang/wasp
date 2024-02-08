@@ -84,7 +84,7 @@
       "./server/middleware": "./dist/server/middleware/index.js",
 
       {=! ================= NEW API HERE =================== =}
-      {=! Public: { config, prisma, type ServerSetupFn, HttpError, AuthError, type DbSeedFn, type MiddlewareConfigFn } =}
+      {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
       {=! Private: [] =}
       "./server": "./dist/server/index.js",
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}

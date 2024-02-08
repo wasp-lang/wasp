@@ -9,8 +9,6 @@ export { type ServerSetupFn } from './types/index.js'
 // PUBLIC API
 export { HttpError } from './HttpError.js'
 // PUBLIC API
-export { AuthError } from './AuthError.js'
-// PUBLIC API
 export { MiddlewareConfigFn } from './middleware/index.js'
 
 // PUBLIC API
