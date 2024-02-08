@@ -2,8 +2,6 @@
 title: Migration from 0.11.X to 0.12.X
 ---
 
-Wasp made a big change in the way authentication works in version 0.12.0. This guide will help you migrate your app from 0.11.X to 0.12.X.
-
 ## What's new in Wasp 0.12.0?
 
 ### New project structure
@@ -159,9 +157,10 @@ directory `foo`, you should:
 5. If `foo_old/src/client/public` exists and contains any files, copy those files into
    `foo/public`.
 6. Copy the contents of `foo_old/src` into `foo/src`.
-   `foo/src` should now contain `vite-env.d.ts` and three subdirectories (`server`, `client`, and `shared`).
+   `foo/src` should now contain `vite-env.d.ts`, `.waspignore`, and three subdirectories (`server`, `client`, and `shared`).
    Don't change anything about this structure yet.
 7. Delete redundant files and folders from `foo/src`:
+   - `foo/src/.waspignore` - A new version of this file already exists at the top level.
    - `foo/src/client/vite-env.d.ts` - A new version of this file already exists at the top level.
    - `foo/src/client/tsconfig.json` - A new version of this file already exists at the top level.
    - `foo/src/server/tsconfig.json` - A new version of this file already exists at the top level.
@@ -282,6 +281,9 @@ recommend a feature-based organization. Read more about this in [the last sectio
 :::
 
 ### Migrating auth
+
+Wasp made a big change in the way authentication works in version 0.12.0. This
+section leads you through migrating your app from Wasp 0.11.X to Wasp 0.12.X.
 
 Migrating your existing app to the new auth system is a two-step process:
 
