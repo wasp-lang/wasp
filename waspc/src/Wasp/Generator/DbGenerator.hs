@@ -2,6 +2,7 @@ module Wasp.Generator.DbGenerator
   ( genDb,
     warnIfDbNeedsMigration,
     postWriteDbGeneratorActions,
+    getEntitiesForPrismaSchema,
   )
 where
 
@@ -63,7 +64,7 @@ genPrismaSchema spec = do
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
         else return ("sqlite", "\"file:./dev.db\"")
 
-  entities <- maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
+  entities <- getEntitiesForPrismaSchema spec
 
   let templateData =
         object
@@ -82,6 +83,16 @@ genPrismaSchema spec = do
     prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
     dbExtensions = Psl.Generator.Extensions.showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
 
+    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
+    entityToPslModelSchema (entityName, entity) =
+      Psl.Generator.Model.generateModel $
+        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
+
+-- | Returns a list of entities that should be included in the Prisma schema.
+-- We put user defined entities as well as inject auth entities into the Prisma schema.
+getEntitiesForPrismaSchema :: AppSpec -> Generator [(String, AS.Entity.Entity)]
+getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
+  where
     userDefinedEntities = getEntities spec
 
     maybeUserEntity :: Maybe (String, AS.Entity.Entity)
@@ -89,11 +100,6 @@ genPrismaSchema spec = do
       auth <- AS.App.auth $ snd $ getApp spec
       let userEntityName = AS.refName . AS.Auth.userEntity $ auth
       find ((== userEntityName) . fst) userDefinedEntities
-
-    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
-    entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Model.generateModel $
-        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir <$> AS.migrationsDir spec
