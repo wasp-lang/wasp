@@ -230,7 +230,7 @@ For example:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title=client/HomePage.jsx
+```jsx title=src/HomePage.jsx
 import { useAuth } from 'wasp/client/auth'
 import { Redirect } from 'react-router-dom'
 
@@ -248,7 +248,7 @@ export function HomePage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title=client/HomePage.tsx
+```tsx title=src/HomePage.tsx
 import { useAuth } from 'wasp/client/auth'
 import { Redirect } from 'react-router-dom'
 
@@ -291,7 +291,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title=client/LoginPage.jsx
+```jsx title=src/LoginPage.jsx
 import {
   GoogleSignInButton,
   googleSignInUrl,
@@ -315,7 +315,7 @@ export const LoginPage = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title=client/LoginPage.tsx
+```tsx title=src/LoginPage.tsx
 import {
   GoogleSignInButton,
   googleSignInUrl,

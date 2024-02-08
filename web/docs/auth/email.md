@@ -997,7 +997,7 @@ It has the following fields:
 
 - `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user.
 
-  Defining `getEmailContentFn` can be done by defining a file in the `server` directory.
+  Defining `getEmailContentFn` can be done by defining a file in the `src` directory.
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

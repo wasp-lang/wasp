@@ -548,7 +548,7 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll define the `userSignupFields` object in the `server/auth/signup.js` file:
+Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:
 
 ```ts title="src/auth/signup.js"
 import { defineUserSignupFields } from 'wasp/server/auth'
@@ -590,7 +590,7 @@ entity User {=psl
 psl=}
 ```
 
-Then we'll define the `userSignupFields` object in the `server/auth/signup.js` file:
+Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:
 
 ```ts title="src/auth/signup.ts"
 import { defineUserSignupFields } from 'wasp/server/auth'
@@ -988,7 +988,7 @@ app crudTesting {
 }
 ```
 
-Then we'll export the `userSignupFields` object from the `server/auth/signup.js` file:
+Then we'll export the `userSignupFields` object from the `src/auth/signup.js` file:
 
 ```ts title="src/auth/signup.js"
 import { defineUserSignupFields } from 'wasp/server/auth'
@@ -1026,7 +1026,7 @@ app crudTesting {
 }
 ```
 
-Then we'll export the `userSignupFields` object from the `server/auth/signup.ts` file:
+Then we'll export the `userSignupFields` object from the `src/auth/signup.ts` file:
 
 ```ts title="src/auth/signup.ts"
 import { defineUserSignupFields } from 'wasp/server/auth'
