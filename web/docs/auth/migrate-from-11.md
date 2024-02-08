@@ -221,7 +221,7 @@ The migration functions provided below are written with the typical use cases in
 
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { ProviderName, UsernameProviderData } from "@wasp/auth/utils";
+import { ProviderName, UsernameProviderData } from "wasp/server/auth";
 
 export async function migrateUsernameAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -271,7 +271,7 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
 
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { EmailProviderData, ProviderName } from "@wasp/auth/utils";
+import { EmailProviderData, ProviderName } from "wasp/server/auth";
 
 export async function migrateEmailAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -325,7 +325,7 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
 
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { ProviderName } from "@wasp/auth/utils";
+import { ProviderName } from "wasp/server/auth";
 
 export async function migrateGoogleAuth(prismaClient: PrismaClient) {
   return createSocialLoginMigration(prismaClient, "google");
