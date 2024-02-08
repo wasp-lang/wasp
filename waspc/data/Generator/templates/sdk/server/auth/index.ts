@@ -10,6 +10,11 @@ export {
   deserializeAndSanitizeProviderData,
   findAuthIdentity,
   createUser,
+  type ProviderId,
+  type ProviderName,
+  type EmailProviderData,
+  type UsernameProviderData,
+  type OAuthProviderData,
 } from '../../auth/utils.js'
 
 export {

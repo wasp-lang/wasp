@@ -14,7 +14,7 @@ import { throwValidationError } from './validation.js'
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
-// PRIVATE API
+// PUBLIC API
 export type EmailProviderData = {
   hashedPassword: string;
   isEmailVerified: boolean;
@@ -22,12 +22,12 @@ export type EmailProviderData = {
   passwordResetSentAt: string | null;
 }
 
-// PRIVATE API
+// PUBLIC API
 export type UsernameProviderData = {
   hashedPassword: string;
 }
 
-// PRIVATE API
+// PUBLIC API
 export type OAuthProviderData = {}
 
 // PRIVATE API
@@ -45,7 +45,7 @@ export type PossibleProviderData = {
   github: OAuthProviderData;
 }
 
-// PRIVATE API
+// PUBLIC API
 export type ProviderName = keyof PossibleProviderData
 
 // PRIVATE API
@@ -61,7 +61,7 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-// PRIVATE API
+// PUBLIC API
 /**
  * ProviderId uniquely identifies an auth identity e.g. 
  * "email" provider with user id "test@test.com" or
