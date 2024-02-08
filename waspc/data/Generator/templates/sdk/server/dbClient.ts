@@ -1,11 +1,21 @@
+{{={= =}=}}
+{=# areThereAnyEntitiesDefined =}
 import Prisma from '@prisma/client'
 
-
-const createDbClient = () => {
-  const prisma = new Prisma.PrismaClient()
-
-  return prisma
+function createDbClient(): Prisma.PrismaClient {
+  return new Prisma.PrismaClient()
 }
+{=/ areThereAnyEntitiesDefined =}
+{=^ areThereAnyEntitiesDefined =}
+// * Prisma will not generate a PrismaClient if there no
+//   entities in the schema. Trying to init the PrismaClient
+//   will throw an error.
+// * To avoid throwing an error, we return null if there are no
+//   entities in the schema.
+function createDbClient(): null {
+  return null
+}
+{=/ areThereAnyEntitiesDefined =}
 
 const dbClient = createDbClient()
 

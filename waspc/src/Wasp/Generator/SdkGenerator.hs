@@ -28,6 +28,7 @@ import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
@@ -83,7 +84,6 @@ genSdkReal spec =
       genFileCopy [relfile|core/config.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
-      genFileCopy [relfile|server/dbClient.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|server/AuthError.ts|],
       genFileCopy [relfile|types/index.ts|],
@@ -93,7 +93,8 @@ genSdkReal spec =
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
-      genPackageJson spec
+      genPackageJson spec,
+      genDbClient spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -334,3 +335,14 @@ genMiddleware _spec =
     [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
       return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
     ]
+
+genDbClient :: AppSpec -> Generator FileDraft
+genDbClient spec = do
+  areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
+
+  let tmplData = object ["areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined]
+
+  return $
+    C.mkTmplFdWithData
+      [relfile|server/dbClient.ts|]
+      tmplData

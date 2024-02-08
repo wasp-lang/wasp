@@ -94,7 +94,7 @@ basicStarterTemplate =
           unlines
             [ styleText $ "To run your new app, do:",
               styleCode $ "    cd " <> projectDirName,
-              styleCode $ "    wasp db start"
+              styleCode $ "    wasp start"
             ]
       }
 
