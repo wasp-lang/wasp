@@ -1,3 +1,4 @@
+import { useQuery, getThoughts } from "wasp/client/operations";
 import React from 'react'
 import Layout from './Layout'
 import ReactMarkdown from 'react-markdown'
@@ -5,9 +6,6 @@ import { useLocation } from 'react-router-dom'
 import Tag from './Tag'
 
 import './ThoughtsPage.css'
-
-import getThoughts from '@wasp/queries/getThoughts'
-import { useQuery } from '@wasp/queries'
 
 const ThoughtsPage = (props) => {
   const queryParams = new URLSearchParams(useLocation().search)

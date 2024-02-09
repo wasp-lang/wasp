@@ -1,4 +1,4 @@
-import HttpError from '@wasp/core/HttpError.js'
+import { HttpError } from "wasp/server";
 
 export const createThought = async (args, context) => {
   if (!context.user) { throw new HttpError(403) }
