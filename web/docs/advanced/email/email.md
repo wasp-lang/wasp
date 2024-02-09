@@ -58,13 +58,13 @@ Optionally, define the `defaultFrom` field, so you don't need to provide it when
 
 Before jumping into details about setting up various providers, let's see how easy it is to send emails.
 
-You import the `emailSender` that is provided by the `@wasp/email/index.js` module and call the `send` method on it.
+You import the `emailSender` that is provided by the `wasp/server/email` module and call the `send` method on it.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/actions/sendEmail.js"
-import { emailSender } from "@wasp/email/index.js";
+import { emailSender } from "wasp/server/email";
 
 // In some action handler...
 const info = await emailSender.send({
@@ -83,7 +83,7 @@ const info = await emailSender.send({
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/actions/sendEmail.ts"
-import { emailSender } from "@wasp/email/index.js";
+import { emailSender } from "wasp/server/email";
 
 // In some action handler...
 const info = await emailSender.send({
@@ -333,7 +333,7 @@ Using the `emailSender` in <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScrip
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/actions/sendEmail.js"
-import { emailSender } from "@wasp/email/index.js";
+import { emailSender } from "wasp/server/email";
 
 // In some action handler...
 const info = await emailSender.send({
@@ -352,7 +352,7 @@ const info = await emailSender.send({
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/actions/sendEmail.ts"
-import { emailSender } from "@wasp/email/index.js";
+import { emailSender } from "wasp/server/email";
 
 // In some action handler...
 const info = await emailSender.send({
