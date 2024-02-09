@@ -166,7 +166,7 @@ Add the following code to your `main.wasp` file:
 // 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.jsx"
+  component: import { Login } from "@src/pages/auth.jsx"
 }
 ```
 
@@ -179,14 +179,14 @@ page LoginPage {
 // 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.tsx"
+  component: import { Login } from "@src/pages/auth.tsx"
 }
 ```
 
 </TabItem>
 </Tabs>
 
-We'll define the React components for these pages in the `client/pages/auth.{jsx,tsx}` file below.
+We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
 ### 6. Creating the Client Pages
 
@@ -194,13 +194,13 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
 :::
 
-Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
+Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/pages/auth.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/pages/auth.jsx"
+import { LoginForm } from 'wasp/client/auth'
 
 export function Login() {
   return (
@@ -227,8 +227,8 @@ export function Layout({ children }) {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/pages/auth.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/pages/auth.tsx"
+import { LoginForm } from 'wasp/client/auth'
 
 export function Login() {
   return (
@@ -337,9 +337,9 @@ app myApp {
     methods: {
       gitHub: {
         // highlight-next-line
-        configFn: import { getConfig } from "@server/auth/github.js",
+        configFn: import { getConfig } from "@src/auth/github.js",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -355,7 +355,7 @@ psl=}
 // ...
 ```
 
-```js title=src/server/auth/github.js
+```js title=src/auth/github.js
 export const userSignupFields = {
   username: () => "hardcoded-username",
   displayName: (data) => data.profile.displayName,
@@ -384,9 +384,9 @@ app myApp {
     methods: {
       gitHub: {
         // highlight-next-line
-        configFn: import { getConfig } from "@server/auth/github.js",
+        configFn: import { getConfig } from "@src/auth/github.js",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -402,8 +402,8 @@ psl=}
 // ...
 ```
 
-```ts title=src/server/auth/github.ts
-import { defineUserSignupFields } from '@wasp/auth/index.js'
+```ts title=src/auth/github.ts
+import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   username: () => "hardcoded-username",
@@ -446,9 +446,9 @@ app myApp {
     methods: {
       gitHub: {
         // highlight-next-line
-        configFn: import { getConfig } from "@server/auth/github.js",
+        configFn: import { getConfig } from "@src/auth/github.js",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -470,9 +470,9 @@ app myApp {
     methods: {
       gitHub: {
         // highlight-next-line
-        configFn: import { getConfig } from "@server/auth/github.js",
+        configFn: import { getConfig } from "@src/auth/github.js",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/github.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -492,7 +492,7 @@ The `gitHub` dict has the following properties:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```js title=src/server/auth/github.js
+  ```js title=src/auth/github.js
   export function getConfig() {
     return {
       clientID, // look up from env or elsewhere
@@ -505,7 +505,7 @@ The `gitHub` dict has the following properties:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title=src/server/auth/github.ts
+  ```ts title=src/auth/github.ts
   export function getConfig() {
     return {
       clientID, // look up from env or elsewhere

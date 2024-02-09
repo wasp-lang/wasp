@@ -128,7 +128,7 @@ You can follow these steps to migrate to the new auth system:
 
   You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify that the tables are there.
 
-1. Write your data migration function(s) in `src/server/migrateToNewAuth.ts`
+1. Write your data migration function(s) in `src/migrateToNewAuth.ts`
     - In the previous step, we migrated the schema, and now we need to prepare logic for migrating the data.
     - Below you can find [examples of migration functions](#example-migration-scripts) for each of the auth methods. They should be fine to use as-is, meaning you can just copy them, but you can also modify them to your needs. You will want to have one function per each auth method that you use in your app.
 1. Add the migration function(s) to the `db.seeds` config:
@@ -140,8 +140,8 @@ You can follow these steps to migrate to the new auth system:
     // ...
     db: {
       seeds: [
-        import { migrateEmailAuth } from "@server/migrateToNewAuth.js",
-        import { migrateGoogleAuth } from "@server/migrateToNewAuth.js",
+        import { migrateEmailAuth } from "@src/migrateToNewAuth.js",
+        import { migrateGoogleAuth } from "@src/migrateToNewAuth.js",
       ]
     },
   }
@@ -219,9 +219,9 @@ The migration functions provided below are written with the typical use cases in
 
 ### Username & Password
 
-```ts title="src/server/migrateToNewAuth.ts"
+```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { ProviderName, UsernameProviderData } from "@wasp/auth/utils";
+import { ProviderName, UsernameProviderData } from "wasp/server/auth";
 
 export async function migrateUsernameAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -269,9 +269,9 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
 
 ### Email
 
-```ts title="src/server/migrateToNewAuth.ts"
+```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { EmailProviderData, ProviderName } from "@wasp/auth/utils";
+import { EmailProviderData, ProviderName } from "wasp/server/auth";
 
 export async function migrateEmailAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -323,9 +323,9 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
 
 ### Google & GitHub
 
-```ts title="src/server/migrateToNewAuth.ts"
+```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { ProviderName } from "@wasp/auth/utils";
+import { ProviderName } from "wasp/server/auth";
 
 export async function migrateGoogleAuth(prismaClient: PrismaClient) {
   return createSocialLoginMigration(prismaClient, "google");
