@@ -158,7 +158,6 @@ npmDepsForWasp spec =
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
-            ("uuid", "^9.0.0"),
             ("rate-limiter-flexible", "^2.4.1"),
             ("superjson", "^1.12.2")
           ]
@@ -175,7 +174,6 @@ npmDepsForWasp spec =
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-            ("@types/uuid", "^9.0.0"),
             ("@types/cors", "^2.8.5"),
             ("rollup", "^4.9.6"),
             ("rollup-plugin-esbuild", "^6.1.1")

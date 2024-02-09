@@ -24,11 +24,11 @@ import qualified Wasp.Generator.WebSocket as AS.WS
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-      sequence
-        [ genWebSocketServerIndex spec,
-          genFileCopy [relfile|client/webSocket/index.ts|],
-          genWebSocketProvider spec
-        ]
+    sequence
+      [ genWebSocketServerIndex spec,
+        genFileCopy [relfile|client/webSocket/index.ts|],
+        genWebSocketProvider spec
+      ]
   | otherwise = return []
   where
     genFileCopy = return . C.mkTmplFd
@@ -55,4 +55,4 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocke
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByWebSockets spec
   | AS.WS.areWebSocketsUsed spec = AS.WS.sdkDepsRequiredForWebSockets
-  | otherwise = []
+  | otherwise = AS.Dependency.fromList [("uuid", "^9.0.0")]
