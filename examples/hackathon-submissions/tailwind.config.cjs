@@ -1,8 +1,8 @@
-const { makeProjectGlobPattern } = require('wasp/client')
+const { resolveProjectPath } = require('wasp/client')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [makeProjectGlobPattern('./src/**/*.{js,ts,jsx,tsx}')],
+  content: [resolveProjectPath('./src/**/*.{js,ts,jsx,tsx}')],
   theme: {
     extend: {
       skew: {

@@ -296,13 +296,13 @@ generateTailwindConfigFile :: NewProjectDetails -> File
 generateTailwindConfigFile newProjectDetails =
   ( "tailwind.config.cjs",
     [trimming|
-      const { makeProjectGlobPattern } = require('wasp/client')
+      const { resolveProjectPath } = require('wasp/client')
       const colors = require('tailwindcss/colors')
 
       /** @type {import('tailwindcss').Config} */
       module.exports = {
         content: [
-          makeProjectGlobPattern('./src/**/*.{js,jsx,ts,tsx}'),
+          resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
         ],
         theme: {
           extend: {
