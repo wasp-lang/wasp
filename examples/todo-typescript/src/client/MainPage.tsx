@@ -1,17 +1,11 @@
+import { getUsername, type AuthUser as User } from "wasp/auth";
+import { type Task } from "wasp/entities";
+import { logout } from "wasp/client/auth";
+import { createTask, updateTask, deleteTasks, useQuery, getTasks } from "wasp/client/operations";
 import React, { FormEventHandler, FormEvent } from "react";
 import waspLogo from "./waspLogo.png";
 
 import "./Main.css";
-// Wasp imports 🐝 = }
-import logout from "@wasp/auth/logout";
-import { useQuery } from "@wasp/queries"; // Wasp uses a thin wrapper around react-query
-import getTasks from "@wasp/queries/getTasks";
-import createTask from "@wasp/actions/createTask";
-import updateTask from "@wasp/actions/updateTask";
-import deleteTasks from "@wasp/actions/deleteTasks";
-import type { Task } from "@wasp/entities";
-import type { User } from "@wasp/auth/types";
-import { getUsername } from "@wasp/auth/user";
 
 export const MainPage = ({ user }: { user: User }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);

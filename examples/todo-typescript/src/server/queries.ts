@@ -1,6 +1,6 @@
-import HttpError from "@wasp/core/HttpError.js";
-import type { GetTasks } from "@wasp/queries/types";
-import type { Task } from "@wasp/entities";
+import { type Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import { type GetTasks } from "wasp/server/operations";
 
 //Using TypeScript's new 'satisfies' keyword, it will infer the types of the arguments and return value
 export const getTasks = ((_args, context) => {

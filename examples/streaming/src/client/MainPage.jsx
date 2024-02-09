@@ -1,57 +1,58 @@
-import { useState, useEffect } from "react";
-import config from "@wasp/config";
-import "./Main.css";
+// note: undocumented API
+import config from 'wasp/core/config'
+import { useState, useEffect } from 'react'
+import './Main.css'
 
 const MainPage = () => {
-  const { response } = useTextStream("/api/streaming-test");
+  const { response } = useTextStream('/api/streaming-test')
   return (
     <div className="container">
       <main>
         <h1>Streaming Demo</h1>
         <p
           style={{
-            maxWidth: "600px",
+            maxWidth: '600px',
           }}
         >
           {response}
         </p>
       </main>
     </div>
-  );
-};
-export default MainPage;
+  )
+}
+export default MainPage
 
 function useTextStream(path) {
-  const [response, setResponse] = useState("");
+  const [response, setResponse] = useState('')
   useEffect(() => {
-    const controller = new AbortController();
+    const controller = new AbortController()
     fetchStream(
       path,
       (chunk) => {
-        setResponse((prev) => prev + chunk);
+        setResponse((prev) => prev + chunk)
       },
       controller
-    );
+    )
     return () => {
-      controller.abort();
-    };
-  }, []);
+      controller.abort()
+    }
+  }, [])
 
   return {
     response,
-  };
+  }
 }
 
 async function fetchStream(path, onData, controller) {
   const response = await fetch(config.apiUrl + path, {
     signal: controller.signal,
-  });
-  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  })
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
   while (true) {
-    const { done, value } = await reader.read();
+    const { done, value } = await reader.read()
     if (done) {
-      return;
+      return
     }
-    onData(value.toString());
+    onData(value.toString())
   }
 }

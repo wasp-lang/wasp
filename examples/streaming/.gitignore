@@ -1,4 +1,5 @@
 /.wasp/
+/node_modules
 
 # We ignore env files recognized and used by Wasp.
 .env.server
