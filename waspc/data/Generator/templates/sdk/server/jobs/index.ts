@@ -1,5 +1,5 @@
 {{={= =}=}}
 
 {=# jobs =}
-export type { {= typeName =} } from './{= jobName =}'
+export { type {= typeName =}, {= jobName =} } from './{= jobName =}.js'
 {=/ jobs =}

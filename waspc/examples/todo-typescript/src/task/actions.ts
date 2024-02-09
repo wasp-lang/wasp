@@ -6,6 +6,7 @@ import type {
 } from 'wasp/server/operations'
 import type { Task } from 'wasp/entities'
 import { emailSender } from 'wasp/server/email'
+import { printTimeAndNumberOfTasks } from 'wasp/server/jobs'
 
 type CreateArgs = Pick<Task, 'description'>
 
@@ -16,6 +17,9 @@ export const createTask: CreateTask<CreateArgs, Task> = async (
   if (!context.user) {
     throw new HttpError(401)
   }
+
+  console.log("Executing 'printTimeAndNumberOfTasks' task.")
+  await printTimeAndNumberOfTasks.submit({})
 
   emailSender.send({
     to: 'test@test.com',
