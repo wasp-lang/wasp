@@ -56,8 +56,9 @@ The main differences are:
 
 - The server/client code separation is no longer necessary. You can now organize
   your code however you want, as long as it's inside the `src` directory.
-- Wasp declarations must import all code with `import foo from '@src/bar.js'`
-  where `@src` refers to the `src`.
+- All external imports in your Wasp file must have paths starting with `@src` (e.g., `import foo from '@src/bar.js')
+  where `@src` refers to the `src` directory in your project root. The paths can
+  no longer start with `@server` or `@client`.
 - Your project now features a top-level `public` dir. Wasp will publicly serve
   all the files it finds in this directory. Read more about it
   [here](https://wasp-lang.dev/docs/project/static-assets).
@@ -142,6 +143,15 @@ You can read more about the new auth system in the [Auth Entities](./entities) s
 
 ## How to Migrate?
 
+These instructions are for migrating your app from Wasp `0.11.X` to Wasp `0.12.X`, meaning they will work for all minor releases that fit this pattern (e.g., the guide applies to `0.12.0`, `0.12.1`, ...).
+
+We suggest you install the latest 0.12.X version of Wasp by running:
+```bash
+curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s
+```
+
+If you get stuck at any point, don't hesitate to ask us on [our Discord server](https://discord.gg/rzdnErX).
+
 ### Migrating your project to the new structure
 
 You can easily migrate your old Wasp project to the new structure by following a
@@ -150,7 +160,7 @@ directory `foo`, you should:
 
 0. Make sure to backup or save your project before starting the procedure (e.g.,
    by committing it to source control or creating a copy).
-1. Install the latest version of Wasp.
+1. Install the latest `0.12.x` version of Wasp.
 2. Rename your project's root directory to something like `foo_old`.
 3. Create a new project by running `wasp new foo`.
 4. Delete all files of `foo/src` except `vite-env.d.ts`.
@@ -165,15 +175,18 @@ directory `foo`, you should:
    - `foo/src/client/tsconfig.json` - A new version of this file already exists at the top level.
    - `foo/src/server/tsconfig.json` - A new version of this file already exists at the top level.
    - `foo/src/shared/tsconfig.json` - A new version of this file already exists at the top level.
-   - `foo/src/client/public` - You've taken care of the files in this directory in step 4.
-8. Update all `@wasp` imports in your source files (i.e., the `foo/src` directory).
-   You can easily do this using
-   [wasp-codemod](https://github.com/wasp-lang/wasp-codemod), a tool we developed
-   specifically for this purpose. **Running this command modifies files in place**,
-   so make sure you have them stored somewhere.
-   Alternatively, you can find all
-   mappings of old imports to new ones in [this table](https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit#gid=1725669920).
-9. Replace the Wasp file in `foo` with the Wasp file from `foo_old`
+   - `foo/src/client/public` - You've moved all the files from this directory in step 5.
+8. Update all the `@wasp` imports in your JS/TS source files (i.e., the `foo/src` directory).
+
+   The easiest way to get this done is by using the tool that we prepared
+   specifically for this purpose: [wasp-codemod](https://github.com/wasp-lang/wasp-codemod).
+
+   Clone the `wasp-codemod` repo and look at the `README.md` for instructions. Shortly, you will want to go into the `wasp-codemod` repo dir, run `npm install` in it and then `npm run imports-0-11 -- <path-to-your-wasp-project-src-dir>` (e.g. `npm run imports-0-11 -- ../foo/src`). When it is done, we suggest checking the changes it did, in case some kind of manual intervention is needed.
+
+   **NOTE:** Running this command will modify your JS/TS files in place!
+   
+   Alternatively, you can find all the mappings of old imports to the new ones in [this table](https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit#gid=1725669920) and use it to fix some/all of them manually.
+9. Replace the Wasp file in `foo` (i.e., `main.wasp`) with the Wasp file from `foo_old`
 10. Change the Wasp version field in your Wasp file (now residing in `foo`) to `"^0.12.0"`.
 11. Correct external imports in your Wasp file (now residing in `foo`).
     imports. You can do this by running search-and-replace inside the file:
@@ -259,8 +272,8 @@ directory `foo`, you should:
 
 13. Copy all lines you might have added to `foo_old/.gitignore` into
     `foo/.gitignore`
-14. Copy the rest of the top-level files (excluding `gitignore` and the `.wasp`
-    file) in `foo_old/` into `foo/` (overwrite the existing files in `foo`)
+14. Copy the rest of the top-level files and folders (excluding `gitignore` and the `.wasp`
+    file) in `foo_old/` into `foo/` (overwrite the existing files in `foo`).
 15. Run `wasp clean`.
 
 That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
@@ -302,22 +315,8 @@ Once we confirm everything works well locally, we will apply the same changes to
 
 You can follow these steps to migrate to the new auth system:
 
-1. Upgrade Wasp to the latest 0.12.X version.
+1. Upgrade Wasp to the latest 0.12.X version (as described [above](https://discord.gg/rzdnErX)).
 
-These instructions are for migrating the auth from Wasp `0.11.X` to Wasp `0.12.X`, meaning they will work for all minor releases fitting that pattern (e.g., the guide applies to both `0.12.0` and `0.12.5`).
-We suggest you install the latest 0.12 version of Wasp. Find the available Wasp versions in the [Releases](https://github.com/wasp-lang/wasp/releases) section of our GitHub repo.
-
-You can then install the desired version with:
-
-```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.12.0
-```
-
-  <small>
-
-In the above command, replace `0.12.0` with the version you want to install.
-
-  </small>
 
 1. Bump the version to `^0.12.0` in `main.wasp` (if you haven't already done this when [migrating the app to the new structure](#migrating-your-project-to-the-new-structure)).
 1. Create the new auth tables in the database by running:
