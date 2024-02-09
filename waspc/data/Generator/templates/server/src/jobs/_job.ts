@@ -1,12 +1,9 @@
 {{={= =}=}}
-import { createJob } from './{= jobExecutorRelativePath =}'
-{=& jobEntitiesImportStatement =}
-{=& jobPerformFnImportStatement =}
+import { registerJob } from '{= jobExecutorImportPath =}'
+{=& jobPerformFn.importStatement =}
+{=& jobDefinition.importStatement =}
 
-export const {= jobName =} = createJob({
-  jobName: "{= jobName =}",
-  jobFn: {= jobPerformFnName =},
-  defaultJobOptions: {=& jobPerformOptions =},
-  jobSchedule: {=& jobSchedule =},
-  {= jobEntitiesIdentifier =},
+registerJob({
+  job: {= jobDefinition.importIdentifier =},
+  jobFn: {= jobPerformFn.importIdentifier =},
 })

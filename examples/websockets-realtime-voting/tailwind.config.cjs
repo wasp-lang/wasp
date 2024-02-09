@@ -1,8 +1,10 @@
+const { resolveProjectPath } = require('wasp/client')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
+    resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}"),
+    resolveProjectPath("node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}"),
   ],
   theme: {
     extend: {},

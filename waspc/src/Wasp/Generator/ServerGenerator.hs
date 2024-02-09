@@ -51,7 +51,7 @@ import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
-import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
+import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
@@ -75,7 +75,6 @@ genServer spec =
     <++> genSrcDir spec
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genJobExecutors spec
     <++> genPatches spec
     <++> genEnvValidationScript
     <++> genApis spec
@@ -164,7 +163,6 @@ npmDepsForWasp spec =
             ("superjson", "^1.12.2")
           ]
           ++ depsRequiredByPassport spec
-          ++ depsRequiredByJobs spec
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList

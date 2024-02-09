@@ -24,6 +24,7 @@ function createPgBoss() {
 
 let resolvePgBossStarted: (boss: PgBoss) => void
 let rejectPgBossStarted: (boss: PgBoss) => void
+// PRIVATE API
 // Code that wants to access pg-boss must wait until it has been started.
 export const pgBossStarted = new Promise<PgBoss>((resolve, reject) => {
   resolvePgBossStarted = resolve
@@ -39,6 +40,7 @@ enum PgBossStatus {
 
 let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
 
+// PRIVATE API
 /**
  * Prepares the target PostgreSQL database and begins job monitoring.
  * If the required database objects do not exist in the specified database,

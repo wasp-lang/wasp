@@ -47,7 +47,7 @@ import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
-import Wasp.Generator.SdkGenerator.Server.JobGenerator (genNewJobsApi)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genNewJobsApi)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -86,9 +86,9 @@ genSdkReal spec =
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|types/index.ts|],
-      genFileCopy [relfile|server/jobs/pgBoss/types.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
+      genFileCopy [relfile|client/index.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -224,7 +224,8 @@ npmDepsForSdk spec =
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
-          ++ depsRequiredForTesting,
+          ++ depsRequiredForTesting
+          ++ depsRequiredByJobs spec,
       N.devDependencies =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")

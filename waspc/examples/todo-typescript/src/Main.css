@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -70,4 +74,24 @@ li {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.button {
+  @apply bg-cyan-500 text-white font-bold py-2 px-4 rounded;
+}
+
+a {
+  @apply text-cyan-500 underline;
+}
+
+input {
+  @apply border border-gray-400 rounded p-2;
+}
+
+h1 {
+  @apply text-3xl font-bold;
+}
+
+h2 {
+  @apply text-2xl font-bold;
 }
