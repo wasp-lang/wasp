@@ -44,11 +44,11 @@ To create an Action in Wasp, we begin with an `action` declaration. Let's declar
 // ...
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js"
+  fn: import { createTask } from "@src/actions.js"
 }
 
 action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@server/actions.js"
+  fn: import { markTaskAsDone } from "@src/actions.js"
 }
 
 ```
@@ -60,19 +60,13 @@ action markTaskAsDone {
 // ...
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js"
+  fn: import { createTask } from "@src/actions.js"
 }
 
 action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@server/actions.js"
+  fn: import { markTaskAsDone } from "@src/actions.js"
 }
 ```
-
-:::warning
-Even though you are using TypeScript and plan to implement this Action in `src/server/actions.ts`, you still need to import it using a `.js` extension. Wasp internally uses `esnext` module resolution, which requires importing all files with a `.js` extension. This is only needed when importing `@server` files.
-
-Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
-:::
 
 </TabItem>
 </Tabs>
@@ -100,14 +94,14 @@ Generating these two functions ensures a uniform calling interface across the en
 
 ### Implementing Actions in Node
 
-Now that we've declared the Action, what remains is to implement it. We've instructed Wasp to look for the Actions' implementations in the file `src/server/actions.{js,ts}`, so that's where we should export them from.
+Now that we've declared the Action, what remains is to implement it. We've instructed Wasp to look for the Actions' implementations in the file `src/actions.{js,ts}`, so that's where we should export them from.
 
 Here's how you might implement the previously declared Actions `createTask` and `markTaskAsDone`:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/server/actions.js"
+```js title="src/actions.js"
 // our "database"
 let nextId = 4
 const tasks = [
@@ -144,8 +138,8 @@ export const markTaskAsDone = (args) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/server/actions.ts"
-import { CreateTask, MarkTaskAsDone } from '@wasp/actions/types'
+```ts title="src/actions.ts"
+import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
 
 type Task = {
   id: number
@@ -222,14 +216,13 @@ For a detailed explanation of the Action definition API (i.e., arguments and ret
 
 ### Using Actions
 
-To use an Action, you can import it from `@wasp` and call it directly. As mentioned, the usage doesn't change depending on whether you're on the server or the client:
+To use an Action, you can import it from `wasp/client/operations` and call it directly. As mentioned, the usage doesn't change depending on whether you're on the server or the client:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```javascript
-import createTask from '@wasp/actions/createTask.js'
-import markTasAsDone from '@wasp/actions/markTasAsDone.js'
+import { createTask, markTasAsDone } from 'wasp/client/operations'
 
 // ...
 
@@ -241,8 +234,7 @@ await markTasAsDone({ id: 1 })
 <TabItem value="ts" label="TypeScript">
 
 ```typescript
-import createTask from '@wasp/actions/createTask.js'
-import markTasAsDone from '@wasp/actions/markTasAsDone.js'
+import { createTask, markTasAsDone } from 'wasp/client/operations'
 
 // TypeScript automatically infers the return values and type-checks
 // the payloads.
@@ -258,11 +250,9 @@ When using Actions on the client, you'll most likely want to use them inside a c
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx {4,25} title=src/client/pages/Task.jsx
+```jsx {4,25} title=src/pages/Task.jsx
 import React from 'react'
-import { useQuery } from '@wasp/queries'
-import getTask from '@wasp/queries/getTask'
-import markTaskAsDone from '@wasp/actions/markTaskAsDone'
+import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
 
 export const TaskPage = ({ id }) => {
   const { data: task } = useQuery(getTask, { id })
@@ -293,11 +283,9 @@ export const TaskPage = ({ id }) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx {4,25} title=src/client/pages/Task.tsx
+```tsx {4,25} title=src/pages/Task.tsx
 import React from 'react'
-import { useQuery } from '@wasp/queries'
-import getTask from '@wasp/queries/getTask'
-import markTaskAsDone from '@wasp/actions/markTaskAsDone'
+import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
 
 export const TaskPage = ({ id }: { id: number }) => {
   const { data: task } = useQuery(getTask, { id })
@@ -340,8 +328,8 @@ If you do want to pass additional error information to the client, you can const
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title=src/server/actions.js
-import HttpError from '@wasp/core/HttpError.js'
+```js title=src/actions.js
+import { HttpError } from 'wasp/server'
 
 export const createTask = async (args, context) => {
   throw new HttpError(
@@ -355,9 +343,9 @@ export const createTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title=src/server/actions.ts
-import { CreateTask } from '@wasp/actions/types'
-import HttpError from '@wasp/core/HttpError.js'
+```ts title=src/actions.ts
+import { type CreateTask } from 'wasp/server/operations'
+import { HttpError } from 'wasp/server'
 
 export const createTask: CreateTask = async (args, context) => {
   throw new HttpError(
@@ -382,12 +370,12 @@ To use an Entity in your Action, add it to the `action` declaration in Wasp:
 ```wasp {4,9} title="main.wasp"
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js",
+  fn: import { createTask } from "@src/actions.js",
   entities: [Task]
 }
 
 action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@server/actions.js",
+  fn: import { markTaskAsDone } from "@src/actions.js",
   entities: [Task]
 }
 ```
@@ -398,12 +386,12 @@ action markTaskAsDone {
 ```wasp {4,9} title="main.wasp"
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js",
+  fn: import { createTask } from "@src/actions.js",
   entities: [Task]
 }
 
 action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@server/actions.js",
+  fn: import { markTaskAsDone } from "@src/actions.js",
   entities: [Task]
 }
 ```
@@ -417,7 +405,7 @@ Wasp invalidates frontend Query caches by looking at the Entities used by each A
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/server/actions.js"
+```js title="src/actions.js"
 // The 'args' object is the payload sent by the caller (most often from the client)
 export const createTask = async (args, context) => {
   const newTask = await context.entities.Task.create({
@@ -440,9 +428,9 @@ export const markTaskAsDone = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/server/actions.ts"
-import { CreateTask, MarkTaskAsDone } from '@wasp/actions/types'
-import { Task } from '@wasp/entities'
+```ts title="src/actions.ts"
+import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
+import { type Task } from 'wasp/entities'
 
 // The 'args' object is the payload sent by the caller (most often from the client)
 export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
@@ -527,7 +515,7 @@ Declaring the Action:
 
 ```wasp
 query createFoo {
-    fn: import { createFoo } from "@server/actions.js"
+    fn: import { createFoo } from "@src/actions.js"
     entities: [Foo]
 }
 ```
@@ -535,7 +523,7 @@ query createFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```js
-import createFoo from '@wasp/actions/createFoo'
+import { createFoo } from 'wasp/client/operations'
 ```
 
 </TabItem>
@@ -545,21 +533,23 @@ Declaring the Action:
 
 ```wasp
 query createFoo {
-    fn: import { createFoo } from "@server/actions.js"
+    fn: import { createFoo } from "@src/actions.js"
     entities: [Foo]
 }
 ```
 
-And also creates a type you can import on the server:
+Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```ts
-import createFoo from '@wasp/actions'
+import { createFoo } from 'wasp/client/operations'
+// TODO(miho): missing API
+import { createFoo } from 'wasp/server/operations'
 ```
 
 As well as the following type import on the server:
 
 ```ts
-import type { CreateFoo } from '@wasp/actions/types'
+import { type CreateFoo } from 'wasp/server/operations'
 ```
 
 </TabItem>
@@ -585,7 +575,7 @@ Afer you [declare the Action](#declaring-actions), Wasp generates a generic type
 For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
 
 ```ts
-import { CreateSomething } from '@wasp/actions/types'
+import { type CreateSomething } from 'wasp/server/operations'
 ```
 
 It expects two (optional) type arguments:
@@ -611,12 +601,12 @@ The following Action:
 
 ```wasp
 action createFoo {
-    fn: import { createFoo } from "@server/actions.js"
+    fn: import { createFoo } from "@src/actions.js"
     entities: [Foo]
 }
 ```
 
-Expects to find a named export `createfoo` from the file `src/server/actions.js`
+Expects to find a named export `createfoo` from the file `src/actions.js`
 
 ```js title=actions.js
 export const createFoo = (args, context) => {
@@ -629,17 +619,17 @@ export const createFoo = (args, context) => {
 
 ```wasp
 action createFoo {
-    fn: import { createFoo } from "@server/actions.js"
+    fn: import { createFoo } from "@src/actions.js"
     entities: [Foo]
 }
 ```
 
-Expects to find a named export `createfoo` from the file `src/server/actions.js`
+Expects to find a named export `createfoo` from the file `src/actions.js`
 
 You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
 
 ```ts title=actions.ts
-import { CreateFoo } from "@wasp/actions/types";
+import { type CreateFoo } from 'wasp/server/operations'
 
 type Foo = // ...
 
@@ -698,12 +688,14 @@ Here's an example showing how to configure the Action `markTaskAsDone` that togg
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx {3,9,10,11,12,13,14,15,16,34} title=src/client/pages/Task.jsx
+```jsx {3,9,10,11,12,13,14,15,16,34} title=src/pages/Task.jsx
 import React from 'react'
-import { useQuery } from '@wasp/queries'
-import { useAction } from '@wasp/actions'
-import getTask from '@wasp/queries/getTask'
-import markTaskAsDone from '@wasp/actions/markTaskAsDone'
+import {
+  useQuery,
+  useAction,
+  getTask,
+  markTaskAsDone,
+} from 'wasp/client/operations'
 
 const TaskPage = ({ id }) => {
   const { data: task } = useQuery(getTask, { id })
@@ -746,12 +738,15 @@ export default TaskPage
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```jsx {2,4,8,12,13,14,15,16,17,18,19,37} title=src/client/pages/Task.js
-import React from "react";
-import { useQuery } from "@wasp/queries";
-import { useAction, OptimisticUpdateDefinition } from "@wasp/actions";
-import getTask from "@wasp/queries/getTask";
-import markTaskAsDone from "@wasp/actions/markTaskAsDone";
+```jsx {2,4,8,12,13,14,15,16,17,18,19,37} title=src/pages/Task.js
+import React from 'react'
+import {
+  useQuery,
+  useAction,
+  type OptimisticUpdateDefinition,
+  getTask,
+  markTaskAsDone,
+} from 'wasp/client/operations'
 
 type TaskPayload = Pick<Task, "id">;
 
@@ -808,7 +803,7 @@ If you decide to use _react-query_'s API directly, you will need access to Query
 <TabItem value="js" label="JavaScript">
 
 ```js
-import getTasks from '@wasp/queries/getTasks'
+import { getTasks } from 'wasp/client/operations'
 
 const queryKey = getTasks.queryCacheKey
 ```
@@ -817,7 +812,7 @@ const queryKey = getTasks.queryCacheKey
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import getTasks from '@wasp/queries/getTasks'
+import { getTasks } from 'wasp/client/operations'
 
 const queryKey = getTasks.queryCacheKey
 ```

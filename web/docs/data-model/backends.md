@@ -118,8 +118,8 @@ app MyApp {
   db: {
     // ...
     seeds: [
-      import { devSeedSimple } from "@server/dbSeeds.js",
-      import { prodSeed } from "@server/dbSeeds.js"
+      import { devSeedSimple } from "@src/dbSeeds.js",
+      import { prodSeed } from "@src/dbSeeds.js"
     ]
   }
 }
@@ -134,8 +134,8 @@ app MyApp {
   db: {
     // ...
     seeds: [
-      import { devSeedSimple } from "@server/dbSeeds.js",
-      import { prodSeed } from "@server/dbSeeds.js"
+      import { devSeedSimple } from "@src/dbSeeds.js",
+      import { prodSeed } from "@src/dbSeeds.js"
     ]
   }
 }
@@ -179,6 +179,7 @@ async function createUser(prisma, data) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts
+// TODO(miho): figure this file out
 import { createTask } from "./actions.js";
 import { User } from "@wasp/entities";
 import { PrismaClient } from "@prisma/client";
@@ -296,7 +297,7 @@ app MyApp {
   db: {
     system: PostgreSQL,
     seeds: [
-      import devSeed from "@server/dbSeeds.js"
+      import devSeed from "@src/dbSeeds.js"
     ],
     prisma: {
       clientPreviewFeatures: ["extendedWhereUnique"]
@@ -315,7 +316,7 @@ app MyApp {
   db: {
     system: PostgreSQL,
     seeds: [
-      import devSeed from "@server/dbSeeds.js"
+      import devSeed from "@src/dbSeeds.js"
     ],
     prisma: {
       clientPreviewFeatures: ["extendedWhereUnique"]
@@ -420,7 +421,7 @@ Use one of the following commands to run the seed functions:
       // ...
       seeds: [
         // ...
-        import { devSeedSimple } from "@server/dbSeeds.js",
+        import { devSeedSimple } from "@src/dbSeeds.js",
       ]
     }
   }
@@ -436,7 +437,7 @@ Use one of the following commands to run the seed functions:
       // ...
       seeds: [
         // ...
-        import { devSeedSimple } from "@server/dbSeeds.js",
+        import { devSeedSimple } from "@src/dbSeeds.js",
       ]
     }
   }
