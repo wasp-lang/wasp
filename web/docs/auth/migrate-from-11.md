@@ -330,7 +330,7 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
 1. Write your data migration function(s) in `src/migrateToNewAuth.ts`
     - In the previous step, we migrated the schema, and now we need to prepare logic for migrating the data.
-    - Below you can find [examples of migration functions](#example-migration-scripts) for each of the auth methods. They should be fine to use as-is, meaning you can just copy them, but you can also modify them to your needs. You will want to have one function per each auth method that you use in your app.
+    - Below you can find [examples of migration functions](#example-migration-functions) for each of the auth methods. They should be fine to use as-is, meaning you can just copy them, but you can also modify them to your needs. You will want to have one function per each auth method that you use in your app.
 1. Add the migration function(s) to the `db.seeds` config:
   ```wasp title="main.wasp"
   app myApp {
