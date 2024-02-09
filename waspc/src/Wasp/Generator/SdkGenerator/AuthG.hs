@@ -115,10 +115,7 @@ genUtils auth = return $ C.mkTmplFdWithData relUtilsFilePath tmplData
 
 genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
 genIndexTs auth =
-  return $
-    if isEmailAuthEnabled || isLocalAuthEnabled
-      then [C.mkTmplFdWithData [relfile|auth/index.ts|] tmplData]
-      else []
+  return [C.mkTmplFdWithData [relfile|auth/index.ts|] tmplData]
   where
     tmplData =
       object

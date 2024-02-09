@@ -37,7 +37,7 @@ export type EmailSender = {
 // PRIVATE API
 export type SentMessageInfo = any;
 
-// PRIVATE API
+// PUBLIC API
 export type Email = {
   {=# isDefaultFromFieldDefined =}
   from?: EmailFromField;
@@ -51,7 +51,7 @@ export type Email = {
   html: string;
 };
 
-// PRIVATE API
+// PUBLIC API
 export type EmailFromField = {
   name?: string;
   email: string;
