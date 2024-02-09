@@ -1,4 +1,4 @@
-import * as path from 'path';
+import { join as joinPaths } from 'path';
 
 // PUBLIC API
 /**
@@ -7,5 +7,5 @@ import * as path from 'path';
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
 export function resolveProjectPath(path: string): string {
-  return path.join('../../../', path);
+  return joinPaths('../../../', path);
 }
