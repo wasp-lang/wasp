@@ -103,7 +103,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 For example, the following is missing ',' after the component field:
                 ```wasp
                   page ExamplePage {
-                    component: import ExamplePage from "@client/pages/ExamplePage.jsx" // <- missing ','
+                    component: import ExamplePage from "@src/pages/ExamplePage.jsx" // <- missing ','
                     authRequired: true
                   }
                 ```
@@ -111,8 +111,8 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 Fix these by replacing them with actual implementation.
               - Strings in Wasp must use double quotes, not single quotes.
               - Value of `fn:` field in `query` or `action` not having correct import syntax,
-                for example it might have invalid syntax, e.g. `fn: @server/actions.js`.
-                Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@server/actions.js"`.
+                for example it might have invalid syntax, e.g. `fn: @src/actions.js`.
+                Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@src/actions.js"`.
               - If two entities are in a relation, make sure that they both have a field that references the other entity.
               - If an entity has a field that references another entity (e.g. location), make sure to include @relation directive on that field.
               - If an entity references another entity, make sure the ID field (e.g. locationId) of the referenced entity is also included.

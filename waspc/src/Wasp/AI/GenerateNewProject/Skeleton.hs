@@ -35,6 +35,8 @@ generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkele
   let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails
   writeNewFile waspFile
 
+  writeNewFile $ generatePackageJson newProjectDetails
+
   case getProjectAuth newProjectDetails of
     UsernameAndPassword -> do
       writeNewFile generateLoginJsPage
@@ -72,10 +74,8 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           [ "App uses username and password authentication.",
             T.unpack
               [trimming|
-              App MUST have a 'User' entity, with following fields required:
+              App MUST have a 'User' entity, with following field(s) required:
                 - `id Int @id @default(autoincrement())`
-                - `username String @unique`
-                - `password String`
               It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
               |],
             "One of the pages in the app must have a route path \"/\"."
@@ -92,7 +92,7 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           },
           title: "${appTitle}",
           client: {
-            rootComponent: import { Layout } from "@client/Layout.jsx",
+            rootComponent: import { Layout } from "@src/Layout.jsx",
           },
           db: {
             prisma: {
@@ -104,21 +104,47 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
 
         route LoginRoute { path: "/login", to: LoginPage }
         page LoginPage {
-          component: import Login from "@client/pages/auth/Login.jsx"
+          component: import Login from "@src/pages/auth/Login.jsx"
         }
         route SignupRoute { path: "/signup", to: SignupPage }
         page SignupPage {
-          component: import Signup from "@client/pages/auth/Signup.jsx"
+          component: import Signup from "@src/pages/auth/Signup.jsx"
         }
       |]
 
+-- TODO: We have duplication here, since package.json is already defined
+--   in `basic` templates file. We should find a way to reuse that, so we don't
+--   have to keep stuff in sync here.
+generatePackageJson :: NewProjectDetails -> File
+generatePackageJson newProjectDetails =
+  ( "package.json",
+    [trimming|
+      {
+        "name": "${appName}",
+        "dependencies": {
+          "wasp": "file:.wasp/out/sdk/wasp",
+          "react": "^18.2.0"
+        },
+        "devDependencies": {
+          "typescript": "^5.1.0",
+          "vite": "^4.3.9",
+          "@types/react": "^18.0.37",
+          "prisma": "4.16.2"
+        }
+      }
+
+    |]
+  )
+  where
+    appName = T.pack $ _projectAppName newProjectDetails
+
 generateLoginJsPage :: File
 generateLoginJsPage =
-  ( "src/client/pages/auth/Login.jsx",
+  ( "src/pages/auth/Login.jsx",
     [trimming|
       import React from "react";
       import { Link } from "react-router-dom";
-      import { LoginForm } from "@wasp/auth/forms/Login";
+      import { LoginForm } from "wasp/client/auth";
 
       export default function Login() {
         return (
@@ -153,11 +179,11 @@ generateLoginJsPage =
 
 generateSignupJsPage :: File
 generateSignupJsPage =
-  ( "src/client/pages/auth/Signup.jsx",
+  ( "src/pages/auth/Signup.jsx",
     [trimming|
       import React from "react";
       import { Link } from "react-router-dom";
-      import { SignupForm } from "@wasp/auth/forms/Signup";
+      import { SignupForm } from "wasp/client/auth";
 
       export default function Signup() {
         return (
@@ -201,7 +227,7 @@ generateDotEnvServerFile =
 
 generateMainCssFile :: File
 generateMainCssFile =
-  ( "src/client/Main.css",
+  ( "src/Main.css",
     [trimming|
       @tailwind base;
       @tailwind components;
@@ -217,11 +243,11 @@ generateMainCssFile =
 
 generateLayoutComponent :: NewProjectDetails -> File
 generateLayoutComponent newProjectDetails =
-  ( "src/client/Layout.jsx",
+  ( "src/Layout.jsx",
     [trimming|
       import { Link } from "react-router-dom";
-      import useAuth from '@wasp/auth/useAuth';
-      import logout from '@wasp/auth/logout';
+      import { useAuth, logout } from "wasp/client/auth";
+      import { getUsername } from "wasp/auth";
       import "./Main.css";
 
       export const Layout = ({ children }) => {
@@ -236,7 +262,7 @@ generateLayoutComponent newProjectDetails =
                 </Link>
                 { user ? (
                   <span>
-                    Hi, {user.username}!{' '}
+                    Hi, {getUsername(user)}!{' '}
                     <button onClick={logout} className="text-xl2 underline">
                       (Log out)
                     </button>
