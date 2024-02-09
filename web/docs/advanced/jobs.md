@@ -30,7 +30,7 @@ Let's write an example Job that will print a message to the console and return a
   job mySpecialJob {
     executor: PgBoss,
     perform: {
-      fn: import { foo } from "@server/workers/bar.js"
+      fn: import { foo } from "@src/workers/bar"
     },
     entities: [Task],
   }
@@ -42,7 +42,7 @@ Let's write an example Job that will print a message to the console and return a
   job mySpecialJob {
     executor: PgBoss,
     perform: {
-      fn: import { foo } from "@server/workers/bar.js"
+      fn: import { foo } from "@src/workers/bar"
     },
     entities: [Task],
   }
@@ -55,7 +55,7 @@ Let's write an example Job that will print a message to the console and return a
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```js title="bar.js"
+  ```js title="src/workers/bar.js"
   export const foo = async ({ name }, context) => {
     console.log(`Hello ${name}!`)
     const tasks = await context.entities.Task.findMany({})
@@ -65,9 +65,9 @@ Let's write an example Job that will print a message to the console and return a
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title="bar.ts"
-  import type { MySpecialJob } from '@wasp/jobs/mySpecialJob'
-  import type { Task } from '@wasp/entities'
+  ```ts title="src/workers/bar.ts"
+  import { type MySpecialJob } from 'wasp/server/jobs'
+  import { type Task } from 'wasp/entities'
 
   type Input = { name: string; }
   type Output = { tasks: Task[]; }
@@ -100,7 +100,7 @@ Let's write an example Job that will print a message to the console and return a
   <TabItem value="js" label="JavaScript">
 
   ```js title="someAction.js"
-  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  import { mySpecialJob } from 'wasp/server/jobs'
 
   const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
 
@@ -114,15 +114,15 @@ Let's write an example Job that will print a message to the console and return a
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="someAction.ts"
-  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  import { mySpecialJob } from 'wasp/server/jobs'
 
-  const submittedJob = await mySpecialJob.submit({ job: "Tony" })
+  const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
 
   // Or, if you'd prefer it to execute in the future, just add a .delay().
   // It takes a number of seconds, Date, or ISO date string.
   await mySpecialJob
     .delay(10)
-    .submit({ name: "Tony" })
+    .submit({ name: "Johnny" })
   ```
   </TabItem>
   </Tabs>
@@ -142,7 +142,7 @@ If you have work that needs to be done on some recurring basis, you can add a `s
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/workers/bar.js"
+    fn: import { foo } from "@src/workers/bar"
   },
   schedule: {
     cron: "0 * * * *",
@@ -157,7 +157,7 @@ job mySpecialJob {
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/workers/bar.js"
+    fn: import { foo } from "@src/workers/bar"
   },
   schedule: {
     cron: "0 * * * *",
@@ -186,7 +186,7 @@ When you submit a job, you get a `SubmittedJob` object back. It has a `jobId` fi
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/workers/bar.js",
+    fn: import { foo } from "@src/workers/bar",
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
@@ -208,7 +208,7 @@ job mySpecialJob {
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/workers/bar.js",
+    fn: import { foo } from "@src/workers/bar",
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
@@ -266,7 +266,7 @@ The Job declaration has the following fields:
 
   - `fn: ServerImport` <Required />
 
-    - An `async` function that performs the work. Since Wasp executes Jobs on the server, you must import it from `@server`.
+    - An `async` function that performs the work. Since Wasp executes Jobs on the server, the import path must lead to a NodeJS file.
     - It receives the following arguments:
       - `args: Input`: The data passed to the job when it's submitted.
       - `context: { entities: Entities }`: The context object containing any declared entities.
@@ -276,7 +276,7 @@ The Job declaration has the following fields:
     <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
     
-    ```js title="bar.js"
+    ```js title="src/workers/bar.js"
     export const foo = async ({ name }, context) => {
       console.log(`Hello ${name}!`)
       const tasks = await context.entities.Task.findMany({})
@@ -286,8 +286,8 @@ The Job declaration has the following fields:
     </TabItem>
     <TabItem value="ts" label="TypeScript">
     
-    ```ts title="bar.ts"
-    import { MySpecialJob } from '@wasp/jobs/mySpecialJob'
+    ```ts title="src/workers/bar.ts"
+    import { type MySpecialJob } from 'wasp/server/jobs'
 
     type Input = { name: string; }
     type Output = { tasks: Task[]; }
@@ -343,17 +343,17 @@ The Job declaration has the following fields:
   <TabItem value="js" label="JavaScript">
 
   ```js title="someAction.js"
-  import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  import { mySpecialJob } from 'wasp/server/jobs'
   ```
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="someAction.ts"
-  import { mySpecialJob, type MySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+  import { mySpecialJob, type MySpecialJob } from 'wasp/server/jobs'
   ```
 
   :::info Type-safe jobs
-  Wasp generates a generic type for each Job declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `@wasp/jobs/{jobName}` module. In the example above, the type is `MySpecialJob`.
+  Wasp generates a generic type for each Job declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
 
   The type takes two type arguments:
   - `Input`: The type of the `args` argument of the `perform.fn` function.
@@ -416,7 +416,6 @@ The return value of `submit()` is an instance of `SubmittedJob`, which has the f
 - `jobId`: The ID for the job in that executor.
 - `jobName`: The name of the job you used in your `.wasp` file.
 - `executorName`: The Symbol of the name of the job executor.
-  - For pg-boss, you can import a Symbol from: `import { PG_BOSS_EXECUTOR_NAME } from '@wasp/jobs/core/pgBoss/pgBossJob.js'` if you wish to compare against `executorName`.
 
 There are also some namespaced, job executor-specific objects.
 
