@@ -7,7 +7,7 @@ title: Migration from 0.11.X to 0.12.X
 ### New project structure
 
 Here's a file tree of a fresh Wasp project created with the previous version of Wasp.
-More precisely, this is what you'll get if you run `wasp new project` using Wasp 0.11.x:
+More precisely, this is what you'll get if you run `wasp new myProject` using Wasp 0.11.x:
 
 ```
 .
