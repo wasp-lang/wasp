@@ -9,6 +9,7 @@ module.exports = {
         'introduction/introduction',
         'introduction/quick-start',
         'introduction/editor-setup',
+        'introduction/migrate-from-11',
       ],
     },
     {
@@ -68,7 +69,6 @@ module.exports = {
           ],
         },
         'auth/entities/entities',
-        'auth/migrate-from-11',
       ],
     },
     {
