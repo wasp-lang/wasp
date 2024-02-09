@@ -472,7 +472,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 The `query` declaration supports the following fields:
 
-- `fn: ServerImport` <Required />
+- `fn: ExtImport` <Required />
 
   The import statement of the Query's NodeJs implementation.
 

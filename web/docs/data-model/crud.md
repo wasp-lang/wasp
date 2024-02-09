@@ -150,7 +150,7 @@ Here's the `src/tasks.{js,ts}` file:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title=src/tasks.js {15-20}
+```js title=src/tasks.js
 import { HttpError } from 'wasp/server'
 
 export const createTask = async (args, context) => {
@@ -165,12 +165,14 @@ export const createTask = async (args, context) => {
     data: {
       description,
       isDone,
+      // highlight-start
       // Connect the task to the user that is creating it
       user: {
         connect: {
           id: context.user.id,
         },
       },
+      // highlight-end
     },
   })
 }
@@ -179,7 +181,7 @@ export const createTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title=src/tasks.ts {23-28}
+```ts title=src/tasks.ts
 import { type Tasks } from 'wasp/server/crud'
 import { type Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
@@ -201,12 +203,14 @@ export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
     data: {
       description,
       isDone,
+      // highlight-start
       // Connect the task to the user that is creating it
       user: {
         connect: {
           id: context.user.id,
         },
       },
+      // highlight-end
     },
   })
 }
@@ -226,7 +230,7 @@ And let's use the generated operations in our client code:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="pages/MainPage.jsx"
+```jsx title="src/MainPage.jsx"
 // highlight-next-line
 import { Tasks } from 'wasp/client/crud'
 import { useState } from 'react'
@@ -274,7 +278,7 @@ export const MainPage = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="pages/MainPage.tsx"
+```tsx title="src/MainPage.tsx"
 // highlight-next-line
 import { Tasks } from 'wasp/client/crud'
 import { useState } from 'react'
@@ -644,7 +648,7 @@ The CRUD declaration features the following fields:
     - `delete`
   - `CrudOperationOptions` can have the following fields:
     - `isPublic: bool` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
-    - `overrideFn: ServerImport` - The import statement of the optional override implementation in Node.js.
+    - `overrideFn: ExtImport` - The import statement of the optional override implementation in Node.js.
 
 #### Defining the overrides
 
@@ -689,7 +693,7 @@ For a usage example, check the [example guide](../data-model/crud#adding-crud-to
 
 #### Using the CRUD operations in client code
 
-On the client, you import the CRUD operations from `wasp/client/crud`. The names of the imports are the same as the names of the operations. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
+On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

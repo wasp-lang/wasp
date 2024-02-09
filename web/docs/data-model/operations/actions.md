@@ -250,8 +250,9 @@ When using Actions on the client, you'll most likely want to use them inside a c
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx {4,25} title=src/pages/Task.jsx
+```jsx title=src/pages/Task.jsx
 import React from 'react'
+// highlight-next-line
 import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
 
 export const TaskPage = ({ id }) => {
@@ -273,6 +274,7 @@ export const TaskPage = ({ id }) => {
         {isDone ? 'Yes' : 'No'}
       </p>
       {isDone || (
+        // highlight-next-line
         <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
       )}
     </div>
@@ -283,8 +285,9 @@ export const TaskPage = ({ id }) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx {4,25} title=src/pages/Task.tsx
+```tsx title=src/pages/Task.tsx
 import React from 'react'
+// highlight-next-line
 import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
 
 export const TaskPage = ({ id }: { id: number }) => {
@@ -306,6 +309,7 @@ export const TaskPage = ({ id }: { id: number }) => {
         {isDone ? 'Yes' : 'No'}
       </p>
       {isDone || (
+        // highlight-next-line
         <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
       )}
     </div>
@@ -497,7 +501,7 @@ Here are the key differences between Queries and Actions:
 
 The `action` declaration supports the following fields:
 
-- `fn: ServerImport` <Required />
+- `fn: ExtImport` <Required />
 
   The import statement of the Action's NodeJs implementation.
 
@@ -617,6 +621,8 @@ export const createFoo = (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
+The following Action:
+
 ```wasp
 action createFoo {
     fn: import { createFoo } from "@src/actions.js"
@@ -688,7 +694,7 @@ Here's an example showing how to configure the Action `markTaskAsDone` that togg
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx {3,9,10,11,12,13,14,15,16,34} title=src/pages/Task.jsx
+```jsx title=src/pages/Task.jsx
 import React from 'react'
 import {
   useQuery,
@@ -699,6 +705,7 @@ import {
 
 const TaskPage = ({ id }) => {
   const { data: task } = useQuery(getTask, { id })
+  // highlight-start
   const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
     optimisticUpdates: [
       {
@@ -707,6 +714,7 @@ const TaskPage = ({ id }) => {
       },
     ],
   })
+  // highlight-end
 
   if (!task) {
     return <h1>"Loading"</h1>
@@ -738,7 +746,7 @@ export default TaskPage
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```jsx {2,4,8,12,13,14,15,16,17,18,19,37} title=src/pages/Task.js
+```tsx title=src/pages/Task.tsx
 import React from 'react'
 import {
   useQuery,
@@ -752,6 +760,7 @@ type TaskPayload = Pick<Task, "id">;
 
 const TaskPage = ({ id }: { id: number }) => {
   const { data: task } = useQuery(getTask, { id });
+  // highlight-start
   const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
     optimisticUpdates: [
       {
@@ -760,6 +769,7 @@ const TaskPage = ({ id }: { id: number }) => {
       } as OptimisticUpdateDefinition<TaskPayload, Task>,
     ],
   });
+  // highlight-end
 
   if (!task) {
     return <h1>"Loading"</h1>;
