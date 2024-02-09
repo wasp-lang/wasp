@@ -74,7 +74,7 @@ waspFileExample =
             onAuthFailedRedirectTo: "/login"
           },
           client: {
-            rootComponent: import { Layout } from "@client/Layout.jsx",
+            rootComponent: import { Layout } from "@src/Layout.jsx",
           },
           db: {
             prisma: {
@@ -85,24 +85,22 @@ waspFileExample =
 
         route SignupRoute { path: "/signup", to: SignupPage }
         page SignupPage {
-          component: import Signup from "@client/pages/auth/Signup.jsx"
+          component: import Signup from "@src/pages/auth/Signup.jsx"
         }
 
         route LoginRoute { path: "/login", to: LoginPage }
         page LoginPage {
-          component: import Login from "@client/pages/auth/Login.jsx"
+          component: import Login from "@src/pages/auth/Login.jsx"
         }
 
         route DashboardRoute { path: "/", to: DashboardPage }
         page DashboardPage {
           authRequired: true,
-          component: import Dashboard from "@client/pages/Dashboard.jsx"
+          component: import Dashboard from "@src/pages/Dashboard.jsx"
         }
 
         entity User {=psl
             id          Int       @id @default(autoincrement())
-            username    String    @unique
-            password    String
             tasks       Task[]
         psl=}
 
@@ -115,22 +113,22 @@ waspFileExample =
         psl=}
 
         query getUser {
-          fn: import { getUser } from "@server/queries.js",
+          fn: import { getUser } from "@src/queries.js",
           entities: [User] // Entities that this query operates on.
         }
 
         query getTasks {
-          fn: import { getTasks } from "@server/queries.js",
+          fn: import { getTasks } from "@src/queries.js",
           entities: [Task]
         }
 
         action createTask {
-          fn: import { createTask } from "@server/actions.js",
+          fn: import { createTask } from "@src/actions.js",
           entities: [Task]
         }
 
         action updateTask {
-          fn: import { updateTask } from "@server/actions.js",
+          fn: import { updateTask } from "@src/actions.js",
           entities: [Task]
         }
         ```

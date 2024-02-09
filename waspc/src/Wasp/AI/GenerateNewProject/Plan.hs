@@ -87,21 +87,21 @@ generatePlan newProjectDetails planRules = do
         {
           "entities": [{
             "entityName": "User",
-            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
+            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  tasks Task[]"
           }],
           "actions": [{
             "opName": "createTask",
-            "opFnPath": "@server/actions.js",
+            "opFnPath": "@src/actions.js",
             "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
           }],
           "queries": [{
             "opName": "getTask",
-            "opFnPath": "@server/queries.js",
+            "opFnPath": "@src/queries.js",
             "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
           }],
           "pages": [{
             "pageName": "TaskPage",
-            "componentPath": "@client/pages/Task.jsx",
+            "componentPath": "@src/pages/Task.jsx",
             "routeName: "TaskRoute",
             "routePath": "/task/:taskId",
             "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task. Uses getTask query and createTask action.",
@@ -273,10 +273,10 @@ checkPlanForOperationIssues opType plan =
             else []
 
     checkOperationFnPath op =
-      if not ("@server" `isPrefixOf` opFnPath op)
+      if not ("@src" `isPrefixOf` opFnPath op)
         then
           [ "fn path of " <> caseOnOpType "query" "action" <> " '" <> opName op
-              <> "' must start with '@server'."
+              <> "' must start with '@src'."
           ]
         else []
 
@@ -308,9 +308,9 @@ checkPlanForPageIssues plan =
             else []
 
     checkPageComponentPath page =
-      if not ("@client" `isPrefixOf` componentPath page)
+      if not ("@src" `isPrefixOf` componentPath page)
         then
-          [ "component path of page '" <> pageName page <> "' must start with '@client'."
+          [ "component path of page '" <> pageName page <> "' must start with '@src'."
           ]
         else []
 

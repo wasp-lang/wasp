@@ -109,7 +109,7 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
 
         Example of such JSON:
         {
-          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import ExamplePage from \"@client/ExamplePage.jsx\",\n  authRequired: true\n}",
+          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import ExamplePage from \"@src/ExamplePage.jsx\",\n  authRequired: true\n}",
           "pageJsImpl": "JS imports + React component implementing the page.",
         }
         There should be no other text in the response.
@@ -134,7 +134,7 @@ makePageDocPrompt =
         ```wasp
         route TasksRoute { path: "/", to: ExamplePage }
         page TasksPage {
-          component: import Tasks from "@client/Tasks.jsx",
+          component: import Tasks from "@src/Tasks.jsx",
           authRequired: true
         }
         ```
@@ -143,11 +143,13 @@ makePageDocPrompt =
 
         ```jsx
         import React, { useState } from 'react';
-        import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query's useQuery
-        import { useAction } from '@wasp/actions'; // A thin wrapper around react-query's useMutation
-        import getTasks from '@wasp/queries/getTasks';
-        import createTask from '@wasp/actions/createTask';
-        import toggleTask from '@wasp/actions/toggleTask';
+        import {
+          useQuery,   // A thin wrapper around react-query's useQuery
+          useAction,  // A thin wrapper around react-query's useMutation
+          getTasks,   // query
+          createTask, // action
+          toggleTask  // action
+        } from 'wasp/client/operations';
 
         const Tasks = () => {
           const { data: tasks, isLoading, error } = useQuery(getTasks);
@@ -208,7 +210,7 @@ makePageDocPrompt =
         ```wasp
         route DashboardRoute { path: "/dashboard", to: DashboardPage }
         page DashboardPage {
-          component: import Dashboard from "@client/Dashboard.jsx",
+          component: import Dashboard from "@src/Dashboard.jsx",
           authRequired: true
         }
         ```
@@ -218,10 +220,7 @@ makePageDocPrompt =
         ```jsx
         import React from 'react';
         import { Link } from 'react-router-dom';
-        import { useQuery } from '@wasp/queries';
-        import { useAction } from '@wasp/actions';
-        import getUsers from '@wasp/queries/getUsers';
-        import deleteUser from '@wasp/actions/deleteUser';
+        import { useQuery, useAction, getUsers, deleteUser } from 'wasp/client/operations';
 
         const DashboardPage = () => {
           const { data: users, isLoading, error } = useQuery(getUsers);
@@ -266,15 +265,11 @@ makePageDocPrompt =
 
         Here are the rules for importing actions and queries.
 
-        If a query is called "myQuery", its import MUST BE `import myQuery from '@wasp/queries/myQuery';`.
-        More generally, a query import MUST BE a default import, and name of the file is the same as name of the query.
+        If a query is called "myQuery", its import MUST BE `import { myQuery } from 'wasp/client/operations';`.
         The hook for wrapping queries is called `useQuery`.
-        Use a single import statement per query.
 
-        If an action is called "myAction", its import MUST BE `import myAction from '@wasp/actions/myAction';`.
-        More generally, an action import MUST BE a default import, and name of the file is the same as name of the action.
+        If an action is called "myAction", its import MUST BE `import { myAction } from 'wasp/client/operations';`.
         The hook for wrapping actions is called `useAction`.
-        Use a single import statement per action.
 
         Note: There is no `useMutation` hook in Wasp.
       |]
@@ -303,9 +298,8 @@ getPageComponentPath :: Page -> String
 getPageComponentPath page = path
   where
     path = resolvePath $ Plan.componentPath $ pagePlan page
-    pathPrefix = "@client/"
-    resolvePath p | pathPrefix `isPrefixOf` p = "src/" <> drop (length ("@" :: String)) p
-    resolvePath _ = error "path incorrectly formatted, should start with " <> pathPrefix <> "."
+    resolvePath p | "@src/" `isPrefixOf` p = drop (length ("@" :: String)) p
+    resolvePath _ = error "path incorrectly formatted, should start with @src/."
 
 writePageToWaspFile :: FilePath -> Page -> CodeAgent ()
 writePageToWaspFile waspFilePath page =

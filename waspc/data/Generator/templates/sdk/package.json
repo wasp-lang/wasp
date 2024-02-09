@@ -74,7 +74,7 @@
       "./server/jobs/*": "./dist/server/jobs/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
-      "./server/jobs/pgBoss/types": "./dist/server/jobs/pgBoss/types.js",
+      "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
 
       {=! Used by the framework client code, reconsider during refactoring. =}
       "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
@@ -84,7 +84,7 @@
       "./server/middleware": "./dist/server/middleware/index.js",
 
       {=! ================= NEW API HERE =================== =}
-      {=! Public: { config, prisma, type ServerSetupFn, HttpError, AuthError, type DbSeedFn, type MiddlewareConfigFn } =}
+      {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
       {=! Private: [] =}
       "./server": "./dist/server/index.js",
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}

@@ -11,7 +11,7 @@ import { ServerSetupFnContext } from 'wasp/server/types'
 {=/ setupFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}
-import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
+import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 {=/ isPgBossJobExecutorUsed =}
 
