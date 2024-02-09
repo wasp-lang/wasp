@@ -226,7 +226,7 @@ async function createUser(
             create: {
               providerName: 'username',
               providerUserId: data.username,
-              providerData: sanitizeAndSerializeProviderData({
+              providerData: sanitizeAndSerializeProviderData<'username'>({
                 password: data.password
               }),
             },
