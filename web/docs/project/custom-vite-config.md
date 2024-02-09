@@ -4,7 +4,7 @@ title: Custom Vite Config
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-Wasp uses [Vite](https://vitejs.dev/) for serving the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.ts` file in your `src/client` directory.
+Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.{js,ts}` file in your project root directory.
 
 Wasp will use your config and **merge** it with the default Wasp's Vite config.
 
@@ -14,7 +14,7 @@ Vite config customization can be useful for things like:
 - Customising the dev server.
 - Customising the build process.
 
-Be careful with making changes to the Vite config, as it can break the Wasp's client build process. Check out the default Vite config [here](https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/react-app/vite.config.ts) to see what you can change.
+Be careful with making changes to the Vite config, as it can break the Wasp's client build process. Check out the default Vite config [here](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/react-app/vite.config.ts) to see what you can change.
 
 ## Examples
 
@@ -27,7 +27,7 @@ If you want to stop Vite from opening the browser automatically when you run `wa
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/client/vite.config.js"
+```js title="vite.config.js"
 export default {
   server: {
     open: false,
@@ -38,7 +38,7 @@ export default {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/client/vite.config.ts"
+```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -58,7 +58,7 @@ You have access to all of the [Vite dev server options](https://vitejs.dev/confi
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/client/vite.config.js"
+```js title="vite.config.js"
 export default {
   server: {
     port: 4000,
@@ -73,7 +73,7 @@ WASP_WEB_CLIENT_URL=http://localhost:4000
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/client/vite.config.ts"
+```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -101,7 +101,7 @@ If you, for example, want to serve the client from a different path than `/`, yo
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/client/vite.config.js"
+```js title="vite.config.js"
 export default {
   base: '/my-app/',
 }
@@ -110,7 +110,7 @@ export default {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/client/vite.config.ts"
+```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 
 export default defineConfig({

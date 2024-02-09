@@ -28,7 +28,7 @@ app todoApp {
   // ...
 
   webSocket: {
-    fn: import { webSocketFn } from "@server/webSocket.js",
+    fn: import { webSocketFn } from "@src/webSocket",
     autoConnect: true, // optional, default: true
   },
 }
@@ -41,7 +41,7 @@ app todoApp {
   // ...
 
   webSocket: {
-    fn: import { webSocketFn } from "@server/webSocket.js",
+    fn: import { webSocketFn } from "@src/webSocket",
     autoConnect: true, // optional, default: true
   },
 }
@@ -69,9 +69,9 @@ This is how we can define our `webSocketFn` function:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```ts title=src/server/webSocket.js
+```ts title=src/webSocket.js
 import { v4 as uuidv4 } from 'uuid'
-import { getFirstProviderUserId } from '@wasp/auth/user.js'
+import { getFirstProviderUserId } from 'wasp/auth'
 
 export const webSocketFn = (io, context) => {
   io.on('connection', (socket) => {
@@ -90,10 +90,10 @@ export const webSocketFn = (io, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title=src/server/webSocket.ts
-import type { WebSocketDefinition, WaspSocketData } from '@wasp/webSocket'
+```ts title=src/webSocket.ts
 import { v4 as uuidv4 } from 'uuid'
-import { getFirstProviderUserId } from '@wasp/auth/user.js'
+import { getFirstProviderUserId } from 'wasp/auth'
+import { type WebSocketDefinition, type WaspSocketData } from 'wasp/server/webSocket'
 
 export const webSocketFn: WebSocketFn = (io, context) => {
   io.on('connection', (socket) => {
@@ -164,12 +164,12 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title=src/client/ChatPage.jsx
+```tsx title=src/ChatPage.jsx
 import React, { useState } from 'react'
 import {
   useSocket,
   useSocketListener,
-} from '@wasp/webSocket'
+} from 'wasp/client/webSocket'
 
 export const ChatPage = () => {
   const [messageText, setMessageText] = useState('')
@@ -226,13 +226,13 @@ Wasp's **full-stack type safety** kicks in here: all the event types and payload
 
 You can additionally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
 
-```tsx title=src/client/ChatPage.tsx
+```tsx title=src/ChatPage.tsx
 import React, { useState } from 'react'
 import {
   useSocket,
   useSocketListener,
   ServerToClientPayload,
-} from '@wasp/webSocket'
+} from 'wasp/client/webSocket'
 
 export const ChatPage = () => {
   const [messageText, setMessageText] = useState<
@@ -305,7 +305,7 @@ app todoApp {
   // ...
 
   webSocket: {
-    fn: import { webSocketFn } from "@server/webSocket.js",
+    fn: import { webSocketFn } from "@src/webSocket",
     autoConnect: true, // optional, default: true
   },
 }
@@ -318,7 +318,7 @@ app todoApp {
   // ...
 
   webSocket: {
-    fn: import { webSocketFn } from "@server/webSocket.js",
+    fn: import { webSocketFn } from "@src/webSocket",
     autoConnect: true, // optional, default: true
   },
 }

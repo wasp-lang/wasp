@@ -15,10 +15,10 @@ route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage { ... }
 ```
 
-You can get the benefits of type-safe links by using the `Link` component from `@wasp/router`:
+You can get the benefits of type-safe links by using the `Link` component from `wasp/client/router`:
 
 ```jsx title="TaskList.tsx"
-import { Link } from '@wasp/router'
+import { Link } from 'wasp/client/router'
 
 export const TaskList = () => {
   // ...
@@ -29,9 +29,9 @@ export const TaskList = () => {
         <Link
           key={task.id}
           to="/task/:id"
-      {/* 👆 You must provide a valid path here */} 
+          {/* 👆 You must provide a valid path here */}
           params={{ id: task.id }}>
-      {/* 👆 All the params must be correctly passed in */}   
+          {/* 👆 All the params must be correctly passed in */}
           {task.description}
         </Link>
       ))}
@@ -62,7 +62,7 @@ This will result in a link like this: `/task/1?sortBy=date#comments`. Check out 
 You can also get all the pages in your app with the `routes` object:
 
 ```jsx title="TaskList.tsx"
-import { routes } from '@wasp/router'
+import { routes } from 'wasp/client/router'
 
 const linkToTask = routes.TaskRoute.build({ params: { id: 1 } })
 ```
@@ -127,7 +127,7 @@ The `params` object is required if the route contains params. The `search` and `
 You can use the `routes` object like this:
 
 ```tsx
-import { routes } from '@wasp/router'
+import { routes } from 'wasp/client/router'
 
 const linkToRoot = routes.RootRoute.build()
 const linkToTask = routes.DetailRoute.build({ params: { id: 1 } })

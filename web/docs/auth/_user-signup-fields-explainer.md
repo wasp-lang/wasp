@@ -3,8 +3,8 @@
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```ts title="server/auth.js"
-import { defineUserSignupFields } from '@wasp/auth/index.js'
+```ts title="src/auth.js"
+import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   address: (data) => {
@@ -20,8 +20,8 @@ export const userSignupFields = defineUserSignupFields({
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="server/auth.ts"
-import { defineUserSignupFields } from '@wasp/auth/index.js'
+```ts title="src/auth.ts"
+import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   address: (data) => {
