@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { hashPassword } from './password.js'
 import { verify } from './jwt.js'
-import { prisma, HttpError, AuthError } from 'wasp/server'
+import { prisma, HttpError } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
   type {= userEntityUpper =},
@@ -194,10 +194,6 @@ export async function doFakeWork(): Promise<unknown> {
 
 // PRIVATE API
 export function rethrowPossibleAuthError(e: unknown): void {
-  if (e instanceof AuthError) {
-    throwValidationError(e.message);
-  }
-  
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
     throw new HttpError(422, 'Save failed', {

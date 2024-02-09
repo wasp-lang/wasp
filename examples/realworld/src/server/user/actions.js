@@ -1,5 +1,4 @@
 import HttpError from '@wasp/core/HttpError.js'
-import AuthError from '@wasp/core/AuthError.js'
 import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
 
 export const updateUser = async ({ email, username, bio, profilePictureUrl, newPassword }, context) => {
@@ -19,9 +18,7 @@ export const updateUser = async ({ email, username, bio, profilePictureUrl, newP
       }
     })
   } catch (e) {
-    if (e instanceof AuthError) {
-      throw new HttpError(422, 'Validation failed', { message: e.message })
-    } else if (isPrismaError(e)) {
+   if (isPrismaError(e)) {
       throw prismaErrorToHttpError(e)
     } else {
       throw e
