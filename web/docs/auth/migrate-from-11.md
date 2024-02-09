@@ -281,9 +281,8 @@ recommend a feature-based organization. Read more about this in [the last sectio
 :::
 
 ### Migrating auth
-
-Wasp made a big change in the way authentication works in version 0.12.0. This
-section leads you through migrating your app from Wasp 0.11.X to Wasp 0.12.X.
+As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
+This section leads you through migrating your app from Wasp 0.11.X to Wasp 0.12.X.
 
 Migrating your existing app to the new auth system is a two-step process:
 
@@ -294,7 +293,7 @@ Migrating your existing app to the new auth system is a two-step process:
 
 While going through these steps, we will focus first on doing the changes locally and your local development database.
 
-Once we confirm that everything works well, we will also apply those same changes to the deployed app.
+Once we confirm everything works well locally, we will apply the same changes to the deployed app.
 
 **We'll put extra info for migrating a deployed app in a box like this one.**
 :::
@@ -303,11 +302,12 @@ Once we confirm that everything works well, we will also apply those same change
 
 You can follow these steps to migrate to the new auth system:
 
-1. Upgrade Wasp to the latest 0.12 version.
+1. Upgrade Wasp to the latest 0.12.X version.
 
-These instructions are for migrating the auth from Wasp `0.11.X` to Wasp `0.12.X`, which means that they work for example for both `0.12.0` and `0.12.5` versions. We suggest that you install the latest 0.12 version of Wasp. Find the available Wasp versions in the [Releases](https://github.com/wasp-lang/wasp/releases) section of our GitHub repo.
+These instructions are for migrating the auth from Wasp `0.11.X` to Wasp `0.12.X`, meaning they will work for all minor releases fitting that pattern (e.g., the guide applies to both `0.12.0` and `0.12.5`).
+We suggest you install the latest 0.12 version of Wasp. Find the available Wasp versions in the [Releases](https://github.com/wasp-lang/wasp/releases) section of our GitHub repo.
 
-Then you can install that version with:
+You can then install the desired version with:
 
 ```bash
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.12.0
@@ -319,14 +319,14 @@ In the above command, replace `0.12.0` with the version you want to install.
 
   </small>
 
-1. Bump the version to `^0.12.0` in `main.wasp`.
+1. Bump the version to `^0.12.0` in `main.wasp` (if you haven't already done this when [migrating the app to the new structure](#migrating-your-project-to-the-new-structure)).
 1. Create the new auth tables in the database by running:
 
-```bash
-wasp db migrate-dev
-```
+   ```bash
+   wasp db migrate-dev
+   ```
 
-You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify that the tables are there.
+You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify the tables are there.
 
 1. Write your data migration function(s) in `src/server/migrateToNewAuth.ts`
    - In the previous step, we migrated the schema, and now we need to prepare logic for migrating the data.
@@ -423,7 +423,7 @@ The migration functions provided below are written with the typical use cases in
 
 ```ts title="src/server/migrateToNewAuth.ts"
 import { PrismaClient } from '@prisma/client'
-import { ProviderName, UsernameProviderData } from '@wasp/auth/utils'
+import { ProviderName, UsernameProviderData } from 'wasp/auth'
 
 export async function migrateUsernameAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -472,7 +472,7 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
 
 ```ts title="src/server/migrateToNewAuth.ts"
 import { PrismaClient } from '@prisma/client'
-import { EmailProviderData, ProviderName } from '@wasp/auth/utils'
+import { EmailProviderData, ProviderName } from 'wasp/auth'
 
 export async function migrateEmailAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -525,7 +525,7 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
 
 ```ts title="src/server/migrateToNewAuth.ts"
 import { PrismaClient } from '@prisma/client'
-import { ProviderName } from '@wasp/auth/utils'
+import { ProviderName } from 'wasp/auth'
 
 export async function migrateGoogleAuth(prismaClient: PrismaClient) {
   return createSocialLoginMigration(prismaClient, 'google')
