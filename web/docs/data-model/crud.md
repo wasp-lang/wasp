@@ -664,7 +664,6 @@ Like with actions and queries, you can define the implementation in a Javascript
 
 <ShowForTs>
 
-<!-- TODO(miho): figure this out -->
 You can also import types for each of the functions you want to override by importing the `{crud name}` from `wasp/server/crud`. The available types are:
 
 - `{crud name}.GetAllQuery`
