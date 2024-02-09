@@ -29,7 +29,7 @@ More precisely, this is what you'll get if you run `wasp new project` using Wasp
 ```
 
 Compare that with the file tree of a fresh Wasp project created with Wasp
-0.12.0. In other words, this is what you will get by running `wasp new project`
+0.12.0. In other words, this is what you will get by running `wasp new myProject`
 from this point onwards:
 
 ```
