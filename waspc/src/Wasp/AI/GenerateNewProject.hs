@@ -26,7 +26,7 @@ import Wasp.AI.GenerateNewProject.Operation
   )
 import Wasp.AI.GenerateNewProject.OperationsJsFile (fixOperationsJsFile)
 import Wasp.AI.GenerateNewProject.Page (generateAndWritePage, getPageComponentPath)
-import Wasp.AI.GenerateNewProject.PageComponentFile (fixImportsInPageComponentFile, fixPageComponent)
+import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
@@ -98,12 +98,6 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
     fixPageComponent newProjectDetails waspFilePath pageFp
     writeToLog $ "Fixed '" <> fromString pageFp <> "' page."
   writeToLog "Pages fixed."
-
-  writeToLogFixing "import mistakes in pages..."
-  forM_ (getPageComponentPath <$> pages) $ \pageFp -> do
-    fixImportsInPageComponentFile pageFp queries actions
-    writeToLog $ "Fixed '" <> fromString pageFp <> "' page."
-  writeToLog "Imports in pages fixed."
 
   (promptTokensUsed, completionTokensUsed) <- getTotalTokensUsage
   writeToLog $

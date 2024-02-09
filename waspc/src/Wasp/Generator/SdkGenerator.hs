@@ -85,7 +85,6 @@ genSdkReal spec =
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
-      genFileCopy [relfile|server/AuthError.ts|],
       genFileCopy [relfile|types/index.ts|],
       genFileCopy [relfile|server/jobs/pgBoss/types.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],

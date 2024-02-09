@@ -495,44 +495,6 @@ If you use [Email](./email) authentication, the default validations are:
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
-
-### Validation Error Handling
-
-When creating, updating, or deleting entities, you may wish to handle validation errors. Wasp exposes a class called `AuthError` for this purpose.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js title="src/server/actions.js"
-try {
-  await context.entities.User.update(...)
-} catch (e) {
-  if (e instanceof AuthError) {
-    throw new HttpError(422, 'Validation failed', { message: e.message })
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/server/actions.ts"
-try {
-  await context.entities.User.update(...)
-} catch (e) {
-  if (e instanceof AuthError) {
-    throw new HttpError(422, 'Validation failed', { message: e.message })
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
 ## Customizing the Signup Process
 
 Sometimes you want to include **extra fields** in your signup process, like first name and last name and save them in the `User` entity.
