@@ -1,10 +1,9 @@
+import { useQuery, getTags } from "wasp/client/operations";
 import React from 'react'
 import { Link } from 'react-router-dom'
 
 import './TagsSidebar.css'
 
-import getTags from '@wasp/queries/getTags'
-import { useQuery } from '@wasp/queries'
 import Tag from './Tag'
 
 // Props: active  TODO: document this properly.

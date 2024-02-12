@@ -1,7 +1,7 @@
+import { SignupForm } from "wasp/client/auth";
 import React from 'react'
-import { Link } from 'react-router-dom'
 
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { Link } from 'react-router-dom'
 import addWaspSourceHeader from './addWaspSourceHeader'
 
 const SignupPage = (props) => {

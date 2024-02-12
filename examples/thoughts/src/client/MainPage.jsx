@@ -1,12 +1,12 @@
+import { createThought } from "wasp/client/operations";
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useHistory } from 'react-router-dom'
+
 import Tag from './Tag'
-
 import './Main.css'
-import './Thought.css'
 
-import createThought from '@wasp/actions/createThought'
+import './Thought.css'
 import Layout from './Layout'
 
 // TODO:
