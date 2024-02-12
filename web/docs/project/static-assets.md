@@ -48,9 +48,10 @@ If you have assets that are:
 Then you can place the asset in the `public` directory at the root of your project:
 
 ```
-public
-├── favicon.ico
-└── robots.txt
+.
+└── public
+    ├── favicon.ico
+    └── robots.txt
 ```
 
 Assets in this directory will be served at root path `/` during development and copied to the root of the dist directory as-is.
