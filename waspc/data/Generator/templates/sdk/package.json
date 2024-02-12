@@ -19,8 +19,6 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
       "./core/auth": "./dist/core/auth.js",
-      {=!  Used by users, documented. =}
-      "./types": "./dist/types/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}

@@ -1,5 +1,5 @@
 import { api, handleApiError } from 'wasp/client/api'
-import { HttpMethod } from 'wasp/types'
+import { HttpMethod } from 'wasp/client'
 import {
   serialize as superjsonSerialize,
   deserialize as superjsonDeserialize,

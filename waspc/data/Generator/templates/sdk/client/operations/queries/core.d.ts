@@ -1,5 +1,5 @@
 import { type Query } from '../core.js'
-import { Route } from 'wasp/types'
+import { Route } from 'wasp/client'
 import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
 
 // PRIVATE API
