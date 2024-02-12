@@ -84,7 +84,6 @@ Wasp provides several functions to help you write React tests:
   - `mockApi`: Similar to `mockQuery`, but for [APIs](../advanced/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
 
     ```js
-    // TODO(miho): missing API!
     import { HttpMethod } from "wasp/client";
 
     mockApi({ method: HttpMethod.Get, path: "/foor/bar" }, { res: "hello" });
