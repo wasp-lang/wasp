@@ -12,7 +12,7 @@ export type { CustomizationOptions } from '../../auth/forms/types'
 export { SignInButton as GoogleSignInButton } from '../../auth/helpers/Google'
 {=/ isGoogleAuthEnabled =}
 {=# isGithubAuthEnabled =}
-export { SignInButton as GithubSignInButton } from '../../auth/helpers/Github'
+export { SignInButton as GithubSignInButton } from '../../auth/helpers/GitHub'
 {=/ isGithubAuthEnabled =}
 export {
   FormError,
