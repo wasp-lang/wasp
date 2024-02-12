@@ -4,14 +4,14 @@ title: Static Asset Handling
 
 import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
 
-## Importing Asset as URL
+## Importing an Asset as URL
 
 Importing a static asset (e.g. an image) will return its URL. For example:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/App.jsx"
+```jsx title="src/App.jsx"
 import imgUrl from './img.png'
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```jsx title="src/client/App.tsx"
+```jsx title="src/App.tsx"
 import imgUrl from './img.png'
 
 function App() {
@@ -45,24 +45,22 @@ If you have assets that are:
 - Must retain the exact same file name (without hashing)
 - ...or you simply don't want to have to import an asset first just to get its URL
 
-Then you can place the asset in a special `public` directory in the `client` folder:
+Then you can place the asset in the `public` directory at the root of your project:
 
 ```
-src
-└── client
-    ├── public
-    │   ├── favicon.ico
-    │   └── robots.txt
-    └── ...
+public
+├── favicon.ico
+└── robots.txt
 ```
 
-Assets in this directory will be served at root path `/` during dev, and copied to the root of the dist directory as-is.
+Assets in this directory will be served at root path `/` during development and copied to the root of the dist directory as-is.
 
 For example, if you have a file `favicon.ico` in the `public` directory, and your app is hosted at `https://myapp.com`, it will be made available at `https://myapp.com/favicon.ico`.
 
 :::info Usage in client code
 Note that:
 
-- You should always reference public assets using root absolute path - for example, `src/client/public/icon.png` should be referenced in source code as `/icon.png`.
+- You should always reference public assets using root absolute path
+    - for example, `public/icon.png` should be referenced in source code as `/icon.png`.
 - Assets in the `public` directory **cannot be imported** from <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowForTs>.
 :::
