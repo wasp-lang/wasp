@@ -14,8 +14,7 @@
     "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}",
-    "standard": "standard",
-    "postinstall": "patch-package"
+    "standard": "standard"
   },
   "nodemonConfig": {
     "delay": "1000"
