@@ -10,21 +10,22 @@ To enable support for Tailwind in your project, you need to add two config files
 
 With these files present, Wasp installs the necessary dependencies and copies your configuration to the generated project. You can then use [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) in your CSS and Tailwind classes on your React components.
 
-```bash title="tree ." {13-14}
+```bash title="tree ."
 .
 ├── main.wasp
+├── package.json
 ├── src
-│   ├── client
-│   │   ├── tsconfig.json
-│   │   ├── Main.css
-│   │   ├── MainPage.js
-│   │   └── waspLogo.png
-│   ├── server
-│   │   └── tsconfig.json
-│   └── shared
-│       └── tsconfig.json
+│   ├── Main.css
+│   ├── MainPage.jsx
+│   ├── vite-env.d.ts
+│   └── waspLogo.png
+├── public
+├── tsconfig.json
+├── vite.config.ts
+# highlight-start
 ├── postcss.config.cjs
 └── tailwind.config.cjs
+# highlight-end
 ```
 
 :::tip Tailwind not working?
@@ -40,9 +41,11 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 1. Add `./tailwind.config.cjs`.
 
   ```js title="./tailwind.config.cjs"
+  const { resolveProjectPath } = require('wasp/client')
+
   /** @type {import('tailwindcss').Config} */
   module.exports = {
-    content: [ "./src/**/*.{js,jsx,ts,tsx}" ],
+    content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
     theme: {
       extend: {},
     },
@@ -63,7 +66,7 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 
 3. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
 
-  ```css title="./src/client/Main.css" {1-3}
+  ```css title="./src/Main.css" {1-3}
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
@@ -73,7 +76,7 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 
 4. Start using Tailwind 🥳
   
-  ```jsx title="./src/client/MainPage.jsx"
+  ```jsx title="./src/MainPage.jsx"
   // ...
 
   <h1 className="text-3xl font-bold underline">
