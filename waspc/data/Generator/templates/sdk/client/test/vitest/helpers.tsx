@@ -8,10 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from 'wasp/client/operations/core'
 import config from 'wasp/core/config'
-import { HttpMethod, Route } from 'wasp/types'
-
-// PRIVATE API
-export type { Route } from 'wasp/types'
+import { HttpMethod, Route } from 'wasp/client'
 
 // PRIVATE API
 export type MockQuery = <Input, Output, MockOutput extends Output>(
