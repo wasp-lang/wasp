@@ -7,7 +7,6 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsForWasp,
-    areServerPatchesUsed,
   )
 where
 
@@ -32,7 +31,6 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
@@ -75,7 +73,6 @@ genServer spec =
     <++> genSrcDir spec
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genPatches spec
     <++> genEnvValidationScript
     <++> genApis spec
     <++> genCrud spec
@@ -157,7 +154,6 @@ npmDepsForWasp spec =
             ("secure-password", "^4.0.0"),
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
-            ("patch-package", "^6.4.7"),
             ("rate-limiter-flexible", "^2.4.1"),
             ("superjson", "^1.12.2")
           ]
@@ -259,21 +255,6 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
-areServerPatchesUsed :: AppSpec -> Generator Bool
-areServerPatchesUsed spec = not . null <$> genPatches spec
-
-genPatches :: AppSpec -> Generator [FileDraft]
-genPatches spec = patchesRequiredByPassport spec
-
-patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
-patchesRequiredByPassport spec =
-  return $
-    [ C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])
-      | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True
-    ]
-  where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 -- Allows us to make specific changes to dependencies of our dependencies.
 -- This is helpful if something broke in later versions, etc.
