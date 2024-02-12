@@ -50,7 +50,7 @@ data-files:
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
   Cli/templates/basic/main.wasp
-  Cli/templates/skeleton/.gitignore
+  Cli/templates/skeleton/.gitkeep
   Cli/templates/skeleton/.wasproot
   Cli/templates/skeleton/.waspignore
   Cli/templates/skeleton/public/.gitkeep
