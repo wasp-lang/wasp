@@ -17,10 +17,10 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 waspJob :: GoldenTest
 waspJob = do
   let jobDecl =
-        " job MySpecialJob { \n\
+        " job mySpecialJob { \n\
         \   executor: PgBoss, \n\
         \   perform: { \n\
-        \     fn: import { foo } from \"@server/jobs/bar.js\"  \n\
+        \     fn: import { foo } from \"@src/server/jobs/bar.js\"  \n\
         \   } \n\
         \ } \n"
 
