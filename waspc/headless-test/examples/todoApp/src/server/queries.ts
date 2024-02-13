@@ -1,11 +1,6 @@
-import HttpError from '@wasp/core/HttpError.js'
-import { Task } from '@wasp/entities'
-import {
-  GetNumTasks,
-  GetTask,
-  GetTasks,
-  GetDate,
-} from '@wasp/queries/types'
+import { type Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import { type GetNumTasks, type GetTask, type GetTasks, type GetDate } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
   if (!context.user) {

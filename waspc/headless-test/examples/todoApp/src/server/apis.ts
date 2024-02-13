@@ -1,7 +1,7 @@
-import { BarBaz, FooBar, WebhookCallback } from '@wasp/apis/types'
+import { getFirstProviderUserId } from "wasp/auth";
+import { type MiddlewareConfigFn } from "wasp/server";
+import { type BarBaz, type FooBar, type WebhookCallback } from "wasp/server/api";
 import express from 'express'
-import { MiddlewareConfigFn } from '@wasp/middleware'
-import { getFirstProviderUserId } from '@wasp/auth/user.js'
 
 export const fooBar: FooBar = (_req, res, context) => {
   const username = getFirstProviderUserId(context?.user) ?? 'Anonymous'

@@ -1,9 +1,6 @@
-import { Link } from '@wasp/router'
-
-import logout from '@wasp/auth/logout'
-import useAuth from '@wasp/auth/useAuth'
-import { useQuery } from '@wasp/queries'
-import getDate from '@wasp/queries/getDate'
+import { Link } from "wasp/client/router";
+import { logout, useAuth } from "wasp/client/auth";
+import { useQuery, getDate } from "wasp/client/operations";
 
 import './Main.css'
 import { getName } from './user'

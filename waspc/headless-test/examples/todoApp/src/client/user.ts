@@ -1,5 +1,4 @@
-import { User } from '@wasp/auth/types'
-import { findUserIdentity, getEmail } from '@wasp/auth/user'
+import { getEmail, findUserIdentity, type AuthUser as User } from "wasp/auth";
 
 export function getName(user?: User) {
   if (!user) {

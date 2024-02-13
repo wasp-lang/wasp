@@ -1,12 +1,16 @@
 import React from 'react'
-import { Link } from '@wasp/router'
+import { Link } from 'wasp/client/router'
+import { type Task } from 'wasp/entities'
 
-import { useQuery } from '@wasp/queries'
-import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
-import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
-import getTask from '@wasp/queries/getTask.js'
-import getTasks from '@wasp/queries/getTasks.js'
-import { Task } from '@wasp/entities'
+import {
+  useAction,
+  type OptimisticUpdateDefinition,
+  updateTaskIsDone,
+  useQuery,
+  getTask,
+  getTasks,
+} from 'wasp/client/operations'
+
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>
 
@@ -34,7 +38,7 @@ const Todo = (props: any) => {
   })
 
   if (!task) return <div>Task with id {taskId} does not exist.</div>
-  if (error) return <div>Error occurred! {error}</div>
+  if (error) return <div>Error occurred! {error.message}</div>
 
   async function toggleIsDone({ id, isDone }: Task) {
     try {

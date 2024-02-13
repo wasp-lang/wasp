@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { Link } from '@wasp/router'
-import { User } from '@wasp/auth/types'
-import api from '@wasp/api'
+import { type AuthUser as User } from "wasp/auth";
+import { Link } from "wasp/client/router";
+import { api } from "wasp/client/api";
 import { getName, getProviderData } from '../user'
 
 async function fetchCustomRoute() {
