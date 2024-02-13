@@ -1,7 +1,4 @@
-import {
-  GetPasswordResetEmailContentFn,
-  GetVerificationEmailContentFn,
-} from '@wasp/types'
+import { type GetVerificationEmailContentFn, type GetPasswordResetEmailContentFn } from "wasp/server/auth";
 
 export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
   passwordResetLink,

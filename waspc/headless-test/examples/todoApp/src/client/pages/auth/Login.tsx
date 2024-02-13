@@ -1,6 +1,6 @@
-import { Link } from '@wasp/router'
+import { Link } from "wasp/client/router";
 
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from "wasp/client/auth";
 
 import appearance from './appearance'
 import todoLogo from '../../todoLogo.png'

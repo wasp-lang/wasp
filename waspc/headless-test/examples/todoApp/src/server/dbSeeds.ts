@@ -1,5 +1,5 @@
+import { type DbSeedFn } from "wasp/server";
 import { createTask } from './actions.js'
-import type { DbSeedFn } from '@wasp/dbSeed/types.js'
 
 async function createUser (prismaClient, data) {
   const { password, ...newUser } = await prismaClient.user.create({ data })

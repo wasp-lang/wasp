@@ -1,8 +1,6 @@
-import { Link } from '@wasp/router'
-
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import getNumTasks from '@wasp/queries/getNumTasks'
-import { useQuery } from '@wasp/queries'
+import { Link } from "wasp/client/router";
+import { SignupForm } from "wasp/client/auth";
+import { useQuery, getNumTasks } from "wasp/client/operations";
 import { getTotalTaskCountMessage } from './helpers'
 
 import appearance from './appearance'

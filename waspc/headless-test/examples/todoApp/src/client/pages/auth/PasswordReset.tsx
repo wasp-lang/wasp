@@ -1,6 +1,6 @@
-import { Link } from '@wasp/router'
+import { Link } from "wasp/client/router";
 
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { ResetPasswordForm } from "wasp/client/auth";
 import appearance from './appearance'
 import todoLogo from '../../todoLogo.png'
 

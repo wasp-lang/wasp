@@ -1,14 +1,18 @@
-import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
-import { Link } from '@wasp/router'
+import { Link } from 'wasp/client/router'
+import { type Task } from 'wasp/entities'
 
-import { useQuery } from '@wasp/queries'
-import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
-import getTasks from '@wasp/queries/getTasks.js'
-import createTask from '@wasp/actions/createTask.js'
-import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
-import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
-import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
-import { Task } from '@wasp/entities'
+import {
+  useAction,
+  type OptimisticUpdateDefinition,
+  createTask,
+  updateTaskIsDone,
+  deleteCompletedTasks,
+  toggleAllTasks,
+  useQuery,
+  getTasks,
+} from 'wasp/client/operations'
+
+import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
 
 type NonEmptyArray<T> = [T, ...T[]]
 
@@ -138,7 +142,9 @@ const TaskView = ({ task }: { task: Task }) => {
         />
       </td>
       <td>
-        <Link to={`/task/${task.id}`}> {task.description} </Link>
+        <Link to="/task/:id" params={{ id: task.id }}>
+          {task.description}
+        </Link>
       </td>
     </tr>
   )

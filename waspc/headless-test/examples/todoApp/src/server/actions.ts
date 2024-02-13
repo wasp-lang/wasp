@@ -1,12 +1,12 @@
-import HttpError from '@wasp/core/HttpError.js'
-import { getSomeResource } from './serverSetup.js'
-import { Task } from '@wasp/entities'
+import { type Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
 import {
-  CreateTask,
-  DeleteCompletedTasks,
-  ToggleAllTasks,
-  UpdateTaskIsDone,
-} from '@wasp/actions/types'
+  type CreateTask,
+  type DeleteCompletedTasks,
+  type ToggleAllTasks,
+  type UpdateTaskIsDone,
+} from "wasp/server/operations";
+import { getSomeResource } from './serverSetup.js'
 
 export const createTask: CreateTask<Pick<Task, 'description'>> = async (
   task,

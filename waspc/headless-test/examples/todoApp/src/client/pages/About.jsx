@@ -1,6 +1,5 @@
 import React from 'react'
-
-import { Link } from '@wasp/router'
+import { Link } from "wasp/client/router";
 
 const About = () => {
   return (
