@@ -1,12 +1,13 @@
 import http from 'http'
 
 import app from './app.js'
-import config from './config.js'
+import { config } from 'wasp/server'
 
-import mySetupFunction from './ext-src/myServerSetupCode.js'
-import { ServerSetupFn, ServerSetupFnContext } from './types'
+import mySetupFunction from '../../../../src/server/myServerSetupCode.js'
+import { ServerSetupFn } from 'wasp/server'
+import { ServerSetupFnContext } from 'wasp/server/types'
 
-import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
+import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 
 

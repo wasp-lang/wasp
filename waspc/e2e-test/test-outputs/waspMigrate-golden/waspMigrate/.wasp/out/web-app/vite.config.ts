@@ -1,13 +1,19 @@
 /// <reference types="vitest" />
 import { mergeConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
+import { defaultExclude } from "vitest/config"
 
-import customViteConfig from './src/ext-src/vite.config'
+// Ignoring the TS error because we are importing a file outside of TS root dir.
+// @ts-ignore
+import customViteConfig from '../../../vite.config'
 const _waspUserProvidedConfig = customViteConfig
 
 const defaultViteConfig = {
   base: "/",
   plugins: [react()],
+  optimizeDeps: {
+    exclude: ['wasp']
+  },
   server: {
     port: 3000,
     host: "0.0.0.0",
@@ -18,8 +24,15 @@ const defaultViteConfig = {
     outDir: "build",
   },
   test: {
+    globals: true,
     environment: "jsdom",
-    setupFiles: ["./src/test/vitest/setup.ts"],
+    // Since Vitest is running from the root of the project, we need
+    // to specify the path to the setup file relative to the root.
+    setupFiles: ['.wasp/out/web-app/src/test/vitest/setup.ts'],
+    exclude: [
+      ...defaultExclude,
+      ".wasp/**/*",
+    ]
   },
 };
 

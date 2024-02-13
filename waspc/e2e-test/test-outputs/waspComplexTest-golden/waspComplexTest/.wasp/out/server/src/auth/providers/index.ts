@@ -1,15 +1,10 @@
-
-import { join } from 'path'
 import { Router } from "express";
 
-import { getDirPathFromFileUrl, importJsFilesFromDir } from "../../utils.js";
+import google from './config/google.js'
 
-import { ProviderConfig } from "./types";
-
-const whitelistedProviderConfigFileNames = [
-  "google.js",
+const providers = [
+  google,
 ];
-const providers = await importProviders(whitelistedProviderConfigFileNames);
 
 const router = Router();
 
@@ -24,10 +19,3 @@ for (const provider of providers) {
 }
 
 export default router;
-
-async function importProviders(whitelistedProviderConfigFileNames: string[]): Promise<ProviderConfig[]> {
-  const currentExecutionDir = getDirPathFromFileUrl(import.meta.url);
-  const pathToDirWithConfigs = join(currentExecutionDir, "./config");
-  const providers = await importJsFilesFromDir(pathToDirWithConfigs, whitelistedProviderConfigFileNames);
-  return providers.map((provider) => provider.default);
-}

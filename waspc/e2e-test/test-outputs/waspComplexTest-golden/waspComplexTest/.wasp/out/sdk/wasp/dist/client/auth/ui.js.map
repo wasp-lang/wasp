@@ -1,0 +1,1 @@
+{"version":3,"file":"ui.js","sourceRoot":"","sources":["../../../client/auth/ui.ts"],"names":[],"mappings":"AAAA,aAAa;AACb,OAAO,EAAE,SAAS,EAAE,MAAM,wBAAwB,CAAA;AAClD,OAAO,EAAE,UAAU,EAAE,MAAM,yBAAyB,CAAA;AAEpD,OAAO,EAAE,YAAY,IAAI,kBAAkB,EAAE,MAAM,2BAA2B,CAAA;AAC9E,OAAO,EACL,SAAS,EACT,SAAS,EACT,YAAY,EACZ,aAAa,EACb,SAAS,GACV,MAAM,gCAAgC,CAAA"}

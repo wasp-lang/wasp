@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import config from '../../config.js'
-import api from '../../api'
-import { initSession } from '../helpers/user'
+import config from 'wasp/core/config'
+import { api } from 'wasp/client/api'
+import { initSession } from 'wasp/auth/helpers/user'
 
 // After a user authenticates via an Oauth 2.0 provider, this is the page that
 // the provider should redirect them to, while providing query string parameters

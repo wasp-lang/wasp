@@ -1,15 +1,15 @@
 import express from 'express'
-import prisma from '../../dbClient.js'
-import { handleRejection } from '../../utils.js'
+import { prisma } from 'wasp/server'
+import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
-import auth from '../../core/auth.js'
-import { type SanitizedUser } from '../../_types'
+import auth from 'wasp/core/auth'
+import { type AuthUser } from 'wasp/auth'
 
-import { fooBarNamespaceMiddlewareFn as _waspfooBarNamespacenamespaceMiddlewareConfigFn } from '../../ext-src/apiNamespaces.js'
+import { fooBarNamespaceMiddlewareFn as _waspfooBarNamespacenamespaceMiddlewareConfigFn } from '../../../../../../src/server/apiNamespaces.js'
 
-import { fooBar as _waspfooBarfn } from '../../ext-src/apis.js'
-import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../ext-src/apis.js'
-import { fooBaz as _waspfooBazfn } from '../../ext-src/apis.js'
+import { fooBar as _waspfooBarfn } from '../../../../../../src/server/apis.js'
+import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../../../../../src/server/apis.js'
+import { fooBaz as _waspfooBazfn } from '../../../../../../src/server/apis.js'
 
 const idFn: MiddlewareConfigFn = x => x
 
@@ -25,7 +25,7 @@ router.get(
   [auth, ...fooBarMiddleware],
   handleRejection(
     (
-      req: Parameters<typeof _waspfooBarfn>[0] & { user: SanitizedUser },
+      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUser },
       res: Parameters<typeof _waspfooBarfn>[1],
     ) => {
       const context = {

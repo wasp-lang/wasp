@@ -6,7 +6,7 @@ import router from './router'
 import {
   initializeQueryClient,
   queryClientInitialized,
-} from './queryClient'
+} from 'wasp/client/operations'
 
 
 

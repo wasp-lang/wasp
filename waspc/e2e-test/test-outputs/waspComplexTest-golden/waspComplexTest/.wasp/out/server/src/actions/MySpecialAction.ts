@@ -1,6 +1,6 @@
-import prisma from '../dbClient.js'
+import { prisma } from 'wasp/server'
 
-import { foo } from '../ext-src/actions/bar.js'
+import { foo } from '../../../../../src/server/actions/bar.js'
 
 
 export default async function (args, context) {

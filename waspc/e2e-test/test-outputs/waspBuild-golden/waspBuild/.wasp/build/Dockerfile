@@ -24,7 +24,7 @@ COPY server/ ./server/
 # Install npm packages, resulting in node_modules/.
 RUN cd server && npm install
 # Building the server should come after Prisma generation.
-RUN cd server && npm run build
+RUN cd server && npm run bundle
 
 
 # TODO: Use pm2?

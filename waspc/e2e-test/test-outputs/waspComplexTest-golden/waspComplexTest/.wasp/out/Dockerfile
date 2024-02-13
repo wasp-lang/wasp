@@ -24,9 +24,9 @@ COPY server/ ./server/
 # Install npm packages, resulting in node_modules/.
 RUN cd server && npm install
 COPY db/schema.prisma ./db/
-RUN cd server && PRISMA_CLIENT_OUTPUT_DIR=../server/node_modules/.prisma/client/ npx prisma generate --schema='../db/schema.prisma'
+RUN cd server && npx prisma generate --schema='../db/schema.prisma'
 # Building the server should come after Prisma generation.
-RUN cd server && npm run build
+RUN cd server && npm run bundle
 
 
 # TODO: Use pm2?

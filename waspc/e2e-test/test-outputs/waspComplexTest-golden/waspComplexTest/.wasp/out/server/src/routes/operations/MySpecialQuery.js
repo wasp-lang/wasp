@@ -1,4 +1,4 @@
 import { createQuery } from '../../middleware/operations.js'
-import MySpecialQuery from '../../queries/MySpecialQuery.js'
+import mySpecialQuery from '../../queries/mySpecialQuery.js'
 
-export default createQuery(MySpecialQuery)
+export default createQuery(mySpecialQuery)
