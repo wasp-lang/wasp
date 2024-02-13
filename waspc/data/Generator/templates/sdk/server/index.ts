@@ -13,4 +13,3 @@ export { MiddlewareConfigFn } from './middleware/index.js'
 
 // PUBLIC API
 export type DbSeedFn = (prisma: PrismaClient) => Promise<void>
-
