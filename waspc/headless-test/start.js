@@ -1,13 +1,6 @@
 const cp = require('child_process');
 const readline = require('linebyline');
 
-/**
- * Running this on MacOS:
- * 1. Comment out the `proc.stdin.destroy();` line
- * 2. Add to `spawnOptions` the following option:
- *    `stdio: ['ignore', 'pipe', 'pipe']`
- */
-
 function spawn(name, cmd, args, done) {
   const spawnOptions = {
     detached: true,
