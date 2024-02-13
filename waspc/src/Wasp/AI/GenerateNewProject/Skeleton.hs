@@ -296,7 +296,7 @@ generateTailwindConfigFile :: NewProjectDetails -> File
 generateTailwindConfigFile newProjectDetails =
   ( "tailwind.config.cjs",
     [trimming|
-      const { resolveProjectPath } = require('wasp/server')
+      const { resolveProjectPath } = require('wasp/dev')
       const colors = require('tailwindcss/colors')
 
       /** @type {import('tailwindcss').Config} */

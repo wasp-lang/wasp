@@ -40,7 +40,7 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 1. Add `./tailwind.config.cjs`.
 
   ```js title="./tailwind.config.cjs"
-  const { resolveProjectPath } = require('wasp/server')
+  const { resolveProjectPath } = require('wasp/dev')
 
   /** @type {import('tailwindcss').Config} */
   module.exports = {

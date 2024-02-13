@@ -88,6 +88,7 @@ genSdkReal spec =
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
+      genFileCopy [relfile|dev/index.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,

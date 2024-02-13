@@ -1,4 +1,4 @@
-const { resolveProjectPath } = require('wasp/server')
+const { resolveProjectPath } = require('wasp/dev')
 const { nextui } = require("@nextui-org/react");
 
 /** @type {import('tailwindcss').Config} */
