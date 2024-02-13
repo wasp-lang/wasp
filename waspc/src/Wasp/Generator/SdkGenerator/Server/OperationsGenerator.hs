@@ -18,6 +18,7 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.FileDraft.TemplateFileDraft (TemplateFileDraft (_tmplData))
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
@@ -41,8 +42,18 @@ genOperations spec =
       genActionTypesFile spec,
       genQueriesIndex spec,
       genActionsIndex spec,
-      genServerOpsFileCopy [relfile|index.ts|]
+      genServerTs spec
     ]
+
+genServerTs :: AppSpec -> Generator FileDraft
+genServerTs spec = return $ mkTmplFdWithData relPath tmplData
+  where
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplData =
+      object
+        [ "actions" .= map getActionData (AS.getActions spec),
+          "queries" .= map getQueryData (AS.getQueries spec)
+        ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
