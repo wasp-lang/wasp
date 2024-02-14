@@ -561,7 +561,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
 
           <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
             <h2 className="font-bold flex items-center space-x-1">
-              <span>1. Install Wasp CLI</span>
+              <span>1. Install Wasp CLI (Linux / Mac / Win+WSL)</span>
               <a
                 href="https://wasp-lang.dev/docs/quick-start#installation-1"
                 target="blank"
