@@ -28,6 +28,7 @@ import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -225,7 +226,11 @@ npmDepsForSdk spec =
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
-          ++ depsRequiredByJobs spec,
+          ++ depsRequiredByJobs spec
+          -- These deps need to be in the SDK when we run client tests
+          -- they are running from the project root dir and PostCSS needs to be able to
+          -- resolve TailwindCSS deps.
+          ++ depsRequiredByTailwind spec,
       N.devDependencies =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
@@ -275,6 +280,17 @@ depsRequiredForAuth spec =
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
+
+depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind spec =
+  if G.CF.isTailwindUsed spec
+    then
+      AS.Dependency.fromList
+        [ ("tailwindcss", "^3.2.7"),
+          ("postcss", "^8.4.21"),
+          ("autoprefixer", "^10.4.13")
+        ]
+    else []
 
 -- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.
