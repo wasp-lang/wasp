@@ -227,9 +227,9 @@ npmDepsForSdk spec =
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          -- These deps need to be in the SDK when we run client tests
-          -- they are running from the project root dir and PostCSS needs to be able to
-          -- resolve TailwindCSS deps.
+          -- These deps need to be installed in the SDK becasue when we run client tests,
+          -- we are running them from the project root dir and PostCSS and Tailwind need
+          -- can't be resolved from WebApp node_modules.
           ++ depsRequiredByTailwind spec,
       N.devDependencies =
         AS.Dependency.fromList
