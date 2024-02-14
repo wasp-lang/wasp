@@ -53,8 +53,7 @@ jobs:
           # Ref: https://github.com/wasp-lang/wasp/issues/650
           - ubuntu-20.04
           - macos-latest
-          # Temporarily disabled because of a strongpath issue
-          # - windows-latest
+          - windows-latest
 
     steps:
       - name: Configure git
