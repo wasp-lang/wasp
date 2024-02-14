@@ -6,7 +6,7 @@ In a Wasp project, dependencies are defined in a standard way for JavaScript pro
 
 ### Adding a New Dependency
 
-To add a new package, like `date-fns`, you use `npm`:
+To add a new package, like `date-fns` (a great date handling library), you use `npm`:
 
 ```bash
 npm install date-fns
