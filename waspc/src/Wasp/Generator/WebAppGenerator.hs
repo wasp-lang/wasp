@@ -22,6 +22,7 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
+import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -275,7 +276,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= (SP.fromRelDir dotWaspDirInWaspProjectDir ++ "**/*")
+                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
     vitestSetupFiles =
