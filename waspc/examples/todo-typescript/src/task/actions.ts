@@ -22,10 +22,10 @@ export const createTask: CreateTask<CreateArgs, Task> = async (
   await printTimeAndNumberOfTasks.submit({})
 
   emailSender.send({
-    to: 'test@test.com',
+    to: 'test@example.com',
     from: {
       name: 'Test',
-      email: 'test@test.com',
+      email: 'test@example.com',
     },
     subject: 'Test email',
     text: 'Thank you for using our app!',
