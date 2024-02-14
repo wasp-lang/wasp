@@ -275,7 +275,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= SP.fromRelFile (dotWaspDirInWaspProjectDir </> [relfile|**/*|])
+                "excludeWaspArtefactsPattern" .= (SP.fromRelDir dotWaspDirInWaspProjectDir ++ "**/*")
               ]
         ]
     vitestSetupFiles =
