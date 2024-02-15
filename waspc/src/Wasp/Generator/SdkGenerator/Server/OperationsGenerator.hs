@@ -18,7 +18,6 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.FileDraft.TemplateFileDraft (TemplateFileDraft (_tmplData))
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
