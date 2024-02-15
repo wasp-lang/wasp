@@ -153,7 +153,7 @@ codingChatGPTParams projectDetails =
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
   where
-    defaultCodingGptModel = GPT.GPT_3_5_turbo_0613
+    defaultCodingGptModel = GPT.GPT_3_5_turbo
 
 planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
 planningChatGPTParams projectDetails =
@@ -162,7 +162,7 @@ planningChatGPTParams projectDetails =
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
   where
-    defaultPlanningGptModel = GPT.GPT_4_0613
+    defaultPlanningGptModel = GPT.GPT_4
 
 fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
 fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}

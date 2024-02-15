@@ -59,9 +59,9 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
               (Just "Ok results. Cheap and fast. Best cost/benefit ratio.")
               (ChatGPT.GPT_4, ChatGPT.GPT_3_5_turbo),
             Interactive.Option
-              "gpt-4 (planning) + gpt-4-1106-preview (coding)"
+              "gpt-4 (planning) + gpt-4-turbo-preview (coding)"
               (Just "Possibly better results, but somewhat slower and somewhat more expensive (~2-3x).")
-              (ChatGPT.GPT_4, ChatGPT.GPT_4_1106_Preview),
+              (ChatGPT.GPT_4, ChatGPT.GPT_4_turbo_Preview),
             Interactive.Option
               "gpt-4 (planning + coding)"
               (Just "Best results, but quite slower and quite more expensive (~5x).")

@@ -69,8 +69,7 @@ runCodeAgent config codeAgent =
     initialState =
       CodeAgentState
         { _files = H.empty,
-          _usage = [],
-          _isGpt4Available = Nothing
+          _usage = []
         }
 
     shortenWithEllipsisTo maxLen text =
@@ -141,6 +140,5 @@ getTotalTokensUsage = do
 
 data CodeAgentState = CodeAgentState
   { _files :: !(H.HashMap FilePath Text), -- TODO: Name this "cacheFiles" maybe?
-    _usage :: ![ChatGPT.ChatResponseUsage],
-    _isGpt4Available :: !(Maybe Bool)
+    _usage :: ![ChatGPT.ChatResponseUsage]
   }

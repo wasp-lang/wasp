@@ -1,5 +1,5 @@
 import { HttpError } from 'wasp/server'
-import type { GetTasks } from 'wasp/server/operations'
+import type { GetTasks, GetTotalNumberOfTasks } from 'wasp/server/operations'
 import type { Task } from 'wasp/entities'
 // import { ensureValidEmail, createProviderId } from 'wasp/server/auth'
 
@@ -17,3 +17,10 @@ export const getTasks = ((_args, context) => {
     orderBy: { id: 'asc' },
   })
 }) satisfies GetTasks<void, Task[]>
+
+export const getTotalNumberOfTasks: GetTotalNumberOfTasks<void, number> = (
+  _args,
+  context
+) => {
+  return context.entities.Task.count()
+}
