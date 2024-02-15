@@ -12,24 +12,9 @@ To add a new package, like `date-fns` (a great date handling library), you use `
 npm install date-fns
 ```
 
-This command will add the package in the `dependencies` section of your `package.json` file:
+This command will add the package in the `dependencies` section of your `package.json` file.
 
-```diff title="package.json"
-{
-  "name": "my-app",
-  "dependencies": {
-+   "date-fns": "^3.3.1",
-    "react": "^18.2.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.37",
-    "prisma": "4.16.2",
-    "typescript": "^5.1.0",
-    "vite": "^4.3.9"
-  }
-}
-```
+You will notice that there are some other packages in the `dependencies` section, like `react` and `wasp`. These are the packages that Wasp uses internally, and you should not modify or remove them.
 
 ### Using Packages that are Already Used by Wasp Internally
 
