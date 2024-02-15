@@ -6,11 +6,15 @@ const readline = require('readline').createInterface({
   output: process.stdout
 });
 
+// This script migrates Wasp 0.11 project to Wasp 0.12.
+// It doesn't migrate Auth though, that you have to migrate manually.
 // To run this script, position yourself in the parent dir of your wasp project (so one level above your wasp project), and run:
 //   node migrate-0-11.js <your-wasp-project-dir-name>
 // Make sure that you have wasp version 0.12 installed.
 
-const WASP_BIN = process.env['USE_WASP_CLI'] ? 'wasp-cli' : 'wasp';  // When developing this script, we can set USE_WASP_CLI.
+// When developing this script, we can set USE_WASP_CLI to use `wasp-cli` instead of `wasp`:
+//   USE_WASP_CLI=1 node migrate-0-11.js <your-wasp-project-dir-name>
+const WASP_BIN = process.env['USE_WASP_CLI'] ? 'wasp-cli' : 'wasp';
 
 async function migrate() {
   assertWaspVersion();
