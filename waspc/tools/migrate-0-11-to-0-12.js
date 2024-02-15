@@ -12,9 +12,12 @@ const readline = require('readline').createInterface({
 //   node migrate-0-11.js <your-wasp-project-dir-name>
 // Make sure that you have wasp version 0.12 installed.
 
-// When developing this script, we can set USE_WASP_CLI to use `wasp-cli` instead of `wasp`:
-//   USE_WASP_CLI=1 node migrate-0-11.js <your-wasp-project-dir-name>
-const WASP_BIN = process.env['USE_WASP_CLI'] ? 'wasp-cli' : 'wasp';
+// When developing this script, we can set WASP_MIGRATE_DEV to use `wasp-cli` instead of `wasp`:
+//   WASP_MIGRATE_DEV=1 node migrate-0-11.js <your-wasp-project-dir-name>
+
+const DEV_MODE = process.env['WASP_MIGRATE_DEV'];
+
+const WASP_BIN = DEV_MODE ? 'wasp-cli' : 'wasp';
 
 async function migrate() {
   assertWaspVersion();
@@ -33,7 +36,7 @@ async function migrate() {
     process.exit(1);
   }
 
-  await askForConfirmation();
+  await printWarning();
 
   const oldProjectDirName = projectDirName + '__old';
   const oldPublicDir = path.join(oldProjectDirName, 'src', 'client', 'public');
@@ -183,20 +186,21 @@ function obtainProjectDirName() {
   return projectDirName;
 }
 
-async function askForConfirmation() {
-  const answer = await readlineP(
-    'This script will modify files on the disk. We strongly recommend you have a'
+async function printWarning() {
+ console.log(
+    'This script will modify files on the disk.\nWe strongly recommend you have a'
     + ' way to revert them back if needed (e.g. they are version controled (git)).'
-    + ' If you want to continue, type Y:'
+    + '\nIt will start in 10 seconds...'
   );
-  if (answer.trim().toUpperCase() !== 'Y') {
-    console.log('Aborting...');
-    process.exit(0);
+  if (!DEV_MODE) {
+    await sleep(5000);
+    console.log('5 seconds...');
+    await sleep(5000);
   }
 }
 
-async function readlineP(prompt) {
-  return new Promise(r => readline.question(prompt, r));
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 migrate()
