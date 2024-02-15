@@ -86,12 +86,30 @@ async function migrate() {
   const mainWaspPath = path.join(projectDirName, 'main.wasp');
   const mainWaspContent = fs.readFileSync(mainWaspPath, 'utf8');
   const updatedMainWaspContent = mainWaspContent
-        .replace(/\^0\.11\.\d+/g, '^0.12.0')
-        .replace(/@server\//g, '@src/server/')
-        .replace(/@client\//g, '@src/client/');
+        .replace(/version\s*:\s*"\^0\.11\.\d+"/g, 'version: "^0.12.0"')
+        .replace(/"@server\//g, '"@src/server/')
+        .replace(/"@client\//g, '"@src/client/');
   fs.writeFileSync(mainWaspPath, updatedMainWaspContent);
 
-  console.log('10. TODO: move the dependencies from main.wasp into package.json.');
+  console.log('10. Moving the dependencies from main.wasp into package.json.');
+  const waspDepsStrMatches = updatedMainWaspContent.match(/(,)?\s*dependencies\s*:\s*\[[^\]]+\]/);
+  if (waspDepsStrMatches) {
+    const waspDepsStr = waspDepsStrMatches[0];
+    console.log(waspDepsStr);
+    const deps = waspDepsStr.match(/\(\s*"[^"]+"\s*,\s*"[^"]+"\s*\)/g).map((depStr) => {
+      const [packageNameStr, versionStr] = depStr.match(/"[^"]+"/g);
+      return {packageNameStr, versionStr};
+    });
+    const updatedMainWaspContentWithoutDeps = updatedMainWaspContent.replace(waspDepsStr, '');
+
+    const packageJsonDepsStr = deps.map(({ packageNameStr, versionStr }) => `    ${packageNameStr}: ${versionStr}`).join(',\n');
+    const packageJsonPath = path.join(projectDirName, 'package.json');
+    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+    const updatedPackageJsonContent = packageJsonContent.replace(/"dependencies"\s*:\s*\{/, `"dependencies": {\n${packageJsonDepsStr},`);
+
+    fs.writeFileSync(packageJsonPath, updatedPackageJsonContent);
+    fs.writeFileSync(mainWaspPath, updatedMainWaspContentWithoutDeps);
+  }
 
   console.log('11. Merging .gitignore from old project into .gitignore in new project...');
   const oldGitignorePath = path.join(oldProjectDirName, '.gitignore');
