@@ -1,4 +1,4 @@
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from "wasp/client/auth";
 import { Link } from "react-router-dom";
 
 export function LoginPage() {

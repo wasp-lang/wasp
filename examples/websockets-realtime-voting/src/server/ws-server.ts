@@ -1,5 +1,5 @@
-import { WebSocketDefinition } from "@wasp/webSocket";
-import { getUsername } from "@wasp/auth/user.js";
+import { getUsername } from "wasp/auth";
+import { type WebSocketDefinition } from "wasp/server/webSocket";
 
 type PollState = {
   question: string;

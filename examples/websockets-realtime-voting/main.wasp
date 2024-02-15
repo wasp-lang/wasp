@@ -1,10 +1,10 @@
 app whereDoWeEat {
   wasp: {
-    version: "^0.11.6"
+    version: "^0.12.0"
   },
   title: "where-do-we-eat",
   client: {
-    rootComponent: import { Layout } from "@client/Layout.jsx",
+    rootComponent: import { Layout } from "@src/client/Layout.jsx",
   },
   auth: {
     userEntity: User,
@@ -13,12 +13,8 @@ app whereDoWeEat {
       usernameAndPassword: {}
     }
   },
-  dependencies: [
-    ("flowbite", "1.6.6"),
-    ("flowbite-react", "0.4.9")
-  ],
   webSocket: {
-    fn: import { webSocketFn } from "@server/ws-server.js",
+    fn: import { webSocketFn } from "@src/server/ws-server.js",
   }
 }
 
@@ -28,16 +24,16 @@ psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.tsx",
+  component: import Main from "@src/client/MainPage.tsx",
   authRequired: true
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/pages/LoginPage.jsx"
+  component: import { LoginPage } from "@src/client/pages/LoginPage.jsx"
 }
 
 route RegisterRoute { path: "/signup", to: RegisterPage }
 page RegisterPage {
-  component: import { SignupPage } from "@client/pages/SignupPage.jsx"
+  component: import { SignupPage } from "@src/client/pages/SignupPage.jsx"
 }

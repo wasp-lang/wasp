@@ -1,4 +1,5 @@
 /.wasp/
 /.env.server
 /.env.client
+/node_modules
 .DS_Store
