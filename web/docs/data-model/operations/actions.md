@@ -545,8 +545,10 @@ query createFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```ts
+// Use it on the client
 import { createFoo } from 'wasp/client/operations'
-// TODO(miho): missing API
+
+// Use it on the server
 import { createFoo } from 'wasp/server/operations'
 ```
 

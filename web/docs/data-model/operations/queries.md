@@ -516,8 +516,10 @@ query getFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```ts
+// Use it on the client
 import { getFoo } from 'wasp/client/operations'
-// TODO(miho): missing API
+
+// Use it on the server
 import { getFoo } from 'wasp/server/operations'
 ```
 
