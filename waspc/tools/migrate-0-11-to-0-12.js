@@ -1,10 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const execSync = require('child_process').execSync;
-const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 
 // This script migrates Wasp 0.11 project to Wasp 0.12.
 // It doesn't migrate Auth though, that you have to migrate manually.
