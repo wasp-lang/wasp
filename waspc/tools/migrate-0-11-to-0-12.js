@@ -5,11 +5,14 @@ const execSync = require('child_process').execSync;
 // This script migrates Wasp 0.11 project to Wasp 0.12.
 // It doesn't migrate Auth though, that you have to migrate manually.
 // To run this script, position yourself in the parent dir of your wasp project (so one level above your wasp project), and run:
-//   node migrate-0-11.js <your-wasp-project-dir-name>
+//   node migrate-0-11-to-0-12.js <your-wasp-project-dir-name>
 // Make sure that you have wasp version 0.12 installed.
 
-// When developing this script, we can set WASP_MIGRATE_DEV to use `wasp-cli` instead of `wasp`:
-//   WASP_MIGRATE_DEV=1 node migrate-0-11.js <your-wasp-project-dir-name>
+// When developing this script, we can set WASP_MIGRATE_DEV to use `wasp-cli` instead of `wasp`, e.g.:
+//   WASP_MIGRATE_DEV=1 node ../waspc/tools/migrate-0-11-to-0-12.js waspello
+
+// NOTE: If you move the position of this script in this repo, make sure to also update
+//   the instructions in the docs for using it, since they are referring to it directly on the `main` branch.
 
 const DEV_MODE = process.env['WASP_MIGRATE_DEV'];
 
