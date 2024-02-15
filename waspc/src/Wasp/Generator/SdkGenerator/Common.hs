@@ -8,6 +8,7 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
 
 data SdkRootDir
 
@@ -46,7 +47,10 @@ mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
+sdkRootDirInProjectRootDir =
+  [reldir|../|]
+    </> basename generatedCodeDirInDotWaspDir
+    </> [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk|]

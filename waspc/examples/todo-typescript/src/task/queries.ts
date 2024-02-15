@@ -1,7 +1,7 @@
 import { HttpError } from 'wasp/server'
 import type { GetTasks } from 'wasp/server/operations'
 import type { Task } from 'wasp/entities'
-import { ensureValidEmail, createProviderId } from 'wasp/server/auth'
+// import { ensureValidEmail, createProviderId } from 'wasp/server/auth'
 
 //Using TypeScript's new 'satisfies' keyword, it will infer the types of the arguments and return value
 export const getTasks = ((_args, context) => {
@@ -9,8 +9,8 @@ export const getTasks = ((_args, context) => {
     throw new HttpError(401)
   }
 
-  console.log(createProviderId)
-  ensureValidEmail({ email: 'wasp@gmail.com' })
+  // console.log(createProviderId)
+  // ensureValidEmail({ email: 'wasp@gmail.com' })
 
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },

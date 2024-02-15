@@ -2,7 +2,7 @@ import './Main.css'
 import React, { useEffect, FormEventHandler, FormEvent } from 'react'
 import {
   createTask,
-  customEmailSending,
+  // customEmailSending,
   deleteTasks,
   getTasks,
   useQuery,
@@ -34,9 +34,9 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
   return (
     <main>
       <img src={waspLogo} alt="wasp logo" />
-      <button onClick={() => customEmailSending(undefined)}>
+      {/* <button onClick={() => customEmailSending(undefined)}>
         customEmailSending
-      </button>
+      </button> */}
       <Link to="/chat">Wonna chat?</Link>
       {user && (
         <h1>

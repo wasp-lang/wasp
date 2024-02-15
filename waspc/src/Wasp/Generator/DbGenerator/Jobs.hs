@@ -165,6 +165,10 @@ runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir ProjectRootDir) -> [Str
 runPrismaCommandAsJobFromWaspServerDir projectRootDir cmdArgs =
   runPrismaCommandAsJobWithExtraEnv serverDir [] projectRootDir cmdArgs
   where
+    -- We must run our Prisma commands from the server dir for Prisma
+    -- to pick up our .env file there like before.  In the future, we might want
+    -- to reconsider how Prisma and the server env vars interact and change
+    -- this. Text copied from: https://github.com/wasp-lang/wasp/pull/1662
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
 
 runPrismaCommandAsJobWithExtraEnv ::
