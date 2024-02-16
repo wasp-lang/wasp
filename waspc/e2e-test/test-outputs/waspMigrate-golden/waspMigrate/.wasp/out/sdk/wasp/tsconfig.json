@@ -7,6 +7,7 @@
       "dom",
       "DOM.Iterable"
     ],
+    "declaration": true,
     "strict": false,
     // Overriding this because we want to use top-level await
     "module": "esnext",

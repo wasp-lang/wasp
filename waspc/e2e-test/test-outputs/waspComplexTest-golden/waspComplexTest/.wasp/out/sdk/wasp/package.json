@@ -23,6 +23,7 @@
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^5.3.3",
     "secure-password": "^4.0.0",
+    "sodium-native": "3.3.0",
     "superjson": "^1.12.2",
     "uuid": "^9.0.0",
     "vitest": "^1.2.1"
@@ -56,6 +57,7 @@
     "./core/stitches.config": "./dist/core/stitches.config.js",
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",
+    "./entities": "./dist/entities/index.js",
     "./ext-src/*": "./dist/ext-src/*.js",
     "./operations": "./dist/operations/index.js",
     "./operations/*": "./dist/operations/*",

@@ -25,17 +25,13 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.18.0"
   },
   "name": "server",
   "nodemonConfig": {
     "delay": "1000"
   },
-  "overrides": {
-    "secure-password": {
-      "sodium-native": "3.3.0"
-    }
-  },
+  "overrides": {},
   "prisma": {},
   "private": true,
   "scripts": {

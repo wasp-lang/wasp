@@ -23,6 +23,12 @@ const defaultViteConfig = {
   build: {
     outDir: "build",
   },
+  resolve: {
+    // These packages rely on a single instance per page. Not dedpuing them
+    // causes runtime errors (e.g., hook rule violation in react, QueryClient
+    // instance error in react-query, Invariant Error in react-router-dom).
+    dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router-dom"]
+  },
   test: {
     globals: true,
     environment: "jsdom",

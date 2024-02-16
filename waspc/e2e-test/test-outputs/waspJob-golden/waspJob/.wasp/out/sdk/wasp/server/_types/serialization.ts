@@ -18,7 +18,7 @@ export interface JSONObject {
 
 type PrimitiveJSONValue = string | number | boolean | undefined | null
 
-interface JSONArray extends Array<JSONValue> {}
+export interface JSONArray extends Array<JSONValue> {}
 
 type SerializableJSONValue =
   | Symbol
