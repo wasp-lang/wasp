@@ -1,6 +1,6 @@
 
 import type { Prisma } from "@prisma/client"
-import { contextWithUserEntity } from '../../utils.js'
+import { contextWithUserEntity } from 'wasp/auth/utils'
 
 export type OAuthConfig = {
     clientID?: string;

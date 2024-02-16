@@ -1,30 +1,18 @@
 import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
-import { interpolatePath } from './router/linkHelpers'
-import type {
-  RouteDefinitionsToRoutes,
-  OptionalRouteOptions,
-  ParamValue,
-} from './router/types'
-import App from './ext-src/App.jsx'
+import App from '../../../../src/client/App.jsx'
 
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 
-import MainPage from './ext-src/MainPage.jsx'
+import { MainPage } from '../../../../src/MainPage.jsx'
 
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 
-export const routes = {
-  RootRoute: {
-    to: "/",
-    component: MainPage,
-    build: (
-      options?: OptionalRouteOptions,
-    ) => interpolatePath("/", undefined, options.search, options.hash),
-  },
-} as const;
+import { routes } from 'wasp/client/router'
 
-export type Routes = RouteDefinitionsToRoutes<typeof routes>
+export const routeNameToRouteComponent = {
+  RootRoute: MainPage,
+} as const;
 
 const router = (
   <Router basename="/">
@@ -35,7 +23,7 @@ const router = (
           exact
           key={routeKey}
           path={route.to}
-          component={route.component}
+          component={routeNameToRouteComponent[routeKey]}
         />
       ))}
       <Route exact path="/auth/login/google">
@@ -47,5 +35,3 @@ const router = (
 )
 
 export default router
-
-export { Link } from './router/Link'

@@ -1,27 +1,15 @@
 import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
-import { interpolatePath } from './router/linkHelpers'
-import type {
-  RouteDefinitionsToRoutes,
-  OptionalRouteOptions,
-  ParamValue,
-} from './router/types'
 
 
-import MainPage from './ext-src/MainPage.jsx'
+import { MainPage } from '../../../../src/MainPage.jsx'
 
 
-export const routes = {
-  RootRoute: {
-    to: "/",
-    component: MainPage,
-    build: (
-      options?: OptionalRouteOptions,
-    ) => interpolatePath("/", undefined, options.search, options.hash),
-  },
+import { routes } from 'wasp/client/router'
+
+export const routeNameToRouteComponent = {
+  RootRoute: MainPage,
 } as const;
-
-export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 const router = (
   <Router basename="/">
@@ -31,7 +19,7 @@ const router = (
           exact
           key={routeKey}
           path={route.to}
-          component={route.component}
+          component={routeNameToRouteComponent[routeKey]}
         />
       ))}
     </Switch>
@@ -39,5 +27,3 @@ const router = (
 )
 
 export default router
-
-export { Link } from './router/Link'

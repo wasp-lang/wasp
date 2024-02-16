@@ -1,0 +1,1 @@
+export { addMetadataToQuery } from './core';

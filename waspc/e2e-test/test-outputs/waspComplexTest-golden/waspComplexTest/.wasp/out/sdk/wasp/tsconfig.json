@@ -1,0 +1,44 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": [
+      "esnext",
+      "dom",
+      "DOM.Iterable"
+    ],
+    "declaration": true,
+    "strict": false,
+    // Overriding this because we want to use top-level await
+    "module": "esnext",
+    "target": "es2017",
+    // Enable source map for debugging and go-to-definition
+    "sourceMap": true,
+    // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
+    // them here to be explicit.
+    // Enable default imports in TypeScript.
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "allowJs": true,
+    "types": [
+      // This is needed to properly support Vitest testing with jest-dom matchers.
+      // Types for jest-dom are not recognized automatically and Typescript complains
+      // about missing types e.g. when using `toBeInTheDocument` and other matchers.
+      "@testing-library/jest-dom"
+    ],
+    // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
+    // "paths": {
+    //   "@wasp/*": [
+    //     "./*.js"
+    //   ]
+    // }
+  },
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

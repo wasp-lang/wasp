@@ -2,7 +2,33 @@
   "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
+    // Filip: begin client file hacks
+    // We need this to make server work with copied client files (we copy everything)
+    "jsx": "preserve",
+    "lib": [
+      "esnext",
+      "dom",
+      "DOM.Iterable"
+    ],
+    // Filip: end client file hacks
     "strict": false,
+    // When left unspecified, the 'rootDir' defaults to the longest common path of
+    // all non-declaration input files. TypeScript mimics the source structure
+    // inside the output directory (i.e., 'dist').
+    //
+    // Since Wasp apps can (but don't have to) import user files from
+    // '../../../src', it makes the rootDir's default value inconsistent:
+    //   - When the app doesn't import user files (e.g., the user didn't specify
+    //   any operations), the rootDir is set to the server source dir (/src).
+    //   - When the app imports user files (as is the case for most Wasp apps),
+    //   the rootDir is set to the Wasp project root (../../../).
+    //
+    // Our build script (in package.json) requires a consistent structure of
+    // the output directory, which is why we always make sure to point the rootDir
+    // to the Wasp project root (../../../).
+    //
+    // See this comment for more details: https://github.com/wasp-lang/wasp/pull/1584#discussion_r1404019301
+    "rootDir": "../../../",
     // Overriding this because we want to use top-level await
     "module": "esnext",
     "target": "es2017",
@@ -10,12 +36,13 @@
     "sourceMap": true,
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
     // them here to be explicit.
-
     // Enable default imports in TypeScript.
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

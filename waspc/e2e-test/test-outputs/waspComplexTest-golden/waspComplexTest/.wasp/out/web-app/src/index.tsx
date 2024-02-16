@@ -6,9 +6,9 @@ import router from './router'
 import {
   initializeQueryClient,
   queryClientInitialized,
-} from './queryClient'
+} from 'wasp/client/operations'
 
-import myClientSetupFunction from './ext-src/myClientSetupCode.js'
+import myClientSetupFunction from '../../../../src/client/myClientSetupCode.js'
 
 
 startApp()

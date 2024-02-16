@@ -1,0 +1,1 @@
+{"version":3,"file":"mySpecialJob.js","sourceRoot":"","sources":["../../../server/jobs/mySpecialJob.ts"],"names":[],"mappings":"AAEA,OAAO,EAAc,mBAAmB,EAAE,MAAM,8BAA8B,CAAA;AAE9E,MAAM,QAAQ,GAAG,EAChB,CAAA;AAKD,aAAa;AACb,MAAM,CAAC,MAAM,YAAY,GAAG,mBAAmB,CAAC;IAC9C,OAAO,EAAE,cAAc;IACvB,iBAAiB,EAAE,EAAE;IACrB,WAAW,EAAE,IAAI;IACjB,QAAQ;CACT,CAAC,CAAA"}

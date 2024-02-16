@@ -13,12 +13,12 @@ app waspComplexTest {
   },
 
   server: {
-    setupFn: import mySetupFunction from "@server/myServerSetupCode.js",
+    setupFn: import mySetupFunction from "@src/server/myServerSetupCode.js",
   },
 
   client: {
-    setupFn: import myClientSetupFunction from "@client/myClientSetupCode.js",
-    rootComponent: import App from "@client/App.jsx"
+    setupFn: import myClientSetupFunction from "@src/client/myClientSetupCode.js",
+    rootComponent: import App from "@src/client/App.jsx"
   },
 
   emailSender: {
@@ -29,17 +29,12 @@ app waspComplexTest {
     },
   },
 
-  dependencies: [
-    ("redux", "^4.0.5"),
-    ("react-redux", "^7.1.3")
-  ],
-
   title: "waspComplexTest"
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.jsx"
+  component: import { MainPage } from "@src/MainPage.jsx"
 }
 entity User {=psl
   id                        Int           @id @default(autoincrement())
@@ -58,44 +53,44 @@ entity SocialLogin {=psl
   @@unique([provider, providerId, userId])
 psl=}
 
-job MySpecialJob {
+job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/jobs/bar.js"
+    fn: import { foo } from "@src/server/jobs/bar.js"
   }
 }
 
-job ReturnHelloJob {
+job returnHelloJob {
   executor: PgBoss,
   perform: {
-    fn: import { returnHello } from "@server/jobs/returnHello.js",
+    fn: import { returnHello } from "@src/server/jobs/returnHello.js",
   },
   entities: [User],
 }
 
-action MySpecialAction {
-  fn: import { foo } from "@server/actions/bar.js",
+action mySpecialAction {
+  fn: import { foo } from "@src/server/actions/bar.js",
   entities: [User],
 }
 
-query MySpecialQuery {
-  fn: import { foo } from "@server/queries/bar.js",
+query mySpecialQuery {
+  fn: import { foo } from "@src/server/queries/bar.js",
   entities: [User],
 }
 
 api fooBar {
-  fn: import { fooBar } from "@server/apis.js",
+  fn: import { fooBar } from "@src/server/apis.js",
   httpRoute: (GET, "/foo/bar"),
-  middlewareConfigFn: import { fooBarMiddlewareFn } from "@server/apis.js"
+  middlewareConfigFn: import { fooBarMiddlewareFn } from "@src/server/apis.js"
 }
 api fooBaz {
-  fn: import { fooBaz } from "@server/apis.js",
+  fn: import { fooBaz } from "@src/server/apis.js",
   httpRoute: (GET, "/foo/baz"),
   auth: false
 }
 
 apiNamespace fooBarNamespace {
-  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apiNamespaces.js",
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/server/apiNamespaces.js",
   path: "/bar"
 }
 

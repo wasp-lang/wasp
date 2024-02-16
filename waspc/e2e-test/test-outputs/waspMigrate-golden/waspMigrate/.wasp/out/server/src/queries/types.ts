@@ -1,5 +1,5 @@
 
 import {
   type Payload,
-} from '../_types'
+} from 'wasp/server/_types'
 

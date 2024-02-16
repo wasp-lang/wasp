@@ -7,7 +7,7 @@ import ShellCommands
     appendToWaspFile,
     cdIntoCurrentProject,
     createFile,
-    insertCodeIntoWaspFileAtLineNumber,
+    insertCodeIntoFileAtLineNumber,
     setDbToPSQL,
     waspCliCompile,
     waspCliNew,
@@ -54,8 +54,8 @@ addClientSetup = do
     clientField =
       unlines
         [ "  client: {",
-          "    setupFn: import myClientSetupFunction from \"@client/myClientSetupCode.js\",",
-          "    rootComponent: import App from \"@client/App.jsx\"",
+          "    setupFn: import myClientSetupFunction from \"@src/client/myClientSetupCode.js\",",
+          "    rootComponent: import App from \"@src/client/App.jsx\"",
           "  },"
         ]
     rootComponentContent =
@@ -87,7 +87,7 @@ addServerSetup = do
     serverField =
       unlines
         [ "  server: {",
-          "    setupFn: import mySetupFunction from \"@server/myServerSetupCode.js\",",
+          "    setupFn: import mySetupFunction from \"@src/server/myServerSetupCode.js\",",
           "  },"
         ]
     serverSetupFnContent =
@@ -106,10 +106,10 @@ addJob = do
   where
     jobDecl =
       unlines
-        [ "job MySpecialJob {",
+        [ "job mySpecialJob {",
           "  executor: PgBoss,",
           "  perform: {",
-          "    fn: import { foo } from \"@server/jobs/bar.js\"",
+          "    fn: import { foo } from \"@src/server/jobs/bar.js\"",
           "  }",
           "}"
         ]
@@ -130,10 +130,10 @@ addTsJob = do
   where
     jobDecl =
       unlines
-        [ "job ReturnHelloJob {",
+        [ "job returnHelloJob {",
           "  executor: PgBoss,",
           "  perform: {",
-          "    fn: import { returnHello } from \"@server/jobs/returnHello.js\",",
+          "    fn: import { returnHello } from \"@src/server/jobs/returnHello.js\",",
           "  },",
           "  entities: [User],",
           "}"
@@ -141,7 +141,7 @@ addTsJob = do
 
     jobFile =
       unlines
-        [ "import { ReturnHelloJob } from '@wasp/jobs/ReturnHelloJob'",
+        [ "import { ReturnHelloJob } from 'wasp/server/jobs'",
           "export const returnHello: ReturnHelloJob<{ name: string }, string> = async (args) => {",
           "  return args.name",
           "}"
@@ -218,8 +218,8 @@ addAction = do
   where
     actionDecl =
       unlines
-        [ "action MySpecialAction {",
-          "  fn: import { foo } from \"@server/actions/bar.js\",",
+        [ "action mySpecialAction {",
+          "  fn: import { foo } from \"@src/server/actions/bar.js\",",
           "  entities: [User],",
           "}"
         ]
@@ -240,8 +240,8 @@ addQuery = do
   where
     queryDecl =
       unlines
-        [ "query MySpecialQuery {",
-          "  fn: import { foo } from \"@server/queries/bar.js\",",
+        [ "query mySpecialQuery {",
+          "  fn: import { foo } from \"@src/server/queries/bar.js\",",
           "  entities: [User],",
           "}"
         ]
@@ -256,15 +256,13 @@ addQuery = do
 addDependencies :: ShellCommandBuilder [ShellCommand]
 addDependencies = do
   sequence
-    [ insertCodeIntoWaspFileAfterVersion deps
+    [ insertCodeIntoPackageJsonIntoDependencies deps
     ]
   where
     deps =
       unlines
-        [ "  dependencies: [",
-          "    (\"redux\", \"^4.0.5\"),",
-          "    (\"react-redux\", \"^7.1.3\")",
-          "  ],"
+        [ "    \"redux\": \"^4.0.5\",",
+          "    \"react-redux\": \"^7.1.3\","
         ]
 
 addApi :: ShellCommandBuilder [ShellCommand]
@@ -277,12 +275,12 @@ addApi = do
     apiDecls =
       unlines
         [ "api fooBar {",
-          "  fn: import { fooBar } from \"@server/apis.js\",",
+          "  fn: import { fooBar } from \"@src/server/apis.js\",",
           "  httpRoute: (GET, \"/foo/bar\"),",
-          "  middlewareConfigFn: import { fooBarMiddlewareFn } from \"@server/apis.js\"",
+          "  middlewareConfigFn: import { fooBarMiddlewareFn } from \"@src/server/apis.js\"",
           "}",
           "api fooBaz {",
-          "  fn: import { fooBaz } from \"@server/apis.js\",",
+          "  fn: import { fooBaz } from \"@src/server/apis.js\",",
           "  httpRoute: (GET, \"/foo/baz\"),",
           "  auth: false",
           "}"
@@ -290,8 +288,8 @@ addApi = do
 
     apiFile =
       unlines
-        [ "import { FooBar, FooBaz } from '@wasp/apis/types'",
-          "import { MiddlewareConfigFn } from '@wasp/middleware'",
+        [ "import { FooBar, FooBaz } from 'wasp/server/api'",
+          "import { MiddlewareConfigFn } from 'wasp/server'",
           "export const fooBar: FooBar = (req, res, context) => {",
           "  res.set('Access-Control-Allow-Origin', '*')",
           "  res.json({ msg: 'Hello, context.user.username!' })",
@@ -314,14 +312,14 @@ addApiNamespace = do
     apiNamespaceDecl =
       unlines
         [ "apiNamespace fooBarNamespace {",
-          "  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from \"@server/apiNamespaces.js\",",
+          "  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from \"@src/server/apiNamespaces.js\",",
           "  path: \"/bar\"",
           "}"
         ]
 
     apiNamespaceFile =
       unlines
-        [ "import { MiddlewareConfigFn } from '@wasp/middleware'",
+        [ "import { MiddlewareConfigFn } from 'wasp/server'",
           "export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {",
           "  return middlewareConfig",
           "}"
@@ -372,7 +370,13 @@ addCrud = do
         ]
 
 insertCodeIntoWaspFileAfterVersion :: String -> ShellCommandBuilder ShellCommand
-insertCodeIntoWaspFileAfterVersion = insertCodeIntoWaspFileAtLineNumber lineNumberInWaspFileAfterVersion
+insertCodeIntoWaspFileAfterVersion = insertCodeIntoFileAtLineNumber "main.wasp" lineNumberInWaspFileAfterVersion
   where
     lineNumberInWaspFileAfterVersion :: Int
     lineNumberInWaspFileAfterVersion = 5
+
+insertCodeIntoPackageJsonIntoDependencies :: String -> ShellCommandBuilder ShellCommand
+insertCodeIntoPackageJsonIntoDependencies = insertCodeIntoFileAtLineNumber "package.json" lineNumberInPackageJsonDependencies
+  where
+    lineNumberInPackageJsonDependencies :: Int
+    lineNumberInPackageJsonDependencies = 3
