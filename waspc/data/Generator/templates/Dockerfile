@@ -21,6 +21,9 @@ RUN apk --no-cache -U upgrade # To ensure any potential security patches are app
 
 # Todo this image stays on disk under <none>:<none>, should we remove it? Or is it useful for future builds?
 FROM base AS server-builder
+# Building the Docker image on Apple's Silicon Mac fails without python3 (the build
+# throws `node-gyp` errors when it tries to compile native deps. Installing
+# `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
 COPY src ./src
