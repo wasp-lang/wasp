@@ -23,8 +23,8 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWas
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  InWaspProject waspRoot <- require
-  let outDir = waspRoot </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  InWaspProject waspProjectDir <- require
+  let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
@@ -42,7 +42,7 @@ start = do
     -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp = Wasp.Generator.start outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...

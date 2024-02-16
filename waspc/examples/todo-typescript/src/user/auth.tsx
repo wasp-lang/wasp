@@ -1,9 +1,9 @@
 import {
   LoginForm,
   SignupForm,
-  VerifyEmailForm,
-  ResetPasswordForm,
-  ForgotPasswordForm,
+  // VerifyEmailForm,
+  // ResetPasswordForm,
+  // ForgotPasswordForm,
   FormError,
   FormInput,
   FormItemGroup,
@@ -74,14 +74,14 @@ export function LoginPage() {
   )
 }
 
-export function RequestPasswordResetPage() {
-  return <ForgotPasswordForm />
-}
+// export function RequestPasswordResetPage() {
+//   return <ForgotPasswordForm />
+// }
 
-export function PasswordResetPage() {
-  return <ResetPasswordForm />
-}
+// export function PasswordResetPage() {
+//   return <ResetPasswordForm />
+// }
 
-export function EmailVerificationPage() {
-  return <VerifyEmailForm />
-}
+// export function EmailVerificationPage() {
+//   return <VerifyEmailForm />
+// }

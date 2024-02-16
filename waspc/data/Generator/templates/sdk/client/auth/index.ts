@@ -9,9 +9,9 @@ export * from './username'
 {=# isGoogleAuthEnabled  =}
 export * from './google'
 {=/ isGoogleAuthEnabled =}
-{=# isGithubAuthEnabled =}
+{=# isGitHubAuthEnabled =}
 export * from './github'
-{=/ isGithubAuthEnabled =}
+{=/ isGitHubAuthEnabled =}
 export {
   default as useAuth,
   getMe,

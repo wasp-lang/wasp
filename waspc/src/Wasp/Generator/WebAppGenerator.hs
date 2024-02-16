@@ -22,6 +22,7 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
+import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -35,7 +36,6 @@ import Wasp.Generator.Common
   ( makeJsArrayFromHaskellList,
     makeJsonWithEntityData,
   )
-import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
@@ -119,7 +119,7 @@ genNpmrc =
       Nothing
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp spec =
+npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
@@ -132,8 +132,7 @@ npmDepsForWasp spec =
             ("mitt", "3.0.0"),
             -- Used for Auth UI
             ("react-hook-form", "^7.45.4")
-          ]
-          ++ depsRequiredByTailwind spec,
+          ],
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
@@ -149,17 +148,6 @@ npmDepsForWasp spec =
             ("@tsconfig/vite-react", "^2.0.0")
           ]
     }
-
-depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredByTailwind spec =
-  if G.CF.isTailwindUsed spec
-    then
-      AS.Dependency.fromList
-        [ ("tailwindcss", "^3.2.7"),
-          ("postcss", "^8.4.21"),
-          ("autoprefixer", "^10.4.13")
-        ]
-    else []
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -275,7 +263,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= SP.fromRelFile (dotWaspDirInWaspProjectDir </> [relfile|**/*|])
+                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
     vitestSetupFiles =

@@ -29,7 +29,6 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
-import qualified Wasp.SemanticVersion as SV
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
@@ -46,7 +45,7 @@ genDockerfile spec = do
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
-              "nodeMajorVersion" .= show (SV.major $ getLowestNodeVersionUserAllows spec),
+              "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )

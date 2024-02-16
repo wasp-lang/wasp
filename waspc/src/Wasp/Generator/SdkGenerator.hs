@@ -28,6 +28,7 @@ import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -211,6 +212,20 @@ npmDepsForSdk spec =
             ("react-router-dom", "^5.3.3"),
             ("react-hook-form", "^7.45.4"),
             ("secure-password", "^4.0.0"),
+            -- Secure-password 4.0.0. defaults to using sodium-native 3.4.1.,
+            -- which segfaults on on Alpine:
+            -- https://github.com/sodium-friends/sodium-native/issues/160
+            --
+            -- Before 0.12.0 (i.e., restructuring), we made Wasp use
+            -- sodium-native 3.3.0. with package.json overrides in our web-app/package.json:
+            -- https://github.com/wasp-lang/wasp/pull/729
+            --
+            -- Because our code that uses secure-password now lives in the SDK,
+            -- and NPM apparently ignores package.json overrides for
+            -- dependencies (no reference, found out by trying it out), the only
+            -- way to force NPM to install sodium-native 3.3.0 is by listing it
+            -- as a direct dependency.
+            ("sodium-native", "3.3.0"),
             ("superjson", "^1.12.2"),
             ("@types/express-serve-static-core", "^4.17.13")
           ]
@@ -225,7 +240,11 @@ npmDepsForSdk spec =
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
-          ++ depsRequiredByJobs spec,
+          ++ depsRequiredByJobs spec
+          -- These deps need to be installed in the SDK becasue when we run client tests,
+          -- we are running them from the project root dir and PostCSS and Tailwind
+          -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
+          ++ depsRequiredByTailwind spec,
       N.devDependencies =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
@@ -275,6 +294,17 @@ depsRequiredForAuth spec =
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
+
+depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind spec =
+  if G.CF.isTailwindUsed spec
+    then
+      AS.Dependency.fromList
+        [ ("tailwindcss", "^3.2.7"),
+          ("postcss", "^8.4.21"),
+          ("autoprefixer", "^10.4.13")
+        ]
+    else []
 
 -- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.

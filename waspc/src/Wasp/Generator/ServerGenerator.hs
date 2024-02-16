@@ -128,7 +128,6 @@ genPackageJson spec waspDependencies = do
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
                    ),
-              "overrides" .= getPackageJsonOverrides,
               "prisma" .= ByteStringLazyUTF8.toString (Aeson.encode $ getPackageJsonPrismaField spec)
             ]
       )
@@ -255,35 +254,6 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
--- Allows us to make specific changes to dependencies of our dependencies.
--- This is helpful if something broke in later versions, etc.
--- Ref: https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides
-getPackageJsonOverrides :: [Aeson.Value]
-getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
-  where
-    overrides :: [(String, String, String)]
-    overrides =
-      [ -- sodium-native > 3.3.0 broke deploying on Heroku.
-        -- Ref: https://github.com/sodium-friends/sodium-native/issues/160
-        ("secure-password", "sodium-native", "3.3.0")
-      ]
-
-    -- NOTE: We must designate the last element so the JSON template can omit the final comma.
-    buildOverrideData :: (String, String, String, Bool) -> Aeson.Value
-    buildOverrideData (packageName, dependencyName, dependencyVersion, lastElement) =
-      object
-        [ "packageName" .= packageName,
-          "dependencyName" .= dependencyName,
-          "dependencyVersion" .= dependencyVersion,
-          "last" .= lastElement
-        ]
-
-    designateLastElement :: [(String, String, String)] -> [(String, String, String, Bool)]
-    designateLastElement [] = []
-    designateLastElement l =
-      map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
-        ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
 
 genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =

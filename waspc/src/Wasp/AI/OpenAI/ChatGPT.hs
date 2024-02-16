@@ -86,17 +86,20 @@ data ChatGPTParams = ChatGPTParams
   }
   deriving (Show)
 
--- TODO: There are some more data models there but for now we went with these core ones.
 data Model
-  = GPT_3_5_turbo_1106
-  | GPT_3_5_turbo
-  | GPT_3_5_turbo_16k
-  | GPT_3_5_turbo_0613
-  | GPT_3_5_turbo_16k_0613
+  = --
+    GPT_3_5_turbo -- Alias model
+  | GPT_3_5_turbo_0125
+  | GPT_3_5_turbo_1106
+  | --
+    GPT_4_turbo_Preview -- Alias model
+  | GPT_4_0125_Preview
   | GPT_4_1106_Preview
-  | GPT_4
-  | GPT_4_32k
+  | --
+    GPT_4 -- Alias model
   | GPT_4_0613
+  | --
+    GPT_4_32k -- Alias model
   | GPT_4_32k_0613
   deriving (Eq, Bounded, Enum)
 
@@ -105,15 +108,15 @@ instance Show Model where
 
 modelOpenAiId :: Model -> String
 modelOpenAiId = \case
-  GPT_3_5_turbo_1106 -> "gpt-3.5-turbo-1106"
   GPT_3_5_turbo -> "gpt-3.5-turbo"
-  GPT_3_5_turbo_16k -> "gpt-3.5-turbo-16k"
-  GPT_3_5_turbo_0613 -> "gpt-3.5-turbo-0613"
-  GPT_3_5_turbo_16k_0613 -> "gpt-3.5-turbo-16k-0613"
+  GPT_3_5_turbo_0125 -> "gpt-3.5-turbo-0125"
+  GPT_3_5_turbo_1106 -> "gpt-3.5-turbo-1106"
+  GPT_4_turbo_Preview -> "gpt-4-turbo-preview"
+  GPT_4_0125_Preview -> "gpt-4-0125-preview"
   GPT_4_1106_Preview -> "gpt-4-1106-preview"
   GPT_4 -> "gpt-4"
-  GPT_4_32k -> "gpt-4-32k"
   GPT_4_0613 -> "gpt-4-0613"
+  GPT_4_32k -> "gpt-4-32k"
   GPT_4_32k_0613 -> "gpt-4-32k-0613"
 
 instance FromJSON Model where

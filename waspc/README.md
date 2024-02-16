@@ -368,6 +368,11 @@ If it happens just once every so it is probably nothing to worry about. If it ha
   - Ensure that all starter templates are working with this new version of Wasp.
     Update Wasp version in their main.wasp files. Finally, in their repos (for those templates that are on Github),
     create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`).
+- Make sure apps in [examples](/examples) are up to date with and using the newest version of Wasp.
+- Make sure that Wasp AI (which is part of `waspc`) is correctly producing apps that work with and use the newest version of Wasp.
+  This usually means checking that templates and prompts are up to date.
+- Make sure [mage](/mage) is producing Wasp apps that support the newest version of Wasp (this is configured in its Dockerfile: which version of `wasp` CLI will it use to produce app via AI).
+  Mage itself, as a Wasp app, doesn't have to be using the latest Wasp version to run, but the apps it is producing should.
 - ChangeLog.md and version in waspc.cabal should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing ChangeLog.md a bit even if all the data is already there. Also check that ChangeLog has correction version of wasp specified.
 - If you modified ChangeLog.md or waspc.cabal, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).

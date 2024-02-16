@@ -41,8 +41,18 @@ genOperations spec =
       genActionTypesFile spec,
       genQueriesIndex spec,
       genActionsIndex spec,
-      genServerOpsFileCopy [relfile|index.ts|]
+      genServerTs spec
     ]
+
+genServerTs :: AppSpec -> Generator FileDraft
+genServerTs spec = return $ mkTmplFdWithData relPath tmplData
+  where
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplData =
+      object
+        [ "actions" .= map getActionData (AS.getActions spec),
+          "queries" .= map getQueryData (AS.getQueries spec)
+        ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData

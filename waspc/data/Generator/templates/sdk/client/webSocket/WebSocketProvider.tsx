@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState, useEffect, Context } from 'react'
 import { io, Socket } from 'socket.io-client'
 
 import { getSessionId } from 'wasp/client/api'
@@ -7,6 +7,11 @@ import { apiEventsEmitter } from 'wasp/api/events'
 import config from 'wasp/core/config'
 
 import type { ClientToServerEvents, ServerToClientEvents } from 'wasp/server/webSocket';
+
+export type WebSocketContextValue = {
+  socket: typeof socket
+  isConnected: boolean
+}
 
 // PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
@@ -31,7 +36,7 @@ apiEventsEmitter.on('sessionId.set', refreshAuthToken)
 apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
 
 // PRIVATE API
-export const WebSocketContext = createContext({
+export const WebSocketContext: Context<WebSocketContextValue> = createContext({
   socket,
   isConnected: false,
 });
