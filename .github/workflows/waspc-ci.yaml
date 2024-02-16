@@ -141,10 +141,10 @@ jobs:
         # TODO: Reenable e2e tests after we merge new e2e tests
         run: cabal test cli-test waspc-test waspls-test
 
-      # TODO: Reenable building of todoApp after we merge build fixes
-      # - name: Ensure todoApp builds
-      #   if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-      #   run: ./tools/ensure_todoapp_builds.sh
+      TODO: Reenable building of todoApp after we merge build fixes
+      - name: Ensure todoApp builds
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/ensure_todoapp_builds.sh
 
       - name: Headless - Cache Node Modules
         id: headless-cache-node-modules
