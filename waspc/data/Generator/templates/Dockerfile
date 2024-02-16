@@ -21,7 +21,7 @@ RUN apk --no-cache -U upgrade # To ensure any potential security patches are app
 
 # Todo this image stays on disk under <none>:<none>, should we remove it? Or is it useful for future builds?
 FROM base AS server-builder
-RUN apk add --no-cache build-base libtool autoconf automake
+RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
 COPY src ./src
 COPY package.json .
@@ -45,9 +45,14 @@ FROM base AS server-production
 RUN apk add --no-cache python3
 ENV NODE_ENV production
 WORKDIR /app
+# Copying the top level 'node_modules' because it contains the Prisma packages
+# necessary for migrating the database.
 COPY --from=server-builder /app/node_modules ./node_modules
+# Copying the SDK because 'validate-env.mjs' executes independent of the bundle
+# and references the 'wasp' package.
 COPY --from=server-builder /app/.wasp/out/sdk .wasp/out/sdk
-# todo: do I need node_modules
+# Copying 'server/node_modules' because 'validate-env.mjs' executes independent
+# of the bundle and references the dotenv package.
 COPY --from=server-builder /app/.wasp/build/server/node_modules .wasp/build/server/node_modules
 COPY --from=server-builder /app/.wasp/build/server/bundle .wasp/build/server/bundle
 COPY --from=server-builder /app/.wasp/build/server/package*.json .wasp/build/server/
