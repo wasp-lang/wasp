@@ -44,9 +44,9 @@ build = do
   let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInProjectRootDir
   doesSdkDirExist <- liftIO $ doesDirectoryExist sdkDir
   when doesSdkDirExist $ do
-    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/build directory..."
+    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out/sdk directory..."
     liftIO $ removeDirectory sdkDir
-    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/build directory."
+    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out/sdk directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
