@@ -41,6 +41,8 @@ build = do
     liftIO $ removeDirectory buildDir
     cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/build directory."
 
+  -- We are using the same SDK location for both build and start. Read this issue
+  -- for the full story: https://github.com/wasp-lang/wasp/issues/1769
   let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInProjectRootDir
   doesSdkDirExist <- liftIO $ doesDirectoryExist sdkDir
   when doesSdkDirExist $ do

@@ -46,6 +46,8 @@ mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstP
 mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
+-- To understand what's going on here, read this issue:
+-- https://github.com/wasp-lang/wasp/issues/1769
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]

@@ -3,7 +3,6 @@
 #   Because if not, we had situations where it would use the different version
 #   locally and on Github CI. This way we ensure exact version is used,
 #   and also have control over updating it (instead of update surprising us).
-# todo: issue update alpine na 4.18, nema verzije na dockeru. I sto cemo s node verzijom, mozda na 20? 
 FROM node:{= nodeVersion =}-alpine3.17 AS node
 
 
@@ -19,13 +18,18 @@ FROM node AS base
 RUN apk --no-cache -U upgrade # To ensure any potential security patches are applied.
 
 
-# Todo this image stays on disk under <none>:<none>, should we remove it? Or is it useful for future builds?
+# Todo: The 'server-builder' image stays on disk under <none>:<none> and is
+# relatively large (~900 MB), should we remove it? Or is it useful for future
+# builds?
 FROM base AS server-builder
 # Building the Docker image on Apple's Silicon Mac fails without python3 (the build
 # throws `node-gyp` errors when it tries to compile native deps. Installing
 # `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
+# Since the framwork code in /.wasp/build/server imports the user code in /src
+# using relative imports, we must mirror the same directory structure in the
+# Docker image.
 COPY src ./src
 COPY package.json .
 COPY package-lock.json .
