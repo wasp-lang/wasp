@@ -212,6 +212,20 @@ npmDepsForSdk spec =
             ("react-router-dom", "^5.3.3"),
             ("react-hook-form", "^7.45.4"),
             ("secure-password", "^4.0.0"),
+            -- Secure-password 4.0.0. defaults to using sodium-native 3.4.1.,
+            -- which segfaults on on Alpine:
+            -- https://github.com/sodium-friends/sodium-native/issues/160
+            --
+            -- Before 0.12.0 (i.e., restructuring), we made Wasp use
+            -- sodium-native 3.3.0. with package.json overrides in our web-app/package.json:
+            -- https://github.com/wasp-lang/wasp/pull/729
+            --
+            -- Because our code that uses secure-password now lives in the SDK,
+            -- and NPM apparently ignores package.json overrides for
+            -- dependencies (no reference, found out by trying it out), the only
+            -- way to force NPM to install sodium-native 3.3.0 is by listing it
+            -- as a direct dependency.
+            ("sodium-native", "3.3.0"),
             ("superjson", "^1.12.2"),
             ("@types/express-serve-static-core", "^4.17.13")
           ]

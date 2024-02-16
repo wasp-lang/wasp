@@ -7,11 +7,6 @@ import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
-import qualified StrongPath as SP
-import System.Directory
-  ( doesDirectoryExist,
-    removeDirectoryRecursive,
-  )
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -20,9 +15,11 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
+import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -37,13 +34,21 @@ build = do
   let buildDir =
         waspProjectDir </> dotWaspDirInWaspProjectDir
           </> buildDirInDotWaspDir
-      buildDirFilePath = SP.fromAbsDir buildDir
 
-  doesBuildDirExist <- liftIO $ doesDirectoryExist buildDirFilePath
+  doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
     cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/build directory..."
-    liftIO $ removeDirectoryRecursive buildDirFilePath
+    liftIO $ removeDirectory buildDir
     cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/build directory."
+
+  -- We are using the same SDK location for both build and start. Read this issue
+  -- for the full story: https://github.com/wasp-lang/wasp/issues/1769
+  let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInProjectRootDir
+  doesSdkDirExist <- liftIO $ doesDirectoryExist sdkDir
+  when doesSdkDirExist $ do
+    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out/sdk directory..."
+    liftIO $ removeDirectory sdkDir
+    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out/sdk directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir

@@ -7,33 +7,33 @@ app TodoTypescript {
   auth: {
     userEntity: User,
     methods: {
-      // usernameAndPassword: {
-      //   userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js"
-      // },
+       usernameAndPassword: {
+         userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js"
+       },
       // google: {
       //   userSignupFields: import { googleUserSignupFields } from "@src/user/userSignupFields.js"
       // },
       // gitHub: {
       //   userSignupFields: import { githubUserSignupFields } from "@src/user/userSignupFields.js"
       // },
-      email: {
-        userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
-        fromField: {
-          email: "waspy@app.com"
-        },
-        emailVerification: {
-          clientRoute: EmailVerificationRoute,
-        },
-        passwordReset: {
-          clientRoute: PasswordResetRoute,
-        }
-      } // https://wasp-lang.dev/docs/guides/email-auth
+      // email: {
+      //   userSignupFields: import { userSignupFields } from "@src/user/userSignupFields.js",
+      //   fromField: {
+      //     email: "waspy@app.com"
+      //   },
+      //   emailVerification: {
+      //     clientRoute: EmailVerificationRoute,
+      //   },
+      //   passwordReset: {
+      //     clientRoute: PasswordResetRoute,
+      //   }
+      // } // https://wasp-lang.dev/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
   },
-  emailSender: {
-    provider: Dummy
-  },
+  // emailSender: {
+  //   provider: Dummy
+  // },
   db: {
     seeds: [
       import { seedMyDb } from "@src/db/seeds.js"
@@ -100,10 +100,10 @@ page SignupPage {
   component: import { SignupPage } from "@src/user/auth.tsx"
 }
 
-route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
-page EmailVerification {
-  component: import { EmailVerificationPage } from "@src/user/auth.tsx"
-}
+// route EmailVerificationRoute { path: "/email-verify", to: EmailVerification }
+// page EmailVerification {
+//   component: import { EmailVerificationPage } from "@src/user/auth.tsx"
+// }
 
 route ChatRoute { path: "/chat", to: Chat }
 page Chat {
@@ -115,16 +115,16 @@ page Chat {
 //   component: import { EmailVerificationPage } from "@src/user/auth.tsx"
 // }
 
-route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
-page RequestPasswordReset {
-  component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
-}
+// route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordReset }
+// page RequestPasswordReset {
+//   component: import { RequestPasswordResetPage } from "@src/user/auth.tsx"
+// }
 
 
-route PasswordResetRoute { path: "/password-reset", to: PasswordReset }
-page PasswordReset {
-  component: import { PasswordResetPage } from "@src/user/auth.tsx"
-}
+// route PasswordResetRoute { path: "/password-reset", to: PasswordReset }
+// page PasswordReset {
+//   component: import { PasswordResetPage } from "@src/user/auth.tsx"
+// }
 
 query getTasks {
   fn: import { getTasks } from "@src/task/queries",
@@ -175,7 +175,7 @@ apiNamespace fooBarNamespace {
   path: "/foo/bar"
 }
 
-action customEmailSending {
-  fn: import { send } from "@src/user/customEmailSending",
-  entities: [User]
-}
+// action customEmailSending {
+//   fn: import { send } from "@src/user/customEmailSending",
+//   entities: [User]
+// }
