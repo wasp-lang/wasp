@@ -46,7 +46,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
       )}
       <NewTaskForm />
       {tasks && <TasksList tasks={tasks} />}
-      <h2>All</h2>
+      <h2>Everything</h2>
       {allTasks && <TasksList tasks={allTasks} />}
       <div className="buttons">
         <button

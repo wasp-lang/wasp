@@ -137,14 +137,12 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
-      - name: Run tests
-        # TODO: Reenable e2e tests after we merge new e2e tests
+      - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
 
-      # TODO: Reenable building of todoApp after we merge build fixes
-      # - name: Ensure todoApp builds
-      #   if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-      #   run: ./tools/ensure_todoapp_builds.sh
+      - name: Ensure todoApp builds
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/ensure_todoapp_builds.sh
 
       - name: Headless - Cache Node Modules
         id: headless-cache-node-modules
@@ -193,6 +191,9 @@ jobs:
           npm ci
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test
+      
+      - name: Run e2e tests
+        run: cabal test e2e-test
 
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
