@@ -1,13 +1,12 @@
-import { type AuthUser as User } from "wasp/auth";
-import { mockServer, renderInContext } from "wasp/client/test";
-import { getTasks, getDate } from "wasp/client/operations";
+import { type AuthUser as User } from 'wasp/auth'
+import { mockServer, renderInContext } from 'wasp/client/test'
+import { getTasks, getDate } from 'wasp/client/operations'
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
 import Todo, { areThereAnyTasks } from './Todo'
 import { App } from './App'
-// Missing API!
-// import { getMe } from '@wasp/auth/useAuth'
+import { getMe } from 'wasp/client/auth'
 
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
@@ -53,21 +52,20 @@ const mockUser = {
   address: null,
 } satisfies User
 
-// Uncomment when we add the missing API
-// test('handles multiple mock data sources', async () => {
-//   mockQuery(getMe, mockUser)
-//   mockQuery(getDate, new Date())
-//   mockQuery(getTasks, mockTasks)
+test('handles multiple mock data sources', async () => {
+  mockQuery(getMe, mockUser)
+  mockQuery(getDate, new Date())
+  mockQuery(getTasks, mockTasks)
 
-//   renderInContext(
-//     <App>
-//       <Todo />
-//     </App>
-//   )
+  renderInContext(
+    <App>
+      <Todo />
+    </App>
+  )
 
-//   await screen.findByText('elon@tesla.com')
+  await screen.findByText('elon@tesla.com')
 
-//   expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(screen.getByRole('checkbox')).toBeChecked()
 
-//   screen.debug()
-// })
+  screen.debug()
+})
