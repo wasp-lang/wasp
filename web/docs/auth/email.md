@@ -167,27 +167,27 @@ Add the following to the `main.wasp` file:
 // 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.jsx"
+  component: import { Login } from "@src/pages/auth.jsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/pages/auth.jsx"
+  component: import { Signup } from "@src/pages/auth.jsx"
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { RequestPasswordReset } from "@client/pages/auth.jsx",
+  component: import { RequestPasswordReset } from "@src/pages/auth.jsx",
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { PasswordReset } from "@client/pages/auth.jsx",
+  component: import { PasswordReset } from "@src/pages/auth.jsx",
 }
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { EmailVerification } from "@client/pages/auth.jsx",
+  component: import { EmailVerification } from "@src/pages/auth.jsx",
 }
 ```
 </TabItem>
@@ -199,33 +199,33 @@ page EmailVerificationPage {
 // 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@client/pages/auth.tsx"
+  component: import { Login } from "@src/pages/auth.tsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/pages/auth.tsx"
+  component: import { Signup } from "@src/pages/auth.tsx"
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { RequestPasswordReset } from "@client/pages/auth.tsx",
+  component: import { RequestPasswordReset } from "@src/pages/auth.tsx",
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { PasswordReset } from "@client/pages/auth.tsx",
+  component: import { PasswordReset } from "@src/pages/auth.tsx",
 }
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { EmailVerification } from "@client/pages/auth.tsx",
+  component: import { EmailVerification } from "@src/pages/auth.tsx",
 }
 ```
 </TabItem>
 </Tabs>
 
-We'll define the React components for these pages in the `client/pages/auth.{jsx,tsx}` file below.
+We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
 ### 4. Create the Client Pages
 
@@ -233,18 +233,20 @@ We'll define the React components for these pages in the `client/pages/auth.{jsx
 We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
 :::
 
-Let's create a `auth.{jsx,tsx}` file in the `client/pages` folder and add the following to it:
+Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/pages/auth.jsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { SignupForm } from "@wasp/auth/forms/Signup";
-import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
-import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
-import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
-import { Link } from "react-router-dom";
+```tsx title="src/pages/auth.jsx"
+import {
+  LoginForm,
+  SignupForm,
+  VerifyEmailForm,
+  ForgotPasswordForm,
+  ResetPasswordForm,
+} from 'wasp/client/auth'
+import { Link } from 'react-router-dom'
 
 export function Login() {
   return (
@@ -323,13 +325,15 @@ export function Layout({ children }) {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/pages/auth.tsx"
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { SignupForm } from "@wasp/auth/forms/Signup";
-import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
-import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
-import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
-import { Link } from "react-router-dom";
+```tsx title="src/pages/auth.tsx"
+import {
+  LoginForm,
+  SignupForm,
+  VerifyEmailForm,
+  ForgotPasswordForm,
+  ResetPasswordForm,
+} from 'wasp/client/auth'
+import { Link } from 'react-router-dom'
 
 export function Login() {
   return (
@@ -598,27 +602,23 @@ The code of your custom sign-up action can look like this:
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
 }
 ```
 
-```js title="src/server/auth/signup.js"
+```js title="src/auth/signup.js"
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidEmail,
-} from '@wasp/auth/validation.js'
-import {
   createProviderId,
   sanitizeAndSerializeProviderData,
   deserializeAndSanitizeProviderData,
   findAuthIdentity,
   createUser,
-} from '@wasp/auth/utils.js'
-import {
   createEmailVerificationLink,
   sendEmailVerificationEmail,
-} from '@wasp/auth/providers/email/utils.js'
+} from 'wasp/server/auth'
 
 export const signup = async (args, _context) => {
   ensureValidEmail(args)
@@ -694,28 +694,24 @@ export const signup = async (args, _context) => {
 // ...
 
 action customSignup {
-  fn: import { signup } from "@server/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.js",
 }
 ```
 
-```ts title="src/server/auth/signup.ts"
+```ts title="src/auth/signup.ts"
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidEmail,
-} from '@wasp/auth/validation.js'
-import {
   createProviderId,
   sanitizeAndSerializeProviderData,
   deserializeAndSanitizeProviderData,
   findAuthIdentity,
   createUser,
-} from '@wasp/auth/utils.js'
-import {
   createEmailVerificationLink,
   sendEmailVerificationEmail,
-} from '@wasp/auth/providers/email/utils.js'
-import type { CustomSignup } from '@wasp/actions/types'
+} from 'wasp/server/auth'
+import type { CustomSignup } from 'wasp/server/operations'
 
 type CustomSignupInput = {
   email: string
@@ -796,7 +792,7 @@ export const signup: CustomSignup<CustomSignupInput, CustomSignupOutput> = async
 </TabItem>
 </Tabs>
 
-We suggest using the built-in field validators for your authentication flow. You can import them from `@wasp/auth/validation.js`. These are the same validators that Wasp uses internally for the default authentication flow.
+We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
 
 #### Email
 
@@ -902,18 +898,18 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
-        userSignupFields: import { userSignupFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@src/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
         },
         emailVerification: {
           clientRoute: EmailVerificationRoute,
-          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email.js",
         },
         passwordReset: {
           clientRoute: PasswordResetRoute,
-          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email.js",
         },
       },
     },
@@ -934,18 +930,18 @@ app myApp {
     userEntity: User,
     methods: {
       email: {
-        userSignupFields: import { userSignupFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@src/auth.js",
         fromField: {
           name: "My App",
           email: "hello@itsme.com"
         },
         emailVerification: {
           clientRoute: EmailVerificationRoute,
-          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email.js",
         },
         passwordReset: {
           clientRoute: PasswordResetRoute,
-          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email.js",
         },
       },
     },
@@ -980,7 +976,7 @@ It has the following fields:
   <TabItem value="js" label="JavaScript">
 
   ```js title="src/pages/EmailVerificationPage.jsx"
-  import { verifyEmail } from '@wasp/auth/email/actions';
+  import { verifyEmail } from 'wasp/client/auth'
   ...
   await verifyEmail({ token });
   ```
@@ -988,7 +984,7 @@ It has the following fields:
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="src/pages/EmailVerificationPage.tsx"
-  import { verifyEmail } from '@wasp/auth/email/actions';
+  import { verifyEmail } from 'wasp/client/auth'
   ...
   await verifyEmail({ token });
   ```
@@ -1001,12 +997,12 @@ It has the following fields:
 
 - `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user.
 
-  Defining `getEmailContentFn` can be done by defining a file in the `server` directory.
+  Defining `getEmailContentFn` can be done by defining a file in the `src` directory.
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```ts title="server/email.js"
+  ```ts title="src/email.js"
   export const getVerificationEmailContent = ({ verificationLink }) => ({
     subject: 'Verify your email',
     text: `Click the link below to verify your email: ${verificationLink}`,
@@ -1019,8 +1015,8 @@ It has the following fields:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title="server/email.ts"
-  import { GetVerificationEmailContentFn } from '@wasp/types'
+  ```ts title="src/email.ts"
+  import { GetVerificationEmailContentFn } from 'wasp/server/auth'
 
   export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
     verificationLink,
@@ -1051,13 +1047,13 @@ It has the following fields:
   <TabItem value="js" label="JavaScript">
 
   ```js title="src/pages/ForgotPasswordPage.jsx"
-  import { requestPasswordReset } from '@wasp/auth/email/actions';
+  import { requestPasswordReset } from 'wasp/client/auth'
   ...
   await requestPasswordReset({ email });
   ```
 
   ```js title="src/pages/PasswordResetPage.jsx"
-  import { resetPassword } from '@wasp/auth/email/actions';
+  import { resetPassword } from 'wasp/client/auth'
   ...
   await resetPassword({ password, token })
   ```
@@ -1065,13 +1061,13 @@ It has the following fields:
   <TabItem value="ts" label="TypeScript">
 
   ```ts title="src/pages/ForgotPasswordPage.tsx"
-  import { requestPasswordReset } from '@wasp/auth/email/actions';
+  import { requestPasswordReset } from 'wasp/client/auth'
   ...
   await requestPasswordReset({ email });
   ```
 
   ```ts title="src/pages/PasswordResetPage.tsx"
-  import { resetPassword } from '@wasp/auth/email/actions';
+  import { resetPassword } from 'wasp/client/auth'
   ...
   await resetPassword({ password, token })
   ```
@@ -1089,7 +1085,7 @@ It has the following fields:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```ts title="server/email.js"
+  ```ts title="src/email.js"
   export const getPasswordResetEmailContent = ({ passwordResetLink }) => ({
     subject: 'Password reset',
     text: `Click the link below to reset your password: ${passwordResetLink}`,
@@ -1102,8 +1098,8 @@ It has the following fields:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title="server/email.ts"
-  import { GetPasswordResetEmailContentFn } from '@wasp/types'
+  ```ts title="src/email.ts"
+  import { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
 
   export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
     passwordResetLink,

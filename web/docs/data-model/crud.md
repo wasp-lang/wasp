@@ -41,7 +41,7 @@ crud Tasks {
     },
     get: {},
     create: {
-      overrideFn: import { createTask } from "@server/tasks.js",
+      overrideFn: import { createTask } from "@src/tasks.js",
     },
     update: {},
   },
@@ -104,18 +104,18 @@ psl=}
 // Tasks app routes
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { MainPage } from "@client/MainPage.jsx",
+  component: import { MainPage } from "@src/MainPage.jsx",
   authRequired: true,
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage.jsx",
+  component: import { LoginPage } from "@src/LoginPage.jsx",
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.jsx",
+  component: import { SignupPage } from "@src/SignupPage.jsx",
 }
 ```
 
@@ -133,7 +133,7 @@ crud Tasks {
   operations: {
     getAll: {},
     create: {
-      overrideFn: import { createTask } from "@server/tasks.js",
+      overrideFn: import { createTask } from "@src/tasks.js",
     },
   },
 }
@@ -141,17 +141,17 @@ crud Tasks {
 
 You'll notice that we enabled only `getAll` and `create` operations. This means that only these operations will be available.
 
-We also overrode the `create` operation with a custom implementation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `@server/tasks.js` will be used.
+We also overrode the `create` operation with a custom implementation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `@src/tasks.js` will be used.
 
 ### Our Custom `create` Operation
 
-Here's the `src/server/tasks.{js,ts}` file:
+Here's the `src/tasks.{js,ts}` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title=src/server/tasks.js {15-20}
-import HttpError from '@wasp/core/HttpError.js'
+```js title=src/tasks.js
+import { HttpError } from 'wasp/server'
 
 export const createTask = async (args, context) => {
   if (!context.user) {
@@ -165,12 +165,14 @@ export const createTask = async (args, context) => {
     data: {
       description,
       isDone,
+      // highlight-start
       // Connect the task to the user that is creating it
       user: {
         connect: {
           id: context.user.id,
         },
       },
+      // highlight-end
     },
   })
 }
@@ -179,14 +181,14 @@ export const createTask = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title=src/server/tasks.ts {23-28}
-import type { CreateAction } from '@wasp/crud/Tasks'
-import type { Task } from '@wasp/entities'
-import HttpError from '@wasp/core/HttpError.js'
+```ts title=src/tasks.ts
+import { type Tasks } from 'wasp/server/crud'
+import { type Task } from 'wasp/entities'
+import { HttpError } from 'wasp/server'
 
 type CreateTaskInput = { description: string; isDone: boolean }
 
-export const createTask: CreateAction<CreateTaskInput, Task> = async (
+export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
   args,
   context
 ) => {
@@ -201,12 +203,14 @@ export const createTask: CreateAction<CreateTaskInput, Task> = async (
     data: {
       description,
       isDone,
+      // highlight-start
       // Connect the task to the user that is creating it
       user: {
         connect: {
           id: context.user.id,
         },
       },
+      // highlight-end
     },
   })
 }
@@ -226,9 +230,9 @@ And let's use the generated operations in our client code:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="pages/MainPage.jsx"
+```jsx title="src/MainPage.jsx"
 // highlight-next-line
-import { Tasks } from '@wasp/crud/Tasks'
+import { Tasks } from 'wasp/client/crud'
 import { useState } from 'react'
 
 export const MainPage = () => {
@@ -274,9 +278,9 @@ export const MainPage = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="pages/MainPage.tsx"
+```tsx title="src/MainPage.tsx"
 // highlight-next-line
-import { Tasks } from '@wasp/crud/Tasks'
+import { Tasks } from 'wasp/client/crud'
 import { useState } from 'react'
 
 export const MainPage = () => {
@@ -331,8 +335,8 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```jsx title="src/LoginPage.jsx"
+import { LoginForm } from 'wasp/client/auth'
 import { Link } from 'react-router-dom'
 
 export function LoginPage() {
@@ -355,8 +359,8 @@ export function LoginPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.tsx"
+import { LoginForm } from 'wasp/client/auth'
 import { Link } from 'react-router-dom'
 
 export function LoginPage() {
@@ -382,8 +386,8 @@ export function LoginPage() {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+```jsx title="src/SignupPage.jsx"
+import { SignupForm } from 'wasp/client/auth'
 
 export function SignupPage() {
   return (
@@ -402,8 +406,8 @@ export function SignupPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+```tsx title="src/SignupPage.tsx"
+import { SignupForm } from 'wasp/client/auth'
 
 export function SignupPage() {
   return (
@@ -597,7 +601,7 @@ crud Tasks { // crud name here is "Tasks"
     },
     get: {},
     create: {
-      overrideFn: import { createTask } from "@server/tasks.js", // optional
+      overrideFn: import { createTask } from "@src/tasks.js", // optional
     },
     update: {},
   },
@@ -616,7 +620,7 @@ crud Tasks { // crud name here is "Tasks"
     },
     get: {},
     create: {
-      overrideFn: import { createTask } from "@server/tasks.js", // optional
+      overrideFn: import { createTask } from "@src/tasks.js", // optional
     },
     update: {},
   },
@@ -644,7 +648,7 @@ The CRUD declaration features the following fields:
     - `delete`
   - `CrudOperationOptions` can have the following fields:
     - `isPublic: bool` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
-    - `overrideFn: ServerImport` - The import statement of the optional override implementation in Node.js.
+    - `overrideFn: ExtImport` - The import statement of the optional override implementation in Node.js.
 
 #### Defining the overrides
 
@@ -660,27 +664,21 @@ Like with actions and queries, you can define the implementation in a Javascript
 
 <ShowForTs>
 
-You can also import types for each of the functions you want to override from `@wasp/crud/{crud name}`. The available types are:
+You can also import types for each of the functions you want to override by importing the `{crud name}` from `wasp/server/crud`. The available types are:
 
-- `GetAllQuery`
-- `GetQuery`
-- `CreateAction`
-- `UpdateAction`
-- `DeleteAction`
+- `{crud name}.GetAllQuery`
+- `{crud name}.GetQuery`
+- `{crud name}.CreateAction`
+- `{crud name}.UpdateAction`
+- `{crud name}.DeleteAction`
 
 If you have a CRUD named `Tasks`, you would import the types like this:
 
 ```ts
-import type {
-  GetAllQuery,
-  GetQuery,
-  CreateAction,
-  UpdateAction,
-  DeleteAction,
-} from '@wasp/crud/Tasks'
+import { type Tasks } from 'wasp/server/crud'
 
 // Each of the types is a generic type, so you can use it like this:
-export const getAllOverride: GetAllQuery<Input, Output> = async (
+export const getAllOverride: Tasks.GetAllQuery<Input, Output> = async (
   args,
   context
 ) => {
@@ -694,20 +692,20 @@ For a usage example, check the [example guide](../data-model/crud#adding-crud-to
 
 #### Using the CRUD operations in client code
 
-On the client, you import the CRUD operations from `@wasp/crud/{crud name}`. The names of the imports are the same as the names of the operations. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
+On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="SomePage.jsx"
-import { Tasks } from '@wasp/crud/Tasks'
+import { Tasks } from 'wasp/client/crud'
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="SomePage.tsx"
-import { Tasks } from '@wasp/crud/Tasks'
+import { Tasks } from 'wasp/client/crud'
 ```
 
 </TabItem>

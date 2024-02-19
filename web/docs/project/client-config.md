@@ -16,8 +16,8 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.jsx",
-    setupFn: import mySetupFunction from "@client/myClientSetupCode.js"
+    rootComponent: import Root from "@src/Root.jsx",
+    setupFn: import mySetupFunction from "@src/myClientSetupCode.js"
   }
 }
 ```
@@ -30,8 +30,8 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.tsx",
-    setupFn: import mySetupFunction from "@client/myClientSetupCode.ts"
+    rootComponent: import Root from "@src/Root.tsx",
+    setupFn: import mySetupFunction from "@src/myClientSetupCode.ts"
   }
 }
 ```
@@ -60,12 +60,12 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.jsx",
+    rootComponent: import Root from "@src/Root.jsx",
   }
 }
 ```
 
-```jsx title="src/client/Root.jsx"
+```jsx title="src/Root.jsx"
 export default function Root({ children }) {
   return (
     <div>
@@ -89,12 +89,12 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.tsx",
+    rootComponent: import Root from "@src/Root.tsx",
   }
 }
 ```
 
-```tsx title="src/client/Root.tsx"
+```tsx title="src/Root.tsx"
 export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <div>
@@ -125,12 +125,12 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.jsx",
+    rootComponent: import Root from "@src/Root.jsx",
   }
 }
 ```
 
-```jsx title="src/client/Root.jsx"
+```jsx title="src/Root.jsx"
 import store from './store'
 import { Provider } from 'react-redux'
 
@@ -147,12 +147,12 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.tsx",
+    rootComponent: import Root from "@src/Root.tsx",
   }
 }
 ```
 
-```tsx title="src/client/Root.tsx"
+```tsx title="src/Root.tsx"
 import store from './store'
 import { Provider } from 'react-redux'
 
@@ -167,7 +167,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
 As long as you render the children, you can do whatever you want in your root
 component.
 
-Read more about the root component in the [API Reference](#rootcomponent-clientimport).
+Read more about the root component in the [API Reference](#rootcomponent-extimport).
 
 ## Setup Function
 
@@ -182,7 +182,7 @@ For example, here's a setup function that logs a message every hour:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/client/myClientSetupCode.js"
+```js title="src/myClientSetupCode.js"
 export default async function mySetupFunction() {
   let count = 1
   setInterval(
@@ -195,7 +195,7 @@ export default async function mySetupFunction() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/client/myClientSetupCode.ts"
+```ts title="src/myClientSetupCode.ts"
 export default async function mySetupFunction(): Promise<void> {
   let count = 1
   setInterval(
@@ -223,8 +223,8 @@ Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/client/myClientSetupCode.js"
-import { configureQueryClient } from '@wasp/queryClient'
+```js title="src/myClientSetupCode.js"
+import { configureQueryClient } from 'wasp/client/operations'
 
 export default async function mySetupFunction() {
   // ... some setup
@@ -242,8 +242,8 @@ export default async function mySetupFunction() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/client/myClientSetupCode.ts"
-import { configureQueryClient } from '@wasp/queryClient'
+```ts title="src/myClientSetupCode.ts"
+import { configureQueryClient } from 'wasp/client/operations'
 
 export default async function mySetupFunction(): Promise<void> {
   // ... some setup
@@ -265,7 +265,7 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
 
-Read more about the setup function in the [API Reference](#setupfn-clientimport).
+Read more about the setup function in the [API Reference](#setupfn-extimport).
 
 ## Base Directory
 
@@ -297,8 +297,8 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.jsx",
-    setupFn: import mySetupFunction from "@client/myClientSetupCode.js"
+    rootComponent: import Root from "@src/Root.jsx",
+    setupFn: import mySetupFunction from "@src/myClientSetupCode.js"
   }
 }
 ```
@@ -311,8 +311,8 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    rootComponent: import Root from "@client/Root.tsx",
-    setupFn: import mySetupFunction from "@client/myClientSetupCode.ts",
+    rootComponent: import Root from "@src/Root.tsx",
+    setupFn: import mySetupFunction from "@src/myClientSetupCode.ts",
     baseDir: "/my-app",
   }
 }
@@ -323,7 +323,7 @@ app MyApp {
 
 Client has the following options:
 
-- #### `rootComponent: ClientImport`
+- #### `rootComponent: ExtImport`
 
   `rootComponent` defines the root component of your client application. It is
   expected to be a React component, and Wasp will use it to wrap your entire app.
@@ -335,7 +335,7 @@ Client has the following options:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```jsx title="src/client/Root.jsx"
+  ```jsx title="src/Root.jsx"
   import store from './store'
   import { Provider } from 'react-redux'
 
@@ -365,7 +365,7 @@ Client has the following options:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```tsx title="src/client/Root.tsx"
+  ```tsx title="src/Root.tsx"
   import store from './store'
   import { Provider } from 'react-redux'
 
@@ -395,7 +395,7 @@ Client has the following options:
   </TabItem>
   </Tabs>
 
-- #### `setupFn: ClientImport`
+- #### `setupFn: ExtImport`
 
   <ShowForTs>
 
@@ -419,7 +419,7 @@ Client has the following options:
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
 
-  ```js title="src/client/myClientSetupCode.js"
+  ```js title="src/myClientSetupCode.js"
   export default async function mySetupFunction() {
     // Run some code
   }
@@ -428,7 +428,7 @@ Client has the following options:
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
-  ```ts title="src/client/myClientSetupCode.ts"
+  ```ts title="src/myClientSetupCode.ts"
   export default async function mySetupFunction(): Promise<void> {
     // Run some code
   }

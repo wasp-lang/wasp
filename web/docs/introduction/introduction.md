@@ -56,7 +56,7 @@ Let's give our app a title and let's immediately turn on the full-stack authenti
 ```wasp title="main.wasp"
 app RecipeApp {
   title: "My Recipes",
-  wasp: { version: "^0.11.0" },
+  wasp: { version: "^0.12.0" },
   auth: {
     methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login",
@@ -93,23 +93,23 @@ First, we define these Operations in our main.wasp file, so Wasp knows about the
 ```wasp title="main.wasp"
 // Queries have automatic cache invalidation and are type-safe.
 query getRecipes {
-  fn: import { getRecipes } from "@server/recipe.js",
+  fn: import { getRecipes } from "@src/recipe/operations.ts",
   entities: [Recipe],
 }
 
 // Actions are type-safe and can be used to perform side-effects.
 action addRecipe {
-  fn: import { addRecipe } from "@server/recipe.js",
+  fn: import { addRecipe } from "@src/recipe/operations.ts",
   entities: [Recipe],
 }
 ```
 
 ... and then implement them in our Javascript (or TypeScript) code (we show just the query here, using TypeScript):
 
-```ts title="src/server/recipe.ts"
-// Wasp generates types for you.
-import type { GetRecipes } from "@wasp/queries/types";
-import type { Recipe } from "@wasp/entities";
+```ts title="src/recipe/operations.ts"
+// Wasp generates the types for you.
+import { type GetRecipes } from "wasp/server/operations";
+import { type Recipe } from "wasp/entities";
 
 export const getRecipes: GetRecipes<{}, Recipe[]> = async (_args, context) => {
   return context.entities.Recipe.findMany( // Prisma query
@@ -130,17 +130,16 @@ First we define it in main.wasp:
 
 route HomeRoute { path: "/", to: HomePage }
 page HomePage {
-  component: import { HomePage } from "@client/pages/HomePage",
+  component: import { HomePage } from "@src/pages/HomePage",
   authRequired: true // Will send user to /login if not authenticated.
 }
 ```
 
 and then implement it as a React component in JS/TS (that calls the Operations we previously defined):
 
-```tsx title="src/client/pages/HomePage.tsx"
-import getRecipes from "@wasp/queries/getRecipes";
-import { useQuery } from "@wasp/queries";
-import type { User } from "@wasp/entities";
+```tsx title="src/pages/HomePage.tsx"
+import { useQuery, getRecipes } from "wasp/client/operations";
+import { type User } from "wasp/entities";
 
 export function HomePage({ user }: { user: User }) {
   // Due to full-stack type safety, `recipes` will be of type `Recipe[]` here.
@@ -171,7 +170,7 @@ And voila! We are listing all the recipes in our app 🎉
 This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](../tutorial/01-create.md).
 
 :::note
-Above we skipped defining /login and /signup pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
+Above we skipped defining `/login` and `/signup` pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
 :::
 
 ## When to use Wasp
@@ -193,7 +192,7 @@ Wasp is addressing the same core problems that typical web app frameworks are ad
 You don't need to know what a DSL is to use Wasp, but if you are curious, you can read more about it below.
 :::
 
-Wasp does not match typical expectations of a web app framework: it is not a set of libraries, it is instead a programming language that understands your code and can do a lot of things for you.
+Wasp does not match typical expectations of a web app framework: it is not a set of libraries, it is instead a simple programming language that understands your code and can do a lot of things for you.
 
 Wasp is a programming language, but a specific kind: it is specialized for a single purpose: **building modern web applications**. We call such languages *DSL*s (Domain Specific Language).
 

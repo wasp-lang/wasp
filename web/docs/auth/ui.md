@@ -124,12 +124,12 @@ You can use the `LoginForm` component to build your login page:
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage.jsx"
+  component: import { LoginPage } from "@src/LoginPage.jsx"
 }
 ```
 
-```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.jsx"
+import { LoginForm } from 'wasp/client/auth'
 
 // Use it like this
 export function LoginPage() {
@@ -145,12 +145,12 @@ export function LoginPage() {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage.tsx"
+  component: import { LoginPage } from "@src/LoginPage.tsx"
 }
 ```
 
-```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.tsx"
+import { LoginForm } from 'wasp/client/auth'
 
 // Use it like this
 export function LoginPage() {
@@ -179,12 +179,12 @@ You can use the `SignupForm` component to build your signup page:
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.jsx"
+  component: import { SignupPage } from "@src/SignupPage.jsx"
 }
 ```
 
-```tsx title="client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+```tsx title="src/SignupPage.jsx"
+import { SignupForm } from 'wasp/client/auth'
 
 // Use it like this
 export function SignupPage() {
@@ -200,12 +200,12 @@ export function SignupPage() {
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.tsx"
+  component: import { SignupPage } from "@src/SignupPage.tsx"
 }
 ```
 
-```tsx title="client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
+```tsx title="src/SignupPage.tsx"
+import { SignupForm } from 'wasp/client/auth'
 
 // Use it like this
 export function SignupPage() {
@@ -238,12 +238,12 @@ You can use the `ForgotPasswordForm` component to build your own forgot password
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { ForgotPasswordPage } from "@client/ForgotPasswordPage.jsx"
+  component: import { ForgotPasswordPage } from "@src/ForgotPasswordPage.jsx"
 }
 ```
 
-```tsx title="client/ForgotPasswordPage.jsx"
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+```tsx title="src/ForgotPasswordPage.jsx"
+import { ForgotPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ForgotPasswordPage() {
@@ -259,12 +259,12 @@ export function ForgotPasswordPage() {
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { ForgotPasswordPage } from "@client/ForgotPasswordPage.tsx"
+  component: import { ForgotPasswordPage } from "@src/ForgotPasswordPage.tsx"
 }
 ```
 
-```tsx title="client/ForgotPasswordPage.tsx"
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+```tsx title="src/ForgotPasswordPage.tsx"
+import { ForgotPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ForgotPasswordPage() {
@@ -293,12 +293,12 @@ You can use the `ResetPasswordForm` component to build your reset password page:
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { ResetPasswordPage } from "@client/ResetPasswordPage.jsx"
+  component: import { ResetPasswordPage } from "@src/ResetPasswordPage.jsx"
 }
 ```
 
-```tsx title="client/ResetPasswordPage.jsx"
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+```tsx title="src/ResetPasswordPage.jsx"
+import { ResetPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ResetPasswordPage() {
@@ -314,12 +314,12 @@ export function ResetPasswordPage() {
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { ResetPasswordPage } from "@client/ResetPasswordPage.tsx"
+  component: import { ResetPasswordPage } from "@src/ResetPasswordPage.tsx"
 }
 ```
 
-```tsx title="client/ResetPasswordPage.tsx"
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+```tsx title="src/ResetPasswordPage.tsx"
+import { ResetPasswordForm } from 'wasp/client/auth'
 
 // Use it like this
 export function ResetPasswordPage() {
@@ -348,12 +348,12 @@ You can use the `VerifyEmailForm` component to build your email verification pag
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { VerifyEmailPage } from "@client/VerifyEmailPage.jsx"
+  component: import { VerifyEmailPage } from "@src/VerifyEmailPage.jsx"
 }
 ```
 
-```tsx title="client/VerifyEmailPage.jsx"
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+```tsx title="src/VerifyEmailPage.jsx"
+import { VerifyEmailForm } from 'wasp/client/auth'
 
 // Use it like this
 export function VerifyEmailPage() {
@@ -369,12 +369,12 @@ export function VerifyEmailPage() {
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { VerifyEmailPage } from "@client/VerifyEmailPage.tsx"
+  component: import { VerifyEmailPage } from "@src/VerifyEmailPage.tsx"
 }
 ```
 
-```tsx title="client/VerifyEmailPage.tsx"
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+```tsx title="src/VerifyEmailPage.tsx"
+import { VerifyEmailForm } from 'wasp/client/auth'
 
 // Use it like this
 export function VerifyEmailPage() {
@@ -408,7 +408,7 @@ See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/re
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="client/appearance.js"
+```js title="src/appearance.js"
 export const authAppearance = {
   colors: {
     brand: '#5969b8', // blue
@@ -418,8 +418,8 @@ export const authAppearance = {
 }
 ```
 
-```jsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```jsx title="src/LoginPage.jsx"
+import { LoginForm } from 'wasp/client/auth'
 import { authAppearance } from './appearance'
 
 export function LoginPage() {
@@ -435,8 +435,8 @@ export function LoginPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="client/appearance.ts"
-import type { CustomizationOptions } from '@wasp/auth/forms/types'
+```ts title="src/appearance.ts"
+import type { CustomizationOptions } from 'wasp/client/auth'
 
 export const authAppearance: CustomizationOptions['appearance'] = {
   colors: {
@@ -447,8 +447,8 @@ export const authAppearance: CustomizationOptions['appearance'] = {
 }
 ```
 
-```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.tsx"
+import { LoginForm } from 'wasp/client/auth'
 import { authAppearance } from './appearance'
 
 export function LoginPage() {
@@ -473,8 +473,8 @@ You can add your logo to the Auth UI by passing the `logo` prop to any of the co
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.jsx"
+import { LoginForm } from 'wasp/client/auth'
 import Logo from './logo.png'
 
 export function LoginPage() {
@@ -490,8 +490,8 @@ export function LoginPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.tsx"
+import { LoginForm } from 'wasp/client/auth'
 import Logo from './logo.png'
 
 export function LoginPage() {
@@ -516,8 +516,8 @@ If we pass in `vertical`:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.jsx"
+import { LoginForm } from 'wasp/client/auth'
 
 export function LoginPage() {
   return (
@@ -532,8 +532,8 @@ export function LoginPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.tsx"
+import { LoginForm } from 'wasp/client/auth'
 
 export function LoginPage() {
   return (
@@ -559,7 +559,7 @@ If we provide the logo and custom colors:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```ts title="client/appearance.js"
+```ts title="src/appearance.js"
 export const appearance = {
   colors: {
     brand: '#5969b8', // blue
@@ -569,8 +569,8 @@ export const appearance = {
 }
 ```
 
-```tsx title="client/LoginPage.jsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.jsx"
+import { LoginForm } from 'wasp/client/auth'
 
 import { authAppearance } from './appearance'
 import todoLogo from './todoLogo.png'
@@ -583,8 +583,8 @@ export function LoginPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="client/appearance.ts"
-import type { CustomizationOptions } from '@wasp/auth/forms/types'
+```ts title="src/appearance.ts"
+import type { CustomizationOptions } from 'wasp/client/auth'
 
 export const appearance: CustomizationOptions['appearance'] = {
   colors: {
@@ -595,8 +595,8 @@ export const appearance: CustomizationOptions['appearance'] = {
 }
 ```
 
-```tsx title="client/LoginPage.tsx"
-import { LoginForm } from '@wasp/auth/forms/Login'
+```tsx title="src/LoginPage.tsx"
+import { LoginForm } from 'wasp/client/auth'
 
 import { authAppearance } from './appearance'
 import todoLogo from './todoLogo.png'

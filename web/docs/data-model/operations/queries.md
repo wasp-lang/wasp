@@ -45,11 +45,11 @@ Let's declare two Queries - one to fetch all tasks, and another to fetch tasks b
 // ...
 
 query getAllTasks {
-  fn: import { getAllTasks } from "@server/queries.js"
+  fn: import { getAllTasks } from "@src/queries.js"
 }
 
 query getFilteredTasks {
-  fn: import { getFilteredTasks } from "@server/queries.js"
+  fn: import { getFilteredTasks } from "@src/queries.js"
 }
 ```
 
@@ -60,19 +60,13 @@ query getFilteredTasks {
 // ...
 
 query getAllTasks {
-  fn: import { getAllTasks } from "@server/queries.js"
+  fn: import { getAllTasks } from "@src/queries.js"
 }
 
 query getFilteredTasks {
-  fn: import { getFilteredTasks } from "@server/queries.js"
+  fn: import { getFilteredTasks } from "@src/queries.js"
 }
 ```
-
-:::warning
-Even though you are using TypeScript and plan to implement this Query in `src/server/queries.ts`, you still need to import it using a `.js` extension. Wasp internally uses `esnext` module resolution, which requires importing all files with a `.js` extension. This is only needed when importing `@server` files.
-
-Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
-:::
 
 </TabItem>
 </Tabs>
@@ -105,14 +99,14 @@ Generating these two functions ensures a uniform calling interface across the en
 ### Implementing Queries in Node
 
 Now that we've declared the Query, what remains is to implement it.
-We've instructed Wasp to look for the Queries' implementations in the file `src/server/queries.{js,ts}`, so that's where we should export them from.
+We've instructed Wasp to look for the Queries' implementations in the file `src/queries.{js,ts}`, so that's where we should export them from.
 
 Here's how you might implement the previously declared Queries `getAllTasks` and `getFilteredTasks`:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/server/queries.js"
+```js title="src/queries.js"
 // our "database"
 const tasks = [
   { id: 1, description: 'Buy some eggs', isDone: true },
@@ -137,8 +131,8 @@ export const getFilteredTasks = (args) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/server/queries.ts"
-import { GetAllTasks, GetFilteredTasks } from '@wasp/queries/types'
+```ts title="src/queries.ts"
+import { type GetAllTasks, type GetFilteredTasks } from 'wasp/server/operations'
 
 type Task = {
   id: number
@@ -194,14 +188,13 @@ For a detailed explanation of the Query definition API (i.e., arguments and retu
 
 ### Using Queries
 
-To use a Query, you can import it from `@wasp` and call it directly. As mentioned, the usage doesn't change depending on whether you're on the server or the client:
+To use a Query, you can import it from `wasp/client/operations` and call it directly. As mentioned, the usage doesn't change depending on whether you're on the server or the client:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```javascript
-import getAllTasks from '@wasp/queries/getAllTasks.js'
-import getFilteredTasks from '@wasp/queries/getFilteredTasks.js'
+import { getAllTasks, getFilteredTasks } from 'wasp/client/operations'
 
 // ...
 
@@ -213,8 +206,7 @@ const doneTasks = await getFilteredTasks({ isDone: true })
 <TabItem value="ts" label="TypeScript">
 
 ```typescript
-import getAllTasks from '@wasp/queries/getAllTasks.js'
-import getFilteredTasks from '@wasp/queries/getFilteredTasks.js'
+import { getAllTasks, getFilteredTasks } from 'wasp/client/operations'
 
 // TypeScript automatically infers the return values and type-checks
 // the payloads.
@@ -235,11 +227,9 @@ Here's an example of calling the Queries using the `useQuery` hook:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title=src/client/MainPage.jsx
+```jsx title=src/MainPage.jsx
 import React from 'react'
-import { useQuery } from '@wasp/queries'
-import getAllTasks from '@wasp/queries/getAllTasks'
-import getFilteredTasks from '@wasp/queries/getFilteredTasks'
+import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
 
 const MainPage = () => {
   const { data: allTasks, error: error1 } = useQuery(getAllTasks)
@@ -287,12 +277,10 @@ export default MainPage
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title=src/client/MainPage.tsx
+```tsx title=src/MainPage.tsx
 import React from 'react'
-import { Task } from '@wasp/entities'
-import { useQuery } from '@wasp/queries'
-import getAllTasks from '@wasp/queries/getAllTasks'
-import getFilteredTasks from '@wasp/queries/getFilteredTasks'
+import { type Task } from 'wasp/entities'
+import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
 
 const MainPage = () => {
   // TypeScript will automatically infer and type-check payload types.
@@ -359,8 +347,8 @@ If you do want to pass additional error information to the client, you can const
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title=src/server/queries.js
-import HttpError from '@wasp/core/HttpError.js'
+```js title=src/queries.js
+import { HttpError } from 'wasp/server'
 
 export const getAllTasks = async (args, context) => {
   throw new HttpError(
@@ -374,9 +362,9 @@ export const getAllTasks = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title=src/server/queries.ts
-import { GetAllTasks } from '@wasp/queries/types'
-import HttpError from '@wasp/core/HttpError.js'
+```ts title=src/queries.ts
+import { type GetAllTasks } from 'wasp/server/operations'
+import { HttpError } from 'wasp/server'
 
 export const getAllTasks: GetAllTasks = async (args, context) => {
   throw new HttpError(
@@ -404,12 +392,12 @@ To use an Entity in your Query, add it to the `query` declaration in Wasp:
 ```wasp {4,9} title="main.wasp"
 
 query getAllTasks {
-  fn: import { getAllTasks } from "@server/queries.js",
+  fn: import { getAllTasks } from "@src/queries.js",
   entities: [Task]
 }
 
 query getFilteredTasks {
-  fn: import { getFilteredTasks } from "@server/queries.js",
+  fn: import { getFilteredTasks } from "@src/queries.js",
   entities: [Task]
 }
 ```
@@ -420,12 +408,12 @@ query getFilteredTasks {
 ```wasp {4,9} title="main.wasp"
 
 query getAllTasks {
-  fn: import { getAllTasks } from "@server/queries.js",
+  fn: import { getAllTasks } from "@src/queries.js",
   entities: [Task]
 }
 
 query getFilteredTasks {
-  fn: import { getFilteredTasks } from "@server/queries.js",
+  fn: import { getFilteredTasks } from "@src/queries.js",
   entities: [Task]
 }
 ```
@@ -438,7 +426,7 @@ Wasp will inject the specified Entity into the Query's `context` argument, givin
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/server/queries.js"
+```js title="src/queries.js"
 export const getAllTasks = async (args, context) => {
   return context.entities.Task.findMany({})
 }
@@ -453,9 +441,9 @@ export const getFilteredTasks = async (args, context) => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/server/queries.ts"
-import { Task } from '@wasp/entities'
-import { GetAllTasks, GetFilteredTasks } from '@wasp/queries/types'
+```ts title="src/queries.ts"
+import { type Task } from 'wasp/entities'
+import { type GetAllTasks, type GetFilteredTasks } from 'wasp/server/operations'
 
 export const getAllTasks: GetAllTasks<void, Task[]> = async (args, context) => {
   return context.entities.Task.findMany({})
@@ -484,7 +472,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 The `query` declaration supports the following fields:
 
-- `fn: ServerImport` <Required />
+- `fn: ExtImport` <Required />
 
   The import statement of the Query's NodeJs implementation.
 
@@ -502,7 +490,7 @@ Declaring the Query:
 
 ```wasp
 query getFoo {
-    fn: import { getFoo } from "@server/queries.js"
+    fn: import { getFoo } from "@src/queries.js"
     entities: [Foo]
 }
 ```
@@ -510,7 +498,7 @@ query getFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```js
-import getFoo from '@wasp/queries/getFoo'
+import { getFoo } from 'wasp/client/operations'
 ```
 
 </TabItem>
@@ -520,7 +508,7 @@ Declaring the Query:
 
 ```wasp
 query getFoo {
-    fn: import { getFoo } from "@server/queries.js"
+    fn: import { getFoo } from "@src/queries.js"
     entities: [Foo]
 }
 ```
@@ -528,13 +516,17 @@ query getFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```ts
-import getFoo from '@wasp/queries'
+// Use it on the client
+import { getFoo } from 'wasp/client/operations'
+
+// Use it on the server
+import { getFoo } from 'wasp/server/operations'
 ```
 
 And also creates a type you can import on the server:
 
 ```ts
-import type { GetFoo } from '@wasp/queries/types'
+import { type GetFoo } from 'wasp/server/operations'
 ```
 
 </TabItem>
@@ -560,7 +552,7 @@ Afer you [declare the query](#declaring-queries), Wasp generates a generic type 
 For the Query declared as `getSomething`, the generated type is called `GetSomething`:
 
 ```ts
-import { GetSomething } from '@wasp/queries/types'
+import { type GetSomething } from 'wasp/server/operations'
 ```
 
 It expects two (optional) type arguments:
@@ -586,12 +578,12 @@ The following Query:
 
 ```wasp
 query getFoo {
-    fn: import { getFoo } from "@server/queries.js"
+    fn: import { getFoo } from "@src/queries.js"
     entities: [Foo]
 }
 ```
 
-Expects to find a named export `getFoo` from the file `src/server/queries.js`
+Expects to find a named export `getFoo` from the file `src/queries.js`
 
 ```js title=queries.js
 export const getFoo = (args, context) => {
@@ -606,17 +598,17 @@ The following Query:
 
 ```wasp
 query getFoo {
-    fn: import { getFoo } from "@server/queries.js"
+    fn: import { getFoo } from "@src/queries.js"
     entities: [Foo]
 }
 ```
 
-Expects to find a named export `getFoo` from the file `src/server/queries.js`
+Expects to find a named export `getFoo` from the file `src/queries.js`
 
 You can use the generated type `GetFoo` and specify the Query's inputs and outputs using its type arguments.
 
 ```ts title=queries.ts
-import { GetFoo } from "@wasp/queries/types";
+import { type GetFoo } from 'wasp/server/operations'
 
 type Foo = // ...
 
