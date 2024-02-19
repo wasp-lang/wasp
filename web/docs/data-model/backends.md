@@ -20,8 +20,8 @@ Fortunately, migrating from SQLite to PostgreSQL is pretty simple, and we have [
 
 ### PostgreSQL
 
-[PostgreSQL](https://www.postgresql.org/) is the most advanced open source database and the fourth most popular database overall.
-It's been in active development for 20 years.
+[PostgreSQL](https://www.postgresql.org/) is the most advanced open-source database and one of the most popular databases overall.
+It's been in active development for 20+ years.
 Therefore, if you're looking for a battle-tested database, look no further.
 
 To use Wasp with PostgreSQL, you'll have to ensure a database instance is running during development. Wasp needs access to your database for commands such as `wasp start` or `wasp db migrate-dev` and expects to find a connection string in the `DATABASE_URL` environment variable.
@@ -118,8 +118,8 @@ app MyApp {
   db: {
     // ...
     seeds: [
-      import { devSeedSimple } from "@server/dbSeeds.js",
-      import { prodSeed } from "@server/dbSeeds.js"
+      import { devSeedSimple } from "@src/dbSeeds.js",
+      import { prodSeed } from "@src/dbSeeds.js"
     ]
   }
 }
@@ -134,8 +134,8 @@ app MyApp {
   db: {
     // ...
     seeds: [
-      import { devSeedSimple } from "@server/dbSeeds.js",
-      import { prodSeed } from "@server/dbSeeds.js"
+      import { devSeedSimple } from "@src/dbSeeds.js",
+      import { prodSeed } from "@src/dbSeeds.js"
     ]
   }
 }
@@ -155,23 +155,41 @@ Here's an example of a seed function that imports an Action:
 <TabItem value="js" label="JavaScript">
 
 ```js
-import { createTask } from "./actions.js";
+import { createTask } from './actions.js'
+import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 
 export const devSeedSimple = async (prisma) => {
   const user = await createUser(prisma, {
-    username: "RiuTheDog",
-    password: "bark1234",
-  });
+    username: 'RiuTheDog',
+    password: 'bark1234',
+  })
 
   await createTask(
-    { description: "Chase the cat" },
+    { description: 'Chase the cat' },
     { user, entities: { Task: prisma.task } }
-  );
-};
+  )
+}
 
 async function createUser(prisma, data) {
-  const { password, ...newUser } = await prisma.user.create({ data });
-  return newUser;
+  const newUser = await prismaClient.user.create({
+    data: {
+      auth: {
+        create: {
+          identities: {
+            create: {
+              providerName: 'username',
+              providerUserId: data.username,
+              providerData: sanitizeAndSerializeProviderData({
+                password: data.password
+              }),
+            },
+          },
+        },
+      },
+    },
+  })
+
+  return newUser
 }
 ```
 
@@ -179,30 +197,46 @@ async function createUser(prisma, data) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask } from "./actions.js";
-import { User } from "@wasp/entities";
-import { PrismaClient } from "@prisma/client";
-
-type SanitizedUser = Omit<User, "password">;
+import { createTask } from './actions.js'
+import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+import { type AuthUser } from 'wasp/auth'
+import { PrismaClient } from '@prisma/client'
 
 export const devSeedSimple = async (prisma: PrismaClient) => {
   const user = await createUser(prisma, {
-    username: "RiuTheDog",
-    password: "bark1234",
-  });
+    username: 'RiuTheDog',
+    password: 'bark1234',
+  })
 
   await createTask(
-    { description: "Chase the cat", isDone: false },
+    { description: 'Chase the cat', isDone: false },
     { user, entities: { Task: prisma.task } }
-  );
+  )
 };
 
 async function createUser(
   prisma: PrismaClient,
-  data: Pick<User, "username" | "password">
-): Promise<SanitizedUser> {
-  const { password, ...newUser } = await prisma.user.create({ data });
-  return newUser;
+  data: { username: string, password: string }
+): Promise<AuthUser> {
+  const newUser = await prismaClient.user.create({
+    data: {
+      auth: {
+        create: {
+          identities: {
+            create: {
+              providerName: 'username',
+              providerUserId: data.username,
+              providerData: sanitizeAndSerializeProviderData<'username'>({
+                password: data.password
+              }),
+            },
+          },
+        },
+      },
+    },
+  })
+
+  return newUser
 }
 ```
 
@@ -296,7 +330,7 @@ app MyApp {
   db: {
     system: PostgreSQL,
     seeds: [
-      import devSeed from "@server/dbSeeds.js"
+      import devSeed from "@src/dbSeeds.js"
     ],
     prisma: {
       clientPreviewFeatures: ["extendedWhereUnique"]
@@ -315,7 +349,7 @@ app MyApp {
   db: {
     system: PostgreSQL,
     seeds: [
-      import devSeed from "@server/dbSeeds.js"
+      import devSeed from "@src/dbSeeds.js"
     ],
     prisma: {
       clientPreviewFeatures: ["extendedWhereUnique"]
@@ -335,7 +369,7 @@ app MyApp {
   The default value for the field is SQLite (this default value also applies if the entire `db` field is left unset).
   Whenever you modify the `db.system` field, make sure to run `wasp db migrate-dev` to apply the changes.
 
-- `seeds: [ServerImport]`
+- `seeds: [ExtImport]`
 
   Defines the seed functions you can use with the `wasp db seed` command to seed your database with initial data.
   Read the [Seeding section](#seeding-the-database) for more details.
@@ -420,7 +454,7 @@ Use one of the following commands to run the seed functions:
       // ...
       seeds: [
         // ...
-        import { devSeedSimple } from "@server/dbSeeds.js",
+        import { devSeedSimple } from "@src/dbSeeds.js",
       ]
     }
   }
@@ -436,7 +470,7 @@ Use one of the following commands to run the seed functions:
       // ...
       seeds: [
         // ...
-        import { devSeedSimple } from "@server/dbSeeds.js",
+        import { devSeedSimple } from "@src/dbSeeds.js",
       ]
     }
   }

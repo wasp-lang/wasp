@@ -84,14 +84,14 @@ Let’s get started with installing Node.js first. At the moment, Wasp requires 
 
 But first things first, let’s start with Node.js. In WSL, run:
 
-```jsx
+```bash
 sudo apt install nodejs
 ```
 
 in order to install Node on your Linux environment. Next up is NVM. I suggest going to https://github.com/nvm-sh/nvm and getting the latest install script from there. The current download is:
 
 ```bash
-curl -o- [https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh](https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh) | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 ```
 
 After this, we have both Node.js and NVM set up in our system.
@@ -101,7 +101,7 @@ After this, we have both Node.js and NVM set up in our system.
 Next up is installing Wasp on our Linux environment. Wasp installation is also pretty straightforward and easy. So just copy and paste this command:
 
 ```bash
-curl -sSL [https://get.wasp-lang.dev/installer.sh](https://get.wasp-lang.dev/installer.sh) | sh
+curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
 and wait for the installer to finish up its thing. Great! But, if you did your WSL setup from 0, you will notice the following warning underneath: It looks like '/home/boris/.local/bin' is not on your PATH! You will not be able to invoke wasp from the terminal by its name.

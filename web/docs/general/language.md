@@ -20,7 +20,7 @@ app MyApp {
 route RootRoute { path: "/", to: DashboardPage }
 
 page DashboardPage {
-  component: import Dashboard from "@client/Dashboard.js"
+  component: import { DashboardPage } from "@src/Dashboard.jsx"
 }
 ```
 
@@ -56,12 +56,9 @@ While fundamental types are here to be basic building blocks of a a language, an
     - **bool** (`true`, `false`)
     - **number** (`12`, `14.5`)
     - **declaration reference** (name of existing declaration: `TaskPage`, `updateTask`)
-    - **ServerImport** (external server import) (`import Foo from "@server/bar.js"`, `import { Smth } from "@server/a/b.js"`)
-      - The path has to start with "@server". The rest is relative to the `src/server` directory.
-      - import has to be a default import `import Foo` or a single named import `import { Foo }`.
-    - **ClientImport** (external client import) (`import Foo from "@client/bar.js"`, `import { Smth } from "@client/a/b.js"`)
-      - The path has to start with "@client". The rest is relative to the `src/client` directory.
-      - import has to be a default import `import Foo` or a single named import `import { Foo }`.
+    - **ExtImport** (external import) (`import Foo from "@src/bar.js"`, `import { Smth } from "@src/a/b.js"`)
+      - The path has to start with "@src". The rest is relative to the `src` directory.
+      - Import has to be a default import `import Foo` or a single named import `import { Foo }`.
     - **json** (`{=json { a: 5, b: ["hi"] } json=}`)
     - **psl** (Prisma Schema Language) (`{=psl <psl data model syntax> psl=}`)
       - Check [Prisma docs](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) for the syntax of psl data model.

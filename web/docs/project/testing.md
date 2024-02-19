@@ -29,7 +29,7 @@ Wasp enables you to quickly and easily write both unit tests and React component
 
 ### Writing Tests
 
-For Wasp to pick up your tests, they should be placed within the `src/client` directory and use an extension that matches [these glob patterns](https://vitest.dev/config#include). Some of the file names that Wasp will pick up as tests:
+For Wasp to pick up your tests, they should be placed within the `src` directory and use an extension that matches [these glob patterns](https://vitest.dev/config#include). Some of the file names that Wasp will pick up as tests:
 
 - `yourFile.test.ts`
 - `YourComponent.spec.jsx`
@@ -56,7 +56,7 @@ Wasp provides several functions to help you write React tests:
 - `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it. This is the function you should use to render components in your React component tests.
 
   ```js
-  import { renderInContext } from "@wasp/test";
+  import { renderInContext } from "wasp/client/test";
 
   renderInContext(<MainPage />);
   ```
@@ -64,7 +64,7 @@ Wasp provides several functions to help you write React tests:
 - `mockServer`: Sets up the mock server and returns an object containing the `mockQuery` and `mockApi` utilities. This should be called outside of any test case, in each file that wants to use those helpers.
 
   ```js
-  import { mockServer } from "@wasp/test";
+  import { mockServer } from "wasp/client/test";
 
   const { mockQuery, mockApi } = mockServer();
   ```
@@ -72,7 +72,7 @@ Wasp provides several functions to help you write React tests:
   - `mockQuery`: Takes a Wasp [query](../data-model/operations/queries) to mock and the JSON data it should return.
 
     ```js
-    import getTasks from "@wasp/queries/getTasks";
+    import { getTasks } from "wasp/client/operations";
 
     mockQuery(getTasks, []);
     ```
@@ -84,7 +84,7 @@ Wasp provides several functions to help you write React tests:
   - `mockApi`: Similar to `mockQuery`, but for [APIs](../advanced/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
 
     ```js
-    import { HttpMethod } from "@wasp/types";
+    import { HttpMethod } from "wasp/client";
 
     mockApi({ method: HttpMethod.Get, path: "/foor/bar" }, { res: "hello" });
     ```
@@ -102,13 +102,13 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```js title="src/client/helpers.js"
+```js title="src/helpers.js"
 export function areThereAnyTasks(tasks) {
   return tasks.length === 0;
 }
 ```
 
-```js title="src/client/helpers.test.js"
+```js title="src/helpers.test.js"
 import { test, expect } from "vitest";
 
 import { areThereAnyTasks } from "./helpers";
@@ -121,15 +121,15 @@ test("areThereAnyTasks", () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```ts title="src/client/helpers.ts"
-import { Task } from "@wasp/entities";
+```ts title="src/helpers.ts"
+import { type Task } from "wasp/entities";
 
 export function areThereAnyTasks(tasks: Task[]): boolean {
   return tasks.length === 0;
 }
 ```
 
-```ts title="src/client/helpers.test.ts"
+```ts title="src/helpers.test.ts"
 import { test, expect } from "vitest";
 
 import { areThereAnyTasks } from "./helpers";
@@ -147,9 +147,8 @@ test("areThereAnyTasks", () => {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/Todo.jsx"
-import { useQuery } from "@wasp/queries";
-import getTasks from "@wasp/queries/getTasks";
+```jsx title="src/Todo.jsx"
+import { useQuery, getTasks } from "wasp/client/operations";
 
 const Todo = (_props) => {
   const { data: tasks } = useQuery(getTasks);
@@ -167,12 +166,12 @@ const Todo = (_props) => {
 };
 ```
 
-```js title=src/client/Todo.test.jsx
+```js title=src/Todo.test.jsx
 import { test, expect } from "vitest";
 import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from "@wasp/test";
-import getTasks from "@wasp/queries/getTasks";
+import { mockServer, renderInContext } from "wasp/client/test";
+import { getTasks } from "wasp/client/operations";
 import Todo from "./Todo";
 
 const { mockQuery } = mockServer();
@@ -202,9 +201,8 @@ test("handles mock data", async () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/Todo.tsx"
-import { useQuery } from "@wasp/queries";
-import getTasks from "@wasp/queries/getTasks";
+```tsx title="src/Todo.tsx"
+import { useQuery, getTasks } from "wasp/client/operations";
 
 const Todo = (_props: {}) => {
   const { data: tasks } = useQuery(getTasks);
@@ -223,12 +221,12 @@ const Todo = (_props: {}) => {
 };
 ```
 
-```tsx title=src/client/Todo.test.tsx
+```tsx title=src/Todo.test.tsx
 import { test, expect } from "vitest";
 import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from "@wasp/test";
-import getTasks from "@wasp/queries/getTasks";
+import { mockServer, renderInContext } from "wasp/client/test";
+import { getTasks } from "wasp/client/operations";
 import Todo from "./Todo";
 
 const { mockQuery } = mockServer();
@@ -263,8 +261,8 @@ test("handles mock data", async () => {
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/client/Todo.jsx"
-import api from "@wasp/api";
+```jsx title="src/Todo.jsx"
+import { api } from "wasp/client/api";
 
 const Todo = (_props) => {
   const [tasks, setTasks] = useState([]);
@@ -290,11 +288,11 @@ const Todo = (_props) => {
 };
 ```
 
-```jsx title=src/client/Todo.test.jsx
+```jsx title=src/Todo.test.jsx
 import { test, expect } from "vitest";
 import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from "@wasp/test";
+import { mockServer, renderInContext } from "wasp/client/test";
 import Todo from "./Todo";
 
 const { mockApi } = mockServer();
@@ -324,9 +322,9 @@ test("handles mock data", async () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/Todo.tsx"
-import { Task } from "@wasp/entities";
-import api from "@wasp/api";
+```tsx title="src/Todo.tsx"
+import { type Task } from "wasp/entities";
+import { api } from "wasp/client/api";
 
 const Todo = (_props: {}) => {
   const [tasks, setTasks] = useState<Task>([]);
@@ -352,11 +350,11 @@ const Todo = (_props: {}) => {
 };
 ```
 
-```tsx title=src/client/Todo.test.tsx
+```tsx title=src/Todo.test.tsx
 import { test, expect } from "vitest";
 import { screen } from "@testing-library/react";
 
-import { mockServer, renderInContext } from "@wasp/test";
+import { mockServer, renderInContext } from "wasp/client/test";
 import Todo from "./Todo";
 
 const { mockApi } = mockServer();

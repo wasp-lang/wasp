@@ -160,7 +160,7 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -172,7 +172,7 @@ app myApp {
 
 And implement the imported function.
 
-```js title=src/server/auth/google.js
+```js title=src/auth/google.js
 export const userSignupFields = {
   isSignupComplete: () => false,
 }
@@ -192,7 +192,7 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@server/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -204,8 +204,8 @@ app myApp {
 
 And implement the imported function:
 
-```ts title=src/server/auth/google.ts
-import { defineUserSignupFields } from '@wasp/auth/index.js'
+```ts title=src/auth/google.ts
+import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   isSignupComplete: () => false,
@@ -230,8 +230,8 @@ For example:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title=client/HomePage.jsx
-import useAuth from '@wasp/auth/useAuth'
+```jsx title=src/HomePage.jsx
+import { useAuth } from 'wasp/client/auth'
 import { Redirect } from 'react-router-dom'
 
 export function HomePage() {
@@ -248,8 +248,8 @@ export function HomePage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title=client/HomePage.tsx
-import useAuth from '@wasp/auth/useAuth'
+```tsx title=src/HomePage.tsx
+import { useAuth } from 'wasp/client/auth'
 import { Redirect } from 'react-router-dom'
 
 export function HomePage() {
@@ -291,15 +291,13 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title=client/LoginPage.jsx
+```jsx title=src/LoginPage.jsx
 import {
-  SignInButton as GoogleSignInButton,
-  signInUrl as googleSignInUrl,
-} from '@wasp/auth/helpers/Google'
-import {
-  SignInButton as GitHubSignInButton,
-  signInUrl as gitHubSignInUrl,
-} from '@wasp/auth/helpers/GitHub'
+  GoogleSignInButton,
+  googleSignInUrl,
+  GitHubSignInButton,
+  gitHubSignInUrl,
+} from 'wasp/client/auth'
 
 export const LoginPage = () => {
   return (
@@ -317,15 +315,13 @@ export const LoginPage = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title=client/LoginPage.tsx
+```tsx title=src/LoginPage.tsx
 import {
-  SignInButton as GoogleSignInButton,
-  signInUrl as googleSignInUrl,
-} from '@wasp/auth/helpers/Google'
-import {
-  SignInButton as GitHubSignInButton,
-  signInUrl as gitHubSignInUrl,
-} from '@wasp/auth/helpers/GitHub'
+  GoogleSignInButton,
+  googleSignInUrl,
+  GitHubSignInButton,
+  gitHubSignInUrl,
+} from 'wasp/client/auth'
 
 export const LoginPage = () => {
   return (
