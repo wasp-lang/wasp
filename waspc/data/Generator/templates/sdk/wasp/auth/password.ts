@@ -1,17 +1,16 @@
-import SecurePassword from 'secure-password'
+import { Argon2id } from 'oslo/password'
 
-const SP = new SecurePassword()
+const argon2id = new Argon2id()
 
 // PRIVATE API
 export const hashPassword = async (password: string): Promise<string> => {
-  const hashedPwdBuffer = await SP.hash(Buffer.from(password))
-  return hashedPwdBuffer.toString("base64")
+  return argon2id.hash(password)
 }
 
 // PRIVATE API
 export const verifyPassword = async (hashedPassword: string, password: string): Promise<void> => {
-  const result = await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
-  if (result !== SecurePassword.VALID) {
+  const isValidPassword = await argon2id.verify(hashedPassword, password)
+  if (!isValidPassword) {
     throw new Error('Invalid password.')
   }
 }

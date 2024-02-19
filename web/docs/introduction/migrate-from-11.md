@@ -56,7 +56,7 @@ The main differences are:
 
 - The server/client code separation is no longer necessary. You can now organize
   your code however you want, as long as it's inside the `src` directory.
-- All external imports in your Wasp file must have paths starting with `@src` (e.g., `import foo from '@src/bar.js')
+- All external imports in your Wasp file must have paths starting with `@src` (e.g., `import foo from '@src/bar.js'`)
   where `@src` refers to the `src` directory in your project root. The paths can
   no longer start with `@server` or `@client`.
 - Your project now features a top-level `public` dir. Wasp will publicly serve
@@ -438,6 +438,322 @@ The migration functions provided below are written with the typical use cases in
 
 ##### Username & Password
 
+:::caution Users will need to migrate their password
+There is a breaking change between the old and the new auth in the way the password is hashed. This means that users will need to migrate their password after the migration, as the old password will no longer work.
+
+Since the only way users using username and password as a login method can verify their identity is by providing both their username and password (there is no email or any other info, unless you asked for it and stored it explicitly), we need to provide them a way to exchange their old password for a new password. One way to handle this is to inform them about the need to migrate their password (on the login page) and provide a custom page to migrate the password. 
+:::
+
+<details>
+  <summary>
+    Steps to create a custom page for migrating the password
+  </summary>
+
+  1. You will need to install the `secure-password` and `sodium-native` packages to use the old hashing algorithm:
+
+  ```bash
+  npm install secure-password@4.0.0 sodium-native@3.3.0 --save-exact
+  ```
+
+  Make sure to save the exact versions of the packages.
+
+  2. Then you'll need to create a new page in your app where users can migrate their password. You can use the following code as a starting point:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/pages/MigratePasswordPage.jsx"
+import {
+  FormItemGroup,
+  FormLabel,
+  FormInput,
+  FormError,
+} from "wasp/client/auth";
+import { useForm } from "react-hook-form";
+import { migratePassword } from "wasp/client/operations";
+import { useState } from "react";
+
+export function MigratePasswordPage() {
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    try {
+      const result = await migratePassword(data);
+      setSuccessMessage(result.message);
+    } catch (e) {
+      console.error(e);
+      if (e instanceof Error) {
+        setErrorMessage(e.message);
+      }
+    }
+  });
+
+  return (
+    <div style={{
+      maxWidth: "400px",
+      margin: "auto",
+    }}>
+      <h1>Migrate your password</h1>
+      <p>
+        If you have an account on the old version of the website, you can
+        migrate your password to the new version.
+      </p>
+      {successMessage && <div>{successMessage}</div>}
+      {errorMessage && <FormError>{errorMessage}</FormError>}
+      <form onSubmit={onSubmit}>
+        <FormItemGroup>
+          <FormLabel>Username</FormLabel>
+          <FormInput
+            {...form.register("username", {
+              required: "Username is required",
+            })}
+          />
+          <FormError>{form.formState.errors.username?.message}</FormError>
+        </FormItemGroup>
+        <FormItemGroup>
+          <FormLabel>Password</FormLabel>
+          <FormInput
+            {...form.register("password", {
+              required: "Password is required",
+            })}
+            type="password"
+          />
+          <FormError>{form.formState.errors.password?.message}</FormError>
+        </FormItemGroup>
+        <button type="submit">Migrate password</button>
+      </form>
+    </div>
+  );
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/pages/MigratePasswordPage.tsx"
+import {
+  FormItemGroup,
+  FormLabel,
+  FormInput,
+  FormError,
+} from "wasp/client/auth";
+import { useForm } from "react-hook-form";
+import { migratePassword } from "wasp/client/operations";
+import { useState } from "react";
+
+export function MigratePasswordPage() {
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const form = useForm<{
+    username: string;
+    password: string;
+  }>();
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    try {
+      const result = await migratePassword(data);
+      setSuccessMessage(result.message);
+    } catch (e: unknown) {
+      console.error(e);
+      if (e instanceof Error) {
+        setErrorMessage(e.message);
+      }
+    }
+  });
+
+  return (
+    <div style={{
+      maxWidth: "400px",
+      margin: "auto",
+    }}>
+      <h1>Migrate your password</h1>
+      <p>
+        If you have an account on the old version of the website, you can
+        migrate your password to the new version.
+      </p>
+      {successMessage && <div>{successMessage}</div>}
+      {errorMessage && <FormError>{errorMessage}</FormError>}
+      <form onSubmit={onSubmit}>
+        <FormItemGroup>
+          <FormLabel>Username</FormLabel>
+          <FormInput
+            {...form.register("username", {
+              required: "Username is required",
+            })}
+          />
+          <FormError>{form.formState.errors.username?.message}</FormError>
+        </FormItemGroup>
+        <FormItemGroup>
+          <FormLabel>Password</FormLabel>
+          <FormInput
+            {...form.register("password", {
+              required: "Password is required",
+            })}
+            type="password"
+          />
+          <FormError>{form.formState.errors.password?.message}</FormError>
+        </FormItemGroup>
+        <button type="submit">Migrate password</button>
+      </form>
+    </div>
+  );
+}
+```
+
+</TabItem>
+</Tabs>
+
+  3. Finally, you will need to create a new operation in your app to handle the password migration. You can use the following code as a starting point:
+
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+action migratePassword {
+  fn: import { migratePassword } from "@src/auth",
+  entities: []
+}
+```
+
+```js title="src/auth.js"
+import SecurePassword from "secure-password";
+import { HttpError } from "wasp/server";
+import {
+  createProviderId,
+  deserializeAndSanitizeProviderData,
+  findAuthIdentity,
+  updateAuthIdentityProviderData,
+} from "wasp/server/auth";
+
+export const migratePassword = async ({ password, username }, _context) => {
+  const providerId = createProviderId("username", username);
+  const authIdentity = await findAuthIdentity(providerId);
+
+  if (!authIdentity) {
+    throw new HttpError(400, "Something went wrong");
+  }
+
+  const providerData =
+    deserializeAndSanitizeProviderData < "username" > authIdentity.providerData;
+
+  try {
+    const SP = new SecurePassword();
+
+    // This will verify the password using the old algorithm
+    const result = await SP.verify(
+      Buffer.from(password),
+      Buffer.from(providerData.hashedPassword, "base64")
+    );
+
+    if (result !== SecurePassword.VALID) {
+      throw new HttpError(400, "Something went wrong");
+    }
+
+    // This will hash the password using the new algorithm and update the
+    // provider data in the database.
+    (await updateAuthIdentityProviderData) <
+      "username" >
+      (providerId,
+      providerData,
+      {
+        hashedPassword: password,
+      });
+  } catch (e) {
+    throw new HttpError(400, "Something went wrong");
+  }
+
+  return {
+    message: "Password migrated successfully.",
+  };
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+action migratePassword {
+  fn: import { migratePassword } from "@src/auth",
+  entities: []
+}
+```
+
+```ts title="src/auth.ts"
+import SecurePassword from "secure-password";
+import { HttpError } from "wasp/server";
+import {
+  createProviderId,
+  deserializeAndSanitizeProviderData,
+  findAuthIdentity,
+  updateAuthIdentityProviderData,
+} from "wasp/server/auth";
+import { MigratePassword } from "wasp/server/operations";
+
+type MigratePasswordInput = {
+  username: string;
+  password: string;
+};
+type MigratePasswordOutput = {
+  message: string;
+};
+
+export const migratePassword: MigratePassword<
+  MigratePasswordInput,
+  MigratePasswordOutput
+> = async ({ password, username }, _context) => {
+  const providerId = createProviderId("username", username);
+  const authIdentity = await findAuthIdentity(providerId);
+
+  if (!authIdentity) {
+    throw new HttpError(400, "Something went wrong");
+  }
+
+  const providerData = deserializeAndSanitizeProviderData<"username">(
+    authIdentity.providerData
+  );
+
+  try {
+    const SP = new SecurePassword();
+    
+    // This will verify the password using the old algorithm
+    const result = await SP.verify(
+      Buffer.from(password),
+      Buffer.from(providerData.hashedPassword, "base64")
+    );
+
+    if (result !== SecurePassword.VALID) {
+      throw new HttpError(400, "Something went wrong");
+    }
+
+    // This will hash the password using the new algorithm and update the
+    // provider data in the database.
+    await updateAuthIdentityProviderData<"username">(providerId, providerData, {
+      hashedPassword: password,
+    });
+  } catch (e) {
+    throw new HttpError(400, "Something went wrong");
+  }
+
+  return {
+    message: "Password migrated successfully.",
+  };
+};
+```
+
+</TabItem>
+</Tabs>
+
+</details>
+
+
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
 import { ProviderName, UsernameProviderData } from "wasp/server/auth";
@@ -487,6 +803,14 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
 
 
 ##### Email
+
+:::caution Users will need to reset their password
+
+There is a breaking change between the old and the new auth in the way the password is hashed. This means that users will need to reset their password after the migration, as the old password will no longer work.
+
+It would be best to notify your users about this change and put a notice on your login page to **request a password reset**.
+
+:::
 
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
