@@ -52,10 +52,13 @@ sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]
     </> basename generatedCodeDirInDotWaspDir
-    </> [reldir|sdk/wasp|]
+    </> sdkRootDirInGeneratedCodeDir
+
+sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
+sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
-sdkTemplatesDirInTemplatesDir = [reldir|sdk|]
+sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
 
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|ext-src|]
