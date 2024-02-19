@@ -9,7 +9,6 @@
     "jsonwebtoken": "^8.5.1",
     "morgan": "~1.10.0",
     "rate-limiter-flexible": "^2.4.1",
-    "secure-password": "^4.0.0",
     "superjson": "^1.12.2"
   },
   "devDependencies": {
@@ -31,7 +30,6 @@
   "nodemonConfig": {
     "delay": "1000"
   },
-  "overrides": {},
   "prisma": {},
   "private": true,
   "scripts": {

@@ -20,13 +20,6 @@
     "delay": "1000"
   },
   "engineStrict": true,
-  "overrides": {
-    {=# overrides =}
-    "{= packageName =}": {
-      "{= dependencyName =}": "{= dependencyVersion =}"
-    }{=^ last =},{=/ last =}
-    {=/ overrides =}
-  },
   "engines": {
     "node": "{=& nodeVersionRange =}"
   },

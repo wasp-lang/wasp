@@ -149,8 +149,6 @@ npmDepsForWasp spec =
             ("express", "~4.18.1"),
             ("morgan", "~1.10.0"),
             ("jsonwebtoken", "^8.5.1"),
-            -- NOTE: secure-password has a package.json override for sodium-native.
-            ("secure-password", "^4.0.0"),
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
             ("rate-limiter-flexible", "^2.4.1"),
