@@ -1,11 +1,8 @@
+import { type ServerToClientPayload, useSocket, useSocketListener } from "wasp/client/webSocket";
+import { useAuth } from "wasp/client/auth";
 import { useState, useMemo, useEffect } from "react";
 import { Button, Card } from "flowbite-react";
-import {
-  useSocketListener,
-  useSocket,
-  ServerToClientPayload,
-} from "@wasp/webSocket";
-import useAuth from "@wasp/auth/useAuth";
+import { getUsername } from 'wasp/auth'
 
 const MainPage = () => {
   const { data: user } = useAuth();
@@ -19,6 +16,8 @@ const MainPage = () => {
   }, [poll]);
 
   const { socket } = useSocket();
+
+  const username = getUsername(user);
 
   useSocketListener("updateState", (newState) => {
     setPoll(newState);
@@ -50,7 +49,7 @@ const MainPage = () => {
                   <p className="text-gray-700">{option.description}</p>
                 </div>
                 <div className="absolute bottom-5 right-5">
-                  {user && !option.votes.includes(user.username) ? (
+                  {username && !option.votes.includes(username) ? (
                     <Button onClick={() => handleVote(option.id)}>Vote</Button>
                   ) : (
                     <Button disabled>Voted</Button>
