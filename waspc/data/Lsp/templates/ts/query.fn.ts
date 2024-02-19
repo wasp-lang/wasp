@@ -1,4 +1,4 @@
-import { {{upperDeclName}} } from 'wasp/server/queries/types'
+import { type {{upperDeclName}} } from 'wasp/server/operations'
 
 type {{upperDeclName}}Input = void
 type {{upperDeclName}}Output = void
