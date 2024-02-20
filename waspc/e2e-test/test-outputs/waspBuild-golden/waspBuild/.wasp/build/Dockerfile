@@ -32,8 +32,8 @@ WORKDIR /app
 COPY src ./src
 COPY package.json .
 COPY package-lock.json .
-COPY .wasp/build/server .wasp/build/server
-COPY .wasp/out/sdk .wasp/out/sdk
+COPY server .wasp/build/server
+COPY sdk .wasp/out/sdk
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/build/server && npm install
 # Building the server should come after Prisma generation.
@@ -59,7 +59,7 @@ COPY --from=server-builder /app/.wasp/build/server/node_modules .wasp/build/serv
 COPY --from=server-builder /app/.wasp/build/server/bundle .wasp/build/server/bundle
 COPY --from=server-builder /app/.wasp/build/server/package*.json .wasp/build/server/
 COPY --from=server-builder /app/.wasp/build/server/scripts .wasp/build/server/scripts
-COPY .wasp/build/db/ .wasp/build/db/
+COPY db/ .wasp/build/db/
 EXPOSE ${PORT}
 WORKDIR /app/.wasp/build/server
 ENTRYPOINT ["npm", "run", "start-production"]
