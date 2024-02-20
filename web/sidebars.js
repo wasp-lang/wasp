@@ -9,7 +9,6 @@ module.exports = {
         'introduction/introduction',
         'introduction/quick-start',
         'introduction/editor-setup',
-        'introduction/migrate-from-11',
       ],
     },
     {
@@ -132,7 +131,7 @@ module.exports = {
       label: 'Miscellaneous',
       collapsed: false,
       collapsible: false,
-      items: ['contributing', 'telemetry', 'vision', 'contact'],
+      items: ['contributing', 'telemetry', 'vision', 'contact', 'migrate-from-0-11-to-0-12'],
     },
   ],
 }
