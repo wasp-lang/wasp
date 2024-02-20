@@ -166,7 +166,7 @@ directory `foo`, you should:
 2. Position yourself in the terminal in the directory that is a parent of your wasp project directory (so one level above: if you do `ls`, you should see your wasp project dir listed).
 3. Run the migration script (replace `foo` at the end with the name of your Wasp project directory) and follow the instructions:
   ```
-    curl -sSL https://raw.githubusercontent.com/wasp-lang/wasp/main/waspc/tools/migrate-0-11-to-0-12.js | node - foo
+    npx wasp-migrate foo
   ```
 
 <details>
