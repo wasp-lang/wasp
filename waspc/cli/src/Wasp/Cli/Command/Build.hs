@@ -69,7 +69,7 @@ build = do
     -- We chose this approach for 0.12.0 (instead of building from the project root) because:
     --   - The build context remains small (~1.5 MB vs ~900 MB).
     --   - We don't risk copying possible secrets from the project root into the build context.
-    --   - There commands for building the project stay the same as before
+    --   - The commands for building the project stay the same as before
     --     0.12.0, which is good for both us (e.g., for fly deployment) and our
     --     users  (no changes in CI/CD scripts).
     -- For more details, read the issue linked above.
