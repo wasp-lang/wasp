@@ -11,7 +11,9 @@ module Wasp.Util.IO
     readFileStrict,
     writeFile,
     removeFile,
+    copyFile,
     removeDirectory,
+    copyDirectory,
     tryReadFile,
     isDirectoryEmpty,
     writeFileFromText,
@@ -25,8 +27,10 @@ import qualified Data.ByteString.Lazy as B
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
+import qualified Path.IO as PathIO
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
+import qualified StrongPath.Path as SP.Path
 import qualified System.Directory as SD
 import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
@@ -117,8 +121,14 @@ writeFileFromText = T.IO.writeFile . SP.fromAbsFile
 removeFile :: Path' Abs (File f) -> IO ()
 removeFile = SD.removeFile . SP.fromAbsFile
 
+copyFile :: Path' Abs (File f1) -> Path' Abs (File f2) -> IO ()
+copyFile src dst = SD.copyFile (SP.fromAbsFile src) (SP.fromAbsFile dst)
+
 removeDirectory :: Path' Abs (Dir d) -> IO ()
 removeDirectory = SD.removeDirectoryRecursive . SP.fromAbsDir
+
+copyDirectory :: Path' Abs (Dir d1) -> Path' Abs (Dir d2) -> IO ()
+copyDirectory src dst = PathIO.copyDirRecur (SP.Path.toPathAbsDir src) (SP.Path.toPathAbsDir dst)
 
 tryReadFile :: FilePath -> IO (Maybe Text)
 tryReadFile fp =

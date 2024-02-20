@@ -7,12 +7,25 @@ import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.m
 import BuildingTheWebClient from './\_building-the-web-client.md'
 import { Required } from '@site/src/components/Tag'
 
-We'll cover how to deploy your Wasp app manually to a variety of providers:
+This document explains how to build and prepare your Wasp app for deployment.
+You can then deploy the built Wasp app wherever and however you want, as long as your provider/server
+supports Wasp's build format.
+
+After going through the general steps that apply to all deployments, you can
+follow step-by-step guides for deploying your Wasp app to the most popular
+providers:
 
 - [Fly.io](#flyio)
 - [Netlify](#netlify)
 - [Railway](#railway)
 - [Heroku](#heroku)
+
+No worries, you can still deploy your app if your desired provider isn't on the
+list - it just means we don't yet have a step-by-step guide for you to follow.
+Feel free to [open a
+PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/advanced/deployment/manually.md)
+if you'd like to write one yourself :)
+
 
 ## Deploying a Wasp App
 

@@ -6,7 +6,7 @@ where
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (Abs, Dir, Path', (</>))
+import StrongPath (Abs, Dir, Path', castRel, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -15,11 +15,11 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInProjectRootDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
-import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, packageJsonInWaspProjectDir, packageLockJsonInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -53,6 +53,8 @@ build = do
   cliSendMessageC $ Msg.Start "Building wasp project..."
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
 
+  liftIO $ copyUserFilesNecessaryForBuild waspProjectDir buildDir
+
   liftIO $ printCompilationResult (warnings, errors)
   if null errors
     then do
@@ -61,6 +63,32 @@ build = do
     else
       throwError $
         CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found"
+  where
+    -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
+    -- we're copying all files and folders necessary for the build into the .wasp/build directory.
+    -- We chose this approach for 0.12.0 (instead of building from the project root) because:
+    --   - The build context remains small (~1.5 MB vs ~900 MB).
+    --   - We don't risk copying possible secrets from the project root into the build context.
+    --   - The commands for building the project stay the same as before
+    --     0.12.0, which is good for both us (e.g., for fly deployment) and our
+    --     users  (no changes in CI/CD scripts).
+    -- For more details, read the issue linked above.
+    copyUserFilesNecessaryForBuild waspProjectDir buildDir = do
+      copyDirectory
+        (waspProjectDir </> srcDirInWaspProjectDir)
+        (buildDir </> castRel srcDirInWaspProjectDir)
+
+      copyDirectory
+        (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir)
+        (buildDir </> sdkRootDirInGeneratedCodeDir)
+
+      copyFile
+        (waspProjectDir </> packageJsonInWaspProjectDir)
+        (buildDir </> castRel packageJsonInWaspProjectDir)
+
+      copyFile
+        (waspProjectDir </> packageLockJsonInWaspProjectDir)
+        (buildDir </> castRel packageLockJsonInWaspProjectDir)
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

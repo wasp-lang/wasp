@@ -12,6 +12,7 @@ module Wasp.Project.Common
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
     packageJsonInWaspProjectDir,
+    packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     extPublicDirInWaspProjectDir,
@@ -66,6 +67,9 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageJsonInWaspProjectDir = [relfile|package.json|]
+
+packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
 
 srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 srcDirInWaspProjectDir = [reldir|src|]
