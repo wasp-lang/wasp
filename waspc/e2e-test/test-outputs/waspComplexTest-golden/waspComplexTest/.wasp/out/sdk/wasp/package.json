@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@lucia-auth/adapter-prisma": "^4.0.0-beta.9",
+    "@lucia-auth/adapter-prisma": "^4.0.0",
     "@prisma/client": "4.16.2",
     "@sendgrid/mail": "^7.7.0",
     "@stitches/react": "^1.2.8",
@@ -14,16 +14,15 @@
     "jsdom": "^21.1.1",
     "jsonwebtoken": "^8.5.1",
     "lodash.merge": "^4.6.2",
-    "lucia": "^3.0.0-beta.14",
+    "lucia": "^3.0.1",
     "mitt": "3.0.0",
     "msw": "^1.1.0",
+    "oslo": "^1.1.2",
     "pg-boss": "^8.4.2",
     "prisma": "4.16.2",
     "react": "^18.2.0",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^5.3.3",
-    "secure-password": "^4.0.0",
-    "sodium-native": "3.3.0",
     "superjson": "^1.12.2",
     "uuid": "^9.0.0",
     "vitest": "^1.2.1"

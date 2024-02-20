@@ -91,6 +91,7 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
     authDeps =
       AS.Dependency.fromList
-        [ ("lucia", "^3.0.0-beta.14"),
-          ("@lucia-auth/adapter-prisma", "^4.0.0-beta.9")
+        [ ("lucia", "^3.0.1"),
+          ("@lucia-auth/adapter-prisma", "^4.0.0"),
+          ("oslo", "^1.1.2")
         ]
