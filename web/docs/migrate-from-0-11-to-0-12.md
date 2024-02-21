@@ -89,11 +89,15 @@ app myApp {
 
 entity User {=psl
   id                        Int           @id @default(autoincrement())
+  // highlight-start
   username                  String        @unique
   password                  String
   externalAuthAssociations  SocialLogin[]
+  // highlight-end
 psl=}
 
+
+// highlight-start
 entity SocialLogin {=psl
   id          Int       @id @default(autoincrement())
   provider    String
@@ -103,6 +107,7 @@ entity SocialLogin {=psl
   createdAt   DateTime  @default(now())
   @@unique([provider, providerId, userId])
 psl=}
+// highlight-end
 ```
 
 From 0.12.X onwards, authentication is based on the auth models which are automatically set up by Wasp. You don't need to take care of the auth fields anymore.
@@ -149,7 +154,7 @@ The guide consists of two big steps:
 1. Migrating your Wasp project to the new structure.
 2. Migrating Wasp Auth.
 
-If you get stuck at any point, don't hesitate to ask us on [our Discord server](https://discord.gg/rzdnErX).
+If you get stuck at any point, don't hesitate to ask for help on [our Discord server](https://discord.gg/rzdnErX).
 
 ### Migrating your project to the new structure
 
@@ -157,21 +162,21 @@ You can easily migrate your old Wasp project to the new structure by following a
 series of steps. Assuming you have a project called `foo` inside the
 directory `foo`, you should:
 
-0. Install the latest `0.12.x` version of Wasp.
+0. **Install the latest `0.12.x` version** of Wasp.
   ```bash
   curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s
   ```
-1. Make sure to backup or save your project before starting the procedure (e.g.,
+1. Make sure to **backup or save your project** before starting the procedure (e.g.,
    by committing it to source control or creating a copy).
-2. Position yourself in the terminal in the directory that is a parent of your wasp project directory (so one level above: if you do `ls`, you should see your wasp project dir listed).
-3. Run the migration script (replace `foo` at the end with the name of your Wasp project directory) and follow the instructions:
+2. **Position yourself in the terminal** in the directory that is a parent of your wasp project directory (so one level above: if you do `ls`, you should see your wasp project dir listed).
+3. **Run the migration script** (replace `foo` at the end with the name of your Wasp project directory) and follow the instructions:
   ```
     npx wasp-migrate foo
   ```
 
 <details>
   <summary>
-    In case migration script doesn't work well for you, you can do the same steps manually, as described below:
+    In case the migration script doesn't work well for you, you can do the same steps manually, as described here:
   </summary>
 <div>
 
@@ -194,7 +199,7 @@ directory `foo`, you should:
 
    For this, we prepared a special script that will rewrite these imports automatically for you.
 
-   Before doing this step, as the script will modify your JS(X)/TS(X) files in place, we advise commiting
+   Before doing this step, as the script will modify your JS(X)/TS(X) files in place, we advise committing
    all changes you have so far, so you can then both easily inspect the import rewrites that our
    script did (with `git diff`) and also revert them if something went wrong.
 
@@ -211,8 +216,8 @@ directory `foo`, you should:
 10. Correct external imports in your Wasp file (now residing in `foo`).
     imports. You can do this by running search-and-replace inside the file:
 
-    - Change all occurences of `@server` to `@src/server`
-    - Change all occurences of `@client` to `@src/client`
+    - Change all occurrences of `@server` to `@src/server`
+    - Change all occurrences of `@client` to `@src/client`
 
     For example, if you previously had something like:
 
@@ -254,7 +259,7 @@ directory `foo`, you should:
     }
     ```
 
-    Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of strings `"@server"` or `"@client"`
+    Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurrences of strings `"@server"` or `"@client"`
 
 11. Take all the dependencies from `app.dependencies` declaration in
     `foo/main.wasp` and move them to `foo/package.json`. Make sure to remove the `app.dependencies` field from `foo/main.wasp`.
@@ -302,16 +307,6 @@ directory `foo`, you should:
 That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
 Your app probably doesn't quite work yet due to the breaking changes in Auth, which we will migrate next.
 
-:::tip
-
-Wasp no longer enforces separation between server-side and client-side source code.
-
-You can organize source files inside the `src` directory however you want! We
-recommend a feature-based organization. Read more about this in [the last section](#next-steps).
-
-:::
-
-
 
 ### Migrating auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
@@ -324,86 +319,89 @@ Migrating your existing app to the new auth system is a two-step process:
 
 :::info Migrating a deployed app
 
-While going through these steps, we will focus first on doing the changes locally and your local development database.
+While going through these steps, we will focus first on doing the changes locally (including your local development database).
 
-Once we confirm everything works well locally, we will apply the same changes to the deployed app.
+Once we confirm everything works well locally, we will apply the same changes to the deployed app (including your production database).
 
 **We'll put extra info for migrating a deployed app in a box like this one.**
 :::
 
 #### 1. Migrate to the New Auth System
 
-You can follow these steps to migrate to the new auth system:
+You can follow these steps to migrate to the new auth system (assuming you already migrated the project structure to 0.12, as described [above](#migrating-your-project-to-the-new-structure)):
 
-1. Upgrade Wasp to the latest 0.12.X version (as described [above](https://discord.gg/rzdnErX)).
-
-
-1. Bump the version to `^0.12.0` in `main.wasp` (if you haven't already done this when [migrating the app to the new structure](#migrating-your-project-to-the-new-structure)).
-1. Create the new auth tables in the database by running:
-
+1. Ensure your **local development database is running**.
+1. **Do the schema migration** (create the new auth tables in the database) by running:
    ```bash
    wasp db migrate-dev
    ```
+You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify the tables are there. At the moment, they will be empty (no data).
+1. **Do the data migration** (move existing users from the old auth system to the new one by filling the new auth tables in the database with their data):
 
-You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify the tables are there.
+   1. **Implement your data migration function(s)** in e.g. `src/migrateToNewAuth.ts`.
 
-1. Write your data migration function(s) in `src/migrateToNewAuth.ts`
-    - In the previous step, we migrated the schema, and now we need to prepare logic for migrating the data.
-    - Below you can find [examples of migration functions](#example-migration-functions) for each of the auth methods. They should be fine to use as-is, meaning you can just copy them, but you can also modify them to your needs. You will want to have one function per each auth method that you use in your app.
-1. Add the migration function(s) to the `db.seeds` config:
-  ```wasp title="main.wasp"
-  app myApp {
-    wasp: {
-      version: "^0.12.0"
-    },
-    // ...
-    db: {
-      seeds: [
-        import { migrateEmailAuth } from "@src/migrateToNewAuth.js",
-        import { migrateGoogleAuth } from "@src/migrateToNewAuth.js",
-      ]
-    },
-  }
+      Below we prepared [examples of migration functions](#example-data-migration-functions) for each of the auth methods, for you to use as a starting point.
+      They should be fine to use as-is, meaning you can just copy them and they are likely to work out of the box for typical use cases, but you can also modify them to your needs (and should do so if needed).
 
-1. Run the migration function(s) by running:
-  ```bash
-  wasp db seed
-  ```
-  If you added multiple migration functions, you can pick which one to run by selecting it from the list.
+      You will at the end want to have one function per each auth method that you use in your app.
 
-1. Verify that the auth still works by logging in with each of the auth methods.
-1. Update your JS code to work correctly with the new auth entities.
+   1. **Register the data migration function(s)** you just implemented above via the `db.seeds` config in `main.wasp` file:
+      ```wasp title="main.wasp"
+      app myApp {
+        wasp: {
+          version: "^0.12.0"
+        },
+        // ...
+        db: {
+          seeds: [
+            import { migrateEmailAuth } from "@src/migrateToNewAuth.ts",
+            import { migrateGoogleAuth } from "@src/migrateToNewAuth.ts",
+          ]
+        },
+      }
+      ```
 
-  You should use the new auth helper functions to get the `email` or `username` from a user object. Read more about the helpers in the [Auth Entities](./entities#accessing-the-auth-fields) section.   The helpers you are most likely to use are the `getEmail` and `getUsername` helpers.
-1. Finally, check that your app now works as it worked before. If the above steps were done correctly, everything should be working now.
+   1. **Run the data migration function(s)** on the local development database by running:
+      ```bash
+      wasp db seed
+      ```
+      If you added multiple migration functions, you can pick which one to run by selecting it from the list. You will want to run all of them.
+
+      This should be it, you can now run `wasp db studio` again and verify that there is now relevant data in the new auth tables (`Auth` and `AuthIdentity`; `Session` should still be empty for now).
+
+1. **Verify that the basic auth functionality works** by running `wasp start` and successfully signing up / logging in with each of the auth methods.
+1. **Update your JS/TS code** to work correctly with the new auth.
+
+  You should use the new auth helper functions to get the `email` or `username` from a user object. For example, `user.username` won't work anymore, now you need to do `getUsername(user)`. Read more about the helpers in the [Auth Entities - Accessing the Auth Fields](auth/entities#accessing-the-auth-fields) section. The helpers you are most likely to use are the `getEmail` and `getUsername` helpers.
+1. Finally, **check that your app now fully works as it worked before**. If all the above steps were done correctly, everything should be working now 🎉!
 
     :::info Migrating a deployed app
-    
-    After successfully performing migration locally so far, and verifying the your app works as expected, it is time to also migrate our deployed app.
-    
-    Before migrating your production (deployed) app, we advise you to back up your production database in case something goes wrong. Also, besides testing it in development, it's good to test the migration in a staging environment.
-    
+
+    After successfully performing migration locally so far, and verifying that your app works as expected, it is time to also migrate our deployed app.
+
+    Before migrating your production (deployed) app, we advise you to back up your production database in case something goes wrong. Also, besides testing it in development, it's good to test the migration in a staging environment if you have one.
+
     We will perform the production migration in 2 steps:
     - Deploying the new code to production (client and server).
     - Migrating the production database.
 
     ---
-    
+
     Between these two steps, so after deploying the new code to production and before migrating the production database, your app will not be working completely: new users will be able to sign up, but existing users won't be able to log in, and already logged in users will be logged out. Once you do the second step, migrating the production database, it will all be back to normal.
 
-    You will likely want to keep the time between the two steps as short as you can. Make sure you know exactly what each step means before doing them for real to eliminate any surprises.
+    You will likely want to keep the time between the two steps as short as you can. Make sure you know exactly what each step involves before doing them for real to eliminate any surprises. Especially the second step, which is a bit more complex.
 
     ---
-    
-    - **First step:** deploy the new code (client and server), either via `wasp deploy` or manually.
-    
-      Check our [Deployment docs](../advanced/deployment/overview.md) for more details. 
+
+    - **First step:** deploy the new code (client and server), either via `wasp deploy` (i.e. `wasp deploy fly deploy`) or manually.
+
+      Check our [Deployment docs](advanced/deployment/overview.md) for more details.
 
     - **Second step:** run the migration script on the production database with `wasp db seed` command.
-    
-      We wrote instructions on how to do it for **Fly.io** deployments here: https://github.com/wasp-lang/wasp/issues/1464 . The instructions should be similar for other deployment providers: setting up some sort of an SSH tunnel from your local machine to the production database and running the migration script locally with `DATABASE_URL` pointing to the production database.
-    
-    Your deployed app should be working normally now, with the new auth system.
+
+      We wrote instructions on how to do it for **Fly.io** deployments here: https://github.com/wasp-lang/wasp/issues/1464 . The instructions should be similar for other deployment providers: setting up some sort of an SSH tunnel from your local machine to the production database and running your data migrations functions locally (using `wasp db seed`) with `DATABASE_URL` pointing to the production database.
+
+    Your deployed app should be working normally now, with the new auth system 🎉!
     :::
 
 
@@ -411,32 +409,92 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
 Your app should be working correctly and using new auth, but to finish the migration, we need to clean up the old auth system:
 
-1. Delete auth-related fields from `User` entity.
+1. In `main.wasp` file, delete auth-related fields from the `User` entity.
 
-    - This means any fields that were used for authentication, like `email`, `password`, `isEmailVerified`, `emailVerificationSentAt`, `passwordResetSentAt`, `username`, etc.
+    - This means any fields that were required by Wasp for authentication, like `email`, `password`, `isEmailVerified`, `emailVerificationSentAt`, `passwordResetSentAt`, `username`, etc.
 
-1. Remove the `externalAuthEntity` from the `auth` config and the `SocialLogin` entity if you used Google or GitHub auth.
+1. In `main.wasp` file, remove the `externalAuthEntity` field from the `app.auth` and also remove the whole `SocialLogin` entity if you used Google or GitHub auth.
 1. Run `wasp db migrate-dev` again to remove the redundant fields from the database.
-1. You can now delete the migration script and the `db.seeds` config.
+1. You can now delete the data migration function(s) you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding entries in the `app.db.seeds` field in `main.wasp` file.
 
 :::info Migrating a deployed app
 
   After doing the steps above successfully locally and making sure everything is working, it is time to push these changes to the deployed app again.
-  
-  _Deploy the app again_, either via `wasp deploy` or manually. Check our [Deployment docs](../advanced/deployment/overview.md) for more details. 
-  
-  The database migrations will automatically run on successful deployment of the server and delete the now redundant auth-related `User` columns from the database. 
-  
-  Your app is now fully migrated to the new auth system.
+
+  _Deploy the app again_, either via `wasp deploy` or manually. Check our [Deployment docs](advanced/deployment/overview.md) for more details.
+
+  The database migrations will automatically run on successful deployment of the server and delete the now redundant auth-related `User` columns from the database.
+
+  Your app is now fully migrated to the new auth system 🎉!
 
 :::
 
+### Next steps
 
-#### Example Migration Functions
+If you made it this far, you've completed all the necessary steps to get your
+Wasp app working with Wasp 0.12.x. Nice work!
+
+Finally, since Wasp no longer requires you to separate your client source files
+(previously in `src/client`) from server source files (previously in
+`src/server`), you are now free to reorganize your project however you think is best,
+as long as you keep all the source files in the `src/` directory.
+
+This section is optional, but if you didn't like the server/client
+separation, now's the perfect time to change it!
+
+For example, if your `src` dir looked like this:
+
+```
+src
+│
+├── client
+│   ├── Dashboard.tsx
+│   ├── Login.tsx
+│   ├── MainPage.tsx
+│   ├── Register.tsx
+│   ├── Task.css
+│   ├── TaskLisk.tsx
+│   ├── Task.tsx
+│   └── User.tsx
+├── server
+│   ├── taskActions.ts
+│   ├── taskQueries.ts
+│   ├── userActions.ts
+│   └── userQueries.ts
+└── shared
+    └── utils.ts
+```
+
+you can now change it to a feature-based structure (which we recommend for any project that is not very small):
+
+```
+src
+│
+├── task
+│   ├── actions.ts    -- former taskActions.ts
+│   ├── queries.ts    -- former taskQueries.ts
+│   ├── Task.css
+│   ├── TaskLisk.tsx
+│   └── Task.tsx
+├── user
+│   ├── actions.ts    -- former userActions.ts
+│   ├── Dashboard.tsx
+│   ├── Login.tsx
+│   ├── queries.ts    -- former userQueries.ts
+│   ├── Register.tsx
+│   └── User.tsx
+├── MainPage.tsx
+└── utils.ts
+```
+
+
+## Appendix
+
+### Example Data Migration Functions
 
 The migration functions provided below are written with the typical use cases in mind and you can use them as-is. If your setup requires additional logic, you can use them as a good starting point and modify them to your needs.
 
-##### Username & Password
+#### Username & Password
 
 :::caution Users will need to migrate their password
 There is a breaking change between the old and the new auth in the way the password is hashed. This means that users will need to migrate their password after the migration, as the old password will no longer work.
@@ -722,7 +780,7 @@ export const migratePassword: MigratePassword<
 
   try {
     const SP = new SecurePassword();
-    
+
     // This will verify the password using the old algorithm
     const result = await SP.verify(
       Buffer.from(password),
@@ -756,7 +814,7 @@ export const migratePassword: MigratePassword<
 
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
-import { ProviderName, UsernameProviderData } from "wasp/server/auth";
+import { type ProviderName, type UsernameProviderData } from "wasp/server/auth";
 
 export async function migrateUsernameAuth(prismaClient: PrismaClient) {
   const users = await prismaClient.user.findMany({
@@ -802,7 +860,7 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
 ```
 
 
-##### Email
+#### Email
 
 :::caution Users will need to reset their password
 
@@ -864,7 +922,7 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
 ```
 
 
-##### Google & GitHub
+#### Google & GitHub
 
 ```ts title="src/migrateToNewAuth.ts"
 import { PrismaClient } from "@prisma/client";
@@ -922,62 +980,4 @@ async function createSocialLoginMigration(
     });
   }
 }
-```
-
-### Next steps
-
-If you made it this far, you've completed all the necessary steps to get your
-Wasp app working with Wasp 0.12.x. Nice work!
-
-Finally, since Wasp no longer requires you to separate your client source files
-(previously in `src/client`) from server source files (previously in
-`src/server`), you are now free to reorganize your project however you think is best.
-
-This section is optional, but if you didn't like the server/client
-separation, now's the perfect time to change it!
-
-For example, if your `src` dir looked like this:
-
-```
-src
-│
-├── client
-│   ├── Dashboard.tsx
-│   ├── Login.tsx
-│   ├── MainPage.tsx
-│   ├── Register.tsx
-│   ├── Task.css
-│   ├── TaskLisk.tsx
-│   ├── Task.tsx
-│   └── User.tsx
-├── server
-│   ├── taskActions.ts
-│   ├── taskQueries.ts
-│   ├── userActions.ts
-│   └── userQueries.ts
-└── shared
-    └── utils.ts
-```
-
-You can now change it to something like this (or something else, as long as you
-keep all source files in the `src` directory):
-
-```
-src
-│
-├── task
-│   ├── actions.ts    -- former taskActions.ts
-│   ├── queries.ts    -- former taskQueries.ts
-│   ├── Task.css
-│   ├── TaskLisk.tsx
-│   └── Task.tsx
-├── user
-│   ├── actions.ts    -- former userActions.ts
-│   ├── Dashboard.tsx
-│   ├── Login.tsx
-│   ├── queries.ts    -- former userQueries.ts
-│   ├── Register.tsx
-│   └── User.tsx
-├── MainPage.tsx
-└── utils.ts
 ```
