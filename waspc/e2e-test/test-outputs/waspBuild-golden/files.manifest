@@ -28,6 +28,7 @@ waspBuild/.wasp/build/sdk/wasp/client/test/vitest/helpers.tsx
 waspBuild/.wasp/build/sdk/wasp/core/config.ts
 waspBuild/.wasp/build/sdk/wasp/core/storage.ts
 waspBuild/.wasp/build/sdk/wasp/dev/index.ts
+waspBuild/.wasp/build/sdk/wasp/dev/tsconfig.json
 waspBuild/.wasp/build/sdk/wasp/dist/api/events.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/api/events.js
 waspBuild/.wasp/build/sdk/wasp/dist/api/events.js.map
@@ -249,6 +250,7 @@ waspBuild/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 waspBuild/.wasp/out/sdk/wasp/core/config.ts
 waspBuild/.wasp/out/sdk/wasp/core/storage.ts
 waspBuild/.wasp/out/sdk/wasp/dev/index.ts
+waspBuild/.wasp/out/sdk/wasp/dev/tsconfig.json
 waspBuild/.wasp/out/sdk/wasp/dist/api/events.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/api/events.js
 waspBuild/.wasp/out/sdk/wasp/dist/api/events.js.map
