@@ -2,27 +2,27 @@ import { styled } from 'wasp/core/stitches.config'
 
 // PRIVATE API
 export const SocialButton = styled('a', {
-  display: 'flex',
-  justifyContent: 'center',
+  display: 'flex !important',
+  justifyContent: 'center !important',
 
-  cursor: 'pointer',
+  cursor: 'pointer !important',
   // NOTE(matija): icon is otherwise blue, since that
   // is link's default font color.
-  color: 'inherit',
-  backgroundColor: '#f0f0f0',
-  borderRadius: '0.375rem',
-  borderWidth: '1px',
-  borderColor: '$gray600',
-  fontSize: '13px',
-  padding: '0.5rem 0.75rem',
-  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  color: 'inherit !important',
+  backgroundColor: '#f0f0f0 !important',
+  borderRadius: '0.375rem !important',
+  borderWidth: '1px !important',
+  borderColor: '$gray600 !important',
+  fontSize: '13px !important',
+  padding: '0.5rem 0.75rem !important',
+  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05) !important',
   '&:visited': {
-    color: 'inherit',
+    color: 'inherit !important',
   },
   '&:hover': {
-    backgroundColor: '$gray500',
-    color: 'inherit',
+    backgroundColor: '$gray500 !important',
+    color: 'inherit !important',
   },
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionDuration: '100ms',
+  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1) !important',
+  transitionDuration: '100ms !important',
 })

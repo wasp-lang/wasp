@@ -14,41 +14,41 @@ export const FormItemGroup = styled('div', {
 
 // PUBLIC API
 export const FormLabel = styled('label', {
-  display: 'block',
-  fontSize: '$sm',
-  fontWeight: '500',
-  marginBottom: '0.5rem',
+  display: 'block !important',
+  fontSize: '$sm !important',
+  fontWeight: '500 !important',
+  marginBottom: '0.5rem !important',
 })
 
 const commonInputStyles = {
-  display: 'block',
-  lineHeight: '1.5rem',
-  fontSize: '$sm',
-  borderWidth: '1px',
-  borderColor: '$gray600',
-  backgroundColor: '#f8f4ff',
-  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  display: 'block !important',
+  lineHeight: '1.5rem !important',
+  fontSize: '$sm !important',
+  borderWidth: '1px !important',
+  borderColor: '$gray600 !important',
+  backgroundColor: '#f8f4ff !important',
+  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05) !important',
   '&:focus': {
-    borderWidth: '1px',
-    borderColor: '$gray700',
-    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    borderWidth: '1px !important',
+    borderColor: '$gray700 !important',
+    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05) !important',
   },
   '&:disabled': {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-    backgroundColor: '$gray400',
-    borderColor: '$gray400',
-    color: '$gray500',
+    opacity: '0.5 !important',
+    cursor: 'not-allowed !important',
+    backgroundColor: '$gray400 !important',
+    borderColor: '$gray400 !important',
+    color: '$gray500 !important',
   },
 
-  borderRadius: '0.375rem',
-  width: '100%',
+  borderRadius: '0.375rem !important',
+  width: '100% !important',
 
-  paddingTop: '0.375rem',
-  paddingBottom: '0.375rem',
-  paddingLeft: '0.75rem',
-  paddingRight: '0.75rem',
-  margin: 0,
+  paddingTop: '0.375rem !important',
+  paddingBottom: '0.375rem !important',
+  paddingLeft: '0.75rem !important',
+  paddingRight: '0.75rem !important',
+  margin: '0 !important',
 }
 
 // PUBLIC API
@@ -68,35 +68,35 @@ export const FormError = styled('div', {
 
 // PRIVATE API
 export const SubmitButton = styled('button', {
-  display: 'flex',
-  justifyContent: 'center',
+  display: 'flex !important',
+  justifyContent: 'center !important',
 
-  width: '100%',
-  borderWidth: '1px',
-  borderColor: '$brand',
-  backgroundColor: '$brand',
-  color: '$submitButtonText',
+  width: '100% !important',
+  borderWidth: '1px !important',
+  borderColor: '$brand !important',
+  backgroundColor: '$brand !important',
+  color: '$submitButtonText !important',
 
-  padding: '0.5rem 0.75rem',
-  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  padding: '0.5rem 0.75rem !important',
+  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05) !important',
 
-  fontWeight: '600',
-  fontSize: '$sm',
-  lineHeight: '1.25rem',
-  borderRadius: '0.375rem',
+  fontWeight: '600 !important',
+  fontSize: '$sm !important',
+  lineHeight: '1.25rem !important',
+  borderRadius: '0.375rem !important',
 
   // TODO(matija): extract this into separate BaseButton component and then inherit it.
   '&:hover': {
-    backgroundColor: '$brandAccent',
-    borderColor: '$brandAccent',
+    backgroundColor: '$brandAccent !important',
+    borderColor: '$brandAccent !important',
   },
   '&:disabled': {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-    backgroundColor: '$gray400',
-    borderColor: '$gray400',
-    color: '$gray500',
+    opacity: '0.5 !important',
+    cursor: 'not-allowed !important',
+    backgroundColor: '$gray400 !important',
+    borderColor: '$gray400 !important',
+    color: '$gray500 !important',
   },
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionDuration: '100ms',
+  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1) !important',
+  transitionDuration: '100ms !important',
 })

@@ -27,9 +27,9 @@ const Container = styled('div', {
 })
 
 const HeaderText = styled('h2', {
-  fontSize: '1.875rem',
-  fontWeight: '700',
-  marginTop: '1.5rem'
+  fontSize: '1.875rem !important',
+  fontWeight: '700 !important',
+  marginTop: '1.5rem !important'
 })
 
 
