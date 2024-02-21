@@ -71,7 +71,7 @@ projects.
 
 In Wasp 0.11.X, authentication was based on the `User` model which the developer needed to set up properly and take care of the auth fields like `email` or `password`.
 
-```wasp title="main.wasp" {18-31}
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.11.0"
@@ -89,11 +89,15 @@ app myApp {
 
 entity User {=psl
   id                        Int           @id @default(autoincrement())
+  // highlight-start
   username                  String        @unique
   password                  String
   externalAuthAssociations  SocialLogin[]
+  // highlight-end
 psl=}
 
+
+// highlight-start
 entity SocialLogin {=psl
   id          Int       @id @default(autoincrement())
   provider    String
@@ -103,6 +107,7 @@ entity SocialLogin {=psl
   createdAt   DateTime  @default(now())
   @@unique([provider, providerId, userId])
 psl=}
+// highlight-end
 ```
 
 From 0.12.X onwards, authentication is based on the auth models which are automatically set up by Wasp. You don't need to take care of the auth fields anymore.
@@ -194,7 +199,7 @@ directory `foo`, you should:
 
    For this, we prepared a special script that will rewrite these imports automatically for you.
 
-   Before doing this step, as the script will modify your JS(X)/TS(X) files in place, we advise commiting
+   Before doing this step, as the script will modify your JS(X)/TS(X) files in place, we advise committing
    all changes you have so far, so you can then both easily inspect the import rewrites that our
    script did (with `git diff`) and also revert them if something went wrong.
 
@@ -211,8 +216,8 @@ directory `foo`, you should:
 10. Correct external imports in your Wasp file (now residing in `foo`).
     imports. You can do this by running search-and-replace inside the file:
 
-    - Change all occurences of `@server` to `@src/server`
-    - Change all occurences of `@client` to `@src/client`
+    - Change all occurrences of `@server` to `@src/server`
+    - Change all occurrences of `@client` to `@src/client`
 
     For example, if you previously had something like:
 
@@ -254,7 +259,7 @@ directory `foo`, you should:
     }
     ```
 
-    Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of strings `"@server"` or `"@client"`
+    Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurrences of strings `"@server"` or `"@client"`
 
 11. Take all the dependencies from `app.dependencies` declaration in
     `foo/main.wasp` and move them to `foo/package.json`. Make sure to remove the `app.dependencies` field from `foo/main.wasp`.
@@ -483,7 +488,7 @@ src
 ```
 
 
-## Addendum
+## Appendix
 
 ### Example Data Migration Functions
 
