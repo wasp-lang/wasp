@@ -5,7 +5,9 @@ app Thoughts {
   title: "Thoughts",
   db: {
     system: PostgreSQL,
-    seeds: [ import { devSeedBasic } from "@src/server/seeds.js" ]
+    seeds: [
+      import { devSeedBasic } from "@src/server/seeds.js"
+    ]
   },
   auth: {
     userEntity: User,

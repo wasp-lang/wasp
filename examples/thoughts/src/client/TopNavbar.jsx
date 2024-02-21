@@ -1,6 +1,9 @@
-import React from "react";
 import { getUsername } from "wasp/auth";
+
 import { logout } from "wasp/client/auth";
+
+import React from "react";
+
 import "./TopNavbar.css";
 
 const TopNavbar = ({ user }) => {

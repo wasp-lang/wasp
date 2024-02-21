@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for wasp-thoughts-server on 2023-10-13T13:45:12+02:00
+# fly.toml app configuration file generated for wasp-thoughts-server on 2024-02-21T12:53:55+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "wasp-thoughts-server"
-primary_region = "mia"
+app = 'wasp-thoughts-server'
+primary_region = 'mia'
 
 [build]
 
@@ -13,5 +13,10 @@ primary_region = "mia"
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
-  min_machines_running = 0
-  processes = ["app"]
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
