@@ -2,6 +2,10 @@
 title: Migration from 0.11.X to 0.12.X
 ---
 
+import UserSignupFieldsExplainer from './auth/\_user-signup-fields-explainer.md';
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "./auth/Pills";
+
+
 ## What's new in Wasp 0.12.0?
 
 ### New project structure
@@ -152,11 +156,11 @@ These instructions are for migrating your app from Wasp `0.11.X` to Wasp `0.12.X
 
 The guide consists of two big steps:
 1. Migrating your Wasp project to the new structure.
-2. Migrating Wasp Auth.
+2. Migrating to the new auth.
 
 If you get stuck at any point, don't hesitate to ask for help on [our Discord server](https://discord.gg/rzdnErX).
 
-### Migrating your project to the new structure
+### Migrating Your Project to the New Structure
 
 You can easily migrate your old Wasp project to the new structure by following a
 series of steps. Assuming you have a project called `foo` inside the
@@ -171,7 +175,7 @@ directory `foo`, you should:
 2. **Position yourself in the terminal** in the directory that is a parent of your wasp project directory (so one level above: if you do `ls`, you should see your wasp project dir listed).
 3. **Run the migration script** (replace `foo` at the end with the name of your Wasp project directory) and follow the instructions:
   ```
-    npx wasp-migrate foo
+  npx wasp-migrate foo
   ```
 
 <details>
@@ -308,7 +312,7 @@ That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` d
 Your app probably doesn't quite work yet due to the breaking changes in Auth, which we will migrate next.
 
 
-### Migrating auth
+### Migrating to the New Auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
 This section leads you through migrating your app from Wasp 0.11.X to Wasp 0.12.X.
 
@@ -330,20 +334,206 @@ Once we confirm everything works well locally, we will apply the same changes to
 
 You can follow these steps to migrate to the new auth system (assuming you already migrated the project structure to 0.12, as described [above](#migrating-your-project-to-the-new-structure)):
 
+1. If you used `getUserFieldsFn` and/or `additionalSignupFields`, you will need to migrate them to the new `userSignupFields` function.
+
+  In Wasp 0.11.X, you could define a `getUserFieldsFn` to specify extra fields that would get saved to the `User` when using Google or GitHub to sign up.
+    
+  You could also define `additionalSignupFields` to specify extra fields for the Email or Username & Password signup process.
+
+  In 0.12.X, we unified these two concepts into the `userSignupFields` field.
+
+  <details>
+  <summary>Migration for <EmailPill /> and <UsernameAndPasswordPill /></summary>
+
+    First, move the value of `auth.signup.additionalFields` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
+      
+    `{method}` depends on the auth method you are using. For example, if you are using the email auth method, you should move the `auth.signup.additionalFields` to `auth.methods.email.userSignupFields`.
+    
+    Then, update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` instead of `defineAdditionalSignupFields` from `@wasp/auth/index.js` (this should have been automatically done by the migration script).
+
+    <Tabs>
+    <TabItem value="before" label="Before">
+
+    ```wasp title="main.wasp"
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          email: {},
+        },
+        onAuthFailedRedirectTo: "/login",
+        // highlight-start
+        signup: {
+          additionalFields: import { fields } from "@server/auth/signup.js",
+        },
+        // highlight-end
+      },
+    }
+    ```
+
+    ```ts title="src/server/auth/signup.ts"
+    // highlight-next-line
+    import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+    // highlight-next-line
+    export const fields = defineAdditionalSignupFields({
+      address: async (data) => {
+        const address = data.address
+        if (typeof address !== 'string') {
+          throw new Error('Address is required')
+        }
+        if (address.length < 5) {
+          throw new Error('Address must be at least 5 characters long')
+        }
+        return address
+      },
+    })
+    ```
+
+    </TabItem>
+
+    <TabItem value="after" label="After">
+
+    ```wasp title="main.wasp"
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          email: {
+            // highlight-next-line
+            userSignupFields: import { fields } from "@src/server/auth/signup.js",
+          },
+        },
+        onAuthFailedRedirectTo: "/login",
+      },
+    }
+    ```
+
+    ```ts title="src/server/auth/signup.ts"
+    // highlight-next-line
+    import { defineUserSignupFields } from 'wasp/server/auth'
+
+    // highlight-next-line
+    export const fields = defineUserSignupFields({
+      address: async (data) => {
+        const address = data.address
+        if (typeof address !== 'string') {
+          throw new Error('Address is required')
+        }
+        if (address.length < 5) {
+          throw new Error('Address must be at least 5 characters long')
+        }
+        return address
+      },
+    })
+    ```
+
+    Read more about the `userSignupFields` function [here](/auth/overview.md#1-defining-extra-fields).
+
+    </TabItem>
+    </Tabs>
+
+  </details>
+
+  <details>
+  <summary>Migration for <GithubPill /> and <GooglePill /></summary>
+
+    Move the value of `auth.methods.{method}.getUserFieldsFn` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
+      
+    `{method}` depends on the auth method you are using. For example, if you are using Google auth, you should move the `auth.methods.google.getUserFieldsFn` to `auth.methods.google.userSignupFields`.
+
+    Update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` and modify the code.
+
+    <Tabs>
+    <TabItem value="before" label="Before">
+
+    ```wasp title="main.wasp"
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+          },
+        },
+        onAuthFailedRedirectTo: "/login",
+      },
+    }
+    ```
+
+    ```ts title="src/server/auth/google.ts"
+    // highlight-next-line
+    import type { GetUserFieldsFn } from '@wasp/types'
+
+    // highlight-start
+    export const getUserFields: GetUserFieldsFn = async (_context, args) => {
+      const displayName = args.profile.displayName
+      return { displayName }
+    }
+    // highlight-end
+    ```
+
+    </TabItem>
+
+    <TabItem value="after" label="After">
+
+    ```wasp title="main.wasp"
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            userSignupFields: import { fields } from "@src/server/auth/google.js",
+          },
+        },
+        onAuthFailedRedirectTo: "/login",
+      },
+    }
+    ```
+
+    ```ts title="src/server/auth/signup.ts"
+    // highlight-next-line
+    import { defineUserSignupFields } from 'wasp/server/auth'
+
+    // highlight-start
+    export const fields = defineUserSignupFields({
+      displayName: async (data) => {
+        if (!data.profile || !data.profile.displayName) {
+          throw new Error('Display name is not available')
+        }
+        return data.profile.displayName
+      },
+    })
+    // highlight-end
+    ```
+
+    Read more about the `userSignupFields` function [here](/auth/overview.md#1-defining-extra-fields).
+
+    </TabItem>
+    </Tabs>
+
+  </details>
+
 1. Ensure your **local development database is running**.
 1. **Do the schema migration** (create the new auth tables in the database) by running:
    ```bash
    wasp db migrate-dev
    ```
-You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify the tables are there. At the moment, they will be empty (no data).
+You should see the new `Auth`, `AuthIdentity` and `Session` tables in your database. You can use the `wasp db studio` command to open the database in a GUI and verify the tables are there. At the moment, they will be empty.
 1. **Do the data migration** (move existing users from the old auth system to the new one by filling the new auth tables in the database with their data):
 
    1. **Implement your data migration function(s)** in e.g. `src/migrateToNewAuth.ts`.
 
       Below we prepared [examples of migration functions](#example-data-migration-functions) for each of the auth methods, for you to use as a starting point.
-      They should be fine to use as-is, meaning you can just copy them and they are likely to work out of the box for typical use cases, but you can also modify them to your needs (and should do so if needed).
+      They should be fine to use as-is, meaning you can just copy them and they are likely to work out of the box for typical use cases, but you can also modify them to your needs.
 
-      You will at the end want to have one function per each auth method that you use in your app.
+      You will want to have one function per each auth method that you use in your app.
 
    1. **Register the data migration function(s)** you just implemented above via the `db.seeds` config in `main.wasp` file:
       ```wasp title="main.wasp"
@@ -373,7 +563,7 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 1. **Update your JS/TS code** to work correctly with the new auth.
 
   You should use the new auth helper functions to get the `email` or `username` from a user object. For example, `user.username` won't work anymore, now you need to do `getUsername(user)`. Read more about the helpers in the [Auth Entities - Accessing the Auth Fields](auth/entities#accessing-the-auth-fields) section. The helpers you are most likely to use are the `getEmail` and `getUsername` helpers.
-1. Finally, **check that your app now fully works as it worked before**. If all the above steps were done correctly, everything should be working now 🎉!
+1. Finally, **check that your app now fully works as it worked before**. If all the above steps were done correctly, everything should be working now.
 
     :::info Migrating a deployed app
 
@@ -401,7 +591,7 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
       We wrote instructions on how to do it for **Fly.io** deployments here: https://github.com/wasp-lang/wasp/issues/1464 . The instructions should be similar for other deployment providers: setting up some sort of an SSH tunnel from your local machine to the production database and running your data migrations functions locally (using `wasp db seed`) with `DATABASE_URL` pointing to the production database.
 
-    Your deployed app should be working normally now, with the new auth system 🎉!
+    Your deployed app should be working normally now, with the new auth system.
     :::
 
 
@@ -425,11 +615,11 @@ Your app should be working correctly and using new auth, but to finish the migra
 
   The database migrations will automatically run on successful deployment of the server and delete the now redundant auth-related `User` columns from the database.
 
-  Your app is now fully migrated to the new auth system 🎉!
+  Your app is now fully migrated to the new auth system.
 
 :::
 
-### Next steps
+### Next Steps
 
 If you made it this far, you've completed all the necessary steps to get your
 Wasp app working with Wasp 0.12.x. Nice work!
@@ -440,7 +630,7 @@ Finally, since Wasp no longer requires you to separate your client source files
 as long as you keep all the source files in the `src/` directory.
 
 This section is optional, but if you didn't like the server/client
-separation, now's the perfect time to change it!
+separation, now's the perfect time to change it.
 
 For example, if your `src` dir looked like this:
 
