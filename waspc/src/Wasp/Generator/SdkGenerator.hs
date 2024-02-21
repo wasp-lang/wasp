@@ -90,6 +90,7 @@ genSdkReal spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|dev/index.ts|],
+      genFileCopy [relfile|dev/tsconfig.json|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
