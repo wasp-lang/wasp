@@ -388,7 +388,7 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
     ---
 
-    - **First step:** deploy the new code (client and server), either via `wasp deploy` or manually.
+    - **First step:** deploy the new code (client and server), either via `wasp deploy` (i.e. `wasp deploy fly deploy`) or manually.
 
       Check our [Deployment docs](../advanced/deployment/overview.md) for more details.
 
