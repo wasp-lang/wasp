@@ -395,7 +395,7 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
     - **First step:** deploy the new code (client and server), either via `wasp deploy` (i.e. `wasp deploy fly deploy`) or manually.
 
-      Check our [Deployment docs](../advanced/deployment/overview.md) for more details.
+      Check our [Deployment docs](advanced/deployment/overview.md) for more details.
 
     - **Second step:** run the migration script on the production database with `wasp db seed` command.
 
@@ -421,7 +421,7 @@ Your app should be working correctly and using new auth, but to finish the migra
 
   After doing the steps above successfully locally and making sure everything is working, it is time to push these changes to the deployed app again.
 
-  _Deploy the app again_, either via `wasp deploy` or manually. Check our [Deployment docs](../advanced/deployment/overview.md) for more details.
+  _Deploy the app again_, either via `wasp deploy` or manually. Check our [Deployment docs](advanced/deployment/overview.md) for more details.
 
   The database migrations will automatically run on successful deployment of the server and delete the now redundant auth-related `User` columns from the database.
 
