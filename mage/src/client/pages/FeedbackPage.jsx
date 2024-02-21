@@ -1,6 +1,5 @@
+import { useQuery, getFeedback } from "wasp/client/operations";
 import { useState, useMemo } from "react";
-import getFeedback from "@wasp/queries/getFeedback";
-import { useQuery } from "@wasp/queries";
 import { Link } from "react-router-dom";
 import { format } from "timeago.js";
 

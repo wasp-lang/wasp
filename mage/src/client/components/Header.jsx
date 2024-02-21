@@ -1,10 +1,10 @@
+import { Link } from "wasp/client/router";
+import { useAuth } from "wasp/client/auth";
 import { Title } from "./Title";
 import { BiSolidUser } from "react-icons/bi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import useAuth from "@wasp/auth/useAuth";
 import { useHistory } from "react-router-dom";
 import { BiSolidHome } from "react-icons/bi";
-import { Link } from "@wasp/router";
 import { StatusPill } from "./StatusPill";
 
 export function Header({ children, currentStatus }) {

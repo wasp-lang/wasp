@@ -1,11 +1,10 @@
+import { Link } from "wasp/client/router";
+import { logout } from "wasp/client/auth";
+import { deleteMyself, useQuery, getProjectsByUser } from "wasp/client/operations";
 import { useState } from "react";
-import { useQuery } from "@wasp/queries";
-import getProjectsByUser from "@wasp/queries/getProjectsByUser";
-import { Link } from "@wasp/router";
 import { Color } from "../components/Color";
 import { Header } from "../components/Header";
 import { PiDownloadDuotone, PiSealWarningDuotone } from "react-icons/pi";
-import logout from "@wasp/auth/logout";
 import { FiLogOut } from "react-icons/fi";
 import { format } from "timeago.js";
 import { StatusPill } from "../components/StatusPill";
@@ -15,7 +14,6 @@ import {
   projectStatusToDisplayableText,
 } from "../project/utils";
 import { HomeButton } from "../components/Header";
-import deleteMyself from "@wasp/actions/deleteMyself";
 import { MyDialog } from "../components/Dialog";
 
 export function UserPage({ user }) {

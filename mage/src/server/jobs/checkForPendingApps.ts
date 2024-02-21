@@ -1,5 +1,4 @@
-import { generateAppJob } from "@wasp/jobs/generateAppJob.js";
-import type { CheckPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
+import { generateAppJob, type CheckPendingAppsJob } from "wasp/server/jobs";
 import { log } from "./utils.js";
 
 const maxProjectsInProgress = process.env.MAX_PROJECTS_IN_PROGRESS

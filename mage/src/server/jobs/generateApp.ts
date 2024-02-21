@@ -1,7 +1,7 @@
+import { GenerateAppJob } from "wasp/server/jobs";
 import { spawn } from "child_process";
 import { Mutex } from "async-mutex";
 import { log } from "./utils.js";
-import { GenerateAppJob } from "@wasp/jobs/generateAppJob.js";
 
 const appGenerationResults: Record<string, any> = {};
 
@@ -62,8 +62,7 @@ export const generateApp: GenerateAppJob<
   const stdoutMutex = new Mutex();
   let waspCliProcess = null;
   const waspCliProcessArgs = [
-    "new:ai",
-    "--stdout",
+    "new-ai",
     project.name,
     project.description,
     JSON.stringify(projectConfig),

@@ -1,6 +1,6 @@
 app waspAi {
   wasp: {
-    version: "^0.11.5"
+    version: "^0.12.0"
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
@@ -14,42 +14,22 @@ app waspAi {
     "<meta name=\"twitter:card\" content=\"summary_large_image\" />",
     "<script defer data-domain=\"usemage.ai\" src=\"https://plausible.apps.twoducks.dev/js/script.js\"></script>",
   ],
-  dependencies: [
-    ("prismjs", "^1.29.0"),
-    ("react-accessible-treeview", "2.6.1"),
-    ("react-icons", "4.10.1"),
-    ("@zip.js/zip.js", "2.7.16"),
-    ("async-mutex", "0.4.0"),
-    ("@headlessui/react", "1.7.15"),
-    ("@heroicons/react", "2.0.18"),
-    ("react-parallax-tilt", "1.7.151"),
-    ("timeago.js", "4.0.2"),
-    ("@visx/mock-data", "3.0.0"),
-    ("@visx/group", "3.0.0"),
-    ("@visx/shape", "3.0.0"),
-    ("@visx/scale", "3.2.0"),
-    ("@visx/responsive", "3.0.0"),
-    ("@visx/gradient", "3.0.0"),
-    ("@visx/axis", "3.2.0"),
-    ("js-confetti", "0.11.0")
-  ],
   client: {
-    rootComponent: import { RootComponent } from "@client/RootComponent.jsx",
+    rootComponent: import { RootComponent } from "@src/client/RootComponent.jsx",
   },
   db: {
-    system: PostgreSQL
+    system: PostgreSQL,
   },
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       gitHub: {
-        configFn: import { getGitHubAuthConfig } from "@server/auth.js",
-        getUserFieldsFn: import { getGitHubUserFields } from "@server/auth.js",
+        configFn: import { getGitHubAuthConfig } from "@src/server/auth.js",
+        userSignupFields: import { gitHubUserSignupFields } from "@src/server/auth.ts",
       },
       google: {
-        configFn: import { getGoogleAuthConfig } from "@server/auth.js",
-        getUserFieldsFn: import { getGoogleUserFields } from "@server/auth.js",
+        configFn: import { getGoogleAuthConfig } from "@src/server/auth.js",
+        userSignupFields: import { googleUserSignupFields } from "@src/server/auth.ts",
       },
     },
     onAuthFailedRedirectTo: "/",
@@ -59,93 +39,93 @@ app waspAi {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/pages/MainPage.jsx"
+  component: import Main from "@src/client/pages/MainPage.jsx"
 }
 
 route ResultRoute { path: "/result/:appId", to: ResultPage }
 page ResultPage {
-  component: import { ResultPage } from "@client/pages/ResultPage.jsx"
+  component: import { ResultPage } from "@src/client/pages/ResultPage.jsx"
 }
 
 route UserRoute { path: "/user", to: UserPage }
 page UserPage {
-  component: import { UserPage } from "@client/pages/UserPage.jsx",
+  component: import { UserPage } from "@src/client/pages/UserPage.jsx",
   authRequired: true
 }
 
 route StatsRoute { path: "/stats", to: StatsPage }
 page StatsPage {
-  component: import { Stats } from "@client/pages/StatsPage.jsx",
+  component: import { Stats } from "@src/client/pages/StatsPage.jsx",
   authRequired: true
 }
 
 route FeedbackRoute { path: "/feedback", to: FeedbackPage }
 page FeedbackPage {
-  component: import { Feedback } from "@client/pages/FeedbackPage.jsx",
+  component: import { Feedback } from "@src/client/pages/FeedbackPage.jsx",
   authRequired: true
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/pages/LoginPage.jsx",
+  component: import { LoginPage } from "@src/client/pages/LoginPage.jsx",
 }
 
 action startGeneratingNewApp {
-  fn: import { startGeneratingNewApp } from "@server/operations.js",
+  fn: import { startGeneratingNewApp } from "@src/server/operations.js",
   entities: [
     Project,
   ]
 }
 
 action registerZipDownload {
-  fn: import { registerZipDownload } from "@server/operations.js",
+  fn: import { registerZipDownload } from "@src/server/operations.js",
   entities: [Project]
 }
 
 action createFeedback {
-  fn: import { createFeedback } from "@server/operations.js",
+  fn: import { createFeedback } from "@src/server/operations.js",
   entities: [Feedback]
 }
 
 action deleteMyself {
-  fn: import { deleteMyself } from "@server/operations.js",
+  fn: import { deleteMyself } from "@src/server/operations.js",
   entities: [User, Project, File, Log]
 }
 
 query getFeedback {
-  fn: import { getFeedback } from "@server/operations.js",
+  fn: import { getFeedback } from "@src/server/operations.js",
   entities: [Feedback]
 }
 
 query getProjectsByUser {
-  fn: import { getProjectsByUser } from "@server/operations.js",
+  fn: import { getProjectsByUser } from "@src/server/operations.js",
   entities: [Project]
 }
 
 
 query getAppGenerationResult {
-  fn: import { getAppGenerationResult } from "@server/operations.js",
+  fn: import { getAppGenerationResult } from "@src/server/operations.js",
   entities: [
     Project
   ]
 }
 
 query getProjects {
-  fn: import { getProjects } from "@server/operations.js",
+  fn: import { getProjects } from "@src/server/operations.js",
   entities: [
     Project
   ]
 }
 
 query getStats {
-  fn: import { getStats } from "@server/operations.js",
+  fn: import { getStats } from "@src/server/operations.js",
   entities: [
     Project
   ]
 }
 
 query getNumProjects {
-  fn: import { getNumProjects } from "@server/operations.js",
+  fn: import { getNumProjects } from "@src/server/operations.js",
   entities: [
     Project
   ]
@@ -154,21 +134,10 @@ query getNumProjects {
 entity User {=psl
   id Int @id @default(autoincrement())
 
-  email String @unique
+  email String?
   username String?
-  externalAuthAssociations SocialLogin[]
+
   projects Project[]
-psl=}
-
-entity SocialLogin {=psl
-  id String @id @default(uuid())
-
-  provider String
-  providerId String
-
-  userId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
 psl=}
 
 entity Project {=psl
@@ -224,7 +193,7 @@ job checkPendingAppsJob {
     cron: "* * * * *",
   },
   perform: {
-    fn: import { checkForPendingApps } from "@server/jobs/checkForPendingApps.js"
+    fn: import { checkForPendingApps } from "@src/server/jobs/checkForPendingApps.js"
   },
   entities: [Project]
 }
@@ -235,7 +204,7 @@ job failStaleAppsJobs {
     cron: "* * * * *",
   },
   perform: {
-    fn: import { failStaleGenerations } from "@server/jobs/failStaleGenerations.js",
+    fn: import { failStaleGenerations } from "@src/server/jobs/failStaleGenerations.js",
   },
   entities: [Project, Log]
 }
@@ -243,7 +212,7 @@ job failStaleAppsJobs {
 job generateAppJob {
   executor: PgBoss,
   perform: {
-    fn: import { generateApp } from "@server/jobs/generateApp.js",
+    fn: import { generateApp } from "@src/server/jobs/generateApp.js",
   },
   entities: [
     Project,

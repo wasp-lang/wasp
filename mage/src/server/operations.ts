@@ -1,21 +1,21 @@
+import { checkPendingAppsJob } from "wasp/server/jobs";
+import { type Project, type User } from "wasp/entities";
+import { HttpError } from "wasp/server";
+
 import {
-  RegisterZipDownload,
-  StartGeneratingNewApp,
-  CreateFeedback,
-  DeleteMyself,
-} from "@wasp/actions/types";
-import {
-  GetAppGenerationResult,
-  GetStats,
-  GetProjects,
-  GetFeedback,
-  GetNumProjects,
-  GetProjectsByUser,
-} from "@wasp/queries/types";
-import HttpError from "@wasp/core/HttpError.js";
-import { checkPendingAppsJob } from "@wasp/jobs/checkPendingAppsJob.js";
+  type RegisterZipDownload,
+  type StartGeneratingNewApp,
+  type CreateFeedback,
+  type DeleteMyself,
+  type GetAppGenerationResult,
+  type GetStats,
+  type GetProjects,
+  type GetFeedback,
+  type GetNumProjects,
+  type GetProjectsByUser,
+} from "wasp/server/operations";
+
 import { getNowInUTC } from "./utils.js";
-import type { Project, User } from "@wasp/entities";
 import type { Prisma } from "@prisma/client";
 import { generateLast24HoursData, generateLast30DaysData } from "./stats.js";
 
