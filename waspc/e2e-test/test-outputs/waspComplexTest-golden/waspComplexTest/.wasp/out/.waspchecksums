@@ -18,7 +18,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "16b55c00069d5bc994c94e4ba9126c68aa27acb3e12363c9de7e4b304f9f1e98"
+        "727f14712a4d81e07845f7099a22a5346859fed17e1946cf86a32948b9358dbd"
     ],
     [
         [
@@ -39,7 +39,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/Form.tsx"
         ],
-        "e35dd7deff739520c2ce6782168c3da1d69b1c9720c30e4bf12c387a2d84e043"
+        "1f317b7fb6e95372034016340aaeba54105da96918e07e07e2e25d0e5426fd1d"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialButton.tsx"
         ],
-        "8c62f7c0fdf5f71db83c103ccf4194a55124cafb8a3b60aa1b9ccfa475a3aebf"
+        "5e059ed2bf38a6363b8f9420264f4c56b18674d4da59e08b42b3bbcee0709243"
     ],
     [
         [
@@ -361,7 +361,7 @@
             "file",
             "../out/sdk/wasp/core/stitches.config.ts"
         ],
-        "f238234a9db89d6a34c7a8c7c948a58c011da8e167ff94d72e7c6808beb4e177"
+        "ef9c5d81a173574532adf94fddf2526bc9f206cc0ca91ddc9fb16355aabe7467"
     ],
     [
         [
