@@ -5,7 +5,10 @@ app Thoughts {
   title: "Thoughts",
   db: {
     system: PostgreSQL,
-    seeds: [ import { devSeedBasic } from "@src/server/seeds.js" ]
+    seeds: [
+      import { devSeedBasic } from "@src/server/seeds.js",
+      import { migrateUsernameAuth } from "@src/migrrateAuth0-11.ts"
+    ]
   },
   auth: {
     userEntity: User,
