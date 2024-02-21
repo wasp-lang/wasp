@@ -28,6 +28,7 @@ waspJob/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 waspJob/.wasp/out/sdk/wasp/core/config.ts
 waspJob/.wasp/out/sdk/wasp/core/storage.ts
 waspJob/.wasp/out/sdk/wasp/dev/index.ts
+waspJob/.wasp/out/sdk/wasp/dev/tsconfig.json
 waspJob/.wasp/out/sdk/wasp/dist/api/events.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/api/events.js
 waspJob/.wasp/out/sdk/wasp/dist/api/events.js.map
