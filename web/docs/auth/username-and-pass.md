@@ -717,6 +717,6 @@ app myApp {
 </TabItem>
 </Tabs>
 
-#### `userSignupFields: ServerImport`
+#### `userSignupFields: ExtImport`
 
 <UserSignupFieldsExplainer />

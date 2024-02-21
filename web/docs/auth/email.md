@@ -953,7 +953,7 @@ app myApp {
 </TabItem>
 </Tabs>
 
-#### `userSignupFields: ServerImport`
+#### `userSignupFields: ExtImport`
 
 <UserSignupFieldsExplainer />
 
@@ -995,7 +995,7 @@ It has the following fields:
     We used Auth UI above to avoid doing this work of sending the token to the server manually.
   :::
 
-- `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user.
+- `getEmailContentFn: ExtImport`: a function that returns the content of the e-mail that is sent to the user.
 
   Defining `getEmailContentFn` can be done by defining a file in the `src` directory.
 
@@ -1078,7 +1078,7 @@ It has the following fields:
   We used Auth UI above to avoid doing this work of sending the password request and the new password to the server manually.
   :::
 
-- `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user.
+- `getEmailContentFn: ExtImport`: a function that returns the content of the e-mail that is sent to the user.
 
   Defining `getEmailContentFn` is done by defining a function that looks like this:
 

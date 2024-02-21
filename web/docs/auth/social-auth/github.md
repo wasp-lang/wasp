@@ -485,7 +485,7 @@ app myApp {
 
 The `gitHub` dict has the following properties:
 
-- #### `configFn: ServerImport`
+- #### `configFn: ExtImport`
 
   This function should return an object with the Client ID, Client Secret, and scope for the OAuth provider.
 
@@ -518,6 +518,6 @@ The `gitHub` dict has the following properties:
   </TabItem>
   </Tabs>
 
-- #### `userSignupFields: ServerImport`
+- #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />

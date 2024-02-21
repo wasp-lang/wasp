@@ -526,7 +526,7 @@ app myApp {
 
 The `google` dict has the following properties:
 
-- #### `configFn: ServerImport`
+- #### `configFn: ExtImport`
 
   This function must return an object with the Client ID, the Client Secret, and the scope for the OAuth provider.
 
@@ -559,6 +559,6 @@ The `google` dict has the following properties:
   </TabItem>
   </Tabs>
 
-- #### `userSignupFields: ServerImport`
+- #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />

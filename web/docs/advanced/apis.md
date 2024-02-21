@@ -319,7 +319,7 @@ api fooBar {
 
 The `api` declaration has the following fields:
 
-- `fn: ServerImport` <Required />
+- `fn: ExtImport` <Required />
 
   The import statement of the APIs NodeJs implementation.
 
@@ -338,6 +338,6 @@ The `api` declaration has the following fields:
 
   If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you should set this to `false`.
 
-- `middlewareConfigFn: ServerImport`
+- `middlewareConfigFn: ExtImport`
 
   The import statement to an Express middleware config function for this API. See more in [middleware section](../advanced/middleware-config) of the docs.
