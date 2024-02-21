@@ -2,9 +2,7 @@
 title: Migration from 0.11.X to 0.12.X
 ---
 
-import UserSignupFieldsExplainer from './auth/\_user-signup-fields-explainer.md';
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "./auth/Pills";
-
 
 ## What's new in Wasp 0.12.0?
 
