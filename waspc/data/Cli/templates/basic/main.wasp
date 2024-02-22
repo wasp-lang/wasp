@@ -7,5 +7,5 @@ app __waspAppName__ {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { MainPage } from "@src/MainPage.jsx"
+  component: import { MainPage } from "@src/MainPage"
 }

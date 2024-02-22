@@ -213,7 +213,10 @@ npmDepsForSdk spec =
             ("react-router-dom", "^5.3.3"),
             ("react-hook-form", "^7.45.4"),
             ("superjson", "^1.12.2"),
-            ("@types/express-serve-static-core", "^4.17.13")
+            -- Todo: why is this in dependencies, should it be in dev dependencies?
+            -- Should it go into their package.json
+            ("@types/express-serve-static-core", "^4.17.13"),
+            ("@types/react-router-dom", "^5.3.3")
           ]
           ++ depsRequiredForAuth spec
           -- This must be installed in the SDK because it lists prisma/client as a dependency.
