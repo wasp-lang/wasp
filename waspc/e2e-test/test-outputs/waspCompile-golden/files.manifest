@@ -27,7 +27,6 @@ waspCompile/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 waspCompile/.wasp/out/sdk/wasp/core/config.ts
 waspCompile/.wasp/out/sdk/wasp/core/storage.ts
 waspCompile/.wasp/out/sdk/wasp/dev/index.ts
-waspCompile/.wasp/out/sdk/wasp/dev/tsconfig.json
 waspCompile/.wasp/out/sdk/wasp/dist/api/events.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/api/events.js
 waspCompile/.wasp/out/sdk/wasp/dist/api/events.js.map

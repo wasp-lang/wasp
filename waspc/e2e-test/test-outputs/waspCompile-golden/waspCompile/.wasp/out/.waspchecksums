@@ -170,13 +170,6 @@
     [
         [
             "file",
-            "../out/sdk/wasp/dev/tsconfig.json"
-        ],
-        "507eb35fffcb698bc03427ec79bd3983b78276ec4edde5410ad14d9a0530c046"
-    ],
-    [
-        [
-            "file",
             "../out/sdk/wasp/entities/index.ts"
         ],
         "c59b97b122b977b5171686c92ee5ff2d80d397c2e83cc0915affb6ee136406fb"
@@ -214,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "ab014558130a62fb7646b322b258e44c7e48fc6d46cf0fd8757ce3a447da935f"
+        "6691a48b86fa7e4133f01e647534c32c378755b9c4f266853fdcdc61907e711c"
     ],
     [
         [
