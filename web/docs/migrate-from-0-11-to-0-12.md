@@ -418,14 +418,14 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
     // highlight-next-line
     export const fields = defineUserSignupFields({
       address: async (data) => {
-        const address = data.address
+        const address = data.address;
         if (typeof address !== 'string') {
-          throw new Error('Address is required')
+          throw new Error('Address is required');
         }
         if (address.length < 5) {
-          throw new Error('Address must be at least 5 characters long')
+          throw new Error('Address must be at least 5 characters long');
         }
-        return address
+        return address;
       },
     })
     ```
@@ -504,10 +504,9 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
     // highlight-start
     export const fields = defineUserSignupFields({
       displayName: async (data) => {
-        if (!data.profile || !data.profile.displayName) {
-          throw new Error('Display name is not available')
-        }
-        return data.profile.displayName
+        const profile: any = data.profile;
+        if (!profile?.displayName) { throw new Error('Display name is not available'); }
+        return profile.displayName;
       },
     })
     // highlight-end
