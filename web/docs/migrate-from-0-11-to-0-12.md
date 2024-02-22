@@ -562,7 +562,11 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 1. **Verify that the basic auth functionality works** by running `wasp start` and successfully signing up / logging in with each of the auth methods.
 1. **Update your JS/TS code** to work correctly with the new auth.
 
-  You should use the new auth helper functions to get the `email` or `username` from a user object. For example, `user.username` won't work anymore, now you need to do `getUsername(user)`. Read more about the helpers in the [Auth Entities - Accessing the Auth Fields](auth/entities#accessing-the-auth-fields) section. The helpers you are most likely to use are the `getEmail` and `getUsername` helpers.
+  You might want to use the new auth helper functions to get the `email` or `username` from a user object. For example, `user.username` might not work anymore for you, since the `username` obtained by the Username & Oassword auth method isn't stored on the `User` entity anymore (unless you are explicitly storing something into `user.username`, e.g. via `userSignupFields` for a social auth method like Github). Same goes for `email` from Email auth method. 
+  
+ Instead, you can now use `getUsername(user)` to get the username obtained from Username & Password auth method, or `getEmail(user)` to get the email obtained from Email auth method.
+ 
+ Read more about the helpers in the [Auth Entities - Accessing the Auth Fields](auth/entities#accessing-the-auth-fields) section.
 1. Finally, **check that your app now fully works as it worked before**. If all the above steps were done correctly, everything should be working now.
 
     :::info Migrating a deployed app
