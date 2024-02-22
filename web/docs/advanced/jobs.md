@@ -264,7 +264,7 @@ The Job declaration has the following fields:
 
 - `perform: dict` <Required />
 
-  - `fn: ServerImport` <Required />
+  - `fn: ExtImport` <Required />
 
     - An `async` function that performs the work. Since Wasp executes Jobs on the server, the import path must lead to a NodeJS file.
     - It receives the following arguments:
