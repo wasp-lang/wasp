@@ -577,13 +577,13 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
     We will perform the production migration in 2 steps:
     - Deploying the new code to production (client and server).
-    - Migrating the production database.
+    - Migrating the production database data.
 
     ---
 
-    Between these two steps, so after deploying the new code to production and before migrating the production database, your app will not be working completely: new users will be able to sign up, but existing users won't be able to log in, and already logged in users will be logged out. Once you do the second step, migrating the production database, it will all be back to normal.
+    Between these two steps, so after successfully deploying the new code to production and before migrating the production database data, your app will not be working completely: new users will be able to sign up, but existing users won't be able to log in, and already logged in users will be logged out. Once you do the second step, migrating the production database data, it will all be back to normal.
 
-    You will likely want to keep the time between the two steps as short as you can. Make sure you know exactly what each step involves before doing them for real to eliminate any surprises. Especially the second step, which is a bit more complex.
+    You will likely want to keep the time between the two steps as short as you can (but not so short that you start doing step two before step one has finished). Make sure you know exactly what each step involves before doing them for real to eliminate any surprises. Especially the second step, which is a bit more complex.
 
     ---
 
