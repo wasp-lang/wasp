@@ -105,7 +105,7 @@ This might seem redundant, but it makes our examples future-proof and helps reas
 
 ### Grammar
 
-- **Don't use emojis (except in discussions).** Emojis are cute and friendly, but they can be a distraction in documentation. Some emojis even convey different meanings in different cultures. They also make the documentation seem unprofessional and of lower quality.
+- **Use emojis sparingly (except in discussions).** Emojis are cute and friendly, but they can be a distraction in documentation. Some emojis even convey different meanings in different cultures. They also make the documentation seem unprofessional and of lower quality. That said, it can be ok to use them sparingly in certain situations, e.g. to visually emphasize a point in the text.
 - **Don't use memes and funny pictures.** Everything said about emojis applies to memes as well. It's hard to focus on the text and take it seriously when it contains jokes and memes.
 - **Avoid passive voice.** Instead of "The Wasp app can be deployed...", write "You can deploy the Wasp app..."
 - **Avoid abbreviations** in writing and code examples (e.g., `attribute` is better than `attr`, `message` is better than `msg`), unless you want to specifically reference an abbreviation in the API (e.g., the `auth` declaration). Abbreviation symbols included on standard keyboards (e.g., `@`, `#`, `&`) are OK.
