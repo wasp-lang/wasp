@@ -332,7 +332,7 @@ Once we confirm everything works well locally, we will apply the same changes to
 
 You can follow these steps to migrate to the new auth system (assuming you already migrated the project structure to 0.12, as described [above](#migrating-your-project-to-the-new-structure)):
 
-1. If you used `getUserFieldsFn` and/or `additionalSignupFields`, you will need to migrate them to the new `userSignupFields` function.
+1. If you used `getUserFieldsFn` and/or `additionalSignupFields`, you will need to migrate them to the new `userSignupFields` field.
 
   In Wasp 0.11.X, you could define a `getUserFieldsFn` to specify extra fields that would get saved to the `User` when using Google or GitHub to sign up.
     
@@ -347,7 +347,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
       
     `{method}` depends on the auth method you are using. For example, if you are using the email auth method, you should move the `auth.signup.additionalFields` to `auth.methods.email.userSignupFields`.
     
-    Then, update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` instead of `defineAdditionalSignupFields` from `@wasp/auth/index.js` (this should have been automatically done by the migration script).
+    To finish, update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` instead of `defineAdditionalSignupFields` from `@wasp/auth/index.js` (this should have been automatically done by the migration script).
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -438,11 +438,11 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
   <details>
   <summary>Migration for <GithubPill /> and <GooglePill /></summary>
 
-    Move the value of `auth.methods.{method}.getUserFieldsFn` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
+    First, move the value of `auth.methods.{method}.getUserFieldsFn` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
       
     `{method}` depends on the auth method you are using. For example, if you are using Google auth, you should move the `auth.methods.google.getUserFieldsFn` to `auth.methods.google.userSignupFields`.
 
-    Update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` and modify the code.
+    To finish, update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` and modify the code to return the fields in the format that `defineUserSignupFields` expects.
 
     <Tabs>
     <TabItem value="before" label="Before">
