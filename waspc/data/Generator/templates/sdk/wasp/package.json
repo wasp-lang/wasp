@@ -110,9 +110,7 @@
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js",
       "./client": "./dist/client/index.js",
-      "./dev": "./dist/dev/index.js",
-      {=! tsconfig.json doesn't get copied to the ./dist folder, so we are exporting the source file =}
-      "./dev/tsconfig.json": "./dev/tsconfig.json"
+      "./dev": "./dist/dev/index.js"
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those
