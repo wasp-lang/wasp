@@ -332,11 +332,13 @@ Once we confirm everything works well locally, we will apply the same changes to
 
 You can follow these steps to migrate to the new auth system (assuming you already migrated the project structure to 0.12, as described [above](#migrating-your-project-to-the-new-structure)):
 
-1. If you used `getUserFieldsFn` and/or `additionalSignupFields`, you will need to migrate them to the new `userSignupFields` field.
+1. **Migrate `getUserFields` and/or `additionalSignupFields` in the `main.wasp` file to the new `userSignupFields` field.** 
+
+  If you are not using them, you can skip this step.
 
   In Wasp 0.11.X, you could define a `getUserFieldsFn` to specify extra fields that would get saved to the `User` when using Google or GitHub to sign up.
     
-  You could also define `additionalSignupFields` to specify extra fields for the Email or Username & Password signup process.
+  You could also define `additionalSignupFields` to specify extra fields for the Email or Username & Password signup  .
 
   In 0.12.X, we unified these two concepts into the `userSignupFields` field.
 
@@ -347,7 +349,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
       
     `{method}` depends on the auth method you are using. For example, if you are using the email auth method, you should move the `auth.signup.additionalFields` to `auth.methods.email.userSignupFields`.
     
-    To finish, update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` instead of `defineAdditionalSignupFields` from `@wasp/auth/index.js` (this should have been automatically done by the migration script).
+    To finish, update the JS/TS implementation to use the `defineUserSignupFields` from `wasp/server/auth` instead of `defineAdditionalSignupFields` from `@wasp/auth/index.js`.
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -442,7 +444,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
       
     `{method}` depends on the auth method you are using. For example, if you are using Google auth, you should move the `auth.methods.google.getUserFieldsFn` to `auth.methods.google.userSignupFields`.
 
-    To finish, update the implementation to use the `defineUserSignupFields` from `wasp/server/auth` and modify the code to return the fields in the format that `defineUserSignupFields` expects.
+    To finish, update the JS/TS implementation to use the `defineUserSignupFields` from `wasp/server/auth` and modify the code to return the fields in the format that `defineUserSignupFields` expects.
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -531,7 +533,7 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
       Below we prepared [examples of migration functions](#example-data-migration-functions) for each of the auth methods, for you to use as a starting point.
       They should be fine to use as-is, meaning you can just copy them and they are likely to work out of the box for typical use cases, but you can also modify them to your needs.
 
-      You will want to have one function per each auth method that you use in your app.
+      We recommend you create one function per each auth method that you use in your app.
 
    1. **Register the data migration function(s)** you just implemented above via the `db.seeds` config in `main.wasp` file:
       ```wasp title="main.wasp"
