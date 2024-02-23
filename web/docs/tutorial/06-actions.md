@@ -369,7 +369,7 @@ import {
   updateTask,
   createTask,
   getTasks,
-  useQuery
+  useQuery,
 } from 'wasp/client/operations'
 
 // ... MainPage ...
@@ -416,7 +416,7 @@ import {
   updateTask,
   createTask,
   getTasks,
-  useQuery
+  useQuery,
 } from 'wasp/client/operations'
 
 

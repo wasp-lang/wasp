@@ -7,7 +7,7 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 
 We want to know which tasks we need to do, so let's list them!
 
-The primary way of working with Entities in Wasp is with [Queries and Actions](../data-model/operations/overview), collectively known as **_operations_**.
+The primary way of working with Entities in Wasp is with [Queries and Actions](../data-model/operations/overview), collectively known as **_Operations_**.
 
 Queries are used to read an entity, while Actions are used to create, modify, and delete entities. Since we want to list the tasks, we'll want to use a Query.
 
