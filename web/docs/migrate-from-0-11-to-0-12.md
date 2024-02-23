@@ -512,7 +512,9 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
     // highlight-end
     ```
 
-    Read more about the `userSignupFields` function [here](/auth/overview.md#1-defining-extra-fields).
+    If you want to properly type the `profile` object, we recommend you use a validation library like Zod to define the shape of the `profile` object.
+    
+    Read more about this and the `defineUserSignupFields` function in the [Auth Overview - Defining Extra Fields](./auth/overview.md#1-defining-extra-fields) section.
 
     </TabItem>
     </Tabs>
