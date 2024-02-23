@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { LoginForm } from '@wasp/auth/forms/Login'
+import { LoginForm } from 'wasp/client/auth'
 
-const LoginPage = () => {
+export const LoginPage = () => {
   return (
-    <div style={{maxWidth: "400px", margin: "0 auto"}}>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <LoginForm />
       <br />
       <span>
@@ -12,5 +12,3 @@ const LoginPage = () => {
     </div>
   )
 }
-
-export default LoginPage

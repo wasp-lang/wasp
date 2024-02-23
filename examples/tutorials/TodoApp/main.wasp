@@ -1,8 +1,8 @@
 app TodoApp {
   wasp: {
-    version: "^0.11.6" // Pins the version of Wasp to use.
+    version: "^0.12.0" // Pins the version of Wasp to use.
   },
-  title: "Todo app", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+  title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
   auth: {
     // Tells Wasp which entity to use for storing users.
     userEntity: User,
@@ -10,28 +10,28 @@ app TodoApp {
       // Enable username and password auth.
       usernameAndPassword: {}
     },
-    // We'll see how this is used a bit later.
+    // We'll see how this is used in a bit.
     onAuthFailedRedirectTo: "/login"
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  // We specify that the React implementation of the page is the default export
-  // of `src/client/MainPage.jsx`. This statement uses standard JS import syntax.
-  // Use `@client` to reference files inside the `src/client` folder.
   authRequired: true,
-  component: import Main from "@client/MainPage.jsx"
+  // We specify that the React implementation of the page is exported from
+  // `src/MainPage.tsx`. This statement uses standard JS import syntax.
+  // Use `@src` to reference files inside the `src` folder.
+  component: import { MainPage } from "@src/MainPage"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import Signup from "@client/SignupPage.jsx"
+  component: import { SignupPage } from "@src/SignupPage"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/LoginPage.jsx"
+  component: import { LoginPage } from "@src/LoginPage"
 }
 
 entity User {=psl
@@ -49,19 +49,20 @@ psl=}
 
 query getTasks {
   // Specifies where the implementation for the query function is.
-  // Use `@server` to import files inside the `src/server` folder.
-  fn: import { getTasks } from "@server/queries.js",
-  // Tell Wasp that this query reads from the `Task` entity. By doing this, Wasp
-  // will automatically update the results of this query when tasks are modified.
+  // The path `@src/queries` resolves to `src/queries.js`.
+  // No need to specify an extension.
+  fn: import { getTasks } from "@src/queries",
+  // Tell Wasp that this query reads from the `Task` entity. Wasp will
+  // automatically update the results of this query when tasks are modified.
   entities: [Task]
 }
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js",
+  fn: import { createTask } from "@src/actions",
   entities: [Task]
 }
 
 action updateTask {
-  fn: import { updateTask } from "@server/actions.js",
+  fn: import { updateTask } from "@src/actions",
   entities: [Task]
 }
