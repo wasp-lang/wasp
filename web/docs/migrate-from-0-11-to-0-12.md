@@ -361,6 +361,18 @@ module.exports = {
 </TabItem>
 </Tabs>
 
+### Migrating Your Custom Dockerfile
+
+:::note
+If you didn't customize your Dockerfile, you can skip this section.
+:::
+
+Between Wasp 0.11.X and 0.12.X, the Dockerfile that Wasp generates for you has changed. If you defined a custom Dockerfile in your project root dir, you'll need to update it to incorporate the changes that Wasp 0.12.X made.
+
+We suggest that you temporarily move your custom Dockerfile to a different location, then run `wasp start` to generate the new Dockerfile.
+
+Check out the `.wasp/out/Dockerfile` to see the new Dockerfile and what changes you need to make. You'll probably need to copy some of the changes from the new Dockerfile to your custom one to make your app work with Wasp 0.12.X.
+
 ### Migrating to the New Auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
 This section leads you through migrating your app from Wasp 0.11.X to Wasp 0.12.X.
