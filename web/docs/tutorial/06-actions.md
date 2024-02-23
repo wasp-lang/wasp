@@ -135,7 +135,7 @@ const NewTaskForm = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/client/MainPage.tsx"
+```tsx title="src/MainPage.tsx"
 // highlight-next-line
 import { FormEvent } from 'react'
 import { Task } from 'wasp/entities'
