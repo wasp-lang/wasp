@@ -96,7 +96,7 @@ If you set it to `true`, only authenticated users can access the page. Unauthent
 
 ```wasp title="main.wasp"
 page MainPage {
-  component: import Main from "@src/pages/Main.jsx",
+  component: import Main from "@src/pages/Main",
   authRequired: true
 }
 ```
@@ -106,7 +106,7 @@ page MainPage {
 
 ```wasp title="main.wasp"
 page MainPage {
-  component: import Main from "@src/pages/Main.tsx",
+  component: import Main from "@src/pages/Main",
   authRequired: true
 }
 ```
@@ -197,7 +197,7 @@ If the page's declaration sets `authRequired` to `true`, the page's React compon
 // ...
 
 page AccountPage {
-  component: import Account from "@src/pages/Account.jsx",
+  component: import Account from "@src/pages/Account",
   authRequired: true
 }
 ```
@@ -225,7 +225,7 @@ export default AccountPage
 // ...
 
 page AccountPage {
-  component: import Account from "@src/pages/Account.tsx",
+  component: import Account from "@src/pages/Account",
   authRequired: true
 }
 ```
@@ -411,10 +411,10 @@ action updatePassword {
 
 ```js title="src/auth.js"
 import {
-    createProviderId,
-    findAuthIdentity,
-    updateAuthIdentityProviderData,
-    deserializeAndSanitizeProviderData,
+  createProviderId,
+  findAuthIdentity,
+  updateAuthIdentityProviderData,
+  deserializeAndSanitizeProviderData,
 } from 'wasp/server/auth';
 
 export const updatePassword = async (args, context) => {
@@ -438,10 +438,10 @@ export const updatePassword = async (args, context) => {
 
 ```ts title="src/auth.ts"
 import {
-    createProviderId,
-    findAuthIdentity,
-    updateAuthIdentityProviderData,
-    deserializeAndSanitizeProviderData,
+  createProviderId,
+  findAuthIdentity,
+  updateAuthIdentityProviderData,
+  deserializeAndSanitizeProviderData,
 } from 'wasp/server/auth';
 import { type UpdatePassword } from 'wasp/server/operations'
 
@@ -574,7 +574,7 @@ app crudTesting {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@src/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/signup",
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -976,7 +976,7 @@ app crudTesting {
     methods: {
       usernameAndPassword: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/signup",
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -1014,7 +1014,7 @@ app crudTesting {
     methods: {
       usernameAndPassword: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/signup.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/signup",
       },
     },
     onAuthFailedRedirectTo: "/login",
