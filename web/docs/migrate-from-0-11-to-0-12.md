@@ -418,14 +418,14 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
     // highlight-next-line
     export const fields = defineUserSignupFields({
       address: async (data) => {
-        const address = data.address
+        const address = data.address;
         if (typeof address !== 'string') {
-          throw new Error('Address is required')
+          throw new Error('Address is required');
         }
         if (address.length < 5) {
-          throw new Error('Address must be at least 5 characters long')
+          throw new Error('Address must be at least 5 characters long');
         }
-        return address
+        return address;
       },
     })
     ```
@@ -504,16 +504,17 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
     // highlight-start
     export const fields = defineUserSignupFields({
       displayName: async (data) => {
-        if (!data.profile || !data.profile.displayName) {
-          throw new Error('Display name is not available')
-        }
-        return data.profile.displayName
+        const profile: any = data.profile;
+        if (!profile?.displayName) { throw new Error('Display name is not available'); }
+        return profile.displayName;
       },
     })
     // highlight-end
     ```
 
-    Read more about the `userSignupFields` function [here](/auth/overview.md#1-defining-extra-fields).
+    If you want to properly type the `profile` object, we recommend you use a validation library like Zod to define the shape of the `profile` object.
+    
+    Read more about this and the `defineUserSignupFields` function in the [Auth Overview - Defining Extra Fields](./auth/overview.md#1-defining-extra-fields) section.
 
     </TabItem>
     </Tabs>
@@ -728,12 +729,7 @@ import { useState } from "react";
 export function MigratePasswordPage() {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const form = useForm({
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
+  const form = useForm();
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -893,8 +889,9 @@ export const migratePassword = async ({ password, username }, _context) => {
     throw new HttpError(400, "Something went wrong");
   }
 
-  const providerData =
-    deserializeAndSanitizeProviderData < "username" > authIdentity.providerData;
+  const providerData = deserializeAndSanitizeProviderData(
+    authIdentity.providerData
+  );
 
   try {
     const SP = new SecurePassword();
@@ -911,13 +908,9 @@ export const migratePassword = async ({ password, username }, _context) => {
 
     // This will hash the password using the new algorithm and update the
     // provider data in the database.
-    (await updateAuthIdentityProviderData) <
-      "username" >
-      (providerId,
-      providerData,
-      {
-        hashedPassword: password,
-      });
+    await updateAuthIdentityProviderData(providerId, providerData, {
+      hashedPassword: password,
+    });
   } catch (e) {
     throw new HttpError(400, "Something went wrong");
   }
