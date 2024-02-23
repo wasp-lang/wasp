@@ -51,7 +51,6 @@
     "./core/stitches.config": "./dist/core/stitches.config.js",
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",
-    "./dev/tsconfig.json": "./dev/tsconfig.json",
     "./entities": "./dist/entities/index.js",
     "./ext-src/*": "./dist/ext-src/*.js",
     "./operations": "./dist/operations/index.js",
