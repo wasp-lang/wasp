@@ -723,12 +723,7 @@ import { useState } from "react";
 export function MigratePasswordPage() {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const form = useForm({
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
+  const form = useForm();
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -888,8 +883,9 @@ export const migratePassword = async ({ password, username }, _context) => {
     throw new HttpError(400, "Something went wrong");
   }
 
-  const providerData =
-    deserializeAndSanitizeProviderData < "username" > authIdentity.providerData;
+  const providerData = deserializeAndSanitizeProviderData(
+    authIdentity.providerData
+  );
 
   try {
     const SP = new SecurePassword();
@@ -906,13 +902,9 @@ export const migratePassword = async ({ password, username }, _context) => {
 
     // This will hash the password using the new algorithm and update the
     // provider data in the database.
-    (await updateAuthIdentityProviderData) <
-      "username" >
-      (providerId,
-      providerData,
-      {
-        hashedPassword: password,
-      });
+    await updateAuthIdentityProviderData(providerId, providerData, {
+      hashedPassword: password,
+    });
   } catch (e) {
     throw new HttpError(400, "Something went wrong");
   }
