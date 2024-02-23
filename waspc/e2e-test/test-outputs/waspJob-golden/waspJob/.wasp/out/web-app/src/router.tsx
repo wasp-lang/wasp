@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
 
 
-import { MainPage } from '../../../../src/MainPage.jsx'
+import { MainPage } from '../../../../src/MainPage'
 
 
 import { routes } from 'wasp/client/router'
