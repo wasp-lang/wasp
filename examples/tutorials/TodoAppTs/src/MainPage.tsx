@@ -9,7 +9,7 @@ import {
 import { AuthUser } from 'wasp/auth'
 import { logout } from 'wasp/client/auth'
 
-const MainPage = () => {
+export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
 
   return (
