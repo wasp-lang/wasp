@@ -6,7 +6,6 @@ import {
   getTasks,
   useQuery,
 } from 'wasp/client/operations'
-import { AuthUser } from 'wasp/auth'
 import { logout } from 'wasp/client/auth'
 
 export const MainPage = () => {
