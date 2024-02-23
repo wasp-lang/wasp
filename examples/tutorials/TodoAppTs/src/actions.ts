@@ -1,6 +1,6 @@
-import { Task } from '@wasp/entities'
-import { CreateTask, UpdateTask } from '@wasp/actions/types'
-import HttpError from '@wasp/core/HttpError.js'
+import { Task } from 'wasp/entities'
+import { HttpError } from 'wasp/server'
+import { CreateTask, UpdateTask } from 'wasp/server/operations'
 
 type CreateTaskPayload = Pick<Task, 'description'>
 

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { SignupForm } from 'wasp/client/auth'
 
-const SignupPage = () => {
+export const SignupPage = () => {
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <SignupForm />
@@ -12,5 +12,3 @@ const SignupPage = () => {
     </div>
   )
 }
-
-export default SignupPage

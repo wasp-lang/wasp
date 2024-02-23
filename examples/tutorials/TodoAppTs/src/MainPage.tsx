@@ -1,10 +1,13 @@
 import { FormEvent, ChangeEvent } from 'react'
-import getTasks from '@wasp/queries/getTasks'
-import createTask from '@wasp/actions/createTask'
-import updateTask from '@wasp/actions/updateTask'
-import { useQuery } from '@wasp/queries'
-import { Task } from '@wasp/entities'
-import logout from '@wasp/auth/logout'
+import { Task } from 'wasp/entities'
+import {
+  updateTask,
+  createTask,
+  getTasks,
+  useQuery,
+} from 'wasp/client/operations'
+import { AuthUser } from 'wasp/auth'
+import { logout } from 'wasp/client/auth'
 
 const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -12,7 +15,6 @@ const MainPage = () => {
   return (
     <div>
       <NewTaskForm />
-
       {tasks && <TasksList tasks={tasks} />}
 
       {isLoading && 'Loading...'}
@@ -22,7 +24,7 @@ const MainPage = () => {
   )
 }
 
-const Task = ({ task }: { task: Task }) => {
+const TaskView = ({ task }: { task: Task }) => {
   const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
     try {
       await updateTask({
@@ -53,7 +55,7 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   return (
     <div>
       {tasks.map((task, idx) => (
-        <Task task={task} key={idx} />
+        <TaskView task={task} key={idx} />
       ))}
     </div>
   )
@@ -79,5 +81,3 @@ const NewTaskForm = () => {
     </form>
   )
 }
-
-export default MainPage
