@@ -310,6 +310,56 @@ directory `foo`, you should:
 That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
 Your app probably doesn't quite work yet due to some other changes in Wasp 0.12.0, but we'll get to that in the next sections.
 
+### Migrating the Tailwind Setup
+
+:::note
+If you don't use Tailwind in your projet, you can skip this section.
+:::
+
+There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0. 
+
+You'll need to wrap all your paths in the `content` field with the `resolveProjectPath` function. This makes sure that the paths are resolved correctly when generating your CSS.
+
+Here's how you can do it:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```js title="tailwind.config.cjs"
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    // highlight-next-line
+    './src/**/*.{js,jsx,ts,tsx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+</TabItem>
+
+<TabItem value="after" label="After">
+
+```js title="tailwind.config.cjs"
+// highlight-next-line
+const { resolveProjectPath } = require('wasp/dev')
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    // highlight-next-line
+    resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+</TabItem>
+</Tabs>
 
 ### Migrating to the New Auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
@@ -624,57 +674,6 @@ Your app should be working correctly and using new auth, but to finish the migra
   Your app is now fully migrated to the new auth system.
 
 :::
-
-### Migrating the Tailwind Setup
-
-:::note
-If you don't use Tailwind in your projet, you can skip this section.
-:::
-
-There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0. 
-
-You'll need to wrap all your paths in the `content` field with the `resolveProjectPath` function. This makes sure that the paths are resolved correctly when generating your CSS.
-
-Here's how you can do it:
-
-<Tabs>
-<TabItem value="before" label="Before">
-
-```js title="tailwind.config.cjs"
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    // highlight-next-line
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
-</TabItem>
-
-<TabItem value="after" label="After">
-
-```js title="tailwind.config.cjs"
-// highlight-next-line
-const { resolveProjectPath } = require('wasp/dev')
-
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    // highlight-next-line
-    resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
-</TabItem>
-</Tabs>
 
 ### Next Steps
 
