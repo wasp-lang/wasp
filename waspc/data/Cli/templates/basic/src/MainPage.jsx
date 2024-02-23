@@ -1,7 +1,7 @@
 import waspLogo from './waspLogo.png'
 import './Main.css'
 
-export function MainPage() {
+export const MainPage = () => {
   return (
     <div className="container">
       <main>
