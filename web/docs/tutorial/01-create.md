@@ -40,7 +40,7 @@ $ wasp start
 `wasp start` will take a bit of time to start the server the first time you run it in a new project.
 :::
 
-You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder plage:
+You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
 
 <img alt="Screenshot of new Wasp app"
 src={useBaseUrl('img/wasp-new-screenshot.png')}

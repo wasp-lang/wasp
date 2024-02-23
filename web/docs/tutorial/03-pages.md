@@ -69,7 +69,7 @@ export const MainPage = () => {
 </TabItem>
 </Tabs>
 
-Since Wasp uses React for the frontend, this is a normal functional React component. It also uses the CSS and logo image that sit next to it in the `src` folder.
+This is a regular functional React component. It also uses the CSS file and a logo image that sit next to it in the `src` folder.
 
 That is all the code you need! Wasp takes care of everything else necessary to define, build, and run the web app.
 
@@ -178,7 +178,7 @@ style={{ border: "1px solid black" }}
 />
 
 
-You can now delete redundant files: `src/Main.css`, `src/waspLogo.png`, and `src/HelloPage.{jsx,tsx}` (we won't be needing it).
+You can now delete redundant files: `src/Main.css`, `src/waspLogo.png`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its `route` and `page` declarations from the `main.wasp` file.
 

@@ -24,7 +24,7 @@ Wasp uses [Prisma](https://www.prisma.io) as a way to talk to the database. You 
 Read more in the [Entities](../data-model/entities) section of the docs.
 :::
 
-To update the database schema to include this entity, stop the `wasp start` process, if its running, and run:
+To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:
 
 ```sh
 wasp db migrate-dev

@@ -179,7 +179,7 @@ Unlike Queries, you can call Actions directly (i.e., without wrapping it with a 
 
 <ShowForTs>
 
-Finally, because we've previously annotated the Action's backend implementation with the correct type, Wasp knows that the `createTask` Action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` Action returns a `Task` but are not using it in this example.
+Finally, because we've previously annotated the Action's server implementation with the correct type, Wasp knows that the `createTask` Action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` Action returns a `Task` but are not using it in this example.
 
 </ShowForTs>
 
@@ -265,7 +265,7 @@ style={{ border: "1px solid black" }}
 <br />
 
 :::note Automatic Query Invalidation
-When you create a new task, the list of tasks is automatically updated to display the new task, even though we have not written any code that would do that! Wasp handles these automatic updates under the hood .
+When you create a new task, the list of tasks is automatically updated to display the new task, even though we have not written any code that would do that! Wasp handles these automatic updates under the hood.
 
 When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed and automatically updates it in the background. This means that **out of the box, Wasp keeps all your queries in sync with any changes made through Actions**.
 
@@ -274,11 +274,11 @@ This behavior is convenient as a default but can cause poor performance in large
 
 ## A Second Action
 
-Our Todo app isn't finished if you can't mark a task as done!
+Our Todo app isn't finished if you can't mark a task as done.
 
 We'll create a new Action to update a task's status and call it from React whenever a task's checkbox is toggled.
 
-Since we've already created one task together, try to create this one yourself. It should be an Action named `updateTask` receives the task's `id` and its `isDone` status. You can see our implementation below.
+Since we've already created one task together, try to create this one yourself. It should be an Action named `updateTask` that receives the task's `id` and its `isDone` status. You can see our implementation below.
 
 <Collapse title="Solution">
 

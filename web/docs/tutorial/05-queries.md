@@ -99,10 +99,10 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 }
 ```
 
-Wasp automatically generates the types `GetTasks` and `Task` based the contents of `main.wasp`:
+Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
 
 - `Task` is a type corresponding to the `Task` entity we've defined in `main.wasp`.
-- `GetTasks` is a generic type Wasp automatically generated based the `getTasks` Query we've defined in `main.wasp`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query we've defined in `main.wasp`.
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
@@ -127,7 +127,7 @@ Queries and Actions are NodeJS functions executed on the server.
 
 ## Invoking the Query On the Frontend
 
-While we implement Queries on the server, Wasp generates client-side functions that automatically takes care of serialization, network calls, and chache invalidation, allowing you to call the server code like it's a regular function.
+While we implement Queries on the server, Wasp generates client-side functions that automatically take care of serialization, network calls, and cache invalidation, allowing you to call the server code like it's a regular function.
 
 This makes it easy for us to use the `getTasks` Query we just created in our React component:
 
