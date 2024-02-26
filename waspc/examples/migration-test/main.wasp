@@ -1,6 +1,6 @@
 app crudTesting {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
   head: [
     "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"
@@ -9,16 +9,12 @@ app crudTesting {
   auth: {
     userEntity: User,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {
+        userSignupFields: import { fields } from "@src/server/auth.js",
+      },
     },
     onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth.js",
-    },
   },
-  dependencies: [
-    ("zod", "^3.22.2")
-  ],
   db: {
     system: PostgreSQL
   }
@@ -26,18 +22,23 @@ app crudTesting {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.tsx",
+  component: import Main from "@src/client/MainPage.tsx",
   authRequired: true,
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage.tsx",
+  component: import { LoginPage } from "@src/client/LoginPage.tsx",
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.tsx",
+  component: import { SignupPage } from "@src/client/SignupPage.tsx",
+}
+
+route MigratePasswordRoute { path: "/migrate-password", to: MigratePassword }
+page MigratePassword {
+  component: import { MigratePasswordPage } from "@src/client/MigratePassword.tsx"
 }
 
 entity User {=psl
@@ -46,3 +47,14 @@ entity User {=psl
   password String
   address String?
 psl=}
+
+api migrateUsernameAndPassword {
+  httpRoute: (GET, "/migrate-username-and-password"),
+  fn: import { migrateUsernameAndPasswordHandler } from "@src/server/migrateToNewAuth",
+  entities: []
+}
+
+action migratePassword {
+  fn: import { migratePassword } from "@src/server/auth",
+  entities: []
+}

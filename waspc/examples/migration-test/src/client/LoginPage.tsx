@@ -1,5 +1,5 @@
-import { LoginForm } from "@wasp/auth/forms/Login";
-import { Link } from "@wasp/router";
+import { Link } from "wasp/client/router";
+import { LoginForm } from "wasp/client/auth";
 
 export const LoginPage = () => {
   return (

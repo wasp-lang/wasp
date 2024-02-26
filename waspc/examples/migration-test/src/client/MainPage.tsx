@@ -1,9 +1,9 @@
+import { type User } from "wasp/entities";
+
+import { logout } from "wasp/client/auth";
 import "./Main.css";
 
 import React from "react";
-import logout from "@wasp/auth/logout";
-
-import { User } from "@wasp/entities";
 
 const MainPage = ({ user }: { user: User }) => {
   return (
