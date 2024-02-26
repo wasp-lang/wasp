@@ -367,7 +367,7 @@ module.exports = {
 </TabItem>
 </Tabs>
 
-### Default Server Dockerfile Changed
+### Migrating a custom Dockerfile 
 :::note
 If you didn't customize your Dockerfile or had a custom build process for the Wasp server, you can skip this section.
 :::
@@ -376,6 +376,63 @@ Between Wasp 0.11.X and 0.12.X, the Dockerfile that Wasp generates for you for d
 
 We suggest that you temporarily move your custom Dockerfile to a different location, then run `wasp start` to generate the new Dockerfile.
 Check out the `.wasp/out/Dockerfile` to see the new Dockerfile and what changes you need to make. You'll probably need to copy some of the changes from the new Dockerfile to your custom one to make your app work with Wasp 0.12.X.
+
+### Migrating declaration names
+
+Wasp 0.12.0 adds a casing constraints when naming Queries, Actions, Jobs, and Entities.
+
+The following casing conventions have now become mandatory:
+- Operation (i.e., Query and Action) names must begin with a lowercase letter.
+- Job names must begin with a lowercase letter.
+- Entity names must start with an uppercase letter.
+
+Wasp will throw an error when and tell you what to fix.
+
+<details>
+<summary>See an example</summary>
+
+An example of correct names:
+
+```wasp
+entity Foo {=psl
+  // ...
+psl=}
+
+query getFoo {
+  // ...
+}
+
+action updateFoo {
+  // ...
+}
+
+job printFoos {
+  // ...
+}
+```
+
+An example of incorrect names:
+
+```wasp
+entity foo {=psl
+  // ...
+psl=}
+
+query GetFoo {
+  // ...
+}
+
+action UpdateFoo {
+  // ...
+}
+
+job PrintFoos {
+  // ...
+}
+```
+
+</details>
+
 
 ### Migrating to the New Auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
