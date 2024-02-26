@@ -665,13 +665,14 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
 Your app should be working correctly and using new auth, but to finish the migration, we need to clean up the old auth system:
 
-1. In `main.wasp` file, delete auth-related fields from the `User` entity.
+1. In `main.wasp` file, **delete auth-related fields from the `User` entity**, since with 0.12 they got moved to internal Wasp entity `AuthIdentity`.
 
     - This means any fields that were required by Wasp for authentication, like `email`, `password`, `isEmailVerified`, `emailVerificationSentAt`, `passwordResetSentAt`, `username`, etc.
+    - There are situations in which you might want to keep some of them, e.g. `email` and/or `username`, if they are still relevant for you due to your custom logic (e.g. you are populating them with `userSignupFields` upon social signup in order to have this info easily available on the `User` entity). Note that they wan't be used by Wasp Auth anymore, they are here just for your business logic.
 
-1. In `main.wasp` file, remove the `externalAuthEntity` field from the `app.auth` and also remove the whole `SocialLogin` entity if you used Google or GitHub auth.
-1. Run `wasp db migrate-dev` again to remove the redundant fields from the database.
-1. You can now delete the data migration function(s) you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding entries in the `app.db.seeds` field in `main.wasp` file.
+1. In `main.wasp` file, **remove the `externalAuthEntity` field from the `app.auth`** and also **remove the whole `SocialLogin` entity** if you used Google or GitHub auth.
+1. **Delete the data migration function(s)** you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding entries in the `app.db.seeds` field in `main.wasp` file.
+1. **Run `wasp db migrate-dev`** again to apply these changes and remove the redundant fields from the database.
 
 :::info Migrating a deployed app
 
