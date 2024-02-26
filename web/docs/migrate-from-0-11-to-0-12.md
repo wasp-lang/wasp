@@ -319,7 +319,7 @@ Your app probably doesn't quite work yet due to some other changes in Wasp 0.12.
 ### Migrating the Tailwind Setup
 
 :::note
-If you don't use Tailwind in your projet, you can skip this section.
+If you don't use Tailwind in your project, you can skip this section.
 :::
 
 There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0. 
@@ -405,7 +405,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
 
   In Wasp 0.11.X, you could define a `getUserFieldsFn` to specify extra fields that would get saved to the `User` when using Google or GitHub to sign up.
     
-  You could also define `additionalSignupFields` to specify extra fields for the Email or Username & Password signup  .
+  You could also define `additionalSignupFields` to specify extra fields for the Email or Username & Password signup.
 
   In 0.12.X, we unified these two concepts into the `userSignupFields` field.
 
@@ -588,6 +588,10 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
 
   </details>
 
+1. **Remove the `auth.methods.email.allowUnverifiedLogin` field**
+
+  In Wasp 0.12.X we removed the `auth.methods.email.allowUnverifiedLogin` field to make our Email auth implementation easier to reason about. If you were using it, you should remove it from your `main.wasp` file.
+
 1. Ensure your **local development database is running**.
 1. **Do the schema migration** (create the new auth tables in the database) by running:
    ```bash
@@ -659,10 +663,10 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
 Your app should be working correctly and using new auth, but to finish the migration, we need to clean up the old auth system:
 
-1. In `main.wasp` file, **delete auth-related fields from the `User` entity**, since with 0.12 they got moved to internal Wasp entity `AuthIdentity`.
+1. In `main.wasp` file, **delete auth-related fields from the `User` entity**, since with 0.12 they got moved to the internal Wasp entity `AuthIdentity`.
 
     - This means any fields that were required by Wasp for authentication, like `email`, `password`, `isEmailVerified`, `emailVerificationSentAt`, `passwordResetSentAt`, `username`, etc.
-    - There are situations in which you might want to keep some of them, e.g. `email` and/or `username`, if they are still relevant for you due to your custom logic (e.g. you are populating them with `userSignupFields` upon social signup in order to have this info easily available on the `User` entity). Note that they wan't be used by Wasp Auth anymore, they are here just for your business logic.
+    - There are situations in which you might want to keep some of them, e.g. `email` and/or `username`, if they are still relevant for you due to your custom logic (e.g. you are populating them with `userSignupFields` upon social signup in order to have this info easily available on the `User` entity). Note that they won't be used by Wasp Auth anymore, they are here just for your business logic.
 
 1. In `main.wasp` file, **remove the `externalAuthEntity` field from the `app.auth`** and also **remove the whole `SocialLogin` entity** if you used Google or GitHub auth.
 1. **Delete the data migration function(s)** you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding API endpoints from the `main.wasp` file.
@@ -745,7 +749,7 @@ src
 
 The migration functions provided below are written with the typical use cases in mind and you can use them as-is. If your setup requires additional logic, you can use them as a good starting point and modify them to your needs.
 
-Note that all of the functions below are written to be idempotent, meaning that running a function multiple times can't hurt. This allows executing a function again in case only a part of the previous execution succeeded, and also means that accidentally running it one time too much won't have any negative effects. **We recommend you keep your data migration functions idempotent**.
+Note that all of the functions below are written to be idempotent, meaning that running a function multiple times can't hurt. This allows executing a function again in case only a part of the previous execution succeeded and also means that accidentally running it one time too much won't have any negative effects. **We recommend you keep your data migration functions idempotent**.
 
 #### Username & Password
 
