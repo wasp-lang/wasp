@@ -1,17 +1,19 @@
-import { logout } from "wasp/client/auth";
-import { useQuery, getProjects, getStats } from "wasp/client/operations";
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Color } from "../components/Color";
 import { format } from "timeago.js";
+import ParentSize from "@visx/responsive/lib/components/ParentSize";
+import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
+
+import { logout } from "wasp/client/auth";
+import { useQuery, getProjects, getStats } from "wasp/client/operations";
+
+import { Color } from "../components/Color";
 import { StatusPill } from "../components/StatusPill";
 import { BarChart } from "../components/BarChart";
-import ParentSize from "@visx/responsive/lib/components/ParentSize";
-import { exampleIdeas } from "../examples";
 import { Header } from "../components/Header";
-import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 import { MyDropdown } from "../components/Dropdown";
 import { HomeButton } from "../components/Header";
+import { exampleIdeas } from "../examples";
 import {
   getTailwindClassNameForProjectBrandColor,
   getTailwindClassNameForProjectStatus,
