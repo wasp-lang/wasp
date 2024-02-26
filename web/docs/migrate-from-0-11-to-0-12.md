@@ -751,6 +751,8 @@ src
 
 The migration functions provided below are written with the typical use cases in mind and you can use them as-is. If your setup requires additional logic, you can use them as a good starting point and modify them to your needs.
 
+Note that all of the functions below are written to be idempotent, meaning that running it multiple times can't hurt. This allows executing a function again in case only a part of the previous execution succeeded, and also means that accidentally running it one time too much won't have any negative effects. **We recommend you keep your data migration functions idempotent**.
+
 #### Username & Password
 
 :::caution Users will need to migrate their password
@@ -1072,14 +1074,19 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
     },
   });
 
+  let numUsersAlreadyMigrated = 0;
+  let numUsersNotUsingUsernameAuth = 0;
+  let numUsersMigrated = 0;
   for (const user of users) {
     if (user.auth) {
-      console.log("User was already migrated, skipping", user);
+      console.log("Skipping user (already migrated) with id:", user.id);
+      numUsersAlreadyMigrated++;
       continue;
     }
 
     if (!user.username || !user.password) {
-      console.log("Missing username auth info, skipping user", user);
+      console.log("Skipping user (not using username auth) with id:", user.id);
+      numUsersNotUsingUsernameAuth++;
       continue;
     }
 
@@ -1104,7 +1111,13 @@ export async function migrateUsernameAuth(prismaClient: PrismaClient) {
         },
       },
     });
+    numUsersMigrated++;
   }
+
+  console.log("==========");
+  console.log("Num users already migrated (skipped):", numUsersAlreadyMigrated);
+  console.log("Num users not using username auth (skipped):", numUsersNotUsingUsernameAuth);
+  console.log("Num users migrated (username):", numUsersMigrated);
 }
 ```
 
@@ -1130,14 +1143,19 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
     },
   });
 
+  let numUsersAlreadyMigrated = 0;
+  let numUsersNotUsingEmailAuth = 0;
+  let numUsersMigrated = 0;
   for (const user of users) {
     if (user.auth) {
-      console.log("User was already migrated, skipping", user);
+      console.log("Skipping user (already migrated) with id:", user.id);
+      numUsersAlreadyMigrated++;
       continue;
     }
 
     if (!user.email || !user.password) {
-      console.log("Missing email auth info, skipping user", user);
+      console.log("Skipping user (not using email auth) with id:", user.id);
+      numUsersNotUsingEmailAuth++;
       continue;
     }
 
@@ -1166,7 +1184,13 @@ export async function migrateEmailAuth(prismaClient: PrismaClient) {
         },
       },
     });
+    numUsersMigrated++;
   }
+
+  console.log("==========");
+  console.log("Num users already migrated (skipped):", numUsersAlreadyMigrated);
+  console.log("Num users not using email auth (skipped):", numUsersNotUsingEmailAuth);
+  console.log("Num users migrated (email):", numUsersMigrated);
 }
 ```
 
@@ -1196,9 +1220,13 @@ async function createSocialLoginMigration(
     },
   });
 
+  let numUsersAlreadyMigrated = 0;
+  let numUsersNotUsingThisSocialAuth = 0;
+  let numUsersMigrated = 0;
   for (const user of users) {
     if (user.auth) {
-      console.log("User was already migrated, skipping", user);
+      console.log("Skipping user (already migrated) with id:", user.id);
+      numUsersAlreadyMigrated++;
       continue;
     }
 
@@ -1207,7 +1235,8 @@ async function createSocialLoginMigration(
     );
 
     if (!provider) {
-      console.log(`Missing ${providerName} provider, skipping user`, user);
+      console.log(`Skipping user (not using ${providerName} auth) with id:`, user.id);
+      numUsersNotUsingThisSocialAuth++;
       continue;
     }
 
@@ -1227,6 +1256,12 @@ async function createSocialLoginMigration(
         },
       },
     });
+    numUsersMigrated++;
   }
+
+  console.log("==========");
+  console.log("Num users already migrated (skipped):", numUsersAlreadyMigrated);
+  console.log(`Num users not using ${providerName} auth (skipped):`, numUsersNotUsingThisSocialAuth);
+  console.log(`Num users migrated (${providerName}):`, numUsersMigrated);
 }
 ```
