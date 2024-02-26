@@ -597,27 +597,15 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
       We recommend you create one function per each auth method that you use in your app.
 
-   1. **Register the data migration function(s)** you just implemented above via the `db.seeds` config in `main.wasp` file:
-      ```wasp title="main.wasp"
-      app myApp {
-        wasp: {
-          version: "^0.12.0"
-        },
-        // ...
-        db: {
-          seeds: [
-            import { migrateEmailAuth } from "@src/migrateToNewAuth.ts",
-            import { migrateGoogleAuth } from "@src/migrateToNewAuth.ts",
-          ]
-        },
-      }
-      ```
+   1. **Define custom API endpoints for each migration function** you implemented.
 
-   1. **Run the data migration function(s)** on the local development database by running:
-      ```bash
-      wasp db seed
-      ```
-      If you added multiple migration functions, you can pick which one to run by selecting it from the list. You will want to run all of them.
+      With each migration migration function below, we provided the relevant `api` declaration that you should add to your `main.wasp` file.
+
+   1. **Run the data migration function(s)** on the local development database by calling the API endpoints you defined in the previous step.
+
+      You can call the endpoint by visiting the URL in your browser, or by using a tool like `curl` or Postman. 
+      
+      For example, if you defined the API endpoint at `/migrate-username-and-password`, you can call it by visiting `http://localhost:3001/migrate-username-and-password` in your browser.
 
       This should be it, you can now run `wasp db studio` again and verify that there is now relevant data in the new auth tables (`Auth` and `AuthIdentity`; `Session` should still be empty for now).
 
@@ -653,9 +641,11 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
       Check our [Deployment docs](advanced/deployment/overview.md) for more details.
 
-    - **Second step:** run the migration script on the production database with `wasp db seed` command.
+    - **Second step:** run the migration scripts on the production database.
 
-      We wrote instructions on how to do it for **Fly.io** deployments here: https://github.com/wasp-lang/wasp/issues/1464 . The instructions should be similar for other deployment providers: setting up some sort of an SSH tunnel from your local machine to the production database and running your data migrations functions locally (using `wasp db seed`) with `DATABASE_URL` pointing to the production database.
+      You can do this by calling the API endpoints you defined in the previous step, just like you did locally. You can call the endpoint by visiting the URL in your browser, or by using a tool like `curl` or Postman. 
+
+      For example, if you defined the API endpoint at `/migrate-username-and-password`, you can call it by visiting `https://your-server-url.com/migrate-username-and-password` in your browser.
 
     Your deployed app should be working normally now, with the new auth system.
     :::
@@ -671,7 +661,7 @@ Your app should be working correctly and using new auth, but to finish the migra
     - There are situations in which you might want to keep some of them, e.g. `email` and/or `username`, if they are still relevant for you due to your custom logic (e.g. you are populating them with `userSignupFields` upon social signup in order to have this info easily available on the `User` entity). Note that they wan't be used by Wasp Auth anymore, they are here just for your business logic.
 
 1. In `main.wasp` file, **remove the `externalAuthEntity` field from the `app.auth`** and also **remove the whole `SocialLogin` entity** if you used Google or GitHub auth.
-1. **Delete the data migration function(s)** you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding entries in the `app.db.seeds` field in `main.wasp` file.
+1. **Delete the data migration function(s)** you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding API endpoints from the `main.wasp` file.
 1. **Run `wasp db migrate-dev`** again to apply these changes and remove the redundant fields from the database.
 
 :::info Migrating a deployed app
@@ -753,16 +743,102 @@ The migration functions provided below are written with the typical use cases in
 
 #### Username & Password
 
-:::caution Users will need to migrate their password
-There is a breaking change between the old and the new auth in the way the password is hashed. This means that users will need to migrate their password after the migration, as the old password will no longer work.
+To successfully migrate the users using the Username & Password auth method, you will need to do two things:
+1. Migrate the user data
 
-Since the only way users using username and password as a login method can verify their identity is by providing both their username and password (there is no email or any other info, unless you asked for it and stored it explicitly), we need to provide them a way to exchange their old password for a new password. One way to handle this is to inform them about the need to migrate their password (on the login page) and provide a custom page to migrate the password. 
-:::
+  <details>
+  <summary>Username & Password data migration function</summary>
+
+  ```wasp title="main.wasp"
+  api migrateUsernameAndPassword {
+    httpRoute: (GET, "/migrate-username-and-password"),
+    fn: import { migrateUsernameAndPasswordHandler } from "@src/migrateToNewAuth",
+    entities: []
+  }
+  ```
+
+  ```ts title="src/migrateToNewAuth.ts"
+  import { prisma } from "wasp/server";
+  import { type ProviderName, type UsernameProviderData } from "wasp/server/auth";
+  import { MigrateUsernameAndPassword } from "wasp/server/api";
+
+  export const migrateUsernameAndPasswordHandler: MigrateUsernameAndPassword =
+    async (_req, res) => {
+      const result = await migrateUsernameAuth();
+
+      res.status(200).json({ message: "Migrated users to the new auth", result });
+    };
+
+  async function migrateUsernameAuth(): Promise<{
+    totalUsers: number;
+    migratedUsers: number;
+    skippedUsers: number;
+  }> {
+    const result = {
+      totalUsers: 0,
+      migratedUsers: 0,
+      skippedUsers: 0,
+    };
+
+    const users = await prisma.user.findMany({
+      include: {
+        auth: true,
+      },
+    });
+    result.totalUsers = users.length;
+
+    for (const user of users) {
+      if (user.auth) {
+        result.skippedUsers++;
+        console.log("User was already migrated, skipping", user.username);
+        continue;
+      }
+
+      if (!user.username || !user.password) {
+        result.skippedUsers++;
+        console.log("Missing username auth info, skipping user", user.username);
+        continue;
+      }
+
+      const providerData: UsernameProviderData = {
+        hashedPassword: user.password,
+      };
+      const providerName: ProviderName = "username";
+
+      await prisma.auth.create({
+        data: {
+          identities: {
+            create: {
+              providerName,
+              providerUserId: user.username.toLowerCase(),
+              providerData: JSON.stringify(providerData),
+            },
+          },
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      result.migratedUsers++;
+    }
+    return result;
+  }
+  ```
+
+  </details>
+
+2. Provide a way for users to migrate their password 
+
+    There is a **breaking change between the old and the new auth in the way the password is hashed**. This means that users will need to migrate their password after the migration, as the old password will no longer work.
+
+    Since the only way users using username and password as a login method can verify their identity is by providing both their username and password (there is no email or any other info, unless you asked for it and stored it explicitly), we need to provide them a way to **exchange their old password for a new password**. One way to handle this is to inform them about the need to migrate their password (on the login page) and provide a custom page to migrate the password. 
 
 <details>
-  <summary>
-    Steps to create a custom page for migrating the password
-  </summary>
+<summary>
+  Steps to create a custom page for migrating the password
+</summary>
 
   1. You will need to install the `secure-password` and `sodium-native` packages to use the old hashing algorithm:
 
@@ -777,7 +853,14 @@ Since the only way users using username and password as a login method can verif
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```jsx title="src/pages/MigratePasswordPage.jsx"
+```wasp title="main.wasp"
+route MigratePasswordRoute { path: "/migrate-password", to: MigratePassword }
+page MigratePassword {
+  component: import { MigratePasswordPage } from "@src/pages/MigratePassword"
+}
+```
+
+```jsx title="src/pages/MigratePassword.jsx"
 import {
   FormItemGroup,
   FormLabel,
@@ -847,7 +930,14 @@ export function MigratePasswordPage() {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```tsx title="src/pages/MigratePasswordPage.tsx"
+```wasp title="main.wasp"
+route MigratePasswordRoute { path: "/migrate-password", to: MigratePassword }
+page MigratePassword {
+  component: import { MigratePasswordPage } from "@src/pages/MigratePassword"
+}
+```
+
+```tsx title="src/pages/MigratePassword.tsx"
 import {
   FormItemGroup,
   FormLabel,
@@ -1061,144 +1151,165 @@ export const migratePassword: MigratePassword<
 </details>
 
 
-```ts title="src/migrateToNewAuth.ts"
-import { PrismaClient } from "@prisma/client";
-import { type ProviderName, type UsernameProviderData } from "wasp/server/auth";
-
-export async function migrateUsernameAuth(prismaClient: PrismaClient) {
-  const users = await prismaClient.user.findMany({
-    include: {
-      auth: true,
-    },
-  });
-
-  for (const user of users) {
-    if (user.auth) {
-      console.log("User was already migrated, skipping", user);
-      continue;
-    }
-
-    if (!user.username || !user.password) {
-      console.log("Missing username auth info, skipping user", user);
-      continue;
-    }
-
-    const providerData: UsernameProviderData = {
-      hashedPassword: user.password,
-    };
-    const providerName: ProviderName = "username";
-
-    await prismaClient.auth.create({
-      data: {
-        identities: {
-          create: {
-            providerName,
-            providerUserId: user.username.toLowerCase(),
-            providerData: JSON.stringify(providerData),
-          },
-        },
-        user: {
-          connect: {
-            id: user.id,
-          },
-        },
-      },
-    });
-  }
-}
-```
-
-
 #### Email
 
-:::caution Users will need to reset their password
+To successfully migrate the users using the Email auth method, you will need to do two things:
+1. Migrate the user data
 
-There is a breaking change between the old and the new auth in the way the password is hashed. This means that users will need to reset their password after the migration, as the old password will no longer work.
+  <details>
+  <summary>Email data migration function</summary>
 
-It would be best to notify your users about this change and put a notice on your login page to **request a password reset**.
+  ```wasp title="main.wasp"
+  api migrateEmail {
+    httpRoute: (GET, "/migrate-email"),
+    fn: import { migrateEmailHandler } from "@src/migrateToNewAuth",
+    entities: []
+  }
+  ```
 
-:::
+  ```ts title="src/migrateToNewAuth.ts"
+  import { prisma } from "wasp/server";
+  import { type ProviderName, type EmailProviderData } from "wasp/server/auth";
+  import { MigrateEmail } from "wasp/server/api";
 
-```ts title="src/migrateToNewAuth.ts"
-import { PrismaClient } from "@prisma/client";
-import { EmailProviderData, ProviderName } from "wasp/server/auth";
+  export const migrateEmailHandler: MigrateEmail =
+    async (_req, res) => {
+      const result = await migrateEmailAuth();
 
-export async function migrateEmailAuth(prismaClient: PrismaClient) {
-  const users = await prismaClient.user.findMany({
-    include: {
-      auth: true,
-    },
-  });
-
-  for (const user of users) {
-    if (user.auth) {
-      console.log("User was already migrated, skipping", user);
-      continue;
-    }
-
-    if (!user.email || !user.password) {
-      console.log("Missing email auth info, skipping user", user);
-      continue;
-    }
-
-    const providerData: EmailProviderData = {
-      isEmailVerified: user.isEmailVerified,
-      emailVerificationSentAt:
-        user.emailVerificationSentAt?.toISOString() ?? null,
-      passwordResetSentAt: user.passwordResetSentAt?.toISOString() ?? null,
-      hashedPassword: user.password,
+      res.status(200).json({ message: "Migrated users to the new auth", result });
     };
-    const providerName: ProviderName = "email";
 
-    await prismaClient.auth.create({
-      data: {
-        identities: {
-          create: {
-            providerName,
-            providerUserId: user.email,
-            providerData: JSON.stringify(providerData),
-          },
-        },
-        user: {
-          connect: {
-            id: user.id,
-          },
-        },
+  async function migrateEmailAuth(): Promise<{
+    totalUsers: number;
+    migratedUsers: number;
+    skippedUsers: number;
+  }> {
+    const result = {
+      totalUsers: 0,
+      migratedUsers: 0,
+      skippedUsers: 0,
+    };
+
+    const users = await prisma.user.findMany({
+      include: {
+        auth: true,
       },
     });
-  }
-}
-```
+    result.totalUsers = users.length;
 
+    for (const user of users) {
+      if (user.auth) {
+        result.skippedUsers++;
+        console.log("User was already migrated, skipping", user.email);
+        continue;
+      }
+
+      if (!user.email || !user.password) {
+        result.skippedUsers++;
+        console.log("Missing email auth info, skipping user", user.email);
+        continue;
+      }
+
+      const providerData: EmailProviderData = {
+        isEmailVerified: user.isEmailVerified,
+        emailVerificationSentAt:
+          user.emailVerificationSentAt?.toISOString() ?? null,
+        passwordResetSentAt: user.passwordResetSentAt?.toISOString() ?? null,
+        hashedPassword: user.password,
+      };
+      const providerName: ProviderName = "email";
+
+      await prisma.auth.create({
+        data: {
+          identities: {
+            create: {
+              providerName,
+              providerUserId: user.email,
+              providerData: JSON.stringify(providerData),
+            },
+          },
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      result.migratedUsers++;
+    }
+    return result;
+  }
+  ```
+
+  </details>
+
+2. Ask the users to reset their password
+
+  There is a **breaking change between the old and the new auth in the way the password is hashed**. This means that users will need to reset their password after the migration, as the old password will no longer work.
+
+  It would be best to notify your users about this change and put a notice on your login page to **request a password reset**.
 
 #### Google & GitHub
 
+<details>
+<summary>Google & GitHub data migration functions</summary>
+
+```wasp title="main.wasp"
+api migrateGoogle {
+  httpRoute: (GET, "/migrate-google"),
+  fn: import { migrateGoogleHandler } from "@src/migrateToNewAuth",
+  entities: []
+}
+
+api migrateGithub {
+  httpRoute: (GET, "/migrate-github"),
+  fn: import { migrateGithubHandler } from "@src/migrateToNewAuth",
+  entities: []
+}
+```
+
 ```ts title="src/migrateToNewAuth.ts"
-import { PrismaClient } from "@prisma/client";
-import { ProviderName } from "wasp/server/auth";
+import { prisma } from "wasp/server";
+import { MigrateGoogle, MigrateGithub } from "wasp/server/api";
 
-export async function migrateGoogleAuth(prismaClient: PrismaClient) {
-  return createSocialLoginMigration(prismaClient, "google");
-}
+export const migrateGoogleHandler: MigrateGoogle =
+  async (_req, res) => {
+    const result = await createSocialLoginMigration("google");
 
-export async function migrateGitHubAuth(prismaClient: PrismaClient) {
-  return createSocialLoginMigration(prismaClient, "github");
-}
+    res.status(200).json({ message: "Migrated users to the new auth", result });
+  };
+
+export const migrateGithubHandler: MigrateGithub =
+  async (_req, res) => {
+    const result = await createSocialLoginMigration("github");
+
+    res.status(200).json({ message: "Migrated users to the new auth", result });
+  };
 
 async function createSocialLoginMigration(
-  prismaClient: PrismaClient,
   providerName: "google" | "github"
-) {
-  const users = await prismaClient.user.findMany({
+): Promise<{
+  totalUsers: number;
+  migratedUsers: number;
+  skippedUsers: number;
+}> {
+  const result = {
+    totalUsers: 0,
+    migratedUsers: 0,
+    skippedUsers: 0,
+  };
+  const users = await prisma.user.findMany({
     include: {
       auth: true,
       externalAuthAssociations: true,
     },
   });
+  result.totalUsers = users.length;
 
   for (const user of users) {
     if (user.auth) {
       console.log("User was already migrated, skipping", user);
+      result.skippedUsers++;
       continue;
     }
 
@@ -1208,10 +1319,11 @@ async function createSocialLoginMigration(
 
     if (!provider) {
       console.log(`Missing ${providerName} provider, skipping user`, user);
+      result.skippedUsers++;
       continue;
     }
 
-    await prismaClient.auth.create({
+    await prisma.auth.create({
       data: {
         identities: {
           create: {
@@ -1227,6 +1339,10 @@ async function createSocialLoginMigration(
         },
       },
     });
+    result.migratedUsers++;
   }
+  return result;
 }
 ```
+
+</details>
