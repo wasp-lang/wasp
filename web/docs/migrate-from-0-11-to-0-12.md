@@ -65,7 +65,7 @@ The main differences are:
   all the files it finds in this directory. Read more about it
   [here](https://wasp-lang.dev/docs/project/static-assets).
 
-Our [Overview docs](todo link) explain the new
+Our [Overview docs](./tutorial/02-project-structure.md) explain the new
 structure in detail, while this page provides a [quick guide](#migrating-your-project-to-the-new-structure) for migrating existing
 projects.
 
