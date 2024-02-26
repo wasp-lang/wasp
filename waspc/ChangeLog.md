@@ -1,15 +1,96 @@
 # Changelog
 
-## [WIP] 0.12.0
+## 0.12.0
+
+This is a big update, introducing major changes that span the entirety of Wasp, specifically the new project structure and new Auth.
+
+If your project is using an older version of Wasp, you will want to check out the detailed migration instructions at https://wasp-lang.dev/docs/migrate-from-0-11-to-0-12 .
 
 ### ⚠️ Breaking changes
 
-- Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity. This is a part of auth refactoring that we are doing to make it easier to customize auth. We will be adding more customization options in the future.
+#### New project structure
+
+The output of `wasp new myProject` before 0.12.0:
+
+```
+.
+├── .gitignore
+├── main.wasp
+├── src
+│   ├── client
+│   │   ├── Main.css
+│   │   ├── MainPage.jsx
+│   │   ├── react-app-env.d.ts
+│   │   ├── tsconfig.json
+│   │   └── waspLogo.png
+│   ├── server
+│   │   └── tsconfig.json
+│   ├── shared
+│   │   └── tsconfig.json
+│   └── .waspignore
+└── .wasproot
+```
+
+The output of `wasp new myProject` with 0.12.0:
+
+```
+.
+├── .gitignore
+├── main.wasp
+├── package.json
+├── public
+│   └── .gitkeep
+├── src
+│   ├── Main.css
+│   ├── MainPage.jsx
+│   ├── queries.ts
+│   ├── vite-env.d.ts
+│   ├── .waspignore
+│   └── waspLogo.png
+├── tsconfig.json
+├── vite.config.ts
+└── .wasproot
+```
+
+The main differences are:
+ - Your project now has a `package.json` file.
+ - `tsconfig.json`, `vite.config.ts`, and `public/` moved to the top dir.
+ - The server/client code separation is no longer necessary. You can now organize your code however you want, as long as it's inside the `src/` directory.
+ - All external imports in your Wasp file now must have paths starting with `@src` (e.g., `import foo from '@src/MainPage.jsx'`). The paths can no longer start with `@server` or `@client`.
+
+#### New Auth
+
+Before 0.12.0, authentication in Wasp was based on the `User` model which the developer needed to set up properly and take care of the auth fields like `email` or `password`.
+
+With 0.12.0, authentication is based on the auth models which are automatically set up by Wasp. You don't need to take care of the auth fields anymore, be it by adding them to the `User` model or by adding whole new entities like `SocialLogin`.
+
+The `User` model is now just a business logic model and you use it for storing the data that is relevant for your app.
+
+In the background, Wasp is now using [Lucia](https://github.com/lucia-auth/lucia) as the core auth library.
+
+##### Regression Notes
+ - Multiple auth methods per single user are not allowed anymore (while before a user could first sign up with a social account and then add email/pass to it).
+ - Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity.
+These are both temporary regressions and will be replaced with better mechanisms in the future.
 
 ### 🎉 [New Feature] Wasp now works with any Node version >= 18
-So far, Wasp required specific Node version that is compatible with latest LTS Node (lately that was 18).
+So far, Wasp required a specific Node version that is compatible with the latest LTS Node (lately that was 18).
 
 We relaxed that constraint so it now works with any Node version equal to or newer than the oldest LTS version that Wasp supports, meaning that now Wasp works with any Node version >= 18.
+
+### 🎉 [New Feature] Wasp AI in the CLI (`wasp new:ai`)
+While so far it was available only through the https://usemage.ai , Wasp AI is now also available via the `wasp` CLI, enabling you to create a new Wasp app from nothing more than a title and a short description.
+
+You can run it by picking AI as an option in the `wasp new` wizard, or via `wasp new:ai` which allows you to provide all the details via the command line (useful for more programmatic usage).
+
+You need to provide your own OpenAI API token, but that also means you can choose which model to use for the code generation: e.g. you can use GPT-4 all the way, instead of the default GPT-4 + GPT-3 combo that https://usemage.ai uses.
+
+### 🎉 [New Feature] New template: Open Saas
+Wasp now comes with a new template for kickstarting your apps, specifically SaaS apps: https://opensaas.sh/ .
+
+This is the richest template for Wasp so far, with features like Stripe integration, admin dashboard, file uploading, blog (Astro), ...
+
+You can choose it from the `wasp new`'s wizard.
 
 --------------------------------------------------------------------------------
 
