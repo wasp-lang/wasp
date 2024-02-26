@@ -593,13 +593,13 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
    1. **Implement your data migration function(s)** in e.g. `src/migrateToNewAuth.ts`.
 
       Below we prepared [examples of migration functions](#example-data-migration-functions) for each of the auth methods, for you to use as a starting point.
-      They should be fine to use as-is, meaning you can just copy them and they are likely to work out of the box for typical use cases, but you can also modify them to your needs.
+      They should be fine to use as-is, meaning you can just copy them and they are likely to work out of the box for typical use cases, but you can also modify them for your needs.
 
       We recommend you create one function per each auth method that you use in your app.
 
    1. **Define custom API endpoints for each migration function** you implemented.
 
-      With each migration migration function below, we provided the relevant `api` declaration that you should add to your `main.wasp` file.
+      With each data migration function below, we provided a relevant `api` declaration that you should add to your `main.wasp` file.
 
    1. **Run the data migration function(s)** on the local development database by calling the API endpoints you defined in the previous step.
 
@@ -631,17 +631,15 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
     ---
 
-    Between these two steps, so after successfully deploying the new code to production and before migrating the production database data, your app will not be working completely: new users will be able to sign up, but existing users won't be able to log in, and already logged in users will be logged out. Once you do the second step, migrating the production database data, it will all be back to normal.
-
-    You will likely want to keep the time between the two steps as short as you can (but not so short that you start doing step two before step one has finished). Make sure you know exactly what each step involves before doing them for real to eliminate any surprises. Especially the second step, which is a bit more complex.
+    Between these two steps, so after successfully deploying the new code to production and before migrating the production database data, your app will not be working completely: new users will be able to sign up, but existing users won't be able to log in, and already logged in users will be logged out. Once you do the second step, migrating the production database data, it will all be back to normal. You will likely want to keep the time between the two steps as short as you can.
 
     ---
 
-    - **First step:** deploy the new code (client and server), either via `wasp deploy` (i.e. `wasp deploy fly deploy`) or manually.
+    - **First step: deploy the new code** (client and server), either via `wasp deploy` (i.e. `wasp deploy fly deploy`) or manually.
 
       Check our [Deployment docs](advanced/deployment/overview.md) for more details.
 
-    - **Second step:** run the migration scripts on the production database.
+    - **Second step: run the data migration functions** on the production database.
 
       You can do this by calling the API endpoints you defined in the previous step, just like you did locally. You can call the endpoint by visiting the URL in your browser, or by using a tool like `curl` or Postman. 
 
@@ -741,6 +739,8 @@ src
 
 The migration functions provided below are written with the typical use cases in mind and you can use them as-is. If your setup requires additional logic, you can use them as a good starting point and modify them to your needs.
 
+Note that all of the functions below are written to be idempotent, meaning that running a function multiple times can't hurt. This allows executing a function again in case only a part of the previous execution succeeded, and also means that accidentally running it one time too much won't have any negative effects. **We recommend you keep your data migration functions idempotent**.
+
 #### Username & Password
 
 To successfully migrate the users using the Username & Password auth method, you will need to do two things:
@@ -770,33 +770,32 @@ To successfully migrate the users using the Username & Password auth method, you
     };
 
   async function migrateUsernameAuth(): Promise<{
-    totalUsers: number;
-    migratedUsers: number;
-    skippedUsers: number;
+    numUsersAlreadyMigrated: number;
+    numUsersNotUsingThisAuthMethod: number;
+    numUsersMigratedSuccessfully: number;
   }> {
-    const result = {
-      totalUsers: 0,
-      migratedUsers: 0,
-      skippedUsers: 0,
-    };
-
     const users = await prisma.user.findMany({
       include: {
         auth: true,
       },
     });
-    result.totalUsers = users.length;
+
+    const result = {
+      numUsersAlreadyMigrated: 0,
+      numUsersNotUsingThisAuthMethod: 0,
+      numUsersMigratedSuccessfully: 0,
+    };
 
     for (const user of users) {
       if (user.auth) {
-        result.skippedUsers++;
-        console.log("User was already migrated, skipping", user.username);
+        result.numUsersAlreadyMigrated++;
+        console.log("Skipping user (already migrated) with id:", user.id);
         continue;
       }
 
       if (!user.username || !user.password) {
-        result.skippedUsers++;
-        console.log("Missing username auth info, skipping user", user.username);
+        result.numUsersNotUsingThisAuthMethod++;
+        console.log("Skipping user (not using username auth) with id:", user.id);
         continue;
       }
 
@@ -821,8 +820,9 @@ To successfully migrate the users using the Username & Password auth method, you
           },
         },
       });
-      result.migratedUsers++;
+      result.numUsersMigratedSuccessfully++;
     }
+
     return result;
   }
   ```
@@ -1180,33 +1180,32 @@ To successfully migrate the users using the Email auth method, you will need to 
     };
 
   async function migrateEmailAuth(): Promise<{
-    totalUsers: number;
-    migratedUsers: number;
-    skippedUsers: number;
+    numUsersAlreadyMigrated: number;
+    numUsersNotUsingThisAuthMethod: number;
+    numUsersMigratedSuccessfully: number;
   }> {
-    const result = {
-      totalUsers: 0,
-      migratedUsers: 0,
-      skippedUsers: 0,
-    };
-
     const users = await prisma.user.findMany({
       include: {
         auth: true,
       },
     });
-    result.totalUsers = users.length;
+
+    const result = {
+      numUsersAlreadyMigrated: 0,
+      numUsersNotUsingThisAuthMethod: 0,
+      numUsersMigratedSuccessfully: 0,
+    };
 
     for (const user of users) {
       if (user.auth) {
-        result.skippedUsers++;
-        console.log("User was already migrated, skipping", user.email);
+        result.numUsersAlreadyMigrated++;
+        console.log("Skipping user (already migrated) with id:", user.id);
         continue;
       }
 
       if (!user.email || !user.password) {
-        result.skippedUsers++;
-        console.log("Missing email auth info, skipping user", user.email);
+        result.numUsersNotUsingThisAuthMethod++;
+        console.log("Skipping user (not using email auth) with id:", user.id);
         continue;
       }
 
@@ -1235,8 +1234,9 @@ To successfully migrate the users using the Email auth method, you will need to 
           },
         },
       });
-      result.migratedUsers++;
+      result.numUsersMigratedSuccessfully++;
     }
+
     return result;
   }
   ```
@@ -1289,27 +1289,27 @@ export const migrateGithubHandler: MigrateGithub =
 async function createSocialLoginMigration(
   providerName: "google" | "github"
 ): Promise<{
-  totalUsers: number;
-  migratedUsers: number;
-  skippedUsers: number;
+  numUsersAlreadyMigrated: number;
+  numUsersNotUsingThisAuthMethod: number;
+  numUsersMigratedSuccessfully: number;
 }> {
-  const result = {
-    totalUsers: 0,
-    migratedUsers: 0,
-    skippedUsers: 0,
-  };
   const users = await prisma.user.findMany({
     include: {
       auth: true,
       externalAuthAssociations: true,
     },
   });
-  result.totalUsers = users.length;
+
+  const result = {
+    numUsersAlreadyMigrated: 0,
+    numUsersNotUsingThisAuthMethod: 0,
+    numUsersMigratedSuccessfully: 0,
+  };
 
   for (const user of users) {
     if (user.auth) {
-      console.log("User was already migrated, skipping", user);
-      result.skippedUsers++;
+      result.numUsersAlreadyMigrated++;
+      console.log("Skipping user (already migrated) with id:", user.id);
       continue;
     }
 
@@ -1318,8 +1318,8 @@ async function createSocialLoginMigration(
     );
 
     if (!provider) {
-      console.log(`Missing ${providerName} provider, skipping user`, user);
-      result.skippedUsers++;
+      result.numUsersNotUsingThisAuthMethod++;
+      console.log(`Skipping user (not using ${providerName} auth) with id:`, user.id);
       continue;
     }
 
@@ -1339,8 +1339,9 @@ async function createSocialLoginMigration(
         },
       },
     });
-    result.migratedUsers++;
+    result.numUsersMigratedSuccessfully++;
   }
+
   return result;
 }
 ```
