@@ -64,7 +64,8 @@ export const generateApp: GenerateAppJob<
   const stdoutMutex = new Mutex();
   let waspCliProcess = null;
   const waspCliProcessArgs = [
-    "new-ai",
+    "new:ai",
+    "--stdout",
     project.name,
     project.description,
     JSON.stringify(projectConfig),
