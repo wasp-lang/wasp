@@ -1,19 +1,18 @@
 import { useState, useMemo, useEffect } from "react";
-import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
 import { useHistory } from "react-router-dom";
+import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
+
+import { useAuth, GitHubSignInButton } from "wasp/client/auth";
+import { startGeneratingNewApp, useQuery, getProjectsByUser } from "wasp/client/operations";
+
 import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
 import { FaqButton, Header, ProfileButton } from "../components/Header";
 import { validProjectBrandColors } from "../components/Color";
 import { Faq } from "../components/Faq";
-import { exampleIdeas } from "../examples";
-import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
-import { readReferrerFromLocalStorage } from "../storage";
 import { MyDialog } from "../components/Dialog";
-import useAuth from "@wasp/auth/useAuth";
-import { SignInButton as GitHubSignInButton } from "@wasp/auth/helpers/GitHub";
-import { useQuery } from "@wasp/queries";
-import getProjectsByUser from "@wasp/queries/getProjectsByUser";
+import { exampleIdeas } from "../examples";
+import { readReferrerFromLocalStorage } from "../storage";
 
 const MainPage = () => {
   const [appName, setAppName] = useState("");

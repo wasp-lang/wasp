@@ -1,11 +1,9 @@
-import { GetUserFieldsFn } from "@wasp/types";
+import { defineUserSignupFields } from 'wasp/server/auth'
 
-export const getGoogleUserFields: GetUserFieldsFn = async (_context, args) => {
-  return {
-    email: args.profile.emails[0].value,
-    username: args.profile.emails[0].value,
-  };
-};
+export const googleUserSignupFields = defineUserSignupFields({
+  email: async (data) => (data.profile as any)?.emails?.[0]?.value,
+  username: async (data) => (data.profile as any)?.emails?.[0]?.value,
+});
 
 export const getGoogleAuthConfig = () => {
   return {
@@ -15,14 +13,12 @@ export const getGoogleAuthConfig = () => {
   };
 };
 
-
-export const getGitHubUserFields: GetUserFieldsFn = async (_context, args) => {
-  // NOTE: if we don't want to access users' emails, we can use scope ["user:read"]
-  // instead of ["user"] and access args.profile.username instead
-  const username = args.profile.username;
-  const email = args.profile.emails[0].value;
-  return { email, username };
-};
+// NOTE: if we don't want to access users' emails, we can use scope ["user:read"]
+// instead of ["user"] and access data.profile.username instead
+export const gitHubUserSignupFields = defineUserSignupFields({
+  email: async (data) => (data.profile as any)?.emails?.[0]?.value,
+  username: async (data) => (data.profile as any)?.username,
+})
 
 export function getGitHubAuthConfig() {
   return {

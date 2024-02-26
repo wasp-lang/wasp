@@ -1,4 +1,7 @@
 /.wasp/
+/.env.server
+/.env.client
+/node_modules
 
 # We ignore env files recognized and used by Wasp.
 .env.server
@@ -10,5 +13,6 @@
 *.env
 *.env.*
 
+**/.DS_Store
 # Emacs specific
 .projectile

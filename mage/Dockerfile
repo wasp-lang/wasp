@@ -15,35 +15,49 @@ FROM node:18 AS node
 
 FROM node AS base
 RUN apt update && apt upgrade -y # To ensure any potential security patches are applied.
-# TODO: Remove line below (installation of openssl 1.1) once Prisma adds support for
-#   openssl 3 on alpine. Alpine >= 3.17 has openssl 3 as default.
-#   Relevant GH issue: https://github.com/wasp-lang/wasp/issues/877
-# RUN apt install openssl1.1-compat
 
 
-# Any user-defined Dockerfile contents will be appended below.
+# Todo: The 'server-builder' image stays on disk under <none>:<none> and is
+# relatively large (~900 MB), should we remove it? Or is it useful for future
+# builds?
 FROM base AS server-builder
 WORKDIR /app
-COPY server/ ./server/
+# Since the framwork code in /.wasp/build/server imports the user code in /src
+# using relative imports, we must mirror the same directory structure in the
+# Docker image.
+COPY src ./src
+COPY package.json .
+COPY package-lock.json .
+COPY server .wasp/build/server
+COPY sdk .wasp/out/sdk
 # Install npm packages, resulting in node_modules/.
-RUN cd server && npm install
-COPY db/schema.prisma ./db/
-RUN cd server && PRISMA_CLIENT_OUTPUT_DIR=../server/node_modules/.prisma/client/ npx prisma generate --schema='../db/schema.prisma'
+RUN npm install && cd .wasp/build/server && npm install
+COPY db/schema.prisma .wasp/build/db/
+RUN cd .wasp/build/server && npx prisma generate --schema='../db/schema.prisma'
 # Building the server should come after Prisma generation.
-RUN cd server && npm run build
+RUN cd .wasp/build/server && npm run bundle
 
+
+# TODO: Use pm2?
+# TODO: Use non-root user (node).
 FROM base AS server-production
-RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.12.0
+RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.11.4-wasp-ai-12
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
 WORKDIR /app
-COPY --from=server-builder /app/server/node_modules ./server/node_modules
-COPY --from=server-builder /app/server/dist ./server/dist
-COPY --from=server-builder /app/server/package*.json ./server/
-COPY --from=server-builder /app/server/scripts ./server/scripts
-COPY db/ ./db/
+# Copying the top level 'node_modules' because it contains the Prisma packages
+# necessary for migrating the database.
+COPY --from=server-builder /app/node_modules ./node_modules
+# Copying the SDK because 'validate-env.mjs' executes independent of the bundle
+# and references the 'wasp' package.
+COPY --from=server-builder /app/.wasp/out/sdk .wasp/out/sdk
+# Copying 'server/node_modules' because 'validate-env.mjs' executes independent
+# of the bundle and references the dotenv package.
+COPY --from=server-builder /app/.wasp/build/server/node_modules .wasp/build/server/node_modules
+COPY --from=server-builder /app/.wasp/build/server/bundle .wasp/build/server/bundle
+COPY --from=server-builder /app/.wasp/build/server/package*.json .wasp/build/server/
+COPY --from=server-builder /app/.wasp/build/server/scripts .wasp/build/server/scripts
+COPY db/ .wasp/build/db/
 EXPOSE ${PORT}
-WORKDIR /app/server
-# RUN cat /root/.local/bin/wasp
-# RUN wasp version
+WORKDIR /app/.wasp/build/server
 ENTRYPOINT ["npm", "run", "start-production"]

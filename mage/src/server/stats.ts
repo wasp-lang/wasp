@@ -1,4 +1,4 @@
-import { Project } from "@wasp/entities";
+import { type Project } from "wasp/entities";
 
 export function generateLast24HoursData(projects: Pick<Project, "createdAt">[]) {
   const buckets: {

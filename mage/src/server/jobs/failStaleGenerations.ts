@@ -1,6 +1,6 @@
+import { type FailStaleAppsJobs } from "wasp/server/jobs";
 import { getNowInUTC } from "../utils.js";
 import { log } from "./utils.js";
-import type { FailStaleAppsJobs } from "@wasp/jobs/failStaleAppsJobs.js";
 
 export const failStaleGenerations: FailStaleAppsJobs<
   {},

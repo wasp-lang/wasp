@@ -1,22 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import getAppGenerationResult from "@wasp/queries/getAppGenerationResult";
-import startGeneratingNewApp from "@wasp/actions/startGeneratingNewApp";
-import registerZipDownload from "@wasp/actions/registerZipDownload";
-import createFeedback from "@wasp/actions/createFeedback";
-import { useQuery } from "@wasp/queries";
-import { CodeHighlight } from "../components/CodeHighlight";
-import { FileTree } from "../components/FileTree";
-import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { RadioGroup } from "@headlessui/react";
-import { Loader } from "../components/Loader";
-import { MyDialog } from "../components/Dialog";
-import { Logs } from "../components/Logs";
-import { WaitingRoomContent } from "../components/WaitingRoomContent";
-import { Header } from "../components/Header";
-import { Faq } from "../components/Faq";
 import {
   PiCopyDuotone,
   PiLaptopDuotone,
@@ -27,9 +13,27 @@ import {
 } from "react-icons/pi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import JSConfetti from "js-confetti";
-import getNumProjects from "@wasp/queries/getNumProjects";
+
+import {
+  startGeneratingNewApp,
+  registerZipDownload,
+  createFeedback,
+  useQuery,
+  getAppGenerationResult,
+  getNumProjects,
+} from "wasp/client/operations";
+
+import { CodeHighlight } from "../components/CodeHighlight";
+import { FileTree } from "../components/FileTree";
+import { Loader } from "../components/Loader";
+import { MyDialog } from "../components/Dialog";
+import { Logs } from "../components/Logs";
+import { WaitingRoomContent } from "../components/WaitingRoomContent";
+import { Header } from "../components/Header";
+import { Faq } from "../components/Faq";
 import { StatusPill } from "../components/StatusPill";
 import { HomeButton, ProfileButton, FaqButton } from "../components/Header";
+import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 
 const jsConfetti = new JSConfetti();
 

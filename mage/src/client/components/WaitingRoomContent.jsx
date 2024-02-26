@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { validProjectBrandColors } from "./Color";
 import Tilt from "react-parallax-tilt";
+
+import { validProjectBrandColors } from "./Color";
 
 const NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL = 7;
 const AVG_APP_GENERATION_TIME_IN_MIN = 3;

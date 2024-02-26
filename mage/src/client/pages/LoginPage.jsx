@@ -1,4 +1,5 @@
-import { LoginForm } from "@wasp/auth/forms/Login";
+import { LoginForm } from "wasp/client/auth";
+
 import { Header } from "../components/Header";
 
 export function LoginPage() {
