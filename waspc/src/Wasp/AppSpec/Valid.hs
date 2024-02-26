@@ -14,6 +14,7 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
+import Data.Char (isLower)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Text.Read (readMaybe)
@@ -34,6 +35,8 @@ import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
+import qualified Wasp.AppSpec.Operation as AS.Job
+import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
@@ -42,6 +45,7 @@ import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
+import Wasp.Util (isCapitalized)
 import qualified Wasp.Version as WV
 
 data ValidationError = GenericValidationError !String | GenericValidationWarning !String
@@ -76,6 +80,7 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
+          validateDeclarationNames spec,
           validatePrismaOptions spec,
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec
@@ -263,6 +268,44 @@ validateCrudOperations spec =
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
+validateDeclarationNames :: AppSpec -> [ValidationError]
+validateDeclarationNames spec =
+  concat
+    [ capitalizedOperationsErrorMessage,
+      capitalizedJobsErrorMessage,
+      nonCapitalizedEntitesErrorMessage
+    ]
+  where
+    capitalizedOperationsErrorMessage =
+      let capitalizedOperationNames = filter isCapitalized $ map AS.Operation.getName $ AS.getOperations spec
+       in case capitalizedOperationNames of
+            [] -> []
+            _ ->
+              [ GenericValidationError $
+                  "Operation names must start with a lowercase letter. Please rename: "
+                    ++ intercalate ", " capitalizedOperationNames
+              ]
+
+    capitalizedJobsErrorMessage =
+      let capitalizedJobNames = filter (not . isCapitalized) $ map fst $ AS.getJobs spec
+       in case capitalizedJobNames of
+            [] -> []
+            _ ->
+              [ GenericValidationError $
+                  "Job names must start with a lowercase letter. Please rename: "
+                    ++ intercalate ", " capitalizedJobNames
+              ]
+
+    nonCapitalizedEntitesErrorMessage =
+      let nonCapitalizedEntitieNames = filter (not . isCapitalized) $ map fst $ AS.getEntities spec
+       in case nonCapitalizedEntitieNames of
+            [] -> []
+            _ ->
+              [ GenericValidationError $
+                  "Entity names must start with an uppercase letter. Please rename: "
+                    ++ intercalate ", " nonCapitalizedEntitieNames
+              ]
 
 validatePrismaOptions :: AppSpec -> [ValidationError]
 validatePrismaOptions spec =
