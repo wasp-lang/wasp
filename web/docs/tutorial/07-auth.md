@@ -38,9 +38,9 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
-  title: "Todo app",
+  title: "TodoApp",
   // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.

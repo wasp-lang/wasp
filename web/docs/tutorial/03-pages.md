@@ -192,7 +192,7 @@ app TodoApp {
   wasp: {
     version: "^0.12.0"
   },
-  title: "Todo app"
+  title: "TodoApp"
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -209,7 +209,7 @@ app TodoApp {
   wasp: {
     version: "^0.12.0"
   },
-  title: "Todo app"
+  title: "TodoApp"
 }
 
 route RootRoute { path: "/", to: MainPage }
