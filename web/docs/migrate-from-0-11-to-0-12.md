@@ -146,6 +146,12 @@ If you have any users that have both Google and email login credentials at the s
 
 :::
 
+:::caution Regression Note: `_waspCustomValidations` is deprecated
+
+Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity. This is a part of auth refactoring that we are doing to make it easier to customize auth. We will be adding more customization options in the future.
+
+:::
+
 You can read more about the new auth system in the [Auth Entities](./entities) section.
 
 ## How to Migrate?
