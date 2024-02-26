@@ -53,8 +53,6 @@ build = do
   cliSendMessageC $ Msg.Start "Building wasp project..."
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
 
-  liftIO $ copyUserFilesNecessaryForBuild waspProjectDir buildDir
-
   liftIO $ printCompilationResult (warnings, errors)
   if null errors
     then do
@@ -63,6 +61,8 @@ build = do
     else
       throwError $
         CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found"
+
+  liftIO $ copyUserFilesNecessaryForBuild waspProjectDir buildDir
   where
     -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
     -- we're copying all files and folders necessary for the build into the .wasp/build directory.
