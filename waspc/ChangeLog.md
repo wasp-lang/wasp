@@ -4,9 +4,9 @@
 
 This is a big update, introducing major changes that span the entirety of Wasp, specifically the new project structure and new Auth.
 
-If your project is using an older version of Wasp, you will want to check out the detailed migration instructions at https://wasp-lang.dev/docs/migrate-from-0-11-to-0-12 .
-
 ### ⚠️ Breaking changes
+
+If your project is using an older version of Wasp, you will want to check out the detailed migration instructions at https://wasp-lang.dev/docs/migrate-from-0-11-to-0-12 .
 
 #### New project structure
 
