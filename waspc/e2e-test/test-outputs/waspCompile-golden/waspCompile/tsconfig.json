@@ -20,7 +20,6 @@
       // This is needed to properly support Vitest testing with jest-dom matchers.
       // Types for jest-dom are not recognized automatically and Typescript complains
       // about missing types e.g. when using `toBeInTheDocument` and other matchers.
-      // todo: check if jest still works
       "node_modules/@testing-library",
       // Specifying type roots overrides the default behavior of looking at the
       // node_modules/@types folder so we had to list it explicitly.
@@ -32,6 +31,6 @@
     // compilation, the following directory doesn't exist. We need to specify
     // it to prevent this error:
     // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
-    "outDir": ".wasp/phantom",
+    "outDir": ".wasp/phantom"
   }
 }
