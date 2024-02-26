@@ -4,7 +4,7 @@ import App from '../../../../src/client/App.jsx'
 
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 
-import { MainPage } from '../../../../src/MainPage.jsx'
+import { MainPage } from '../../../../src/MainPage'
 
 import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 

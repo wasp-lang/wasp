@@ -34,7 +34,7 @@ app waspComplexTest {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { MainPage } from "@src/MainPage.jsx"
+  component: import { MainPage } from "@src/MainPage"
 }
 entity User {=psl
   id                        Int           @id @default(autoincrement())

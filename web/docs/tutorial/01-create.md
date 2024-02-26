@@ -21,18 +21,6 @@ If you get stuck at any point (or just want to chat), reach out to us on [Discor
 
 You can find the complete code of the app we're about to build [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
-:::tip See Wasp In Action
-Prefer videos? We have a YouTube tutorial whick walks you through building this Todo app step by step. [Check it out here!](https://youtu.be/R8uOu6ZEr5s).
-
-We've also set up an in-browser dev environment for you on Gitpod which allows you to view and edit the completed app with no installation required.
-
-<p align="center">
-     <a href="https://gitpod.io/#https://github.com/wasp-lang/gitpod-template">
-          <img src="https://gitpod.io/button/open-in-gitpod.svg" />
-     </a>
-</p>
-:::
-
 ## Creating a Project
 
 To setup a new Wasp project, run the following command in your terminal
@@ -52,7 +40,7 @@ $ wasp start
 `wasp start` will take a bit of time to start the server the first time you run it in a new project.
 :::
 
-You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder plage:
+You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
 
 <img alt="Screenshot of new Wasp app"
 src={useBaseUrl('img/wasp-new-screenshot.png')}
