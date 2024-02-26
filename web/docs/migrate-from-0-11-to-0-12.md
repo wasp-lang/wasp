@@ -301,14 +301,75 @@ directory `foo`, you should:
     `foo/.gitignore`
 13. Copy the rest of the top-level files and folders (all of them except for `.gitignore`, `main.wasp` and `src/`)
     in `foo_old/` into `foo/` (overwrite the existing files in `foo`).
-14. Run `wasp clean`.
+14. Run `wasp clean` in `foo`.
+15. Delete the `foo_old` directory.
 
 </div>
 </details>
 
 That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
-Your app probably doesn't quite work yet due to the breaking changes in Auth, which we will migrate next.
+Your app probably doesn't quite work yet due to some other changes in Wasp 0.12.0, but we'll get to that in the next sections.
 
+### Migrating the Tailwind Setup
+
+:::note
+If you don't use Tailwind in your projet, you can skip this section.
+:::
+
+There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0. 
+
+You'll need to wrap all your paths in the `content` field with the `resolveProjectPath` function. This makes sure that the paths are resolved correctly when generating your CSS.
+
+Here's how you can do it:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```js title="tailwind.config.cjs"
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    // highlight-next-line
+    './src/**/*.{js,jsx,ts,tsx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+</TabItem>
+
+<TabItem value="after" label="After">
+
+```js title="tailwind.config.cjs"
+// highlight-next-line
+const { resolveProjectPath } = require('wasp/dev')
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    // highlight-next-line
+    resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+</TabItem>
+</Tabs>
+
+### Default Server Dockerfile Changed
+:::note
+If you didn't customize your Dockerfile or had a custom build process for the Wasp server, you can skip this section.
+:::
+
+Between Wasp 0.11.X and 0.12.X, the Dockerfile that Wasp generates for you for deploying the server has changed. If you defined a custom Dockerfile in your project root dir or in any other way relied on its contents, you'll need to update it to incorporate the changes that Wasp 0.12.X made.
+
+We suggest that you temporarily move your custom Dockerfile to a different location, then run `wasp start` to generate the new Dockerfile.
+Check out the `.wasp/out/Dockerfile` to see the new Dockerfile and what changes you need to make. You'll probably need to copy some of the changes from the new Dockerfile to your custom one to make your app work with Wasp 0.12.X.
 
 ### Migrating to the New Auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
@@ -604,13 +665,14 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
 
 Your app should be working correctly and using new auth, but to finish the migration, we need to clean up the old auth system:
 
-1. In `main.wasp` file, delete auth-related fields from the `User` entity.
+1. In `main.wasp` file, **delete auth-related fields from the `User` entity**, since with 0.12 they got moved to internal Wasp entity `AuthIdentity`.
 
     - This means any fields that were required by Wasp for authentication, like `email`, `password`, `isEmailVerified`, `emailVerificationSentAt`, `passwordResetSentAt`, `username`, etc.
+    - There are situations in which you might want to keep some of them, e.g. `email` and/or `username`, if they are still relevant for you due to your custom logic (e.g. you are populating them with `userSignupFields` upon social signup in order to have this info easily available on the `User` entity). Note that they wan't be used by Wasp Auth anymore, they are here just for your business logic.
 
-1. In `main.wasp` file, remove the `externalAuthEntity` field from the `app.auth` and also remove the whole `SocialLogin` entity if you used Google or GitHub auth.
-1. Run `wasp db migrate-dev` again to remove the redundant fields from the database.
-1. You can now delete the data migration function(s) you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding entries in the `app.db.seeds` field in `main.wasp` file.
+1. In `main.wasp` file, **remove the `externalAuthEntity` field from the `app.auth`** and also **remove the whole `SocialLogin` entity** if you used Google or GitHub auth.
+1. **Delete the data migration function(s)** you implemented earlier (e.g. in `src/migrateToNewAuth.ts`) and also the corresponding entries in the `app.db.seeds` field in `main.wasp` file.
+1. **Run `wasp db migrate-dev`** again to apply these changes and remove the redundant fields from the database.
 
 :::info Migrating a deployed app
 
