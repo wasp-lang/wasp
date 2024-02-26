@@ -281,8 +281,9 @@ validateDeclarationNames spec =
             [] -> []
             _ ->
               [ GenericValidationError $
-                  "Operation names must start with a lowercase letter. Please rename: "
+                  "Operation names must start with a lowercase letter. Please rename operations: "
                     ++ intercalate ", " capitalizedOperationNames
+                    ++ "."
               ]
 
     capitalizedJobsErrorMessage =
@@ -291,8 +292,9 @@ validateDeclarationNames spec =
             [] -> []
             _ ->
               [ GenericValidationError $
-                  "Job names must start with a lowercase letter. Please rename: "
+                  "Job names must start with a lowercase letter. Please rename jobs: "
                     ++ intercalate ", " capitalizedJobNames
+                    ++ "."
               ]
 
     nonCapitalizedEntitesErrorMessage =
@@ -301,8 +303,9 @@ validateDeclarationNames spec =
             [] -> []
             _ ->
               [ GenericValidationError $
-                  "Entity names must start with an uppercase letter. Please rename: "
+                  "Entity names must start with an uppercase letter. Please rename entities: "
                     ++ intercalate ", " nonCapitalizedEntitieNames
+                    ++ "."
               ]
 
 validatePrismaOptions :: AppSpec -> [ValidationError]
@@ -348,7 +351,7 @@ validateWebAppBaseDir :: AppSpec -> [ValidationError]
 validateWebAppBaseDir spec = case maybeBaseDir of
   Just baseDir
     | not (startsWithSlash baseDir) ->
-      [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
+        [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
   _anyOtherCase -> []
   where
     maybeBaseDir = Client.baseDir =<< AS.App.client (snd $ getApp spec)
