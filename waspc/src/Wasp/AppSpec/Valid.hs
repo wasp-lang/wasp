@@ -14,7 +14,6 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
-import Data.Char (isLower)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Text.Read (readMaybe)
@@ -35,7 +34,6 @@ import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
-import qualified Wasp.AppSpec.Operation as AS.Job
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -288,7 +286,7 @@ validateDeclarationNames spec =
               ]
 
     capitalizedJobsErrorMessage =
-      let capitalizedJobNames = filter (not . isCapitalized) $ map fst $ AS.getJobs spec
+      let capitalizedJobNames = filter isCapitalized $ map fst $ AS.getJobs spec
        in case capitalizedJobNames of
             [] -> []
             _ ->
