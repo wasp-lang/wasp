@@ -1,4 +1,4 @@
-import { signInUrl as googleSignInUrl } from '@wasp/auth/helpers/Google'
+import { googleSignInUrl } from "wasp/client/auth";
 
 import googleLogo from '../google-logo.svg'
 

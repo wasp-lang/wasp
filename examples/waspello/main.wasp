@@ -1,6 +1,6 @@
 app waspello {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
 
   title: "Waspello",
@@ -16,30 +16,23 @@ app waspello {
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
-  },
-
-  dependencies: [
-    ("react-feather", "2.0.10"),
-    ("classnames", "2.3.1"),
-    ("react-tiny-popover", "7.1.0"),
-    ("react-beautiful-dnd", "13.1.1")
-  ]
+  }
 }
 
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@client/MainPage.jsx"
+    component: import Main from "@src/client/MainPage.jsx"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
-    component: import Signup from "@client/SignupPage.jsx"
+    component: import Signup from "@src/client/SignupPage.jsx"
 }
 
 route LoginRoute { path: "/login", to: Login }
 page Login {
-    component: import Login from "@client/LoginPage.jsx"
+    component: import Login from "@src/client/LoginPage.jsx"
 }
 
 // Entities
@@ -80,41 +73,41 @@ psl=}
 // ------------------- Queries and actions
 
 query getListsAndCards {
-    fn: import { getListsAndCards } from "@server/queries.js",
+    fn: import { getListsAndCards } from "@src/server/queries.js",
     entities: [List, Card]
 }
 
 // Lists
 
 action createList {
-    fn: import { createList } from "@server/actions.js",
+    fn: import { createList } from "@src/server/actions.js",
     entities: [List]
 }
 
 action updateList {
-    fn: import { updateList } from "@server/actions.js",
+    fn: import { updateList } from "@src/server/actions.js",
     entities: [List]
 }
 
 action deleteList {
-    fn: import { deleteList } from "@server/actions.js",
+    fn: import { deleteList } from "@src/server/actions.js",
     entities: [List, Card]
 }
 
 action createListCopy {
-    fn: import { createListCopy } from "@server/actions.js",
+    fn: import { createListCopy } from "@src/server/actions.js",
     entities: [List, Card]
 }
 
 // Cards
 
 action createCard {
-    fn: import { createCard } from "@server/actions.js",
+    fn: import { createCard } from "@src/server/actions.js",
     entities: [Card]
 }
 
 action updateCard {
-    fn: import { updateCard } from "@server/actions.js",
+    fn: import { updateCard } from "@src/server/actions.js",
     entities: [Card]
 }
 
