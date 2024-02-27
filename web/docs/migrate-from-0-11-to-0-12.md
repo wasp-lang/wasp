@@ -367,7 +367,7 @@ module.exports = {
 </TabItem>
 </Tabs>
 
-### Migrating a custom Dockerfile 
+### Default Server Dockerfile Changed
 :::note
 If you didn't customize your Dockerfile or had a custom build process for the Wasp server, you can skip this section.
 :::
