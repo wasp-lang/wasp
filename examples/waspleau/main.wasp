@@ -1,25 +1,21 @@
 app waspleau {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
 
   title: "Waspleau",
 
   server: {
-    setupFn: import serverSetup from "@server/serverSetup.js"
+    setupFn: import serverSetup from "@src/serverSetup"
   },
 
-  db: { system: PostgreSQL },
-
-  dependencies: [
-    ("axios", "^1.4.0")
-  ]
+  db: { system: PostgreSQL }
 }
 
 job github {
   executor: PgBoss,
   perform: {
-    fn: import { workerFunction } from "@server/workers/github.js"
+    fn: import { workerFunction } from "@src/workers/github"
   },
   schedule: {
     cron: "*/10 * * * *"
@@ -30,7 +26,7 @@ job github {
 job loadTime {
   executor: PgBoss,
   perform: {
-    fn: import { workerFunction } from "@server/workers/loadTime.js"
+    fn: import { workerFunction } from "@src/workers/loadTime"
   },
   schedule: {
     cron: "*/5 * * * *",
@@ -51,10 +47,10 @@ psl=}
 
 route RootsRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.jsx"
+  component: import Main from "@src/MainPage"
 }
 
 query dashboard {
-  fn: import { refreshDashboardData } from "@server/dashboard.js",
+  fn: import { refreshDashboardData } from "@src/dashboard",
   entities: [Datum]
 }
