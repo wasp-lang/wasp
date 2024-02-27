@@ -1,6 +1,5 @@
+import { useQuery, getProjects } from "wasp/client/operations";
 import React from 'react';
-import { useQuery } from '@wasp/queries';
-import getProjects from '@wasp/queries/getProjects';
 import betathonLogo from '../betathonLogo.png';
 
 const Projects = () => {

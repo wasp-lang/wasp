@@ -1,5 +1,5 @@
+import { submitProject } from "wasp/client/operations";
 import React, { useState } from 'react';
-import submitProject from '@wasp/actions/submitProject';
 
 export type Submission = {
   name: string;

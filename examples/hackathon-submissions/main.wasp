@@ -1,14 +1,11 @@
 app hackathonBetaSubmissions {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.12.0"
   },
   db: {
     system: PostgreSQL
   },
-  title: "hackathon-beta-submissions",
-  dependencies: [
-    ("react-feather", "2.0.10"),
-  ]
+  title: "Hackathon Submissions"
 }
 
 entity Submission {=psl
@@ -26,15 +23,15 @@ psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.tsx"
+  component: import Main from "@src/MainPage.tsx"
 }
 
 action submitProject {
-  fn: import { submitProject } from "@server/actions.js",
+  fn: import { submitProject } from "@src/actions.js",
   entities: [Submission]
 }
 
 query getProjects {
-  fn: import { getProjects } from "@server/queries.js",
+  fn: import { getProjects } from "@src/queries.js",
   entities: [Submission]
 }
