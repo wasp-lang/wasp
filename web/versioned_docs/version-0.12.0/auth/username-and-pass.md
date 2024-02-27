@@ -720,3 +720,4 @@ app myApp {
 #### `userSignupFields: ExtImport`
 
 <UserSignupFieldsExplainer />
+Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields).

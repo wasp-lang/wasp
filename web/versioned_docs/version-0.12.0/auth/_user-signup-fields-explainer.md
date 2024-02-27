@@ -36,5 +36,3 @@ export const userSignupFields = defineUserSignupFields({
 
 </TabItem>
 </Tabs>
-
-Read more about the `userSignupFields` function [here](../auth/overview#1-defining-extra-fields).

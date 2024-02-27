@@ -152,7 +152,7 @@ Auth field customization is no longer possible using the `_waspCustomValidations
 
 :::
 
-You can read more about the new auth system in the [Auth Entities](./entities) section.
+You can read more about the new auth system in the [Auth Entities](./auth/entities) section.
 
 ## How to Migrate?
 
