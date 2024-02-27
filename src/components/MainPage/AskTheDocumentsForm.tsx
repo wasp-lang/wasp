@@ -1,9 +1,9 @@
+import { askDocuments } from "wasp/client/operations";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardHeader, CardBody, Divider, Input } from "@nextui-org/react";
-import ReactMarkdown from "react-markdown";
 
-import askDocuments from "@wasp/actions/askDocuments";
+import ReactMarkdown from "react-markdown";
 import { SearchIcon } from "../SearchIcon";
 
 export function AskTheDocumentsForm() {

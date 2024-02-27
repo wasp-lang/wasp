@@ -1,3 +1,4 @@
+import { searchDocuments } from "wasp/client/operations";
 import {
   Card,
   CardHeader,
@@ -7,9 +8,8 @@ import {
   ScrollShadow,
   Button,
 } from "@nextui-org/react";
-import ReactMarkdown from "react-markdown";
 
-import searchDocuments from "@wasp/actions/searchDocuments";
+import ReactMarkdown from "react-markdown";
 import { LinkIcon } from "./LinkIcons";
 
 type Document = Awaited<ReturnType<typeof searchDocuments>>[number]["document"];

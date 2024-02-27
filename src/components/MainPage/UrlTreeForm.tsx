@@ -1,9 +1,7 @@
+import { embedDocument, getScrapeCandidates } from "wasp/client/operations";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, Listbox, ListboxItem } from "@nextui-org/react";
-
-import embedDocument from "@wasp/actions/embedDocument";
-import getScrapeCandidates from "@wasp/actions/getScrapeCandidates";
 
 import { ListboxWrapper } from "../ListBoxWrapper";
 

@@ -1,8 +1,6 @@
+import { deleteDocument, useQuery, getDocuments } from "wasp/client/operations";
 import { Card, CardBody } from "@nextui-org/react";
 
-import getDocuments from "@wasp/queries/getDocuments";
-import deleteDocument from "@wasp/actions/deleteDocument";
-import { useQuery } from "@wasp/queries";
 import { DocumentCard } from "../DocumentCard";
 
 export function DocumentsList() {

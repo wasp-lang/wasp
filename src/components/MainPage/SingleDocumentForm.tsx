@@ -1,7 +1,7 @@
+import { embedDocument } from "wasp/client/operations";
 import { useForm } from "react-hook-form";
-import { Button, Input } from "@nextui-org/react";
 
-import embedDocument from "@wasp/actions/embedDocument";
+import { Button, Input } from "@nextui-org/react";
 
 export function SingleDocumentForm() {
   const addForm = useForm<{

@@ -1,32 +1,20 @@
 app askTheDocuments {
   wasp: {
-    version: "^0.11.3"
+    version: "^0.12.0"
   },
   title: "PG Vector Example",
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js",
-        configFn: import { getConfig } from "@server/auth/google.js",
+        userSignupFields: import { fields } from "@src/auth/google.js",
+        configFn: import { getConfig } from "@src/auth/google.js",
       }
     },
     onAuthFailedRedirectTo: "/"
   },
-  dependencies: [
-    ("openai", "^4.5.0"),
-    ("react-hook-form", "^7.45.4"),
-    ("@nextui-org/react", "^2.1.10"),
-    ("framer-motion", "^10.16.4"),
-    ("pgvector", "0.1.5"),
-    ("cheerio", "1.0.0-rc.12"),
-    ("axios", "^1.4.0"),
-    ("react-markdown", "^8.0.7"),
-    ("node-html-markdown", "1.3.0")
-  ],
   client: {
-    rootComponent: import { Layout } from "@client/Layout.tsx",
+    rootComponent: import { Layout } from "@src/Layout.tsx",
   },
   db: {
     system: PostgreSQL,
@@ -43,17 +31,6 @@ app askTheDocuments {
 entity User {=psl
   id                        Int           @id @default(autoincrement())
   email                     String?
-  externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 
 entity Document {=psl
@@ -68,35 +45,35 @@ psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { Main } from "@client/pages/MainPage.tsx"
+  component: import { Main } from "@src/pages/MainPage.tsx"
 }
 
 action embedDocument {
-  fn: import { embedDocument } from "@server/documents.js",
+  fn: import { embedDocument } from "@src/documents.js",
   entities: [Document],
 }
 
 action getScrapeCandidates {
-  fn: import { getScrapeCandidates } from "@server/documents.js",
+  fn: import { getScrapeCandidates } from "@src/documents.js",
   entities: [Document],
 }
 
 query getDocuments {
-  fn: import { getDocuments } from "@server/documents.js",
+  fn: import { getDocuments } from "@src/documents.js",
   entities: [Document]
 }
 
 action searchDocuments {
-  fn: import { searchDocuments } from "@server/documents.js",
+  fn: import { searchDocuments } from "@src/documents.js",
   entities: [Document]
 }
 
 action askDocuments {
-  fn: import { askDocuments } from "@server/documents.js",
+  fn: import { askDocuments } from "@src/documents.js",
   entities: [Document]
 }
 
 action deleteDocument {
-  fn: import { deleteDocument } from "@server/documents.js",
+  fn: import { deleteDocument } from "@src/documents.js",
   entities: [Document]
 }

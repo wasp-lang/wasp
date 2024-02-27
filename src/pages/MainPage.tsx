@@ -1,3 +1,5 @@
+import { useAuth } from "wasp/client/auth";
+
 import {
   Card,
   CardHeader,
@@ -6,13 +8,11 @@ import {
   Tabs,
   Tab,
 } from "@nextui-org/react";
-
 import { AskTheDocumentsForm } from "../components/MainPage/AskTheDocumentsForm";
 import { UrlTreeForm } from "../components/MainPage/UrlTreeForm";
 import { SingleDocumentForm } from "../components/MainPage/SingleDocumentForm";
 import { DocumentsList } from "../components/MainPage/DocumentsList";
 import { SearchForm } from "../components/MainPage/SearchForm";
-import useAuth from "@wasp/auth/useAuth";
 
 export function Main() {
   const { data: user } = useAuth();
