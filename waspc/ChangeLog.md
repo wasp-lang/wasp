@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.1
+
+### 🐞 Bug fixes
+
+- Reverted Wasp AI to using GPT3.5-Turbo-0613 instead of new GPT3.5-Turbo-0125 since 0125 would often return code that is missing newlines.
+
 ## 0.12.0
 
 This is a big update, introducing major changes that span the entirety of Wasp, specifically the new project structure and new Auth.
