@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-wasp-cli build
+wasp build
 
 # Deploy the server
 cd .wasp/build
