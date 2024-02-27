@@ -96,7 +96,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
 
         Example of response:
         { "opWaspDecl": "${operationTypeText} ${operationName} {\n  fn: import { ${operationName} } from \"${operationFnPath}\",\n  entities: [Task]\n}",
-          "opJsImpl": "export const {$operationName} = async (args, context) => { ... }",
+          "opJsImpl": "export const {$operationName} = async (args, context) => {\n ... \n}",
           "opJsImports": "import { HttpError } from 'wasp/server'"
         }
         "opWaspDecl" and "opJsImpl" are required, "opJsImports" you can skip if none are needed.
