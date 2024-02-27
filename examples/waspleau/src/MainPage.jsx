@@ -1,8 +1,8 @@
-import { useQuery, dashboard as refreshDashboardData } from "wasp/client/operations";
 import React from 'react'
-
 import './style.css'
 import addWaspSourceHeader from './addWaspSourceHeader'
+
+import { useQuery, dashboard as refreshDashboardData } from "wasp/client/operations";
 
 const MainPage = () => {
   const { data: dashboardData, isFetching, error } = useQuery(refreshDashboardData, null, { refetchInterval: 60 * 1000 })
