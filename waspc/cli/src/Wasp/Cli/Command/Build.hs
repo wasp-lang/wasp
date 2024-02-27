@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Build
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', castRel, (</>))
@@ -51,18 +51,17 @@ build = do
     cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out/sdk directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
-  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
 
+  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
   liftIO $ printCompilationResult (warnings, errors)
-  if null errors
-    then do
-      cliSendMessageC $
-        Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
-    else
-      throwError $
-        CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found"
+  unless (null errors) $
+    throwError $
+      CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found."
 
   liftIO $ copyUserFilesNecessaryForBuild waspProjectDir buildDir
+
+  cliSendMessageC $
+    Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
   where
     -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
     -- we're copying all files and folders necessary for the build into the .wasp/build directory.
