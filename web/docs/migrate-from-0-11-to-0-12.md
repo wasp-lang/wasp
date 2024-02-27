@@ -316,13 +316,21 @@ directory `foo`, you should:
 That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
 Your app probably doesn't quite work yet due to some other changes in Wasp 0.12.0, but we'll get to that in the next sections.
 
+### Migrating declaration names
+Wasp 0.12.0 adds a casing constraints when naming Queries, Actions, Jobs, and Entities in the `main.wasp` file.
+
+The following casing conventions have now become mandatory:
+- Operation (i.e., Query and Action) names must begin with a lowercase letter: `query getTasks {...}`, `action createTask {...}`.
+- Job names must begin with a lowercase letter: `job sendReport {...}`.
+- Entity names must start with an uppercase letter: `entity Task {...}`.
+
 ### Migrating the Tailwind Setup
 
 :::note
 If you don't use Tailwind in your project, you can skip this section.
 :::
 
-There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0. 
+There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0.
 
 You'll need to wrap all your paths in the `content` field with the `resolveProjectPath` function. This makes sure that the paths are resolved correctly when generating your CSS.
 

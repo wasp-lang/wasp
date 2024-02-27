@@ -8,6 +8,7 @@ module Wasp.Util
     checksumFromText,
     checksumFromByteString,
     onFirst,
+    isCapitalized,
     toLowerFirst,
     toUpperFirst,
     headSafe,
@@ -86,6 +87,10 @@ kebabToCamelCase = concat . capitalizeAllWordsExceptForTheFirstOne . wordsBy (==
 onFirst :: (a -> a) -> [a] -> [a]
 onFirst _ [] = []
 onFirst f (x : xs) = f x : xs
+
+isCapitalized :: String -> Bool
+isCapitalized [] = False
+isCapitalized (x : _) = isUpper x
 
 toLowerFirst :: String -> String
 toLowerFirst = onFirst toLower

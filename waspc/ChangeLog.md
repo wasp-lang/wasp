@@ -53,10 +53,11 @@ The output of `wasp new myProject` with 0.12.0:
 ```
 
 The main differences are:
- - Your project now has a `package.json` file.
- - `tsconfig.json`, `vite.config.ts`, and `public/` moved to the top dir.
- - The server/client code separation is no longer necessary. You can now organize your code however you want, as long as it's inside the `src/` directory.
- - All external imports in your Wasp file now must have paths starting with `@src` (e.g., `import foo from '@src/MainPage.jsx'`). The paths can no longer start with `@server` or `@client`.
+
+- Your project now has a `package.json` file.
+- `tsconfig.json`, `vite.config.ts`, and `public/` moved to the top dir.
+- The server/client code separation is no longer necessary. You can now organize your code however you want, as long as it's inside the `src/` directory.
+- All external imports in your Wasp file now must have paths starting with `@src` (e.g., `import foo from '@src/MainPage.jsx'`). The paths can no longer start with `@server` or `@client`.
 
 #### New Auth
 
@@ -68,17 +69,26 @@ The `User` model is now just a business logic model and you use it for storing t
 
 In the background, Wasp is now using [Lucia](https://github.com/lucia-auth/lucia) as the core auth library.
 
+#### Naming requirements
+
+Operation (i.e., Queries and Actions) and Job names in `.wasp` files must now begin with a lowercase letter: `query getTasks {...}`, `job sendReport {...}`.
+
+Entity names in `.wasp` files must now begin with an uppercase letter: `entity Foo {...}`.
+
 ##### Regression Notes
- - Multiple auth methods per single user are not allowed anymore (while before a user could first sign up with a social account and then add email/pass to it).
- - Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity.
-These are both temporary regressions and will be replaced with better mechanisms in the future.
+
+- Multiple auth methods per single user are not allowed anymore (while before a user could first sign up with a social account and then add email/pass to it).
+- Auth field customization is no longer possible using the `_waspCustomValidations` on the `User` entity.
+  These are both temporary regressions and will be replaced with better mechanisms in the future.
 
 ### 🎉 [New Feature] Wasp now works with any Node version >= 18
+
 So far, Wasp required a specific Node version that is compatible with the latest LTS Node (lately that was 18).
 
 We relaxed that constraint so it now works with any Node version equal to or newer than the oldest LTS version that Wasp supports, meaning that now Wasp works with any Node version >= 18.
 
 ### 🎉 [New Feature] Wasp AI in the CLI (`wasp new:ai`)
+
 While so far it was available only through the https://usemage.ai , Wasp AI is now also available via the `wasp` CLI, enabling you to create a new Wasp app from nothing more than a title and a short description.
 
 You can run it by picking AI as an option in the `wasp new` wizard, or via `wasp new:ai` which allows you to provide all the details via the command line (useful for more programmatic usage).
@@ -86,13 +96,14 @@ You can run it by picking AI as an option in the `wasp new` wizard, or via `wasp
 You need to provide your own OpenAI API token, but that also means you can choose which model to use for the code generation: e.g. you can use GPT-4 all the way, instead of the default GPT-4 + GPT-3 combo that https://usemage.ai uses.
 
 ### 🎉 [New Feature] New template: Open Saas
+
 Wasp now comes with a new template for kickstarting your apps, specifically SaaS apps: https://opensaas.sh/ .
 
 This is the richest template for Wasp so far, with features like Stripe integration, admin dashboard, file uploading, blog (Astro), ...
 
 You can choose it from the `wasp new`'s wizard.
 
---------------------------------------------------------------------------------
+---
 
 ## 0.11.8
 
@@ -112,19 +123,21 @@ app todoApp {
 ```
 
 ### 🐞 Bug fixes / 🔧 small improvements
+
 - Changed the minimum number of machines that a server app is using when deployed to Fly.io from 0 to 1. This prevents the server app from shutting down when there are no requests to it. There might be some other work that the server is doing e.g. running periodic Jobs or sending e-mails, so we want to make sure that the server is always running.
 - Fixes a bug where copying of migrations dir failed due to a missing `migrations` dir.
 - Fixes a regression where a missing DB on the DB server would prevent project from running. Now, Wasp will tolerate the missing DB error and rely on Prisma to create the DB for you (like before).
 - Fixes an issue on Linux where running Prisma migration command fails when a project has a path that has spaces in it.
 
---------------------------------------------------------------------------------
+---
 
 ## 0.11.7
 
 ### 🐞 Bug fixes / 🔧 small improvements
+
 - Fixed a bug with Prisma which prevent connections via SSL with our versions of Alpine and OpenSSL. We upgraded to the latest Prisma 4.X.X which fixes this issue.
 
---------------------------------------------------------------------------------
+---
 
 ## 0.11.6
 
@@ -154,6 +167,7 @@ Running `wasp studio` in the root of your project starts Wasp Studio which visua
 ## 0.11.5
 
 ### 🐞 Bug fixes / 🔧 small improvements
+
 - Fixed a bug in Auth UI imports that prevented users from using the social login buttons.
 
 ## 0.11.4
@@ -163,6 +177,7 @@ Running `wasp studio` in the root of your project starts Wasp Studio which visua
 We added an API for extending the default signup form with custom fields. This allows you to add fields like `age`, `address`, etc. to your signup form.
 
 You first need to define the `auth.signup.additionalFields` property in your `.wasp` file:
+
 ```wasp
 app crudTesting {
   // ...
@@ -180,6 +195,7 @@ app crudTesting {
 ```
 
 Then, you need to define the `fields` object in your `auth.js` file:
+
 ```js
 import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
 
@@ -199,8 +215,9 @@ export const fields = defineAdditionalSignupFields({
 ```
 
 Finally, you can extend the `SignupForm` component on the client:
+
 ```jsx
-import { SignupForm } from "@wasp/auth/forms/Signup";
+import { SignupForm } from '@wasp/auth/forms/Signup'
 
 export const SignupPage = () => {
   return (
@@ -210,20 +227,21 @@ export const SignupPage = () => {
         <SignupForm
           additionalFields={[
             {
-              name: "address",
-              label: "Address",
-              type: "input",
+              name: 'address',
+              label: 'Address',
+              type: 'input',
               validations: {
-                required: "Address is required",
+                required: 'Address is required',
               },
             },
           ]}
         />
       </main>
     </div>
-  );
-};
+  )
+}
 ```
+
 ### 🎉 [New Feature] Support for PostgreSQL Extensions
 
 Wasp now supports PostgreSQL extensions! You can enable them in your `main.wasp` file:
@@ -263,8 +281,8 @@ job simplePrintJob {
 ```
 
 ```typescript
-import { SimplePrintJob } from "@wasp/jobs/simplePrintJob";
-import { Task } from "@wasp/entities";
+import { SimplePrintJob } from '@wasp/jobs/simplePrintJob'
+import { Task } from '@wasp/entities'
 
 export const simplePrint: SimplePrintJob<
   { name: string },
@@ -272,11 +290,11 @@ export const simplePrint: SimplePrintJob<
 > = async (args, context) => {
   //        👆 args are typed e.g. { name: string }
   //                👆 context is typed e.g. { entitites: { Task: ... } }
-  const tasks = await context.entities.Task.findMany({});
+  const tasks = await context.entities.Task.findMany({})
   return {
     tasks,
-  };
-};
+  }
+}
 ```
 
 When you use the job, you can pass the arguments and receive the result with the correct types:
@@ -317,9 +335,9 @@ export const TaskList = () => {
         <Link
           key={task.id}
           to="/task/:id"
-      {/* 👆 You must provide a valid path here */} 
+      {/* 👆 You must provide a valid path here */}
           params={{ id: task.id }}>
-      {/* 👆 All the params must be correctly passed in */}   
+      {/* 👆 All the params must be correctly passed in */}
           {task.description}
         </Link>
       ))}
@@ -337,9 +355,9 @@ const linkToTask = routes.TaskRoute({ params: { id: 1 } })
 ```
 
 ### 🐞 Bug fixes
+
 - Fixes API types exports for TypeScript users.
 - Default .gitignore that comes with new Wasp project (`wasp new`) is now more aggressive when ignoring .env files, ensuring they don't get committed by accident (wrong name, wrong location, ...).
-
 
 ## 0.11.2
 
@@ -370,14 +388,16 @@ export const getTasks: GetTasks<GetTasksInput, GetTasksOutput> = async (args, co
 ```
 
 ### 🐞 Bug fixes / 🔧 small improvements
+
 - Wasp copied over the `.env.server` instead of `.env.client` to the client app `.env` file. This prevented using the `.env.client` file in the client app.
 - waspls thought that importing `"@client/file.jsx"` could mean `"@client/file.tsx"`, which could hide some missing import diagnostics and cause go-to definition to jump to the wrong file.
 
-
 ## 0.11.1
 
-### 🎉 [New feature] Prisma client preview flags 
+### 🎉 [New feature] Prisma client preview flags
+
 Wasp now allows you to enable desired `previewFeatures` for the Prisma client:
+
 ```
 app MyApp {
   title: "My app",
@@ -390,11 +410,13 @@ app MyApp {
   }
 }
 ```
+
 Read all about Prisma preview features in [the official docs](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
 
 ## v0.11.0
 
-### 🎉 Big new features 🎉 
+### 🎉 Big new features 🎉
+
 - Automatic CRUD backend generation
 - Public folder support
 - Type safe WebSocket support
@@ -403,6 +425,7 @@ Read all about Prisma preview features in [the official docs](https://www.prisma
 Check below for details on each of them!
 
 ### ⚠️ Breaking changes
+
 - Wasp's **signup action** `import signup from '@wasp/auth/signup` now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
   This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age` or `address`).
   Instead, those should be set in the separate step after signup, or via a custom signup action of your own.
@@ -414,6 +437,7 @@ Check below for details on each of them!
   Wasp will inform you about this with a warning/error message during compilation so just follow instructions.
 
 ### 🎉 [New feature] Public directory support
+
 Wasp now supports a `public` directory in the `client` directory!
 
 ```
@@ -449,6 +473,7 @@ app todoApp {
 ```
 
 Then implement it on the server with optional types:
+
 ```typescript
 import type { WebSocketDefinition } from '@wasp/webSocket'
 
@@ -464,15 +489,16 @@ type WebSocketFn = WebSocketDefinition<
 >
 
 interface ServerToClientEvents {
-  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+  chatMessage: (msg: { id: string; username: string; text: string }) => void
 }
 
 interface ClientToServerEvents {
-  chatMessage: (msg: string) => void;
+  chatMessage: (msg: string) => void
 }
 ```
 
 And use it on the client with automatic type inference:
+
 ```typescript
 import React, { useState } from 'react'
 import {
@@ -513,6 +539,7 @@ export const ChatPage = () => {
 ```
 
 ### 🎉 [New feature] Automatic CRUD backend generation
+
 You can tell Wasp to automatically generate server-side logic (Queries and Actions) for creating, reading, updating, and deleting a specific entity. As you change that entity, Wasp automatically regenerates the backend logic.
 
 Example of a `Task` entity with automatic CRUD:
@@ -566,6 +593,7 @@ query getRecipes {
 ```
 
 Wasp language server just got smarter regarding imports in wasp file!
+
 1. If there is no file to which import points, error is reported.
 2. If file doesn't contain symbol that we are importing, error is reported.
 3. Clicking on import statement now takes you to the code that is being imported.
@@ -591,6 +619,7 @@ For instance, in the code example above, it will offer completions such as `onAu
 It will also show their types.
 
 ### 🐞 Bug fixes / 🔧 small improvements
+
 - Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
 - Wasp starter templates now show description.
 - Wasp CLI now correctly exits with exit code 1 after compiler bug crash.
@@ -600,47 +629,55 @@ It will also show their types.
 - We now ensure that User entity's username field must have `unique` attribute.
 - Improved how Wasp CLI detects wrong/missing node + the error message it prints.
 
-
 ## v0.10.6
 
 ### Bug fixes
+
 - `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
 
 ### More `wasp deploy fly` options
+
 `wasp deploy fly` now supports a `--org` option, as well as setting secrets during `launch`.
 
 ## v0.10.5
 
 ### Bug fixes
+
 - Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
-- Wasp now renders only the first route that matches the current path in the browser. 
+- Wasp now renders only the first route that matches the current path in the browser.
 
 ### Express middleware customization
+
 We now offer the ability to customize Express middleware:
+
 - globally (impacting all actions, queries, and apis by default)
 - on a per-api basis
 - on a per-path basis (groups of apis)
 
-
 ### Interactive new project creation
+
 We now offer an interactive way to create a new project. You can run `wasp new` and follow the prompts to create a new project. This is the recommended way to create a new project. It will ask you for the project name and to choose one of the starter templates.
 
 ## v0.10.4
 
 ### Bug fixes
+
 - Adds missing import for HttpError which prevent auth from working properly.
 
 ## v0.10.3
+
 - Fixed a bug with circular imports in JS code which prevented database seeding from working properly.
 
 ## v0.10.2
 
 ### Bug fixes
+
 - Fixed a bug where JS arrays weren't generated properly from Haskell code which caused issues with oAuth, operations and cache invalidation.
 
 ## v0.10.1
 
 ### Bug fixes
+
 - Fixed several TypeScript errors preventing the frontend build
 
 ## v0.10.0
@@ -648,29 +685,34 @@ We now offer an interactive way to create a new project. You can run `wasp new` 
 ### Breaking changes
 
 - We changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
-    - `import { LoginForm } from '@wasp/auth/forms/Login'`
-    - `import { SignupForm } from '@wasp/auth/Signup'`
+  - `import { LoginForm } from '@wasp/auth/forms/Login'`
+  - `import { SignupForm } from '@wasp/auth/Signup'`
 - We changed some of the extensions on Wasp-provided imports from `.js` to `.ts`. For example `useAuth.js` is now `useAuth.ts`. Therefore, you should import them like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension). Some other affected imports are `@wasp/auth/login.js`, `@wasp/auth/logout.js`, and similar.
 - We changed the type arguments for `useQuery` and `useAction` hooks. They now take two arguments (the `Error` type argument was removed):
   - `Input` - This type argument specifies the type for the **request's payload**.
   - `Output` - This type argument specifies the type for the **resposne's payload**.
 
 ### Full-stack type safety for Operations
+
 Frontend code can now infer correct payload/response types for Queries and Actions from their definitions on the server.
 
 Define a Query on the server:
+
 ```typescript
-export const getTask: GetTaskInfo<Pick<Task, "id">, Task> = 
-  async ({ id }, context) => {
-    // ...
-  }
+export const getTask: GetTaskInfo<Pick<Task, 'id'>, Task> = async (
+  { id },
+  context
+) => {
+  // ...
+}
 ```
 
 Get properly typed functions and data on the frontend:
+
 ```typescript
-import { useQuery } from "@wasp/queries"
+import { useQuery } from '@wasp/queries'
 // Wasp knows the type of `getTask` thanks to your backend definition.
-import getTask from "@wasp/queries/getTask"
+import getTask from '@wasp/queries/getTask'
 
 export const TaskInfo = () => {
   const {
@@ -686,7 +728,7 @@ export const TaskInfo = () => {
   } = useQuery(getTask, { id: 1 })
 
   if (isError) {
-    return <div> Error during fetching tasks: {error.message || "unknown"}</div>
+    return <div> Error during fetching tasks: {error.message || 'unknown'}</div>
   }
 
   // TypeScript forces you to perform this check.
@@ -697,28 +739,32 @@ export const TaskInfo = () => {
   )
 }
 ```
+
 The same feature is available for Actions.
 
 ### Payloads compatible with Superjson
+
 Client and the server can now communicate with richer payloads.
 
 Return a Superjson-compatible object from your Operation:
+
 ```typescript
-type FooInfo = { foos: Foo[], message: string, queriedAt: Date }
+type FooInfo = { foos: Foo[]; message: string; queriedAt: Date }
 
 const getFoos: GetFoo<void, FooInfo> = (_args, context) => {
   const foos = context.entities.Foo.findMany()
   return {
     foos,
-    message: "Here are some foos!",
+    message: 'Here are some foos!',
     queriedAt: new Date(),
   }
 }
 ```
+
 And seamlessly use it on the frontend:
 
 ```typescript
-import getfoos from "@wasp/queries/getTask"
+import getfoos from '@wasp/queries/getTask'
 
 const { data } = useQuery(getfoos)
 const { foos, message, queriedAt } = data
@@ -771,7 +817,8 @@ import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 ```
 
-### Database seeding 
+### Database seeding
+
 You can now define JS/TS functions for seeding the database!
 
 ```c
@@ -791,10 +838,11 @@ import { createTask } from './actions.js'
 
 export const devSeedSimple = async (prismaClient) => {
   const { password, ...newUser } = await prismaClient.user.create({
-    username: "RiuTheDog", password: "bark1234"
+    username: 'RiuTheDog',
+    password: 'bark1234',
   })
   await createTask(
-    { description: "Chase the cat" },
+    { description: 'Chase the cat' },
     { user: newUser, entities: { Task: prismaClient.task } }
   )
 }
@@ -805,9 +853,10 @@ export const devSeedSimple = async (prismaClient) => {
 Run `wasp db seed` to run database seeding. If there is only one seed, it will run that one, or it will interactively ask you to pick one.
 You can also do `wasp db seed <name>` to run a seed with specific name: for example, for the case above, you could do `wasp db seed prodSeed`.
 
-
 ### The `api` keyword for defining an arbitrary endpoint and URL
+
 Need a specific endpoint, like `/healthcheck` or `/foo/callback`? Or need complete control of the response? Use an `api` to define one by tying a JS function to any HTTP method and path! For example:
+
 ```ts
 // main.wasp
 api fooBar {
@@ -863,44 +912,56 @@ That it, all you need to do is run `wasp start db` and you are good to go. No en
 NOTE: Requires `docker` to be installed and in `PATH`, and docker daemon to be running.
 
 ### `wasp test client` -> Wasp can now test your web app code
+
 By leveraging Vitest and some supporting libraries, Wasp now makes it super easy to add unit tests and React component tests to your frontend codebase.
 
 ### `pg-boss` upgraded to latest version (8.4.2)
+
 This `pg-boss` release fixes an issue where the node server would exit due to an unhandled exception when the DB connection was lost.
 
 ### Bug fixes
+
 - Starts the process of removing the coupling between `usernameAndPassword` and social logins. Now, your `userEntity` no longer requires a `username` or `password` field if you only want to use Google/GitHub for auth.
 
 ## v0.9.0
 
 ### BREAKING CHANGES
+
 - All client files which use `JSX` need to have either the `.jsx` or the `.tsx` extension. This is because we now use `Vite` under the hood instead of `Create React App`, and `Vite` requires these extensions to be present to process `JSX`` properly.
 - The Tailwind and PostCSS config files need to have the `.cjs` extension. These config files are CommonJS modules, and with `Vite` we are using ES modules by default.
 
 ### Wasp now uses Vite instead of Create React App
+
 We moved away from using Create React App for the client app. This means that dev startup time will be much faster and we are following the latest best practices for building web apps with React.
 
 ### Express `app` and http `server` available in server `setupFn`
+
 Wasp now passes in a context to the server `setupFn` that contains Express `app` and http `server` objects. This can be used as an escape hatch for things like custom routes or WebSocket support.
 
 ## v0.8.2
 
 ### Non-breaking Changes
+
 - The Dockerfile has been updated to build the server files during the Docker build stage instead of during server startup. This will reduce the memory footprint required for running apps.
 
 ### Bug fixes
+
 - Fixes a file lock error that kills CLI when changing entities with `wasp start` running on newer Macs.
 
 ### Support for defining the web app's root component
+
 You can now define a root component for your client app. This is useful if you want to wrap your app in a provider or have a common layout. You can define it in `app.client.rootComponent` in your `.wasp` file.
 
 ### `wasp deploy` CLI command added
+
 We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
 
 ### Import Wasp Entity types (on frontend and backend)
+
 You can now import and use the types of Wasp entities anywhere in your code.
 
 Let's assume your Wasp file contains the following entity:
+
 ```c
 entity Task {=psl
     id          Int     @id @default(autoincrement())
@@ -910,7 +971,9 @@ entity Task {=psl
     userId      Int
 psl=}
 ```
+
 Here's how you can access and use its type in a backend file:
+
 ```typescript
 import { Task } from '@wasp/entities/Task'
 
@@ -919,6 +982,7 @@ const getTasks = (args, context) => {
     // ...
 }
 ```
+
 And here's how you can to the same in a frontend file:
 
 ```typescript
@@ -927,33 +991,36 @@ import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks.js'
 import { Task } from '@wasp/entities'
 
-type TaskPayload = Pick<Task, "id">
+type TaskPayload = Pick<Task, 'id'>
 
 const Todo = (props: any) => {
   // The variable 'task' will now have the type Task.
   const { data: task } = useQuery<TaskPayload, Task>(getTask, { id: taskId })
   // ...
 }
-
 ```
 
 ### Automatically generated types for Queries and Actions
+
 Wasp now automatically generates appropriate types for the operations specified
 in your `.wasp` file. This reduces duplication and eliminates possible errors
 (i.e., no way to specify incorrect entities). Assuming your `.wasp` file looks
 like this:
+
 ```c
 query getTasks {
   fn: import { getTasks } from "@server/queries.js",
   entities: [Task]
 }
 ```
+
 You'll get the following feature:
+
 ```typescript
 import { Task } from '@wasp/entities'
-import { GetTasks} from '@wasp/queries'
+import { GetTasks } from '@wasp/queries'
 
-type Payload = Pick<Task, 'isDone'>;
+type Payload = Pick<Task, 'isDone'>
 
 // Use the type parameters to specify the Query's argument and return types.
 const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
@@ -969,21 +1036,26 @@ const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
 ```
 
 ### Uninstall command
+
 If you want to uninstall Wasp from your system, you can now do so with:
+
 ```bash
 wasp uninstall
 ```
+
 It will remove all of the Wasp binaries and data from your system.
 
 ## v0.8.1
 
 ### Remove npm version constraint
+
 We are removing the requirement for a specific npm version to enable following the Node.js LTS releases (Node.js LTS releases sometimes bump the major `npm` version).
 We are still requiring Node.js to be version 18, but the `npm` version can be anything and for most of Wasp users it will be the version that comes with Node.js.
 
 ## v0.8.0
 
 ### BREAKING CHANGES
+
 - Social auth had several breaking changes as we added a new provider (GitHub).
   - Buttons and sign in URLs now have a different, standardized import name for each provider.
     - Google exe: `import { SignInButton as GoogleSignInButton, signInUrl, logoUrl } from '@wasp/auth/buttons/Google'`
@@ -991,38 +1063,46 @@ We are still requiring Node.js to be version 18, but the `npm` version can be an
   - Social config object now use a `clientID` property instead of `clientId`.
 
 ### GitHub added as a social login
+
 We have added GitHub as another social login option. It is as easy to use as Google, and only requires adding `gitHub` to your `app.auth.methods` plus two environment variables (`GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`)! Check out the docs for more.
 
 ## v0.7.3
 
 ### MINOR CLI BREAKING CHANGE
+
 - The CLI command for applying a migration with a name has changed from `wasp db migrate-dev foo` to `wasp db migrate-dev --name foo`. This allowed us to add more flags, like `--create-only`.
 
 ### Bug fixes
+
 - Again fixed Dockerfile generated with `wasp build` (after fixing it only half-way last time :facepalm) -> Prisma would break due to unsupported version of openssl.
 
 ## v0.7.2
 
 ### Bug fixes
+
 - Fixed Dockerfile generated with `wasp build` -> Prisma would break due to unsupported version of openssl.
   https://github.com/wasp-lang/wasp/issues/877
 
 ## v0.7.1
 
 ### Bug fixes
+
 - Fixed a bug that was causing Wasp to forget about compiling backend code before running it in production
 
 ## v0.7.0 - Beta Release!
 
 ### BREAKING CHANGES
+
 - Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
 - Updates Prisma from version 3.15.2 to 4.5.0. Please check out their upgrade guide: https://www.prisma.io/docs/guides/upgrade-guides/upgrading-versions/upgrading-to-prisma-4 and release notes: https://github.com/prisma/prisma/releases for any possible breaking changes.
 - Removes default `index.css` file that provided basic `body` defaults. Now, there is no default CSS applied.
 - Updates required Node LTS version from version 16 to version 18. This Node ecosystem change happened on 2022-10-25: https://github.com/nodejs/Release
 
 #### Significant changes to Wasp project structure
+
 This was the file tree of a newly generated project in the previous version of Wasp
 (i.e., this was what you used to get by running `wasp new project`):
+
 ```
 .
 ├── ext
@@ -1034,8 +1114,10 @@ This was the file tree of a newly generated project in the previous version of W
 ├── main.wasp
 └── .wasproot
 ```
+
 This is the file tree of a newly generated project in the newest release of Wasp (i.e., this is what you will
 get by running `wasp new project` from this point onwards):
+
 ```
 .
 ├── .gitignore
@@ -1056,18 +1138,19 @@ get by running `wasp new project` from this point onwards):
 ```
 
 Main differences:
-- All server-side code must be located inside the `src/server` directory.  Wasp
-declarations must import this code with `import foo from "@server/foo.js"`
-(instead of `import foo from "@ext/foo.js"`)
-- All client-side code must be located inside the `src/client` directory.  Wasp
-declarations must import this code with `import foo from "@client/bar.js"`
-(instead of `import bar from "@ext/bar.js"`)
+
+- All server-side code must be located inside the `src/server` directory. Wasp
+  declarations must import this code with `import foo from "@server/foo.js"`
+  (instead of `import foo from "@ext/foo.js"`)
+- All client-side code must be located inside the `src/client` directory. Wasp
+  declarations must import this code with `import foo from "@client/bar.js"`
+  (instead of `import bar from "@ext/bar.js"`)
 - All shared code (i.e., used on both the client and the server) must be
-located inside the `src/shared` and imported where needed through a relative import.
+  located inside the `src/shared` and imported where needed through a relative import.
 - Each of these subdirectories (i.e., `src/server`, `src/client`, and
-`src/shared`) comes with a pregenerated `tsconfig.json` file. This file helps
-with IDE support (e.g., jumping to definitions, previewing types, etc.) and you
-shouldn't delete it. The same goes for `react-app-env.d.ts`
+  `src/shared`) comes with a pregenerated `tsconfig.json` file. This file helps
+  with IDE support (e.g., jumping to definitions, previewing types, etc.) and you
+  shouldn't delete it. The same goes for `react-app-env.d.ts`
 
 The new structure is fully reflected in [our docs](https://wasp-lang.dev/docs/language/overview), but we'll also
 provide a quick guide for migrating existing projects.
@@ -1077,52 +1160,53 @@ provide a quick guide for migrating existing projects.
 You can easily migrate your old Wasp project to the new structure by following a
 series of steps. Assuming you have a project called `foo` inside the
 directory `foo`, you should:
-  1. Install the latest version of Wasp
-  2. Rename your project's root directory to something like `foo_old`
-  3. Create a new project by running `wasp new foo`
-  4. Copy all server-side code from `foo_old/ext` to `foo/src/server`
-  5. Copy all client-side code from `foo_old/ext` to `foo/src/client`
-  6. Copy all shared code (if any) from `foo_old/ext` to `foo/src/shared` and
-  adapt imports in files that reference it:
-     - For example, `import bar from './bar.js'` becomes `import bar from "../shared/bar.js"`
-  7. Copy all lines you might have added to `foo_old/.gitignore` into
-  `foo/.gitignore`
-  8. Finally, copy `foo_old/main.wasp` to `foo/main.wasp` and correct external
-  imports:
-      - Queries, Actions, Jobs, and the Server setup function must import their code from `@server`
-      - Pages and the Client setup function must import their code from `@client`
 
-     For example, if you previously had something like:
-     ```js
-     page LoginPage {
-       // This previously resolved to ext/LoginPage.js
-       component: import Login from "@ext/LoginPage.js"
-     }
+1. Install the latest version of Wasp
+2. Rename your project's root directory to something like `foo_old`
+3. Create a new project by running `wasp new foo`
+4. Copy all server-side code from `foo_old/ext` to `foo/src/server`
+5. Copy all client-side code from `foo_old/ext` to `foo/src/client`
+6. Copy all shared code (if any) from `foo_old/ext` to `foo/src/shared` and
+   adapt imports in files that reference it:
+   - For example, `import bar from './bar.js'` becomes `import bar from "../shared/bar.js"`
+7. Copy all lines you might have added to `foo_old/.gitignore` into
+   `foo/.gitignore`
+8. Finally, copy `foo_old/main.wasp` to `foo/main.wasp` and correct external
+   imports: - Queries, Actions, Jobs, and the Server setup function must import their code from `@server` - Pages and the Client setup function must import their code from `@client`
 
-     // ...
+   For example, if you previously had something like:
 
-     query getTasks {
-       // This previously resolved to ext/queries.js
-       fn: import { getTasks } from "@ext/queries.js",
-     }
-     ```
+   ```js
+   page LoginPage {
+     // This previously resolved to ext/LoginPage.js
+     component: import Login from "@ext/LoginPage.js"
+   }
 
-     You should change it to:
+   // ...
 
-     ```js
-     page LoginPage {
-       // This resolves to src/client/LoginPage.js
-       component: import Login from "@client/LoginPage"
-     }
+   query getTasks {
+     // This previously resolved to ext/queries.js
+     fn: import { getTasks } from "@ext/queries.js",
+   }
+   ```
 
-     // ...
+   You should change it to:
 
-     query getTasks {
-       // This resolves to src/server/queries.js
-       fn: import { getTasks } from "@server/queries.js",
-     }
-     ```
-     Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
+   ```js
+   page LoginPage {
+     // This resolves to src/client/LoginPage.js
+     component: import Login from "@client/LoginPage"
+   }
+
+   // ...
+
+   query getTasks {
+     // This resolves to src/server/queries.js
+     fn: import { getTasks } from "@server/queries.js",
+   }
+   ```
+
+   Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
 
 That's it! You should now have a fully working Wasp project in the `foo` directory.
 
@@ -1143,14 +1227,20 @@ You can now use the Tailwind CSS framework in your project by simply adding two 
 ## v0.6.0.0 (2022/09/29)
 
 ### BREAKING CHANGES
+
 - The `EmailAndPassword` auth method has been renamed `usernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
+
   - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
+
     - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
+
       ```bash
       $ cd migrations
       $ mkdir "migrations/`date -n +%Y%m%d%H%M%S`_some_name" && touch $_/migration.sql
       ```
+
       You can then add contents like the following:
+
       ```sql
         -- Drop the old index (NOTE: name may vary based on Prisma version)
       DROP INDEX "User_email_key";
@@ -1162,8 +1252,11 @@ You can now use the Tailwind CSS framework in your project by simply adding two 
       -- Create a new index
       CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
       ```
+
       - NOTE: If you simply changed `email` to `username` in your .wasp file, Prisma will try to drop the table and recreate it, which is likely not what you want if you have data you want to preserve.
+
     - If you would like to add a new `username` column and keep `email` as is, be sure to add a calculated value in the migration (perhaps a random string, or something based on the `email`). The `username` column should remain `NOT NULL` and `UNIQUE`.
+
 - `WASP_WEB_CLIENT_URL` is now a required environment variable to improve CORS security. It is set by default in development. In production, this should point to the URL where your frontend app is being hosted.
 - The generated Dockerfile has been updated from `node:14-alpine` to `node:16-alpine`.
 - Wasp Jobs callback function arguments have been updated to the following: `async function jobHandler(args, context)`. Jobs can now make use of entities, accessed via `context`, like Operations. Additionally, the data passed into the Job handler function are no longer wrapped in a `data` property, and are now instead accessed exactly as they are supplied via `args`.
@@ -1192,6 +1285,7 @@ This is great for apps where there is a lot of interactivity and you want the UI
 Check out https://wasp-lang.dev/docs/language/features#the-useaction-hook for more details.
 
 ### Bug fixes
+
 - Works around a `sodium-native` bug (used by a Wasp dependency, `secure-password`) that caused signup/login runtime issues with Heroku deployments by downgrading it from v3.4.1 to v3.3.0 via a `package.json` override. Ref: https://github.com/sodium-friends/sodium-native/issues/160
 - Improved warnings by Wasp to do database migration -> now there are less false positives.
 
@@ -1200,6 +1294,7 @@ Check out https://wasp-lang.dev/docs/language/features#the-useaction-hook for mo
 ## v0.5.2.1 (2022/07/14)
 
 ### Bug fixes
+
 - Made wasp CLI more robust regarding encoding used on the machine.
 - Worked around the bug in latest npm, so that Wasp now again supports latest LTS npm version.
 
@@ -1216,10 +1311,12 @@ Among various other things, this brins support for OpenSSL3. So if you couldn't 
 ## v0.5.1.0 (2022/06/17)
 
 ### [NEW FEATURES]
+
 - There is now `app.client.setup` function in .wasp that you can use to define custom setup you want to do on client before on its initialization.
 - You can now configure the React Query's QueryClient by calling special function exposed by Wasp in your JS (in `app.client.setup`).
 
 ### Various improvements and bug fixes
+
 - Limited Wasp node version to <=16.15.0 for now, since there is a problem with later versions and how Wasp uses `npx`.
 - Reduced some of the redundant warning messages in Wasp CLI.
 - Fixed unresponsive UI on server reload.
@@ -1260,7 +1357,7 @@ To run Jobs, you don't need any additional infrastructure at the moment, just a 
 
 We are happy to announce Wasp is now using a much newer version of Prisma! This change does not impact the Wasp DSL support for Prisma, but it does come with some caveats from Prisma based on your usage. Please see this note for any breaking changes: https://www.prisma.io/docs/guides/upgrade-guides/upgrading-versions/upgrading-to-prisma-3
 
-*Note: When you first migrate after upgrading, you will likely see a new migration created for 3.x specific features related to updating foreign keys and indexes.*
+_Note: When you first migrate after upgrading, you will likely see a new migration created for 3.x specific features related to updating foreign keys and indexes._
 
 ### Various improvements
 
@@ -1275,19 +1372,20 @@ We are happy to announce Wasp is now using a much newer version of Prisma! This 
 ### [BREAKING CHANGE] New Wasp-lang syntax!
 
 Mostly it is very similar to what it was before, with some following bigger changes:
-  - `auth`, `dependencies`, and couple of other "singleton" delcarations now became part of `app` declaration.
-  - All declarations now need to have name, including `route`.
-  - `route` has different syntax.
-  - `dependencies` have different syntax.
+
+- `auth`, `dependencies`, and couple of other "singleton" delcarations now became part of `app` declaration.
+- All declarations now need to have name, including `route`.
+- `route` has different syntax.
+- `dependencies` have different syntax.
 
 For exact details about new syntax, check https://wasp-lang.dev/docs/language/syntax .
 
 ### Various improvements
 
-  - Better compiler error messages.
-  - Nicer CLI output.
-  - Added delay on recompilation to avoid redundant recompiling.
-  - Added `onAuthSucceededRedirectTo` field in `app`.
-  - and more!
+- Better compiler error messages.
+- Nicer CLI output.
+- Added delay on recompilation to avoid redundant recompiling.
+- Added `onAuthSucceededRedirectTo` field in `app`.
+- and more!
 
 ## Unreleased changes
