@@ -71,50 +71,9 @@ In the background, Wasp is now using [Lucia](https://github.com/lucia-auth/lucia
 
 #### Naming requirements
 
-Operation (i.e., Queries and Actions) and Job names in `.wasp` files must now begin with a lowercase letter.
+Operation (i.e., Queries and Actions) and Job names in `.wasp` files must now begin with a lowercase letter: `query getTasks {...}`, `job sendReport {...}`.
 
-Entity names in `.wasp` files must begin with an uppercase letter
-
-Example of correct code:
-
-```
-entity Foo {=psl
-  // ...
-psl=}
-
-query getFoo {
-  // ...
-}
-
-action updateFoo {
-  // ...
-}
-
-job printFoos {
-  // ...
-}
-```
-
-Example of incorrect code
-
-```
-entity foo {=psl
-  // ...
-psl=}
-
-query GetFoo {
-  // ...
-}
-
-action UpdateFoo {
-  // ...
-}
-
-job PrintFoos {
-  // ...
-}
-
-```
+Entity names in `.wasp` files must now begin with an uppercase letter: `entity Foo {...}`.
 
 ##### Regression Notes
 
