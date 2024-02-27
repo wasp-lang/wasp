@@ -588,7 +588,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
 
   </details>
 
-1. **Remove the `auth.methods.email.allowUnverifiedLogin` field**
+1. **Remove the `auth.methods.email.allowUnverifiedLogin` field** from your `main.wasp` file.
 
   In Wasp 0.12.X we removed the `auth.methods.email.allowUnverifiedLogin` field to make our Email auth implementation easier to reason about. If you were using it, you should remove it from your `main.wasp` file.
 
