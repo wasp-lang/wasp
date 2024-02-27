@@ -316,13 +316,21 @@ directory `foo`, you should:
 That's it! You now have a properly structured Wasp 0.12.0 project in the `foo` directory.
 Your app probably doesn't quite work yet due to some other changes in Wasp 0.12.0, but we'll get to that in the next sections.
 
+### Migrating declaration names
+Wasp 0.12.0 adds a casing constraints when naming Queries, Actions, Jobs, and Entities in the `main.wasp` file.
+
+The following casing conventions have now become mandatory:
+- Operation (i.e., Query and Action) names must begin with a lowercase letter: `query getTasks {...}`, `action createTask {...}`.
+- Job names must begin with a lowercase letter: `job sendReport {...}`.
+- Entity names must start with an uppercase letter: `entity Task {...}`.
+
 ### Migrating the Tailwind Setup
 
 :::note
 If you don't use Tailwind in your projet, you can skip this section.
 :::
 
-There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0. 
+There is a small change in how the `tailwind.config.cjs` needs to be defined in Wasp 0.12.0.
 
 You'll need to wrap all your paths in the `content` field with the `resolveProjectPath` function. This makes sure that the paths are resolved correctly when generating your CSS.
 
@@ -376,63 +384,6 @@ Between Wasp 0.11.X and 0.12.X, the Dockerfile that Wasp generates for you for d
 
 We suggest that you temporarily move your custom Dockerfile to a different location, then run `wasp start` to generate the new Dockerfile.
 Check out the `.wasp/out/Dockerfile` to see the new Dockerfile and what changes you need to make. You'll probably need to copy some of the changes from the new Dockerfile to your custom one to make your app work with Wasp 0.12.X.
-
-### Migrating declaration names
-
-Wasp 0.12.0 adds a casing constraints when naming Queries, Actions, Jobs, and Entities.
-
-The following casing conventions have now become mandatory:
-- Operation (i.e., Query and Action) names must begin with a lowercase letter.
-- Job names must begin with a lowercase letter.
-- Entity names must start with an uppercase letter.
-
-Wasp will throw an error when and tell you what to fix.
-
-<details>
-<summary>See an example</summary>
-
-An example of correct names:
-
-```wasp
-entity Foo {=psl
-  // ...
-psl=}
-
-query getFoo {
-  // ...
-}
-
-action updateFoo {
-  // ...
-}
-
-job printFoos {
-  // ...
-}
-```
-
-An example of incorrect names:
-
-```wasp
-entity foo {=psl
-  // ...
-psl=}
-
-query GetFoo {
-  // ...
-}
-
-action UpdateFoo {
-  // ...
-}
-
-job PrintFoos {
-  // ...
-}
-```
-
-</details>
-
 
 ### Migrating to the New Auth
 As shown in [the previous section](#new-auth), Wasp significantly changed how authentication works in version 0.12.0.
