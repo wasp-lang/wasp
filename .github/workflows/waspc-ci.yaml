@@ -199,7 +199,7 @@ jobs:
         run: cabal test e2e-test
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest') && matrix.node-version == '18'
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
@@ -207,7 +207,7 @@ jobs:
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest') && matrix.node-version == '18'
         with:
           draft: true
           allowUpdates: true
