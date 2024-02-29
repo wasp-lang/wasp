@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.2
+
+### 🐞 Bug fixes
+
+- We were adding Crypto polyfill even when not needed (when node > 18), which was then causing an error. Now polyfill is added only if needed.
+
 ## 0.12.1
 
 ### 🐞 Bug fixes
