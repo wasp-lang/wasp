@@ -1,6 +1,6 @@
 app waspAi {
   wasp: {
-    version: "^0.12.0"
+    version: "^0.12.2"
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
