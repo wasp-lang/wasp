@@ -45,7 +45,7 @@ export const ChatPage = () => {
 
   return (
     <>
-      <h2>Chat</h2>
+      <h2 className="text-2xl font-bold mb-4">Chat</h2>
       <div>
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-4 place-items-center">
