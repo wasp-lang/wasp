@@ -54,6 +54,9 @@ jobs:
           - ubuntu-20.04
           - macos-latest
           - windows-latest
+        node-version:
+          - '18'
+          - '20'
 
     steps:
       - name: Configure git
@@ -90,7 +93,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
 
       - name: Cache
         uses: actions/cache@v3
