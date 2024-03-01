@@ -1,24 +1,24 @@
 # Changelog
 
-## 0.12.3
+## 0.12.3 (2024-03-01)
 
 ### 🎉 New features
 
 - Wasp AI switched from GPT 3.5 Turbo 0613 to GPT 3.5 Turbo 0125, which gives it bigger context, ensuring generation doesn't fail for bigger apps, while also being cheaper.
 
-## 0.12.2
+## 0.12.2 (2024-02-29)
 
 ### 🐞 Bug fixes
 
 - We were adding Crypto polyfill even when not needed (when node > 18), which was then causing an error. Now polyfill is added only if needed.
 
-## 0.12.1
+## 0.12.1 (2024-02-27)
 
 ### 🐞 Bug fixes
 
 - Reverted Wasp AI to using GPT3.5-Turbo-0613 instead of new GPT3.5-Turbo-0125 since 0125 would often return code that is missing newlines.
 
-## 0.12.0
+## 0.12.0 (2024-02-27)
 
 This is a big update, introducing major changes that span the entirety of Wasp, specifically the new project structure and new Auth.
 
