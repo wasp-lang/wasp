@@ -134,6 +134,8 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 ```
               - I noticed that you sometimes by accident add redundant "}" at the end of the Wasp file while fixing it.
                 Be careful not to do that.
+              - Don't by accident put all the declarations under `app {...}`! `route`, `page`, `entity`, `job`, `action`, `query`, those are all standalone and don't go inside of `app`. Assume all the declarations are at the right level in the file and keep that as it is, don't change that.
+              - Don't remove any newlines.
               - We are using SQLite as a database for Prisma, so we can't use scalar arrays in PSL, like `String[]`,
                 as those are not supported in SQLite. We can of course normally use arrays of other models, like `Task[]`.
 
@@ -144,6 +146,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
             Make extra sure to fix compiler errors, if there are any.
             Please respond ONLY with a valid JSON of the format { waspFileContent: string }.
             There should be no other text in your response. Don't wrap content with the "```" code delimiters.
+            Don't ommit newlines from the code.
 
             ${appDescriptionBlockText}
           |]

@@ -114,11 +114,12 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
         }
         There should be no other text in the response.
 
-        When writing the javascript implementation, make sure to always use the default export. 
-        Concretely, define the main component with `const ${pageName} = () => {...}`,
+        When writing the javascript implementation, make sure to always use the default export.
+        Concretely, define the main component with `const ${pageName} = () => {\n...\n}`,
         and then at the end export it with `export default ${pageName}`.
         It is also really important that the ${pageName} is then imported as a default import
         in "pageWaspDecl": use `import ${pageName}` instead of `import { ${pageName} }`.
+        Also, don't ommit newlines in the code.
         This is very important to me, please do as I say.
 
         ${appDescriptionBlock}

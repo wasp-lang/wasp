@@ -95,6 +95,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
 
           Please respond ONLY with a valid JSON of the format { opJsFileContent: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
+          Do not ommit newlines from the code.
 
           ${appDescriptionBlockText}
         |]

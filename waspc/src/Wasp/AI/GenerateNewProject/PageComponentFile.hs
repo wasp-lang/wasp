@@ -82,6 +82,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
           Do actual fixes, don't leave comments with "TODO"!
           Please respond ONLY with a valid JSON of the format { pageComponentImpl: string }.
           There should be no other text in your response. Don't wrap content with the "```" code delimiters.
+          Don't ommit newlines from the code.
 
           ${appDescriptionBlockText}
         |]

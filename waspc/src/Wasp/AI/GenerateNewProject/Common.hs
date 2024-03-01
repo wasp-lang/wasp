@@ -153,9 +153,7 @@ codingChatGPTParams projectDetails =
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
   where
-    -- NOTE: We are still using 0613 for now, even though it will get deprecated in June 2023,
-    --   because 0125 returns files with newlines missing.
-    defaultCodingGptModel = GPT.GPT_3_5_turbo_0613
+    defaultCodingGptModel = GPT.GPT_3_5_turbo_0125
 
 planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
 planningChatGPTParams projectDetails =
@@ -164,7 +162,7 @@ planningChatGPTParams projectDetails =
       GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
     }
   where
-    defaultPlanningGptModel = GPT.GPT_4
+    defaultPlanningGptModel = GPT.GPT_4_0613
 
 fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
 fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}

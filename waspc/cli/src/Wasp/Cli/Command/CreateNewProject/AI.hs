@@ -57,17 +57,15 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           [ Interactive.Option
               "gpt-4 (planning) + gpt-3.5-turbo (coding)"
               (Just "Ok results. Cheap and fast. Best cost/benefit ratio.")
-              -- NOTE: We are still using 0613 for now, even though it will get deprecated in June 2023,
-              --   because 0125 returns files with newlines missing.
-              (ChatGPT.GPT_4, ChatGPT.GPT_3_5_turbo_0613),
+              (ChatGPT.GPT_4_0613, ChatGPT.GPT_3_5_turbo_0125),
             Interactive.Option
               "gpt-4 (planning) + gpt-4-turbo-preview (coding)"
               (Just "Possibly better results, but somewhat slower and somewhat more expensive (~2-3x).")
-              (ChatGPT.GPT_4, ChatGPT.GPT_4_turbo_Preview),
+              (ChatGPT.GPT_4_0613, ChatGPT.GPT_4_turbo_Preview),
             Interactive.Option
               "gpt-4 (planning + coding)"
               (Just "Best results, but quite slower and quite more expensive (~5x).")
-              (ChatGPT.GPT_4, ChatGPT.GPT_4)
+              (ChatGPT.GPT_4_0613, ChatGPT.GPT_4_0613)
           ]
   temperature <-
     liftIO $
