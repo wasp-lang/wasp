@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.3
+
+### 🎉 New features
+
+- Wasp AI switched from GPT 3.5 Turbo 0613 to GPT 3.5 Turbo 0125, which gives it bigger context, ensuring generation doesn't fail for bigger apps, while also being cheaper.
+
 ## 0.12.2
 
 ### 🐞 Bug fixes

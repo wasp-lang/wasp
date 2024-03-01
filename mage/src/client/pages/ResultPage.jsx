@@ -456,6 +456,15 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     return <span className="py-1 px-2 font-semibold text-pink-800 rounded">{children}</span>;
   }
 
+  function calcCostForGpt_3_5_Turbo_0125 (numTokensSpent) {
+    const estimatedInputTokenShare = 0.8;
+    const estimatedOutputTokenShare = 1 - estimatedInputTokenShare;
+    const costInUsdForMillionInputTokens = 0.5;  // This is price for GPT 3.5 Turbo 0125.
+    const costInUsdForMillionOutputTokens = 1.5;  // This is price for GPT 3.5 Turbo 0125.
+    const costInUsdForMillionTokens = costInUsdForMillionInputTokens * estimatedInputTokenShare + costInUsdForMillionOutputTokens * estimatedOutputTokenShare;
+    return (numTokensSpent / 1e6 * costInUsdForMillionTokens).toFixed(2);
+  }
+
   return (
     <MyDialog
       isOpen={isOpen}
@@ -481,9 +490,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`$${((Number(numTokensSpent) / 1000) * 0.004).toFixed(
-                    2
-                  )}`}</FormattedText>{" "}
+                  <FormattedText>{`~$${calcCostForGpt_3_5_Turbo_0125(Number(numTokensSpent))}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (
