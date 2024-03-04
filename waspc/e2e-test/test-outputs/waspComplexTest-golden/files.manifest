@@ -421,9 +421,15 @@ waspComplexTest/.wasp/out/server/src/actions/types.ts
 waspComplexTest/.wasp/out/server/src/app.js
 waspComplexTest/.wasp/out/server/src/auth/providers/config/google.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/index.ts
-waspComplexTest/.wasp/out/server/src/auth/providers/oauth/createRouter.ts
-waspComplexTest/.wasp/out/server/src/auth/providers/oauth/init.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/config.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/cookies.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/env.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/handler.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/oneTimeCode.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/redirect.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/state.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/types.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/user.ts
 waspComplexTest/.wasp/out/server/src/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/jobs/core/allJobs.ts
 waspComplexTest/.wasp/out/server/src/jobs/mySpecialJob.ts
@@ -456,7 +462,7 @@ waspComplexTest/.wasp/out/web-app/public/.gitkeep
 waspComplexTest/.wasp/out/web-app/public/favicon.ico
 waspComplexTest/.wasp/out/web-app/public/manifest.json
 waspComplexTest/.wasp/out/web-app/scripts/validate-env.mjs
-waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCodeExchange.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCallback.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts
 waspComplexTest/.wasp/out/web-app/src/index.tsx

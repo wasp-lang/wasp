@@ -1,7 +1,6 @@
 module Wasp.Generator.AuthProviders where
 
 import Data.Maybe (fromJust)
-import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.Generator.AuthProviders.Common (makeProviderId)
 import qualified Wasp.Generator.AuthProviders.Email as E
 import qualified Wasp.Generator.AuthProviders.Local as L
@@ -12,8 +11,7 @@ googleAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "google",
       OA._displayName = "Google",
-      OA._requiredScope = ["profile"],
-      OA._passportDependency = App.Dependency.make ("passport-google-oauth20", "2.0.0")
+      OA._requiredScope = ["profile"]
     }
 
 gitHubAuthProvider :: OA.OAuthAuthProvider
@@ -21,8 +19,7 @@ gitHubAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "github",
       OA._displayName = "GitHub",
-      OA._requiredScope = [],
-      OA._passportDependency = App.Dependency.make ("passport-github2", "0.1.12")
+      OA._requiredScope = []
     }
 
 localAuthProvider :: L.LocalAuthProvider
