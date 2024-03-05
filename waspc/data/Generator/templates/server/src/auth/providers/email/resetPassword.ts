@@ -7,7 +7,6 @@ import {
 } from 'wasp/auth/utils';
 import { validateJWT } from 'wasp/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
-import { tokenVerificationErrors } from "./types.js";
 import { HttpError } from 'wasp/server';
 
 export async function resetPassword(
@@ -37,10 +36,7 @@ export async function resetPassword(
             hashedPassword: password,
         });
     } catch (e) {
-        const reason = e.name === tokenVerificationErrors.TokenExpiredError
-            ? 'expired'
-            : 'invalid';
-        throw new HttpError(400, `Password reset failed, ${reason} token`);
+        throw new HttpError(400, `Password reset failed, invalid token`);
     }
     return res.json({ success: true });
 };

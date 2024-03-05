@@ -6,7 +6,6 @@ import {
     deserializeAndSanitizeProviderData,
 } from 'wasp/auth/utils';
 import { validateJWT } from 'wasp/auth/jwt'
-import { tokenVerificationErrors } from './types.js';
 import { HttpError } from 'wasp/server';
 
 
@@ -26,10 +25,7 @@ export async function verifyEmail(
             isEmailVerified: true,
         });
     } catch (e) {
-        const reason = e.name === tokenVerificationErrors.TokenExpiredError
-            ? 'expired'
-            : 'invalid';
-        throw new HttpError(400, `Token is ${reason}`);
+        throw new HttpError(400, `Email verification failed, invalid token`);
     }
 
     return res.json({ success: true });
