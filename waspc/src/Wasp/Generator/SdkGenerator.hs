@@ -53,8 +53,8 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
