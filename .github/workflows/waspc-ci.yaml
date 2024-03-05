@@ -95,25 +95,25 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-          # TODO: Right now, actions/cache updates cache only if cache was not fe
-          #   This is not ideal for us, because we would ideally update cache even if it
-          #   was fetched, because we want to cache any newly installed packages.
-          #   This was working normally on Travis and Appveyor.
-          #   There is an issue for this, and for now we are using proposed "fix" from it,
-          #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
-          #   which mitigates the problem by creating new cache for each job and then using
-          #   the feature of restore-keys which makes sure that next cache picked is the
-          #   latest one. However, this keeps creating new cache each time which is not
-          #   ideal because caches keep getting evicted, so for example if Win job
-          #   fails multiple times while others don't, its cache will likely get evicted,
-          #   making it even slower to test and fix (uffff).
-          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
+      # - name: Cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+      #     # TODO: Right now, actions/cache updates cache only if cache was not fe
+      #     #   This is not ideal for us, because we would ideally update cache even if it
+      #     #   was fetched, because we want to cache any newly installed packages.
+      #     #   This was working normally on Travis and Appveyor.
+      #     #   There is an issue for this, and for now we are using proposed "fix" from it,
+      #     #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
+      #     #   which mitigates the problem by creating new cache for each job and then using
+      #     #   the feature of restore-keys which makes sure that next cache picked is the
+      #     #   latest one. However, this keeps creating new cache each time which is not
+      #     #   ideal because caches keep getting evicted, so for example if Win job
+      #     #   fails multiple times while others don't, its cache will likely get evicted,
+      #     #   making it even slower to test and fix (uffff).
+      #     #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
+      #     key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+      #     restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
       - name: Check Haskell code formatting
         if: matrix.os == 'ubuntu-20.04'
@@ -147,13 +147,13 @@ jobs:
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/ensure_todoapp_builds.sh
 
-      - name: Headless - Cache Node Modules
-        id: headless-cache-node-modules
-        uses: actions/cache@v3
-        if: matrix.os == 'ubuntu-20.04'
-        with:
-          path: ~/.npm
-          key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}
+      # - name: Headless - Cache Node Modules
+      #   id: headless-cache-node-modules
+      #   uses: actions/cache@v3
+      #   if: matrix.os == 'ubuntu-20.04'
+      #   with:
+      #     path: ~/.npm
+      #     key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
@@ -171,17 +171,17 @@ jobs:
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
-      - name: Headless - Cache Playwright Browsers for Playwright's Version
-        id: headless-cache-playwright-browsers
-        if: matrix.os == 'ubuntu-20.04'
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
+      # - name: Headless - Cache Playwright Browsers for Playwright's Version
+      #   id: headless-cache-playwright-browsers
+      #   if: matrix.os == 'ubuntu-20.04'
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/ms-playwright
+      #     key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
 
       - name: Headless - Setup Playwright
         id: headless-setup-playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test
           npx playwright install --with-deps
