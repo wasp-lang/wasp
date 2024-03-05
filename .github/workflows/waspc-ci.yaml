@@ -71,6 +71,12 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v3
 
+      - name: Checkout the Source Files
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cat waspc.cabal
+          git log
+
       # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
       # The fix will be propagated in a few days, so we can remove this workaround then.
       # https://github.com/actions/runner-images/issues/7061
@@ -115,6 +121,12 @@ jobs:
           key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
           restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
+      - name: Checkout the Source Files After Cache
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cat waspc.cabal
+          git log
+
       - name: Check Haskell code formatting
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
@@ -135,6 +147,12 @@ jobs:
 
       - name: Build wasp code
         run: cabal build all
+
+      - name: Checkout the Source Files After Build
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cat waspc.cabal
+          git log
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
         if: matrix.os == 'macos-latest'
