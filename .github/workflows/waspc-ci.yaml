@@ -95,6 +95,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Execute Node.js test
+        run: |
+          node -v
+          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
+
       - name: Cache
         uses: actions/cache@v3
         with:
