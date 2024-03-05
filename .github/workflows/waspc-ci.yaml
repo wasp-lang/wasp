@@ -162,11 +162,6 @@ jobs:
           cd headless-test
           npm ci
 
-      - name: Execute Node.js test
-        run: |
-          node -v
-          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
-
       - name: Headless - Store Playwright's Version
         id: headless-store-playwright-version
         if: matrix.os == 'ubuntu-20.04'
@@ -177,6 +172,11 @@ jobs:
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+      - name: Execute Node.js test
+        run: |
+          node -v
+          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
 
       # - name: Headless - Cache Playwright Browsers for Playwright's Version
       #   id: headless-cache-playwright-browsers
