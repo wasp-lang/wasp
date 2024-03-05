@@ -39,10 +39,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc:
-          - '8.10.7'
-        cabal:
-          - '3.6.2.0'
         os:
           # Using Ubuntu 20.04 due to recent GLIBC_2.34 version mismatch errors for
           # users and other services. The strategy here is to pick a slightly older LTS
@@ -54,6 +50,25 @@ jobs:
           - ubuntu-20.04
           - macos-latest
           - windows-latest
+        node-version:
+          - 'latest'
+        ghc:
+          - '8.10.7'
+        cabal:
+          - '3.6.2.0'
+        # In addition to the default matrix, we also want to run the build job for
+        # additional Node.js versions, to make sure that Wasp works with them.
+        # To reduce the number of jobs, we only test the Node.js versions on
+        # Ubuntu 20.04.
+        include:
+          - os: ubuntu-20.04
+            node-version: 18
+            ghc: '8.10.7'
+            cabal: '3.6.2.0'
+          - os: ubuntu-20.04
+            node-version: 20
+            ghc: '8.10.7'
+            cabal: '3.6.2.0'
 
     steps:
       - name: Configure git
@@ -65,8 +80,11 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - name: Checkout the repo
-        uses: actions/checkout@v3
+      - uses: 'actions/checkout@v3'
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
 
       # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
       # The fix will be propagated in a few days, so we can remove this workaround then.
@@ -90,7 +108,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
 
       - name: Cache
         uses: actions/cache@v3
@@ -196,7 +214,7 @@ jobs:
         run: cabal test e2e-test
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
@@ -204,7 +222,7 @@ jobs:
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
         with:
           draft: true
           allowUpdates: true
