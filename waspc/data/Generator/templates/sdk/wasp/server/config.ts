@@ -28,6 +28,7 @@ type CommonConfig = BaseConfig & {
 
 type EnvConfig = BaseConfig & {
   frontendUrl: string;
+  serverUrl: string;
 }
 
 type Config = CommonConfig & EnvConfig
@@ -59,8 +60,10 @@ export default resolvedConfig
 
 function getDevelopmentConfig(): EnvConfig {
   const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL || '{= defaultClientUrl =}');
+  const serverUrl = stripTrailingSlash(process.env.WASP_SERVER_URL || '{= defaultServerUrl =}');
   return {
     frontendUrl,
+    serverUrl,
     allowedCORSOrigins: '*',
     {=# isAuthEnabled =}
     auth: {
@@ -72,8 +75,10 @@ function getDevelopmentConfig(): EnvConfig {
 
 function getProductionConfig(): EnvConfig {
   const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL);
+  const serverUrl = stripTrailingSlash(process.env.WASP_SERVER_URL);
   return {
     frontendUrl,
+    serverUrl,
     allowedCORSOrigins: [frontendUrl],
     {=# isAuthEnabled =}
     auth: {

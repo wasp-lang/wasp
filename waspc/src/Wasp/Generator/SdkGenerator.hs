@@ -54,6 +54,7 @@ import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
@@ -259,7 +260,8 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultClientUrl spec
+          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
+          "defaultServerUrl" .= Server.defaultDevServerUrl
         ]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the

@@ -119,6 +119,7 @@ Press any key to continue or Ctrl+C to cancel.`);
 		// doesn't provide a way to set envars that persist to fly.toml.
 		'PORT=8080',
 		`WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl}`,
+		`WASP_SERVER_URL=${deploymentInfo.serverUrl}`,
 	];
 
 	if (deploymentInfo.options.serverSecret.length > 0) {
