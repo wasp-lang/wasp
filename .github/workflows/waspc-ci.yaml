@@ -95,11 +95,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Execute Node.js test
-        run: |
-          node -v
-          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
-
       - name: Cache
         uses: actions/cache@v3
         with:
@@ -159,6 +154,11 @@ jobs:
       #   with:
       #     path: ~/.npm
       #     key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
+
+      - name: Execute Node.js test
+        run: |
+          node -v
+          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
