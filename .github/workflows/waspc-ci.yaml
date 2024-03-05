@@ -188,12 +188,6 @@ jobs:
           cd headless-test
           npx playwright install --with-deps
 
-      - name: Execute Node.js test
-        if: matrix.os == 'ubuntu-20.04'
-        run: |
-          node -v
-          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
-
       - name: Headless - Run Playwright Tests
         id: headless-run-playwright-tests
         if: matrix.os == 'ubuntu-20.04'
@@ -202,7 +196,13 @@ jobs:
           npm ci
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test
-      
+
+      - name: Execute Node.js test
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          node -v
+          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
+
       - name: Run e2e tests
         run: cabal test e2e-test
 
