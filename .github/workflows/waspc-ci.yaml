@@ -155,6 +155,15 @@ jobs:
       #     path: ~/.npm
       #     key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
+      - name: Testing What is in the Polyfill
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test/examples/todoApp
+          cabal run wasp-cli clean
+          cabal run wasp-cli compile
+          cabal run wasp-cli version
+          cat .wasp/out/server/src/polyfill.ts
+
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
         if: matrix.os == 'ubuntu-20.04'
@@ -197,16 +206,14 @@ jobs:
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test
 
-      - name: Execute Node.js test
+      - name: Testing What is in the Polyfill
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test/examples/todoApp
           cabal run wasp-cli clean
           cabal run wasp-cli compile
+          cabal run wasp-cli version
           cat .wasp/out/server/src/polyfill.ts
-          cabal run wasp-cli start
-          node -v
-          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
 
       - name: Run e2e tests
         run: cabal test e2e-test
