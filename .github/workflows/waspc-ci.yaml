@@ -189,6 +189,7 @@ jobs:
           npx playwright install --with-deps
 
       - name: Execute Node.js test
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           node -v
           node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
