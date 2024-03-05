@@ -3,9 +3,9 @@ import {
     createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
-    verifyToken,
     deserializeAndSanitizeProviderData,
 } from 'wasp/auth/utils';
+import { validateJWT } from 'wasp/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
 import { tokenVerificationErrors } from "./types.js";
 import { HttpError } from 'wasp/server';
@@ -19,7 +19,7 @@ export async function resetPassword(
 
     const { token, password } = args;
     try {
-        const { email } = await verifyToken<{ email: string }>(token);
+        const { email } = await validateJWT<{ email: string }>(token);
 
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
