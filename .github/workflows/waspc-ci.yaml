@@ -166,6 +166,8 @@ jobs:
         id: headless-store-playwright-version
         if: matrix.os == 'ubuntu-20.04'
         run: |
+          echo "Node Version: ${{ matrix.node-version }}"
+          node -v
           cd headless-test
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
