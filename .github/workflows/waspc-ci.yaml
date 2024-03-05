@@ -173,11 +173,6 @@ jobs:
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
-      - name: Execute Node.js test
-        run: |
-          node -v
-          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
-
       # - name: Headless - Cache Playwright Browsers for Playwright's Version
       #   id: headless-cache-playwright-browsers
       #   if: matrix.os == 'ubuntu-20.04'
@@ -192,6 +187,11 @@ jobs:
         run: |
           cd headless-test
           npx playwright install --with-deps
+
+      - name: Execute Node.js test
+        run: |
+          node -v
+          node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
 
       - name: Headless - Run Playwright Tests
         id: headless-run-playwright-tests
