@@ -200,6 +200,11 @@ jobs:
       - name: Execute Node.js test
         if: matrix.os == 'ubuntu-20.04'
         run: |
+          cd headless-test
+          cabal run wasp-cli clean
+          cabal run wasp-cli compile
+          cat .wasp/out/server/src/polyfill.ts
+          cabal run wasp-cli start
           node -v
           node -e "import { webcrypto } from 'node:crypto';globalThis.crypto = webcrypto;console.log('works!')" --input-type=module
 
