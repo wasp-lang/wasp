@@ -27,5 +27,7 @@ const cb = (code) => {
     process.exit(code);
   }
 }
+// Print out Node version
+spawn('check', 'node', ['--version'], () => {});
 spawn('app', 'npm', ['run', 'example-app:start-app'], cb);
 spawn('db', 'npm', ['run', 'example-app:start-db'], cb)

@@ -44,7 +44,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run example-app:start",
+    command: "node -v && npm run example-app:start",
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
