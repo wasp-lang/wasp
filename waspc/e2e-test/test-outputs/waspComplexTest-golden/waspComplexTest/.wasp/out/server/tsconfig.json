@@ -2,15 +2,6 @@
   "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
-    // Filip: begin client file hacks
-    // We need this to make server work with copied client files (we copy everything)
-    "jsx": "preserve",
-    "lib": [
-      "esnext",
-      "dom",
-      "DOM.Iterable"
-    ],
-    // Filip: end client file hacks
     "strict": false,
     // When left unspecified, the 'rootDir' defaults to the longest common path of
     // all non-declaration input files. TypeScript mimics the source structure
