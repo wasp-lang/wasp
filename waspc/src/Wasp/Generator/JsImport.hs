@@ -16,9 +16,12 @@ import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
+    applyJsImportAlias,
     getJsImportStmtAndIdentifier,
     makeJsImport,
   )
+import qualified Wasp.JsImport as JI
+import Wasp.Util (toUpperFirst)
 
 extImportToJsImport ::
   GeneratedSrcDir d =>
@@ -43,9 +46,16 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
 
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
-      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
+      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier $ mangleImportIdentifier jsImport
        in object
             [ "isDefined" .= True,
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier
             ]
+      where
+        mangleImportIdentifier :: JsImport -> JsImport
+        mangleImportIdentifier JI.JsImport {JI._name = JsImportModule name} = prefixTheImportName name jsImport
+        mangleImportIdentifier JI.JsImport {JI._name = JsImportField name} = prefixTheImportName name jsImport
+
+        prefixTheImportName :: String -> JsImport -> JsImport
+        prefixTheImportName originalName = applyJsImportAlias (Just ("__userDefined" ++ toUpperFirst originalName))
