@@ -15,17 +15,27 @@ export async function verifyEmail(
 ): Promise<Response<{ success: true }>> {
     try {
         const { token } = req.body;
-        const { email } = await validateJWT<{ email: string }>(token);
+        const { email } = await validateJWT<{ email: string }>(token)
+            .catch(() => {
+                throw new HttpError(400, "Email verification failed, invalid token");
+            });
 
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
+        if (!authIdentity) {
+            throw new HttpError(400, "Email verification failed, invalid token");
+        }
+
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
 
         await updateAuthIdentityProviderData(providerId, providerData, {
             isEmailVerified: true,
         });
     } catch (e) {
-        throw new HttpError(400, `Email verification failed, invalid token`);
+        if (e instanceof HttpError) {
+            throw e;
+        }
+        throw new HttpError(500, "Something went wrong");
     }
 
     return res.json({ success: true });

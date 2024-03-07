@@ -18,7 +18,10 @@ export async function resetPassword(
 
     const { token, password } = args;
     try {
-        const { email } = await validateJWT<{ email: string }>(token);
+        const { email } = await validateJWT<{ email: string }>(token)
+            .catch(() => {
+                throw new HttpError(400, "Password reset failed, invalid token");
+            });
 
         const providerId = createProviderId('email', email);
         const authIdentity = await findAuthIdentity(providerId);
@@ -36,7 +39,10 @@ export async function resetPassword(
             hashedPassword: password,
         });
     } catch (e) {
-        throw new HttpError(400, `Password reset failed, invalid token`);
+        if (e instanceof HttpError) {
+            throw e;
+        }
+        throw new HttpError(500, "Something went wrong");
     }
     return res.json({ success: true });
 };
