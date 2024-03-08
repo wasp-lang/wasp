@@ -139,12 +139,11 @@ export const ResultPage = () => {
           (path) =>
             path !== ".env.server" &&
             path !== ".env.client" &&
-            path !== "src/client/vite-env.d.ts" &&
-            path !== "src/client/tsconfig.json" &&
-            path !== "src/server/tsconfig.json" &&
-            path !== "src/shared/tsconfig.json" &&
+            path !== "src/vite-env.d.ts" &&
+            path !== "tsconfig.json" &&
             path !== ".gitignore" &&
-            path !== "src/.waspignore" &&
+            path !== ".waspignore" &&
+            path !== "public/.gitkeep" &&
             path !== ".wasproot"
         )
         .sort((a, b) => {
@@ -388,7 +387,7 @@ function getStatusPillData(generationResult) {
     success: "success",
     failure: "error",
     cancelled: "cancelled",
-    deleted: "deleted"
+    deleted: "deleted",
   };
 
   const queueCardinalNumber = getCardinalNumber(generationResult.numberOfProjectsAheadInQueue);
@@ -399,7 +398,7 @@ function getStatusPillData(generationResult) {
     success: "Finished",
     failure: "There was an error",
     cancelled: "The generation was cancelled",
-    deleted: "The project was deleted"
+    deleted: "The project was deleted",
   };
 
   return {
@@ -456,13 +455,15 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     return <span className="py-1 px-2 font-semibold text-pink-800 rounded">{children}</span>;
   }
 
-  function calcCostForGpt_3_5_Turbo_0125 (numTokensSpent) {
+  function calcCostForGpt_3_5_Turbo_0125(numTokensSpent) {
     const estimatedInputTokenShare = 0.8;
     const estimatedOutputTokenShare = 1 - estimatedInputTokenShare;
-    const costInUsdForMillionInputTokens = 0.5;  // This is price for GPT 3.5 Turbo 0125.
-    const costInUsdForMillionOutputTokens = 1.5;  // This is price for GPT 3.5 Turbo 0125.
-    const costInUsdForMillionTokens = costInUsdForMillionInputTokens * estimatedInputTokenShare + costInUsdForMillionOutputTokens * estimatedOutputTokenShare;
-    return (numTokensSpent / 1e6 * costInUsdForMillionTokens).toFixed(2);
+    const costInUsdForMillionInputTokens = 0.5; // This is price for GPT 3.5 Turbo 0125.
+    const costInUsdForMillionOutputTokens = 1.5; // This is price for GPT 3.5 Turbo 0125.
+    const costInUsdForMillionTokens =
+      costInUsdForMillionInputTokens * estimatedInputTokenShare +
+      costInUsdForMillionOutputTokens * estimatedOutputTokenShare;
+    return ((numTokensSpent / 1e6) * costInUsdForMillionTokens).toFixed(2);
   }
 
   return (
@@ -490,7 +491,9 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`~$${calcCostForGpt_3_5_Turbo_0125(Number(numTokensSpent))}`}</FormattedText>{" "}
+                  <FormattedText>{`~$${calcCostForGpt_3_5_Turbo_0125(
+                    Number(numTokensSpent)
+                  )}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (
