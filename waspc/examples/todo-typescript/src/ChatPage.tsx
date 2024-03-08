@@ -42,10 +42,9 @@ export const ChatPage = () => {
   ))
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-
   return (
     <>
-      <h2 className="text-2xl font-bold mb-4">Chat</h2>
+      <h2 className="text-2xl font-bold mb-4">Chats</h2>
       <div>
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-4 place-items-center">
