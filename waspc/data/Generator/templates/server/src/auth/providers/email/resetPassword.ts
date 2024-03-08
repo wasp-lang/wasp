@@ -17,33 +17,27 @@ export async function resetPassword(
     ensureValidArgs(args);
 
     const { token, password } = args;
-    try {
-        const { email } = await validateJWT<{ email: string }>(token)
-            .catch(() => {
-                throw new HttpError(400, "Password reset failed, invalid token");
-            });
-
-        const providerId = createProviderId('email', email);
-        const authIdentity = await findAuthIdentity(providerId);
-        if (!authIdentity) {
+    const { email } = await validateJWT<{ email: string }>(token)
+        .catch(() => {
             throw new HttpError(400, "Password reset failed, invalid token");
-        }
-        
-        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-
-        await updateAuthIdentityProviderData(providerId, providerData, {
-            // The act of resetting the password verifies the email
-            isEmailVerified: true,
-            // The password will be hashed when saving the providerData
-            // in the DB
-            hashedPassword: password,
         });
-    } catch (e) {
-        if (e instanceof HttpError) {
-            throw e;
-        }
-        throw new HttpError(500, "Something went wrong");
+
+    const providerId = createProviderId('email', email);
+    const authIdentity = await findAuthIdentity(providerId);
+    if (!authIdentity) {
+        throw new HttpError(400, "Password reset failed, invalid token");
     }
+    
+    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+    await updateAuthIdentityProviderData(providerId, providerData, {
+        // The act of resetting the password verifies the email
+        isEmailVerified: true,
+        // The password will be hashed when saving the providerData
+        // in the DB
+        hashedPassword: password,
+    });
+
     return res.json({ success: true });
 };
 
