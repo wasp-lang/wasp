@@ -27,11 +27,11 @@ page MainPage {
 }
 
 action submitProject {
-  fn: import { submitProject } from "@src/actions.js",
+  fn: import { submitProject } from "@src/projects.js",
   entities: [Submission]
 }
 
 query getProjects {
-  fn: import { getProjects } from "@src/queries.js",
+  fn: import { getProjects } from "@src/projects.js",
   entities: [Submission]
 }
