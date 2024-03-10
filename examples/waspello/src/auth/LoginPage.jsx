@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
+
 import { Link, useHistory } from 'react-router-dom'
 
-import login from '@wasp/auth/login'
+import EmailAndPassForm from './components/EmailAndPassForm'
+import GoogleAuthButton from './components/GoogleAuthButton'
+import addWaspSourceHeader from '../common/addWaspSourceHeader'
 
-import EmailAndPassForm from './Auth/EmailAndPassForm'
-import GoogleAuthButton from './Auth/GoogleAuthButton'
-import addWaspSourceHeader from './addWaspSourceHeader'
-
-import mainLogo from './waspello-logo.svg'
+import mainLogo from '../common/waspello-logo.svg'
 import './Signup.css'
+import { login } from "wasp/client/auth";
 
 const LoginPage = (props) => {
   const history = useHistory()

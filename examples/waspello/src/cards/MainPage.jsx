@@ -4,16 +4,6 @@ import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
-import { useQuery } from '@wasp/queries'
-import getListsAndCards from '@wasp/queries/getListsAndCards'
-import createList from '@wasp/actions/createList'
-import updateList from '@wasp/actions/updateList'
-import deleteList from '@wasp/actions/deleteList'
-import createListCopy from '@wasp/actions/createListCopy'
-
-import createCard from '@wasp/actions/createCard'
-import updateCard from '@wasp/actions/updateCard'
-
 import UserPageLayout from './UserPageLayout'
 
 import './Main.css'
@@ -24,6 +14,16 @@ import {
   PositionProvider
 } from './PositionContext'
 
+import {
+  createList,
+  updateList,
+  deleteList,
+  createListCopy,
+  createCard,
+  updateCard,
+  useQuery,
+  getListsAndCards,
+} from "wasp/client/operations";
 
 const createListIdToSortedCardsMap = (listsAndCards) => {
   const listIdToSortedCardsMap = {}

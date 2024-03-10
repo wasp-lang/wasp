@@ -1,5 +1,4 @@
-import { User } from "@wasp/auth/types";
-import { findUserIdentity, getUsername } from "@wasp/auth/user";
+import { getUsername, findUserIdentity, type AuthUser as User } from "wasp/auth";
 
 export function getName(user: User): string {
   // We have two ways of authenticating users, so
@@ -8,7 +7,7 @@ export function getName(user: User): string {
   const usernameIdentity = findUserIdentity(user, "username");
 
   if (usernameIdentity) {
-    return getUsername(user);
+    return getUsername(user)!;
   }
 
   if (googleIdentity) {

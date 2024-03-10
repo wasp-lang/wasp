@@ -1,7 +1,7 @@
 import React from 'react'
 
-import Navbar from './Navbar'
-import addWaspSourceHeader from './addWaspSourceHeader'
+import Navbar from '../common/Navbar'
+import addWaspSourceHeader from '../common/addWaspSourceHeader'
 
 import './UserPageLayout.css'
 
