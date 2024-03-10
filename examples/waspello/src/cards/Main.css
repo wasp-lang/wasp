@@ -175,7 +175,7 @@ ol, ul {
 .list-wrapper.mod-add {
   background-color: #ebecf0;
   padding: 6px 8px;
-  //transition: 85ms ease-in,opacity 40ms ease-in,border-color 85ms ease-in;
+  /* transition: 85ms ease-in,opacity 40ms ease-in,border-color 85ms ease-in; */
 }
 
 .list-wrapper.mod-add.is-idle {
@@ -314,7 +314,7 @@ textarea.mod-list-name:focus {
 
 .popover-header-item {
   display: flex;
-  //justify-content: center;
+  /* justify-content: center; */
 }
 
 .popover-header-item:first-child {
