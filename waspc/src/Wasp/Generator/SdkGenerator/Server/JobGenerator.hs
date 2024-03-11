@@ -98,8 +98,7 @@ getImportJsonForJobDefinition jobName =
       JI.JsImport
         { JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
           JI._name = JI.JsImportField jobName,
-          -- NOTE: We are using alias to avoid name conflicts with user defined imports.
-          JI._importAlias = Just "_waspJobDefinition"
+          JI._importAlias = Nothing
         }
 
 genJobExecutors :: AppSpec -> Generator [FileDraft]
