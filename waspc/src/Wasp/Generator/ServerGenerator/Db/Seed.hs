@@ -14,7 +14,7 @@ import StrongPath (Dir, File, Path, Path', Posix, Rel, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.ExtImport (ExtImport, importIdentifier)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -58,7 +58,10 @@ dbSeedsToTemplateData (Just seeds) =
   where
     dbSeedToTemplateData :: ExtImport -> Aeson.Value
     dbSeedToTemplateData extImport =
-      extImportToImportJson pathFromDbSeedScriptToServerSrc (Just extImport)
+      object
+        [ "name" .= importIdentifier extImport,
+          "seedFn" .= extImportToImportJson pathFromDbSeedScriptToServerSrc (Just extImport)
+        ]
 
 dbSeedNameEnvVarName :: String
 dbSeedNameEnvVarName = "WASP_DB_SEED_NAME"
