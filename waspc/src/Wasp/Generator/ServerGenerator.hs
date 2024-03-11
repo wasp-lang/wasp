@@ -13,10 +13,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
-import Data.Maybe
-  ( isJust,
-    maybeToList,
-  )
+import Data.Maybe (maybeToList)
 import StrongPath
   ( Dir,
     File',
@@ -50,7 +47,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
@@ -266,21 +263,9 @@ genMiddleware spec =
       genOperationsMiddleware spec
     ]
   where
-    tmplData =
-      object
-        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData
-        ]
-
-    globalMiddlewareConfigFnTmplData :: Aeson.Value
-    globalMiddlewareConfigFnTmplData =
-      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
-          globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
-          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
-       in object
-            [ "isDefined" .= isJust maybeGlobalMidlewareConfigFnImports,
-              "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
-              "importAlias" .= globalMiddlewareConfigFnAlias
-            ]
+    tmplData = object ["globalMiddlewareConfigFn" .= globalMiddlewareConfigFn]
+    globalMiddlewareConfigFn = extImportToImportJson [reldirP|../|] maybeGlobalMiddlewareConfigFn
+    maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
 
 genOperationsMiddleware :: AppSpec -> Generator FileDraft
 genOperationsMiddleware spec =

@@ -11,9 +11,10 @@ export type { MiddlewareConfig, MiddlewareConfigFn } from 'wasp/server/middlewar
 
 {=# globalMiddlewareConfigFn.isDefined =}
 {=& globalMiddlewareConfigFn.importStatement =}
+const globalMiddlewareConfigFn = {= globalMiddlewareConfigFn.importIdentifier =}
 {=/ globalMiddlewareConfigFn.isDefined =}
 {=^ globalMiddlewareConfigFn.isDefined =}
-const {=& globalMiddlewareConfigFn.importAlias =} = (mc: MiddlewareConfig) => mc
+const globalMiddlewareConfigFn = (mc: MiddlewareConfig) => mc
 {=/ globalMiddlewareConfigFn.isDefined =}
 
 // This is the set of middleware Wasp supplies by default.
@@ -29,7 +30,7 @@ const defaultGlobalMiddlewareConfig: MiddlewareConfig = new Map([
 
 // This is the global middleware that is the result of applying the user's modifications.
 // It will be used as the basis for Operations and APIs (unless they are further customized).
-const globalMiddlewareConfig: MiddlewareConfig = {=& globalMiddlewareConfigFn.importAlias =}(defaultGlobalMiddlewareConfig)
+const globalMiddlewareConfig: MiddlewareConfig = globalMiddlewareConfigFn(defaultGlobalMiddlewareConfig)
 
 // This function returns an array of Express middleware to be used by a router. It optionally
 // accepts a function that can modify the global middleware for specific route customization.
