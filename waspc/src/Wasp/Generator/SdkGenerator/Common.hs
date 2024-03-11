@@ -4,10 +4,13 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
+import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.JsImport as JI
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
 
 data SdkRootDir
@@ -79,3 +82,22 @@ clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
+
+extImportToSdkImportJson :: Maybe EI.ExtImport -> Aeson.Value
+extImportToSdkImportJson =
+  GJI.jsImportToImportJson
+    . extImportToSdkJsImport
+
+extImportToSdkJsImport :: Maybe EI.ExtImport -> Maybe JI.JsImport
+extImportToSdkJsImport Nothing = Nothing
+extImportToSdkJsImport (Just (EI.ExtImport extImportName extImportPath)) =
+  Just $
+    JI.JsImport
+      { _path = JI.ModuleImportPath importPath,
+        _name = importName,
+        _importAlias = Nothing
+      }
+  where
+    importPath = makeSdkImportPath $ extCodeDirP </> SP.castRel extImportPath
+    extCodeDirP = fromJust $ SP.relDirToPosix extCodeDirInSdkRootDir
+    importName = GJI.extImportNameToJsImportName extImportName

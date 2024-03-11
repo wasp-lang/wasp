@@ -15,10 +15,9 @@ import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Common (extImportToSdkImportJson)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (extImportToJsImport)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
@@ -39,11 +38,11 @@ genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSo
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "userWebSocketFn" .= GJI.jsImportToImportJson (extImportToJsImport <$> mayebWebSocketFn),
+          "userWebSocketFn" .= extImportToSdkImportJson maybeWebSocketFn,
           "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
         ]
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-    mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
+    maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
 genWebSocketProvider :: AppSpec -> Generator FileDraft
 genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
