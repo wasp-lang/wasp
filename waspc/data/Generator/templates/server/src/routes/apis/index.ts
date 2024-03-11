@@ -9,11 +9,11 @@ import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 
 {=# apiNamespaces =}
-{=& namespaceMiddlewareConfigFnImportStatement =}
+{=& namespaceMiddlewareConfigFn.importStatement =}
 {=/ apiNamespaces =}
 
 {=# apiRoutes =}
-{=& importStatement =}
+{=& apiRouteFn.importStatement =}
 {=# routeMiddlewareConfigFn.isDefined =}
 {=& routeMiddlewareConfigFn.importStatement =}
 {=/ routeMiddlewareConfigFn.isDefined =}
@@ -21,20 +21,20 @@ import { type AuthUser } from 'wasp/auth'
 
 const idFn: MiddlewareConfigFn = x => x
 
-{=# apiRoutes =}
-{=^ routeMiddlewareConfigFn.isDefined =}
-const {=& routeMiddlewareConfigFn.importAlias =} = idFn
-{=/ routeMiddlewareConfigFn.isDefined =}
-{=/ apiRoutes =}
-
 const router = express.Router()
 
 {=# apiNamespaces =}
-router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
+router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFn.importIdentifier =}))
 {=/ apiNamespaces =}
 
 {=# apiRoutes =}
-const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importAlias =})
+{=# routeMiddlewareConfigFn.isDefined =}
+const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importIdentifier =})
+{=/ routeMiddlewareConfigFn.isDefined =}
+{=^ routeMiddlewareConfigFn.isDefined =}
+const {= apiName =}Middleware = globalMiddlewareConfigForExpress(idFn)
+{=/ routeMiddlewareConfigFn.isDefined =}
+
 router.{= routeMethod =}(
   '{= routePath =}',
   {=# usesAuth =}
@@ -45,8 +45,8 @@ router.{= routeMethod =}(
   {=/ usesAuth =}
   handleRejection(
     (
-      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUser }{=/ usesAuth =},
-      res: Parameters<typeof {= importIdentifier =}>[1],
+      req: Parameters<typeof {= apiRouteFn.importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUser }{=/ usesAuth =},
+      res: Parameters<typeof {= apiRouteFn.importIdentifier =}>[1],
     ) => {
       const context = {
         {=# usesAuth =}
@@ -58,7 +58,7 @@ router.{= routeMethod =}(
           {=/ entities =}
         },
       }
-      return {= importIdentifier =}(req, res, context)
+      return {= apiRouteFn.importIdentifier =}(req, res, context)
     }
   )
 )
