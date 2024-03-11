@@ -83,7 +83,6 @@ genSdkReal spec =
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/config.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -91,6 +90,7 @@ genSdkReal spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|dev/index.ts|],
+      genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -261,8 +261,15 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
         [ "isAuthEnabled" .= isAuthEnabled spec,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
-          "defaultServerUrl" .= Server.defaultDevServerUrl
+          "defaultServerUrl" .= Server.defaultDevServerUrl,
+          "defaultServerPort" .= Server.defaultServerPort
         ]
+
+genClientConfigFile :: Generator FileDraft
+genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+  where
+    relConfigFilePath = [relfile|core/config.ts|]
+    tmplData = object ["defaultServerUrl" .= Server.defaultDevServerUrl]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.

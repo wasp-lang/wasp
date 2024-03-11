@@ -41,7 +41,7 @@ const config: {
   all: {
     env,
     isDevelopment: env === 'development',
-    port: parseInt(process.env.PORT) || 3001,
+    port: parseInt(process.env.PORT) || {= defaultServerPort =},
     databaseUrl: process.env.{= databaseUrlEnvVarName =},
     allowedCORSOrigins: [],
     {=# isAuthEnabled =}
