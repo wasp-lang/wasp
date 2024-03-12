@@ -34,6 +34,7 @@
     "./auth/password": "./dist/auth/password.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
     "./auth/session": "./dist/auth/session.js",
+    "./auth/types": "./dist/auth/types.js",
     "./auth/utils": "./dist/auth/utils.js",
     "./auth/validation": "./dist/auth/validation.js",
     "./client": "./dist/client/index.js",
