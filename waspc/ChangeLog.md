@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.4 (2024-03-12)
+
+### 🐞 Bug fixes
+
+- Projects that import `wasp/auth/types` no longer fail when building the web app.
+
 ## 0.12.3 (2024-03-01)
 
 ### 🎉 New features
