@@ -400,15 +400,15 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 ### Typical Release Process
 
 Do the **Bold steps** for every release of `waspc`.
-Do the non-bold steps when necessary (e.g., breaking changes or new features that require it)
+Do the non-bold steps when necessary (decide for each step depending on the changes).
 
-- Update the starter templates if necessary (e.g., if there are breaking changes or new features they should make use of):
+- Update the starter templates if necessary (i.e., if there are breaking changes or new features they should make use of):
   - Context: they are used by used by `wasp new`, you can find reference to them in `Wasp.Cli. ... .StarterTemplates`.
   - In `StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `wasp-v0.13.1-template`).
   - Ensure that all starter templates are working with this new version of Wasp.
     Update Wasp version in their main.wasp files. Finally, in their repos (for those templates that are on Github),
     create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`).
-- Make sure apps in [examples](/examples) are up to date with and using the newest version of Wasp.
+- Make sure apps in [examples](/examples) are up to date and using a version compatible with the newest version of Wasp.
 - Make sure that Wasp AI (which is part of `waspc`) is correctly producing apps that work with and use the newest version of Wasp.
   This usually means checking that templates and prompts are up to date.
 - Make sure [mage](/mage) is producing Wasp apps that support the newest version of Wasp (this is configured in its Dockerfile: which version of `wasp` CLI will it use to produce app via AI).
@@ -429,7 +429,7 @@ Do the non-bold steps when necessary (e.g., breaking changes or new features tha
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
-- Announce new release in Discord.
+- Announce new release in Discord if it makes sense.
 
 #### Determining next version
 
