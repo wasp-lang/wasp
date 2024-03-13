@@ -399,7 +399,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 
 ### Typical Release Process
 
-Do the **Bold steps** for every release of `waspc`.
+Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes).
 
 - Update the starter templates if necessary (i.e., if there are breaking changes or new features they should make use of):
