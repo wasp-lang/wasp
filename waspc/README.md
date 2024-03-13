@@ -413,19 +413,19 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   This usually means checking that templates and prompts are up to date.
 - Make sure [mage](/mage) is producing Wasp apps that support the newest version of Wasp (this is configured in its Dockerfile: which version of `wasp` CLI will it use to produce app via AI).
   Mage itself, as a Wasp app, doesn't have to be using the latest Wasp version to run, but the apps it is producing should.
-- **`ChangeLog.md` and the version in `waspc.cabal` should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing `ChangeLog.md` a bit even if all the data is already there. Also make sure the `ChangeLog.md` specifies the correct version of Wasp.**
-- **If you modified `ChangeLog.md` or `waspc.cabal`, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.**
-- **Update your local repository state to have all remote changes (`git fetch`).**
-- **Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.**
+- 👉 `ChangeLog.md` and the version in `waspc.cabal` should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing `ChangeLog.md` a bit even if all the data is already there. Also make sure the `ChangeLog.md` specifies the correct version of Wasp.
+  - If you modify `ChangeLog.md` or `waspc.cabal`, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
+- 👉 Update your local repository state to have all remote changes (`git fetch`).\*\*
+- 👉 Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
 - Take a versioned "snapshot" of the current docs by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the README in the `web` dir for more details. Commit this change to `main`.
-- **Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.**
-- **Make sure you are on `release` and then run `./new-release 0.x.y`.**
-  - **This will do some checks, tag it with new release version, and push it.**
-- **Wait for CI to finish & succeed for the new tag.**
-  - **This will automatically create a new draft release.**
-- **Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.**
-- **Publish the draft release when ready.**
-- **Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.**
+- 👉 Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
+- 👉 Make sure you are on `release` and then run `./new-release 0.x.y`.
+  - This will do some checks, tag it with new release version, and push it.
+- 👉 Wait for CI to finish & succeed for the new tag.
+  - This will automatically create a new draft release.
+- 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
+- 👉 Publish the draft release when ready.
+- 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
