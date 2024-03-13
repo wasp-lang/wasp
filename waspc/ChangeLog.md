@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0
+
+### 🎉 New features
+
+- Wasp now supports defining the `WASP_SERVER_URL` environment variable and exposes it as `serverUrl` in the server config which can be imported from `wasp/server`.
+
 ## 0.12.3 (2024-03-01)
 
 ### 🎉 New features

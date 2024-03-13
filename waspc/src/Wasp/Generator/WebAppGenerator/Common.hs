@@ -22,7 +22,7 @@ module Wasp.Generator.WebAppGenerator.Common
     staticAssetsDirInWebAppDir,
     WebAppStaticAssetsDir,
     getBaseDir,
-    getDefaultClientUrl,
+    getDefaultDevClientUrl,
     defaultClientPort,
   )
 where
@@ -148,5 +148,5 @@ getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
 defaultClientPort :: Int
 defaultClientPort = 3000
 
-getDefaultClientUrl :: AppSpec -> String
-getDefaultClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ SP.fromAbsDirP (getBaseDir spec)
+getDefaultDevClientUrl :: AppSpec -> String
+getDefaultDevClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ SP.fromAbsDirP (getBaseDir spec)
