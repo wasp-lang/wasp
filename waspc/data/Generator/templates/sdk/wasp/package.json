@@ -85,8 +85,6 @@
       {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
       {=! Private: [] =}
       "./server": "./dist/server/index.js",
-      {=! Public: { config, HttpMethod, Route } =}
-      "./client": "./dist/client/index.js",
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
       {=! Private: [] =}
       "./server/api": "./dist/server/api/index.js",
