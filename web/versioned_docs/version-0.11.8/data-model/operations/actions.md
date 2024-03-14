@@ -227,7 +227,7 @@ To use an Action, you can import it from `@wasp` and call it directly. As mentio
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```javascript
+```js
 import createTask from '@wasp/actions/createTask.js'
 import markTasAsDone from '@wasp/actions/markTasAsDone.js'
 
@@ -240,7 +240,7 @@ await markTasAsDone({ id: 1 })
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```typescript
+```ts
 import createTask from '@wasp/actions/createTask.js'
 import markTasAsDone from '@wasp/actions/markTasAsDone.js'
 

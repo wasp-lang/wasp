@@ -774,7 +774,7 @@ We want to avoid running this script many times otherwise our account could get 
 
 So inside `src/server/scripts/tokens.ts` add the following code:
 
-```typescript
+```ts
 import { Rettiwt } from 'rettiwt-api'; 
 
 /**
@@ -797,7 +797,7 @@ Make sure to add your twitter login details to our `.env.server` file, if you ha
 
 Great. To be able to run this script via a simple Wasp CLI command, add it via the `seeds` array within the `db` object at the top of your `main.wasp` file:
 
-```typescript
+```ts
 app twitterAgent {
   wasp: {
     version: "^0.10.6"

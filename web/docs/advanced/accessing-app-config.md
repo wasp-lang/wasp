@@ -6,15 +6,16 @@ Whenever you start a Waps app, you are starting two processes.
  - **The client process** - A React app that implements your app's frontend.
 
     During development, this is a dev server with hot reloading. In production,
-    it's a Node process that serves pre-built static files with environment variables
-    embedded during the build.
+    it's a simple process that serves pre-built static files with environment variables
+    embedded during the build (details depend on [how you deploy
+    it](/docs/advanced/deployment/overview)).
 
  - **The server process** - An Express server that implements your app's backend.
  
-  During development, this is an Express server controlled by a
-  [`nodemon`](https://www.npmjs.com/package/nodemon) process that takes care of
-  hot reloading and restarts. In production, it's a regular Express server run
-  using Node.
+    During development, this is an Express server controlled by a
+    [`nodemon`](https://www.npmjs.com/package/nodemon) process that takes care of
+    hot reloading and restarts. In production, it's a regular Express server run
+    using Node.
 
 Check [the introduction](/docs) for a more in-depth explanation of Wasp's runtime architecture.
 
@@ -36,7 +37,7 @@ The server configuration object contains these fields:
   (i.e., with the DNS and proxies considered).
 
 You can access it like this:
-```javascript
+```js
 import { config } from 'wasp/server'
 
 console.log(config.frontendUrl)
@@ -52,7 +53,7 @@ The client configuration object contains these fields:
   sees it (i.e., with the DNS and proxies considered).
 
 You can access it like this:
-```javascript
+```js
 import { config } from 'wasp/client'
 
 console.log(config.apiUrl)

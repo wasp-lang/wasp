@@ -69,13 +69,13 @@ action updateTask {
 }
 ```
 This is the query we use to fetch the tasks (together with their statuses):
-```javascript title=queries.js
+```js title=queries.js
 export const getTasks = async (args, context) => {
   return context.entities.Task.findMany()
 }
 ```
 Here's the action we use to update a task’s status:
-```javascript title=actions.js
+```js title=actions.js
 export const updateTask = async ({ id, isDone }, context) => {
   return context.entities.Task.updateMany({
     where: { id },
