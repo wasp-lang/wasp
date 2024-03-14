@@ -11,7 +11,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "6d69f0df651dd19d0a9cd137ee4a0d536358269b6bd91c25efaa6c254f06948a"
+        "b33b86f9a24e947243d7c64e8adffb72a42fde853af0d29641429d4697d040b2"
     ],
     [
         [
@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "82c849f5a05a4c02cf37975cf9628200670a8517fac1d049aac8dff8e7962be2"
+        "cba000c7dedb0e2f1c9730719e23215036a599bd58e7590adc5cdb176ac6b76b"
     ],
     [
         [
@@ -81,7 +81,7 @@
             "file",
             "../out/sdk/wasp/auth/helpers/Google.tsx"
         ],
-        "301bcd7c5615ab733c976f9986a5628bd9c3ccfc2cd69056c002413d685199b3"
+        "6b2e16f0e4d55122bdfbda3b105104628e4f229af50a1d0610e08b0138f44a7e"
     ],
     [
         [
@@ -198,6 +198,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/config.ts"
+        ],
+        "12a7dffb1c3fe762cec8d9d928af353cb169ff199d3934b1f3c27ce0e3a2f987"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/crud/index.ts"
         ],
         "ca3b06b6c04c38c69523f435f6a15e9984414b440648708ea7227cd619b2f918"
@@ -214,7 +221,7 @@
             "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "526d2f787c68b0be87064eb4c7771394f2987b6669b5fd39f9d240dcbfc2356c"
+        "fa9e46eff833aa9ab547530aa54453960cdcd43853ad544a8b7af16e985a227c"
     ],
     [
         [
@@ -340,7 +347,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "e0fbaf237a21b52ff47897fb1f1b1bffb0085670b71ba7d0b1d90547ab5a8f3b"
+        "b2362e8f80134137fda2f8bb43ef7c0d7ae8aadf8a7adfa472d42d6699e9d918"
     ],
     [
         [
@@ -348,13 +355,6 @@
             "../out/sdk/wasp/core/auth.ts"
         ],
         "489b2f1840c2d44bdf16f6a949f7217c55c5569a931c3ca9f8484571428840e6"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/core/config.ts"
-        ],
-        "12a7dffb1c3fe762cec8d9d928af353cb169ff199d3934b1f3c27ce0e3a2f987"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "e3b7828a4e3873f9aa8b8afa43291b6009f7f62b480d14398a5243f9b29c06e1"
+        "c72ca2c19c1645e2af88e41cd6968de95acb8d736cc48dd3c1a98203164ea6b3"
     ],
     [
         [
@@ -1117,7 +1117,7 @@
             "file",
             "web-app/src/auth/pages/OAuthCodeExchange.jsx"
         ],
-        "e4d576893ad5d010e648a15ee2fed41b3c81a3fea2509ca36e8a0eb50dad57f6"
+        "714f11069cf0d238e50cef6ed485843a007dfc6c1d023cf5e090689a53a10690"
     ],
     [
         [

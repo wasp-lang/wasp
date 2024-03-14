@@ -1,4 +1,4 @@
-import config from 'wasp/core/config';
+import { config } from 'wasp/client';
 import { SocialButton } from '../forms/internal/social/SocialButton';
 import * as SocialIcons from '../forms/internal/social/SocialIcons';
 // PUBLIC API

@@ -5,6 +5,7 @@ waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedNpmDepsLog.json
 waspCompile/.wasp/out/sdk/wasp/api/events.ts
 waspCompile/.wasp/out/sdk/wasp/api/index.ts
+waspCompile/.wasp/out/sdk/wasp/client/config.ts
 waspCompile/.wasp/out/sdk/wasp/client/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/actions/core.d.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/actions/core.js
@@ -24,7 +25,6 @@ waspCompile/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspCompile/.wasp/out/sdk/wasp/client/router/types.ts
 waspCompile/.wasp/out/sdk/wasp/client/test/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
-waspCompile/.wasp/out/sdk/wasp/core/config.ts
 waspCompile/.wasp/out/sdk/wasp/core/storage.ts
 waspCompile/.wasp/out/sdk/wasp/dev/index.ts
 waspCompile/.wasp/out/sdk/wasp/dist/api/events.d.ts
@@ -33,6 +33,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/api/events.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/api/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/api/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/api/index.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/client/config.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/client/config.js
+waspCompile/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -84,9 +87,6 @@ waspCompile/.wasp/out/sdk/wasp/dist/client/test/index.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
-waspCompile/.wasp/out/sdk/wasp/dist/core/config.d.ts
-waspCompile/.wasp/out/sdk/wasp/dist/core/config.js
-waspCompile/.wasp/out/sdk/wasp/dist/core/config.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.js
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.js.map

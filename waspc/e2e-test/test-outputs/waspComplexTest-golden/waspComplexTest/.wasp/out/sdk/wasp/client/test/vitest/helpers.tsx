@@ -7,7 +7,7 @@ import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from 'wasp/client/operations/core'
-import config from 'wasp/core/config'
+import { config } from 'wasp/client'
 import { HttpMethod, Route } from 'wasp/client'
 
 // PRIVATE API
