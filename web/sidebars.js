@@ -114,6 +114,7 @@ module.exports = {
         'advanced/email/email',
         'advanced/jobs',
         'advanced/web-sockets',
+        'advanced/accessing-app-config',
         'advanced/apis',
         'advanced/middleware-config',
         'advanced/links',
@@ -131,7 +132,13 @@ module.exports = {
       label: 'Miscellaneous',
       collapsed: false,
       collapsible: false,
-      items: ['contributing', 'telemetry', 'vision', 'contact', 'migrate-from-0-11-to-0-12'],
+      items: [
+        'contributing',
+        'telemetry',
+        'vision',
+        'contact',
+        'migrate-from-0-11-to-0-12',
+      ],
     },
   ],
 }
