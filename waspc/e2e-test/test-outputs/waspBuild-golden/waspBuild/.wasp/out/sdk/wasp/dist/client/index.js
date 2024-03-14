@@ -7,5 +7,6 @@ export var HttpMethod;
     HttpMethod["Put"] = "PUT";
     HttpMethod["Delete"] = "DELETE";
 })(HttpMethod || (HttpMethod = {}));
+// PUBLIC API
 export { default as config } from './config';
 //# sourceMappingURL=index.js.map
