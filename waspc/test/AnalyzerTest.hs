@@ -9,7 +9,6 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp.AI.GenerateNewProject.Common as Auth
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC
@@ -145,6 +144,7 @@ spec_Analyzer = do
                                         { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
                                         },
                                   Auth.google = Nothing,
+                                  Auth.keycloak = Nothing,
                                   Auth.gitHub = Nothing,
                                   Auth.email = Nothing
                                 },

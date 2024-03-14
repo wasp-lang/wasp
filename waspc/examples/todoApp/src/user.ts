@@ -21,6 +21,11 @@ export function getName(user?: User) {
     return `GitHub user ${githubIdentity.providerUserId}`
   }
 
+  const keycloakIdentity = findUserIdentity(user, 'keycloak')
+  if (keycloakIdentity) {
+    return `Keycloak user ${keycloakIdentity.providerUserId}`
+  }
+
   // If we don't know how to get the name, return null.
   return null
 }

@@ -20,14 +20,6 @@ export function Pill({ children, linkToPage, style = {} }) {
   )
 }
 
-/*
-:root {
-  --auth-pills-email: #e0f2fe;
-  --auth-pills-github: #f1f5f9;
-  --auth-pills-google: #ecfccb;
-  --auth-pills-username-and-pass: #fce7f3;
-}
-*/
 export function EmailPill() {
   return (
     <Pill
@@ -76,6 +68,19 @@ export function GooglePill() {
       linkToPage="/docs/auth/social-auth/google"
     >
       Google
+    </Pill>
+  )
+}
+
+export function KeycloakPill() {
+  return (
+    <Pill
+      style={{
+        backgroundColor: 'var(--auth-pills-keycloak)',
+      }}
+      linkToPage="/docs/auth/social-auth/keycloak"
+    >
+      Keycloak
     </Pill>
   )
 }

@@ -16,6 +16,11 @@ export function SocialAuthGrid({
       description: 'Users sign in with their Github account.',
       linkToDocs: '/docs/auth/social-auth/github' + pagePart,
     },
+    {
+      title: 'Keycloak',
+      description: 'Users sign in with their Keycloak account.',
+      linkToDocs: '/docs/auth/social-auth/keycloak' + pagePart,
+    },
   ]
   return (
     <>

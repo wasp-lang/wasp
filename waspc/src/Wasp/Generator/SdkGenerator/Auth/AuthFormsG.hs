@@ -6,7 +6,11 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
+import Wasp.Generator.AuthProviders
+  ( gitHubAuthProvider,
+    googleAuthProvider,
+    keycloakAuthProvider,
+  )
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -114,6 +118,9 @@ genLoginSignupForm auth =
           -- Google
           "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+          -- Keycloak
+          "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
+          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
           -- GitHub
           "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
           "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
