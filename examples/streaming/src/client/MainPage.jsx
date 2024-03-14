@@ -1,5 +1,4 @@
-// note: undocumented API
-import config from 'wasp/core/config'
+import { config } from 'wasp/client'
 import { useState, useEffect } from 'react'
 import './Main.css'
 

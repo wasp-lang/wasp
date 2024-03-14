@@ -13,8 +13,6 @@
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./core/config": "./dist/core/config.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/stitches.config": "./dist/core/stitches.config.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
@@ -87,6 +85,8 @@
       {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
       {=! Private: [] =}
       "./server": "./dist/server/index.js",
+      {=! Public: { config, HttpMethod, Route } =}
+      "./client": "./dist/client/index.js",
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
       {=! Private: [] =}
       "./server/api": "./dist/server/api/index.js",

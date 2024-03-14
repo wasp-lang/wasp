@@ -82,7 +82,7 @@ genSdkReal spec =
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/config.ts|],
+      genFileCopy [relfile|client/config.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
