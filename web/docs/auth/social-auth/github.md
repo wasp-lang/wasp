@@ -26,7 +26,7 @@ Enabling GitHub Authentication comes down to a series of steps:
 1. Enabling GitHub authentication in the Wasp file.
 1. Adding the `User` entity.
 1. Creating a GitHub OAuth app.
-1. Adding the neccessary Routes and Pages
+1. Adding the necessary Routes and Pages
 1. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
@@ -41,7 +41,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -66,7 +66,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -135,8 +135,8 @@ width="400px"
 />
 
 - For **Authorization callback URL**:
-  - For development, put: `http://localhost:3000/auth/login/github`.
-  - Once you know on which URL your app will be deployed, you can create a new app with that URL instead e.g. `https://someotherhost.com/auth/login/github`.
+  - For development, put: `http://localhost:3001/auth/github/callback`.
+  - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/github/callback`.
 
 4. Hit **Register application**.
 5. Hit **Generate a new client secret** on the next page.
@@ -255,7 +255,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 </TabItem>
 </Tabs>
 
-We imported the generated Auth UI component and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
 
 ### Conclusion
 
@@ -276,7 +276,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -296,7 +296,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -319,7 +319,52 @@ app myApp {
 
 <OverrideIntro />
 
-### Using the User's Provider Account Details
+### Data Received From GitHub
+
+We are using GitHub's API and its `/user` and `/user/emails` endpoints to get the user data.
+
+:::info We combine the data from the two endpoints
+
+You'll find the emails in the `emails` property in the object that you receive in `userSignupFields`.
+
+This is because we combine the data from the `/user` and `/user/emails` endpoints **if the `user` or `user:email` scope is requested.**
+
+:::
+
+The data we receive from GitHub on the `/user` endpoint looks something this:
+
+```json
+{
+  "login": "octocat",
+  "id": 1,
+  "name": "monalisa octocat",
+  "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+  "gravatar_id": "",
+  // ...
+}
+```
+
+And the data from the `/user/emails` endpoint looks something like this:
+
+```json
+[
+  {
+    "email": "octocat@github.com",
+    "verified": true,
+    "primary": true,
+    "visibility": "public"
+  }
+]
+```
+
+The fields you receive will depend on the scopes you requested. By default we don't specify any scopes. If you want to get the emails, you need to specify the `user` or `user:email` scope in the `configFn` function.
+
+<small>
+
+For an up to date info about the data received from GitHub, please refer to the [GitHub API documentation](https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user).
+</small>
+
+### Using the Data Received From GitHub
 
 <OverrideExampleIntro />
 
@@ -329,7 +374,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -358,14 +403,12 @@ psl=}
 ```js title=src/auth/github.js
 export const userSignupFields = {
   username: () => "hardcoded-username",
-  displayName: (data) => data.profile.displayName,
+  displayName: (data) => data.profile.name,
 };
 
 export function getConfig() {
   return {
-    clientID // look up from env or elsewhere
-    clientSecret // look up from env or elsewhere
-    scope: [],
+    scopes: ['user'],
   };
 }
 ```
@@ -376,7 +419,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -407,14 +450,12 @@ import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   username: () => "hardcoded-username",
-  displayName: (data) => data.profile.displayName,
+  displayName: (data: any) => data.profile.name,
 })
 
 export function getConfig() {
   return {
-    clientID, // look up from env or elsewhere
-    clientSecret, // look up from env or elsewhere
-    scope: [],
+    scopes: ['user'],
   }
 }
 ```
@@ -438,7 +479,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -462,7 +503,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -487,7 +528,7 @@ The `gitHub` dict has the following properties:
 
 - #### `configFn: ExtImport`
 
-  This function should return an object with the Client ID, Client Secret, and scope for the OAuth provider.
+  This function should return an object with the scopes for the OAuth provider.
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -495,9 +536,7 @@ The `gitHub` dict has the following properties:
   ```js title=src/auth/github.js
   export function getConfig() {
     return {
-      clientID, // look up from env or elsewhere
-      clientSecret, // look up from env or elsewhere
-      scope: [],
+      scopes: [],
     }
   }
   ```
@@ -508,9 +547,7 @@ The `gitHub` dict has the following properties:
   ```ts title=src/auth/github.ts
   export function getConfig() {
     return {
-      clientID, // look up from env or elsewhere
-      clientSecret, // look up from env or elsewhere
-      scope: [],
+      scopes: [],
     }
   }
   ```
@@ -521,4 +558,5 @@ The `gitHub` dict has the following properties:
 - #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />
+  
   Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).

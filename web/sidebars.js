@@ -132,7 +132,14 @@ module.exports = {
       label: 'Miscellaneous',
       collapsed: false,
       collapsible: false,
-      items: ['contributing', 'telemetry', 'vision', 'contact', 'migrate-from-0-11-to-0-12'],
+      items: [
+        'contributing',
+        'telemetry',
+        'vision',
+        'contact',
+        'migrate-from-0-11-to-0-12',
+        'migrate-from-0-12-to-0-13',
+      ],
     },
   ],
 }
