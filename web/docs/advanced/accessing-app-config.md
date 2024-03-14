@@ -2,7 +2,7 @@
 title: Accessing the configuration 
 ---
 
-Whenever you start a Waps app, you are starting two processes.
+Whenever you start a Wasp app, you are starting two processes.
  - **The client process** - A React app that implements your app's frontend.
 
     During development, this is a dev server with hot reloading. In production,

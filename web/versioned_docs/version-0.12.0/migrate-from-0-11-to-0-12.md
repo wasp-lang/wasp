@@ -272,7 +272,7 @@ directory `foo`, you should:
 11. Take all the dependencies from `app.dependencies` declaration in
     `foo/main.wasp` and move them to `foo/package.json`. Make sure to remove the `app.dependencies` field from `foo/main.wasp`.
 
-    For example, if `foo_old/main.waps` had:
+    For example, if `foo_old/main.wasp` had:
 
     ```css
     app Foo {
