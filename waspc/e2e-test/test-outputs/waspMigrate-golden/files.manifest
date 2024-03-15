@@ -9,6 +9,7 @@ waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 waspMigrate/.wasp/out/installedNpmDepsLog.json
 waspMigrate/.wasp/out/sdk/wasp/api/events.ts
 waspMigrate/.wasp/out/sdk/wasp/api/index.ts
+waspMigrate/.wasp/out/sdk/wasp/client/config.ts
 waspMigrate/.wasp/out/sdk/wasp/client/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/core.d.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/core.js
@@ -28,7 +29,6 @@ waspMigrate/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspMigrate/.wasp/out/sdk/wasp/client/router/types.ts
 waspMigrate/.wasp/out/sdk/wasp/client/test/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
-waspMigrate/.wasp/out/sdk/wasp/core/config.ts
 waspMigrate/.wasp/out/sdk/wasp/core/storage.ts
 waspMigrate/.wasp/out/sdk/wasp/dev/index.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/api/events.d.ts
@@ -37,6 +37,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/api/events.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/api/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/api/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/api/index.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/client/config.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/client/config.js
+waspMigrate/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -88,9 +91,6 @@ waspMigrate/.wasp/out/sdk/wasp/dist/client/test/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
-waspMigrate/.wasp/out/sdk/wasp/dist/core/config.d.ts
-waspMigrate/.wasp/out/sdk/wasp/dist/core/config.js
-waspMigrate/.wasp/out/sdk/wasp/dist/core/config.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/core/storage.js
 waspMigrate/.wasp/out/sdk/wasp/dist/core/storage.js.map

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import config from 'wasp/core/config';
+import { config } from 'wasp/client';
 import { storage } from 'wasp/core/storage';
 import { apiEventsEmitter } from './events.js';
 // PUBLIC API

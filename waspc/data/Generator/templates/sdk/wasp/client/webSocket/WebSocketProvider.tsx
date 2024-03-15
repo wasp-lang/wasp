@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client'
 
 import { getSessionId } from 'wasp/client/api'
 import { apiEventsEmitter } from 'wasp/api/events'
-import config from 'wasp/core/config'
+import { config } from 'wasp/client'
 
 import type { ClientToServerEvents, ServerToClientEvents } from 'wasp/server/webSocket';
 

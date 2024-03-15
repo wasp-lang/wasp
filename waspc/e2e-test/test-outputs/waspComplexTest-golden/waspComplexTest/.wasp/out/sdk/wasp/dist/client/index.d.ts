@@ -8,3 +8,4 @@ export type Route = {
     method: HttpMethod;
     path: string;
 };
+export { default as config } from './config';

@@ -199,7 +199,7 @@ To use a Query, you can import it from `@wasp` and call it directly. As mentione
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```javascript
+```js
 import getAllTasks from '@wasp/queries/getAllTasks.js'
 import getFilteredTasks from '@wasp/queries/getFilteredTasks.js'
 
@@ -212,7 +212,7 @@ const doneTasks = await getFilteredTasks({ isDone: true })
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```typescript
+```ts
 import getAllTasks from '@wasp/queries/getAllTasks.js'
 import getFilteredTasks from '@wasp/queries/getFilteredTasks.js'
 

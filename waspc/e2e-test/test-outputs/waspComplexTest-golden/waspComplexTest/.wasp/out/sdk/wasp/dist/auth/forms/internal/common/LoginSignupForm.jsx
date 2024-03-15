@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { styled } from 'wasp/core/stitches.config';
-import config from 'wasp/core/config';
+import { config } from 'wasp/client';
 import { AuthContext } from '../../Auth';
 import { FormInput, FormItemGroup, FormLabel, FormError, FormTextarea, } from '../Form';
 import * as SocialIcons from '../social/SocialIcons';

@@ -221,7 +221,7 @@ To use an Action, you can import it from `wasp/client/operations` and call it di
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```javascript
+```js
 import { createTask, markTasAsDone } from 'wasp/client/operations'
 
 // ...
@@ -233,7 +233,7 @@ await markTasAsDone({ id: 1 })
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```typescript
+```ts
 import { createTask, markTasAsDone } from 'wasp/client/operations'
 
 // TypeScript automatically infers the return values and type-checks

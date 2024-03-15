@@ -16,7 +16,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { render, cleanup } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeAll, afterEach, afterAll } from 'vitest';
-import config from 'wasp/core/config';
+import { config } from 'wasp/client';
 import { HttpMethod } from 'wasp/client';
 // PUBLIC API
 // Inspired by the Tanstack React Query helper:

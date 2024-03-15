@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import config from 'wasp/core/config'
+import { config } from 'wasp/client'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
 
