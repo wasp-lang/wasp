@@ -182,6 +182,9 @@ studio = do
                          [ "google"
                            | isJust $ AS.App.Auth.google methods
                          ],
+                         [ "keycloak"
+                           | isJust $ AS.App.Auth.keycloak methods
+                         ],
                          [ "gitHub"
                            | isJust $ AS.App.Auth.gitHub methods
                          ],

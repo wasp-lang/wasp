@@ -28,6 +28,7 @@ genNewClientAuth spec =
         <++> genAuthEmail auth
         <++> genAuthUsername auth
         <++> genAuthGoogle auth
+        <++> genAuthKeycloak auth
         <++> genAuthGitHub auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -66,6 +67,12 @@ genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGoogle auth =
   if AS.Auth.isGoogleAuthEnabled auth
     then sequence [genFileCopy [relfile|client/auth/google.ts|]]
+    else return []
+
+genAuthKeycloak :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthKeycloak auth =
+  if AS.Auth.isKeycloakAuthEnabled auth
+    then sequence [genFileCopy [relfile|client/auth/keycloak.ts|]]
     else return []
 
 genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]

@@ -10,6 +10,7 @@ module Wasp.AppSpec.App.Auth
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isGoogleAuthEnabled,
+    isKeycloakAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
     userSignupFieldsForEmailAuth,
@@ -40,6 +41,7 @@ data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
     google :: Maybe ExternalAuthConfig,
     gitHub :: Maybe ExternalAuthConfig,
+    keycloak :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
   deriving (Show, Eq, Data)
@@ -67,10 +69,20 @@ isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
 
 isExternalAuthEnabled :: Auth -> Bool
-isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled, isGitHubAuthEnabled]
+isExternalAuthEnabled auth =
+  any
+    ($ auth)
+    -- NOTE: Make sure to add new external auth methods here.
+    [ isGoogleAuthEnabled,
+      isGitHubAuthEnabled,
+      isKeycloakAuthEnabled
+    ]
 
 isGoogleAuthEnabled :: Auth -> Bool
 isGoogleAuthEnabled = isJust . google . methods
+
+isKeycloakAuthEnabled :: Auth -> Bool
+isKeycloakAuthEnabled = isJust . keycloak . methods
 
 isGitHubAuthEnabled :: Auth -> Bool
 isGitHubAuthEnabled = isJust . gitHub . methods

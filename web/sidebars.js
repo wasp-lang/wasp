@@ -65,6 +65,7 @@ module.exports = {
             'auth/social-auth/overview',
             'auth/social-auth/github',
             'auth/social-auth/google',
+            'auth/social-auth/keycloak',
           ],
         },
         'auth/entities/entities',
