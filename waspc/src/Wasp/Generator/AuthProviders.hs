@@ -14,6 +14,14 @@ googleAuthProvider =
       OA._requiredScope = ["profile"]
     }
 
+keycloakAuthProvider :: OA.OAuthAuthProvider
+keycloakAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "keycloak",
+      OA._displayName = "Keycloak",
+      OA._requiredScope = ["profile"]
+    }
+
 gitHubAuthProvider :: OA.OAuthAuthProvider
 gitHubAuthProvider =
   OA.OAuthAuthProvider

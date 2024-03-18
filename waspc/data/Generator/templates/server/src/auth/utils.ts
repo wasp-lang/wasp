@@ -37,6 +37,7 @@ export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
   google: OAuthProviderData;
+  keycloak: OAuthProviderData;
   github: OAuthProviderData;
 }
 

@@ -93,6 +93,7 @@ export const LoginSignupForm = ({
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
 
+
           </SocialAuthButtons>
         </SocialAuth>
   </>)

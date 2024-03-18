@@ -9,6 +9,9 @@ export * from './username'
 {=# isGoogleAuthEnabled  =}
 export * from './google'
 {=/ isGoogleAuthEnabled =}
+{=# isKeycloakAuthEnabled  =}
+export * from './keycloak'
+{=/ isKeycloakAuthEnabled =}
 {=# isGitHubAuthEnabled =}
 export * from './github'
 {=/ isGitHubAuthEnabled =}
