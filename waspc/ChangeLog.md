@@ -2,13 +2,27 @@
 
 ## 0.13.0 (2024-03-18)
 
+### ⚠️ Breaking changes
+
+Wasp 0.13.0 switches away from using Passport for our OAuth providers in favor of [Arctic](https://arctic.js.org/) from the [Lucia](https://lucia-auth.com/) ecosystem. This change simplifies the codebase and makes it easier to add new OAuth providers in the future.
+
+This however, means that there are breaking changes in the way you define OAuth providers in your Wasp project.
+
+Read the migration guide at https://wasp-lang.dev/docs/migrate-from-0-12-to-0-13 for more details.
+
 ### 🎉 New features
 
+- Wasp adds support for Keycloak as an OAuth provider.
 - Wasp now supports defining the `WASP_SERVER_URL` environment variable and exposes it as `serverUrl` in the server config which can be imported from `wasp/server`.
 
 ### 🐞 Bug fixes
 
 - Projects that import `wasp/auth/types` no longer fail when building the web app.
+- Wasp now displays OAuth related errors in the browser instead of redirecting to the login page.
+
+### 🔧 Small improvements
+
+- Wasp uses Oslo for handling JWTs.
 
 ## 0.12.3 (2024-03-01)
 

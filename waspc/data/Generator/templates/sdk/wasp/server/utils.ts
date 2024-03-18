@@ -1,10 +1,5 @@
 {{={= =}=}}
-import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
-
-import { readdir } from 'fs'
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
@@ -40,3 +35,10 @@ async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
 }
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((r) => setTimeout(r, ms))
+
+export function redirect(res: Response, redirectUri: string)  {
+  return res
+    .status(302)
+    .setHeader("Location", redirectUri)
+    .end();
+}
