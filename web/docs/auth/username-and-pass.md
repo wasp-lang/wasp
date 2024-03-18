@@ -44,7 +44,7 @@ Let's start with adding the following to our `main.wasp` file:
 ```wasp title="main.wasp" {11}
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -64,7 +64,7 @@ app myApp {
 ```wasp title="main.wasp"  {11}
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -627,7 +627,7 @@ To make things a bit easier for you, Wasp offers the `getUsername` helper.
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -649,7 +649,7 @@ psl=}
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -678,7 +678,7 @@ psl=}
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -699,7 +699,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
