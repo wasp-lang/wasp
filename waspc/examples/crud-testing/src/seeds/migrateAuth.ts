@@ -1,5 +1,5 @@
-import { sanitizeAndSerializeProviderData } from '@wasp/auth/utils'
-import prisma from '@wasp/dbClient.js'
+import { sanitizeAndSerializeProviderData } from "wasp/server/auth";
+import { prisma } from "wasp/server";
 
 export async function migrateAuth(db: typeof prisma) {
   // 0. Update to the latest version of Wasp and run `wasp db migrate-dev`

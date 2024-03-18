@@ -1,10 +1,9 @@
 import "./Main.css";
-
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Link } from "@wasp/router";
+import { Link } from "wasp/client/router";
 
-import { tasks as tasksCrud } from "@wasp/crud/tasks";
+import { tasks as tasksCrud } from "wasp/client/crud";
 
 const DetailPage = () => {
   const { id } = useParams<{ id: string }>();

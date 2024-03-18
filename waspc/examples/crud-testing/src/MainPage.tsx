@@ -1,17 +1,14 @@
+import { Link, routes } from "wasp/client/router";
+import { logout } from "wasp/client/auth";
+import { getUsername } from "wasp/auth";
+
 import './Main.css'
 
 import React, { useState } from 'react'
-import { Link, routes } from '@wasp/router'
-import logout from '@wasp/auth/logout'
-import { getUsername } from '@wasp/auth/user'
-
-import { tasks as tasksCrud } from '@wasp/crud/tasks'
-import { User } from '@wasp/entities'
+import { tasks as tasksCrud } from 'wasp/client/crud'
 
 const MainPage = () => {
   const { data: tasks, isLoading } = tasksCrud.getAll.useQuery()
-
-  type Task = NonNullable<typeof tasks>[number]
 
   const createTask = tasksCrud.create.useAction()
   const deleteTask = tasksCrud.delete.useAction()

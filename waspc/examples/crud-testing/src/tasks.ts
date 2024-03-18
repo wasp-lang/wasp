@@ -1,6 +1,6 @@
-import HttpError from '@wasp/core/HttpError.js'
-import type { GetQuery, GetAllQuery, CreateAction } from '@wasp/crud/tasks'
-import { Task } from '@wasp/entities'
+import { type Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import { tasks } from 'wasp/server/crud'
 
 export const getTask = (async (args, context) => {
   return context.entities.Task.findUnique({
@@ -15,7 +15,7 @@ export const getTask = (async (args, context) => {
       },
     },
   })
-}) satisfies GetQuery<{ id: Task['id'] }, {}>
+}) satisfies tasks.GetQuery<{ id: Task['id'] }, {}>
 
 export const getAllTasks = (async (args, context) => {
   return context.entities.Task.findMany({
@@ -34,7 +34,7 @@ export const getAllTasks = (async (args, context) => {
       },
     },
   })
-}) satisfies GetAllQuery<{}, {}>
+}) satisfies tasks.GetAllQuery<{}, {}>
 
 export const createTask = (async (args, context) => {
   if (!context.user) {
@@ -53,4 +53,4 @@ export const createTask = (async (args, context) => {
       },
     },
   })
-}) satisfies CreateAction<{ title: Task['title'] }, Task>
+}) satisfies tasks.CreateAction<{ title: Task['title'] }, Task>
