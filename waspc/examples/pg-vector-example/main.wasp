@@ -1,6 +1,6 @@
 app pgVectorExample {
   wasp: {
-    version: "^0.12.0"
+    version: "^0.13.0"
   },
   title: "PG Vector Example",
   dependencies: [

@@ -67,7 +67,7 @@ The default `main.wasp` file generated with `wasp new` on the previous page look
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.12.0" // Pins the version of Wasp to use.
+    version: "^0.13.0" // Pins the version of Wasp to use.
   },
   title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }
@@ -87,7 +87,7 @@ page MainPage {
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.12.0" // Pins the version of Wasp to use.
+    version: "^0.13.0" // Pins the version of Wasp to use.
   },
   title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }
