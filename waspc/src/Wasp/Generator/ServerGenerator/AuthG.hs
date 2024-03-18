@@ -71,7 +71,11 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
   where
-    tmplData = object ["providers" .= providers]
+    tmplData =
+      object
+        [ "providers" .= providers,
+          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
+        ]
 
     providers =
       makeConfigImportJson
