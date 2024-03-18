@@ -14,4 +14,10 @@ export const handleRejection = (middleware) => async (req, res, next) => {
     }
 };
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+export function redirect(res, redirectUri) {
+    return res
+        .status(302)
+        .setHeader("Location", redirectUri)
+        .end();
+}
 //# sourceMappingURL=utils.js.map
