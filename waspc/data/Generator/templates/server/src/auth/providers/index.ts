@@ -1,6 +1,8 @@
 {{={= =}=}}
 import { Router } from "express";
+{=# isExternalAuthEnabled =}
 import { setupOneTimeCodeRoute } from "./oauth/oneTimeCode";
+{=/ isExternalAuthEnabled =}
 
 {=# providers =}
 {=& importStatement =}
@@ -14,9 +16,11 @@ const providers = [
 
 const router = Router();
 
+{=# isExternalAuthEnabled =}
 // Setting up a common route for all OAuth providers to exchange
 // one-time code for a session.
 setupOneTimeCodeRoute(router);
+{=/ isExternalAuthEnabled =}
 
 for (const provider of providers) {
   const { createRouter } = provider;
