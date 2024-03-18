@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { signData } from 'wasp/auth/jwt'
+import { createJWT, TimeSpan } from 'wasp/auth/jwt'
 import { emailSender } from 'wasp/server/email';
 import { Email } from 'wasp/server/email/core/types';
 import {
@@ -17,7 +17,7 @@ export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,
 ): Promise<string> {
-  const { jwtToken } = await createEmailJwtToken(email);
+  const { jwtToken } = await createEmailJWT(email);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
@@ -26,12 +26,12 @@ export async function createPasswordResetLink(
   email: string,
   clientRoute: string,
 ): Promise<string>  {
-  const { jwtToken } = await createEmailJwtToken(email);
+  const { jwtToken } = await createEmailJWT(email);
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
-async function createEmailJwtToken(email: string): Promise<{ jwtToken: string; }> {
-  const jwtToken = await signData({ email }, { expiresIn: '30m' });
+async function createEmailJWT(email: string): Promise<{ jwtToken: string; }> {
+  const jwtToken = await createJWT({ email }, { expiresIn: new TimeSpan(30, "m") });
   return { jwtToken };
 }
 

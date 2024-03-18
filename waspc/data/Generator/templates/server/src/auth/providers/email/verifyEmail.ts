@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
 import {
-    verifyToken,
     createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
     deserializeAndSanitizeProviderData,
 } from 'wasp/auth/utils';
-import { tokenVerificationErrors } from './types.js';
+import { validateJWT } from 'wasp/auth/jwt'
 import { HttpError } from 'wasp/server';
 
 
@@ -14,23 +13,23 @@ export async function verifyEmail(
     req: Request<{ token: string }>,
     res: Response,
 ): Promise<Response<{ success: true }>> {
-    try {
-        const { token } = req.body;
-        const { email } = await verifyToken<{ email: string }>(token);
-
-        const providerId = createProviderId('email', email);
-        const authIdentity = await findAuthIdentity(providerId);
-        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-
-        await updateAuthIdentityProviderData(providerId, providerData, {
-            isEmailVerified: true,
+    const { token } = req.body;
+    const { email } = await validateJWT<{ email: string }>(token)
+        .catch(() => {
+            throw new HttpError(400, "Email verification failed, invalid token");
         });
-    } catch (e) {
-        const reason = e.name === tokenVerificationErrors.TokenExpiredError
-            ? 'expired'
-            : 'invalid';
-        throw new HttpError(400, `Token is ${reason}`);
+
+    const providerId = createProviderId('email', email);
+    const authIdentity = await findAuthIdentity(providerId);
+    if (!authIdentity) {
+        throw new HttpError(400, "Email verification failed, invalid token");
     }
+
+    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+    await updateAuthIdentityProviderData(providerId, providerData, {
+        isEmailVerified: true,
+    });
 
     return res.json({ success: true });
 };

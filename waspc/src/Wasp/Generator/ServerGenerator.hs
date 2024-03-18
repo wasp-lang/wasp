@@ -148,7 +148,6 @@ npmDepsForWasp spec =
             ("cors", "^2.8.5"),
             ("express", "~4.18.1"),
             ("morgan", "~1.10.0"),
-            ("jsonwebtoken", "^8.5.1"),
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
             ("rate-limiter-flexible", "^2.4.1"),
