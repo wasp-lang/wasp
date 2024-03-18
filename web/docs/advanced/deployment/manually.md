@@ -71,6 +71,11 @@ Here are the environment variables your server will be looking for:
   The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
   The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
 
+- `WASP_SERVER_URL` <Required />
+
+  The URL where the server is running (e.g., `https://<app-name>.fly.dev`).
+  The server needs it to properly redirect users when logging in with OAuth providers like Google or GitHub.
+
 - `JWT_SECRET` (<Required /> if using Wasp Auth)
 
   You only need this environment variable if you're using Wasp's `auth` features.
@@ -178,11 +183,12 @@ Next, let's add a few more environment variables:
 ```bash
 flyctl secrets set PORT=8080
 flyctl secrets set JWT_SECRET=<random_string_at_least_32_characters_long>
-flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
+flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
+flyctl secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
 :::note
-If you do not know what your frontend URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your frontend.
+If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
 :::
 
 <AddExternalAuthEnvVarsReminder />
@@ -199,7 +205,7 @@ flyctl deploy --remote-only --config ../../fly.toml
 
 This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your frontend and add the client url by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_frontend>`. We suggest using [Netlify](#netlify) for your frontend, but you can use any static hosting provider.
+Now, if you haven't, you can deploy your client and add the client URL by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](#netlify) for your client, but you can use any static hosting provider.
 
 Additionally, some useful `flyctl` commands:
 
@@ -325,6 +331,7 @@ Let's deploy our server first:
 
    - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
    - add `WASP_WEB_CLIENT_URL` - enter the the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
+   - add `WASP_SERVER_URL` - enter the the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`)
    - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
@@ -502,15 +509,16 @@ Heroku does not offer a free plan anymore and `mini` is their cheapest database 
 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
-The `PORT` env var will also be provided by Heroku, so the only two left to set are the `JWT_SECRET` and `WASP_WEB_CLIENT_URL` env vars:
+The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET`, `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` env vars:
 
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
-heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
+heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
+heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
 :::note
-If you do not know what your frontend URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your frontend.
+If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
 :::
 
 ### Deploy to a Heroku App

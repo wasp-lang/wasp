@@ -53,6 +53,7 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
@@ -82,7 +83,6 @@ genSdkReal spec =
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|client/config.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -90,6 +90,7 @@ genSdkReal spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|dev/index.ts|],
+      genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -259,8 +260,16 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultClientUrl spec
+          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
+          "defaultServerUrl" .= Server.defaultDevServerUrl,
+          "defaultServerPort" .= Server.defaultServerPort
         ]
+
+genClientConfigFile :: Generator FileDraft
+genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+  where
+    relConfigFilePath = [relfile|client/config.ts|]
+    tmplData = object ["defaultServerUrl" .= Server.defaultDevServerUrl]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.

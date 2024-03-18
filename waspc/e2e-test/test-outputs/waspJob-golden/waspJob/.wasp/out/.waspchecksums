@@ -249,7 +249,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "4976e545d8fcf019508e95f472305e9ef27dfb3423c71e428a5414e35cdd52be"
+        "e5388a9259a22671ee2d2ef46d2c09fdd46c3b3ec24248c7a0b471c0fbf7aa54"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "server/scripts/validate-env.mjs"
         ],
-        "65168a764fc6cbe785ee40a8e8533b4694ef9019fc5a73f60f7252152330d0a2"
+        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [
