@@ -1,11 +1,15 @@
-import { EmbedDocument } from "@wasp/actions/types";
-import { GetDocuments } from "@wasp/queries/types";
-import { SearchDocuments } from "@wasp/actions/types";
-import { AskDocuments } from "@wasp/actions/types";
-import { DeleteDocument } from "@wasp/actions/types";
-import { GetScrapeCandidates } from "@wasp/actions/types";
-import { Document } from "@wasp/entities";
-import prisma from "@wasp/dbClient.js";
+import { type Document } from "wasp/entities";
+
+import {
+  type EmbedDocument,
+  type SearchDocuments,
+  type AskDocuments,
+  type DeleteDocument,
+  type GetScrapeCandidates,
+  type GetDocuments,
+} from "wasp/server/operations";
+
+import { prisma } from "wasp/server";
 // @ts-ignore
 import { toSql } from "pgvector/utils";
 import openai from "openai";

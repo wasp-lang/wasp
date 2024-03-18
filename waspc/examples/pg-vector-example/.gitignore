@@ -1,4 +1,6 @@
-/.wasp/
+.wasp/
+node_modules/
+**/.DS_Store
 
 # We ignore env files recognized and used by Wasp.
 .env.server
@@ -9,3 +11,4 @@
 # or modify/delete these two lines.
 *.env
 *.env.*
+/.wasp/
