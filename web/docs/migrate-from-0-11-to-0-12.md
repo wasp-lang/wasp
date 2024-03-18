@@ -178,9 +178,9 @@ You can easily migrate your old Wasp project to the new structure by following a
 series of steps. Assuming you have a project called `foo` inside the
 directory `foo`, you should:
 
-0. **Install the latest `0.12.x` version** of Wasp.
+0. **Install the `0.12.x` version** of Wasp.
   ```bash
-  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s
+  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.12.4
   ```
 1. Make sure to **backup or save your project** before starting the procedure (e.g.,
    by committing it to source control or creating a copy).
