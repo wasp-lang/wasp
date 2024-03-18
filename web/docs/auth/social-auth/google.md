@@ -26,7 +26,7 @@ Enabling Google Authentication comes down to a series of steps:
 1. Enabling Google authentication in the Wasp file.
 1. Adding the `User` entity.
 1. Creating a Google OAuth app.
-1. Adding the neccessary Routes and Pages
+1. Adding the necessary Routes and Pages
 1. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
@@ -41,7 +41,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -64,7 +64,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -167,12 +167,12 @@ To use Google as an authentication method, you'll first need to create a Google 
 
   ![Google Console Screenshot 12](/img/integrations-google-12.jpg)
 
-- Under Authorized redirect URIs, put in: `http://localhost:3000/auth/login/google`
+- Under Authorized redirect URIs, put in: `http://localhost:3001/auth/google/callback`
 
   ![Google Console Screenshot 13](/img/integrations-google-13.jpg)
 
   - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-    - For example: `https://someotherhost.com/auth/login/google`
+    - For example: `https://your-server-url.com/auth/google/callback`
 
 - When you save, you can click the Edit icon and your credentials will be shown.
 
@@ -317,7 +317,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -337,7 +337,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -360,7 +360,37 @@ app myApp {
 
 <OverrideIntro />
 
-### Using the User's Provider Account Details
+### Data Received From Google
+
+We are using Google's API and its `/userinfo` endpoint to fetch the user's data.
+
+The data received from Google is an object which can contain the following fields:
+
+```json
+[
+  "name",
+  "given_name",
+  "family_name",
+  "email",
+  "email_verified",
+  "aud",
+  "exp",
+  "iat",
+  "iss",
+  "locale",
+  "picture",
+  "sub"
+]
+```
+
+The fields you receive depend on the scopes you request. The default scope is set to `profile` only. If you want to get the user's email, you need to specify the `email` scope in the `configFn` function.
+
+<small>
+
+For an up to date info about the data received from Google, please refer to the [Google API documentation](https://developers.google.com/identity/openid-connect/openid-connect#an-id-tokens-payload).
+</small>
+
+### Using the Data Received From Google
 
 <OverrideExampleIntro />
 
@@ -370,7 +400,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -399,14 +429,12 @@ psl=}
 ```js title=src/auth/google.js
 export const userSignupFields = {
   username: () => "hardcoded-username",
-  displayName: (data) => data.profile.displayName,
+  displayName: (data) => data.profile.name,
 }
 
 export function getConfig() {
   return {
-    clientID, // look up from env or elsewhere
-    clientSecret, // look up from env or elsewhere
-    scope: ['profile', 'email'],
+    scopes: ['profile', 'email'],
   }
 }
 ```
@@ -417,7 +445,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -448,14 +476,12 @@ import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
   username: () => "hardcoded-username",
-  displayName: (data) => data.profile.displayName,
+  displayName: (data: any) => data.profile.name,
 })
 
 export function getConfig() {
   return {
-    clientID, // look up from env or elsewhere
-    clientSecret, // look up from env or elsewhere
-    scope: ['profile', 'email'],
+    scopes: ['profile', 'email'],
   }
 }
 ```
@@ -479,7 +505,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -503,7 +529,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.0"
   },
   title: "My App",
   auth: {
@@ -528,7 +554,7 @@ The `google` dict has the following properties:
 
 - #### `configFn: ExtImport`
 
-  This function must return an object with the Client ID, the Client Secret, and the scope for the OAuth provider.
+  This function must return an object with the scopes for the OAuth provider.
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -536,9 +562,7 @@ The `google` dict has the following properties:
   ```js title=src/auth/google.js
   export function getConfig() {
     return {
-      clientID, // look up from env or elsewhere
-      clientSecret, // look up from env or elsewhere
-      scope: ['profile', 'email'],
+      scopes: ['profile', 'email'],
     }
   }
   ```
@@ -549,9 +573,7 @@ The `google` dict has the following properties:
   ```ts title=src/auth/google.ts
   export function getConfig() {
     return {
-      clientID, // look up from env or elsewhere
-      clientSecret, // look up from env or elsewhere
-      scope: ['profile', 'email'],
+      scopes: ['profile', 'email'],
     }
   }
   ```
@@ -562,4 +584,5 @@ The `google` dict has the following properties:
 - #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />
+  
   Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).
