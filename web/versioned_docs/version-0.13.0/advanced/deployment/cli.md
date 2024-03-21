@@ -238,7 +238,7 @@ If you are deploying an app that requires any other environment variables (like 
 wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
 ```
 
-### Mutliple Fly Organizations
+### Multiple Fly Organizations
 
 If you have multiple organizations, you can specify a `--org` option. For example:
 

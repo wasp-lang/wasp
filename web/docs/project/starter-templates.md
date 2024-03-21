@@ -59,7 +59,7 @@ wasp new <project-name> -t saas
 
 A template for generating embeddings and performing vector similarity search on your text data!
 
-**Features:** Embeddings & vector similarity search, OpenAI Embeddings API, Vector DB (Pinecone), Tailwind, Fullstack Type Safety
+**Features:** Embeddings & vector similarity search, OpenAI Embeddings API, Vector DB (Pinecone), Tailwind, Full-stack Type Safety
 
 Use this template:
 
@@ -69,9 +69,9 @@ wasp new <project-name> -t embeddings
 
 ### Todo App w/ Typescript
 
-A simple Todo App with Typescript and Fullstack Type Safety.
+A simple Todo App with Typescript and Full-stack Type Safety.
 
-**Features:** Auth (username/password), Fullstack Type Safety
+**Features:** Auth (username/password), Full-stack Type Safety
 
 Use this template:
 
@@ -86,4 +86,4 @@ project description. It will automatically generate your data model, auth, queri
 
 _You will need to provide your own OpenAI API key to be able to use this template._
 
-**Features:** Generated using OpenAI's GPT models, Auth (username/password), Queries, Actions, Pages, Fullstack Type Safety
+**Features:** Generated using OpenAI's GPT models, Auth (username/password), Queries, Actions, Pages, Full-stack Type Safety

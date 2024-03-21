@@ -19,7 +19,7 @@ Wasp's Express server has the following middleware by default:
 - [express.json](https://expressjs.com/en/api.html#express.json) (which uses [body-parser](https://github.com/expressjs/body-parser#bodyparserjsonoptions)): parses incoming request bodies in a middleware before your handlers, making the result available under the `req.body` property.
 
   :::note
-  JSON middlware is required for [Operations](../data-model/operations/overview) to function properly.
+  JSON middleware is required for [Operations](../data-model/operations/overview) to function properly.
   :::
 - [express.urlencoded](https://expressjs.com/en/api.html#express.urlencoded) (which uses [body-parser](https://expressjs.com/en/resources/middleware/body-parser.html#bodyparserurlencodedoptions)): returns middleware that only parses urlencoded bodies and only looks at requests where the `Content-Type` header matches the type option.
 - [cookieParser](https://github.com/expressjs/cookie-parser#readme): parses Cookie header and populates `req.cookies` with an object keyed by the cookie names.

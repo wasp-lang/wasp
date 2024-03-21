@@ -64,7 +64,7 @@ Here are the environment variables your server will be looking for:
 
 - `DATABASE_URL` <Required />
 
-  The URL of the Postgres database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
+  The URL of the PostgreSQL database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
 
 - `WASP_WEB_CLIENT_URL` <Required />
 
@@ -154,7 +154,7 @@ flyctl launch --remote-only
 
 This will ask you a series of questions, such as asking you to choose a region and whether you'd like a database.
 
-- Say **yes** to **Would you like to set up a Postgresql database now?** and select **Development**. Fly.io will set a `DATABASE_URL` for you.
+- Say **yes** to **Would you like to set up a PostgreSQL database now?** and select **Development**. Fly.io will set a `DATABASE_URL` for you.
 - Say **no** to **Would you like to deploy now?** (and to any additional questions).
 
   We still need to set up several environment variables.
@@ -330,8 +330,8 @@ Let's deploy our server first:
    Open the `Settings` and go to the `Variables` tab:
 
    - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-   - add `WASP_WEB_CLIENT_URL` - enter the the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
-   - add `WASP_SERVER_URL` - enter the the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`)
+   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
+   - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`)
    - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
@@ -461,7 +461,7 @@ railway up
 
 And now your Wasp should be deployed! 🐝 🚂 🚀
 
-Back in your [Railway dashboard](https://railway.app/dashboard), click on your project and you should see your newly deployed services: Postgres, Server, and Client.
+Back in your [Railway dashboard](https://railway.app/dashboard), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
 
 ### Updates & Redeploying
 
@@ -497,7 +497,7 @@ Unless you want to deploy to an existing Heroku app, let's create a new Heroku a
 heroku create <app-name>
 ```
 
-Unless you have an external Postgres database that you want to use, let's create a new database on Heroku and attach it to our app:
+Unless you have an external PostgreSQL database that you want to use, let's create a new database on Heroku and attach it to our app:
 
 ```
 heroku addons:create --app <app-name> heroku-postgresql:mini
