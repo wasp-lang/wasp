@@ -427,6 +427,8 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Publish the draft release when ready.
 - 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
+- If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
+  - To do this, go to https://crawler.algolia.com/admin and click "Restart crawling" under the "wasp-lang" crawler.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
 - Announce new release in Discord if it makes sense.
@@ -512,12 +514,12 @@ function foo(param) {
 // bad
 const foo = (param) => {
   // ...
-}
+};
 
 // bad
 const foo = function (param) {
   // ...
-}
+};
 ```
 
 ##### Inline function expression
@@ -526,10 +528,10 @@ When defining inline function expressions, we prefer the arrow syntax:
 
 ```javascript
 // good
-const squares = arr.map((x) => x * x)
+const squares = arr.map((x) => x * x);
 
 // bad
 const squares = arr.map(function (x) {
-  return x * x
-})
+  return x * x;
+});
 ```
