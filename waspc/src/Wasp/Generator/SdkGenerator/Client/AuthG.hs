@@ -85,6 +85,7 @@ getAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getAuthProvidersJson auth =
   object
     [ "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+      "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
       "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
