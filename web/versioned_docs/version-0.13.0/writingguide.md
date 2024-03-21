@@ -135,7 +135,7 @@ This might seem redundant, but it makes our examples future-proof and helps reas
   - **What you're trying to do.**
   - **What your fears are.**
   - **Which balances you're trying to strike.**
-- **Do your best to come up with a good and straighforward way to say something.** Again, this will help the reviewer focus on high-level issues instead of rephrasing your sentences.
+- **Do your best to come up with a good and straightforward way to say something.** Again, this will help the reviewer focus on high-level issues instead of rephrasing your sentences.
 - **Read and correct your text several times before submitting it (preferably with some time between the readings).** This is similar to proofreading but has more to do with content and communication style than grammar.
   A time offset is beneficial because it removes the text from your short-term memory, helping you view it more objectively.
 - **It's OK to ask AI to improve your text.** Just make sure to check it and correct it. You should always sign off on the last version.

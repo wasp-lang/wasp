@@ -40,7 +40,7 @@ Within test files, you can import your other source files as usual. For example,
 
 Running `wasp test client` will start Vitest in watch mode and recompile your Wasp project when changes are made.
 
-- If you want to see a realtime UI, pass `--ui` as an option.
+- If you want to see a real-time UI, pass `--ui` as an option.
 - To run the tests just once, use `wasp test client run`.
 
 All arguments after `wasp test client` are passed directly to the Vitest CLI, so check out [their documentation](https://vitest.dev/guide/cli.html) for all of the options.

@@ -35,7 +35,7 @@ Once you provide an app title, app description, and choose some basic settings, 
 
 If you want to know more, check this [blog post](/blog/2023/07/10/gpt-web-app-generator) for more details on how Mage works, or this [blog post](blog/2023/07/17/how-we-built-gpt-web-app-generator) for a high-level overview of how we implemented it.
 
-## Wasp Cli
+## Wasp CLI
 
 You can create a new Wasp app using Wasp AI by running `wasp new` in your terminal and picking AI generation.
 

@@ -577,7 +577,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
 <ShowForTs>
 
-Afer you [declare the Action](#declaring-actions), Wasp generates a generic type you can use when defining its implementation.
+After you [declare the Action](#declaring-actions), Wasp generates a generic type you can use when defining its implementation.
 For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
 
 ```ts

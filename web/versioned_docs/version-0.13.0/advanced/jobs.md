@@ -127,7 +127,7 @@ Let's write an example Job that will print a message to the console and return a
   </TabItem>
   </Tabs>
 
-And that'is it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
+And that's it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
 
 In our example, `foo` takes an argument, but passing arguments to jobs is not a requirement. It depends on how you've implemented your worker function.
 
