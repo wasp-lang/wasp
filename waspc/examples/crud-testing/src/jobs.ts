@@ -1,5 +1,5 @@
-import { SimplePrintJob } from "@wasp/jobs/simplePrintJob";
-import { Task } from "@wasp/entities";
+import { SimplePrintJob } from "wasp/server/jobs";
+import { type Task } from "wasp/entities";
 
 export const simplePrint: SimplePrintJob<
   {

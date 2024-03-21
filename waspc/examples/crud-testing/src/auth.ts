@@ -1,13 +1,14 @@
-import * as z from 'zod'
-import { defineUserSignupFields } from '@wasp/auth/index.js'
 import {
+  defineUserSignupFields,
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
-} from '@wasp/auth/validation.js'
-import prisma from '@wasp/dbClient.js'
-import { CustomSignup } from '@wasp/actions/types'
-import { sanitizeAndSerializeProviderData } from '@wasp/auth/utils.js'
+  sanitizeAndSerializeProviderData,
+} from "wasp/server/auth";
+
+import { type CustomSignup } from "wasp/server/operations";
+import { prisma } from "wasp/server";
+import * as z from 'zod'
 
 export const userSignupFields = defineUserSignupFields({
   address: (data) => {

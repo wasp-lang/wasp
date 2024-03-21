@@ -1,10 +1,4 @@
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from '@wasp/auth/forms/internal/Form'
+import { SignupForm } from "wasp/client/auth";
 
 export const SignupPage = () => {
   return (
