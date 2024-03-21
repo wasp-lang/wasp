@@ -1,3 +1,13 @@
+import {
+  embedDocument,
+  searchDocuments,
+  deleteDocument,
+  askDocuments,
+  getScrapeCandidates,
+  useQuery,
+  getDocuments,
+} from "wasp/client/operations";
+
 import { useState, useEffect } from "react";
 import {
   Card,
@@ -15,13 +25,6 @@ import {
 } from "@nextui-org/react";
 
 import { useForm } from "react-hook-form";
-import embedDocument from "@wasp/actions/embedDocument";
-import getDocuments from "@wasp/queries/getDocuments";
-import searchDocuments from "@wasp/actions/searchDocuments";
-import deleteDocument from "@wasp/actions/deleteDocument";
-import askDocuments from "@wasp/actions/askDocuments";
-import getScrapeCandidates from "@wasp/actions/getScrapeCandidates";
-import { useQuery } from "@wasp/queries";
 import { SearchIcon } from "../components/SearchIcon";
 import ReactMarkdown from "react-markdown";
 
