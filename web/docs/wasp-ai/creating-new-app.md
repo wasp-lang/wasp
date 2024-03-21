@@ -8,7 +8,6 @@ import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 Wasp comes with its own AI: Wasp AI, aka Mage (**M**agic web **A**pp **GE**nerator).
 
-
 Wasp AI allows you to create a new Wasp app **from only a title and a short description** (using GPT in the background)!
 
 There are two main ways to create a new Wasp app with Wasp AI:
