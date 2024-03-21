@@ -5,9 +5,9 @@ title: Creating New App with AI
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
-<!-- vale off -->
+
 Wasp comes with its own AI: Wasp AI, aka Mage (**M**agic web **A**pp **GE**nerator).
-<!-- vale on -->
+
 
 Wasp AI allows you to create a new Wasp app **from only a title and a short description** (using GPT in the background)!
 
