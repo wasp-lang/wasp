@@ -5,8 +5,9 @@ title: Creating New App with AI
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
-
+<!-- vale off -->
 Wasp comes with its own AI: Wasp AI, aka Mage (**M**agic web **A**pp **GE**nerator).
+<!-- vale on -->
 
 Wasp AI allows you to create a new Wasp app **from only a title and a short description** (using GPT in the background)!
 
@@ -35,7 +36,7 @@ Once you provide an app title, app description, and choose some basic settings, 
 
 If you want to know more, check this [blog post](/blog/2023/07/10/gpt-web-app-generator) for more details on how Mage works, or this [blog post](blog/2023/07/17/how-we-built-gpt-web-app-generator) for a high-level overview of how we implemented it.
 
-## Wasp Cli
+## Wasp CLI
 
 You can create a new Wasp app using Wasp AI by running `wasp new` in your terminal and picking AI generation.
 

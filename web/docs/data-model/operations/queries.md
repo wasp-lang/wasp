@@ -548,7 +548,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
 <ShowForTs>
 
-Afer you [declare the query](#declaring-queries), Wasp generates a generic type you can use when defining its implementation.
+After you [declare the query](#declaring-queries), Wasp generates a generic type you can use when defining its implementation.
 For the Query declared as `getSomething`, the generated type is called `GetSomething`:
 
 ```ts

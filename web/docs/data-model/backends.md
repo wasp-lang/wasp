@@ -52,7 +52,7 @@ rm -r migrations/
 wasp clean
 ```
 
-3. Ensure your new database is running (check the [section on connecing to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
+3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
 5. That is it, you are all done!
 
