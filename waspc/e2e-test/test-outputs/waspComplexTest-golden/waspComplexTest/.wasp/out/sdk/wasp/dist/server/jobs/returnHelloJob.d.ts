@@ -26,7 +26,7 @@ export declare const returnHelloJob: {
                 state: "failed";
                 output: object;
             } | {
-                state: "retry" | "active" | "created" | "expired" | "cancelled";
+                state: "retry" | "created" | "active" | "expired" | "cancelled";
                 output: null;
             } | {
                 state: "completed";
