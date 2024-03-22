@@ -11,6 +11,9 @@ export type { CustomizationOptions } from '../../auth/forms/types'
 {=# isGoogleAuthEnabled =}
 export { SignInButton as GoogleSignInButton } from '../../auth/helpers/Google'
 {=/ isGoogleAuthEnabled =}
+{=# isKeycloakAuthEnabled =}
+export { SignInButton as KeycloakSignInButton } from '../../auth/helpers/Keycloak'
+{=/ isKeycloakAuthEnabled =}
 {=# isGitHubAuthEnabled =}
 export { SignInButton as GitHubSignInButton } from '../../auth/helpers/GitHub'
 {=/ isGitHubAuthEnabled =}
