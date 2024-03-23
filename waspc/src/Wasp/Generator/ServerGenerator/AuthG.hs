@@ -4,8 +4,9 @@ module Wasp.Generator.ServerGenerator.AuthG
   )
 where
 
-import Data.Aeson (object, (.=))
+import Data.Aeson (Value (String), object, (.=))
 import Data.Maybe (fromJust)
+import GHC.Enum (Bounded (minBound))
 import StrongPath
   ( File',
     Path',
@@ -18,6 +19,8 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (Email, GitHub, Google, Keycloak, UsernameAndPassword))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders
@@ -63,7 +66,7 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
     tmplData =
-      object ["isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth]
+      object ["isExternalAuthEnabled" .= AS.Auth.IsEnabled.isExternalAuthEnabled auth]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
@@ -74,18 +77,20 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     tmplData =
       object
         [ "providers" .= providers,
-          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
+          "isExternalAuthEnabled" .= AS.Auth.IsEnabled.isExternalAuthEnabled auth
         ]
 
-    providers =
-      makeConfigImportJson
-        <$> concat
-          [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
-            [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
-            [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
-            [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-            [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
-          ]
+    providers = makeConfigImportJson <$> concatMap check [minBound .. maxBound :: AuthMethod]
+
+    check :: AuthMethod -> [String]
+    check authMethod = [getProviderId authMethod | AS.Auth.IsEnabled.isAuthMethodEnabled authMethod auth]
+
+    getProviderId :: AuthMethod -> String
+    getProviderId GitHub = OAuthProvider.providerId gitHubAuthProvider
+    getProviderId Google = OAuthProvider.providerId googleAuthProvider
+    getProviderId Keycloak = OAuthProvider.providerId keycloakAuthProvider
+    getProviderId UsernameAndPassword = LocalProvider.providerId localAuthProvider
+    getProviderId Email = EmailProvider.providerId emailAuthProvider
 
     makeConfigImportJson providerId =
       jsImportToImportJson $

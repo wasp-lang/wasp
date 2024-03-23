@@ -24,6 +24,9 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Auth.AuthMethods as AS.AuthMethods
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.App.Auth.IsEnabled
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders
@@ -50,7 +53,7 @@ import qualified Wasp.Util as Util
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
-  | AS.Auth.isExternalAuthEnabled auth =
+  | AS.Auth.IsEnabled.isExternalAuthEnabled auth =
       genOAuthHelpers auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
@@ -104,7 +107,7 @@ genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
 
 genOAuthProvider ::
   OAuthAuthProvider ->
-  Maybe AS.Auth.ExternalAuthConfig ->
+  Maybe AS.AuthMethods.ExternalAuthConfig ->
   Generator [FileDraft]
 genOAuthProvider provider maybeUserConfig
   | isJust maybeUserConfig =
@@ -123,7 +126,7 @@ genOAuthProvider provider maybeUserConfig
 -- It's all in one config file.
 genOAuthConfig ::
   OAuthAuthProvider ->
-  Maybe AS.Auth.ExternalAuthConfig ->
+  Maybe AS.AuthMethods.ExternalAuthConfig ->
   Path' (Rel ServerTemplatesSrcDir) File' ->
   Generator FileDraft
 genOAuthConfig provider maybeUserConfig pathToConfigTmpl = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
@@ -137,14 +140,14 @@ genOAuthConfig provider maybeUserConfig pathToConfigTmpl = return $ C.mkTmplFdWi
           "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
           "userSignupFields" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
         ]
-    maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
-    maybeUserSignupFields = AS.Auth.userSignupFieldsForExternalAuth =<< maybeUserConfig
+    maybeConfigFn = AS.AuthMethods.configFn =<< maybeUserConfig
+    maybeUserSignupFields = AS.AuthMethods.userSignupFieldsForExternalAuth =<< maybeUserConfig
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
 
 depsRequiredByOAuth :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByOAuth spec =
-  [App.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+  [App.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.IsEnabled.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

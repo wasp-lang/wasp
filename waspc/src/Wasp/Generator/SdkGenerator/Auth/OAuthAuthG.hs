@@ -7,6 +7,8 @@ import Data.Aeson (object, (.=))
 import StrongPath (File', Path', Rel', reldir, relfile)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (GitHub, Google, Keycloak))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import Wasp.Generator.AuthProviders
   ( gitHubAuthProvider,
     googleAuthProvider,
@@ -20,7 +22,7 @@ import Wasp.Generator.SdkGenerator.Common as C
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
-  | AS.Auth.isExternalAuthEnabled auth =
+  | AS.Auth.IsEnabled.isExternalAuthEnabled auth =
       genHelpers auth
   | otherwise = return []
 
@@ -28,9 +30,9 @@ genHelpers :: AS.Auth.Auth -> Generator [FileDraft]
 genHelpers auth =
   return $
     concat
-      [ [gitHubHelpers | AS.Auth.isGitHubAuthEnabled auth],
-        [googleHelpers | AS.Auth.isGoogleAuthEnabled auth],
-        [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
+      [ [gitHubHelpers | AS.Auth.IsEnabled.isAuthMethodEnabled GitHub auth],
+        [googleHelpers | AS.Auth.IsEnabled.isAuthMethodEnabled Google auth],
+        [keycloakHelpers | AS.Auth.IsEnabled.isAuthMethodEnabled Keycloak auth]
       ]
   where
     gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]

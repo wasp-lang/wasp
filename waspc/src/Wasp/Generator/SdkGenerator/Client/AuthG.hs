@@ -3,13 +3,14 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
   )
 where
 
-import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
 import StrongPath (File', Path', Rel, relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (..))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
@@ -25,11 +26,7 @@ genNewClientAuth spec =
         [ genAuthIndex auth,
           genAuthUI auth
         ]
-        <++> genAuthEmail auth
-        <++> genAuthUsername auth
-        <++> genAuthGoogle auth
-        <++> genAuthKeycloak auth
-        <++> genAuthGitHub auth
+        <++> genAuthHelpers auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -40,7 +37,7 @@ genAuthIndex auth =
       [relfile|client/auth/index.ts|]
       tmplData
   where
-    tmplData = getAuthProvidersJson auth
+    tmplData = AuthProviders.getAuthProvidersJson auth
 
 genAuthUI :: AS.Auth.Auth -> Generator FileDraft
 genAuthUI auth =
@@ -49,47 +46,23 @@ genAuthUI auth =
       [relfile|client/auth/ui.ts|]
       tmplData
   where
-    tmplData = getAuthProvidersJson auth
+    tmplData = AuthProviders.getAuthProvidersJson auth
 
-genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthEmail auth =
-  if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genFileCopy [relfile|client/auth/email.ts|]]
-    else return []
+genAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthHelpers auth = return $ concatMap genAuthHelper [minBound .. maxBound :: AuthMethod]
+  where
+    genAuthHelper :: AuthMethod -> [FileDraft]
+    genAuthHelper authMethod =
+      if AS.Auth.IsEnabled.isAuthMethodEnabled authMethod auth
+        then [genHelperForAuthMethod authMethod]
+        else []
 
-genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopy [relfile|client/auth/username.ts|]]
-    else return []
+genHelperForAuthMethod :: AuthMethod -> FileDraft
+genHelperForAuthMethod Google = genFileCopy [relfile|client/auth/google.ts|]
+genHelperForAuthMethod Keycloak = genFileCopy [relfile|client/auth/keycloak.ts|]
+genHelperForAuthMethod GitHub = genFileCopy [relfile|client/auth/github.ts|]
+genHelperForAuthMethod Email = genFileCopy [relfile|client/auth/email.ts|]
+genHelperForAuthMethod UsernameAndPassword = genFileCopy [relfile|client/auth/username.ts|]
 
-genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthGoogle auth =
-  if AS.Auth.isGoogleAuthEnabled auth
-    then sequence [genFileCopy [relfile|client/auth/google.ts|]]
-    else return []
-
-genAuthKeycloak :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthKeycloak auth =
-  if AS.Auth.isKeycloakAuthEnabled auth
-    then sequence [genFileCopy [relfile|client/auth/keycloak.ts|]]
-    else return []
-
-genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthGitHub auth =
-  if AS.Auth.isGitHubAuthEnabled auth
-    then sequence [genFileCopy [relfile|client/auth/github.ts|]]
-    else return []
-
-getAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
-getAuthProvidersJson auth =
-  object
-    [ "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
-      "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
-      "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
-      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
-    ]
-
-genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> Generator FileDraft
-genFileCopy = return . C.mkTmplFd
+genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
+genFileCopy = C.mkTmplFd
