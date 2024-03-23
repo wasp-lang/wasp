@@ -8,6 +8,7 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders.OAuth (serverExchangeCodeForTokenUrl)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -34,7 +35,7 @@ genCreateAuthRequiredPage auth =
       (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genOAuthAuth auth = sequence [genOAuthCodeExchange auth | AS.Auth.isExternalAuthEnabled auth]
+genOAuthAuth auth = sequence [genOAuthCodeExchange auth | AS.Auth.IsEnabled.isExternalAuthEnabled auth]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =

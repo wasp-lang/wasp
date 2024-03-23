@@ -15,7 +15,7 @@ import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.App.Auth.IsEnabled
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
@@ -97,7 +97,7 @@ createRouterTemplateData spec =
     { _routes = routes,
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
-      _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
+      _isExternalAuthEnabled = (AS.App.Auth.IsEnabled.isExternalAuthEnabled <$> maybeAuth) == Just True,
       _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
       _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
     }

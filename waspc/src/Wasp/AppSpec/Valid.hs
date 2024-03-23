@@ -26,6 +26,8 @@ import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (Email, UsernameAndPassword))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as Auth.IsEnabled
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
@@ -169,7 +171,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
         | areBothAuthMethodsUsed
       ]
       where
-        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
+        areBothAuthMethodsUsed = Auth.IsEnabled.isAuthMethodEnabled Email auth && Auth.IsEnabled.isAuthMethodEnabled UsernameAndPassword auth
 
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
@@ -182,7 +184,7 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
   Nothing -> []
   Just auth ->
-    if Auth.isEmailAuthEnabled auth && isNothing (App.emailSender app)
+    if Auth.IsEnabled.isAuthMethodEnabled Email auth && isNothing (App.emailSender app)
       then [GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
       else []
   where

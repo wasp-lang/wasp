@@ -19,6 +19,7 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Auth.AuthMethods as AS.AuthMethods
 import Wasp.Generator.AuthProviders (localAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Local as Local
 import Wasp.Generator.FileDraft (FileDraft)
@@ -39,7 +40,7 @@ genLocalAuth auth = case usernameAndPasswordAuth of
   where
     usernameAndPasswordAuth = AS.Auth.usernameAndPassword $ AS.Auth.methods auth
 
-genLocalAuthConfig :: AS.Auth.UsernameAndPasswordConfig -> Generator FileDraft
+genLocalAuthConfig :: AS.AuthMethods.UsernameAndPasswordConfig -> Generator FileDraft
 genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
@@ -52,7 +53,7 @@ genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData
           "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
         ]
 
-    maybeUserSignupFields = AS.Auth.userSignupFieldsForUsernameAuth usernameAndPasswordConfig
+    maybeUserSignupFields = AS.AuthMethods.userSignupFieldsForUsernameAuth usernameAndPasswordConfig
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|auth/providers/config/username.ts|]

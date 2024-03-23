@@ -7,6 +7,8 @@ import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (Email))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import Wasp.Generator.AuthProviders.Email
   ( serverLoginUrl,
@@ -24,7 +26,7 @@ import qualified Wasp.Util as Util
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
-  | AS.Auth.isEmailAuthEnabled auth =
+  | AS.Auth.IsEnabled.isAuthMethodEnabled Email auth =
       sequence
         [ genIndex,
           genServerUtils auth
