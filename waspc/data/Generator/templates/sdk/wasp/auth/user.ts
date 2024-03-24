@@ -4,7 +4,7 @@ import {
   type {= authEntityName =},
   type {= authIdentityEntityName =},
 } from 'wasp/entities'
-import type { ProviderName, DeserializedAuthIdentity } from './types'
+import { type ProviderName } from './types'
 import { type PossibleProviderData, deserializeAndSanitizeProviderData } from './utils.js'
 
 // PUBLIC API
@@ -27,7 +27,7 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
 }
 
 // PUBLIC API
-export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): DeserializedAuthIdentity | undefined {
+export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): {= authIdentityEntityName =} | undefined {
   return user.auth.identities.find(
     (identity) => identity.providerName === providerName
   );

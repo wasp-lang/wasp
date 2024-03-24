@@ -87,9 +87,5 @@ type Context<Entities extends _Entity[]> = Expand<{
 {=# isAuthEnabled =}
 type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: AuthUser }>
 
-export type DeserializedAuthIdentity = Expand<Omit<{= authIdentityEntityName =}, 'providerData'> & {
-  providerData: Omit<EmailProviderData, 'password'> | Omit<UsernameProviderData, 'password'> | OAuthProviderData
-}>
-
 export type { ProviderName } from 'wasp/auth/utils'
 {=/ isAuthEnabled =}
