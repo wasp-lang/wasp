@@ -22,7 +22,7 @@ app todoApp {
         configFn: import { config } from "@src/auth/github.js",
         userSignupFields: import { userSignupFields } from "@src/auth/github.js"
       },
-      keycloak: {},
+      // keycloak: {},
       email: {
         userSignupFields: import { userSignupFields } from "@src/auth/email.js",
         fromField: {

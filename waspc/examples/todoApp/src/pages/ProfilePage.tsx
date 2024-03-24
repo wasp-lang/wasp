@@ -1,16 +1,20 @@
-import { type AuthUser as User } from "wasp/auth";
-import { type ServerToClientPayload, useSocket, useSocketListener } from "wasp/client/webSocket";
-import { Link, routes } from "wasp/client/router";
-import { api } from "wasp/client/api";
+import { type AuthUser } from 'wasp/auth'
+import {
+  type ServerToClientPayload,
+  useSocket,
+  useSocketListener,
+} from 'wasp/client/webSocket'
+import { Link, routes } from 'wasp/client/router'
+import { api } from 'wasp/client/api'
 import React, { useEffect, useRef, useState } from 'react'
-import { getName, getProviderData } from '../user'
+import { getName } from '../user'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
   console.log(res.data)
 }
 
-export const ProfilePage = ({ user }: { user: User }) => {
+export const ProfilePage = ({ user }: { user: AuthUser }) => {
   const [messages, setMessages] = useState<
     ServerToClientPayload<'chatMessage'>[]
   >([])
@@ -41,15 +45,13 @@ export const ProfilePage = ({ user }: { user: User }) => {
   ))
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-  const providerData = getProviderData(user)
-
   return (
     <>
       <h2>Profile page</h2>
       <div>
         Hello <strong>{getName(user)}</strong>! Your status is{' '}
         <strong>
-          {providerData && providerData.isEmailVerified
+          {user.identities.email && user.identities.email.data.isEmailVerified
             ? 'verfied'
             : 'unverified'}
         </strong>

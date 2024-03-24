@@ -171,11 +171,7 @@ genEntitiesAndServerTypesDirs spec =
             object
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust maybeUserEntityName,
-                "userEntityName" .= userEntityName,
-                "authEntityName" .= DbAuth.authEntityName,
-                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
                 "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
-                "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
                 "userFieldName" .= toLowerFirst userEntityName
               ]
         )

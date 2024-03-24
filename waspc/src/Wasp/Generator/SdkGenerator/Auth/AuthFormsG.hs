@@ -11,6 +11,7 @@ import Wasp.Generator.AuthProviders
     googleAuthProvider,
     keycloakAuthProvider,
   )
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -115,19 +116,10 @@ genLoginSignupForm auth =
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          -- Google
-          "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          -- Keycloak
-          "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          -- GitHub
-          "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
           "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          -- Username and password
-          "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-          -- Email
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
