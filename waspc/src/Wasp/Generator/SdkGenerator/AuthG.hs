@@ -10,6 +10,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -145,5 +146,6 @@ genUserTs auth = return $ C.mkTmplFdWithData [relfile|auth/user.ts|] tmplData
           "authEntityName" .= DbAuth.authEntityName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
-          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
