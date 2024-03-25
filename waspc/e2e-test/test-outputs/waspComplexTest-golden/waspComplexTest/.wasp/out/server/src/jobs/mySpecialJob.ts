@@ -1,8 +1,8 @@
 import { registerJob } from 'wasp/server/jobs/core/pgBoss'
-import { foo } from '../../../../../src/server/jobs/bar.js'
-import { mySpecialJob as _waspJobDefinition } from 'wasp/server/jobs'
+import { foo as __userDefinedFoo } from '../../../../../src/server/jobs/bar.js'
+import { mySpecialJob as __userDefinedMySpecialJob } from 'wasp/server/jobs'
 
 registerJob({
-  job: _waspJobDefinition,
-  jobFn: foo,
+  job: __userDefinedMySpecialJob,
+  jobFn: __userDefinedFoo,
 })

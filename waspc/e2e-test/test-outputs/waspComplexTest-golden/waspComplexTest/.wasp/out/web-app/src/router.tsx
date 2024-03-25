@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
-import App from '../../../../src/client/App.jsx'
+import __userDefinedApp from '../../../../src/client/App.jsx'
 
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 
@@ -16,7 +16,7 @@ export const routeNameToRouteComponent = {
 
 const router = (
   <Router basename="/">
-    <App>
+    <__userDefinedApp>
     <Switch>
       {Object.entries(routes).map(([routeKey, route]) => (
         <Route
@@ -30,7 +30,7 @@ const router = (
         <OAuthCallbackPage />
       </Route>
     </Switch>
-    </App>
+    </__userDefinedApp>
   </Router>
 )
 

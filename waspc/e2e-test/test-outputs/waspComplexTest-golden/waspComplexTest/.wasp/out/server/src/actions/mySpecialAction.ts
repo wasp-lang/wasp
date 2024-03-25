@@ -1,10 +1,10 @@
 import { prisma } from 'wasp/server'
 
-import { foo } from '../../../../../src/server/actions/bar.js'
+import { foo as __userDefinedFoo } from '../../../../../src/server/actions/bar.js'
 
 
 export default async function (args, context) {
-  return (foo as any)(args, {
+  return (__userDefinedFoo as any)(args, {
     ...context,
     entities: {
       User: prisma.user,
@@ -12,4 +12,4 @@ export default async function (args, context) {
   })
 }
 
-export type MySpecialAction = typeof foo 
+export type MySpecialAction = typeof __userDefinedFoo 

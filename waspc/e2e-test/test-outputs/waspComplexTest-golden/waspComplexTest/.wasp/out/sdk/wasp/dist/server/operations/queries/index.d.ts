@@ -1,3 +1,3 @@
-import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar.js';
-export type MySpecialQuery = typeof foo_ext;
+import { foo as __userDefinedFoo } from 'wasp/ext-src/server/queries/bar.js';
+export type MySpecialQuery = typeof __userDefinedFoo;
 export declare const mySpecialQuery: (args: any, context: any) => Promise<any>;

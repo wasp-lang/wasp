@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { setupOneTimeCodeRoute } from "./oauth/oneTimeCode";
 
-import google from './config/google.js'
+import __userDefinedGoogle from './config/google.js'
 
 const providers = [
-  google,
+  __userDefinedGoogle,
 ];
 
 const router = Router();

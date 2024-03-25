@@ -669,7 +669,7 @@
             "file",
             "../out/sdk/wasp/server/operations/actions/index.ts"
         ],
-        "9ce0ac735512fb6cd011a2b18d4ebe4cbe5059248053a61a43cf35ca87e02523"
+        "d86e937e9759835fc90ad0dc99987dc4599d6f63782d97d89e7afe44fea27aee"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "../out/sdk/wasp/server/operations/queries/index.ts"
         ],
-        "1e02dec4a438644acac0d45a93f9dcef63f4a0545311d920c518a06d7452ea50"
+        "b5c73a63a85acb5b5f8f8b9dacd9f38152ef6488c35480c86ca076342a3bdccb"
     ],
     [
         [
@@ -830,7 +830,7 @@
             "file",
             "server/src/actions/mySpecialAction.ts"
         ],
-        "d306e32442616e08a6a2bbf4fce881a983d5db12b6de648313a83e362dcc552a"
+        "a2731157ab59c43d0b2c137ab97c3fff4c0ef637e03c394ca9d3c114ef776ef8"
     ],
     [
         [
@@ -858,7 +858,7 @@
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "cb175fdf18744f3f5cc08a1c1d82aed869d2b7c0bdac6e51e28eb52e046b61fc"
+        "ffb85e0e1d5241c7b1537169286fdd864f295c869e08565f0ea2becb2e549054"
     ],
     [
         [
@@ -942,14 +942,14 @@
             "file",
             "server/src/jobs/mySpecialJob.ts"
         ],
-        "a93521d6cb34ea3e5b22fea6b8adaf2e00919f2f9460f189ef3b046a87f8c4b0"
+        "99338de9758f097e27c7c247095003f4f8afe1419829d94dbf6ce1b3bf0ed4b8"
     ],
     [
         [
             "file",
             "server/src/jobs/returnHelloJob.ts"
         ],
-        "fe85a8bbe6e789563b13952bb7fd54934e7e955682688b2126a6dced2cda4893"
+        "e5fc35c123ad1a941d2e4ec0737f48be79bfe19f657960295db224f178546b08"
     ],
     [
         [
@@ -984,7 +984,7 @@
             "file",
             "server/src/queries/mySpecialQuery.ts"
         ],
-        "4f907aed444b1778b919bb2021a44a53f2282d238e65e843670d2e786a623a71"
+        "e4f0a4ba1d95b8cc451471d5fd485a627fb6718cec99f476689212050c57f7a2"
     ],
     [
         [
@@ -1068,7 +1068,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "fd4a9cd212e14caefc41e916bc816594cd8b76a2565adfd5495c01a6bf5aa936"
+        "4a84d3750a35c9883a2f525be9cb18455635ee6446e9080d3420457a1545d909"
     ],
     [
         [
@@ -1180,7 +1180,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "46b4cde819de4048b82feb249ae662fb60de2297c6a740f49da239011848458d"
+        "ecffddfcf45f0c87fb87e372757bd781aa9eb6fd8a98a79683cdea48e6de570c"
     ],
     [
         [
@@ -1201,7 +1201,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "938782afaf3fbe32d850a983e55fe7e31bb261cf8f79e84c7e800b7847544f15"
+        "431f63d2cea43a6cddf8019ffaeb4b81ce35929c6de415f55e45046b8e15c343"
     ],
     [
         [
@@ -1243,6 +1243,6 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "64256d93d81f6192f419e836ed4484f0e8c1e28f018bfb3213851608200594ac"
+        "ec2ca30369032f5d41a9bc8ba8b0e4cfd3951c8e3761dd31f55cebc83f52b3f9"
     ]
 ]
