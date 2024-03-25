@@ -40,17 +40,20 @@ genLocalAuth auth = case usernameAndPasswordAuth of
     usernameAndPasswordAuth = AS.Auth.usernameAndPassword $ AS.Auth.methods auth
 
 genLocalAuthConfig :: AS.Auth.UsernameAndPasswordConfig -> Generator FileDraft
-genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genLocalAuthConfig usernameAndPasswordConfig = do
+  userSignupFields <- extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
+
+  let tmplData =
+        object
+          [ "providerId" .= Local.providerId localAuthProvider,
+            "displayName" .= Local.displayName localAuthProvider,
+            "userSignupFields" .= userSignupFields
+          ]
+
+  return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
-
-    tmplData =
-      object
-        [ "providerId" .= Local.providerId localAuthProvider,
-          "displayName" .= Local.displayName localAuthProvider,
-          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
-        ]
 
     maybeUserSignupFields = AS.Auth.userSignupFieldsForUsernameAuth usernameAndPasswordConfig
 

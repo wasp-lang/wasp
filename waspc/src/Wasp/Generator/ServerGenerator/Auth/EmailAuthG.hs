@@ -43,23 +43,28 @@ genEmailAuth spec auth = case emailAuth of
     emailAuth = AS.Auth.email $ AS.Auth.methods auth
 
 genEmailAuthConfig :: AS.AppSpec -> AS.Auth.EmailAuthConfig -> Generator FileDraft
-genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genEmailAuthConfig spec emailAuthConfig = do
+  getPasswordResetEmailContent <- extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
+  getVerificationEmailContent <- extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
+  userSignupFields <- extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
+
+  let tmplData =
+        object
+          [ "providerId" .= Email.providerId emailAuthProvider,
+            "displayName" .= Email.displayName emailAuthProvider,
+            "fromField" .= fromFieldJson,
+            "emailVerificationClientRoute" .= emailVerificationClientRoute,
+            "passwordResetClientRoute" .= passwordResetClientRoute,
+            "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
+            "getVerificationEmailContent" .= getVerificationEmailContent,
+            "userSignupFields" .= userSignupFields,
+            "isDevelopment" .= isDevelopment
+          ]
+
+  return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
-
-    tmplData =
-      object
-        [ "providerId" .= Email.providerId emailAuthProvider,
-          "displayName" .= Email.displayName emailAuthProvider,
-          "fromField" .= fromFieldJson,
-          "emailVerificationClientRoute" .= emailVerificationClientRoute,
-          "passwordResetClientRoute" .= passwordResetClientRoute,
-          "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
-          "getVerificationEmailContent" .= getVerificationEmailContent,
-          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields,
-          "isDevelopment" .= isDevelopment
-        ]
 
     fromFieldJson =
       object
@@ -75,8 +80,6 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
 
     emailVerificationClientRoute = getRoutePathFromRef spec $ AS.Auth.EmailVerification.clientRoute emailVerification
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
-    getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
-    getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
     maybeUserSignupFields = AS.Auth.userSignupFieldsForEmailAuth emailAuthConfig
 
     emailVerification = AS.Auth.emailVerification emailAuthConfig

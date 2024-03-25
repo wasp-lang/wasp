@@ -41,32 +41,38 @@ genOperations spec =
     ]
 
 genServerTs :: AppSpec -> Generator FileDraft
-genServerTs spec = return $ mkTmplFdWithData relPath tmplData
+genServerTs spec = do
+  actions <- mapM getActionData (AS.getActions spec)
+  queries <- mapM getQueryData (AS.getQueries spec)
+  let tmplData =
+        object
+          [ "actions" .= actions,
+            "queries" .= queries
+          ]
+
+  return $ mkTmplFdWithData relPath tmplData
   where
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]
-    tmplData =
-      object
-        [ "actions" .= map getActionData (AS.getActions spec),
-          "queries" .= map getQueryData (AS.getQueries spec)
-        ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
+genQueriesIndex spec = do
+  operations <- mapM getQueryData (AS.getQueries spec)
+
+  let tmplData = object ["operations" .= operations]
+
+  return $ mkTmplFdWithData relPath tmplData
   where
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
-    tmplData =
-      object
-        [ "operations" .= map getQueryData (AS.getQueries spec)
-        ]
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
+genActionsIndex spec = do
+  operations <- mapM getActionData (AS.getActions spec)
+
+  let tmplData = object ["operations" .= operations]
+
+  return $ mkTmplFdWithData relPath tmplData
   where
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
-    tmplData =
-      object
-        [ "operations" .= map getActionData (AS.getActions spec)
-        ]
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec = genOperationTypesFile relPath operations isAuthEnabledGlobally
@@ -85,12 +91,12 @@ genActionTypesFile spec = genOperationTypesFile relPath operations isAuthEnabled
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: (String, AS.Query.Query) -> Aeson.Value
+getQueryData :: (String, AS.Query.Query) -> Generator Aeson.Value
 getQueryData (queryName, query) = getOperationTmplData operation
   where
     operation = AS.Operation.QueryOp queryName query
 
-getActionData :: (String, AS.Action.Action) -> Aeson.Value
+getActionData :: (String, AS.Action.Action) -> Generator Aeson.Value
 getActionData (actionName, action) = getOperationTmplData operation
   where
     operation = AS.Operation.ActionOp actionName action
@@ -125,12 +131,14 @@ serverOperationsDirInSdkRootDir =
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
-getOperationTmplData :: AS.Operation.Operation -> Aeson.Value
-getOperationTmplData operation =
-  object
-    [ "jsFn" .= extImportToSdkImportJson (Just $ AS.Operation.getFn operation),
-      "operationName" .= getName operation,
-      "operationTypeName" .= toUpperFirst (getName operation),
-      "entities"
-        .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation)
-    ]
+getOperationTmplData :: AS.Operation.Operation -> Generator Aeson.Value
+getOperationTmplData operation = do
+  jsFn <- extImportToSdkImportJson (Just $ AS.Operation.getFn operation)
+  return $
+    object
+      [ "jsFn" .= jsFn,
+        "operationName" .= getName operation,
+        "operationTypeName" .= toUpperFirst (getName operation),
+        "entities"
+          .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation)
+      ]

@@ -63,12 +63,14 @@ genActionTypesFile spec = genOperationTypesFile tmplFile dstFile operations isAu
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
 genQuery :: (String, AS.Query.Query) -> Generator FileDraft
-genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genQuery (queryName, query) = do
+  tmplData <- operationTmplData operation
+
+  return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.QueryOp queryName query
     tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir queryName
-    tmplData = operationTmplData operation
 
 genOperationTypesFile ::
   Path' (Rel C.ServerTemplatesDir) File' ->
@@ -97,12 +99,14 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
 
 -- | Analogous to genQuery.
 genAction :: (String, AS.Action.Action) -> Generator FileDraft
-genAction (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genAction (actionName, action) = do
+  tmplData <- operationTmplData operation
+
+  return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.ActionOp actionName action
     tmplFile = [relfile|src/actions/_action.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> actionFileInSrcDir actionName
-    tmplData = operationTmplData operation
 
 queryFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 queryFileInSrcDir queryName =
@@ -120,17 +124,19 @@ operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) Fi
 operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
 operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 
-operationTmplData :: AS.Operation.Operation -> Aeson.Value
-operationTmplData operation =
-  object
-    [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
-      "operationTypeName" .= toUpperFirst (getName operation),
-      "entities"
-        .= maybe
-          []
-          (map (makeJsonWithEntityData . AS.refName))
-          (AS.Operation.getEntities operation)
-    ]
+operationTmplData :: AS.Operation.Operation -> Generator Aeson.Value
+operationTmplData operation = do
+  jsFn <- extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation)
+  return $
+    object
+      [ "jsFn" .= jsFn,
+        "operationTypeName" .= toUpperFirst (getName operation),
+        "entities"
+          .= maybe
+            []
+            (map (makeJsonWithEntityData . AS.refName))
+            (AS.Operation.getEntities operation)
+      ]
   where
     relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromOperationsDirToServerSrcDir = [reldirP|../|]

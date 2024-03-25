@@ -32,22 +32,26 @@ genCrud spec =
     areThereAnyCruds = not $ null cruds
 
 genCrudServerOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
-genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
+genCrudServerOperations spec cruds = mapM genCrudOperation cruds
   where
-    genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
+    genCrudOperation :: (String, AS.Crud.Crud) -> Generator FileDraft
+    genCrudOperation (name, crud) = do
+      overrides <- mapM operationToOverrideImport crudOperations
+
+      let tmplData =
+            object
+              [ "crud" .= getCrudOperationJson name crud idField,
+                "isAuthEnabled" .= isAuthEnabled spec,
+                "userEntityUpper" .= maybeUserEntity,
+                "overrides" .= object overrides,
+                "queryType" .= queryTsType,
+                "actionType" .= actionTsType
+              ]
+
+      return $ C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
       where
         tmplPath = [relfile|server/crud/_operationTypes.ts|]
         destPath = [reldir|server/crud|] </> getCrudFilePath name "ts"
-        tmplData =
-          object
-            [ "crud" .= getCrudOperationJson name crud idField,
-              "isAuthEnabled" .= isAuthEnabled spec,
-              "userEntityUpper" .= maybeUserEntity,
-              "overrides" .= object overrides,
-              "queryType" .= queryTsType,
-              "actionType" .= actionTsType
-            ]
         idField = getIdFieldFromCrudEntity spec crud
         maybeUserEntity = AS.refName . AS.Auth.userEntity <$> maybeAuth
         maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -58,12 +62,9 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
         actionTsType :: String
         actionTsType = if isAuthEnabled spec then "AuthenticatedAction" else "Action"
 
-        overrides :: [Aeson.Types.Pair]
-        overrides = map operationToOverrideImport crudOperations
-
         crudOperations = crudDeclarationToOperationsList crud
 
-        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
-        operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
-          where
-            importJson = extImportToSdkImportJson $ AS.Crud.overrideFn options
+        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Generator Aeson.Types.Pair
+        operationToOverrideImport (operation, options) = do
+          importJson <- extImportToSdkImportJson $ AS.Crud.overrideFn options
+          return $ makeCrudOperationKeyAndJsonPair operation importJson

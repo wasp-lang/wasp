@@ -69,15 +69,9 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
 
 genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
-  where
-    tmplData =
-      object
-        [ "providers" .= providers,
-          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
-        ]
-
-    providers =
+genProvidersIndex auth = do
+  providers <-
+    sequence $
       makeConfigImportJson
         <$> concat
           [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
@@ -86,7 +80,14 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
             [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
             [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
           ]
+  let tmplData =
+        object
+          [ "providers" .= providers,
+            "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
+          ]
 
+  return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
+  where
     makeConfigImportJson providerId =
       jsImportToImportJson $
         Just $

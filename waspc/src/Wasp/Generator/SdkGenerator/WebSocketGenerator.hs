@@ -33,14 +33,16 @@ genWebSockets spec
     genFileCopy = return . C.mkTmplFd
 
 genWebSocketServerIndex :: AppSpec -> Generator FileDraft
-genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSocket/index.ts|] tmplData
+genWebSocketServerIndex spec = do
+  userWebSocketFn <- extImportToSdkImportJson maybeWebSocketFn
+  let tmplData =
+        object
+          [ "isAuthEnabled" .= isAuthEnabled spec,
+            "userWebSocketFn" .= userWebSocketFn,
+            "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+          ]
+  return $ C.mkTmplFdWithData [relfile|server/webSocket/index.ts|] tmplData
   where
-    tmplData =
-      object
-        [ "isAuthEnabled" .= isAuthEnabled spec,
-          "userWebSocketFn" .= extImportToSdkImportJson maybeWebSocketFn,
-          "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
-        ]
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 

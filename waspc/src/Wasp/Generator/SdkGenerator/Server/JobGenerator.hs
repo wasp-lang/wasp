@@ -91,7 +91,7 @@ genJob (jobName, job) =
 getJobExecutorImportPath :: JobExecutor -> Path Posix (Rel r) File'
 getJobExecutorImportPath PgBoss = makeSdkImportPath [relfileP|server/jobs/core/pgBoss|]
 
-getImportJsonForJobDefinition :: String -> Aeson.Value
+getImportJsonForJobDefinition :: String -> Generator Aeson.Value
 getImportJsonForJobDefinition jobName =
   GJI.jsImportToImportJson $
     Just $

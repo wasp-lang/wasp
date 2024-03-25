@@ -34,43 +34,47 @@ genApis spec =
     areThereAnyCustomApiRoutes = not . null $ getApis spec
 
 genApiRoutes :: AppSpec -> Generator FileDraft
-genApiRoutes spec =
+genApiRoutes spec = do
+  apiRoutes <- mapM getApiRoutesTmplData namedApis
+  apiNamespaces <- mapM getNamespaceTmplData namedNamespaces
+  let tmplData =
+        object
+          [ "apiRoutes" .= apiRoutes,
+            "apiNamespaces" .= apiNamespaces,
+            "isAuthEnabled" .= isAuthEnabledGlobally spec
+          ]
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     namedApis = AS.getApis spec
     namedNamespaces = AS.getApiNamespaces spec
-    tmplData =
-      object
-        [ "apiRoutes" .= map getApiRoutesTmplData namedApis,
-          "apiNamespaces" .= map getNamespaceTmplData namedNamespaces,
-          "isAuthEnabled" .= isAuthEnabledGlobally spec
-        ]
     tmplFile = C.asTmplFile [relfile|src/routes/apis/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
-    getNamespaceTmplData :: (String, ApiNamespace.ApiNamespace) -> Aeson.Value
-    getNamespaceTmplData (_namespaceName, namespace) =
-      object
-        [ "namespacePath" .= ApiNamespace.path namespace,
-          "namespaceMiddlewareConfigFn" .= namespaceMiddlewareConfigFn
-        ]
-      where
-        namespaceMiddlewareConfigFn = extImportToImportJson relPathFromApisRoutesToServerSrcDir $ Just (ApiNamespace.middlewareConfigFn namespace)
+    getNamespaceTmplData :: (String, ApiNamespace.ApiNamespace) -> Generator Aeson.Value
+    getNamespaceTmplData (_namespaceName, namespace) = do
+      namespaceMiddlewareConfigFn <- extImportToImportJson relPathFromApisRoutesToServerSrcDir $ Just (ApiNamespace.middlewareConfigFn namespace)
 
-    getApiRoutesTmplData :: (String, Api.Api) -> Aeson.Value
-    getApiRoutesTmplData (apiName, api) =
-      object
-        [ "routeMethod" .= map toLower (show $ Api.method api),
-          "routePath" .= Api.path api,
-          "apiRouteFn" .= apiRouteFn,
-          "entities" .= getApiEntitiesObject api,
-          "usesAuth" .= isAuthEnabledForApi spec api,
-          "routeMiddlewareConfigFn" .= routeMiddlewareConfigFn,
-          "apiName" .= apiName
-        ]
-      where
-        apiRouteFn = extImportToImportJson relPathFromApisRoutesToServerSrcDir $ Just (Api.fn api)
-        routeMiddlewareConfigFn = extImportToImportJson relPathFromApisRoutesToServerSrcDir $ Api.middlewareConfigFn api
+      return $
+        object
+          [ "namespacePath" .= ApiNamespace.path namespace,
+            "namespaceMiddlewareConfigFn" .= namespaceMiddlewareConfigFn
+          ]
+
+    getApiRoutesTmplData :: (String, Api.Api) -> Generator Aeson.Value
+    getApiRoutesTmplData (apiName, api) = do
+      apiRouteFn <- extImportToImportJson relPathFromApisRoutesToServerSrcDir $ Just (Api.fn api)
+      routeMiddlewareConfigFn <- extImportToImportJson relPathFromApisRoutesToServerSrcDir $ Api.middlewareConfigFn api
+
+      return $
+        object
+          [ "routeMethod" .= map toLower (show $ Api.method api),
+            "routePath" .= Api.path api,
+            "apiRouteFn" .= apiRouteFn,
+            "entities" .= getApiEntitiesObject api,
+            "usesAuth" .= isAuthEnabledForApi spec api,
+            "routeMiddlewareConfigFn" .= routeMiddlewareConfigFn,
+            "apiName" .= apiName
+          ]
 
 relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]

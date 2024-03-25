@@ -38,44 +38,47 @@ import qualified Wasp.Generator.ServerGenerator.JsImport as SJI
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = case getJobs spec of
   [] -> return []
-  jobs -> return $ genAllJobImports spec : (genRegisterJob <$> jobs)
+  jobs -> do
+    allJobImport <- genAllJobImports spec
+    jobRegisters <- mapM genRegisterJob jobs
+    return $ allJobImport : jobRegisters
 
-genRegisterJob :: (String, Job) -> FileDraft
-genRegisterJob (jobName, job) =
-  C.mkTmplFdWithDstAndData
-    tmplFile
-    dstFile
-    ( Just $
-        object
-          [ "jobPerformFn" .= jobPerformFn,
-            "jobExecutorImportPath" .= SP.fromRelFileP (getJobExecutorImportPath (J.executor job)),
-            "jobDefinition" .= getImportJsonForJobDefinition jobName
-          ]
-    )
+genRegisterJob :: (String, Job) -> Generator FileDraft
+genRegisterJob (jobName, job) = do
+  jobPerformFn <- SJI.extImportToImportJson relPathFromJobsDirToServerSrcDir $ Just $ (J.fn . J.perform) job
+  jobDefinition <- getImportJsonForJobDefinition jobName
+  return $
+    C.mkTmplFdWithDstAndData
+      tmplFile
+      dstFile
+      ( Just $
+          object
+            [ "jobPerformFn" .= jobPerformFn,
+              "jobExecutorImportPath" .= SP.fromRelFileP (getJobExecutorImportPath (J.executor job)),
+              "jobDefinition" .= jobDefinition
+            ]
+      )
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir </> [relfile|_job.ts|]
     dstFile = jobsDirInServerRootDir </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
-
-    jobPerformFn =
-      SJI.extImportToImportJson relPathFromJobsDirToServerSrcDir $
-        Just $ (J.fn . J.perform) job
 
     relPathFromJobsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromJobsDirToServerSrcDir = [reldirP|../|]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded
 -- even if they are not referenced by user code. This ensures schedules are started, etc.
-genAllJobImports :: AppSpec -> FileDraft
+genAllJobImports :: AppSpec -> Generator FileDraft
 genAllJobImports spec =
   let tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir </> [relfile|core/allJobs.ts|]
       dstFile = jobsDirInServerRootDir </> [relfile|core/allJobs.ts|]
-   in C.mkTmplFdWithDstAndData
-        tmplFile
-        dstFile
-        ( Just $
-            object
-              ["jobs" .= (buildJobInfo <$> (fst <$> getJobs spec))]
-        )
+   in return $
+        C.mkTmplFdWithDstAndData
+          tmplFile
+          dstFile
+          ( Just $
+              object
+                ["jobs" .= (buildJobInfo <$> (fst <$> getJobs spec))]
+          )
   where
     buildJobInfo :: String -> Aeson.Value
     buildJobInfo jobName = object ["name" .= jobName]

@@ -205,16 +205,18 @@ genSrcDir spec =
     genFileCopy = return . C.mkSrcTmplFd
 
 genServerJs :: AppSpec -> Generator FileDraft
-genServerJs spec =
+genServerJs spec = do
+  setupFn <- extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction
+  userWebSocketFn <- mkWebSocketFnImport maybeWebSocket [reldirP|./|]
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/server.ts|])
       (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
+            [ "setupFn" .= setupFn,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
+              "userWebSocketFn" .= userWebSocketFn
             ]
       )
   where
@@ -256,15 +258,17 @@ genEnvValidationScript =
     ]
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
-genMiddleware spec =
+genMiddleware spec = do
+  globalMiddlewareConfigFn <- extImportToImportJson [reldirP|../|] maybeGlobalMiddlewareConfigFn
+
+  let globalMiddlewareTmplData = object ["globalMiddlewareConfigFn" .= globalMiddlewareConfigFn]
+
   sequence
     [ return $ C.mkTmplFd [relfile|src/middleware/index.ts|],
-      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData),
+      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just globalMiddlewareTmplData),
       genOperationsMiddleware spec
     ]
   where
-    tmplData = object ["globalMiddlewareConfigFn" .= globalMiddlewareConfigFn]
-    globalMiddlewareConfigFn = extImportToImportJson [reldirP|../|] maybeGlobalMiddlewareConfigFn
     maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
 
 genOperationsMiddleware :: AppSpec -> Generator FileDraft

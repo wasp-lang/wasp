@@ -12,6 +12,7 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (GeneratedSrcDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import Wasp.Generator.Monad (Generator, mangleName)
 import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportField, JsImportModule),
@@ -38,23 +39,28 @@ extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
 extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
 extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
-jsImportToImportJson :: Maybe JsImport -> Aeson.Value
+jsImportToImportJson :: Maybe JsImport -> Generator Aeson.Value
 jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
   where
-    notDefinedValue = object ["isDefined" .= False]
+    notDefinedValue = return $ object ["isDefined" .= False]
 
-    mkTmplData :: JsImport -> Aeson.Value
-    mkTmplData jsImport =
-      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier $ mangleImportIdentifier jsImport
-       in object
-            [ "isDefined" .= True,
-              "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier
-            ]
+    mkTmplData :: JsImport -> Generator Aeson.Value
+    mkTmplData jsImport = do
+      mangledJsImport <- mangleImportIdentifier jsImport
+      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier mangledJsImport
+      return $
+        object
+          [ "isDefined" .= True,
+            "importStatement" .= jsImportStmt,
+            "importIdentifier" .= jsImportIdentifier
+          ]
       where
-        mangleImportIdentifier :: JsImport -> JsImport
-        mangleImportIdentifier JI.JsImport {JI._name = JsImportModule name} = mangleName name jsImport
-        mangleImportIdentifier JI.JsImport {JI._name = JsImportField name} = mangleName name jsImport
+        mangleImportIdentifier :: JsImport -> Generator JsImport
+        mangleImportIdentifier JI.JsImport {JI._name = JsImportModule name} = mangleJsImportName name jsImport
+        mangleImportIdentifier JI.JsImport {JI._name = JsImportField name} = mangleJsImportName name jsImport
 
-        mangleName :: String -> JsImport -> JsImport
-        mangleName originalName = applyJsImportAlias (Just (originalName ++ "__userDefined"))
+        mangleJsImportName :: String -> JsImport -> Generator JsImport
+        mangleJsImportName originalName originalJsImport = do
+          mangledName <- mangleName originalName
+
+          return $ applyJsImportAlias (Just mangledName) originalJsImport

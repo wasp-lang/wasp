@@ -9,6 +9,7 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import qualified Wasp.Generator.JsImport as GJI
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.JsImport as JI
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
@@ -83,7 +84,7 @@ clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
-extImportToSdkImportJson :: Maybe EI.ExtImport -> Aeson.Value
+extImportToSdkImportJson :: Maybe EI.ExtImport -> Generator Aeson.Value
 extImportToSdkImportJson =
   GJI.jsImportToImportJson
     . extImportToSdkJsImport
