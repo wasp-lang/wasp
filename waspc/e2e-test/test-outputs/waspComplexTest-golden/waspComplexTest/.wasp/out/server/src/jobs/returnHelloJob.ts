@@ -1,8 +1,8 @@
 import { registerJob } from 'wasp/server/jobs/core/pgBoss'
-import { returnHello as __userDefinedReturnHello } from '../../../../../src/server/jobs/returnHello.js'
-import { returnHelloJob as __userDefinedReturnHelloJob } from 'wasp/server/jobs'
+import { returnHello as returnHello__userDefined } from '../../../../../src/server/jobs/returnHello.js'
+import { returnHelloJob as returnHelloJob__userDefined } from 'wasp/server/jobs'
 
 registerJob({
-  job: __userDefinedReturnHelloJob,
-  jobFn: __userDefinedReturnHello,
+  job: returnHelloJob__userDefined,
+  jobFn: returnHello__userDefined,
 })

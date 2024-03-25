@@ -8,13 +8,13 @@ import {
   queryClientInitialized,
 } from 'wasp/client/operations'
 
-import __userDefinedMyClientSetupFunction from '../../../../src/client/myClientSetupCode.js'
+import myClientSetupFunction__userDefined from '../../../../src/client/myClientSetupCode.js'
 
 
 startApp()
 
 async function startApp() {
-  await __userDefinedMyClientSetupFunction()
+  await myClientSetupFunction__userDefined()
   initializeQueryClient()
 
   await render()

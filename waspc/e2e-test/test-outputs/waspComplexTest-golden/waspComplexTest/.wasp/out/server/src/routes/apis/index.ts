@@ -5,52 +5,52 @@ import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../midd
 import auth from 'wasp/core/auth'
 import { type AuthUser } from 'wasp/auth'
 
-import { fooBarNamespaceMiddlewareFn as _waspfooBarNamespacenamespaceMiddlewareConfigFn } from '../../../../../../src/server/apiNamespaces.js'
+import { fooBarNamespaceMiddlewareFn as fooBarNamespaceMiddlewareFn__userDefined } from '../../../../../../src/server/apiNamespaces.js'
 
-import { fooBar as _waspfooBarfn } from '../../../../../../src/server/apis.js'
-import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../../../../../src/server/apis.js'
-import { fooBaz as _waspfooBazfn } from '../../../../../../src/server/apis.js'
+import { fooBar as fooBar__userDefined } from '../../../../../../src/server/apis.js'
+import { fooBarMiddlewareFn as fooBarMiddlewareFn__userDefined } from '../../../../../../src/server/apis.js'
+import { fooBaz as fooBaz__userDefined } from '../../../../../../src/server/apis.js'
 
 const idFn: MiddlewareConfigFn = x => x
 
-const _waspfooBazmiddlewareConfigFn = idFn
-
 const router = express.Router()
 
-router.use('/bar', globalMiddlewareConfigForExpress(_waspfooBarNamespacenamespaceMiddlewareConfigFn))
+router.use('/bar', globalMiddlewareConfigForExpress(fooBarNamespaceMiddlewareFn__userDefined))
 
-const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareConfigFn)
+const fooBarMiddleware = globalMiddlewareConfigForExpress(fooBarMiddlewareFn__userDefined)
+
 router.get(
   '/foo/bar',
   [auth, ...fooBarMiddleware],
   handleRejection(
     (
-      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUser },
-      res: Parameters<typeof _waspfooBarfn>[1],
+      req: Parameters<typeof fooBar__userDefined>[0] & { user: AuthUser },
+      res: Parameters<typeof fooBar__userDefined>[1],
     ) => {
       const context = {
         user: req.user,
         entities: {
         },
       }
-      return _waspfooBarfn(req, res, context)
+      return fooBar__userDefined(req, res, context)
     }
   )
 )
-const fooBazMiddleware = globalMiddlewareConfigForExpress(_waspfooBazmiddlewareConfigFn)
+const fooBazMiddleware = globalMiddlewareConfigForExpress(idFn)
+
 router.get(
   '/foo/baz',
   fooBazMiddleware,
   handleRejection(
     (
-      req: Parameters<typeof _waspfooBazfn>[0],
-      res: Parameters<typeof _waspfooBazfn>[1],
+      req: Parameters<typeof fooBaz__userDefined>[0],
+      res: Parameters<typeof fooBaz__userDefined>[1],
     ) => {
       const context = {
         entities: {
         },
       }
-      return _waspfooBazfn(req, res, context)
+      return fooBaz__userDefined(req, res, context)
     }
   )
 )

@@ -1,13 +1,13 @@
 import { prisma } from 'wasp/server'
 
-import { foo as __userDefinedFoo } from 'wasp/ext-src/server/queries/bar.js'
+import { foo as foo__userDefined } from 'wasp/ext-src/server/queries/bar.js'
 
 // PRIVATE API
-export type MySpecialQuery = typeof __userDefinedFoo 
+export type MySpecialQuery = typeof foo__userDefined 
 
 // PUBLIC API
 export const mySpecialQuery = async (args, context) => {
-  return (__userDefinedFoo as any)(args, {
+  return (foo__userDefined as any)(args, {
     ...context,
     entities: {
       User: prisma.user,

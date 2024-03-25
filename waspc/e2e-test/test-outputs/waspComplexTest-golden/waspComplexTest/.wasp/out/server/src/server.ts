@@ -3,7 +3,7 @@ import http from 'http'
 import app from './app.js'
 import { config } from 'wasp/server'
 
-import __userDefinedMySetupFunction from '../../../../src/server/myServerSetupCode.js'
+import mySetupFunction__userDefined from '../../../../src/server/myServerSetupCode.js'
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
@@ -22,7 +22,7 @@ const startServer = async () => {
   const server = http.createServer(app)
 
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
-  await (__userDefinedMySetupFunction as ServerSetupFn)(serverSetupFnContext)
+  await (mySetupFunction__userDefined as ServerSetupFn)(serverSetupFnContext)
 
 
   server.listen(port)

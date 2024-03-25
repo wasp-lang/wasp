@@ -669,7 +669,7 @@
             "file",
             "../out/sdk/wasp/server/operations/actions/index.ts"
         ],
-        "d86e937e9759835fc90ad0dc99987dc4599d6f63782d97d89e7afe44fea27aee"
+        "e421878ee99ce7361c330f2802e2736ff6b3c5cf882cab7e443977a83542fd1a"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "../out/sdk/wasp/server/operations/queries/index.ts"
         ],
-        "b5c73a63a85acb5b5f8f8b9dacd9f38152ef6488c35480c86ca076342a3bdccb"
+        "b3ba4a4d03f9e9f60177b02b8aad1b77d7a373f441a13fe92f72d7a16ec56b2d"
     ],
     [
         [
@@ -830,7 +830,7 @@
             "file",
             "server/src/actions/mySpecialAction.ts"
         ],
-        "a2731157ab59c43d0b2c137ab97c3fff4c0ef637e03c394ca9d3c114ef776ef8"
+        "20e491586181c41e57177495d77c8ab9ac5fa12c8620183d3a12a1f350ee829e"
     ],
     [
         [
@@ -858,7 +858,7 @@
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "ffb85e0e1d5241c7b1537169286fdd864f295c869e08565f0ea2becb2e549054"
+        "738a4a8d16b4f996e11708da3d9be100abd7209c3a2d0290442e1760f770323d"
     ],
     [
         [
@@ -942,21 +942,21 @@
             "file",
             "server/src/jobs/mySpecialJob.ts"
         ],
-        "99338de9758f097e27c7c247095003f4f8afe1419829d94dbf6ce1b3bf0ed4b8"
+        "a2f229c8a33dd5b700b132f3c96fe75a5a09be551bbe23d44b4311edc8e86c2f"
     ],
     [
         [
             "file",
             "server/src/jobs/returnHelloJob.ts"
         ],
-        "e5fc35c123ad1a941d2e4ec0737f48be79bfe19f657960295db224f178546b08"
+        "82f12cb904313798d115a2027a8dfac96a5e4d25aefdc451ffd51fb846c17468"
     ],
     [
         [
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "c4ff779ef521982dd774574d9fb28511f44d0d4859533977da195606259faa4e"
     ],
     [
         [
@@ -984,7 +984,7 @@
             "file",
             "server/src/queries/mySpecialQuery.ts"
         ],
-        "e4f0a4ba1d95b8cc451471d5fd485a627fb6718cec99f476689212050c57f7a2"
+        "a95b53e88dc173e4b56d43cfaa56d61600df49cd9f1f4ac643fb7962a5f535e5"
     ],
     [
         [
@@ -998,7 +998,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "7928725e710e9b7d23ad81ed8d704b314e72fcd731cb17e854ec593ee51f89f5"
+        "e22f4e7b2d9f30be72b55dc4255476964a644eb27b5b78da8f36cc35bca9308b"
     ],
     [
         [
@@ -1068,7 +1068,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "4a84d3750a35c9883a2f525be9cb18455635ee6446e9080d3420457a1545d909"
+        "e7023888c5c7ca8c9bb41e49b0cdb371c5cf7b3c5471d3f7f7a5f034d263432b"
     ],
     [
         [
@@ -1180,7 +1180,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "ecffddfcf45f0c87fb87e372757bd781aa9eb6fd8a98a79683cdea48e6de570c"
+        "0acd7335434356ed2806030c648654f6e4233d2415b938367b5f0cc1b7ea7612"
     ],
     [
         [
@@ -1201,7 +1201,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "431f63d2cea43a6cddf8019ffaeb4b81ce35929c6de415f55e45046b8e15c343"
+        "30cad1c480f6062c5b64cee9cfb401e0ddf5eb1dcbde76010f5c8155b6982ee2"
     ],
     [
         [
@@ -1243,6 +1243,6 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "ec2ca30369032f5d41a9bc8ba8b0e4cfd3951c8e3761dd31f55cebc83f52b3f9"
+        "2e4e5ce0ed8c5d26e0232c656718c1494f8bdce386482b0983883934b86787ba"
     ]
 ]
