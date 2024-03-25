@@ -45,7 +45,8 @@ genWebSockets spec
   | otherwise = return []
 
 genWebSocketInitialization :: AppSpec -> Generator FileDraft
-genWebSocketInitialization spec =
+genWebSocketInitialization spec = do
+  userWebSocketFn <- mkWebSocketFnImport maybeWebSocket [reldirP|../|]
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/webSocket/initialization.ts|])
@@ -53,14 +54,14 @@ genWebSocketInitialization spec =
       ( Just $
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
+              "userWebSocketFn" .= userWebSocketFn,
               "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
             ]
       )
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-mkWebSocketFnImport :: Maybe WebSocket -> Path Posix (Rel importLocation) (Dir C.ServerSrcDir) -> Aeson.Value
+mkWebSocketFnImport :: Maybe WebSocket -> Path Posix (Rel importLocation) (Dir C.ServerSrcDir) -> Generator Aeson.Value
 mkWebSocketFnImport maybeWebSocket relPathToServerSrcDir = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
   where
     maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket

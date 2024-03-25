@@ -8,14 +8,16 @@ module Wasp.Generator.Monad
     logAndThrowGeneratorError,
     logGeneratorWarning,
     runGenerator,
+    mangleName,
   )
 where
 
 import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
 import qualified Control.Monad.Except as MonadExcept
 import Control.Monad.Identity (Identity (runIdentity))
-import Control.Monad.State (MonadState, StateT (runStateT), modify)
+import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
 import Data.List.NonEmpty (NonEmpty, fromList)
+import qualified Data.Map
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
 -- concrete monad transformers with the helper functions below. This will allow us
@@ -37,7 +39,8 @@ newtype Generator a = Generator
 
 data GeneratorState = GeneratorState
   { warnings :: [GeneratorWarning],
-    errors :: [GeneratorError]
+    errors :: [GeneratorError],
+    mangledNames :: Data.Map.Map String Int
   }
 
 data GeneratorError = GenericGeneratorError String
@@ -61,7 +64,7 @@ runGenerator generator =
   let (errorOrResult, finalState) = runIdentity $ runStateT (runExceptT (_runGenerator generator)) initialState
    in (warnings finalState, loggedErrorsOrResult (errorOrResult, errors finalState))
   where
-    initialState = GeneratorState {warnings = [], errors = []}
+    initialState = GeneratorState {warnings = [], errors = [], mangledNames = mempty}
 
     loggedErrorsOrResult (Right result, []) = Right result
     loggedErrorsOrResult (Left _, []) = error "Generator produced error, but had empty log - this should never happen!"
@@ -69,16 +72,36 @@ runGenerator generator =
 
 -- This logs a warning but does not short circuit the computation.
 logGeneratorWarning :: GeneratorWarning -> Generator ()
-logGeneratorWarning w = modify $ \GeneratorState {errors = errors', warnings = warnings'} ->
-  GeneratorState {errors = errors', warnings = w : warnings'}
+logGeneratorWarning w = modify $ \GeneratorState {errors = errors', warnings = warnings', mangledNames = mangledNames'} ->
+  GeneratorState {errors = errors', warnings = w : warnings', mangledNames = mangledNames'}
+
+-- Mangles a name to avoid name clashes. This is useful when generating code that may have user-defined names.
+-- It keeps the mangled names unique by appending a counter to the end of the name.
+mangleName :: String -> Generator String
+mangleName originalName = do
+  mangledNamesMap <- gets mangledNames
+
+  let (mangledName, newMangledNamesMap) = mangleName' originalName mangledNamesMap
+
+  modify $ \s -> s {mangledNames = newMangledNamesMap}
+
+  return mangledName
+  where
+    mangleName' :: String -> Data.Map.Map String Int -> (String, Data.Map.Map String Int)
+    mangleName' originalName' mangledNamesMap =
+      case Data.Map.lookup mangledName mangledNamesMap of
+        Nothing -> (mangledName, Data.Map.insert mangledName 0 mangledNamesMap)
+        Just i -> (mangledName ++ "$" ++ show (i + 1), Data.Map.insert mangledName (i + 1) mangledNamesMap)
+      where
+        mangledName = originalName' ++ "__userDefined"
 
 -- This logs an error and does throw, thus short-circuiting the computation until caught.
 logAndThrowGeneratorError :: GeneratorError -> Generator a
 logAndThrowGeneratorError e = logGeneratorError >> throwError e
   where
     logGeneratorError :: Generator ()
-    logGeneratorError = modify $ \GeneratorState {errors = errors', warnings = warnings'} ->
-      GeneratorState {errors = e : errors', warnings = warnings'}
+    logGeneratorError = modify $ \GeneratorState {errors = errors', warnings = warnings', mangledNames = mangledNames'} ->
+      GeneratorState {errors = e : errors', warnings = warnings', mangledNames = mangledNames'}
 
 -- This stops the short-circuiting from above, if ever desired, but cannot be used for full recovery.
 -- Once one error is logged and thrown the result will be error. This function exists to log

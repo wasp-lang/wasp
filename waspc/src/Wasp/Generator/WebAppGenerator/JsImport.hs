@@ -6,6 +6,7 @@ import StrongPath.TH (reldirP)
 import Wasp.AppSpec.ExtImport (ExtImport (..))
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (WebAppSrcDir)
 import Wasp.JsImport
   ( JsImport,
@@ -14,7 +15,7 @@ import Wasp.JsImport
 extImportToImportJson ::
   Path Posix (Rel importLocation) (Dir WebAppSrcDir) ->
   Maybe ExtImport ->
-  Aeson.Value
+  Generator Aeson.Value
 extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
   where
     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport

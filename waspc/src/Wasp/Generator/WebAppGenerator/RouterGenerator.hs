@@ -81,6 +81,7 @@ genRouter spec =
 
 genRouterTsx :: AppSpec -> Generator FileDraft
 genRouterTsx spec = do
+  templateData <- createRouterTemplateData spec
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile $ [reldir|src|] </> routerPath)
@@ -88,19 +89,21 @@ genRouterTsx spec = do
       (Just $ toJSON templateData)
   where
     routerPath = [relfile|router.tsx|]
-    templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
-createRouterTemplateData :: AppSpec -> RouterTemplateData
-createRouterTemplateData spec =
-  RouterTemplateData
-    { _routes = routes,
-      _pagesToImport = pages,
-      _isAuthEnabled = isAuthEnabled spec,
-      _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
-      _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
-    }
+createRouterTemplateData :: AppSpec -> Generator RouterTemplateData
+createRouterTemplateData spec = do
+  rootComponent <- extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
+
+  return $
+    RouterTemplateData
+      { _routes = routes,
+        _pagesToImport = pages,
+        _isAuthEnabled = isAuthEnabled spec,
+        _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
+        _rootComponent = rootComponent,
+        _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
+      }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec

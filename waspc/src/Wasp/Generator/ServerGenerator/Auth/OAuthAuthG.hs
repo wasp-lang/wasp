@@ -126,17 +126,22 @@ genOAuthConfig ::
   Maybe AS.Auth.ExternalAuthConfig ->
   Path' (Rel ServerTemplatesSrcDir) File' ->
   Generator FileDraft
-genOAuthConfig provider maybeUserConfig pathToConfigTmpl = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
+genOAuthConfig provider maybeUserConfig pathToConfigTmpl = do
+  configFn <- extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn
+  userSignupFields <- extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
+
+  let tmplData =
+        object
+          [ "providerId" .= OAuth.providerId provider,
+            "displayName" .= OAuth.displayName provider,
+            "requiredScopes" .= OAuth.scopeStr provider,
+            "configFn" .= configFn,
+            "userSignupFields" .= userSignupFields
+          ]
+
+  return $ C.mkTmplFdWithData tmplFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> pathToConfigTmpl
-    tmplData =
-      object
-        [ "providerId" .= OAuth.providerId provider,
-          "displayName" .= OAuth.displayName provider,
-          "requiredScopes" .= OAuth.scopeStr provider,
-          "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
-          "userSignupFields" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
-        ]
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
     maybeUserSignupFields = AS.Auth.userSignupFieldsForExternalAuth =<< maybeUserConfig
 

@@ -91,15 +91,14 @@ genJob (jobName, job) =
 getJobExecutorImportPath :: JobExecutor -> Path Posix (Rel r) File'
 getJobExecutorImportPath PgBoss = makeSdkImportPath [relfileP|server/jobs/core/pgBoss|]
 
-getImportJsonForJobDefinition :: String -> Aeson.Value
+getImportJsonForJobDefinition :: String -> Generator Aeson.Value
 getImportJsonForJobDefinition jobName =
   GJI.jsImportToImportJson $
     Just $
       JI.JsImport
         { JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
           JI._name = JI.JsImportField jobName,
-          -- NOTE: We are using alias to avoid name conflicts with user defined imports.
-          JI._importAlias = Just "_waspJobDefinition"
+          JI._importAlias = Nothing
         }
 
 genJobExecutors :: AppSpec -> Generator [FileDraft]
