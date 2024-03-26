@@ -9,6 +9,9 @@
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
   "exports": {
+      "./client/operations/queryClient": {
+        "client-runtime": "./dist/client/operations/queryClient.js"
+      },
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}

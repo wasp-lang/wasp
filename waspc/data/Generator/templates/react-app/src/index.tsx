@@ -7,7 +7,7 @@ import router from './router'
 import {
   initializeQueryClient,
   queryClientInitialized,
-} from 'wasp/client/operations'
+} from 'wasp/client/operations/queryClient'
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
