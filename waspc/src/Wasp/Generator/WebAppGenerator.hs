@@ -197,7 +197,6 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|logo.png|],
-      genFileCopy [relfile|queryClient.js|],
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|vite-env.d.ts|],
       getIndexTs spec
