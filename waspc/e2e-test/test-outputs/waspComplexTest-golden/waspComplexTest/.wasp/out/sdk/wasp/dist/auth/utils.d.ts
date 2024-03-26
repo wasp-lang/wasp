@@ -22,6 +22,7 @@ export type PossibleProviderData = {
     email: EmailProviderData;
     username: UsernameProviderData;
     google: OAuthProviderData;
+    keycloak: OAuthProviderData;
     github: OAuthProviderData;
 };
 export type ProviderName = keyof PossibleProviderData;
@@ -68,7 +69,6 @@ export declare function createUser(providerId: ProviderId, serializedProviderDat
 export declare function deleteUserByAuthId(authId: string): Promise<{
     count: number;
 }>;
-export declare function verifyToken<T = unknown>(token: string): Promise<T>;
 export declare function doFakeWork(): Promise<unknown>;
 export declare function rethrowPossibleAuthError(e: unknown): void;
 export declare function validateAndGetUserFields(data: {

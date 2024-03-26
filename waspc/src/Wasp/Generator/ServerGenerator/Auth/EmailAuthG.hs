@@ -35,8 +35,7 @@ genEmailAuth :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth spec auth = case emailAuth of
   Just emailAuthConfig ->
     sequence
-      [ genEmailAuthConfig spec emailAuthConfig,
-        genTypes emailAuthConfig
+      [ genEmailAuthConfig spec emailAuthConfig
       ]
       <++> genRoutes
   Nothing -> return []
@@ -100,9 +99,3 @@ genRoutes =
     ]
   where
     genFileCopy = return . C.mkSrcTmplFd
-
-genTypes :: AS.Auth.EmailAuthConfig -> Generator FileDraft
-genTypes _emailAuthConfig = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/email/types.ts|]
-    tmplData = object []

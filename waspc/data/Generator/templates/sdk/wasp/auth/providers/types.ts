@@ -16,18 +16,10 @@ export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
     id: ProviderName;
     displayName: string;
-    // Each provider config can have an init method which is ran on setup time
-    // e.g. for oAuth providers this is the time when the Passport strategy is registered.
-    init?(provider: ProviderConfig): Promise<InitData>;
     // Every provider must have a setupRouter method which returns the Express router.
     // In this function we are flexibile to do what ever is necessary to make the provider work.
-    createRouter(provider: ProviderConfig, initData: InitData): Router;
+    createRouter(provider: ProviderConfig): Router;
 };
-
-// PRIVATE API
-export type InitData = {
-    [key: string]: any;
-}
 
 // PRIVATE API
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }

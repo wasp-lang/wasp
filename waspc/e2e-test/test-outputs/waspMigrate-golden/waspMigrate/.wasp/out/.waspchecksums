@@ -18,7 +18,7 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "12a7dffb1c3fe762cec8d9d928af353cb169ff199d3934b1f3c27ce0e3a2f987"
+        "68141be8527e8ae3d15838663769737278a71d3853b1dbdc48696e92d4e42548"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "c955fa158905668984f65806b587b8455abc60ef82807bfd7137a3e7dc839902"
+        "d0db918bf9df0766992ba13933d847853b330e3b601e5f367c3ad25eaecddc87"
     ],
     [
         [
@@ -242,7 +242,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "4976e545d8fcf019508e95f472305e9ef27dfb3423c71e428a5414e35cdd52be"
+        "e5388a9259a22671ee2d2ef46d2c09fdd46c3b3ec24248c7a0b471c0fbf7aa54"
     ],
     [
         [
@@ -319,7 +319,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "a4178a3e2527d47d141340b99abf675125859fa9cb5a0535e3efa7b34a3bcabb"
+        "688fdd57d6a9e9ead90141c6f0ebea9d39713d5bd7a630d43f2c2cb5a7984108"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "server/package.json"
         ],
-        "5ac54ac0cfcfc05435a68b009c88c1e38220787699871411e0c533a76dbe701b"
+        "204a25f8a86edd2b492f841d2314c510a8f450205620427bb52de7d3ebb1ea1c"
     ],
     [
         [
@@ -431,7 +431,7 @@
             "file",
             "server/scripts/validate-env.mjs"
         ],
-        "65168a764fc6cbe785ee40a8e8533b4694ef9019fc5a73f60f7252152330d0a2"
+        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [

@@ -1,6 +1,6 @@
 app crudTesting {
   wasp: {
-    version: "^0.12.0"
+    version: "^0.13.0"
   },
   head: [
     "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"
@@ -10,41 +10,38 @@ app crudTesting {
     userEntity: User,
     methods: {
       usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@server/auth.js",
+        userSignupFields: import { userSignupFields } from "@src/auth.js",
       },
     },
     onAuthFailedRedirectTo: "/login",
   },
-  dependencies: [
-    ("zod", "^3.22.2")
-  ],
   db: {
     system: PostgreSQL,
     seeds: [
-      import { migrateAuth } from "@server/seeds/migrateAuth.js"
+      import { migrateAuth } from "@src/seeds/migrateAuth.js"
     ]
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.tsx",
+  component: import Main from "@src/MainPage.tsx",
   authRequired: true,
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage.tsx",
+  component: import { LoginPage } from "@src/LoginPage.tsx",
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage.tsx",
+  component: import { SignupPage } from "@src/SignupPage.tsx",
 }
 
 route DetailRoute { path: "/:id/:something?", to: DetailPage }
 page DetailPage {
-  component: import Main from "@client/DetailPage.tsx",
+  component: import Main from "@src/DetailPage.tsx",
   authRequired: true,
 }
 
@@ -68,10 +65,10 @@ crud tasks {
   operations: {
     get: {},
     getAll: {
-      overrideFn: import { getAllTasks } from "@server/tasks.js",
+      overrideFn: import { getAllTasks } from "@src/tasks.js",
     },
     create: {
-      overrideFn: import { createTask } from "@server/tasks.js",
+      overrideFn: import { createTask } from "@src/tasks.js",
     },
     update: {},
     delete: {},
@@ -84,11 +81,11 @@ job simplePrintJob {
     cron: "* * * * *",
   },
   perform: {
-    fn: import { simplePrint } from "@server/jobs.js",
+    fn: import { simplePrint } from "@src/jobs.js",
   },
   entities: [Task]
 }
 
 action customSignup {
-  fn: import { signup } from "@server/auth.js",
+  fn: import { signup } from "@src/auth.js",
 }

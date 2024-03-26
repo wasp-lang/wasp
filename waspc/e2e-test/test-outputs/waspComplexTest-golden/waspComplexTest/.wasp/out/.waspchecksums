@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "cba000c7dedb0e2f1c9730719e23215036a599bd58e7590adc5cdb176ac6b76b"
+        "c3299b01607b1206208e3e24a2830932607e8783a660b51e8f9168cbb067aab1"
     ],
     [
         [
@@ -67,7 +67,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "bca4b3d9bc1cd57bdc83ad51be235ac5a5f220e8b63a91dcce6da296f32f51c6"
+        "eb12637809476e963828a91896d260f10552c7dd8d7f48f113ca0bfcee7f9ef0"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "../out/sdk/wasp/auth/jwt.ts"
         ],
-        "adced7d9cc058bdf5832ad1bafdf5150c0c7dd2e6454148ddaa345f7a48d2738"
+        "4ebc9aa5b9986270a6b49ce2a9fd56dc45a9beed0e3eb3ddaba45a384f17b28d"
     ],
     [
         [
@@ -130,7 +130,7 @@
             "file",
             "../out/sdk/wasp/auth/providers/types.ts"
         ],
-        "645ad70b2f5d91f6e14042547ba94b782644a4f12d62cbd9df1ed2e2081127c1"
+        "0ede63791b4c7f3bdd21c7d07e815f5d9e49c31a9d7cd41d482c32e73e3d73ad"
     ],
     [
         [
@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "d09d1b32eee179eefe96f34b52d520065a50a3617195de07b75c59e6c1705f69"
+        "4001e5179622ab1c71646ad4225136a16cb9e7df9890c4bfd767c481e86c7619"
     ],
     [
         [
@@ -200,7 +200,7 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "12a7dffb1c3fe762cec8d9d928af353cb169ff199d3934b1f3c27ce0e3a2f987"
+        "68141be8527e8ae3d15838663769737278a71d3853b1dbdc48696e92d4e42548"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "c72ca2c19c1645e2af88e41cd6968de95acb8d736cc48dd3c1a98203164ea6b3"
+        "970b830be8de1b4a896fbd5ea192b8382a049325d6f4127bd092c7b794f5955e"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "5d933eb55d44f4c3c42df7e8387dbd4b8b02f47191e59ee50d59c08a1f86634e"
+        "0cb590d15087323479f4a0e3622c464b6f172979e01a35c71521d31f6457a46f"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "fb02a9482c7bfe388b6140bd6be95d6ab97f69ec5458c59055ab3d7b91893309"
+        "630dd952c1f4e0c388eb8b73d4f2e9db0cc9015cfc4cb6d6d6dacec6fcd4559c"
     ],
     [
         [
@@ -809,7 +809,7 @@
             "file",
             "server/package.json"
         ],
-        "1d4701392e6f6b5031b685ac98f038395f0fa36bd8c9039f8434c7f3790d7203"
+        "23fbe60e2f89a7fb12a11bd11aef43e3ed713ffd49697ab40c1cbbf0b3c4c84d"
     ],
     [
         [
@@ -823,7 +823,7 @@
             "file",
             "server/scripts/validate-env.mjs"
         ],
-        "65168a764fc6cbe785ee40a8e8533b4694ef9019fc5a73f60f7252152330d0a2"
+        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [
@@ -851,35 +851,77 @@
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "6b82ea1a7779db285649a0f80e5199acb93617025de04492b2bb0357cc5b5e69"
+        "d5546bace955d33579dc25fd9b88689435e8d572b1190d18ffc0276521e2db86"
     ],
     [
         [
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "2965a704a128cdde97428d59b4839244087c56c63ff63dfc5cd4b130c3f4e4c7"
+        "cb175fdf18744f3f5cc08a1c1d82aed869d2b7c0bdac6e51e28eb52e046b61fc"
     ],
     [
         [
             "file",
-            "server/src/auth/providers/oauth/createRouter.ts"
+            "server/src/auth/providers/oauth/config.ts"
         ],
-        "a117a9b61d0e647707d4dc2cd4f8746784d6d5d005ca0cc4fc2502fcf0aa416b"
+        "b5901b3c8067b9d5f83ba4e67dc3360e102bd246f57d502227051b66df1b5915"
     ],
     [
         [
             "file",
-            "server/src/auth/providers/oauth/init.ts"
+            "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "a7c95d63cea8842f5e2bc541080f38d5b19aacbc79f9dadb787376cba276108d"
+        "3887cc320c8084201db087ab5d8ede9c72816f99803e66b4178960ca22091bbc"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/env.ts"
+        ],
+        "65c5ce3b4ead10faad600435654d2614a862281ce5177996599bc159c39bb551"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/handler.ts"
+        ],
+        "d243cf5465c41a2409f2ae6d032e3678dbad7507376ba41c8f300be6bc104b2b"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/oneTimeCode.ts"
+        ],
+        "6a23d30c2d98e14f6e293ebf3bb9392d25a3eeb7f1ec98078440a11af0aa0c78"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/redirect.ts"
+        ],
+        "1aabb58c599dae1e8a47d139c80464331ab87cfefa5a712df4ef594b7876a2a5"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/state.ts"
+        ],
+        "b50a6b92cb4bb30a62587b26b0b8ef9fda0f1ad656b74640771e7e232757b677"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/types.ts"
         ],
-        "26cd322bd83ee8d6569fac1e3db47b2d07292f40ff3a8a501a363a3338d243b3"
+        "eb54019f51a0ba1e7c4c15734e6a36dea1631727b0816bea7b0c2855aeb5f0c0"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/user.ts"
+        ],
+        "0803aedea9bb4806e2c1e2adc2707bbcfa0f8aa66bcaa50ff65fe984470365d0"
     ],
     [
         [
@@ -1115,9 +1157,9 @@
     [
         [
             "file",
-            "web-app/src/auth/pages/OAuthCodeExchange.jsx"
+            "web-app/src/auth/pages/OAuthCallback.tsx"
         ],
-        "714f11069cf0d238e50cef6ed485843a007dfc6c1d023cf5e090689a53a10690"
+        "cae2fb9d5e096386387ef5caa75f3d2730c1fcd86d91ba8a6efbe023cb66b529"
     ],
     [
         [
@@ -1159,7 +1201,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "bd4451ae7df15adb5fcebb5ad99bd0831edb3481d1a7a46abc894a5d50c14ed1"
+        "938782afaf3fbe32d850a983e55fe7e31bb261cf8f79e84c7e800b7847544f15"
     ],
     [
         [

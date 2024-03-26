@@ -1,5 +1,4 @@
 import { hashPassword } from './password.js'
-import { verify } from './jwt.js'
 import { prisma, HttpError } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
@@ -41,6 +40,7 @@ export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
   google: OAuthProviderData;
+  keycloak: OAuthProviderData;
   github: OAuthProviderData;
 }
 
@@ -171,11 +171,6 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
   return prisma.user.deleteMany({ where: { auth: {
     id: authId,
   } } })
-}
-
-// PRIVATE API
-export async function verifyToken<T = unknown>(token: string): Promise<T> {
-  return verify(token);
 }
 
 // PRIVATE API

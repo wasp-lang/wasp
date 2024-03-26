@@ -1,0 +1,36 @@
+// =============================== IMPORTANT =================================
+//
+// This file is only used for Wasp IDE support. You can change it to configure
+// your IDE checks, but none of these options will affect the TypeScript
+// compiler. Proper TS compiler configuration in Wasp is coming soon :)
+{
+  "compilerOptions": {
+    // JSX support
+    "jsx": "preserve",
+    "strict": true,
+    // Allow default imports.
+    "esModuleInterop": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "typeRoots": [
+      // This is needed to properly support Vitest testing with jest-dom matchers.
+      // Types for jest-dom are not recognized automatically and Typescript complains
+      // about missing types e.g. when using `toBeInTheDocument` and other matchers.
+      "node_modules/@testing-library",
+      // Specifying type roots overrides the default behavior of looking at the
+      // node_modules/@types folder so we had to list it explicitly.
+      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots 
+      // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
+      "node_modules/@types"
+    ],
+    // Since this TS config is used only for IDE support and not for
+    // compilation, the following directory doesn't exist. We need to specify
+    // it to prevent this error:
+    // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
+    "outDir": ".wasp/phantom"
+  }
+}

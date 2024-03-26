@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { setupOneTimeCodeRoute } from "./oauth/oneTimeCode";
 
 import google from './config/google.js'
 
@@ -8,14 +9,15 @@ const providers = [
 
 const router = Router();
 
+// Setting up a common route for all OAuth providers to exchange
+// one-time code for a session.
+setupOneTimeCodeRoute(router);
+
 for (const provider of providers) {
-  const { init, createRouter } = provider;
-  const initData = init
-    ? await init(provider)
-    : undefined;
-  const providerRouter = createRouter(provider, initData);
+  const { createRouter } = provider;
+  const providerRouter = createRouter(provider);
   router.use(`/${provider.id}`, providerRouter);
-  console.log(`🚀 "${provider.displayName}" auth initialized`)
+  console.log(`🚀 "${provider.displayName}" auth initialized`);
 }
 
 export default router;

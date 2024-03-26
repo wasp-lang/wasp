@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { hashPassword } from 'wasp/auth/password'
-import { verify } from 'wasp/auth/jwt'
 import { prisma, HttpError } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
@@ -38,6 +37,7 @@ export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
   google: OAuthProviderData;
+  keycloak: OAuthProviderData;
   github: OAuthProviderData;
 }
 
@@ -158,10 +158,6 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
   return prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
     id: authId,
   } } })
-}
-
-export async function verifyToken<T = unknown>(token: string): Promise<T> {
-  return verify(token);
 }
 
 // If an user exists, we don't want to leak information

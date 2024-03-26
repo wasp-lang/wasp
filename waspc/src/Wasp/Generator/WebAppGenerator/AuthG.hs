@@ -9,6 +9,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AuthProviders.OAuth (serverExchangeCodeForTokenUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -39,9 +40,10 @@ genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/pages/OAuthCodeExchange.jsx|]
+      [relfile|src/auth/pages/OAuthCallback.tsx|]
       ( object
           [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-            "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
+            "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth,
+            "serverExchangeCodeForTokenUrl" .= serverExchangeCodeForTokenUrl
           ]
       )

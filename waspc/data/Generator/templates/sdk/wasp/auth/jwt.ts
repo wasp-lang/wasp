@@ -1,14 +1,22 @@
-import jwt from 'jsonwebtoken'
-import util from 'util'
-
+import * as jwt from 'oslo/jwt'
 import { config } from 'wasp/server'
 
-const jwtSign = util.promisify(jwt.sign)
-const jwtVerify = util.promisify(jwt.verify)
-
-const JWT_SECRET = config.auth.jwtSecret
+const JWT_SECRET = new TextEncoder().encode(config.auth.jwtSecret)
+const JWT_ALGORITHM = 'HS256'
 
 // PRIVATE API
-export const signData = (data, options) => jwtSign(data, JWT_SECRET, options)
+export function createJWT(
+  data: Parameters<typeof jwt.createJWT>[2],
+  options: Parameters<typeof jwt.createJWT>[3],
+): Promise<string> {
+  return jwt.createJWT(JWT_ALGORITHM, JWT_SECRET, data, options)
+}
+
 // PRIVATE API
-export const verify = (token) => jwtVerify(token, JWT_SECRET)
+export async function validateJWT<Payload>(token: string): Promise<Payload> {
+  const { payload } = await jwt.validateJWT(JWT_ALGORITHM, JWT_SECRET, token)
+  return payload as Payload
+}
+
+// PRIVATE API
+export { TimeSpan } from 'oslo'

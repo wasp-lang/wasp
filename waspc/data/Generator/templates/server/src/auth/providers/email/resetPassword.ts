@@ -3,11 +3,10 @@ import {
     createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
-    verifyToken,
     deserializeAndSanitizeProviderData,
 } from 'wasp/auth/utils';
+import { validateJWT } from 'wasp/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
-import { tokenVerificationErrors } from "./types.js";
 import { HttpError } from 'wasp/server';
 
 export async function resetPassword(
@@ -18,30 +17,27 @@ export async function resetPassword(
     ensureValidArgs(args);
 
     const { token, password } = args;
-    try {
-        const { email } = await verifyToken<{ email: string }>(token);
-
-        const providerId = createProviderId('email', email);
-        const authIdentity = await findAuthIdentity(providerId);
-        if (!authIdentity) {
+    const { email } = await validateJWT<{ email: string }>(token)
+        .catch(() => {
             throw new HttpError(400, "Password reset failed, invalid token");
-        }
-        
-        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
-
-        await updateAuthIdentityProviderData(providerId, providerData, {
-            // The act of resetting the password verifies the email
-            isEmailVerified: true,
-            // The password will be hashed when saving the providerData
-            // in the DB
-            hashedPassword: password,
         });
-    } catch (e) {
-        const reason = e.name === tokenVerificationErrors.TokenExpiredError
-            ? 'expired'
-            : 'invalid';
-        throw new HttpError(400, `Password reset failed, ${reason} token`);
+
+    const providerId = createProviderId('email', email);
+    const authIdentity = await findAuthIdentity(providerId);
+    if (!authIdentity) {
+        throw new HttpError(400, "Password reset failed, invalid token");
     }
+    
+    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+    await updateAuthIdentityProviderData(providerId, providerData, {
+        // The act of resetting the password verifies the email
+        isEmailVerified: true,
+        // The password will be hashed when saving the providerData
+        // in the DB
+        hashedPassword: password,
+    });
+
     return res.json({ success: true });
 };
 

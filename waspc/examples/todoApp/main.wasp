@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.12.0"
+    version: "^0.13.0"
   },
   title: "ToDo App",
   // head: [],
@@ -18,10 +18,11 @@ app todoApp {
         configFn: import { config } from "@src/auth/google.js",
         userSignupFields: import { userSignupFields } from "@src/auth/google.js"
       },
-      // gitHub: {
-      //   // configFn: import { config } from "@src/auth/github.js",
-      //   // userSignupFields: import { getUserFields } from "@src/auth/github.js"
-      // },
+      gitHub: {
+        configFn: import { config } from "@src/auth/github.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
+      },
+      keycloak: {},
       email: {
         userSignupFields: import { userSignupFields } from "@src/auth/email.js",
         fromField: {

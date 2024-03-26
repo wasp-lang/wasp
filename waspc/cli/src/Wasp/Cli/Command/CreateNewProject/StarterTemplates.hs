@@ -226,7 +226,7 @@ waspGhOrgName = "wasp-lang"
 --   By tagging templates for each version of Wasp CLI, we ensure that each release of
 --   Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.12-template"
+waspVersionTemplateGitTag = "wasp-v0.13-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates

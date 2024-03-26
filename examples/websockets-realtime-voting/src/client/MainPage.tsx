@@ -17,7 +17,7 @@ const MainPage = () => {
 
   const { socket } = useSocket();
 
-  const username = getUsername(user);
+  const username = user ? getUsername(user) : null;
 
   useSocketListener("updateState", (newState) => {
     setPoll(newState);

@@ -1,10 +1,28 @@
 # Changelog
 
-## 0.12.4 (2024-03-12)
+## 0.13.0 (2024-03-18)
+
+### ⚠️ Breaking changes
+
+Wasp 0.13.0 switches away from using Passport for our OAuth providers in favor of [Arctic](https://arctic.js.org/) from the [Lucia](https://lucia-auth.com/) ecosystem. This change simplifies the codebase and makes it easier to add new OAuth providers in the future.
+
+This however, means that there are breaking changes in the way you define OAuth providers in your Wasp project.
+
+Read the migration guide at https://wasp-lang.dev/docs/migrate-from-0-12-to-0-13 for more details.
+
+### 🎉 New features
+
+- Wasp adds support for Keycloak as an OAuth provider.
+- Wasp now supports defining the `WASP_SERVER_URL` environment variable and exposes it as `serverUrl` in the server config which can be imported from `wasp/server`.
 
 ### 🐞 Bug fixes
 
 - Projects that import `wasp/auth/types` no longer fail when building the web app.
+- Wasp now displays OAuth related errors in the browser instead of redirecting to the login page.
+
+### 🔧 Small improvements
+
+- Wasp uses Oslo for handling JWTs.
 
 ## 0.12.3 (2024-03-01)
 
@@ -173,13 +191,13 @@ By adding a `vite.config.ts` or `vite.config.js` to your `client` directory, you
 not to open the browser automatically:
 
 ```ts
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
     open: false,
   },
-})
+});
 ```
 
 ⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
@@ -221,27 +239,27 @@ app crudTesting {
 Then, you need to define the `fields` object in your `auth.js` file:
 
 ```js
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+import { defineAdditionalSignupFields } from "@wasp/auth/index.js";
 
 export const fields = defineAdditionalSignupFields({
   address: (data) => {
     // Validate the address field
-    if (typeof data.address !== 'string') {
-      throw new Error('Address is required.')
+    if (typeof data.address !== "string") {
+      throw new Error("Address is required.");
     }
     if (data.address.length < 10) {
-      throw new Error('Address must be at least 10 characters long.')
+      throw new Error("Address must be at least 10 characters long.");
     }
     // Return the address field
-    return data.address
+    return data.address;
   },
-})
+});
 ```
 
 Finally, you can extend the `SignupForm` component on the client:
 
 ```jsx
-import { SignupForm } from '@wasp/auth/forms/Signup'
+import { SignupForm } from "@wasp/auth/forms/Signup";
 
 export const SignupPage = () => {
   return (
@@ -251,19 +269,19 @@ export const SignupPage = () => {
         <SignupForm
           additionalFields={[
             {
-              name: 'address',
-              label: 'Address',
-              type: 'input',
+              name: "address",
+              label: "Address",
+              type: "input",
               validations: {
-                required: 'Address is required',
+                required: "Address is required",
               },
             },
           ]}
         />
       </main>
     </div>
-  )
-}
+  );
+};
 ```
 
 ### 🎉 [New Feature] Support for PostgreSQL Extensions
@@ -305,8 +323,8 @@ job simplePrintJob {
 ```
 
 ```typescript
-import { SimplePrintJob } from '@wasp/jobs/simplePrintJob'
-import { Task } from '@wasp/entities'
+import { SimplePrintJob } from "@wasp/jobs/simplePrintJob";
+import { Task } from "@wasp/entities";
 
 export const simplePrint: SimplePrintJob<
   { name: string },
@@ -314,11 +332,11 @@ export const simplePrint: SimplePrintJob<
 > = async (args, context) => {
   //        👆 args are typed e.g. { name: string }
   //                👆 context is typed e.g. { entitites: { Task: ... } }
-  const tasks = await context.entities.Task.findMany({})
+  const tasks = await context.entities.Task.findMany({});
   return {
     tasks,
-  }
-}
+  };
+};
 ```
 
 When you use the job, you can pass the arguments and receive the result with the correct types:
@@ -373,9 +391,9 @@ export const TaskList = () => {
 You can also get all the pages in your app with the `routes` object:
 
 ```jsx
-import { routes } from '@wasp/router'
+import { routes } from "@wasp/router";
 
-const linkToTask = routes.TaskRoute({ params: { id: 1 } })
+const linkToTask = routes.TaskRoute({ params: { id: 1 } });
 ```
 
 ### 🐞 Bug fixes
@@ -499,67 +517,67 @@ app todoApp {
 Then implement it on the server with optional types:
 
 ```typescript
-import type { WebSocketDefinition } from '@wasp/webSocket'
+import type { WebSocketDefinition } from "@wasp/webSocket";
 
 export const webSocketFn: WebSocketFn = (io, context) => {
-  io.on('connection', (socket) => {
+  io.on("connection", (socket) => {
     // ...
-  })
-}
+  });
+};
 
 type WebSocketFn = WebSocketDefinition<
   ClientToServerEvents,
   ServerToClientEvents
->
+>;
 
 interface ServerToClientEvents {
-  chatMessage: (msg: { id: string; username: string; text: string }) => void
+  chatMessage: (msg: { id: string; username: string; text: string }) => void;
 }
 
 interface ClientToServerEvents {
-  chatMessage: (msg: string) => void
+  chatMessage: (msg: string) => void;
 }
 ```
 
 And use it on the client with automatic type inference:
 
 ```typescript
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   useSocket,
   useSocketListener,
   ServerToClientPayload,
-} from '@wasp/webSocket'
+} from "@wasp/webSocket";
 
 export const ChatPage = () => {
   const [messageText, setMessageText] = useState<
     // We are using a helper type to get the payload type for the "chatMessage" event.
-    ClientToServerPayload<'chatMessage'>
-  >('')
+    ClientToServerPayload<"chatMessage">
+  >("");
   const [messages, setMessages] = useState<
-    ServerToClientPayload<'chatMessage'>[]
-  >([])
+    ServerToClientPayload<"chatMessage">[]
+  >([]);
   // The "socket" instance is typed with the types you defined on the server.
-  const { socket, isConnected } = useSocket()
+  const { socket, isConnected } = useSocket();
 
   // This is a type-safe event handler: "chatMessage" event and its payload type
   // are defined on the server.
-  useSocketListener('chatMessage', logMessage)
+  useSocketListener("chatMessage", logMessage);
 
-  function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
-    setMessages((priorMessages) => [msg, ...priorMessages])
+  function logMessage(msg: ServerToClientPayload<"chatMessage">) {
+    setMessages((priorMessages) => [msg, ...priorMessages]);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+    e.preventDefault();
     // This is a type-safe event emitter: "chatMessage" event and its payload type
     // are defined on the server.
-    socket.emit('chatMessage', messageText)
+    socket.emit("chatMessage", messageText);
     // ...
   }
 
   // ...
-}
+};
 ```
 
 ### 🎉 [New feature] Automatic CRUD backend generation
@@ -588,21 +606,21 @@ crud Tasks {
 This gives us the following operations: `getAll`, `get`, `create`, `update` and `delete`, which we can use in our client like this:
 
 ```typescript
-import { Tasks } from '@wasp/crud/Tasks'
-import { useState } from 'react'
+import { Tasks } from "@wasp/crud/Tasks";
+import { useState } from "react";
 
 export const MainPage = () => {
-  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
-  const createTask = Tasks.create.useAction()
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery();
+  const createTask = Tasks.create.useAction();
   // ...
 
   function handleCreateTask() {
-    createTask({ description: taskDescription, isDone: false })
-    setTaskDescription('')
+    createTask({ description: taskDescription, isDone: false });
+    setTaskDescription("");
   }
 
   // ...
-}
+};
 ```
 
 ### 🎉 [New feature] IDE tooling improvements
@@ -723,20 +741,20 @@ Frontend code can now infer correct payload/response types for Queries and Actio
 Define a Query on the server:
 
 ```typescript
-export const getTask: GetTaskInfo<Pick<Task, 'id'>, Task> = async (
+export const getTask: GetTaskInfo<Pick<Task, "id">, Task> = async (
   { id },
   context
 ) => {
   // ...
-}
+};
 ```
 
 Get properly typed functions and data on the frontend:
 
 ```typescript
-import { useQuery } from '@wasp/queries'
+import { useQuery } from "@wasp/queries";
 // Wasp knows the type of `getTask` thanks to your backend definition.
-import getTask from '@wasp/queries/getTask'
+import getTask from "@wasp/queries/getTask";
 
 export const TaskInfo = () => {
   const {
@@ -749,10 +767,12 @@ export const TaskInfo = () => {
     error,
     // TypeScript knows the second argument must be a `Pick<Task, "id">` thanks
     // to the backend definition.
-  } = useQuery(getTask, { id: 1 })
+  } = useQuery(getTask, { id: 1 });
 
   if (isError) {
-    return <div> Error during fetching tasks: {error.message || 'unknown'}</div>
+    return (
+      <div> Error during fetching tasks: {error.message || "unknown"}</div>
+    );
   }
 
   // TypeScript forces you to perform this check.
@@ -760,8 +780,8 @@ export const TaskInfo = () => {
     <div>Waiting for info...</div>
   ) : (
     <div>{taskInfo}</div>
-  )
-}
+  );
+};
 ```
 
 The same feature is available for Actions.
@@ -773,25 +793,25 @@ Client and the server can now communicate with richer payloads.
 Return a Superjson-compatible object from your Operation:
 
 ```typescript
-type FooInfo = { foos: Foo[]; message: string; queriedAt: Date }
+type FooInfo = { foos: Foo[]; message: string; queriedAt: Date };
 
 const getFoos: GetFoo<void, FooInfo> = (_args, context) => {
-  const foos = context.entities.Foo.findMany()
+  const foos = context.entities.Foo.findMany();
   return {
     foos,
-    message: 'Here are some foos!',
+    message: "Here are some foos!",
     queriedAt: new Date(),
-  }
-}
+  };
+};
 ```
 
 And seamlessly use it on the frontend:
 
 ```typescript
-import getfoos from '@wasp/queries/getTask'
+import getfoos from "@wasp/queries/getTask";
 
-const { data } = useQuery(getfoos)
-const { foos, message, queriedAt } = data
+const { data } = useQuery(getfoos);
+const { foos, message, queriedAt } = data;
 // foos: Foo[]
 // message: string
 // queriedAt: Date
@@ -834,11 +854,11 @@ Wasp now provides a set of UI components for authentication. You can use them to
 We provide `LoginForm`, `SignupForm`, `ForgotPassworForm`, `ResetPasswordForm` and`VerifyEmailForm` components. You can import them from `@wasp/auth/forms` like:
 
 ```js
-import { LoginForm } from '@wasp/auth/forms/Login'
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
-import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
-import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+import { LoginForm } from "@wasp/auth/forms/Login";
+import { SignupForm } from "@wasp/auth/forms/Signup";
+import { ForgotPasswordForm } from "@wasp/auth/forms/ForgotPassword";
+import { ResetPasswordForm } from "@wasp/auth/forms/ResetPassword";
+import { VerifyEmailForm } from "@wasp/auth/forms/VerifyEmail";
 ```
 
 ### Database seeding
@@ -858,18 +878,18 @@ app MyApp {
 ```
 
 ```js
-import { createTask } from './actions.js'
+import { createTask } from "./actions.js";
 
 export const devSeedSimple = async (prismaClient) => {
   const { password, ...newUser } = await prismaClient.user.create({
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+    username: "RiuTheDog",
+    password: "bark1234",
+  });
   await createTask(
-    { description: 'Chase the cat' },
+    { description: "Chase the cat" },
     { user: newUser, entities: { Task: prismaClient.task } }
-  )
-}
+  );
+};
 
 //...
 ```
@@ -1011,17 +1031,17 @@ And here's how you can to the same in a frontend file:
 
 ```typescript
 // ...
-import { useQuery } from '@wasp/queries'
-import getTasks from '@wasp/queries/getTasks.js'
-import { Task } from '@wasp/entities'
+import { useQuery } from "@wasp/queries";
+import getTasks from "@wasp/queries/getTasks.js";
+import { Task } from "@wasp/entities";
 
-type TaskPayload = Pick<Task, 'id'>
+type TaskPayload = Pick<Task, "id">;
 
 const Todo = (props: any) => {
   // The variable 'task' will now have the type Task.
-  const { data: task } = useQuery<TaskPayload, Task>(getTask, { id: taskId })
+  const { data: task } = useQuery<TaskPayload, Task>(getTask, { id: taskId });
   // ...
-}
+};
 ```
 
 ### Automatically generated types for Queries and Actions
@@ -1041,10 +1061,10 @@ query getTasks {
 You'll get the following feature:
 
 ```typescript
-import { Task } from '@wasp/entities'
-import { GetTasks } from '@wasp/queries'
+import { Task } from "@wasp/entities";
+import { GetTasks } from "@wasp/queries";
 
-type Payload = Pick<Task, 'isDone'>
+type Payload = Pick<Task, "isDone">;
 
 // Use the type parameters to specify the Query's argument and return types.
 const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
@@ -1056,7 +1076,7 @@ const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
   //
   // Thanks to the second type argument in `GetTasks`, the compiler knows the
   // function must return a value of type `Task[]`.
-}
+};
 ```
 
 ### Uninstall command

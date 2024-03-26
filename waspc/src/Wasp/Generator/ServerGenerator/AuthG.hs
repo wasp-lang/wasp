@@ -20,7 +20,13 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (emailAuthProvider, gitHubAuthProvider, googleAuthProvider, localAuthProvider)
+import Wasp.Generator.AuthProviders
+  ( emailAuthProvider,
+    gitHubAuthProvider,
+    googleAuthProvider,
+    keycloakAuthProvider,
+    localAuthProvider,
+  )
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
@@ -65,13 +71,18 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
   where
-    tmplData = object ["providers" .= providers]
+    tmplData =
+      object
+        [ "providers" .= providers,
+          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
+        ]
 
     providers =
       makeConfigImportJson
         <$> concat
           [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+            [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
             [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
             [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
           ]
