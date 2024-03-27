@@ -201,29 +201,10 @@ genSrcDir spec =
       genFileCopy [relfile|vite-env.d.ts|],
       getIndexTs spec
     ]
-    <++> genEntitiesDir spec
     <++> genAuth spec
     <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
-
-genEntitiesDir :: AppSpec -> Generator [FileDraft]
-genEntitiesDir spec = return [entitiesIndexFileDraft]
-  where
-    entitiesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
-        [relfile|src/entities/index.ts|]
-        [relfile|src/entities/index.ts|]
-        ( Just $
-            object
-              [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authEntityName" .= DbAuth.authEntityName,
-                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
-              ]
-        )
-    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
-    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 getIndexTs :: AppSpec -> Generator FileDraft
 getIndexTs spec =
