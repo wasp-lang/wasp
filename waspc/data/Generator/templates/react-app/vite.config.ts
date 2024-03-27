@@ -30,6 +30,7 @@ const defaultViteConfig = {
     outDir: "build",
   },
   resolve: {
+    conditions: ["client-runtime"],
     // These packages rely on a single instance per page. Not dedpuing them
     // causes runtime errors (e.g., hook rule violation in react, QueryClient
     // instance error in react-query, Invariant Error in react-router-dom).
