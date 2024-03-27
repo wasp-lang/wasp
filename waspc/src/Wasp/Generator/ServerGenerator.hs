@@ -44,7 +44,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
-import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
+import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByOAuth)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
@@ -148,13 +148,12 @@ npmDepsForWasp spec =
             ("cors", "^2.8.5"),
             ("express", "~4.18.1"),
             ("morgan", "~1.10.0"),
-            ("jsonwebtoken", "^8.5.1"),
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
             ("rate-limiter-flexible", "^2.4.1"),
             ("superjson", "^1.12.2")
           ]
-          ++ depsRequiredByPassport spec
+          ++ depsRequiredByOAuth spec
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList

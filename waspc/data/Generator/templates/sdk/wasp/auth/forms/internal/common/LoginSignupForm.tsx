@@ -108,6 +108,9 @@ const SocialAuthButtons = styled('div', {
 {=# isGoogleAuthEnabled =}
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 {=/ isGoogleAuthEnabled =}
+{=# isKeycloakAuthEnabled =}
+const keycloakSignInUrl = `${config.apiUrl}{= keycloakSignInPath =}`
+{=/ isKeycloakAuthEnabled =}
 {=# isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ isGitHubAuthEnabled =}
@@ -191,6 +194,10 @@ export const LoginSignupForm = ({
             {=# isGoogleAuthEnabled =}
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
             {=/ isGoogleAuthEnabled =}
+
+            {=# isKeycloakAuthEnabled =}
+              <SocialButton href={keycloakSignInUrl}><SocialIcons.Keycloak/></SocialButton>
+            {=/ isKeycloakAuthEnabled =}
 
             {=# isGitHubAuthEnabled =}
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>

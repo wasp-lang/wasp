@@ -6,7 +6,7 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 
 import { MainPage } from '../../../../src/MainPage'
 
-import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
+import { OAuthCallbackPage } from "./auth/pages/OAuthCallback"
 
 import { routes } from 'wasp/client/router'
 
@@ -26,8 +26,8 @@ const router = (
           component={routeNameToRouteComponent[routeKey]}
         />
       ))}
-      <Route exact path="/auth/login/google">
-        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/google/callback" />
+      <Route exact path="/oauth/callback">
+        <OAuthCallbackPage />
       </Route>
     </Switch>
     </App>

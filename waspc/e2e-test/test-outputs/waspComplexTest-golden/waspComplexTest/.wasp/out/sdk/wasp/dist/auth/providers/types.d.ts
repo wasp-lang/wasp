@@ -7,11 +7,7 @@ type UserEntityCreateInput = Prisma.UserCreateInput;
 export type ProviderConfig = {
     id: ProviderName;
     displayName: string;
-    init?(provider: ProviderConfig): Promise<InitData>;
-    createRouter(provider: ProviderConfig, initData: InitData): Router;
-};
-export type InitData = {
-    [key: string]: any;
+    createRouter(provider: ProviderConfig): Router;
 };
 export type RequestWithWasp = Request & {
     wasp?: {

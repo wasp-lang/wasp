@@ -23,6 +23,11 @@ export function AuthMethodsGrid() {
       description: 'Users sign in with their Github account',
       linkToDocs: '/docs/auth/social-auth/github',
     },
+    {
+      title: 'Keycloak',
+      description: 'Users sign in with their Keycloak account',
+      linkToDocs: '/docs/auth/social-auth/keycloak',
+    }
   ]
   return (
     <>

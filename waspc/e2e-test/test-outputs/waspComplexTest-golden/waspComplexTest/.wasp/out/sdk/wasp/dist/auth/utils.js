@@ -10,7 +10,6 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import { hashPassword } from './password.js';
-import { verify } from './jwt.js';
 import { prisma, HttpError } from 'wasp/server';
 import { sleep } from 'wasp/server/utils';
 import { Prisma } from '@prisma/client';
@@ -93,10 +92,6 @@ export async function deleteUserByAuthId(authId) {
     return prisma.user.deleteMany({ where: { auth: {
                 id: authId,
             } } });
-}
-// PRIVATE API
-export async function verifyToken(token) {
-    return verify(token);
 }
 // PRIVATE API
 // If an user exists, we don't want to leak information

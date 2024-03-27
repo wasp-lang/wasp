@@ -1,11 +1,10 @@
 module Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
   ( genOAuthAuth,
-    depsRequiredByPassport,
+    depsRequiredByOAuth,
   )
 where
 
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, isJust)
 import StrongPath
   ( Dir,
@@ -27,13 +26,23 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
-import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
+import Wasp.Generator.AuthProviders
+  ( gitHubAuthProvider,
+    googleAuthProvider,
+    keycloakAuthProvider,
+  )
+import Wasp.Generator.AuthProviders.OAuth
+  ( OAuthAuthProvider,
+    clientOAuthCallbackPath,
+    serverExchangeCodeForTokenHandlerPath,
+    serverOAuthCallbackHandlerPath,
+    serverOAuthLoginHandlerPath,
+  )
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
+import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
@@ -44,30 +53,47 @@ genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
       genOAuthHelpers auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
+        <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
 
 genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthHelpers auth =
   sequence
-    [ genCreateRouter auth,
-      genTypes auth,
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|]
+    [ genTypes auth,
+      genUser,
+      genRedirectHelpers,
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/handler.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/state.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/cookies.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/env.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/config.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/oneTimeCode.ts|]
     ]
 
-genCreateRouter :: AS.Auth.Auth -> Generator FileDraft
-genCreateRouter auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
+genUser :: Generator FileDraft
+genUser = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
   where
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/user.ts|]
     tmplData =
       object
-        [ "userEntityUpper" .= userEntityName,
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+        [ "authEntityUpper" .= (DbAuth.authEntityName :: String),
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
-          "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "authFieldOnAuthIdentityEntityName" .= (DbAuth.authFieldOnAuthIdentityEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
-    userEntityName = AS.refName . AS.Auth.userEntity $ auth
+
+genRedirectHelpers :: Generator FileDraft
+genRedirectHelpers = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/redirect.ts|]
+    tmplData =
+      object
+        [ "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
+          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
+          "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
+          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
+        ]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
@@ -98,18 +124,16 @@ genOAuthProvider provider maybeUserConfig
 genOAuthConfig ::
   OAuthAuthProvider ->
   Maybe AS.Auth.ExternalAuthConfig ->
-  Path' (Rel ServerSrcDir) File' ->
+  Path' (Rel ServerTemplatesSrcDir) File' ->
   Generator FileDraft
-genOAuthConfig provider maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genOAuthConfig provider maybeUserConfig pathToConfigTmpl = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
   where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/config/_oauth.ts|]
-    dstFile = C.serverSrcDirInServerRootDir </> pathToConfigDst
+    tmplFile = C.srcDirInServerTemplatesDir </> pathToConfigTmpl
     tmplData =
       object
         [ "providerId" .= OAuth.providerId provider,
           "displayName" .= OAuth.displayName provider,
-          "npmPackage" .= App.Dependency.name (OAuth.passportDependency provider),
-          "oAuthConfigProps" .= getJsonForOAuthConfigProps provider,
+          "requiredScopes" .= OAuth.scopeStr provider,
           "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
           "userSignupFields" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
         ]
@@ -119,28 +143,8 @@ genOAuthConfig provider maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWit
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
 
-getJsonForOAuthConfigProps :: OAuthAuthProvider -> [Aeson.Value]
-getJsonForOAuthConfigProps provider =
-  [ object
-      [ "key" .= ("clientID" :: String),
-        "value" .= ("process.env." ++ OAuth.clientIdEnvVarName provider)
-      ],
-    object
-      [ "key" .= ("clientSecret" :: String),
-        "value" .= ("process.env." ++ OAuth.clientSecretEnvVarName provider)
-      ],
-    object
-      [ "key" .= ("scope" :: String),
-        "value" .= OAuth.scopeStr provider
-      ]
-  ]
-
-depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
-depsRequiredByPassport spec =
-  concat
-    [ [App.Dependency.make ("passport", "0.6.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True],
-      [OAuth.passportDependency googleAuthProvider | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True],
-      [OAuth.passportDependency gitHubAuthProvider | (AS.App.Auth.isGitHubAuthEnabled <$> maybeAuth) == Just True]
-    ]
+depsRequiredByOAuth :: AppSpec -> [App.Dependency.Dependency]
+depsRequiredByOAuth spec =
+  [App.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

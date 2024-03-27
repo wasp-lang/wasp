@@ -9,6 +9,7 @@ type CommonConfig = BaseConfig & {
 };
 type EnvConfig = BaseConfig & {
     frontendUrl: string;
+    serverUrl: string;
 };
 type Config = CommonConfig & EnvConfig;
 declare const resolvedConfig: Config;

@@ -48,7 +48,7 @@
     "remark-validate-links": "^12.1.1"
   },
   "engines": {
-    "node": "^18.12.0"
+    "node": ">=18.12.0"
   },
   "browserslist": {
     "production": [
