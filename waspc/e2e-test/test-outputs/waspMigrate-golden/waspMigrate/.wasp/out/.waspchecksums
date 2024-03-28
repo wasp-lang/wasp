@@ -436,13 +436,6 @@
     [
         [
             "file",
-            "server/src/actions/types.ts"
-        ],
-        "cc03111599e32695d677e8ac4e65b98cf90e0cb066e71c3da06af254c784b489"
-    ],
-    [
-        [
-            "file",
             "server/src/app.js"
         ],
         "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
@@ -474,13 +467,6 @@
             "server/src/polyfill.ts"
         ],
         "1149661e0aa7228b184bb2c04ac63232a6523b09b33829db6977f79daba3fd8d"
-    ],
-    [
-        [
-            "file",
-            "server/src/queries/types.ts"
-        ],
-        "19f72a3a37efd1e29b0793caa7f379494ad236bb513c8c8804b5a8d305c45196"
     ],
     [
         [
@@ -590,13 +576,6 @@
     [
         [
             "file",
-            "web-app/src/entities/index.ts"
-        ],
-        "cfb888ebcfafcc416b6e7d583081053d3fa2aa8b7be7d4e21d5f547e731d2467"
-    ],
-    [
-        [
-            "file",
             "web-app/src/index.tsx"
         ],
         "ff83778b7f03a8f15116bc73adce607c2c13fc9cbd4228626980a530541aaeb2"
@@ -607,13 +586,6 @@
             "web-app/src/logo.png"
         ],
         "35f14abf46cb0e9d9b4e3d11961917eecb86be65a0d7f4e6bc9713c5766b5f1b"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/queryClient.js"
-        ],
-        "1739d8618286b4a2aa536bd3fcb754514c828ec896b69c7074e22f66c07e7b03"
     ],
     [
         [
