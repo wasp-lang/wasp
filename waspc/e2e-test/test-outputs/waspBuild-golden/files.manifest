@@ -190,13 +190,11 @@ waspBuild/.wasp/build/server/nodemon.json
 waspBuild/.wasp/build/server/package.json
 waspBuild/.wasp/build/server/rollup.config.js
 waspBuild/.wasp/build/server/scripts/validate-env.mjs
-waspBuild/.wasp/build/server/src/actions/types.ts
 waspBuild/.wasp/build/server/src/app.js
 waspBuild/.wasp/build/server/src/middleware/globalMiddleware.ts
 waspBuild/.wasp/build/server/src/middleware/index.ts
 waspBuild/.wasp/build/server/src/middleware/operations.ts
 waspBuild/.wasp/build/server/src/polyfill.ts
-waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
@@ -214,10 +212,8 @@ waspBuild/.wasp/build/web-app/public/.gitkeep
 waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/manifest.json
 waspBuild/.wasp/build/web-app/scripts/validate-env.mjs
-waspBuild/.wasp/build/web-app/src/entities/index.ts
 waspBuild/.wasp/build/web-app/src/index.tsx
 waspBuild/.wasp/build/web-app/src/logo.png
-waspBuild/.wasp/build/web-app/src/queryClient.js
 waspBuild/.wasp/build/web-app/src/router.tsx
 waspBuild/.wasp/build/web-app/src/test/vitest/setup.ts
 waspBuild/.wasp/build/web-app/src/utils.js

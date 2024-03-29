@@ -190,13 +190,11 @@ waspCompile/.wasp/out/server/nodemon.json
 waspCompile/.wasp/out/server/package.json
 waspCompile/.wasp/out/server/rollup.config.js
 waspCompile/.wasp/out/server/scripts/validate-env.mjs
-waspCompile/.wasp/out/server/src/actions/types.ts
 waspCompile/.wasp/out/server/src/app.js
 waspCompile/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspCompile/.wasp/out/server/src/middleware/index.ts
 waspCompile/.wasp/out/server/src/middleware/operations.ts
 waspCompile/.wasp/out/server/src/polyfill.ts
-waspCompile/.wasp/out/server/src/queries/types.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts
@@ -211,10 +209,8 @@ waspCompile/.wasp/out/web-app/public/.gitkeep
 waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/manifest.json
 waspCompile/.wasp/out/web-app/scripts/validate-env.mjs
-waspCompile/.wasp/out/web-app/src/entities/index.ts
 waspCompile/.wasp/out/web-app/src/index.tsx
 waspCompile/.wasp/out/web-app/src/logo.png
-waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.tsx
 waspCompile/.wasp/out/web-app/src/test/vitest/setup.ts
 waspCompile/.wasp/out/web-app/src/utils.js

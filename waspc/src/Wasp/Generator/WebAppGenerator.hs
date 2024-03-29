@@ -8,7 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust)
 import qualified FilePath.Extra as FP.Extra
 import StrongPath
   ( Dir,
@@ -26,17 +26,13 @@ import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( makeJsArrayFromHaskellList,
-    makeJsonWithEntityData,
   )
-import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.JsImport (jsImportToImportJson)
@@ -197,34 +193,14 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|logo.png|],
-      genFileCopy [relfile|queryClient.js|],
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|vite-env.d.ts|],
       getIndexTs spec
     ]
-    <++> genEntitiesDir spec
     <++> genAuth spec
     <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
-
-genEntitiesDir :: AppSpec -> Generator [FileDraft]
-genEntitiesDir spec = return [entitiesIndexFileDraft]
-  where
-    entitiesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
-        [relfile|src/entities/index.ts|]
-        [relfile|src/entities/index.ts|]
-        ( Just $
-            object
-              [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authEntityName" .= DbAuth.authEntityName,
-                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
-              ]
-        )
-    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
-    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 getIndexTs :: AppSpec -> Generator FileDraft
 getIndexTs spec =
