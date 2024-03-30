@@ -171,7 +171,7 @@ export const devSeedSimple = async (prisma) => {
 }
 
 async function createUser(prisma, data) {
-  const newUser = await prismaClient.user.create({
+  const newUser = await prisma.user.create({
     data: {
       auth: {
         create: {
@@ -180,7 +180,7 @@ async function createUser(prisma, data) {
               providerName: 'username',
               providerUserId: data.username,
               providerData: sanitizeAndSerializeProviderData({
-                password: data.password
+                hashedPassword: data.password
               }),
             },
           },
@@ -218,7 +218,7 @@ async function createUser(
   prisma: PrismaClient,
   data: { username: string, password: string }
 ): Promise<AuthUser> {
-  const newUser = await prismaClient.user.create({
+  const newUser = await prisma.user.create({
     data: {
       auth: {
         create: {
@@ -227,7 +227,7 @@ async function createUser(
               providerName: 'username',
               providerUserId: data.username,
               providerData: sanitizeAndSerializeProviderData<'username'>({
-                password: data.password
+                hashedPassword: data.password
               }),
             },
           },
