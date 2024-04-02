@@ -27,6 +27,7 @@
       // about missing types e.g. when using `toBeInTheDocument` and other matchers.
       "@testing-library/jest-dom"
     ],
+    "incremental": true,
     // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
     // "paths": {
     //   "@wasp/*": [
