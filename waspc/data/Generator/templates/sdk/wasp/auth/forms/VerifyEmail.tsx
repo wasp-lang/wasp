@@ -6,7 +6,7 @@ export function VerifyEmailForm({
   appearance,
   logo,
   socialLayout,
-}: CustomizationOptions) {
+}: CustomizationOptions): React.JSX.Element {
   return (
     <Auth
       appearance={appearance}
