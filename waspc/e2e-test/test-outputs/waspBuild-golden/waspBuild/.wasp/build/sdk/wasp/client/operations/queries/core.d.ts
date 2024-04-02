@@ -18,7 +18,8 @@ export function addMetadataToQuery(
   }
 ): void
 
-type QueryFor<BackendQuery extends GenericBackendQuery> = Expand<
+// PRIVATE API
+export type QueryFor<BackendQuery extends GenericBackendQuery> = Expand<
   Query<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
 >
 

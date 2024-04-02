@@ -1,11 +1,11 @@
-import axios, { type AxiosError } from 'axios'
+import axios, { type AxiosInstance, type AxiosError } from 'axios'
 
 import { config } from 'wasp/client'
 import { storage } from 'wasp/core/storage'
 import { apiEventsEmitter } from './events.js'
 
 // PUBLIC API
-export const api = axios.create({
+export const api: AxiosInstance = axios.create({
   baseURL: config.apiUrl,
 })
 

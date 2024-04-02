@@ -5,5 +5,5 @@ type RouterLinkProps = Parameters<typeof RouterLink>[0];
 export declare function Link({ to, params, search, hash, ...restOfProps }: Omit<RouterLinkProps, "to"> & {
     search?: Record<string, string>;
     hash?: string;
-} & Routes): import("react").JSX.Element;
+} & Routes): React.JSX.Element;
 export {};

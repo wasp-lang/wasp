@@ -11,28 +11,28 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "b33b86f9a24e947243d7c64e8adffb72a42fde853af0d29641429d4697d040b2"
+        "5784ba365e8a5cb2031571cfebf1cbae8670f86f8e5a596b133d333cdf6c91eb"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "68141be8527e8ae3d15838663769737278a71d3853b1dbdc48696e92d4e42548"
+        "bc7d48bd7ec4cdf74f85b98113eb26e670ef265ca4bbd735e361409c9335ad85"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "7a9f44a82a8b15b177fda593c7ddefcef0dadb7c52648c4e934ca76333c589a6"
+        "2b3651e7040a63cfd6a271c2aa89f21cf01170e0abeb6c5ab74adde324852fe4"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/operations/actions/core.d.ts"
         ],
-        "676855c039620769cc6ac728149d263c438024e5888ea0afd7f575507a95682a"
+        "f480f308c419993fe10859f2dca9cbb5487209c1eb87dfe34a750e4011fa5324"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "../out/sdk/wasp/client/operations/actions/index.ts"
         ],
-        "cada58ebdd19f239b97a4cc6bfc1d37b855022629457ddb0c03ff9317aa8e8f0"
+        "246823e2446114189c40bb85795a8ebd0c5eb1badcba540c13fff3b161eac3f4"
     ],
     [
         [
@@ -88,7 +88,7 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/core.d.ts"
         ],
-        "8ca19541652926772e2a7c5d88b5497b7760e98bc9d19c9a217bd03d83cec97d"
+        "9a8134dab42ae8f4394a51d34a9027a1ecc8b175c532e80001e5d51c31ab6576"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/index.ts"
         ],
-        "9d188907e5a3175e1bdada1c242ee4741eb866598d06d9d71d73a01e7a9a8ba2"
+        "882410504b909cc421d50a27c39952f664ba3457438ce746a95d9cab3431944c"
     ],
     [
         [
@@ -116,7 +116,7 @@
             "file",
             "../out/sdk/wasp/client/router/Link.tsx"
         ],
-        "80db39a38f50833f8c965bfd7758da990083db60a6f2f8e394353eed5f981cc9"
+        "66aebac1ceb458f661b4e24085c321e0764663ada56843261640a230718bb29d"
     ],
     [
         [

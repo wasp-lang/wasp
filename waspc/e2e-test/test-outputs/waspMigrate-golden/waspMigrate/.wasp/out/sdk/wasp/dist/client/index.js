@@ -8,5 +8,5 @@ export var HttpMethod;
     HttpMethod["Delete"] = "DELETE";
 })(HttpMethod || (HttpMethod = {}));
 // PUBLIC API
-export { default as config } from './config';
+export { config } from './config';
 //# sourceMappingURL=index.js.map

@@ -7,7 +7,8 @@ export function createAction<BackendAction extends GenericBackendAction>(
   entitiesUsed: unknown[]
 ): ActionFor<BackendAction>
 
-type ActionFor<BackendAction extends GenericBackendAction> = Expand<
+// PRIVATE API
+export type ActionFor<BackendAction extends GenericBackendAction> = Expand<
   Action<Parameters<BackendAction>[0], _Awaited<_ReturnType<BackendAction>>>
 >
 
