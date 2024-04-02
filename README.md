@@ -134,6 +134,8 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 
 <a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a> - Thanks Arukaito for learning web dev with Wasp while supporting us on the way!
 
+<a href="https://github.com/ThomasJonesUK"><img src="https://github.com/ThomasJonesUK.png" width="50px" alt="ThomasJonesUK" /></a> - Thanks Thomas for supporting Wasp :)!
+
 ## Past sponsors
 
 <a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a>
