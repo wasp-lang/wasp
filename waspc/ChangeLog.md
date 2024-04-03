@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.13.1 (2024-04-04)
+
+### 🐞 Bug fixes
+
+- Vite HMR now works correctly with Wasp's new project structure (no more full-page reloads).
+- Keycloak UI helpers are now correctly exported.
+
+### 🔧 Small improvements
+
+- Improved how IDEs auto-import symbols from `wasp/*` modules.
+
 ## 0.13.0 (2024-03-18)
 
 ### ⚠️ Breaking changes
