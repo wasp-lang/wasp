@@ -28,6 +28,10 @@
       // about missing types e.g. when using `toBeInTheDocument` and other matchers.
       "@testing-library/jest-dom"
     ],
+    // * This option enables faster SDK compilation, less Vite HMR messages
+    // and it prevent unnecessary full-page reloads when using Vite HMR.
+    // While this is great, we still want to dig deeper at some point to understand
+    // better why Vite HMR misbehaves when the SDK is recompiled: https://github.com/wasp-lang/wasp/issues/1934 
     "incremental": true,
     // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
     // "paths": {
