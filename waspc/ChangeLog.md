@@ -9,7 +9,7 @@
 
 ### 🔧 Small improvements
 
-- Improved how IDEs auto-import symbols from `wasp/*` modules.
+- Improved how IDEs auto-imports symbols from the `wasp` package.
 
 ## 0.13.0 (2024-03-18)
 
