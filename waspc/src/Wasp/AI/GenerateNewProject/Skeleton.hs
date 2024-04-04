@@ -247,7 +247,6 @@ generateLayoutComponent newProjectDetails =
     [trimming|
       import { Link } from "react-router-dom";
       import { useAuth, logout } from "wasp/client/auth";
-      import { getUsername } from "wasp/auth";
       import "./Main.css";
 
       export const Layout = ({ children }) => {
@@ -262,7 +261,7 @@ generateLayoutComponent newProjectDetails =
                 </Link>
                 { user ? (
                   <span>
-                    Hi, {getUsername(user)}!{' '}
+                    Hi, {user.identities.username?.id}!{' '}
                     <button onClick={logout} className="text-xl2 underline">
                       (Log out)
                     </button>

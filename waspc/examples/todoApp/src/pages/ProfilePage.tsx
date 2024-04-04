@@ -51,7 +51,7 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
       <div>
         Hello <strong>{getName(user)}</strong>! Your status is{' '}
         <strong>
-          {user.identities.email && user.identities.email.data.isEmailVerified
+          {user.identities.email && user.identities.email.isEmailVerified
             ? 'verfied'
             : 'unverified'}
         </strong>

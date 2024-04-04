@@ -1,11 +1,11 @@
 {{={= =}=}}
-import {
-  type {= userEntityName =},
-  type {= authEntityName =},
-  type {= authIdentityEntityName =},
-} from 'wasp/entities'
-import { type ProviderName } from './types'
-import { type PossibleProviderData, deserializeAndSanitizeProviderData } from './utils.js'
+import { type {= authIdentityEntityName =} } from '../entities/index.js'
+import { type ProviderName } from '../server/_types/index.js'
+/**
+ * We split the user.ts code into two files to avoid some server-only
+ * code (Oslo's hashing functions) being imported on the client.
+ */
+import { type UserEntityWithAuth } from '../server/auth/user.js'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
@@ -27,78 +27,11 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
 }
 
 // PUBLIC API
-export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): {= authIdentityEntityName =} | undefined {
+export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): {= authIdentityEntityName =} | null {
+  if (!user.auth) {
+    return null;
+  }
   return user.auth.identities.find(
     (identity) => identity.providerName === providerName
-  );
-}
-
-// PUBLIC API
-export type AuthUser = ReturnType<typeof createAuthUser>
-
-// PRIVATE API
-export function createAuthUser(
-  user: UserEntityWithAuth
-) {
-  const { auth, ...rest } = user
-  const identities = {
-    {=# enabledProviders.isEmailAuthEnabled =}
-    email: getProviderInfo<'email'>(auth, 'email'),
-    {=/ enabledProviders.isEmailAuthEnabled =}
-    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    username: getProviderInfo<'username'>(auth, 'username'),
-    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    {=# enabledProviders.isGoogleAuthEnabled =}
-    google: getProviderInfo<'google'>(auth, 'google'),
-    {=/ enabledProviders.isGoogleAuthEnabled =}
-    {=# enabledProviders.isKeycloakAuthEnabled =}
-    keycloak: getProviderInfo<'keycloak'>(auth, 'keycloak'),
-    {=/ enabledProviders.isKeycloakAuthEnabled =}
-    {=# enabledProviders.isGitHubAuthEnabled =}
-    github: getProviderInfo<'github'>(auth, 'github'),
-    {=/ enabledProviders.isGitHubAuthEnabled =}
-  }
-  return {
-    ...rest,
-    identities,
-    getFirstProviderUserId: () => getFirstProviderUserId(user),
-    // Maybe useful for backwards compatibility? Full access?
-    _rawUser: user,
-  }
-}
-
-type UserEntityWithAuth = {= userEntityName =} & {
-  {= authFieldOnUserEntityName =}: AuthEntityWithIdentities
-}
-
-type AuthEntityWithIdentities = {= authEntityName =} & {
-  {= identitiesFieldOnAuthEntityName =}: {= authIdentityEntityName =}[]
-}
-
-function getProviderInfo<PN extends ProviderName>(
-  auth: AuthEntityWithIdentities,
-  providerName: PN
-):
-  | {
-      id: string
-      data: PossibleProviderData[PN]
-    }
-  | null {
-  const identity = getIdentity(auth, providerName)
-  if (!identity) {
-    return null
-  }
-  return {
-    id: identity.providerUserId,
-    data: deserializeAndSanitizeProviderData<PN>(identity.providerData, {
-      shouldRemovePasswordField: true,
-    }),
-  }
-}
-
-function getIdentity(
-  auth: AuthEntityWithIdentities,
-  providerName: ProviderName
-): {= authIdentityEntityName =} | null {
-  return auth.{= identitiesFieldOnAuthEntityName =}.find((i) => i.providerName === providerName) ?? null
+  ) ?? null;
 }

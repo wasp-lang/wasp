@@ -7,7 +7,6 @@ import { screen } from '@testing-library/react'
 import Todo, { areThereAnyTasks } from './Todo'
 import { App } from './App'
 import { getMe } from 'wasp/client/auth'
-import { createAuthUser } from 'wasp/auth/user'
 
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
@@ -36,22 +35,13 @@ test('handles mock data', async () => {
   screen.debug()
 })
 
-const mockUser = createAuthUser({
-  id: 12,
-  auth: {
-    id: '123',
-    userId: 12,
-    identities: [
-      {
-        authId: '123',
-        providerName: 'email',
-        providerUserId: 'elon@tesla.com',
-        providerData: '{}',
-      },
-    ],
+const mockUser = {
+  identities: {
+    email: {
+      id: 'elon@tesla.com',
+    },
   },
-  address: null,
-})
+} as AuthUser
 
 test('handles multiple mock data sources', async () => {
   mockQuery(getMe, mockUser)

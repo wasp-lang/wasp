@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client/index.js'
 import { type DbSeedFn } from 'wasp/server'
 import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 import { createTask } from './actions.js'
-import { createAuthUser } from 'wasp/auth/user.js'
+import { type AuthUser } from 'wasp/auth'
 
 async function createUser(prismaClient: PrismaClient, data: any) {
   const newUser = await prismaClient.user.create({
@@ -35,7 +35,9 @@ async function createUser(prismaClient: PrismaClient, data: any) {
     },
   })
 
-  return createAuthUser(newUser as any)
+  return {
+    id: newUser.id,
+  } as AuthUser
 }
 
 export const devSeedSimple: DbSeedFn = async (prismaClient) => {
