@@ -3,7 +3,6 @@ export {
   getEmail,
   getUsername,
   getFirstProviderUserId,
-  findUserIdentity,
 } from './user.js'
 
 // PUBLIC API

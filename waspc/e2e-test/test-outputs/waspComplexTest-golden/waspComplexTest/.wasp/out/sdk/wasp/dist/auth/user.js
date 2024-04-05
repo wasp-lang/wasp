@@ -16,8 +16,7 @@ export function getFirstProviderUserId(user) {
     }
     return (_a = user.auth.identities[0].providerUserId) !== null && _a !== void 0 ? _a : null;
 }
-// PUBLIC API
-export function findUserIdentity(user, providerName) {
+function findUserIdentity(user, providerName) {
     var _a;
     if (!user.auth) {
         return null;

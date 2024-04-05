@@ -25,8 +25,7 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
   return user.auth.identities[0].providerUserId ?? null;
 }
 
-// PUBLIC API
-export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): AuthIdentity | null {
+function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): AuthIdentity | null {
   if (!user.auth) {
     return null;
   }
