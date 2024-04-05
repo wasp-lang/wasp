@@ -5,8 +5,6 @@ title: Auth Entities
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from '../\_multiple-identities-warning.md';
-import GetEmail from './\_get-email.md';
-import GetUsername from './\_get-username.md';
 
 Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](./username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](./email) authentication method, you will need to store the user's email, password and for example, their email verification status.
 
@@ -133,23 +131,17 @@ The `Session` fields:
 
 ## Accessing the Auth Fields 
 
-If you are looking to access the user's email or username in your code, you can do that by accessing the info about the user that is stored in the `AuthIdentity` entity.
+TODO: write about the `user.identities` object
 
-Everywhere where Wasp gives you the `user` object, it also includes the `auth` relation with the `identities` relation. This means that you can access the auth identity info by using the `user.auth.identities` array.
+TODO: write about username, email, and every other provider
 
-To make things a bit easier for you, Wasp offers a few helper functions that you can use to access the auth identity info.
+TODO: write what if there are multiple providers
 
-### `getEmail`
-
-<GetEmail />
-
-### `getUsername`
-
-<GetUsername />
+TODO: write about `getUsername` and `getEmail` and when they can be useful (retrieving a list of tasks)
 
 ### `getFirstProviderUserId`
 
-The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
+The `getFirstProviderUserId` method returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
 
 [As mentioned before](#authidentity-entity-), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need *any* ID that identifies the user in your app.
 
@@ -157,19 +149,15 @@ The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` o
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/MainPage.jsx"
-import { getFirstProviderUserId } from 'wasp/auth'
-
 const MainPage = ({ user }) => {
-  const userId = getFirstProviderUserId(user)
+  const userId = user.getFirstProviderUserId()
   // ...
 }
 ```
 
 ```js title=src/tasks.js
-import { getFirstProviderUserId } from 'wasp/auth'
-
 export const createTask = async (args, context) => {
-  const userId = getFirstProviderUserId(context.user)
+  const userId = context.user.getFirstProviderUserId()
   // ...
 }
 ```
@@ -179,101 +167,17 @@ export const createTask = async (args, context) => {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/MainPage.tsx"
-import { getFirstProviderUserId, AuthUser } from 'wasp/auth'
+import { type AuthUser } from 'wasp/auth'
 
 const MainPage = ({ user }: { user: AuthUser }) => {
-  const userId = getFirstProviderUserId(user)
+  const userId = user.getFirstProviderUserId()
   // ...
 }
 ```
 
 ```ts title=src/tasks.ts
-import { getFirstProviderUserId } from 'wasp/auth'
-
 export const createTask: CreateTask<...>  = async (args, context) => {
-  const userId = getFirstProviderUserId(context.user)
-  // ...
-}
-```
-
-</TabItem>
-</Tabs>
-
-### `findUserIdentity`
-
-You can find a specific auth identity by using the `findUserIdentity` helper function. This function takes a `user` and a `providerName` and returns the first `providerName` identity that it finds or `null` if it doesn't find any.
-
-Possible provider names are:
-- `email`
-- `username`
-- `google`
-- `github`
-
-This can be useful if you want to check if the user has a specific auth identity. For example, you might want to check if the user has an email auth identity or Google auth identity.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/MainPage.jsx"
-import { findUserIdentity } from 'wasp/auth'
-
-const MainPage = ({ user }) => {
-  const emailIdentity = findUserIdentity(user, 'email')
-  const googleIdentity = findUserIdentity(user, 'google')
-  if (emailIdentity) {
-    // ...
-  } else if (googleIdentity) {
-    // ...
-  }
-  // ...
-}
-```
-
-```js title=src/tasks.js
-import { findUserIdentity } from 'wasp/client/auth'
-
-export const createTask = async (args, context) => {
-  const emailIdentity = findUserIdentity(context.user, 'email')
-  const googleIdentity = findUserIdentity(context.user, 'google')
-  if (emailIdentity) {
-    // ...
-  } else if (googleIdentity) {
-    // ...
-  }
-  // ...
-}
-```
-
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/MainPage.tsx"
-import { findUserIdentity, AuthUser } from 'wasp/auth'
-
-const MainPage = ({ user }: { user: AuthUser }) => {
-  const emailIdentity = findUserIdentity(user, 'email')
-  const googleIdentity = findUserIdentity(user, 'google')
-  if (emailIdentity) {
-    // ...
-  } else if (googleIdentity) {
-    // ...
-  }
-  // ...
-}
-```
-
-```ts title=src/tasks.ts
-import { findUserIdentity } from 'wasp/client/auth'
-
-export const createTask: CreateTask<...>  = async (args, context) => {
-  const emailIdentity = findUserIdentity(context.user, 'email')
-  const googleIdentity = findUserIdentity(context.user, 'google')
-  if (emailIdentity) {
-    // ...
-  } else if (googleIdentity) {
-    // ...
-  }
+  const userId = context.user.getFirstProviderUserId()
   // ...
 }
 ```

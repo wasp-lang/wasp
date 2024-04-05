@@ -454,6 +454,8 @@ export function getConfig() {
 
 <UsingAuthNote />
 
+### TODO: accessing the provider ID
+
 ## API Reference
 
 <ApiReferenceIntro />
