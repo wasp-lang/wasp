@@ -1,12 +1,180 @@
 ---
-title: Auth Entities
+title: Accessing User Data
 ---
 
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from '../\_multiple-identities-warning.md';
+import UsernameData from './\_username-data.md';
+import EmailData from './\_email-data.md';
+import GoogleData from './\_google-data.md';
+import GithubData from './\_github-data.md';
+import KeycloakData from './\_keycloak-data.md';
 
-Wasp supports multiple different authentication methods and for each method, we need to store different information about the user. For example, if you are using the [Username & password](./username-and-pass) authentication method, we need to store the user's username and password. On the other hand, if you are using the [Email](./email) authentication method, you will need to store the user's email, password and for example, their email verification status.
+First, we'll check out the most practical info: **how to access the user's data in your app**. 
+
+Then, we'll dive into the details of the **auth entities** that Wasp creates behind the scenes to store the user's data. For auth each method, Wasp needs to store different information about the user. For example, username for [Username & password](./username-and-pass) auth, email verification status for [Email](./email) auth, and so on.
+
+We'll also show you how you can use these entities to create a custom signup action.
+
+## Accessing the Auth Fields
+
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), it will contain all the user fields you defined in the `User` entity in your Wasp file. In addition to that, it will also contain all the auth-related fields that Wasp stores. This includes things like the `username` or the email verification status. In Wasp, this data is called the `AuthUser` object.
+
+### `AuthUser` Object Fields
+
+The `AuthUser` object will change depending on which auth method you have enabled in the Wasp file. For example, if you enabled the email auth and Google auth, it would look something like this:
+
+<Tabs>
+<TabItem value="google" label="User Signed Up with Google">
+
+If the user has only the Google identity, the `AuthUser` object will look like this:
+
+```ts
+const user = {
+  // User data
+  id: "cluqs9qyh00007cn73apj4hp7",
+  address: "Some address",
+
+  // Auth methods specific data
+  identities: {
+    email: null,
+    google: {
+      id: "1117XXXX1301972049448",
+    },
+  },
+}
+```
+</TabItem>
+
+<TabItem value="email" label="User Signed Up with Email">
+
+If the user has only the email identity, the `AuthUser` object will look like this:
+
+```ts
+const user = {
+  // User data
+  id: "cluqsex9500017cn7i2hwsg17",
+  address: "Some address",
+
+  // Auth methods specific data
+  identities: {
+    email: {
+      id: "user@app.com",
+      isEmailVerified: true,
+      emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
+      passwordResetSentAt: null,
+    },
+    google: null,
+  },
+}
+```
+</TabItem>
+</Tabs>
+
+All the `User` fields you defined will be present at the top level of the `AuthUser` object. The auth-related fields will be on the `identities` object. For each auth method you enable, there will be a separate data object in the `identities` object.
+
+
+### Auth Method Specific Data
+
+:::info Make sure to check if the data exists
+
+Before accessing an auth method's data, you'll need to check if that data exists for a specific user and then access it:
+
+```ts
+if (user.identities.google !== null) {
+  const userId = user.identities.google.id
+  // ...
+}
+```
+
+You need to do this because if a user didn't sign up with some auth method, the data for that auth method will be `null`.
+:::
+
+
+
+Let's look at the data for each of the available auth methods:
+
+- [Username & password](../username-and-pass.md) data
+
+  <UsernameData />
+
+- [Email](../email.md) data
+
+  <EmailData />
+
+- [Google](../social-auth/google.md) data
+
+  <GoogleData />
+
+- [GitHub](../social-auth/github.md) data
+
+  <GithubData />
+
+- [Keycloak](../social-auth/keycloak.md) data
+
+  <KeycloakData />
+
+If you support multiple auth methods, you'll need to find which identity exists for a specific user and then access the data for that identity:
+
+```ts
+if (user.identities.email !== null) {
+  const email = user.identities.email.id
+  // ...
+} else if (user.identities.google !== null) {
+  const googleId = user.identities.google.id
+  // ...
+}
+```
+
+### `getFirstProviderUserId`
+
+The `getFirstProviderUserId` method returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
+
+[As you'll learn below](#authidentity-entity-), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need _any_ ID that identifies the user in your app.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/MainPage.jsx"
+const MainPage = ({ user }) => {
+  const userId = user.getFirstProviderUserId()
+  // ...
+}
+```
+
+```js title=src/tasks.js
+export const createTask = async (args, context) => {
+  const userId = context.user.getFirstProviderUserId()
+  // ...
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/MainPage.tsx"
+import { type AuthUser } from 'wasp/auth'
+
+const MainPage = ({ user }: { user: AuthUser }) => {
+  const userId = user.getFirstProviderUserId()
+  // ...
+}
+```
+
+```ts title=src/tasks.ts
+export const createTask: CreateTask<...>  = async (args, context) => {
+  const userId = context.user.getFirstProviderUserId()
+  // ...
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Extra Helper Methods
+
+TODO: write about `getUsername` and `getEmail` and when they can be useful (retrieving a list of tasks)
 
 ## Entities Explained
 
@@ -14,7 +182,7 @@ To store user information, Wasp creates a few entities behind the scenes. In thi
 
 ### User Entity
 
-When you want to add authentication to your app, you need to specify the user entity e.g. `User` in your Wasp file. This entity is a "business logic user" which represents a user of your app. 
+When you want to add authentication to your app, you need to specify the user entity e.g. `User` in your Wasp file. This entity is a "business logic user" which represents a user of your app.
 
 You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
 
@@ -34,16 +202,18 @@ On the other hand, the `Auth`, `AuthIdentity` and `Session` entities are created
 In the case you want to create a custom signup action, you will need to use the `Auth` and `AuthIdentity` entities directly.
 
 ### Example App Model
+
 Let's imagine we created a simple tasks management app:
 
- - The app has email and Google-based auth.
- - Users can create tasks and see the tasks that they have created.
+- The app has email and Google-based auth.
+- Users can create tasks and see the tasks that they have created.
 
 Let's look at how would that look in the database:
 
 <ImgWithCaption alt="Example of Auth Entities" source="img/auth-entities/model-example.png" caption="Example of Auth Entities"/>
 
 If we take a look at an example user in the database, we can see:
+
 - The business logic user, `User` is connected to multiple `Task` entities.
   - In this example, "Example User" has two tasks.
 - The `User` is connected to exactly one `Auth` entity.
@@ -63,7 +233,7 @@ entity Auth {=psl
   id         String         @id @default(uuid())
   userId     Int?           @unique
   // Wasp injects this relation on the User entity as well
-  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   identities AuthIdentity[]
   sessions   Session[]
 psl=}
@@ -91,11 +261,12 @@ entity AuthIdentity {=psl
   authId         String
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
-  @@id([providerName, providerUserId])  
+  @@id([providerName, providerUserId])
 psl=}
 ```
 
 The `AuthIdentity` fields:
+
 - `providerName` is the name of the authentication provider.
   - For example, `email` or `google`.
 - `providerUserId` is the user's ID in the authentication provider.
@@ -123,67 +294,12 @@ psl=}
 ```
 
 The `Session` fields:
+
 - `id` is a unique identifier of the `Session` entity.
 - `expiresAt` is the date when the session expires.
 - `userId` is a foreign key to the `Auth` entity.
   - It is used to connect the `Session` entity with the `Auth` entity.
 - `auth` is a relation to the `Auth` entity.
-
-## Accessing the Auth Fields 
-
-TODO: write about the `user.identities` object
-
-TODO: write about username, email, and every other provider
-
-TODO: write what if there are multiple providers
-
-TODO: write about `getUsername` and `getEmail` and when they can be useful (retrieving a list of tasks)
-
-### `getFirstProviderUserId`
-
-The `getFirstProviderUserId` method returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
-
-[As mentioned before](#authidentity-entity-), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need *any* ID that identifies the user in your app.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/MainPage.jsx"
-const MainPage = ({ user }) => {
-  const userId = user.getFirstProviderUserId()
-  // ...
-}
-```
-
-```js title=src/tasks.js
-export const createTask = async (args, context) => {
-  const userId = context.user.getFirstProviderUserId()
-  // ...
-}
-```
-
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/MainPage.tsx"
-import { type AuthUser } from 'wasp/auth'
-
-const MainPage = ({ user }: { user: AuthUser }) => {
-  const userId = user.getFirstProviderUserId()
-  // ...
-}
-```
-
-```ts title=src/tasks.ts
-export const createTask: CreateTask<...>  = async (args, context) => {
-  const userId = context.user.getFirstProviderUserId()
-  // ...
-}
-```
-
-</TabItem>
-</Tabs>
 
 ## Custom Signup Action
 
@@ -208,7 +324,6 @@ action customSignup {
 }
 ```
 
-
 ```js title="src/auth/signup.js"
 import {
   createProviderId,
@@ -230,7 +345,7 @@ export const signup = async (args, { entities: { User } }) => {
       providerId,
       providerData,
       // Any additional data you want to store on the User entity
-      {},
+      {}
     )
 
     // This is equivalent to:
@@ -265,6 +380,7 @@ export const signup = async (args, { entities: { User } }) => {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -311,7 +427,7 @@ export const signup: CustomSignup<
       providerId,
       providerData,
       // Any additional data you want to store on the User entity
-      {},
+      {}
     )
 
     // This is equivalent to:
@@ -346,6 +462,7 @@ export const signup: CustomSignup<
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 

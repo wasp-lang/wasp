@@ -7,8 +7,10 @@ import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
 import UserFieldsExplainer from './\_user-fields.md';
+import UsernameData from './entities/\_username-data.md';
+import AccessingUserDataNote from './\_accessing-user-data-note.md';
 
-Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client-side.
+Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client side.
 
 ## Setting Up Username & Password Authentication
 
@@ -608,7 +610,11 @@ We suggest using the built-in field validators for your authentication flow. You
 
 To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../auth/overview).
 
-### TODO: accessing the username
+When you receive the `user` object [on the client or the server](./overview.md#accessing-the-logged-in-user), you'll be able to access the user's username like this:
+
+<UsernameData />
+
+<AccessingUserDataNote />
 
 ## API Reference
 
