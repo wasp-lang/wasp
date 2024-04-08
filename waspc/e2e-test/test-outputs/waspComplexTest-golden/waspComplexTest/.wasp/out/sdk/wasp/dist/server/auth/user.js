@@ -21,7 +21,7 @@ This should never happen, but it did which means there is a bug in the code.`);
     const identities = {
         google: getProviderInfo(auth, 'google'),
     };
-    return Object.assign(Object.assign({}, rest), { identities, getFirstProviderUserId: () => getFirstProviderUserId(user), _rawUser: user });
+    return Object.assign(Object.assign({}, rest), { identities, getFirstProviderUserId: () => getFirstProviderUserId(user) });
 }
 function getProviderInfo(auth, providerName) {
     const identity = getIdentity(auth, providerName);

@@ -29,10 +29,6 @@ export type AuthUser = Omit<UserEntityWithAuth, 'auth'> & {
     google: Expand<UserFacingProviderData<'google'>> | null
   },
   getFirstProviderUserId: () => string | null,
-  /**
-   * @description Raw user entity, for advanced use cases.
-   */
-  _rawUser: UserEntityWithAuth,
 }
 
 type UserFacingProviderData<PN extends ProviderName> = {
@@ -63,7 +59,6 @@ This should never happen, but it did which means there is a bug in the code.`)
     ...rest,
     identities,
     getFirstProviderUserId: () => getFirstProviderUserId(user),
-    _rawUser: user,
   }
 }
 

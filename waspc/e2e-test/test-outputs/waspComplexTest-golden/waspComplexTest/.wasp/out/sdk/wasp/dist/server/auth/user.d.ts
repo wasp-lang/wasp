@@ -19,10 +19,6 @@ export type AuthUser = Omit<UserEntityWithAuth, 'auth'> & {
         google: Expand<UserFacingProviderData<'google'>> | null;
     };
     getFirstProviderUserId: () => string | null;
-    /**
-     * @description Raw user entity, for advanced use cases.
-     */
-    _rawUser: UserEntityWithAuth;
 };
 type UserFacingProviderData<PN extends ProviderName> = {
     id: string;
