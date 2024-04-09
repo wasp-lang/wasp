@@ -9,12 +9,12 @@
 import { prisma, DbSeedFn } from 'wasp/server'
 
 {=# dbSeeds =}
-{=& importStatement =}
+{=& seedFn.importStatement =}
 {=/ dbSeeds =}
 
 const seeds = {
   {=# dbSeeds =}
-  {= importIdentifier =},
+  {= name =}: {= seedFn.importIdentifier =},
   {=/ dbSeeds =}
 }
 

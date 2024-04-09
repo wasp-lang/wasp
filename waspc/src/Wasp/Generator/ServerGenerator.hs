@@ -13,10 +13,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
-import Data.Maybe
-  ( isJust,
-    maybeToList,
-  )
+import Data.Maybe (maybeToList)
 import StrongPath
   ( Dir,
     File',
@@ -50,7 +47,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
@@ -208,16 +205,18 @@ genSrcDir spec =
     genFileCopy = return . C.mkSrcTmplFd
 
 genServerJs :: AppSpec -> Generator FileDraft
-genServerJs spec =
+genServerJs spec = do
+  setupFn <- extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction
+  userWebSocketFn <- mkWebSocketFnImport maybeWebSocket [reldirP|./|]
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/server.ts|])
       (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
+            [ "setupFn" .= setupFn,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
+              "userWebSocketFn" .= userWebSocketFn
             ]
       )
   where
@@ -259,28 +258,18 @@ genEnvValidationScript =
     ]
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
-genMiddleware spec =
+genMiddleware spec = do
+  globalMiddlewareConfigFn <- extImportToImportJson [reldirP|../|] maybeGlobalMiddlewareConfigFn
+
+  let globalMiddlewareTmplData = object ["globalMiddlewareConfigFn" .= globalMiddlewareConfigFn]
+
   sequence
     [ return $ C.mkTmplFd [relfile|src/middleware/index.ts|],
-      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData),
+      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just globalMiddlewareTmplData),
       genOperationsMiddleware spec
     ]
   where
-    tmplData =
-      object
-        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData
-        ]
-
-    globalMiddlewareConfigFnTmplData :: Aeson.Value
-    globalMiddlewareConfigFnTmplData =
-      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
-          globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
-          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
-       in object
-            [ "isDefined" .= isJust maybeGlobalMidlewareConfigFnImports,
-              "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
-              "importAlias" .= globalMiddlewareConfigFnAlias
-            ]
+    maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
 
 genOperationsMiddleware :: AppSpec -> Generator FileDraft
 genOperationsMiddleware spec =

@@ -203,14 +203,15 @@ genSrcDir spec =
     genFileCopy = return . C.mkSrcTmplFd
 
 getIndexTs :: AppSpec -> Generator FileDraft
-getIndexTs spec =
+getIndexTs spec = do
+  setupFn <- extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/index.tsx|])
       (C.asWebAppFile [relfile|src/index.tsx|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
+            [ "setupFn" .= setupFn,
               "areWebSocketsUsed" .= AS.WS.areWebSocketsUsed spec
             ]
       )
@@ -228,20 +229,22 @@ genEnvValidationScript =
 
 -- todo(filip): Take care of this as well
 genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
+genViteConfig spec = do
+  customViteConfig <- jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec)
+  let tmplData =
+        object
+          [ "customViteConfig" .= customViteConfig,
+            "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
+            "defaultClientPort" .= C.defaultClientPort,
+            "vitest"
+              .= object
+                [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
+                  "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
+                ]
+          ]
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = C.asTmplFile [relfile|vite.config.ts|]
-    tmplData =
-      object
-        [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
-          "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
-          "defaultClientPort" .= C.defaultClientPort,
-          "vitest"
-            .= object
-              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
-              ]
-        ]
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir
