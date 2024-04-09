@@ -942,7 +942,7 @@ A dictionary of auth methods enabled for the app.
 #### `onAuthFailedRedirectTo: String` <Required />
 
 The route to which Wasp should redirect unauthenticated user when they try to access a private page (i.e., a page that has `authRequired: true`).
-Check out these [essentials docs on auth](../tutorial/auth#adding-auth-to-the-project) to see an example of usage.
+Check out these [essential docs on auth](../tutorial/auth#adding-auth-to-the-project) to see an example of usage.
 
 #### `onAuthSucceededRedirectTo: String`
 

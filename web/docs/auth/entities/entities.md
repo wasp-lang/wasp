@@ -11,7 +11,7 @@ import GoogleData from './\_google-data.md';
 import GithubData from './\_github-data.md';
 import KeycloakData from './\_keycloak-data.md';
 
-First, we'll check out the most practical info: **how to access the user's data in your app**. 
+First, we'll check out the most practical info: **how to access the user's data in your app**.
 
 Then, we'll dive into the details of the **auth entities** that Wasp creates behind the scenes to store the user's data. For auth each method, Wasp needs to store different information about the user. For example, username for [Username & password](./username-and-pass) auth, email verification status for [Email](./email) auth, and so on.
 
@@ -33,18 +33,19 @@ If the user has only the Google identity, the `AuthUser` object will look like t
 ```ts
 const user = {
   // User data
-  id: "cluqs9qyh00007cn73apj4hp7",
-  address: "Some address",
+  id: 'cluqs9qyh00007cn73apj4hp7',
+  address: 'Some address',
 
   // Auth methods specific data
   identities: {
     email: null,
     google: {
-      id: "1117XXXX1301972049448",
+      id: '1117XXXX1301972049448',
     },
   },
 }
 ```
+
 </TabItem>
 
 <TabItem value="email" label="User Signed Up with Email">
@@ -54,32 +55,34 @@ If the user has only the email identity, the `AuthUser` object will look like th
 ```ts
 const user = {
   // User data
-  id: "cluqsex9500017cn7i2hwsg17",
-  address: "Some address",
+  id: 'cluqsex9500017cn7i2hwsg17',
+  address: 'Some address',
 
   // Auth methods specific data
   identities: {
     email: {
-      id: "user@app.com",
+      id: 'user@app.com',
       isEmailVerified: true,
-      emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
+      emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
       passwordResetSentAt: null,
     },
     google: null,
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
 All the `User` fields you defined will be present at the top level of the `AuthUser` object. The auth-related fields will be on the `identities` object. For each auth method you enable, there will be a separate data object in the `identities` object.
 
+In the examples above, you can see the `identities` object contains the `email` and `google` objects. The `email` object contains the email-related data and the `google` object contains the Google-related data.
 
-### Auth Method Specific Data
+### Auth Methods Data
 
 :::info Make sure to check if the data exists
 
-Before accessing an auth method's data, you'll need to check if that data exists for a specific user and then access it:
+Before accessing some auth method's data, you'll need to check if that data exists for the user and then access it:
 
 ```ts
 if (user.identities.google !== null) {
@@ -90,8 +93,6 @@ if (user.identities.google !== null) {
 
 You need to do this because if a user didn't sign up with some auth method, the data for that auth method will be `null`.
 :::
-
-
 
 Let's look at the data for each of the available auth methods:
 
@@ -115,7 +116,7 @@ Let's look at the data for each of the available auth methods:
 
   <KeycloakData />
 
-If you support multiple auth methods, you'll need to find which identity exists for a specific user and then access the data for that identity:
+If you support multiple auth methods, you'll need to find which identity exists for the user and then access its data:
 
 ```ts
 if (user.identities.email !== null) {
@@ -127,7 +128,7 @@ if (user.identities.email !== null) {
 }
 ```
 
-### `getFirstProviderUserId`
+### `getFirstProviderUserId` Helper
 
 The `getFirstProviderUserId` method returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
 
@@ -172,9 +173,274 @@ export const createTask: CreateTask<...>  = async (args, context) => {
 </TabItem>
 </Tabs>
 
-### Extra Helper Methods
+## Including the User with Other Entities
 
-TODO: write about `getUsername` and `getEmail` and when they can be useful (retrieving a list of tasks)
+Sometimes, you might want to include the user's data when fetching other entities. For example, you might want to include the user's data with the tasks they have created.
+
+:::caution Be careful to exclude the password
+
+You'll need to include the `auth` and the `identities` relations to get the full data about the user. However, you should exclude the `providerData` field from the `AuthIdentity` entity because it contains the user's hashed password.
+
+:::
+
+You can include the user's data with other entities using the `include` option in the Prisma queries:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/tasks.js"
+export const getAllTasks = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: 'desc' },
+    select: {
+      id: true,
+      title: true,
+      // highlight-start
+      user: {
+        include: {
+          auth: {
+            include: {
+              identities: {
+                // Making sure to exclude the `providerData` field
+                select: {
+                  providerName: true,
+                  providerUserId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      // highlight-end
+    },
+  })
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/tasks.ts"
+export const getAllTasks = (async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: 'desc' },
+    select: {
+      id: true,
+      title: true,
+      // highlight-start
+      user: {
+        include: {
+          auth: {
+            include: {
+              identities: {
+                // Making sure to exclude the `providerData` field
+                select: {
+                  providerName: true,
+                  providerUserId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      // highlight-end
+    },
+  })
+}) satisfies tasks.GetAllQuery<{}, {}>
+```
+
+</TabItem>
+</Tabs>
+
+If you have some **piece of the auth data that you want to access frequently** (for example the `username`), it's best to store it at the top level of the `User` entity.
+
+For example, save the `username` or `email` as a property on the `User` and you'll be able to access it without fetching the auth-related fields. We show an example in the [Defining Extra Fields on the User Entity](../overview.md#1-defining-extra-fields) section of the docs.
+
+### Getting the User's Data
+
+If you fetch the user data like this, you'll lose the benefits of the `AuthUser` object. You'll need to access the auth data by going through the `auth` and `identities` relations:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/MainPage.jsx"
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {task.user.auth?.identities[0].providerUserId}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/MainPage.tsx"
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {task.user.auth?.identities[0].providerUserId}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+</Tabs>
+
+Wasp offers a few helper methods to access the user's data when you retrieve the `user` like this. They are `getUsername`, `getEmail` and `getFirstProviderUserId`. They can be used both on the client and the server.
+
+#### `getUsername`
+
+It accepts the `user` object and returns the username of the user if it exists or `null` if it doesn't. The `user` object needs to have the `auth` and the `identities` relations included.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/MainPage.jsx"
+import { getUsername } from 'wasp/auth'
+
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getUsername(task.user)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/MainPage.tsx"
+import { getUsername } from 'wasp/auth'
+
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getUsername(task.user)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### `getEmail`
+
+It accepts the `user` object and returns the email of the user if it exists or `null` if it doesn't. The `user` object needs to have the `auth` and the `identities` relations included.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/MainPage.jsx"
+import { getEmail } from 'wasp/auth'
+
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getEmail(task.user)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/MainPage.tsx"
+import { getEmail } from 'wasp/auth'
+
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getEmail(task.user)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### `getFirstProviderUserId`
+
+It returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.  The `user` object needs to have the `auth` and the `identities` relations included.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/MainPage.jsx"
+import { getFirstProviderUserId } from 'wasp/auth'
+
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getFirstProviderUserId(task.user)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/MainPage.tsx"
+import { getFirstProviderUserId } from 'wasp/auth'
+
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getFirstProviderUserId(task.user)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Entities Explained
 
