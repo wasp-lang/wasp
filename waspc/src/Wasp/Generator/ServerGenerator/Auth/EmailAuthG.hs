@@ -19,6 +19,7 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Auth.AuthMethods as AS.AuthMethods
 import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
@@ -42,7 +43,7 @@ genEmailAuth spec auth = case emailAuth of
   where
     emailAuth = AS.Auth.email $ AS.Auth.methods auth
 
-genEmailAuthConfig :: AS.AppSpec -> AS.Auth.EmailAuthConfig -> Generator FileDraft
+genEmailAuthConfig :: AS.AppSpec -> AS.AuthMethods.EmailAuthConfig -> Generator FileDraft
 genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
@@ -67,7 +68,7 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
           "email" .= email
         ]
 
-    fromField = AS.Auth.fromField emailAuthConfig
+    fromField = AS.AuthMethods.fromField emailAuthConfig
     maybeName = AS.EmailSender.name fromField
     email = AS.EmailSender.email fromField
 
@@ -77,10 +78,10 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
     getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
     getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
-    maybeUserSignupFields = AS.Auth.userSignupFieldsForEmailAuth emailAuthConfig
+    maybeUserSignupFields = AS.AuthMethods.userSignupFieldsForEmailAuth emailAuthConfig
 
-    emailVerification = AS.Auth.emailVerification emailAuthConfig
-    passwordReset = AS.Auth.passwordReset emailAuthConfig
+    emailVerification = AS.AuthMethods.emailVerification emailAuthConfig
+    passwordReset = AS.AuthMethods.passwordReset emailAuthConfig
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|../../../|]

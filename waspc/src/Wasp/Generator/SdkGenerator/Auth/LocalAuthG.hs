@@ -7,6 +7,8 @@ import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (UsernameAndPassword))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import Wasp.Generator.AuthProviders (localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -18,7 +20,7 @@ genLocalAuth = genActions
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth
-  | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
+  | AS.Auth.IsEnabled.isAuthMethodEnabled UsernameAndPassword auth =
       sequence
         [ genLocalLoginAction,
           genLocalSignupAction

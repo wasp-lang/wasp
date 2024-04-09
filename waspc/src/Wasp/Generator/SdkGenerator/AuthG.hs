@@ -9,6 +9,8 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.App.Auth.AuthMethods (AuthMethod (Email, UsernameAndPassword))
+import qualified Wasp.AppSpec.App.Auth.IsEnabled as AS.Auth.IsEnabled
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -122,8 +124,8 @@ genIndexTs auth =
         [ "isEmailAuthEnabled" .= isEmailAuthEnabled,
           "isLocalAuthEnabled" .= isLocalAuthEnabled
         ]
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+    isEmailAuthEnabled = AS.Auth.IsEnabled.isAuthMethodEnabled Email auth
+    isLocalAuthEnabled = AS.Auth.IsEnabled.isAuthMethodEnabled UsernameAndPassword auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData

@@ -27,12 +27,12 @@ import { SocialButton } from '../social/SocialButton'
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useHistory } from 'react-router-dom'
 {=/ isAnyPasswordBasedAuthEnabled =}
-{=# isUsernameAndPasswordAuthEnabled =}
+{=# providers.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
-{=/ isUsernameAndPasswordAuthEnabled =}
-{=# isEmailAuthEnabled =}
+{=/ providers.isUsernameAndPasswordAuthEnabled =}
+{=# providers.isEmailAuthEnabled =}
 import { useEmail } from '../email/useEmail'
-{=/ isEmailAuthEnabled =}
+{=/ providers.isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}
 const OrContinueWith = styled('div', {
@@ -105,15 +105,15 @@ const SocialAuthButtons = styled('div', {
     }
 })
 {=/ isSocialAuthEnabled =}
-{=# isGoogleAuthEnabled =}
+{=# providers.isGoogleAuthEnabled =}
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
-{=/ isGoogleAuthEnabled =}
-{=# isKeycloakAuthEnabled =}
+{=/ providers.isGoogleAuthEnabled =}
+{=# providers.isKeycloakAuthEnabled =}
 const keycloakSignInUrl = `${config.apiUrl}{= keycloakSignInPath =}`
-{=/ isKeycloakAuthEnabled =}
-{=# isGitHubAuthEnabled =}
+{=/ providers.isKeycloakAuthEnabled =}
+{=# providers.isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
-{=/ isGitHubAuthEnabled =}
+{=/ providers.isGitHubAuthEnabled =}
 
 {=!
 // Since we allow users to add additional fields to the signup form, we don't
@@ -151,7 +151,7 @@ export const LoginSignupForm = ({
   {=/ isAnyPasswordBasedAuthEnabled =}
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
-  {=# isUsernameAndPasswordAuthEnabled =}
+  {=# providers.isUsernameAndPasswordAuthEnabled =}
   const { handleSubmit } = useUsernameAndPassword({
     isLogin,
     onError: onErrorHandler,
@@ -159,8 +159,8 @@ export const LoginSignupForm = ({
       history.push('{= onAuthSucceededRedirectTo =}')
     },
   });
-  {=/ isUsernameAndPasswordAuthEnabled =}
-  {=# isEmailAuthEnabled =}
+  {=/ providers.isUsernameAndPasswordAuthEnabled =}
+  {=# providers.isEmailAuthEnabled =}
   const { handleSubmit } = useEmail({
     isLogin,
     onError: onErrorHandler,
@@ -172,7 +172,7 @@ export const LoginSignupForm = ({
       history.push('{= onAuthSucceededRedirectTo =}')
     },
   });
-  {=/ isEmailAuthEnabled =}
+  {=/ providers.isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
   async function onSubmit (data) {
     setIsLoading(true);
@@ -191,17 +191,17 @@ export const LoginSignupForm = ({
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
-            {=# isGoogleAuthEnabled =}
+            {=# providers.isGoogleAuthEnabled =}
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
-            {=/ isGoogleAuthEnabled =}
+            {=/ providers.isGoogleAuthEnabled =}
 
-            {=# isKeycloakAuthEnabled =}
+            {=# providers.isKeycloakAuthEnabled =}
               <SocialButton href={keycloakSignInUrl}><SocialIcons.Keycloak/></SocialButton>
-            {=/ isKeycloakAuthEnabled =}
+            {=/ providers.isKeycloakAuthEnabled =}
 
-            {=# isGitHubAuthEnabled =}
+            {=# providers.isGitHubAuthEnabled =}
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
-            {=/ isGitHubAuthEnabled =}
+            {=/ providers.isGitHubAuthEnabled =}
           </SocialAuthButtons>
         </SocialAuth>
       {=/ isSocialAuthEnabled =}
@@ -217,7 +217,7 @@ export const LoginSignupForm = ({
       {=/ areBothSocialAndPasswordBasedAuthEnabled =}
       {=# isAnyPasswordBasedAuthEnabled =}
         <Form onSubmit={hookFormHandleSubmit(onSubmit)}>
-          {=# isUsernameAndPasswordAuthEnabled =}
+          {=# providers.isUsernameAndPasswordAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Username</FormLabel>
             <FormInput
@@ -229,8 +229,8 @@ export const LoginSignupForm = ({
             />
             {errors.username && <FormError>{errors.username.message}</FormError>}
           </FormItemGroup>
-          {=/ isUsernameAndPasswordAuthEnabled =}
-          {=# isEmailAuthEnabled =}
+          {=/ providers.isUsernameAndPasswordAuthEnabled =}
+          {=# providers.isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>E-mail</FormLabel>
             <FormInput
@@ -242,7 +242,7 @@ export const LoginSignupForm = ({
             />
             {errors.email && <FormError>{errors.email.message}</FormError>}
           </FormItemGroup>
-          {=/ isEmailAuthEnabled =}
+          {=/ providers.isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
             <FormInput
