@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.2 (2024-04-11)
+
+### 🐞 Bug fixes
+
+- Fixed problems with Wasp's type inference in projects created using Wasp 0.13.1.
+
 ## 0.13.1 (2024-04-04)
 
 ### 🐞 Bug fixes
