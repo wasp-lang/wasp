@@ -23,6 +23,8 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 ### `AuthUser` Object Fields
 
+All the `User` fields you defined will be present at the top level of the `AuthUser` object. The auth-related fields will be on the `identities` object. For each auth method you enable, there will be a separate data object in the `identities` object.
+
 The `AuthUser` object will change depending on which auth method you have enabled in the Wasp file. For example, if you enabled the email auth and Google auth, it would look something like this:
 
 <Tabs>
@@ -74,11 +76,7 @@ const user = {
 </TabItem>
 </Tabs>
 
-All the `User` fields you defined will be present at the top level of the `AuthUser` object. The auth-related fields will be on the `identities` object. For each auth method you enable, there will be a separate data object in the `identities` object.
-
 In the examples above, you can see the `identities` object contains the `email` and `google` objects. The `email` object contains the email-related data and the `google` object contains the Google-related data.
-
-### Auth Methods Data
 
 :::info Make sure to check if the data exists
 
@@ -130,9 +128,9 @@ if (user.identities.email !== null) {
 
 ### `getFirstProviderUserId` Helper
 
-The `getFirstProviderUserId` method returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.
+The `getFirstProviderUserId` method returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID.
 
-[As you'll learn below](#authidentity-entity-), the `providerUserId` field is how providers identify our users. For example, the user's `username` in the case of the username auth or the user's `email` in the case of the email auth. This can be useful if you support multiple authentication methods and you need _any_ ID that identifies the user in your app.
+This can be useful if you support multiple authentication methods and you need _any_ ID that identifies the user in your app.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -173,17 +171,25 @@ export const createTask: CreateTask<...>  = async (args, context) => {
 </TabItem>
 </Tabs>
 
+<small>
+
+\* Multiple identities per user will be possible in the future and then the `getFirstProviderUserId` method will return the ID of the first identity that it finds without any guarantees about which one it will be.
+
+</small>
+
 ## Including the User with Other Entities
 
 Sometimes, you might want to include the user's data when fetching other entities. For example, you might want to include the user's data with the tasks they have created.
 
-:::caution Be careful to exclude the password
+We'll mention the `auth` and the `identities` relations which we will explain in more detail later in the [Entities Explained](#entities-explained) section.
 
-You'll need to include the `auth` and the `identities` relations to get the full data about the user. However, you should exclude the `providerData` field from the `AuthIdentity` entity because it contains the user's hashed password.
+:::caution Be careful about sensitive data
+
+You'll need to include the `auth` and the `identities` relations to get the full auth data about the user. However, you should keep in mind that the `providerData` field in the `identities` can contain sensitive data like the user's hashed password (in case of email or username auth), so you will likely want to exclude it if you are returning those values to the client. 
 
 :::
 
-You can include the user's data with other entities using the `include` option in the Prisma queries:
+You can include the full user's data with other entities using the `include` option in the Prisma queries:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -195,13 +201,15 @@ export const getAllTasks = async (args, context) => {
     select: {
       id: true,
       title: true,
-      // highlight-start
+      // highlight-next-line
       user: {
         include: {
+          // highlight-next-line
           auth: {
             include: {
+              // highlight-next-line
               identities: {
-                // Making sure to exclude the `providerData` field
+                // Including only the `providerName` and `providerUserId` fields
                 select: {
                   providerName: true,
                   providerUserId: true,
@@ -211,7 +219,6 @@ export const getAllTasks = async (args, context) => {
           },
         },
       },
-      // highlight-end
     },
   })
 }
@@ -227,13 +234,15 @@ export const getAllTasks = (async (args, context) => {
     select: {
       id: true,
       title: true,
-      // highlight-start
+      // highlight-next-line
       user: {
         include: {
+          // highlight-next-line
           auth: {
             include: {
+              // highlight-next-line
               identities: {
-                // Making sure to exclude the `providerData` field
+                // Including only the `providerName` and `providerUserId` fields
                 select: {
                   providerName: true,
                   providerUserId: true,
@@ -243,7 +252,6 @@ export const getAllTasks = (async (args, context) => {
           },
         },
       },
-      // highlight-end
     },
   })
 }) satisfies tasks.GetAllQuery<{}, {}>
@@ -254,11 +262,11 @@ export const getAllTasks = (async (args, context) => {
 
 If you have some **piece of the auth data that you want to access frequently** (for example the `username`), it's best to store it at the top level of the `User` entity.
 
-For example, save the `username` or `email` as a property on the `User` and you'll be able to access it without fetching the auth-related fields. We show an example in the [Defining Extra Fields on the User Entity](../overview.md#1-defining-extra-fields) section of the docs.
+For example, save the `username` or `email` as a property on the `User` and you'll be able to access it without including the `auth` and `identities` fields. We show an example in the [Defining Extra Fields on the User Entity](../overview.md#1-defining-extra-fields) section of the docs.
 
-### Getting the User's Data
+### Getting Auth Data from the User Object
 
-If you fetch the user data like this, you'll lose the benefits of the `AuthUser` object. You'll need to access the auth data by going through the `auth` and `identities` relations:
+When you have the `user` object with the `auth` and `identities` fields, it can be a bit tedious to obtain the auth data (like username or Google ID) from it:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -299,11 +307,11 @@ function MainPage() {
 </TabItem>
 </Tabs>
 
-Wasp offers a few helper methods to access the user's data when you retrieve the `user` like this. They are `getUsername`, `getEmail` and `getFirstProviderUserId`. They can be used both on the client and the server.
+Wasp offers a few helper methods to access the user's auth data when you retrieve the `user` like this. They are `getUsername`, `getEmail` and `getFirstProviderUserId`. They can be used both on the client and the server.
 
 #### `getUsername`
 
-It accepts the `user` object and returns the username of the user if it exists or `null` if it doesn't. The `user` object needs to have the `auth` and the `identities` relations included.
+It accepts the `user` object and if the user signed up with the [Username & password](./username-and-pass) auth method, it returns the username or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -350,7 +358,7 @@ function MainPage() {
 
 #### `getEmail`
 
-It accepts the `user` object and returns the email of the user if it exists or `null` if it doesn't. The `user` object needs to have the `auth` and the `identities` relations included.
+It accepts the `user` object and if the user signed up with the [Email](./email) auth method, it returns the email or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -397,7 +405,7 @@ function MainPage() {
 
 #### `getFirstProviderUserId`
 
-It returns the first user ID (e.g. `username` or `email`) that it finds for the user or `null` if it doesn't find any.  The `user` object needs to have the `auth` and the `identities` relations included.
+It returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID.  The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
