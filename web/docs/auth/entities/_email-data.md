@@ -1,15 +1,15 @@
 ```ts
 const emailIdentity = user.identities.email
 
-// Email used to sign in, e.g. "user@app.com"
+// Email address the the user used to sign up, e.g. "fluffyllama@app.com".
 emailIdentity.id
 
-// Email verification status
+// `true` if the user has verified their email address.
 emailIdentity.isEmailVerified
 
-// Email verification sent at
+// Datetime when the email verification email was sent.
 emailIdentity.emailVerificationSentAt
 
-// Password reset sent at
+// Datetime when the last password reset email was sent.
 emailIdentity.passwordResetSentAt
 ```

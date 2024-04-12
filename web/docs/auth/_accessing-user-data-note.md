@@ -1,6 +1,6 @@
 <small>
 
-Read more about accessing the user data in the [Accessing User Data](/docs/auth/entities#accessing-the-auth-fields) section of the docs.
+Read more about accessing the user data in the [Accessing User Data](/auth/entities/entities.md#accessing-the-auth-fields) section of the docs.
 
 </small>
 
