@@ -96,7 +96,8 @@ runGoldenTest goldenTest = do
                     "dev.db-journal",
                     "package-lock.json",
                     ".gitignore",
-                    ".DS_Store"
+                    ".DS_Store",
+                    "tsconfig.tsbuildinfo"
                   ]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()

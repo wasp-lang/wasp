@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.13.2 (2024-04-11)
+
+### 🐞 Bug fixes
+
+- Fixed problems with Wasp's type inference in projects created using Wasp 0.13.1.
+
+## 0.13.1 (2024-04-04)
+
+### 🐞 Bug fixes
+
+- Vite HMR now works correctly with Wasp's new project structure (no more full-page reloads).
+- Keycloak UI helpers are now correctly exported.
+
+### 🔧 Small improvements
+
+- Improved how IDE auto-imports symbols from the `wasp` package. If you have an existing project, add these lines to your `tsconfig.json` to getter better IDE support:
+
+  ```
+  {
+    "compilerOptions" {
+      "target": "esnext",
+      "moduleResolution": "bundler",
+      // ...
+    }
+    // ...
+  }
+  ```
+
+
 ## 0.13.0 (2024-03-18)
 
 ### ⚠️ Breaking changes

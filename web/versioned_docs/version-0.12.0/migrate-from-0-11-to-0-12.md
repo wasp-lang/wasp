@@ -63,7 +63,7 @@ The main differences are:
   no longer start with `@server` or `@client`.
 - Your project now features a top-level `public` dir. Wasp will publicly serve
   all the files it finds in this directory. Read more about it
-  [here](https://wasp-lang.dev/docs/project/static-assets).
+  [here](/project/static-assets.md).
 
 Our [Overview docs](./tutorial/02-project-structure.md) explain the new
 structure in detail, while this page provides a [quick guide](#migrating-your-project-to-the-new-structure) for migrating existing

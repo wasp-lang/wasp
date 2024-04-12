@@ -54,10 +54,6 @@
       "./universal/validators": "./dist/universal/validators.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
-      {=!  Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
-      "./server/opeations/actions": "./dist/server/actions/index.js",
-      {=!  Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
-      "./server/operations/queries": "./dist/server/queries/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -110,7 +106,17 @@
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js",
       "./client": "./dist/client/index.js",
-      "./dev": "./dist/dev/index.js"
+      "./dev": "./dist/dev/index.js",
+
+      {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
+      {=! Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
+      "./client/operations/core": "./dist/client/operations/core.js",
+      "./server/crud/Tasks": "./dist/server/crud/Tasks.js",
+      "./server/operations/actions":  "./dist/server/operations/actions/index.js",
+      "./server/operations/queries": "./dist/server/operations/queries/index.js",
+      "./server/_types": "./dist/server/_types/index.js",
+      "./server/_types/serialization": "./dist/server/_types/serialization.js"
+
    },
    {=!
      TypeScript doesn't care about the redirects we define above in "exports" field; those
