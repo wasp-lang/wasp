@@ -12,7 +12,7 @@ This guide only covers the migration from **0.13.X to 0.14.X**. If you are migra
 
 ### Better auth user API
 
-We introduced a much simpler API for accessing user auth fields like `username`, `email` or `isEmailVerified` on the `user` object. You don't need to helper functions every time you want to access the user's `username` or extra steps to get proper typing.
+We introduced a much simpler API for accessing user auth fields like `username`, `email` or `isEmailVerified` on the `user` object. You don't need to use helper functions every time you want to access the user's `username` or extra steps to get proper typing.
 
 ## How to migrate?
 
@@ -22,9 +22,11 @@ We had to make a couple of breaking changes to reach the new simpler API.
 
 Follow the steps below to migrate:
 
-1. **Replace `getUsername` use** with `user.identities.username.id`
+1. **Replace the `getUsername` helper** with `user.identities.username.id`
 
-    If you didn't use `getUsername` in your code, you can skip this step.
+    If you didn't use the `getUsername` helper in your code, you can skip this step.
+
+    This helper changed and it no longer works with the `user` you receive as a prop on a page or through the `context`. You'll need to replace it with `user.identities.username.id`.
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -52,6 +54,7 @@ Follow the steps below to migrate:
 
     ```tsx title="src/MainPage.tsx"
     import { AuthUser } from 'wasp/auth'
+
     const MainPage = ({ user }: { user: AuthUser }) => {
         const username = user.identities.username?.id
         // ...
@@ -67,9 +70,11 @@ Follow the steps below to migrate:
     </TabItem>
     </Tabs>
 
-1. **Replace `getEmail` use** with `user.identities.email.id`
+1. **Replace the `getEmail` helper** with `user.identities.email.id`
 
-    If you didn't use `getEmail` in your code, you can skip this step.
+    If you didn't use the `getEmail` helper in your code, you can skip this step.
+
+    This helper changed and it no longer works with the `user` you receive as a prop on a page or through the `context`. You'll need to replace it with `user.identities.email.id`.
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -95,7 +100,7 @@ Follow the steps below to migrate:
     </TabItem>
     <TabItem value="after" label="After">
 
-       ```tsx title="src/MainPage.tsx"
+    ```tsx title="src/MainPage.tsx"
     import { AuthUser } from 'wasp/auth'
 
     const MainPage = ({ user }: { user: AuthUser }) => {
@@ -113,9 +118,9 @@ Follow the steps below to migrate:
     </TabItem>
     </Tabs>
 
-1. **Replace any other auth field usage** with `user.identities.<provider>.<value>`
+1. **Replace accessing `providerData`** with `user.identities.<provider>.<value>`
 
-    If you didn't use any other auth values, you can skip this step.
+    If you didn't use any data from the `providerData` object, you can skip this step.
 
     Replace `<provider>` with the provider name (for example `username`, `email`, `google`, `github`, etc.) and `<value>` with the field you want to access (for example `isEmailVerified`).
 
@@ -154,11 +159,11 @@ Follow the steps below to migrate:
     </TabItem>
     </Tabs>
 
-1. **Use method access for `getFirstProviderUserId`**
+1. **Use `getFirstProviderUserId` directly** on the user object
 
     If you didn't use `getFirstProviderUserId` in your code, you can skip this step.
 
-    Replace `getFirstProviderUserId(user)` with `user.getFirstProviderUserId()`
+    You should replace `getFirstProviderUserId(user)` with `user.getFirstProviderUserId()`.
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -202,9 +207,11 @@ Follow the steps below to migrate:
     </TabItem>
     </Tabs>
 
-1. **Replace `findUserIdentity`** with simple checks on `user.identities.<provider>`
+1. **Replace `findUserIdentity`** with checks on `user.identities.<provider>`
 
     If you didn't use `findUserIdentity` in your code, you can skip this step.
+
+    Instead of using `findUserIdentity` to get the identity object, you can directly check if the identity exists on the `identities` object.
 
     <Tabs>
     <TabItem value="before" label="Before">
@@ -257,4 +264,4 @@ Follow the steps below to migrate:
 
 That's it!
 
-You should now be able to run your app with the new Wasp 0.14.0.
+You should now be able to run your app with the new Wasp 0.14.0. We recommend reading through the updated [Accessing User Data](./auth/entities/entities.md) section to get a better understanding of the new API.
