@@ -47,19 +47,17 @@ genOperations spec =
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
-  (:) <$> genQueriesIndex spec
-    <*> sequence
-      [ genClientOpsFileCopy [relfile|queries/core.js|],
-        genClientOpsFileCopy [relfile|queries/core.d.ts|]
-      ]
+  sequence
+    [ genClientOpsFileCopy [relfile|queries/core.ts|],
+      genQueriesIndex spec
+    ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
-  (:) <$> genActionsIndex spec
-    <*> sequence
-      [ genClientOpsFileCopy [relfile|actions/core.js|],
-        genClientOpsFileCopy [relfile|actions/core.d.ts|]
-      ]
+  sequence
+    [ genClientOpsFileCopy [relfile|actions/core.ts|],
+      genActionsIndex spec
+    ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ C.mkTmplFdWithData relPath tmplData

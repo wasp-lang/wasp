@@ -1,8 +1,16 @@
+import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
+import { type Action } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   registerActionInProgress,
   registerActionDone,
 } from '../internal/resources.js'
+
+// PRIVATE API
+export function createAction<BackendAction extends GenericBackendAction>(
+  actionRoute: string,
+  entitiesUsed: unknown[]
+): ActionFor<BackendAction>
 
 // PRIVATE API
 export function createAction(relativeActionRoute, entitiesUsed) {
@@ -14,7 +22,7 @@ export function createAction(relativeActionRoute, entitiesUsed) {
       // The `return await` is not redundant here. If we removed the await, the
       // `finally` block would execute before the action finishes, prematurely
       // registering the action as done.
-      return await callOperation(actionRoute, args)
+      return await callOperation(actionRoute as any, args)
     } finally {
       await registerActionDone(entitiesUsed, specificOptimisticUpdateDefinitions)
     }
@@ -34,3 +42,10 @@ export function createAction(relativeActionRoute, entitiesUsed) {
 
   return action
 }
+
+// PRIVATE API
+export type ActionFor<BackendAction extends GenericBackendAction> =
+  Action<Parameters<BackendAction>[0], _Awaited<_ReturnType<BackendAction>>>
+
+
+type GenericBackendAction = (args: never, context: any) => unknown
