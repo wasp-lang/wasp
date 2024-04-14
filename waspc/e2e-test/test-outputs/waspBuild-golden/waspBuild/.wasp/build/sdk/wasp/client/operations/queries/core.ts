@@ -7,17 +7,14 @@ import {
   getActiveOptimisticUpdates,
 } from '../internal/resources'
 
-// PRIVATE API
 export function createQuery<BackendQuery extends GenericBackendQuery>(
-  queryRoute: string,
-  entitiesUsed: any[]
-): QueryFor<BackendQuery>
-
-export function createQuery(relativeQueryPath, entitiesUsed) {
+  relativeQueryPath: string,
+  entitiesUsed: string[]
+): QueryFor<BackendQuery> {
   const queryRoute = makeOperationRoute(relativeQueryPath)
 
   async function query(queryKey, queryArgs) {
-    const serverResult = await callOperation(queryRoute as any, queryArgs)
+    const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryKey).reduce(
       (result, update) => update(result),
       serverResult,
