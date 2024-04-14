@@ -1,3 +1,6 @@
+import { Route } from 'wasp/client'
+import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
+import { type Query } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
@@ -5,11 +8,16 @@ import {
 } from '../internal/resources'
 
 // PRIVATE API
+export function createQuery<BackendQuery extends GenericBackendQuery>(
+  queryRoute: string,
+  entitiesUsed: any[]
+): QueryFor<BackendQuery>
+
 export function createQuery(relativeQueryPath, entitiesUsed) {
   const queryRoute = makeOperationRoute(relativeQueryPath)
 
   async function query(queryKey, queryArgs) {
-    const serverResult = await callOperation(queryRoute, queryArgs)
+    const serverResult = await callOperation(queryRoute as any, queryArgs)
     return getActiveOptimisticUpdates(queryKey).reduce(
       (result, update) => update(result),
       serverResult,
@@ -23,6 +31,16 @@ export function createQuery(relativeQueryPath, entitiesUsed) {
 
 // PRIVATE API
 export function addMetadataToQuery(
+  query: (...args: any[]) => Promise<unknown>,
+  metadata: {
+    relativeQueryPath: string
+    queryRoute: Route
+    entitiesUsed: string[]
+  }
+): void
+
+// PRIVATE API
+export function addMetadataToQuery(
   query,
   { relativeQueryPath, queryRoute, entitiesUsed }
 ) {
@@ -30,3 +48,9 @@ export function addMetadataToQuery(
   query.route = queryRoute
   addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 }
+
+export type QueryFor<BackendQuery extends GenericBackendQuery> = 
+  Query<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
+
+
+type GenericBackendQuery = (args: never, context: any) => unknown

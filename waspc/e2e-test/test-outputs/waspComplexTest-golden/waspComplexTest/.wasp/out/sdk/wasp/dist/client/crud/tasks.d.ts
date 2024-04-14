@@ -1,11 +1,7 @@
-import { GetQueryResolved } from 'wasp/server/crud/tasks';
+import { GetQueryResolved, GetAllQueryResolved } from 'wasp/server/crud/tasks';
 export declare const tasks: {
     get: {
-        query: (queryCacheKey: string[], args: import(".prisma/client").Prisma.TaskWhereUniqueInput) => Promise<import("@prisma/client/runtime/index.js").GetResult<{
-            id: number;
-            description: string;
-            isDone: boolean;
-        }, unknown> & {}>;
+        query: import("../operations/queries/core.js").QueryFor<GetQueryResolved>;
         useQuery(args: Parameters<GetQueryResolved>[0]): import("@tanstack/react-query").UseQueryResult<import("@prisma/client/runtime/index.js").GetResult<{
             id: number;
             description: string;
@@ -13,11 +9,7 @@ export declare const tasks: {
         }, unknown> & {}, Error>;
     };
     getAll: {
-        query: (queryCacheKey: string[], args: {}) => Promise<(import("@prisma/client/runtime/index.js").GetResult<{
-            id: number;
-            description: string;
-            isDone: boolean;
-        }, unknown> & {})[]>;
+        query: import("../operations/queries/core.js").QueryFor<GetAllQueryResolved>;
         useQuery(): import("@tanstack/react-query").UseQueryResult<(import("@prisma/client/runtime/index.js").GetResult<{
             id: number;
             description: string;

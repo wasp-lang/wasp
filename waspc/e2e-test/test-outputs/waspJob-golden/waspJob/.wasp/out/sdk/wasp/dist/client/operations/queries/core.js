@@ -1,6 +1,5 @@
 import { callOperation, makeOperationRoute } from '../internal/index.js';
 import { addResourcesUsedByQuery, getActiveOptimisticUpdates, } from '../internal/resources';
-// PRIVATE API
 export function createQuery(relativeQueryPath, entitiesUsed) {
     const queryRoute = makeOperationRoute(relativeQueryPath);
     async function query(queryKey, queryArgs) {

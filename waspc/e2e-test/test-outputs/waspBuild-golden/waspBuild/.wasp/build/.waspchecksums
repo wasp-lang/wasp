@@ -30,16 +30,9 @@
     [
         [
             "file",
-            "../out/sdk/wasp/client/operations/actions/core.d.ts"
+            "../out/sdk/wasp/client/operations/actions/core.ts"
         ],
-        "f480f308c419993fe10859f2dca9cbb5487209c1eb87dfe34a750e4011fa5324"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/client/operations/actions/core.js"
-        ],
-        "620a4aefbab701dd47b8bf21a07fc4e081ae1fd297261c5af7a05f21f558dff1"
+        "d55823e9709755cb506d3c2a4be494721987095b6737f959c7234416a6b64350"
     ],
     [
         [
@@ -86,16 +79,9 @@
     [
         [
             "file",
-            "../out/sdk/wasp/client/operations/queries/core.d.ts"
+            "../out/sdk/wasp/client/operations/queries/core.ts"
         ],
-        "9a8134dab42ae8f4394a51d34a9027a1ecc8b175c532e80001e5d51c31ab6576"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/client/operations/queries/core.js"
-        ],
-        "34425abc901cd6294ca902df6b0c080aeafe2b3abf5b539c5e622020601f838e"
+        "f361f65ac398a727b127e69eecde88689fc7f51978f3d662ea3b069ed8ea3f99"
     ],
     [
         [

@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { foo as foo_ext } from 'wasp/ext-src/server/actions/bar.js'
+import { foo as foo_ext } from 'wasp/ext-src/server/actions/bar'
 
 // PRIVATE API
 export type MySpecialAction = typeof foo_ext 
