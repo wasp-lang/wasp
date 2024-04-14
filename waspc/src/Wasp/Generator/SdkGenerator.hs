@@ -119,21 +119,6 @@ genSdkReal spec =
   where
     genFileCopy = return . C.mkTmplFd
 
--- genSdkHardcoded :: Generator [FileDraft]
--- genSdkHardcoded =
---   return []
---   where
---     copyFile = C.mkTmplFd
---     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
---     copyFolder modul =
---       createCopyDirFileDraft
---         RemoveExistingDstDir
---         (dstFolder </> castRel modul)
---         (srcFolder </> modul)
---     dstFolder = C.sdkRootDirInProjectRootDir
---     srcFolder = absSdkTemplatesDir
---     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
-
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
   return

@@ -1,2 +1,4 @@
-export declare const mySpecialQuery: (queryCacheKey: string[], args: any) => Promise<number>;
+import { type QueryFor } from './core';
+import { MySpecialQuery } from 'wasp/server/operations/queries';
+export declare const mySpecialQuery: QueryFor<MySpecialQuery>;
 export { addMetadataToQuery } from './core';

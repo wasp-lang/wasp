@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import { WebSocketContext } from './WebSocketProvider'
+import { WebSocketContext, WebSocketContextValue } from './WebSocketProvider'
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -13,7 +13,7 @@ export type ClientToServerPayload<Event extends keyof ClientToServerEvents> =
   Parameters<ClientToServerEvents[Event]>[0]
 
 // PUBLIC API
-export function useSocket() {
+export function useSocket(): WebSocketContextValue {
   return useContext(WebSocketContext)
 }
 
@@ -21,7 +21,7 @@ export function useSocket() {
 export function useSocketListener<Event extends keyof ServerToClientEvents>(
   event: Event,
   handler: ServerToClientEvents[Event]
-) {
+): void {
   const { socket } = useContext(WebSocketContext)
   useEffect(() => {
     // Casting to `keyof ServerToClientEvents` is necessary because TypeScript

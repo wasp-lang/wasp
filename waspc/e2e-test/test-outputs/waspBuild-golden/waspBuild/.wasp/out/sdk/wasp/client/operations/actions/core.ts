@@ -1,3 +1,5 @@
+import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
+import { type Action } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   registerActionInProgress,
@@ -5,7 +7,10 @@ import {
 } from '../internal/resources.js'
 
 // PRIVATE API
-export function createAction(relativeActionRoute, entitiesUsed) {
+export function createAction<BackendAction extends GenericBackendAction>(
+  relativeActionRoute: string,
+  entitiesUsed: unknown[]
+): ActionFor<BackendAction> {
   const actionRoute = makeOperationRoute(relativeActionRoute)
 
   async function internalAction(args, specificOptimisticUpdateDefinitions) {
@@ -32,5 +37,12 @@ export function createAction(relativeActionRoute, entitiesUsed) {
   const action = (args) => internalAction(args, [])
   action.internal = internalAction
 
-  return action
+  return action as ActionFor<BackendAction>
 }
+
+// PRIVATE API
+export type ActionFor<BackendAction extends GenericBackendAction> =
+  Action<Parameters<BackendAction>[0], _Awaited<_ReturnType<BackendAction>>>
+
+
+type GenericBackendAction = (args: never, context: any) => unknown

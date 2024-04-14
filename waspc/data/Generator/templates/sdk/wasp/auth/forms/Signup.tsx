@@ -11,7 +11,7 @@ export function SignupForm({
   logo,
   socialLayout,
   additionalFields,
-}: CustomizationOptions & { additionalFields?: AdditionalSignupFields; }) {
+}: CustomizationOptions & { additionalFields?: AdditionalSignupFields; }): React.JSX.Element {
   return (
     <Auth
       appearance={appearance}

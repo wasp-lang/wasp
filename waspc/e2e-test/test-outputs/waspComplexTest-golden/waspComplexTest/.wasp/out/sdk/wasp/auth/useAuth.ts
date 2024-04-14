@@ -3,12 +3,13 @@ import { useQuery, addMetadataToQuery } from 'wasp/client/operations'
 import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/client'
 import type { AuthUser } from './types'
+import { UseQueryResult } from '@tanstack/react-query'
 
 // PUBLIC API
-export const getMe = createUserGetter()
+export const getMe: () => Promise<AuthUser | null> = createUserGetter()
 
 // PUBLIC API
-export default function useAuth(queryFnArgs?: unknown, config?: any) {
+export default function useAuth(queryFnArgs?: unknown, config?: any): UseQueryResult<AuthUser> {
   return useQuery(getMe, queryFnArgs, config)
 }  
 

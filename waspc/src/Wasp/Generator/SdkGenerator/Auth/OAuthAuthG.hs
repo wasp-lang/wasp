@@ -40,7 +40,7 @@ genHelpers auth =
     mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     mkHelpersFd provider helpersFp =
       mkTmplFdWithDstAndData
-        [relfile|auth/helpers/Generic.tsx|]
+        [relfile|auth/helpers/_Provider.tsx|]
         (SP.castRel $ [reldir|auth/helpers|] SP.</> helpersFp)
         (Just tmplData)
       where

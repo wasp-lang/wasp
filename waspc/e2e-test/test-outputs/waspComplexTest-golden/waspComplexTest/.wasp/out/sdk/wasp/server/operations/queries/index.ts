@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar.js'
+import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar'
 
 // PRIVATE API
 export type MySpecialQuery = typeof foo_ext 
