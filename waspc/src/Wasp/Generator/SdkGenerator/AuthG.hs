@@ -29,7 +29,9 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       -- shared stuff
-      sequence [genFileCopy [relfile|auth/user.ts|]]
+      sequence
+        [ genUserTs auth
+        ]
         -- client stuff
         <++> sequence
           [ genFileCopy [relfile|auth/helpers/user.ts|],
@@ -131,3 +133,17 @@ genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/typ
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
     tmplData = object ["userEntityUpper" .= (userEntityName :: String)]
+
+genUserTs :: AS.Auth.Auth -> Generator FileDraft
+genUserTs auth = return $ C.mkTmplFdWithData [relfile|auth/user.ts|] tmplData
+  where
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+    tmplData =
+      object
+        [ "userEntityName" .= userEntityName,
+          "authEntityName" .= DbAuth.authEntityName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
+        ]

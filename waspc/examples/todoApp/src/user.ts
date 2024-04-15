@@ -1,42 +1,27 @@
-import { getEmail, findUserIdentity, type AuthUser as User } from 'wasp/auth'
+import { getEmail, findUserIdentity, type AuthUser } from 'wasp/auth'
 
-export function getName(user?: User) {
+export function getName(user?: AuthUser) {
   if (!user) {
     return null
   }
 
   // We use multiple auth methods, so we need to check which one is available.
-  const emailIdentity = findUserIdentity(user, 'email')
-  if (emailIdentity !== undefined) {
-    return getEmail(user)
+  if (user.identities.email !== undefined) {
+    return user.identities.email.id
   }
 
-  const googleIdentity = findUserIdentity(user, 'google')
-  if (googleIdentity !== undefined) {
-    return `Google user ${googleIdentity.providerUserId}`
+  if (user.identities.google !== undefined) {
+    return `Google user ${user.identities.google.id}`
   }
 
-  const githubIdentity = findUserIdentity(user, 'github')
-  if (githubIdentity !== undefined) {
-    return `GitHub user ${githubIdentity.providerUserId}`
+  if (user.identities.github !== undefined) {
+    return `GitHub user ${user.identities.github.id}`
   }
 
-  const keycloakIdentity = findUserIdentity(user, 'keycloak')
-  if (keycloakIdentity) {
-    return `Keycloak user ${keycloakIdentity.providerUserId}`
+  if (user.identities.keycloak !== undefined) {
+    return `Keycloak user ${user.identities.keycloak.id}`
   }
 
   // If we don't know how to get the name, return null.
   return null
-}
-
-export function getProviderData(user?: User) {
-  if (!user) {
-    return null
-  }
-
-  const emailIdentity = findUserIdentity(user, 'email')
-  return emailIdentity && 'isEmailVerified' in emailIdentity.providerData
-    ? emailIdentity.providerData
-    : null
 }
