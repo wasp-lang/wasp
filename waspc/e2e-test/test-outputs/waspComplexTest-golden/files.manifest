@@ -264,6 +264,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/api/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/user.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/user.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/user.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/config.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/config.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/config.js.map
@@ -375,6 +378,7 @@ waspComplexTest/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/api/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/index.ts
+waspComplexTest/.wasp/out/sdk/wasp/server/auth/user.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/config.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/crud/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/crud/tasks.ts

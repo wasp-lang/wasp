@@ -1,7 +1,7 @@
 import { auth } from "./lucia.js";
 import { throwInvalidCredentialsError } from "./utils.js";
 import { prisma } from 'wasp/server';
-import { createAuthUser } from "./user.js";
+import { createAuthUser } from "../server/auth/user.js";
 // PRIVATE API
 // Creates a new session for the `authId` in the database
 export async function createSession(authId) {

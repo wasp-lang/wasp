@@ -1,10 +1,10 @@
-import {
-  type User,
-  type Auth,
-  type AuthIdentity,
-} from 'wasp/entities'
-import { type ProviderName } from './types'
-import { type PossibleProviderData, deserializeAndSanitizeProviderData } from './utils.js'
+import { type AuthIdentity } from '../entities/index.js'
+import { type ProviderName } from '../server/_types/index.js'
+/**
+ * We split the user.ts code into two files to avoid some server-only
+ * code (Oslo's hashing functions) being imported on the client.
+ */
+import { type UserEntityWithAuth } from '../server/auth/user.js'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
@@ -26,64 +26,11 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
 }
 
 // PUBLIC API
-export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): AuthIdentity | undefined {
+export function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): AuthIdentity | null {
+  if (!user.auth) {
+    return null;
+  }
   return user.auth.identities.find(
     (identity) => identity.providerName === providerName
-  );
-}
-
-// PUBLIC API
-export type AuthUser = ReturnType<typeof createAuthUser>
-
-// PRIVATE API
-export function createAuthUser(
-  user: UserEntityWithAuth
-) {
-  const { auth, ...rest } = user
-  const identities = {
-    google: getProviderInfo<'google'>(auth, 'google'),
-  }
-  return {
-    ...rest,
-    identities,
-    getFirstProviderUserId: () => getFirstProviderUserId(user),
-    // Maybe useful for backwards compatibility? Full access?
-    _rawUser: user,
-  }
-}
-
-type UserEntityWithAuth = User & {
-  auth: AuthEntityWithIdentities
-}
-
-type AuthEntityWithIdentities = Auth & {
-  identities: AuthIdentity[]
-}
-
-function getProviderInfo<PN extends ProviderName>(
-  auth: AuthEntityWithIdentities,
-  providerName: PN
-):
-  | {
-      id: string
-      data: PossibleProviderData[PN]
-    }
-  | null {
-  const identity = getIdentity(auth, providerName)
-  if (!identity) {
-    return null
-  }
-  return {
-    id: identity.providerUserId,
-    data: deserializeAndSanitizeProviderData<PN>(identity.providerData, {
-      shouldRemovePasswordField: true,
-    }),
-  }
-}
-
-function getIdentity(
-  auth: AuthEntityWithIdentities,
-  providerName: ProviderName
-): AuthIdentity | null {
-  return auth.identities.find((i) => i.providerName === providerName) ?? null
+  ) ?? null;
 }

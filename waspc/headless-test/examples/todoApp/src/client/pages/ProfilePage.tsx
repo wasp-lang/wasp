@@ -22,7 +22,7 @@ export const ProfilePage = ({ user }: { user: User }) => {
       <div>
         Hello <strong>{name}</strong>! Your status is{' '}
         <strong>
-          {user.identities.email && user.identities.email.data.isEmailVerified
+          {user.identities.email && user.identities.email.isEmailVerified
             ? 'verfied'
             : 'unverified'}
         </strong>
