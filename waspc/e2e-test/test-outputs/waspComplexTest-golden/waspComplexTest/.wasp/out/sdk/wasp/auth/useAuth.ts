@@ -2,7 +2,7 @@ import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery, addMetadataToQuery } from 'wasp/client/operations'
 import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/client'
-import type { AuthUser } from './types'
+import type { AuthUser } from './user.js'
 import { UseQueryResult } from '@tanstack/react-query'
 
 // PUBLIC API
