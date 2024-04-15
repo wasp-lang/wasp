@@ -15,11 +15,13 @@ export function App({ children }: any) {
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
+  const appName = import.meta.env.REACT_APP_NAME ? import.meta.env.REACT_APP_NAME : 'TODO App'
+
   return (
     <div className="app border-spacing-2 p-4">
       <header className="flex justify-between">
         <h1 className="font-bold text-3xl mb-5">
-          <Link to="/">ToDo App</Link>
+          <Link to="/">{appName}</Link>
         </h1>
         <h2>
           Your site was loaded at: {date?.toLocaleString()} {connectionIcon}

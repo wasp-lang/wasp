@@ -158,7 +158,7 @@ jobs:
       - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
 
-      - name: Ensure todoApp builds
+      - name: Ensure todoApp works
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/ensure_todoapp_builds.sh
 

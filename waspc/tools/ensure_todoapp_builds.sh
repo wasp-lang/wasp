@@ -13,6 +13,9 @@ cd "$dir/../examples/todoApp"
 # Compile example app.
 cabal run wasp-cli build
 
+echo "Ensure the app has no IDE type errors"
+npx tsc --noEmit --skipLibCheck
+
 # Make sure they build.
 echo "Ensure client builds"
 cd .wasp/build/web-app
