@@ -137,6 +137,8 @@ export function getSignupRoute({
             console.error("Failed to send email verification email:", e);
             throw new HttpError(500, "Failed to send email verification email.");
         }
+
+        // postSignup(providerId)
       
         return res.json({ success: true });
     };

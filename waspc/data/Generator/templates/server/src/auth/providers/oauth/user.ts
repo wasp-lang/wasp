@@ -63,6 +63,9 @@ async function getAuthIdFromProviderDetails(
   })
 
   if (existingAuthIdentity) {
+
+    // postLogin(providerId)
+
     return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
   } else {
     const userFields = await validateAndGetUserFields(
@@ -80,6 +83,8 @@ async function getAuthIdFromProviderDetails(
       // rely on Prisma to validate the data.
       userFields as any,
     )
+
+    // postSignup(providerId)
 
     return user.auth.id
   }

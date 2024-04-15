@@ -39,6 +39,10 @@ app todoApp {
         },
       },
     },
+    hooks: {
+      postSignup: import { postSingupHook } from "@src/auth/hooks.js",
+      postLogin: import { postLoginHook } from "@src/auth/hooks.js",
+    },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },

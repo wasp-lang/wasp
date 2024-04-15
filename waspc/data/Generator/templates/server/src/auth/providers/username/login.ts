@@ -32,9 +32,11 @@ export default handleRejection(async (req, res) => {
 
   const auth = await findAuthWithUserBy({
     id: authIdentity.authId
-  }) 
+  })
 
   const session = await createSession(auth.id)
+
+  // postLogin(providerId)
 
   return res.json({
       sessionId: session.id,

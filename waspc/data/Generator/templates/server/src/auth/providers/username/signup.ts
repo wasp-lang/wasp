@@ -44,6 +44,8 @@ export function getSignupRoute({
     } catch (e: unknown) {
       rethrowPossibleAuthError(e)
     }
+
+    // postSignup(providerId)
   
     return res.json({ success: true })
   })
