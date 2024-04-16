@@ -20,6 +20,7 @@ function createUserGetter() {
   async function getMe(): Promise<AuthUser | null> {
     try {
       const response = await api.get(getMeRoute.path)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
   
       return superjsonDeserialize(response.data)
     } catch (error) {
