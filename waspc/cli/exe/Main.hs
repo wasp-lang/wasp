@@ -19,6 +19,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
@@ -197,6 +198,7 @@ printVersion = do
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  ["reset"] -> runCommand Command.Db.Reset.reset
   ["start"] -> runCommand Command.Start.Db.start
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
