@@ -142,11 +142,20 @@ wasp deploy fly deploy
 ```
 
 #### Environment Variables
+##### Server
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
 ```
 wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+##### Client
+
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `launch` command, e.g.:
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
 ```
 
 ### `setup`
@@ -207,12 +216,45 @@ Run this command whenever you want to **update your deployed app** with the late
 wasp deploy fly deploy
 ```
 
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `deploy` command, e.g.:
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
+```
+
+Make sure to add your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../project/env-vars#client-env-vars-1)!
+
 ### `cmd`
 
 If want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
 
 ```shell
 wasp deploy fly cmd secrets list --context server
+```
+
+### Environment Variables
+#### Server Secrets
+
+If your app requires any other server-side environment variables (like social auth secrets), you can set them:
+1. initially in the `launch` command with the [`--server-secret` option](#environment-variables),  
+or  
+2. after the app has already been deployed by using the `secrets set` command:
+```
+wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+```
+
+#### Client Environment Variables
+
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running a deployment command, e.g.:
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
+```
+
+or 
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
 ### Fly.io Regions
@@ -230,15 +272,7 @@ You can find the list of all available Fly regions by running:
 flyctl platform regions
 ```
 
-#### Environment Variables
-
-If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `secrets set` command:
-
-```
-wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
-```
-
-### Multiple Fly Organizations
+### Multiple Fly.io Organizations
 
 If you have multiple organizations, you can specify a `--org` option. For example:
 
