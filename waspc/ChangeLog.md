@@ -15,7 +15,19 @@
 
 ### 🔧 Small improvements
 
-- Improved how IDE auto-imports symbols from the `wasp` package.
+- Improved how IDE auto-imports symbols from the `wasp` package. If you have an existing project, add these lines to your `tsconfig.json` to getter better IDE support:
+
+  ```
+  {
+    "compilerOptions" {
+      "target": "esnext",
+      "moduleResolution": "bundler",
+      // ...
+    }
+    // ...
+  }
+  ```
+
 
 ## 0.13.0 (2024-03-18)
 
