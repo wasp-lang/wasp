@@ -11,9 +11,7 @@
   },
   "containerEnv": {
     "WASP_TELEMETRY_DISABLE": "1", // TODO remove this
-    "WASP_TELEMETRY_CONTEXT": "gh-codespaces",
-    "WASP_WEB_CLIENT_URL": "https://$CODESPACE_NAME-3000.app.github.dev",
-    "REACT_APP_API_URL": "https://$CODESPACE_NAME-3001.app.github.dev"
+    "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
   },
   "portsAttributes": {
     "3000": {
@@ -27,7 +25,7 @@
       "visibility": "public"
     }
   },
-  // "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-  // "postStartCommand": "chmod +x /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh && bash /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh",
+  "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+  "postStartCommand": "printf 'export WASP_WEB_CLIENT_URL=https://$CODESPACE_NAME-3000.preview.app.github.dev\n' >> $HOME/.bashrc && printf 'export REACT_APP_API_URL=https://$CODESPACE_NAME-3001.preview.app.github.dev\n' >> $HOME/.bashrc",
   "workspaceFolder": "/workspaces/wasp/examples/tutorials/TodoApp"
 }
