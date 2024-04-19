@@ -1,6 +1,10 @@
 // These are GitHub Codespaces specific settings.
 {
   "name": "Wasp Todo App Tutorial",
+  "build": {
+    // Path is relataive to the devcontainer.json file.
+    "dockerfile": "Dockerfile"
+  },
   "customizations": {
     "vscode": {
       "extensions": ["wasp-lang.wasp", "PKief.material-icon-theme"],
@@ -10,7 +14,7 @@
     }
   },
   "containerEnv": {
-    "WASP_TELEMETRY_DISABLE": "1",
+    "WASP_TELEMETRY_DISABLE": "1", // TODO remove this
     "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
   },
   "portsAttributes": {
