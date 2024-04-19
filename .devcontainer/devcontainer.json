@@ -6,6 +6,10 @@
       "extensions": ["wasp-lang.wasp"]
     }
   },
+  "containerEnv": {
+    "WASP_TELEMETRY_DISABLE": "1",
+    "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
+  },
   "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-  "postStartCommand": "cd examples/tutorials/TodoApp && wasp db migrate-dev && wasp start"
+  "postStartCommand": "cd examples/tutorials/TodoApp && wasp db migrate-dev"
 }
