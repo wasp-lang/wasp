@@ -3,35 +3,57 @@ import React from 'react'
 
 import { Redirect } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
+import { styled, keyframes } from 'wasp/core/stitches.config'
 
-{=# pageLoader.isDefined =}
-{=& pageLoader.importStatement =}
-// TODO: Do we have a way here to simply provide an alias?
-//   Then I could set alias to PageLoader and use PageLoader below also and all great.
-//   But now I can't because user might call their compnent PageLoader and then I get a conflict.
-const Wasp_PageLoader = {=& pageLoader.importIdentifier =}
-{=/ pageLoader.isDefined =}
-{=^ pageLoader.isDefined =}
-import { DefaultPageLoader as Wasp_PageLoader } from './DefaultPageLoader.jsx';
-{=/ pageLoader.isDefined =}
+// TODO: I should probably extract Loader into separate file as a component?
+
+const spinKeyframes = keyframes({
+  '0%': { transform: 'rotate(0deg)' },
+  '100%': { transform: 'rotate(360deg)' }
+});
+
+// TODO: Do I need to add !important on all of this stuff because of Tailwind css?
+const Loader = styled('div', {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+  width: '100vw',
+  color: '$gray900',
+
+  // Spinner that is two quarters of a circle across each other.
+  '&::after': {
+    content: '',
+    width: '40px',
+    height: '40px',
+    border: '5px solid currentColor',
+    borderColor: 'currentColor transparent currentColor transparent',
+    borderRadius: '50%',
+    animation: `${spinKeyframes} 1s linear infinite`
+  }
+});
 
 const createAuthRequiredPage = (Page) => {
   return (props) => {
     const { data: user, status, error } = useAuth();
 
-    if (status === 'success') {
-      if (user) {
-        return (
-          <Page {...props} user={user} />
-        );
-      } else {
-        return <Redirect to="{= onAuthFailedRedirectTo =}" />;
-      }
-    } else {
-      return <Wasp_PageLoader status={status} error={error} />;
+    switch (status) {
+      case 'success':
+        if (user) {
+          return (
+            <Page {...props} user={user} />
+          );
+        } else {
+          return <Redirect to="{= onAuthFailedRedirectTo =}" />;
+        }
+      case 'loading':
+        return <Loader/>;
+    case 'error':
+      // TODO: Add global error boundary instead and remove this.
+      //   But then I need to throw an error I think.
+      return <span>ERROR {error?.message}</span>
     }
   }
 }
 
 export default createAuthRequiredPage
-

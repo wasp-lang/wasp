@@ -11,7 +11,6 @@ import Wasp.AppSpec.App.Server (Server)
 import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import Wasp.AppSpec.Core.Decl (IsDecl)
-import Wasp.AppSpec.ExtImport (ExtImport)
 
 data App = App
   { wasp :: Wasp,
@@ -22,8 +21,7 @@ data App = App
     client :: Maybe Client,
     db :: Maybe Db,
     emailSender :: Maybe EmailSender,
-    webSocket :: Maybe WebSocket,
-    pageLoader :: Maybe ExtImport
+    webSocket :: Maybe WebSocket
   }
   deriving (Show, Eq, Data)
 
