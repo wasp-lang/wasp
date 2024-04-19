@@ -6,5 +6,5 @@
       "extensions": ["wasp-lang.wasp"]
     }
   },
-  "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s && cd /examples/tutorials/TodoApp && wasp db migrate-dev --name init && wasp start"
+  "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s && cd examples/tutorials/TodoApp && wasp db migrate-dev --name init && wasp start"
 }
