@@ -13,16 +13,13 @@
     "WASP_TELEMETRY_DISABLE": "1", // TODO remove this
     "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
   },
+  "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {
-      "label": "React-Vite Client",
-      "onAutoForward": "notify",
-      "visibility": "public"
+      "label": "React-Vite Client"
     },
     "3001": {
-      "label": "NodeJS Server",
-      "onAutoForward": "ignore",
-      "visibility": "public"
+      "label": "NodeJS Server"
     }
   },
   "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
