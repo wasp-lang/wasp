@@ -7,5 +7,5 @@
     }
   },
   "initializeCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-  "postStartCommand": "cd examples/tutorials/TodoApp && wasp db migrate-dev && wasp start"
+  "postCreateCommand": "cd examples/tutorials/TodoApp && wasp db migrate-dev"
 }
