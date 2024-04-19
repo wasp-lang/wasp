@@ -1,0 +1,10 @@
+// These are GitHub Codespaces specific settings.
+{
+  "name": "Wasp Todo App Tutorial",
+  "customizations": {
+    "vscode": {
+      "extensions": ["wasp-lang.wasp"]
+    }
+  },
+  "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s"
+}
