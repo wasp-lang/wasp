@@ -11,6 +11,6 @@
     "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
   },
   "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-  "postStartCommand": "chmod +x /workspaces/wasp/examples/tutorials/TodoApp/github-codespace/setup-env.sh && bash /workspaces/wasp/examples/tutorials/TodoApp/github-codespace/setup-env.sh",
+  "postStartCommand": "chmod +x /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh && bash /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh",
   "workspaceFolder": "/workspaces/wasp/examples/tutorials/TodoApp"
 }
