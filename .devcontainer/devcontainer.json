@@ -3,14 +3,29 @@
   "name": "Wasp Todo App Tutorial",
   "customizations": {
     "vscode": {
-      "extensions": ["wasp-lang.wasp"]
+      "extensions": ["wasp-lang.wasp", "PKief.material-icon-theme"],
+      "settings": {
+        "workbench.iconTheme": "material-icon-theme"
+      }
     }
   },
   "containerEnv": {
     "WASP_TELEMETRY_DISABLE": "1",
     "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
   },
-  "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-  "postStartCommand": "chmod +x /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh && bash /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh",
+  "portsAttributes": {
+    "3000": {
+      "label": "React-Vite Client",
+      "onAutoForward": "notify",
+      "visibility": "public"
+    },
+    "3001": {
+      "label": "NodeJS Server",
+      "onAutoForward": "ignore",
+      "visibility": "public"
+    }
+  },
+  // "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+  // "postStartCommand": "chmod +x /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh && bash /workspaces/wasp/examples/tutorials/TodoApp/github-codespaces/setup-env.sh",
   "workspaceFolder": "/workspaces/wasp/examples/tutorials/TodoApp"
 }
