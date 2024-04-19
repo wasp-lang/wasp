@@ -11,5 +11,6 @@
     "WASP_TELEMETRY_CONTEXT": "gh-codespaces"
   },
   "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+  "postStartCommand": "wasp db migrate-dev && wasp start",
   "workspaceFolder": "/workspaces/wasp/examples/tutorials/TodoApp"
 }
