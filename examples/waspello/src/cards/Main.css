@@ -146,10 +146,10 @@ ol, ul {
    * margin-bottom: 8px;
    */
   height: calc(100vh - 40px - 57.09px - 8px);
-  white-space: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
   margin-bottom: 8px;
+  word-wrap: break-word;
 }
 
 /* List */
