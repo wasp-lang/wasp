@@ -28,7 +28,7 @@ genAuthForms auth =
       -- todo (move this to somewhere more meaningful)
       -- TODO: Now I am also using stitches for page loader.
       --   I think I should put it somewhere else then, move this, as the comment above indicates?
-      --   It is now used even if Auth UI is not used. But it is still used only if Auth is used. Hm.
+      --   It is now used even if Auth UI is not used (or if Auth is not used).
       genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|auth/forms/Login.tsx|],
       genFileCopy [relfile|auth/forms/Signup.tsx|]

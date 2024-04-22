@@ -268,6 +268,8 @@ genTsConfigJson = do
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
+  -- TODO: Right now stitches are being imported only when auth is enabled.
+  --   Change this so they are imported always?
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]

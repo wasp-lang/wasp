@@ -22,8 +22,7 @@ const createAuthRequiredPage = (Page) => {
       case 'loading':
         return <DefaultLoader/>;
     case 'error':
-      // TODO: User ErrorBoundary instead (therefore I will likely want to throw error here).
-      return <span>Error occurred, try reloading the page. {error?.message}</span>
+      return <span>An error occurred. Please refresh the page. {error?.message}</span>
     }
   }
 }
