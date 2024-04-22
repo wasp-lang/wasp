@@ -7,7 +7,7 @@ This project also allows you to run the app in GitHub Codespaces, so you can try
 
 ## Running the App in GitHub Codespaces
 
-On the [main Wasp repo page](https://github.com/wasp-lang/wasp), click on the "Code" button and select "Open with Codespaces". This will open this Example App in a new Codespace.
+On the [main Wasp repo page](https://github.com/wasp-lang/wasp), click on the green "Code" button and create a new Codespace.
 
 Give the Codespace some time to install Wasp and finish initializing, then in the terminal run:
 
