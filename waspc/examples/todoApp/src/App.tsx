@@ -5,13 +5,17 @@ import { useQuery, getDate } from "wasp/client/operations";
 
 import './Main.css'
 import { getName } from './user'
+import { emailSender } from "wasp/server/email";
 
-export function App({ children }: any) {
+
+export function App({ children }: { children: React.ReactNode }) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
   const { isConnected } = useSocket()
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
+
+  emailSender;
 
   return (
     <div className="app border-spacing-2 p-4">
@@ -28,7 +32,7 @@ export function App({ children }: any) {
               Hello, <Link to="/profile">{getName(user)}</Link>
             </div>
             <div>
-              <button className="btn btn-primary" onClick={logout}>
+              <button type="button" className="btn btn-primary" onClick={logout}>
                 Logout
               </button>
             </div>

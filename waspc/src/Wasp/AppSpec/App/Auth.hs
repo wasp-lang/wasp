@@ -33,7 +33,8 @@ data Auth = Auth
     externalAuthEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
-    onAuthSucceededRedirectTo :: Maybe String
+    onAuthSucceededRedirectTo :: Maybe String,
+    hooks :: Maybe AuthHooks
   }
   deriving (Show, Eq, Data)
 
@@ -62,6 +63,13 @@ data EmailAuthConfig = EmailAuthConfig
     fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
+  }
+  deriving (Show, Eq, Data)
+
+data AuthHooks = AuthHooks
+  { onUserSignedUp :: Maybe ExtImport,
+    onUserSignedIn :: Maybe ExtImport,
+    onUserSignedOut :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
