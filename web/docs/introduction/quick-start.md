@@ -43,7 +43,7 @@ That's it 🎉 You have successfully created and served a new full-stack web app
 :::
 
 :::tip Try Wasp Without Installing 🤔?
-  Give Wasp a spin in the browser without any setup by running our [Wasp Template for Gitpod](https://github.com/wasp-lang/gitpod-template)
+  Give Wasp a spin in the browser with GitHub Codespaces by following the intructions in our [Tutorial App README](https://github.com/wasp-lang/wasp/tree/main/examples/tutorials/TodoApp)
 :::
 
 
