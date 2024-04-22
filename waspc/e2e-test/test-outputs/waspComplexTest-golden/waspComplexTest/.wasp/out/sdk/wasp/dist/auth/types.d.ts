@@ -1,1 +1,1 @@
-export type { AuthUser, ProviderName, DeserializedAuthIdentity } from 'wasp/server/_types';
+export type { ProviderName } from 'wasp/server/_types';

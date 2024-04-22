@@ -5,9 +5,10 @@ title: Email
 import { Required } from '@site/src/components/Tag';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
-import GetEmail from './entities/\_get-email.md';
 import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
 import UserFields from './\_user-fields.md';
+import EmailData from './entities/\_email-data.md';
+import AccessingUserDataNote from './\_accessing-user-data-note.md';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
@@ -814,13 +815,11 @@ We suggest using the built-in field validators for your authentication flow. You
 
 To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../auth/overview).
 
-### `getEmail`
+When you receive the `user` object [on the client or the server](./overview.md#accessing-the-logged-in-user), you'll be able to access the user's email and other information like this:
 
-If you are looking to access the user's email in your code, you can do that by accessing the info about the user that is stored in the `user.auth.identities` array.
+<EmailData />
 
-To make things a bit easier for you, Wasp offers the `getEmail` helper.
-
-<GetEmail />
+<AccessingUserDataNote />
 
 ## API Reference
 

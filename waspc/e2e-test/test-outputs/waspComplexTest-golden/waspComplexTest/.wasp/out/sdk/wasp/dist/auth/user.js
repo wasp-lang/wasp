@@ -16,8 +16,11 @@ export function getFirstProviderUserId(user) {
     }
     return (_a = user.auth.identities[0].providerUserId) !== null && _a !== void 0 ? _a : null;
 }
-// PUBLIC API
-export function findUserIdentity(user, providerName) {
-    return user.auth.identities.find((identity) => identity.providerName === providerName);
+function findUserIdentity(user, providerName) {
+    var _a;
+    if (!user.auth) {
+        return null;
+    }
+    return (_a = user.auth.identities.find((identity) => identity.providerName === providerName)) !== null && _a !== void 0 ? _a : null;
 }
 //# sourceMappingURL=user.js.map

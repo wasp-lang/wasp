@@ -140,6 +140,7 @@ module.exports = {
         'contact',
         'migrate-from-0-11-to-0-12',
         'migrate-from-0-12-to-0-13',
+        'migrate-from-0-13-to-0-14'
       ],
     },
   ],

@@ -7,4 +7,4 @@ Wasp also lets you customize the configuration of the providers' settings using 
 
 Let's use this example to show both fields in action:
 
-<!-- This snippet is used in google.md and github.md -->
+<!-- This snippet is used in {google,github,keycloak}.md -->

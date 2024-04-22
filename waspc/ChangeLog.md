@@ -1,5 +1,47 @@
 # Changelog
 
+
+## 0.14.0 (2024-04-22)
+
+### 🎉 New Features
+
+- Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
+
+### ⚠️ Breaking Changes & Migration Guide
+
+We had to make a couple of breaking changes to reach the new simpler API:
+
+1. You don't need to use `getUsername` to access the username:
+
+    - Before: Used `getUsername` to access the username.
+    - After: Directly use `user.identities.username?.id`.
+  
+2. You don't need to use `getEmail` to access the email:
+
+    - Before: Used `getEmail` to access the email.
+    - After: Directly use `user.identities.email?.id`.
+    
+3. Better API for accessing `providerData`:
+
+    - Before: Required complex logic to access typed provider data.
+    - After: Directly use `user.identities.<provider>.<value>` for typed access.
+  
+4. Better API for accessing `getFirstProviderUserId`:
+
+    - Before: Used `getFirstProviderUserId(user)` to get the ID.
+    - After: Use `user.getFirstProviderUserId()` directly on the user object.
+
+5. You don't need to use `findUserIdentity` any more:
+
+    - Before: Relied on `findUserIdentity` to check which user identity exists.
+    - After: Directly check `user.identities.<provider>` existence.
+
+These changes improve code readability and lower the complexity of accessing user's auth fields. Follow the [detailed migration steps to update your project to 0.14.0](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14).
+
+### Note on Auth Helper Functions (`getUsername`, `getEmail` etc.)
+
+These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp-lang.dev/docs/auth/entities#including-the-user-with-other-entities).
+
 ## 0.13.2 (2024-04-11)
 
 ### 🐞 Bug fixes

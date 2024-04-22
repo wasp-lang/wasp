@@ -7,4 +7,4 @@ The reference shows how to define both.
 
 For behavior common to all providers, check the general [API Reference](/auth/overview.md#api-reference).
 
-<!-- This snippet is used in google.md and github.md -->
+<!-- This snippet is used in {google,github,keycloak}.md -->

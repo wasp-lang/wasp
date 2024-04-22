@@ -11,6 +11,8 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import GoogleData from '../entities/_google-data.md';
+import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
@@ -494,6 +496,12 @@ export function getConfig() {
 ## Using Auth
 
 <UsingAuthNote />
+
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), you'll be able to access the user's Google ID like this:
+
+<GoogleData />
+
+<AccessingUserDataNote />
 
 ## API Reference
 

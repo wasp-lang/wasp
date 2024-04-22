@@ -1,6 +1,7 @@
 import { auth } from "./lucia.js";
-import { throwInvalidCredentialsError, deserializeAndSanitizeProviderData, } from "./utils.js";
+import { throwInvalidCredentialsError } from "./utils.js";
 import { prisma } from 'wasp/server';
+import { createAuthUser } from "../server/auth/user.js";
 // PRIVATE API
 // Creates a new session for the `authId` in the database
 export async function createSession(authId) {
@@ -53,17 +54,7 @@ async function getUser(userId) {
     if (!user) {
         throwInvalidCredentialsError();
     }
-    // TODO: This logic must match the type in _types/index.ts (if we remove the
-    // password field from the object here, we must to do the same there).
-    // Ideally, these two things would live in the same place:
-    // https://github.com/wasp-lang/wasp/issues/965
-    const deserializedIdentities = user.auth.identities.map((identity) => {
-        const deserializedProviderData = deserializeAndSanitizeProviderData(identity.providerData, {
-            shouldRemovePasswordField: true,
-        });
-        return Object.assign(Object.assign({}, identity), { providerData: deserializedProviderData });
-    });
-    return Object.assign(Object.assign({}, user), { auth: Object.assign(Object.assign({}, user.auth), { identities: deserializedIdentities }) });
+    return createAuthUser(user);
 }
 // PRIVATE API
 export function invalidateSession(sessionId) {
