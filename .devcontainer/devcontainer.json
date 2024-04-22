@@ -21,6 +21,7 @@
       "label": "NodeJS Server"
     }
   },
-  "postCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s && printf 'export WASP_WEB_CLIENT_URL=https://$CODESPACE_NAME-3000.app.github.dev\n' >> $HOME/.bashrc && printf 'export REACT_APP_API_URL=https://$CODESPACE_NAME-3001.app.github.dev\n' >> $HOME/.bashrc && echo 'gh codespace ports visibility 3000:public -c $CODESPACE_NAME\n' >> $HOME/.bashrc && echo 'gh codespace ports visibility 3001:public -c $CODESPACE_NAME\n' >> $HOME/.bashrc",
+  "onCreateCommand": "curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+  "postCreateCommand": "printf 'export WASP_WEB_CLIENT_URL=https://$CODESPACE_NAME-3000.app.github.dev\n' >> $HOME/.bashrc && printf 'export REACT_APP_API_URL=https://$CODESPACE_NAME-3001.app.github.dev\n' >> $HOME/.bashrc && echo 'gh codespace ports visibility 3000:public -c $CODESPACE_NAME\n' >> $HOME/.bashrc && echo 'gh codespace ports visibility 3001:public -c $CODESPACE_NAME\n' >> $HOME/.bashrc",
   "workspaceFolder": "/workspaces/wasp/examples/tutorials/TodoApp"
 }
