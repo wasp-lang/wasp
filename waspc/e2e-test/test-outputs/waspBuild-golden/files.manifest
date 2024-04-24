@@ -210,6 +210,7 @@ waspBuild/.wasp/build/web-app/public/.gitkeep
 waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/manifest.json
 waspBuild/.wasp/build/web-app/scripts/validate-env.mjs
+waspBuild/.wasp/build/web-app/src/components/Message.tsx
 waspBuild/.wasp/build/web-app/src/index.tsx
 waspBuild/.wasp/build/web-app/src/logo.png
 waspBuild/.wasp/build/web-app/src/router.tsx

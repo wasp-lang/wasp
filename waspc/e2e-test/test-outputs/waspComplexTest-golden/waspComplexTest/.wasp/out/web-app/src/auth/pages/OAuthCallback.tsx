@@ -4,35 +4,14 @@ import { Redirect, useLocation } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
+import { MessageLoading, MessageError } from "../../components/Message";
 
 const wrapperStyles = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "4rem",
-};
-
-const commonMessageStyles = {
   display: 'flex',
   alignItems: 'center',
-  gap: '.5rem',
-  borderRadius: '.5rem',
-  padding: '1rem',
-};
-
-const errorMessageStyles = {
-  ...commonMessageStyles,
-  borderColor: 'rgb(240 82 82)',
-  backgroundColor: 'rgb(253 232 232)',
-  color: 'rgb(200 30 30)',
-};
-
-const loadingMessageStyles = {
-  ...commonMessageStyles,
-  borderColor: 'rgb(107 114 128)',
-  backgroundColor: 'rgb(243 244 246)',
-  color: 'rgb(55 65 81)',
-};
+  justifyContent: 'center',
+  padding: '4rem',
+}
 
 export function OAuthCallbackPage() {
   const { isLoading, error, user } = useOAuthCallbackHandler();
@@ -43,8 +22,8 @@ export function OAuthCallbackPage() {
 
   return (
     <div style={wrapperStyles}>
-      {error && <div style={errorMessageStyles}><MessageIcon /> {error}</div>}
-      {isLoading && <div style={loadingMessageStyles}><MessageIcon /> Please wait a moment while we log you in.</div>}
+      {error && <MessageError>{error}</MessageError>}
+      {isLoading && <MessageLoading>Please wait a moment while we log you in.</MessageLoading>}
     </div>
   );
 }
@@ -97,26 +76,6 @@ function useOAuthCallbackHandler() {
     isLoading,
   };
 }
-
-const MessageIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="1.25rem"
-    height="1.25rem"
-    fill="currentColor"
-    stroke="currentColor"
-    strokeWidth={0}
-    aria-hidden="true"
-    viewBox="0 0 20 20"
-  >
-    <path
-      fillRule="evenodd"
-      stroke="none"
-      d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM9 9a1 1 0 0 0 0 2v3a1 1 0 0 0 1 1h1a1 1 0 1 0 0-2v-3a1 1 0 0 0-1-1H9z"
-      clipRule="evenodd"
-    />
-  </svg>
-)
 
 async function exchangeOAuthCodeForToken(data: {
   code: string

@@ -195,6 +195,7 @@ genSrcDir spec =
     [ genFileCopy [relfile|logo.png|],
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|vite-env.d.ts|],
+      genFileCopy [relfile|components/Message.tsx|],
       getIndexTs spec
     ]
     <++> genAuth spec
