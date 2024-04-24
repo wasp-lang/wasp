@@ -1,5 +1,5 @@
 import { Route } from 'wasp/client'
-import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
+import type { _Awaited, _ReturnType } from 'wasp/universal/types'
 import { type Query } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
@@ -13,7 +13,9 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
 ): QueryFor<BackendQuery> {
   const queryRoute = makeOperationRoute(relativeQueryPath)
 
-  async function query(queryKey, queryArgs) {
+  async function query(queryArgs) {
+    // Assumes `addMetadataToQuery` added the `queryCacheKey` property to the query.
+    const queryKey = (query as any).queryCacheKey
     const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryKey).reduce(
       (result, update) => update(result),

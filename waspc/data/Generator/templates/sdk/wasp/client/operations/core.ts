@@ -10,9 +10,7 @@ import {
 export { configureQueryClient } from "./queryClient";
 
 // PRIVATE API (but should maybe be public, users use values of this type)
-export type Query<Input, Output> = {
-  (queryCacheKey: string[], args: Input): Promise<Output>;
-};
+export type Query<Input, Output> = (args: Input) => Promise<Output>
 
 // PUBLIC API
 export function useQuery<Input, Output>(
