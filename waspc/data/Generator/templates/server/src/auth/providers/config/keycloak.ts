@@ -71,10 +71,8 @@ const _waspConfig: ProviderConfig = {
             stateTypes: ['state', 'codeVerifier'],
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state, codeVerifier }) => keycloak.createAuthorizationURL(state, codeVerifier, config),
-            getProviderInfo: async ({ code, codeVerifier }) => {
-                const { accessToken } = await keycloak.validateAuthorizationCode(code, codeVerifier);
-                return getKeycloakProfile(accessToken);
-            },
+            getProviderTokens: ({ code, codeVerifier }) => keycloak.validateAuthorizationCode(code, codeVerifier),
+            getProviderInfo: ({ accessToken }) => getKeycloakProfile(accessToken),
         });
     },
 }

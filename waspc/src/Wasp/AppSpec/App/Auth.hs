@@ -33,7 +33,11 @@ data Auth = Auth
     externalAuthEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
-    onAuthSucceededRedirectTo :: Maybe String
+    onAuthSucceededRedirectTo :: Maybe String,
+    onBeforeSignup :: Maybe ExtImport,
+    onAfterSignup :: Maybe ExtImport,
+    onBeforeOAuthRedirect :: Maybe ExtImport,
+    onAfterOAuthTokenReceived :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
