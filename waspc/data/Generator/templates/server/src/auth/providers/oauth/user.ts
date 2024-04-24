@@ -1,4 +1,5 @@
 {{={= =}=}}
+import { Request as ExpressRequest } from 'express'
 import { HttpError } from 'wasp/server'
 import {
   type ProviderId,
@@ -12,16 +13,18 @@ import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { getRedirectUriForOneTimeCode, getRedirectUriForError } from './redirect'
 import { tokenStore } from './oneTimeCode'
+import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export async function finishOAuthFlowAndGetRedirectUri(
   provider: ProviderConfig,
   providerProfile: unknown,
   providerUserId: string,
   userSignupFields: UserSignupFields | undefined,
+  req: ExpressRequest,
 ): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
-  const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, userSignupFields);
+  const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, userSignupFields, req);
 
   const oneTimeCode = await tokenStore.createToken(authId);
 
@@ -49,6 +52,7 @@ async function getAuthIdFromProviderDetails(
   providerId: ProviderId,
   providerProfile: any,
   userSignupFields: UserSignupFields | undefined,
+  req: ExpressRequest,
 ): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
@@ -74,6 +78,9 @@ async function getAuthIdFromProviderDetails(
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})
   
+    if (onBeforeSignupHook) {
+      await onBeforeSignupHook({ req, providerId })
+    }
     const user = await createUser(
       providerId,
       providerData,
@@ -81,6 +88,9 @@ async function getAuthIdFromProviderDetails(
       // rely on Prisma to validate the data.
       userFields as any,
     )
+    if (onAfterSignupHook) {
+      await onAfterSignupHook({ req, providerId, user })
+    }
 
     return user.auth.id
   }

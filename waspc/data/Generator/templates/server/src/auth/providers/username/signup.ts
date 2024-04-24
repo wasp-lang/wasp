@@ -13,6 +13,7 @@ import {
 } from 'wasp/auth/validation'
 import { validateAndGetUserFields } from 'wasp/auth/utils'
 import { type UserSignupFields } from 'wasp/auth/providers/types'
+import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export function getSignupRoute({
   userSignupFields,
@@ -34,13 +35,19 @@ export function getSignupRoute({
     })
   
     try {
-      await createUser(
+      if (onBeforeSignupHook) {
+        await onBeforeSignupHook({ req, providerId })
+      }
+      const user = await createUser(
         providerId,
         providerData,
         // Using any here because we want to avoid TypeScript errors and
         // rely on Prisma to validate the data.
         userFields as any
       )
+      if (onAfterSignupHook) {
+        await onAfterSignupHook({ req, providerId, user })
+      }
     } catch (e: unknown) {
       rethrowPossibleAuthError(e)
     }

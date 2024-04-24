@@ -80,10 +80,8 @@ const _waspConfig: ProviderConfig = {
             stateTypes: ['state'],
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state }) => github.createAuthorizationURL(state, config),
-            getProviderInfo: async ({ code }) => {
-                const { accessToken } = await github.validateAuthorizationCode(code);
-                return getGithubProfile(accessToken);
-            },
+            getProviderTokens: ({ code }) => github.validateAuthorizationCode(code),
+            getProviderInfo: ({ accessToken }) => getGithubProfile(accessToken),
         });
     },
 }

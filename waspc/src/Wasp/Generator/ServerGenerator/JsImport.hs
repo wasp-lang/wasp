@@ -22,6 +22,16 @@ extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImpo
   where
     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
 
+aliasedExtImportToImportJson ::
+  JsImportAlias ->
+  Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
+  Maybe EI.ExtImport ->
+  Aeson.Value
+aliasedExtImportToImportJson importAlias pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson aliasedJsImport
+  where
+    jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
+    aliasedJsImport = JI.applyJsImportAlias (Just importAlias) <$> jsImport
+
 getJsImportStmtAndIdentifier ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
