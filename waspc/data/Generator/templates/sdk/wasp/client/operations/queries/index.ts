@@ -11,6 +11,3 @@ export const {= operationName =}: QueryFor<{= operationTypeName =}> = createQuer
   {=& entitiesArray =},
 )
 {=/ queries =}
-
-// PRIVATE API
-export { addMetadataToQuery } from './core'
