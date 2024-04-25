@@ -8,7 +8,7 @@ import {
 } from "wasp/server/operations";
 import { getSomeResource } from './serverSetup.js'
 
-export const createTask: CreateTask<Pick<Task, 'description'>> = async (
+export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
   task,
   context
 ) => {
