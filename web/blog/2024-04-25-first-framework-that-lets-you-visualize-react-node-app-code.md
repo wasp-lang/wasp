@@ -1,7 +1,7 @@
 ---
 title: "The first framework that lets you visualize your React/NodeJS app's code"
 authors: [vinny]
-image: /img/wasp-studio/wasp-studio-banner.png
+image: /img/wasp-studio/baby-sleep-tracker-studio.png
 tags: [react, nodejs]
 ---
 
