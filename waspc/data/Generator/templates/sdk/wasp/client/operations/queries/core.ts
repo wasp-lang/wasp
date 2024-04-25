@@ -1,6 +1,6 @@
 import { Route } from 'wasp/client'
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
-import type { Query, InternalViewOf } from '../core.js'
+import type { Query, InternalViewOf, QueryMetadata, QueryFunction } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
@@ -13,40 +13,44 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
   const queryRoute = makeOperationRoute(relativeQueryPath)
+  const queryCacheKey = [relativeQueryPath]
 
-  type Q = QueryFor<BackendQuery>
-  const query: Q = async (queryArgs) => { 
-    // Assumes `addMetadataToQuery` added the `queryCacheKey` property to the query.
-    const queryKey = (query as InternalViewOf<Q>).queryCacheKey
+  const query: QueryFunctionFor<BackendQuery> = (async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
-    return getActiveOptimisticUpdates(queryKey).reduce(
+    return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
       serverResult,
     )
-  }
+  })
 
-  addMetadataToQuery(query, { relativeQueryPath, queryRoute, entitiesUsed })
+  addMetadataToQuery(query, { queryCacheKey, queryRoute, entitiesUsed })
 
   return query
 }
 
 // PRIVATE API (used in SDK)
 export function addMetadataToQuery<Input, Output>(
-  query: Query<Input, Output>,
-  { relativeQueryPath, queryRoute, entitiesUsed }: 
-  { relativeQueryPath: string, queryRoute: Route, entitiesUsed: string[] }
+  query: QueryFunction<Input, Output>,
+  { queryCacheKey, queryRoute, entitiesUsed }: 
+  { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
 ): asserts query is InternalViewOf<typeof query> {
   const internalQuery = query as InternalViewOf<typeof query>
 
-  internalQuery.queryCacheKey = [relativeQueryPath]
+  internalQuery.queryCacheKey = queryCacheKey 
   internalQuery.route = queryRoute
   addResourcesUsedByQuery(internalQuery.queryCacheKey, entitiesUsed)
 }
 
+// PRIVATE API (but should maybe be public, users define values of this type)
 export type QueryFor<BackendQuery extends GenericBackendQuery> =
+  QueryFunctionFor<BackendQuery> & QueryMetadata
+
+export type QueryFunctionFor<BackendQuery extends GenericBackendQuery> =
   Parameters<BackendQuery> extends []
-    ? Query<void, _Awaited<_ReturnType<BackendQuery>>>
-    : Query<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
+    ? QueryFunction<void, _Awaited<_ReturnType<BackendQuery>>>
+    : QueryFunction<
+        Parameters<BackendQuery>[0],
+        _Awaited<_ReturnType<BackendQuery>>
+      >
 
 type GenericBackendQuery = (args: never, context: any) => unknown
-

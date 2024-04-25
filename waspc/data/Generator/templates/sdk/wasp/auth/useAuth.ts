@@ -1,13 +1,14 @@
 {{={= =}=}}
 import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery, addMetadataToQuery } from 'wasp/client/operations'
+import type { QueryFunction, Query  } from 'wasp/client/operations/core'
 import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/client'
 import type { AuthUser } from '../server/auth/user.js'
 import { UseQueryResult } from '@tanstack/react-query'
 
 // PUBLIC API
-export const getMe: () => Promise<AuthUser | null> = createUserGetter()
+export const getMe: Query<void, AuthUser | null> = createUserGetter()
 
 // PUBLIC API
 export default function useAuth(queryFnArgs?: unknown, config?: any): UseQueryResult<AuthUser> {
@@ -17,7 +18,7 @@ export default function useAuth(queryFnArgs?: unknown, config?: any): UseQueryRe
 function createUserGetter() {
   const getMeRelativePath = 'auth/me'
   const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
-  async function getMe(): Promise<AuthUser | null> {
+  const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
       const response = await api.get(getMeRoute.path)
   
@@ -32,7 +33,7 @@ function createUserGetter() {
   }
   
   addMetadataToQuery(getMe, {
-    relativeQueryPath: getMeRelativePath,
+    queryCacheKey: [getMeRelativePath],
     queryRoute: getMeRoute,
     entitiesUsed: {=& entitiesGetMeDependsOn =},
   })

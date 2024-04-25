@@ -11,7 +11,14 @@ import { Route } from "wasp/client";
 export { configureQueryClient } from "./queryClient";
 
 // PRIVATE API (but should maybe be public, users define values of this type)
-export type Query<Input, Output> = Operation<Input, Output>
+export type QueryFunction<Input, Output> = Operation<Input, Output>
+
+export type QueryMetadata = {
+  queryCacheKey: string[]
+  route: Route
+}
+
+export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata
 
 // PUBLIC API
 export function useQuery<Input, Output>(
@@ -40,10 +47,7 @@ export function useQuery<Input, Output>(
 }
 
 // PRIVATE API (needed in SDK)
-export type InternalViewOf<Q extends Query<never, unknown>> = Q & {
-  route: Route,
-  queryCacheKey: string[],
-}
+export type InternalViewOf<QF extends QueryFunction<never, unknown>> = QF & QueryMetadata
 
 // PRIVATE API (but should maybe be public, users define values of this type)
 export type Action<Input, Output> = Operation<Input, Output>
