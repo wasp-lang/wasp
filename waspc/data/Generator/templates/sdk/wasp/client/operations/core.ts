@@ -7,42 +7,50 @@ import {
   useQuery as rqUseQuery,
   UseQueryResult,
 } from "@tanstack/react-query";
+import { Route } from "wasp/client";
 export { configureQueryClient } from "./queryClient";
 
-// PRIVATE API (but should maybe be public, users use values of this type)
-export type Query<Input, Output> = (args: Input) => Promise<Output>
+// PRIVATE API (but should maybe be public, users define values of this type)
+export type Query<Input, Output> = Operation<Input, Output>
 
 // PUBLIC API
 export function useQuery<Input, Output>(
   queryFn: Query<Input, Output>,
   queryFnArgs?: Input,
   options?: any
-): UseQueryResult<Output, Error>;
-
-// PUBLIC API
-export function useQuery(queryFn, queryFnArgs, options) {
-  if (typeof queryFn !== "function") {
-    throw new TypeError("useQuery requires queryFn to be a function.");
+): UseQueryResult<Output, Error> {
+  if (typeof queryFn !== 'function') {
+    throw new TypeError('useQuery requires queryFn to be a function.')
   }
-  if (!queryFn.queryCacheKey) {
-    throw new TypeError(
-      "queryFn needs to have queryCacheKey property defined."
-    );
+  const internalQueryFn = queryFn as InternalViewOf<typeof queryFn>
+
+  if (!internalQueryFn.queryCacheKey) {
+    throw new TypeError('queryFn needs to have queryCacheKey property defined.')
   }
 
   const queryKey =
     queryFnArgs !== undefined
-      ? [...queryFn.queryCacheKey, queryFnArgs]
-      : queryFn.queryCacheKey;
+      ? [...internalQueryFn.queryCacheKey, queryFnArgs]
+      : internalQueryFn.queryCacheKey
   return rqUseQuery({
     queryKey,
-    queryFn: () => queryFn(queryKey, queryFnArgs),
+    queryFn: () => internalQueryFn(queryFnArgs),
     ...options,
-  });
+  })
 }
 
+// PRIVATE API (needed in SDK)
+export type InternalViewOf<Q extends Query<never, unknown>> = Q & {
+  route: Route,
+  queryCacheKey: string[],
+}
+
+// PRIVATE API (but should maybe be public, users define values of this type)
+export type Action<Input, Output> = Operation<Input, Output>
+
 // PRIVATE API (but should maybe be public, users use values of this type)
-export type Action<Input, Output> = [Input] extends [never]
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
+export type Operation<Input, Output> = [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
   : (args: Input) => Promise<Output>;
 

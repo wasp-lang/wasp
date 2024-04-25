@@ -1,21 +1,23 @@
 import { Route } from 'wasp/client'
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
-import { type Query } from '../core.js'
+import type { Query, InternalViewOf } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
 } from '../internal/resources'
 
+// PRIVATE API (unsed in SDK)
 export function createQuery<BackendQuery extends GenericBackendQuery>(
   relativeQueryPath: string,
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
   const queryRoute = makeOperationRoute(relativeQueryPath)
 
-  async function query(queryArgs) {
+  type Q = QueryFor<BackendQuery>
+  const query: Q = async (queryArgs) => { 
     // Assumes `addMetadataToQuery` added the `queryCacheKey` property to the query.
-    const queryKey = (query as any).queryCacheKey
+    const queryKey = (query as InternalViewOf<Q>).queryCacheKey
     const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryKey).reduce(
       (result, update) => update(result),
@@ -28,24 +30,17 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
   return query
 }
 
-// PRIVATE API
-export function addMetadataToQuery(
-  query: (...args: any[]) => Promise<unknown>,
-  metadata: {
-    relativeQueryPath: string
-    queryRoute: Route
-    entitiesUsed: string[]
-  }
-): void
+// PRIVATE API (used in SDK)
+export function addMetadataToQuery<Input, Output>(
+  query: Query<Input, Output>,
+  { relativeQueryPath, queryRoute, entitiesUsed }: 
+  { relativeQueryPath: string, queryRoute: Route, entitiesUsed: string[] }
+): asserts query is InternalViewOf<typeof query> {
+  const internalQuery = query as InternalViewOf<typeof query>
 
-// PRIVATE API
-export function addMetadataToQuery(
-  query,
-  { relativeQueryPath, queryRoute, entitiesUsed }
-) {
-  query.queryCacheKey = [relativeQueryPath]
-  query.route = queryRoute
-  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
+  internalQuery.queryCacheKey = [relativeQueryPath]
+  internalQuery.route = queryRoute
+  addResourcesUsedByQuery(internalQuery.queryCacheKey, entitiesUsed)
 }
 
 export type QueryFor<BackendQuery extends GenericBackendQuery> = 
