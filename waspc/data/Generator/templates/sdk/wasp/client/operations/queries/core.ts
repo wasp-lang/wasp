@@ -1,6 +1,6 @@
 import { Route } from 'wasp/client'
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
-import type { Query, InternalViewOf, QueryMetadata, QueryFunction } from '../core.js'
+import type { QueryFunction, QueryForFunction } from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
@@ -33,8 +33,8 @@ export function addMetadataToQuery<Input, Output>(
   query: QueryFunction<Input, Output>,
   { queryCacheKey, queryRoute, entitiesUsed }: 
   { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
-): asserts query is InternalViewOf<typeof query> {
-  const internalQuery = query as InternalViewOf<typeof query>
+): asserts query is QueryForFunction<typeof query> {
+  const internalQuery = query as QueryForFunction<typeof query>
 
   internalQuery.queryCacheKey = queryCacheKey 
   internalQuery.route = queryRoute
@@ -43,7 +43,7 @@ export function addMetadataToQuery<Input, Output>(
 
 // PRIVATE API (but should maybe be public, users define values of this type)
 export type QueryFor<BackendQuery extends GenericBackendQuery> =
-  QueryFunctionFor<BackendQuery> & QueryMetadata
+  QueryForFunction<QueryFunctionFor<BackendQuery>>
 
 export type QueryFunctionFor<BackendQuery extends GenericBackendQuery> =
   Parameters<BackendQuery> extends []

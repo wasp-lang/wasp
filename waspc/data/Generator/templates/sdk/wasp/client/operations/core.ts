@@ -29,25 +29,25 @@ export function useQuery<Input, Output>(
   if (typeof queryFn !== 'function') {
     throw new TypeError('useQuery requires queryFn to be a function.')
   }
-  const internalQueryFn = queryFn as InternalViewOf<typeof queryFn>
+  const query = queryFn as QueryForFunction<typeof queryFn>
 
-  if (!internalQueryFn.queryCacheKey) {
+  if (!query.queryCacheKey) {
     throw new TypeError('queryFn needs to have queryCacheKey property defined.')
   }
 
   const queryKey =
     queryFnArgs !== undefined
-      ? [...internalQueryFn.queryCacheKey, queryFnArgs]
-      : internalQueryFn.queryCacheKey
+      ? [...query.queryCacheKey, queryFnArgs]
+      : query.queryCacheKey
   return rqUseQuery({
     queryKey,
-    queryFn: () => internalQueryFn(queryFnArgs),
+    queryFn: () => query(queryFnArgs),
     ...options,
   })
 }
 
 // PRIVATE API (needed in SDK)
-export type InternalViewOf<QF extends QueryFunction<never, unknown>> = QF & QueryMetadata
+export type QueryForFunction<QF extends QueryFunction<never, unknown>> = QF & QueryMetadata
 
 // PRIVATE API (but should maybe be public, users define values of this type)
 export type Action<Input, Output> = Operation<Input, Output>
