@@ -11,9 +11,9 @@ import { UseQueryResult } from '@tanstack/react-query'
 export const getMe: Query<void, AuthUser | null> = createUserGetter()
 
 // PUBLIC API
-export default function useAuth(queryFnArgs?: unknown, config?: any): UseQueryResult<AuthUser> {
-  return useQuery(getMe, queryFnArgs, config)
-}  
+export default function useAuth(): UseQueryResult<AuthUser | null> {
+  return useQuery(getMe)
+}
 
 function createUserGetter() {
   const getMeRelativePath = 'auth/me'
