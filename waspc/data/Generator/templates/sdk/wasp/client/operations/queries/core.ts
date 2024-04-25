@@ -30,22 +30,21 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
 
 // PRIVATE API (used in SDK)
 export function addMetadataToQuery<Input, Output>(
-  query: QueryFunction<Input, Output>,
+  queryFn: QueryFunction<Input, Output>,
   { queryCacheKey, queryRoute, entitiesUsed }: 
   { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
-): asserts query is QueryForFunction<typeof query> {
-  const internalQuery = query as QueryForFunction<typeof query>
-
-  internalQuery.queryCacheKey = queryCacheKey 
-  internalQuery.route = queryRoute
-  addResourcesUsedByQuery(internalQuery.queryCacheKey, entitiesUsed)
+): asserts queryFn is QueryForFunction<typeof queryFn> {
+  const query = queryFn as QueryForFunction<typeof queryFn>
+  query.queryCacheKey = queryCacheKey 
+  query.route = queryRoute
+  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 }
 
 // PRIVATE API (but should maybe be public, users define values of this type)
 export type QueryFor<BackendQuery extends GenericBackendQuery> =
   QueryForFunction<QueryFunctionFor<BackendQuery>>
 
-export type QueryFunctionFor<BackendQuery extends GenericBackendQuery> =
+type QueryFunctionFor<BackendQuery extends GenericBackendQuery> =
   Parameters<BackendQuery> extends []
     ? QueryFunction<void, _Awaited<_ReturnType<BackendQuery>>>
     : QueryFunction<
