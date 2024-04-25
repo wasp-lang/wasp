@@ -22,14 +22,13 @@ export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata
 
 // PUBLIC API
 export function useQuery<Input, Output>(
-  queryFn: Query<Input, Output>,
+  query: Query<Input, Output>,
   queryFnArgs?: Input,
   options?: any
 ): UseQueryResult<Output, Error> {
-  if (typeof queryFn !== 'function') {
+  if (typeof query !== 'function') {
     throw new TypeError('useQuery requires queryFn to be a function.')
   }
-  const query = queryFn as QueryForFunction<typeof queryFn>
 
   if (!query.queryCacheKey) {
     throw new TypeError('queryFn needs to have queryCacheKey property defined.')
