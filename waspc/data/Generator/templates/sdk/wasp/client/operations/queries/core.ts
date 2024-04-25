@@ -43,8 +43,10 @@ export function addMetadataToQuery<Input, Output>(
   addResourcesUsedByQuery(internalQuery.queryCacheKey, entitiesUsed)
 }
 
-export type QueryFor<BackendQuery extends GenericBackendQuery> = 
-  Query<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
-
+export type QueryFor<BackendQuery extends GenericBackendQuery> =
+  Parameters<BackendQuery> extends []
+    ? Query<void, _Awaited<_ReturnType<BackendQuery>>>
+    : Query<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
 
 type GenericBackendQuery = (args: never, context: any) => unknown
+

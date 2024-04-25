@@ -41,8 +41,9 @@ export function createAction<BackendAction extends GenericBackendAction>(
 }
 
 // PRIVATE API
-export type ActionFor<BackendAction extends GenericBackendAction> =
-  Action<Parameters<BackendAction>[0], _Awaited<_ReturnType<BackendAction>>>
-
+export type ActionFor<BackendQuery extends GenericBackendAction> =
+  Parameters<BackendQuery> extends []
+    ? Action<void, _Awaited<_ReturnType<BackendQuery>>>
+    : Action<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
 
 type GenericBackendAction = (args: never, context: any) => unknown
