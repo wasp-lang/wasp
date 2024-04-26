@@ -1,6 +1,12 @@
 import { Route } from 'wasp/client'
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
-import type { QueryFunction, QueryForFunction } from '../core.js'
+import type { 
+  ClientOperation,
+  GenericBackendOperation,
+  OperationRpcFor,
+  QueryFunction,
+  QueryMetadata,
+} from '../core.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
@@ -8,7 +14,7 @@ import {
 } from '../internal/resources'
 
 // PRIVATE API (unsed in SDK)
-export function createQuery<BackendQuery extends GenericBackendQuery>(
+export function createQuery<BackendQuery extends GenericBackendOperation>(
   relativeQueryPath: string,
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
@@ -31,7 +37,7 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
 
 // PRIVATE API (used in SDK)
 export function buildAndRegisterQuery<Input, Output>(
-  queryFn: QueryFunction<Input, Output>,
+  queryFn: ClientOperation<Input, Output>,
   { queryCacheKey, queryRoute, entitiesUsed }: 
   { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
 ): QueryForFunction<typeof queryFn> {
@@ -46,15 +52,13 @@ export function buildAndRegisterQuery<Input, Output>(
 }
 
 // PRIVATE API (but should maybe be public, users define values of this type)
-export type QueryFor<BackendQuery extends GenericBackendQuery> =
+export type QueryFor<BackendQuery extends GenericBackendOperation> =
   QueryForFunction<QueryFunctionFor<BackendQuery>>
 
-type QueryFunctionFor<BackendQuery extends GenericBackendQuery> =
-  Parameters<BackendQuery> extends []
-    ? QueryFunction<void, _Awaited<_ReturnType<BackendQuery>>>
-    : QueryFunction<
-        Parameters<BackendQuery>[0],
-        _Awaited<_ReturnType<BackendQuery>>
-      >
+type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
+  OperationRpcFor<BackendQuery>
 
-type GenericBackendQuery = (args: never, context: any) => unknown
+// PRIVATE API (needed in SDK)
+type QueryForFunction<QF extends QueryFunction<never, unknown>> = 
+  QF & QueryMetadata
+

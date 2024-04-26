@@ -8,17 +8,23 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { Route } from "wasp/client";
+import type { _Awaited, _ReturnType } from 'wasp/universal/types'
 export { configureQueryClient } from "./queryClient";
 
 // PRIVATE API (but should maybe be public, users define values of this type)
-export type QueryFunction<Input, Output> = Operation<Input, Output>
+export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata
 
+// PRIVATE API (but should maybe be public, users define values of this type)
+export type Action<Input, Output> = ClientOperation<Input, Output>
+
+// PRIVATE API
+export type QueryFunction<Input, Output> = ClientOperation<Input, Output>
+
+// PRIVATE API
 export type QueryMetadata = {
   queryCacheKey: string[]
   route: Route
 }
-
-export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata
 
 // PUBLIC API
 export function useQuery<Input, Output>(
@@ -46,16 +52,22 @@ export function useQuery<Input, Output>(
 }
 
 // PRIVATE API (needed in SDK)
-export type QueryForFunction<QF extends QueryFunction<never, unknown>> = QF & QueryMetadata
-
-// PRIVATE API (but should maybe be public, users define values of this type)
-export type Action<Input, Output> = Operation<Input, Output>
+export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
+  Parameters<BackendOperation> extends []
+    ? ClientOperation<void, _Awaited<_ReturnType<BackendOperation>>>
+    : ClientOperation<
+        Parameters<BackendOperation>[0],
+        _Awaited<_ReturnType<BackendOperation>>
+      >
 
 // PRIVATE API (but should maybe be public, users use values of this type)
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
-export type Operation<Input, Output> = [Input] extends [never]
+export type ClientOperation<Input, Output> = [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
   : (args: Input) => Promise<Output>;
+
+// PRIVATE API (needed in SDK)
+export type GenericBackendOperation = (args: never, context: any) => unknown
 
 // PRIVATE API (but should maybe be public, users define values of this type)
 /**
