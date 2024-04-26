@@ -21,13 +21,13 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
   const queryRoute = makeOperationRoute(relativeQueryPath)
   const queryCacheKey = [relativeQueryPath]
 
-  const queryFn: QueryFunctionFor<BackendQuery> = (async (queryArgs) => { 
+  const queryFn: QueryFunctionFor<BackendQuery> = async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
       serverResult,
     )
-  })
+  }
 
   return buildAndRegisterQuery(
     queryFn,
