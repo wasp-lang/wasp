@@ -1,3 +1,5 @@
+import { AuthUser } from 'wasp/auth'
+import { getMe } from 'wasp/client/auth'
 import {
   getTask,
   getTasks,
@@ -50,6 +52,14 @@ type TQ5 = Assert<
 
 type TQ6 = Assert<
   InputsAndOutputsAre<typeof getTrueVoid, VoidOperationPayload, Promise<string>>
+>
+
+type TestGetMe = Assert<
+  InputsAndOutputsAre<
+    typeof getMe,
+    VoidOperationPayload,
+    Promise<AuthUser | null>
+  >
 >
 
 type TA1 = Assert<
