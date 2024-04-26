@@ -7,7 +7,6 @@ import {
   useQuery as rqUseQuery,
   UseQueryResult,
 } from "@tanstack/react-query";
-import type { _Awaited, _ReturnType } from 'wasp/universal/types'
 import { Action, Query } from "./rpc";
 export { configureQueryClient } from "./queryClient";
 
