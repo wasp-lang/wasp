@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { type AuthUserData } from 'wasp/auth';
 type RequestWithExtraFields = Request & {
     user: AuthUserData | null;
-    sessionId?: string;
+    sessionId: string | null;
 };
 /**
  * Decorator for async express middleware that handles promise rejections.

@@ -13,15 +13,20 @@ import { getFirstProviderUserId } from '../../auth/user.js'
 import { Expand } from '../../universal/types.js'
 
 // PUBLIC API
+export type AuthUser = AuthUserData & {
+  getFirstProviderUserId: () => string | null,
+}
+
+// PRIVATE API
 /**
  * Ideally, we'd do something like this:
  * ```
- * export type AuthUser = ReturnType<typeof createAuthUser>
+ * export type AuthUserData = ReturnType<typeof createAuthUser>
  * ```
- * to get the benefits of the createAuthUser and the AuthUser type being in sync.
+ * to get the benefits of the createAuthUser and the AuthUserData type being in sync.
  * 
  * But since we are not using strict mode, the inferred return type of createAuthUser
- * is not correct. So we have to define the AuthUser type manually.
+ * is not correct. So we have to define the AuthUserData type manually.
  * 
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
@@ -43,11 +48,6 @@ export type AuthUserData = Omit<UserEntityWithAuth, '{= authFieldOnUserEntityNam
     github: Expand<UserFacingProviderData<'github'>> | null
     {=/ enabledProviders.isGitHubAuthEnabled =}
   },
-}
-
-// PRIVATE API
-export type AuthUser = AuthUserData & {
-  getFirstProviderUserId: () => string | null,
 }
 
 type UserFacingProviderData<PN extends ProviderName> = {

@@ -4,7 +4,7 @@ import { type AuthUserData } from 'wasp/auth'
 
 type RequestWithExtraFields = Request & {
   user: AuthUserData | null;
-  sessionId?: string;
+  sessionId: string | null;
 }
 
 /**
