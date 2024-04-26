@@ -8,6 +8,9 @@ import type { AuthUserData, AuthUser } from '../server/auth/user.js'
  */
 import { type UserEntityWithAuth } from '../server/auth/user.js'
 
+// PRIVATE API
+export type { AuthUserData, AuthUser } from '../server/auth/user.js'
+
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
   return findUserIdentity(user, "email")?.providerUserId ?? null;

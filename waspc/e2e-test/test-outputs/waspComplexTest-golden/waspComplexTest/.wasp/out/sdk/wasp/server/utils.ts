@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import { type AuthUserData } from 'wasp/auth'
+import { type AuthUserData } from './auth/user.js'
 
 type RequestWithExtraFields = Request & {
   user: AuthUserData | null;

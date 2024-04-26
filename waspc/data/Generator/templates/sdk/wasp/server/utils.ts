@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 {=# isAuthEnabled =}
-import { type AuthUserData } from 'wasp/auth'
+import { type AuthUserData } from './auth/user.js'
 {=/ isAuthEnabled =}
 
 type RequestWithExtraFields = Request & {

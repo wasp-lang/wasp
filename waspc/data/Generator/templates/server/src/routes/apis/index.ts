@@ -5,8 +5,7 @@ import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from 'wasp/core/auth'
-import { type AuthUserData } from 'wasp/auth'
-import { enrichAuthUser } from 'wasp/auth/user'
+import { type AuthUserData, enrichAuthUser} from 'wasp/auth/user'
 {=/ isAuthEnabled =}
 
 {=# apiNamespaces =}

@@ -1,5 +1,5 @@
 import { Request as ExpressRequest } from "express";
-import { type AuthUserData } from 'wasp/auth';
+import { type AuthUserData } from '../server/auth/user.js';
 import type { Session } from "lucia";
 export declare function createSession(authId: string): Promise<Session>;
 export declare function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<{

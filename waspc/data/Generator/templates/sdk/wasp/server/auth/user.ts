@@ -9,7 +9,6 @@ import {
   deserializeAndSanitizeProviderData
 } from '../../auth/utils.js'
 import { type ProviderName } from '../_types/index.js'
-import { getFirstProviderUserId } from '../../auth/user.js'
 import { Expand } from '../../universal/types.js'
 
 // PUBLIC API
