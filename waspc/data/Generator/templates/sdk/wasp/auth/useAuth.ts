@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations'
-import type { QueryFunction, Query  } from 'wasp/client/operations/core'
+import type { QueryFunction, Query  } from 'wasp/client/operations/rpc'
 import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/client'
 import type { AuthUser } from '../server/auth/user.js'

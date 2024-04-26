@@ -1,5 +1,5 @@
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
-import type { OperationRpcFor, GenericBackendOperation } from '../core.js'
+import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   registerActionInProgress,

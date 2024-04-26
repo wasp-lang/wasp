@@ -6,7 +6,7 @@ import type {
   OperationRpcFor,
   QueryFunction,
   QueryMetadata,
-} from '../core.js'
+} from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
