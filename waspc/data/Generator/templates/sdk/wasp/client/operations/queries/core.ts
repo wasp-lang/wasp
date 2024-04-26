@@ -15,7 +15,7 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
   const queryRoute = makeOperationRoute(relativeQueryPath)
   const queryCacheKey = [relativeQueryPath]
 
-  const query: QueryFunctionFor<BackendQuery> = (async (queryArgs) => { 
+  const queryFn: QueryFunctionFor<BackendQuery> = (async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
     return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
@@ -23,21 +23,26 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
     )
   })
 
-  addMetadataToQuery(query, { queryCacheKey, queryRoute, entitiesUsed })
-
-  return query
+  return buildAndRegisterQuery(
+    queryFn,
+    { queryCacheKey, queryRoute, entitiesUsed },
+  )
 }
 
 // PRIVATE API (used in SDK)
-export function addMetadataToQuery<Input, Output>(
+export function buildAndRegisterQuery<Input, Output>(
   queryFn: QueryFunction<Input, Output>,
   { queryCacheKey, queryRoute, entitiesUsed }: 
   { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
-): asserts queryFn is QueryForFunction<typeof queryFn> {
+): QueryForFunction<typeof queryFn> {
   const query = queryFn as QueryForFunction<typeof queryFn>
+
   query.queryCacheKey = queryCacheKey 
   query.route = queryRoute
   addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
+
+  return query
+
 }
 
 // PRIVATE API (but should maybe be public, users define values of this type)

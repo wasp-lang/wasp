@@ -12,5 +12,5 @@ export const {= operationName =}: QueryFor<{= operationTypeName =}> = createQuer
 )
 {=/ queries =}
 
-// PRIVATE API
-export { addMetadataToQuery } from './core'
+// PRIVATE API (used in SDK)
+export { buildAndRegisterQuery } from './core'

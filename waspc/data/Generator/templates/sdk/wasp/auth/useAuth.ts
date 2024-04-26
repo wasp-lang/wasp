@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { deserialize as superjsonDeserialize } from 'superjson'
-import { useQuery, addMetadataToQuery } from 'wasp/client/operations'
+import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations'
 import type { QueryFunction, Query  } from 'wasp/client/operations/core'
 import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/client'
@@ -32,11 +32,9 @@ function createUserGetter(): Query<void, AuthUser | null> {
     }
   }
   
-  addMetadataToQuery(getMe, {
+  return buildAndRegisterQuery(getMe, {
     queryCacheKey: [getMeRelativePath],
     queryRoute: getMeRoute,
     entitiesUsed: {=& entitiesGetMeDependsOn =},
   })
-
-  return getMe
 }
