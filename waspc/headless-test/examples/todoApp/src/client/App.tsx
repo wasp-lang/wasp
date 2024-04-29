@@ -1,11 +1,11 @@
-import { Link } from "wasp/client/router";
-import { logout, useAuth } from "wasp/client/auth";
-import { useQuery, getDate } from "wasp/client/operations";
+import { Link } from 'wasp/client/router'
+import { logout, useAuth } from 'wasp/client/auth'
+import { useQuery, getDate } from 'wasp/client/operations'
 
 import './Main.css'
 import { getName } from './user'
 
-export function App({ children }: any) {
+export function App({ children }: { children: React.ReactNode }) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
 
