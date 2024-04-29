@@ -1,7 +1,7 @@
 import { type Route } from "wasp/client";
 import type {
   _Awaited,
-  _ReturnType 
+  _ReturnType,
 } from "wasp/universal/types"
 
 // PRIVATE API (but should maybe be public, users define values of this type)
