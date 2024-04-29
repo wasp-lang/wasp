@@ -20,6 +20,11 @@ export type QueryMetadata = {
 }
 
 // PRIVATE API (needed in SDK)
+// Explanation:
+// - Custom `_Awaited` and `_ReturnType` - Read the comments above their
+// definitions.
+// - `Parameters<BackendOperation> extends []` - See here:
+// https://github.com/wasp-lang/wasp/pull/1992/files#r1583040080
 export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
   Parameters<BackendOperation> extends []
     ? ClientOperation<void, _Awaited<_ReturnType<BackendOperation>>>
