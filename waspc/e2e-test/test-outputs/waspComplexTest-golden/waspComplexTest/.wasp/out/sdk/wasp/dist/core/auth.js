@@ -23,12 +23,12 @@ const auth = handleRejection(async (req, res, next) => {
         req.user = null;
         return next();
     }
-    const { session, user } = await getSessionAndUserFromBearerToken(req);
-    if (!session || !user) {
+    const sessionAndUser = await getSessionAndUserFromBearerToken(req);
+    if (sessionAndUser === null) {
         throwInvalidCredentialsError();
     }
-    req.sessionId = session.id;
-    req.user = user;
+    req.sessionId = sessionAndUser.session.id;
+    req.user = sessionAndUser.user;
     next();
 });
 export default auth;

@@ -17,42 +17,33 @@ export async function createSession(authId: string): Promise<Session> {
   return auth.createSession(authId, {});
 }
 
-type UserAndSession = {
-  user: AuthUserData;
+type SessionAndUser = {
   session: Session;
+  user: AuthUserData;
 }
 
 // PRIVATE API
-export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<UserAndSession | null> {
+export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<SessionAndUser | null> {
   const authorizationHeader = req.headers["authorization"];
 
   if (typeof authorizationHeader !== "string") {
-    return {
-      user: null,
-      session: null,
-    };
+    return null;
   }
 
   const sessionId = auth.readBearerToken(authorizationHeader);
   if (!sessionId) {
-    return {
-      user: null,
-      session: null,
-    };
+    return null;
   }
 
   return getSessionAndUserFromSessionId(sessionId);
 }
 
 // PRIVATE API
-export async function getSessionAndUserFromSessionId(sessionId: string): Promise<UserAndSession | null> {
+export async function getSessionAndUserFromSessionId(sessionId: string): Promise<SessionAndUser | null> {
   const { session, user: authEntity } = await auth.validateSession(sessionId);
 
   if (!session || !authEntity) {
-    return {
-      user: null,
-      session: null,
-    };
+    return null;
   }
 
   return {

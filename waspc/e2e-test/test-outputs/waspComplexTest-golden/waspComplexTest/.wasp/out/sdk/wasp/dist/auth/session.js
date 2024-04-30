@@ -11,17 +11,11 @@ export async function createSession(authId) {
 export async function getSessionAndUserFromBearerToken(req) {
     const authorizationHeader = req.headers["authorization"];
     if (typeof authorizationHeader !== "string") {
-        return {
-            user: null,
-            session: null,
-        };
+        return null;
     }
     const sessionId = auth.readBearerToken(authorizationHeader);
     if (!sessionId) {
-        return {
-            user: null,
-            session: null,
-        };
+        return null;
     }
     return getSessionAndUserFromSessionId(sessionId);
 }
@@ -29,10 +23,7 @@ export async function getSessionAndUserFromBearerToken(req) {
 export async function getSessionAndUserFromSessionId(sessionId) {
     const { session, user: authEntity } = await auth.validateSession(sessionId);
     if (!session || !authEntity) {
-        return {
-            user: null,
-            session: null,
-        };
+        return null;
     }
     return {
         session,

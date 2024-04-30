@@ -25,14 +25,14 @@ const auth = handleRejection(async (req, res, next) => {
     return next()
   }
 
-  const { session, user } = await getSessionAndUserFromBearerToken(req)
+  const sessionAndUser = await getSessionAndUserFromBearerToken(req)
 
-  if (!session || !user) {
+  if (sessionAndUser === null) {
     throwInvalidCredentialsError()
   }
 
-  req.sessionId = session.id
-  req.user = user
+  req.sessionId = sessionAndUser.session.id
+  req.user = sessionAndUser.user
 
   next()
 })

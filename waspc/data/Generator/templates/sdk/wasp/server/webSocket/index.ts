@@ -39,12 +39,12 @@ export interface WaspSocketData {
   {=/ isAuthEnabled =}
 }
 
-// PRIVATE API
+// PRIVATE API (framework)
 export type ServerType = Parameters<WebSocketFn>[0]
 
-// PRIVATE API
+// PRIVATE API (sdk)
 export type ClientToServerEvents = Events[0]
-// PRIVATE API
+// PRIVATE API (sdk)
 export type ServerToClientEvents = Events[1]
 
 type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
