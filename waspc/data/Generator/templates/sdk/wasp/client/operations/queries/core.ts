@@ -37,7 +37,7 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
 
 // PRIVATE API (used in SDK)
 export function buildAndRegisterQuery<Input, Output>(
-  queryFn: ClientOperation<Input, Output>,
+  queryFn: QueryFunction<Input, Output>,
   { queryCacheKey, queryRoute, entitiesUsed }: 
   { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
 ): QueryForFunction<typeof queryFn> {
@@ -61,4 +61,3 @@ type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
 // PRIVATE API (needed in SDK)
 type QueryForFunction<QF extends QueryFunction<never, unknown>> = 
   QF & QueryMetadata
-
