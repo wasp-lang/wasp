@@ -52,6 +52,7 @@ Its **input** is an `args` object with the following properties:
 - `providerId: { providerName: string, providerUserId: string }` - The provider ID of the user
 - `prisma: PrismaClient` - Prisma client instance
 - `req: Request` - Express request object
+- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onBeforeSignup'`)
 
 The **return value** of this hook is ignored.
 
@@ -69,7 +70,7 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onBeforeSignup = async ({ providerId, prisma, req }) => {
+export const onBeforeSignup = async ({ providerId, prisma, req, hookName }) => {
   // Do something before signup
 }
 ```
@@ -90,7 +91,7 @@ app myApp {
 ```ts title="src/auth/hooks.ts"
 import type { OnBeforeSignupHookFn } from 'wasp/server/auth'
 
-export const onBeforeSignup: OnBeforeSignupHookFn = async ({ providerId, prisma, req }) => {
+export const onBeforeSignup: OnBeforeSignupHookFn = async ({ providerId, prisma, req, hookName }) => {
   // Do something before signup
 }
 ```
@@ -116,6 +117,7 @@ Its **input** is an `args` object with the following properties:
 - `user: User` - The user object that was created
 - `prisma: PrismaClient` - Prisma client instance
 - `req: Request` - Express request object
+- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onAfterSignup'`)
 
 The **return value** of this hook is ignored.
 
@@ -133,7 +135,7 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onAfterSignup = async ({ providerId, user, prisma, req }) => {
+export const onAfterSignup = async ({ providerId, user, prisma, req, hookName }) => {
   // Do something after signup
 }
 ```
@@ -154,7 +156,7 @@ app myApp {
 ```ts title="src/auth/hooks.ts"
 import type { OnAfterSignupHookFn } from 'wasp/server/auth'
 
-export const onAfterSignup: OnAfterSignupHookFn = async ({ providerId, user, prisma, req }) => {
+export const onAfterSignup: OnAfterSignupHookFn = async ({ providerId, user, prisma, req, hookName }) => {
   // Do something after signup
 }
 ```
@@ -178,6 +180,7 @@ Its **input** is an `args` object with the following properties:
 - `url: URL` - The URL object that will be used for the OAuth redirect
 - `prisma: PrismaClient` - Prisma client instance
 - `req: Request` - Express request object
+- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onBeforeOAuthRedirect'`)
 
 The **return value** of this hook should be an object with a `url` property that is a URL object. This URL object will be used for the OAuth redirect.
 
@@ -195,7 +198,7 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onBeforeOAuthRedirect = async ({ url, prisma, req }) => {
+export const onBeforeOAuthRedirect = async ({ url, prisma, req, hookName }) => {
   // Do something before OAuth redirect
   return { url }
 }
@@ -217,7 +220,7 @@ app myApp {
 ```ts title="src/auth/hooks.ts"
 import type { OnBeforeOAuthRedirectHookFn } from 'wasp/server/auth'
 
-export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async ({ url, prisma, req }) => {
+export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async ({ url, prisma, req, hookName }) => {
   // Do something before OAuth redirect
   return { url }
 }
@@ -242,6 +245,7 @@ Its **input** is an `args` object with the following properties:
 - `accessToken: string` - The OAuth
 - `prisma: PrismaClient` - Prisma client instance
 - `req: Request` - Express request object
+- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onAfterOAuthTokenReceived'`)
 
 The **return value** of this hook is ignored.
 
@@ -259,7 +263,7 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onAfterOAuthTokenReceived = async ({ accessToken, prisma, req }) => {
+export const onAfterOAuthTokenReceived = async ({ accessToken, prisma, req, hookName }) => {
   // Do something after OAuth token received
 }
 ```
@@ -280,7 +284,7 @@ app myApp {
 ```ts title="src/auth/hooks.ts"
 import type { OnAfterOAuthTokenReceivedHookFn } from 'wasp/server/auth'
 
-export const onAfterOAuthTokenReceived: OnAfterOAuthTokenReceivedHookFn = async ({ accessToken, prisma, req }) => {
+export const onAfterOAuthTokenReceived: OnAfterOAuthTokenReceivedHookFn = async ({ accessToken, prisma, req, hookName }) => {
   // Do something after OAuth token received
 }
 ```
