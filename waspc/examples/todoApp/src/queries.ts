@@ -1,10 +1,10 @@
 import { type Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
-import {
-  type GetNumTasks,
-  type GetTask,
-  type GetTasks,
-  type GetDate,
+import type {
+  GetNumTasks,
+  GetTask,
+  GetTasks,
+  GetDate,
   GetAnything,
   GetTrueVoid,
 } from 'wasp/server/operations'
