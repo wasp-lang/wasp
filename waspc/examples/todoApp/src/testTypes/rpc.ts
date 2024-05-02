@@ -14,10 +14,10 @@ import {
 } from 'wasp/client/operations'
 import { Task } from 'wasp/entities'
 import { Payload } from 'wasp/server/_types'
+import { Assert, AreEqual } from './helpers'
 
 // For the details of this specification, see
 // https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
-
 // This should be [],
 // but I couldn't get it to work yet.
 type VoidOperationPayload = [args?: void | undefined]
@@ -102,11 +102,3 @@ type InputsAndOutputsAre<
   params: AreEqual<Parameters<OperationType>, ExpectedParams>
   return: AreEqual<ReturnType<OperationType>, ExpectedReturn>
 }
-
-type Assert<T extends { params: true; return: true }> = T
-
-type AreEqual<T, Expected> = T extends Expected
-  ? Expected extends T
-    ? true
-    : false
-  : false
