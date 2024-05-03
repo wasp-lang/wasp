@@ -6,38 +6,42 @@ import { useAuth } from 'wasp/client/auth'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
 import { MessageLoading, MessageError } from "../../components/Message";
+import { FullPageWrapper } from "../../components/FullPageWrapper";
 
-const wrapperStyles = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '4rem',
-}
+const oAuthCallbackWrapperClassName = "oauth-callback-wrapper";
 
 export function OAuthCallbackPage() {
-  const { isLoading, error, user } = useOAuthCallbackHandler();
+  const { error, user } = useOAuthCallbackHandler();
   
   if (user !== undefined && user !== null) {
     return <Redirect to="{= onAuthSucceededRedirectTo =}" />;
   }
 
+
+  if (error) {
+    return (
+      <FullPageWrapper className={oAuthCallbackWrapperClassName}>
+        <MessageError>{error}</MessageError>
+      </FullPageWrapper>
+    );
+  }
+
   return (
-    <div style={wrapperStyles}>
-      {error && <MessageError>{error}</MessageError>}
-      {isLoading && <MessageLoading>Please wait a moment while we log you in.</MessageLoading>}
-    </div>
+    <FullPageWrapper className={oAuthCallbackWrapperClassName}>
+      <MessageLoading>Please wait a moment while we log you in.</MessageLoading>
+    </FullPageWrapper>
   );
 }
 
 function useOAuthCallbackHandler() {
-  const { data: user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: user, isLoading: isUserLoading } = useAuth();
+  const [isCallbackLoading, setisCallbackLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
 
   async function handleCallback() {
     try {
-      setIsLoading(true);
+      setisCallbackLoading(true);
       const query = new URLSearchParams(location.search);
 
       // If we got redirect with an error, display it to the user
@@ -59,7 +63,7 @@ function useOAuthCallbackHandler() {
       console.error(e);
       setError("Unable to login with the OAuth provider.");
     } finally {
-      setIsLoading(false);
+      setisCallbackLoading(false);
     }
   }
 
@@ -74,7 +78,8 @@ function useOAuthCallbackHandler() {
   return {
     user,
     error,
-    isLoading,
+    isCallbackLoading,
+    isUserLoading,
   };
 }
 

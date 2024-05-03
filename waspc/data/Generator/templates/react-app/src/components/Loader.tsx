@@ -5,13 +5,11 @@ const fullRotationKeyframes = keyframes({
   '100%': { transform: 'rotate(360deg)' },
 })
 
-// TODO: Do I need to add !important on all of this stuff because of Tailwind css?
 // DefaultLoader is a React component that spans accross the whole screen and displays
 // a spinner in the very middle.
-
-export function DefaultLoader() {
+export function Loader() {
   return (
-    <SpinnerWrapper>
+    <SpinnerWrapper className="loader">
       <Spinner />
       <SpinnerAccessbilityText>Loading...</SpinnerAccessbilityText>
     </SpinnerWrapper>
@@ -19,11 +17,6 @@ export function DefaultLoader() {
 }
 
 const SpinnerWrapper = styled('div', {
-  display: 'flex',
-  height: '100vh',
-  width: '100vw',
-  justifyContent: 'center',
-  alignItems: 'center',
   color: '$gray900',
 })
 

@@ -4,25 +4,35 @@ import React from 'react'
 import { Redirect } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
 
-import { DefaultLoader } from '../../DefaultLoader'
+import { Loader } from '../../components/Loader'
+import { MessageError } from '../../components/Message'
+import { FullPageWrapper } from '../../components/FullPageWrapper'
 
 const createAuthRequiredPage = (Page) => {
   return (props) => {
-    const { data: user, status, error } = useAuth();
+    const { data: user, status, error } = useAuth()
 
     switch (status) {
       case 'success':
         if (user) {
-          return (
-            <Page {...props} user={user} />
-          );
+          return <Page {...props} user={user} />
         } else {
-          return <Redirect to="{= onAuthFailedRedirectTo =}" />;
+          return <Redirect to="{= onAuthFailedRedirectTo =}" />
         }
       case 'loading':
-        return <DefaultLoader/>;
-    case 'error':
-      return <span>An error occurred. Please refresh the page. {error?.message}</span>
+        return (
+          <FullPageWrapper className="auth-required-loader-wrapper">
+            <Loader />
+          </FullPageWrapper>
+        )
+      case 'error':
+        return (
+          <FullPageWrapper className="auth-required-error-wrapper">
+            <MessageError subtitle={<small>Details: {error.message}</small>}>
+              Failed to load user data. Try refreshing the page.
+            </MessageError>
+          </FullPageWrapper>
+        )
     }
   }
 }
