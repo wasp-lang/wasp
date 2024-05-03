@@ -19,8 +19,10 @@ import { Assert, AreEqual } from './helpers'
 // For the details of this specification, see
 // https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 // This should be [],
-// but I couldn't get it to work yet.
+// but I couldn't get it to work yet: https://github.com/wasp-lang/wasp/issues/2004
 type VoidOperationPayload = [args?: void | undefined]
+
+type X = Parameters<typeof getNumTasks>
 
 // When the user doesn't specify an operation payload,
 // we want to be as permissive as possible.
