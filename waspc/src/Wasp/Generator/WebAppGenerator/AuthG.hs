@@ -16,12 +16,15 @@ import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToO
 import Wasp.Generator.WebAppGenerator.Common as C
   ( mkTmplFdWithData,
   )
+import Wasp.Util ((<:>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec =
   case maybeAuth of
     Nothing -> return []
-    Just auth -> (:) <$> genCreateAuthRequiredPage auth <*> genOAuthAuth auth
+    Just auth ->
+      genCreateAuthRequiredPage auth
+        <:> genOAuthAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -31,7 +34,10 @@ genCreateAuthRequiredPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|src/auth/pages/createAuthRequiredPage.jsx|]
-      (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
+      ( object
+          [ "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
+          ]
+      )
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth = sequence [genOAuthCodeExchange auth | AS.Auth.isExternalAuthEnabled auth]

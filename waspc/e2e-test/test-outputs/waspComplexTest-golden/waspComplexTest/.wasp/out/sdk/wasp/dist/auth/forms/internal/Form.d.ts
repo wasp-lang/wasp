@@ -1,6 +1,7 @@
 export declare const Form: import("@stitches/react/types/styled-component").StyledComponent<"form", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -24,6 +25,7 @@ export declare const Form: import("@stitches/react/types/styled-component").Styl
 export declare const FormItemGroup: import("@stitches/react/types/styled-component").StyledComponent<"div", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -47,6 +49,7 @@ export declare const FormItemGroup: import("@stitches/react/types/styled-compone
 export declare const FormLabel: import("@stitches/react/types/styled-component").StyledComponent<"label", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -70,6 +73,7 @@ export declare const FormLabel: import("@stitches/react/types/styled-component")
 export declare const FormInput: import("@stitches/react/types/styled-component").StyledComponent<"input", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -93,6 +97,7 @@ export declare const FormInput: import("@stitches/react/types/styled-component")
 export declare const FormTextarea: import("@stitches/react/types/styled-component").StyledComponent<"textarea", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -116,6 +121,7 @@ export declare const FormTextarea: import("@stitches/react/types/styled-componen
 export declare const FormError: import("@stitches/react/types/styled-component").StyledComponent<"div", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -139,6 +145,7 @@ export declare const FormError: import("@stitches/react/types/styled-component")
 export declare const SubmitButton: import("@stitches/react/types/styled-component").StyledComponent<"button", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;

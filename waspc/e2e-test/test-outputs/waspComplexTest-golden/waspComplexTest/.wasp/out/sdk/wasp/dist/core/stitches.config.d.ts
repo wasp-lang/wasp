@@ -4,6 +4,7 @@ export declare const styled: <Type extends import("@stitches/react/types/util").
 })[], CSS = import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -37,6 +38,7 @@ export declare const styled: <Type extends import("@stitches/react/types/util").
 } & CSS & { [K2 in keyof Composers[K]]: K2 extends "compoundVariants" | "defaultVariants" | "variants" ? unknown : K2 extends keyof CSS ? CSS[K2] : unknown; }; }) => import("@stitches/react/types/styled-component").StyledComponent<Type, import("@stitches/react/types/styled-component").StyledComponentProps<Composers>, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -61,6 +63,7 @@ export declare const styled: <Type extends import("@stitches/react/types/util").
 })[], CSS = import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -91,4 +94,32 @@ export declare const styled: <Type extends import("@stitches/react/types/util").
         css: CSS;
     })[];
     defaultVariants?: "variants" extends keyof Composers[K] ? { [Name_1 in keyof Composers[K][keyof Composers[K] & "variants"]]?: import("@stitches/react/types/util").String | import("@stitches/react/types/util").Widen<keyof Composers[K][keyof Composers[K] & "variants"][Name_1]>; } : import("@stitches/react/types/util").WideObject;
-} & CSS & { [K2 in keyof Composers[K]]: K2 extends "compoundVariants" | "defaultVariants" | "variants" ? unknown : K2 extends keyof CSS ? CSS[K2] : unknown; }; }) => import("@stitches/react/types/styled-component").CssComponent<import("@stitches/react/types/styled-component").StyledComponentType<Composers>, import("@stitches/react/types/styled-component").StyledComponentProps<Composers>, {}, CSS>;
+} & CSS & { [K2 in keyof Composers[K]]: K2 extends "compoundVariants" | "defaultVariants" | "variants" ? unknown : K2 extends keyof CSS ? CSS[K2] : unknown; }; }) => import("@stitches/react/types/styled-component").CssComponent<import("@stitches/react/types/styled-component").StyledComponentType<Composers>, import("@stitches/react/types/styled-component").StyledComponentProps<Composers>, {}, CSS>, keyframes: (style: {
+    [offset: string]: import("@stitches/react/types/css-util").CSS<{}, {
+        colors: {
+            waspYellow: string;
+            gray900: string;
+            gray700: string;
+            gray600: string;
+            gray500: string;
+            gray400: string;
+            red: string;
+            darkRed: string;
+            green: string;
+            brand: string;
+            brandAccent: string;
+            errorBackground: string;
+            errorText: string;
+            successBackground: string;
+            successText: string;
+            submitButtonText: string;
+            formErrorText: string;
+        };
+        fontSizes: {
+            sm: string;
+        };
+    }, import("@stitches/react/types/config").DefaultThemeMap, {}>;
+}) => {
+    (): string;
+    name: string;
+};

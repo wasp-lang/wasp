@@ -464,6 +464,8 @@ waspComplexTest/.wasp/out/web-app/public/manifest.json
 waspComplexTest/.wasp/out/web-app/scripts/validate-env.mjs
 waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCallback.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
+waspComplexTest/.wasp/out/web-app/src/components/FullPageWrapper.tsx
+waspComplexTest/.wasp/out/web-app/src/components/Loader.tsx
 waspComplexTest/.wasp/out/web-app/src/components/Message.tsx
 waspComplexTest/.wasp/out/web-app/src/index.tsx
 waspComplexTest/.wasp/out/web-app/src/logo.png
