@@ -1,7 +1,6 @@
 import { Route } from 'wasp/client'
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
 import type { 
-  ClientOperation,
   GenericBackendOperation,
   OperationRpcFor,
   QueryFunction,
@@ -52,12 +51,23 @@ export function buildAndRegisterQuery<Input, Output>(
 }
 
 // PRIVATE API (but should maybe be public, users define values of this type)
+/**
+ * Constructs the client Query object type from the type of the Query's definition
+ * on the backend.
+ */
 export type QueryFor<BackendQuery extends GenericBackendOperation> =
   QueryForFunction<QueryFunctionFor<BackendQuery>>
 
+/**
+ * Constructs the client Query function type from the type of the Query's
+ * definition on the backend.
+ */ 
 type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
   OperationRpcFor<BackendQuery>
 
-// PRIVATE API (needed in SDK)
+/**
+ * Returns the appropriate client Query object type for the provided client
+ * Query function type.
+ */
 type QueryForFunction<QF extends QueryFunction<never, unknown>> = 
   QF & QueryMetadata

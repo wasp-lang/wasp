@@ -5,15 +5,34 @@ import type {
 } from "wasp/universal/types"
 
 // PRIVATE API (but should maybe be public, users define values of this type)
+// Frontend queries are functions with some extra properties (metadata).
+// 
+// To simplify working with the type (i.e., referencing the type's two different
+// components), we've defined it as an intersection of two distinct types:
+// one representing the function (QueryFunction), and the other representing the
+// metadata (QueryMetadata) .
+/**
+ * The client Query object type. It's a callable Query function with some extra
+ * properties (metadata).
+ */
 export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata
 
 // PRIVATE API (but should maybe be public, users define values of this type)
+/**
+ * The client Action object type (unlike a Query, it's just a normal function).
+ */
 export type Action<Input, Output> = ClientOperation<Input, Output>
 
 // PRIVATE API
+/**
+ * The client Query function type.
+ */
 export type QueryFunction<Input, Output> = ClientOperation<Input, Output>
 
 // PRIVATE API
+/**
+ *  All extra properties (metadata) found on a Query object type.
+ */
 export type QueryMetadata = {
   queryCacheKey: string[]
   route: Route
@@ -25,6 +44,10 @@ export type QueryMetadata = {
 // definitions.
 // - `Parameters<BackendOperation> extends []` - See here:
 // https://github.com/wasp-lang/wasp/pull/1992/files#r1583040080
+/**
+ * Constructs the client RPC function type from the type of the operation's
+ * definition on the backend.
+ */
 export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
   Parameters<BackendOperation> extends []
     ? ClientOperation<void, _Awaited<_ReturnType<BackendOperation>>>
@@ -33,11 +56,14 @@ export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
         _Awaited<_ReturnType<BackendOperation>>
       >
 
-// PRIVATE API (but should maybe be public, users use values of this type)
+// PRIVATE API (needed in SDK)
+/**
+ * A supertype of all possible backend operation definitions (i.e., Queries and
+ * Actions) 
+ */
+export type GenericBackendOperation = (args: never, context: any) => unknown
+
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
-export type ClientOperation<Input, Output> = [Input] extends [never]
+type ClientOperation<Input, Output> = [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
   : (args: Input) => Promise<Output>;
-
-// PRIVATE API (needed in SDK)
-export type GenericBackendOperation = (args: never, context: any) => unknown
