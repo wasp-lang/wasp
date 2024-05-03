@@ -19,9 +19,7 @@ function createUserGetter() {
   const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
   async function getMe(): Promise<AuthUser | null> {
     try {
-      const response = await api.get(getMeRoute.path)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-  
+      const response = await api.get(getMeRoute.path)  
       return superjsonDeserialize(response.data)
     } catch (error) {
       if (error.response?.status === 401) {

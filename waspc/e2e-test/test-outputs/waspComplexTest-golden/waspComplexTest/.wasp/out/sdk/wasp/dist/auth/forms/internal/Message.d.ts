@@ -1,6 +1,7 @@
 export declare const Message: import("@stitches/react/types/styled-component").StyledComponent<"div", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -24,6 +25,7 @@ export declare const Message: import("@stitches/react/types/styled-component").S
 export declare const MessageError: import("@stitches/react/types/styled-component").StyledComponent<import("@stitches/react/types/styled-component").StyledComponent<"div", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -46,6 +48,7 @@ export declare const MessageError: import("@stitches/react/types/styled-componen
 }, import("@stitches/react/types/config").DefaultThemeMap, {}>>, {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -69,6 +72,7 @@ export declare const MessageError: import("@stitches/react/types/styled-componen
 export declare const MessageSuccess: import("@stitches/react/types/styled-component").StyledComponent<import("@stitches/react/types/styled-component").StyledComponent<"div", {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;
@@ -91,6 +95,7 @@ export declare const MessageSuccess: import("@stitches/react/types/styled-compon
 }, import("@stitches/react/types/config").DefaultThemeMap, {}>>, {}, {}, import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
         waspYellow: string;
+        gray900: string;
         gray700: string;
         gray600: string;
         gray500: string;

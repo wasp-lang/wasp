@@ -25,10 +25,10 @@ genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       genTypes auth,
-      -- todo (move this to somewhere more meaningful)
-      -- TODO: Now I am also using stitches for page loader.
-      --   I think I should put it somewhere else then, move this, as the comment above indicates?
-      --   It is now used even if Auth UI is not used (or if Auth is not used).
+      -- TODO: Move Stitches to somewhere more meaningful.
+      -- Currently, they are used only when auth is used,
+      -- but that might change. Also, it feels wrong to
+      -- generate general styling config in auth generator.
       genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|auth/forms/Login.tsx|],
       genFileCopy [relfile|auth/forms/Signup.tsx|]
