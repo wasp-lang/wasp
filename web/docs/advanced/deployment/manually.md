@@ -15,10 +15,10 @@ After going through the general steps that apply to all deployments, you can
 follow step-by-step guides for deploying your Wasp app to the most popular
 providers:
 
-- [Fly.io](#flyio)
-- [Netlify](#netlify)
-- [Railway](#railway)
-- [Heroku](#heroku)
+- [Fly.io](./#flyio)
+- [Netlify](./#netlify)
+- [Railway](./#railway)
+- [Heroku](./#heroku)
 
 No worries, you can still deploy your app if your desired provider isn't on the
 list - it just means we don't yet have a step-by-step guide for you to follow.
@@ -205,7 +205,7 @@ flyctl deploy --remote-only --config ../../fly.toml
 
 This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your client and add the client URL by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](#netlify) for your client, but you can use any static hosting provider.
+Now, if you haven't, you can deploy your client and add the client URL by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](./#netlify) for your client, but you can use any static hosting provider.
 
 Additionally, some useful `flyctl` commands:
 
@@ -478,7 +478,7 @@ We will show how to deploy the server and provision a database for it on Heroku.
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we recommend using an alternative provider like [Fly.io](#flyio) for your first apps.
+As such, we recommend using an alternative provider like [Fly.io](./#flyio) for your first apps.
 :::
 
 You will need Heroku account, `heroku` [CLI](https://devcenter.heroku.com/articles/heroku-cli) and `docker` CLI installed to follow these instructions.

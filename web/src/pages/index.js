@@ -22,6 +22,7 @@ import './index.css'
 import './preflight.css'
 
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
 
 const Background = () => {
   return (
@@ -39,6 +40,9 @@ const LightsTwo = () => (
 
 const Index = () => {
   const { siteConfig } = useDocusaurusContext()
+  useBrokenLinks().collectAnchor('signup')
+  useBrokenLinks().collectAnchor('showcases')
+  useBrokenLinks().collectAnchor('testimonials')
   const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`
   return (
     <div className="twLandingPage">
