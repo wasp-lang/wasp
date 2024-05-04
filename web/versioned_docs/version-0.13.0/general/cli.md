@@ -175,11 +175,11 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
    🐝 --- Uninstalling Wasp ... ------------------------------------------------------
 
     We will remove the following directories:
-      {home}/.local/share/wasp-lang/
-      {home}/.cache/wasp/
+      \{home}/.local/share/wasp-lang/
+      \{home}/.cache/wasp/
 
     We will also remove the following files:
-      {home}/.local/bin/wasp
+      \{home}/.local/bin/wasp
 
     Are you sure you want to continue? [y/N]
     y

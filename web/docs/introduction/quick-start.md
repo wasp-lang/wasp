@@ -32,7 +32,7 @@ Let's create and run our first Wasp app in 3 short steps:
    wasp start
    ```
 
-That's it 🎉 You have successfully created and served a new full-stack web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
+That's it 🎉 You have successfully created and served a new full-stack web app at [http://localhost:3000](http://localhost:3000) and Wasp is serving both frontend and backend for you.
 
 :::note Something Unclear?
   Check [More Details](#more-details) section below if anything went wrong with the installation, or if you have additional questions.

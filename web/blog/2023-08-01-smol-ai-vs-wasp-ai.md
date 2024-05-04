@@ -110,7 +110,7 @@ One of my personal favorites is AI Jason’s exposé and commentary. He gives a 
 
     Respond only with plans following the above schema.
 
-    the app prompt is: {prompt}
+    the app prompt is: \{prompt}
 
 </details>
 
@@ -276,31 +276,31 @@ In the end, the user can download the codebase as a zipped file and run it local
 
     Plan is represented as JSON with the following schema:
 
-    {
-      "entities": [{ "entityName": string, "entityBodyPsl": string }],
-      "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-      "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-      "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
+    \{
+      "entities": [\{ "entityName": string, "entityBodyPsl": string }],
+      "actions": [\{ "opName": string, "opFnPath": string, "opDesc": string }],
+      "queries": [\{ "opName": string, "opFnPath": string, "opDesc": string }],
+      "pages": [\{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
     }
 
     Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
 
-    {
-      "entities": [{
+    \{
+      "entities": [\{
         "entityName": "User",
         "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
-      }],
-      "actions": [{
+      \}],
+      "actions": [\{
         "opName": "createTask",
         "opFnPath": "@server/actions.js",
         "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
       }],
-      "queries": [{
+      "queries": [\{
         "opName": "getTask",
         "opFnPath": "@server/queries.js",
         "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
       }],
-      "pages": [{
+      "pages": [\{
         "pageName": "TaskPage",
         "componentPath": "@client/pages/Task.jsx",
         "routeName: "TaskRoute",
@@ -426,7 +426,7 @@ The video above was my first time trying out the app, and as you can see, most o
 
 There were still a couple of errors that prevented the app from being fully functional out-of-the-box, but they were easy to fix:
 
-1. Blog posts on the homepage did not have a link in order to redirect to the their specific post page — fixable by just wrapping them in `<Link to={`/post/${post.id}`}>` 
+1. Blog posts on the homepage did not have a link in order to redirect to the their specific post page — fixable by just wrapping them in `<Link to={`/post/$\{post.id}`}>` 
 2. The client was passing the `postId` as a String instead of an `Int` to the `getPost` endpoint — fixable by wrapping the argument in `parseInt(postId)` to convert strings to integers 
 
 <!-- ![Untitled](../static/img/smol-ai-vs-wasp-ai/Untitled%206.png) -->

@@ -1,7 +1,8 @@
-const lightCodeTheme = require('prism-react-renderer/themes/github')
+const {themes} = require('prism-react-renderer')
+const lightCodeTheme = themes.github
 
-const autoImportTabs = require('./src/remark/auto-import-tabs')
-const fileExtSwitcher = require('./src/remark/file-ext-switcher')
+import autoImportTabs from './src/remark/auto-import-tabs.mjs'
+import fileExtSwitcher from './src/remark/file-ext-switcher.mjs'
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {

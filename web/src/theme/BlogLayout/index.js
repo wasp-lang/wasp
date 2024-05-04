@@ -24,11 +24,14 @@ import BlogSidebar from '@theme/BlogSidebar'
 export default function BlogLayout(props) {
   const { sidebar, toc, children, ...layoutProps } = props
 
+  console.log('hullo')
+  console.log(props)
+
   // NOTE(matija): if false, then it is an individual blog post.
   //
   // NOTE(matija): I don't really like this way of determining if we're dealing with a blog post
   // or a list, since we depend on Docusaurus' internal structure, but I haven't found another way so far.
-  const isListOfBlogPosts = props.children[0].props.items?.length > 0
+  const isListOfBlogPosts = props.children.length == 2
 
   return (
     <Layout {...layoutProps}>

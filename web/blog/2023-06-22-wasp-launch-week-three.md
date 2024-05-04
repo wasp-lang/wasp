@@ -77,7 +77,7 @@ That's what we are coming after - is it possible to avoid writing (or generating
 
 **Read more about it**:
 - [Twitter thread introing Auto CRUD](https://twitter.com/WaspLang/status/1673376102792806402)
-- [Docs Guide to Auto CRUD](/docs/guides/crud)
+- [Docs Guide to Auto CRUD](/docs/data-model/crud)
 
 ## WebSocket Support | Tuesday: Be real, time 🔌⏱
 
@@ -94,7 +94,7 @@ Another situation where you might want to keep things real is when chatting to s
 
 **Read more about it**:
 - [Intro Twitter thread](https://twitter.com/WaspLang/status/1673742264873500673)
-- [Docs Guide](/docs/guides/websockets)
+- [Docs Guide](/docs/advanced/web-sockets)
 
 ## Wednesday: Community Day 🤗
 

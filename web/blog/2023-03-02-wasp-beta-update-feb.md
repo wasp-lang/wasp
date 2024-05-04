@@ -42,7 +42,7 @@ Let me cut to the chase and show you what's been cooking in Wasp pot for the pas
 
 This is the only command you need to run to deploy your full app (client, server, and database) to Fly.io! They also offer a generous free tier so you can deploy your v1 without any second thoughts.
 
-Check out our docs for more details: [Deploying your Wasp app to Fly.io](/docs/deploying#wasp-cli)
+Check out our docs for more details: [Deploying your Wasp app to Fly.io](/docs/advanced/deployment/cli)
 
 ## ✅ Full stack TypeScript support
 
@@ -119,33 +119,35 @@ If you want to stay in the loop (and I guess you do since you're reading this :D
 ## 🕹 Community highlights
 
 * [PhraseTutor: Learn Italian in a week](https://phrasetutor.com/)! There is a new app built from scratch with Wasp, by Mihovil - one of our early community members who recently joined the team as an engineer! It's smooth both on the front end and back end and will teach you Italian before you can say (or eat) "quattro formaggi"!
+
 <ImgWithCaption
     alt="Phrase Tutor"
     source="img/update-feb-23/phrase-tutor.png"
 />
 
-
 ## Developer life 💻⌨️💽
 Here is the cool stuff we came across this month
 
 - [Motion Canvas - Visualize complex ideas programmatically](https://motioncanvas.io/) - a very cool 2d animation library and editor! I want to play around with this one so much and create a cool animation for Wasp (Da Boi anyone?) 😄
+
 <ImgWithCaption
     alt="Motion Canvas"
     source="img/update-feb-23/motion-canvas.png"
 />
 
 - [98.css - A design system for building faithful recreations of old UIs](https://jdan.github.io/98.css/) - I think we can all agree that web design is becoming increasingly minimalistic and getting rid of the flashy gradients and shadows. Be ahead of the curve - make your app look like Windows 98! You'll instantly feel 10 (20?) years younger and get an irresistible urge to play Minesweeper 🚩.
+
 <ImgWithCaption
     alt="98 css"
     source="img/update-feb-23/98-css.png"
 />
 
 - [Squeezing a Sokoban game into 10 lines of code](https://www.cole-k.com/2023/02/21/tiny-games-hs/) - this is why Haskell gets a bad rep and why we can't have nice things 😅 I'll urge you to look away, but I know you won't. Jokes aside, this was cool! The blog post is also really well written and it was super fun to read.
+
 <ImgWithCaption
     alt="Sokoban in 10 lines of code"
     source="img/update-feb-23/sokoban-10loc.png"
 />
-
 
 ## Wasp Github Star Growth - 2,317 ⭐️, woohoo!
 Huge thanks to all our [contributors](https://github.com/wasp-lang/wasp/graphs/contributors) and [stargazers](https://github.com/wasp-lang/wasp/stargazers) - you are amazing!

@@ -222,31 +222,31 @@ You can see how we generate such a prompt in the code [here](https://github.com/
 
     Plan is represented as JSON with the following schema:
 
-    {
-      "entities": [{ "entityName": string, "entityBodyPsl": string }],
-      "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-      "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-      "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
+    \{
+      "entities": [\{ "entityName": string, "entityBodyPsl": string }],
+      "actions": [\{ "opName": string, "opFnPath": string, "opDesc": string }],
+      "queries": [\{ "opName": string, "opFnPath": string, "opDesc": string }],
+      "pages": [\{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
     }
 
     Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
 
-    {
-      "entities": [{
+    \{
+      "entities": [\{
         "entityName": "User",
         "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
       }],
-      "actions": [{
+      "actions": [\{
         "opName": "createTask",
         "opFnPath": "@server/actions.js",
         "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
       }],
-      "queries": [{
+      "queries": [\{
         "opName": "getTask",
         "opFnPath": "@server/queries.js",
         "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
       }],
-      "pages": [{
+      "pages": [\{
         "pageName": "TaskPage",
         "componentPath": "@client/pages/Task.jsx",
         "routeName: "TaskRoute",
