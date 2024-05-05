@@ -67,6 +67,7 @@ These changes only apply to getting auth fields from the `user` object you recei
 ### 🔧 Small improvements
 
 - Improved the default loading spinner while waiting for the user to be fetched.
+- Hides Prisma update message to avoid confusion since users can't need to update Prisma by themselves.
 
 ## 0.13.2 (2024-04-11)
 
