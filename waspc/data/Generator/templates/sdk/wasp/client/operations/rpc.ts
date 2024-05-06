@@ -4,7 +4,9 @@ import type {
   _ReturnType,
 } from "wasp/universal/types"
 
-// PRIVATE API (but should maybe be public, users define values of this type)
+// PRIVATE API (for SDK, should maybe be public, users define values of this
+// type).
+//
 // Frontend queries are functions with some extra properties (metadata).
 // 
 // To simplify working with the type (i.e., referencing the type's two different
@@ -17,19 +19,20 @@ import type {
  */
 export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata
 
-// PRIVATE API (but should maybe be public, users define values of this type)
+// PRIVATE API (for SDK, should maybe be public, users define values of this
+// type)
 /**
  * The client Action object type (unlike a Query, it's just a normal function).
  */
 export type Action<Input, Output> = ClientOperation<Input, Output>
 
-// PRIVATE API
+// PRIVATE API (for SDK)
 /**
  * The client Query function type.
  */
 export type QueryFunction<Input, Output> = ClientOperation<Input, Output>
 
-// PRIVATE API
+// PRIVATE API (for SDK)
 /**
  *  All extra properties (metadata) found on a Query object type.
  */

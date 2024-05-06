@@ -35,50 +35,6 @@ export function useQuery<Input, Output>(
   })
 }
 
-// PRIVATE API (but should maybe be public, users define values of this type)
-/**
- * An options object passed into the `useAction` hook and used to enhance the
- * action with extra options.
- *
- */
-export type ActionOptions<ActionInput> = {
-  optimisticUpdates: OptimisticUpdateDefinition<ActionInput, any>[];
-};
-
-// PUBLIC API
-/**
- * A documented (public) way to define optimistic updates.
- */
-export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
-  getQuerySpecifier: GetQuerySpecifier<ActionInput, CachedData>;
-  updateQuery: UpdateQuery<ActionInput, CachedData>;
-};
-
-// PRIVATE API (but should maybe be public, users define values of this type)
-/**
- * A function that takes an item and returns a Wasp Query specifier.
- */
-export type GetQuerySpecifier<ActionInput, CachedData> = (
-  item: ActionInput
-) => QuerySpecifier<unknown, CachedData>;
-
-// PRIVATE API (but should maybe be public, users define values of this type)
-/**
- * A function that takes an item and the previous state of the cache, and returns
- * the desired (new) state of the cache.
- */
-export type UpdateQuery<ActionInput, CachedData> = (
-  item: ActionInput,
-  oldData: CachedData | undefined
-) => CachedData;
-
-// PRIVATE API (but should maybe be public, users define values of this type)
-/**
- * A public query specifier used for addressing Wasp queries. See our docs for details:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
- */
-export type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]];
-
 // PUBLIC API
 /**
  * A hook for adding extra behavior to a Wasp Action (e.g., optimistic updates).
@@ -119,6 +75,48 @@ export function useAction<Input = unknown, Output = unknown>(
   const mutation = useMutation(mutationFn, options);
   return (args) => mutation.mutateAsync(args);
 }
+
+// PUBLIC API
+/**
+ * A documented (public) way to define optimistic updates.
+ */
+export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
+  getQuerySpecifier: GetQuerySpecifier<ActionInput, CachedData>;
+  updateQuery: UpdateQuery<ActionInput, CachedData>;
+};
+
+/**
+ * An options object passed into the `useAction` hook and used to enhance the
+ * action with extra options.
+ *
+ */
+type ActionOptions<ActionInput> = {
+  optimisticUpdates: OptimisticUpdateDefinition<ActionInput, any>[];
+};
+
+/**
+ * A function that takes an item and returns a Wasp Query specifier.
+ */
+type GetQuerySpecifier<ActionInput, CachedData> = (
+  item: ActionInput
+) => QuerySpecifier<unknown, CachedData>;
+
+/**
+ * A function that takes an item and the previous state of the cache, and returns
+ * the desired (new) state of the cache.
+ */
+type UpdateQuery<ActionInput, CachedData> = (
+  item: ActionInput,
+  oldData: CachedData | undefined
+) => CachedData;
+
+// PRIVATE API (but should maybe be public, users define values of this type)
+/**
+ * A public query specifier used for addressing Wasp queries. See our docs for details:
+ * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ */
+type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]];
+
 
 /**
  * An internal (undocumented, private, desugared) way of defining optimistic updates.
