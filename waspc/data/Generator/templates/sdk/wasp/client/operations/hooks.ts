@@ -8,6 +8,7 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { Action, Query } from "./rpc";
+import { makeQueryCacheKey } from "./queries/core";
 export { configureQueryClient } from "./queryClient";
 
 // PUBLIC API
@@ -24,12 +25,8 @@ export function useQuery<Input, Output>(
     throw new TypeError('queryFn needs to have queryCacheKey property defined.')
   }
 
-  const queryKey =
-    queryFnArgs !== undefined
-      ? [...query.queryCacheKey, queryFnArgs]
-      : query.queryCacheKey
   return rqUseQuery({
-    queryKey,
+    queryKey: makeQueryCacheKey(query, queryFnArgs),
     queryFn: () => query(queryFnArgs),
     ...options,
   })

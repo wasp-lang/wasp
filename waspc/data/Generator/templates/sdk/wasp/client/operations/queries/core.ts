@@ -4,6 +4,7 @@ import type {
   GenericBackendOperation,
   GenericOperationRpc,
   OperationRpcFor,
+  Query,
   QueryMetadata,
 } from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
@@ -11,6 +12,16 @@ import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
 } from '../internal/resources'
+
+// PRIVATE API (used in the SDK)
+export function makeQueryCacheKey<Input, Output>(
+  query: Query<Input, Output>,
+  payload: Input
+): (string | Input)[] {
+  return payload !== undefined ? 
+    [...query.queryCacheKey, payload] 
+      : query.queryCacheKey
+}
 
 // PRIVATE API (unsed in SDK)
 export function createQuery<BackendQuery extends GenericBackendOperation>(
@@ -22,6 +33,7 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
 
   const queryFn: QueryFunctionFor<BackendQuery> = async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
+    const queryCacheKey = makeQueryCacheKey(queryFn as QueryFor<BackendQuery>, queryArgs)
     return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
       serverResult,
@@ -68,5 +80,4 @@ type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
  * Returns the appropriate client Query object type for the provided client
  * Query function type.
  */
-type QueryForFunction<QF extends GenericOperationRpc> = 
-  QF & QueryMetadata
+type QueryForFunction<QF extends GenericOperationRpc> = QF & QueryMetadata
