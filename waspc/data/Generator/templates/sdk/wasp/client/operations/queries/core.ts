@@ -47,7 +47,6 @@ export function buildAndRegisterQuery<Input, Output>(
   addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 
   return query
-
 }
 
 // PRIVATE API (but should maybe be public, users define values of this type)
