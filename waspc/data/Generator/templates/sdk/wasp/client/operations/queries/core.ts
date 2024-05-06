@@ -2,8 +2,8 @@ import { Route } from 'wasp/client'
 import type { _Awaited, _ReturnType } from 'wasp/universal/types'
 import type { 
   GenericBackendOperation,
+  GenericOperationRpc,
   OperationRpcFor,
-  QueryFunction,
   QueryMetadata,
 } from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
@@ -35,12 +35,12 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
 }
 
 // PRIVATE API (used in SDK)
-export function buildAndRegisterQuery<Input, Output>(
-  queryFn: QueryFunction<Input, Output>,
+export function buildAndRegisterQuery<QF extends GenericOperationRpc>(
+  queryFn: QF,
   { queryCacheKey, queryRoute, entitiesUsed }: 
   { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
-): QueryForFunction<typeof queryFn> {
-  const query = queryFn as QueryForFunction<typeof queryFn>
+): QueryForFunction<QF> {
+  const query = queryFn as QueryForFunction<QF>
 
   query.queryCacheKey = queryCacheKey 
   query.route = queryRoute
@@ -68,5 +68,5 @@ type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
  * Returns the appropriate client Query object type for the provided client
  * Query function type.
  */
-type QueryForFunction<QF extends QueryFunction<never, unknown>> = 
+type QueryForFunction<QF extends GenericOperationRpc> = 
   QF & QueryMetadata

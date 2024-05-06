@@ -66,6 +66,11 @@ export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
  */
 export type GenericBackendOperation = (args: never, context: any) => unknown
 
+/**
+ * A supertype of all possible frontend RPC function types.
+ */
+export type GenericOperationRpc = (args: never) => Promise<unknown>
+
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type ClientOperation<Input, Output> = [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
