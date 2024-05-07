@@ -1,1 +1,1 @@
-export { addMetadataToQuery } from './core';
+export { buildAndRegisterQuery } from './core';

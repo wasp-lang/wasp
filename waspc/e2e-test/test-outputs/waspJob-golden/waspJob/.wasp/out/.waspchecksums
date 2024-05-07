@@ -32,7 +32,7 @@
             "file",
             "../out/sdk/wasp/client/operations/actions/core.ts"
         ],
-        "016623c0ebdc1b88d746fa1345015b3cb9653429abdc13a9147a952bff83a927"
+        "d19dba04947e4015af69d90dd160ec5f4ed020bfa905bc37bcd5d980517097ae"
     ],
     [
         [
@@ -44,16 +44,16 @@
     [
         [
             "file",
-            "../out/sdk/wasp/client/operations/core.ts"
+            "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "bad860771b16a0d4830fab22de8b85e63c840d47dc3728728a23b8ada91061ef"
+        "eb4362162aad4b605781e2e33facef83935a7df4101cc0a77097ceaff3a0b360"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/operations/index.ts"
         ],
-        "4a66c90319dd7ef0d3a8e6c1f571037c7dfd9778b9def6e951813dbc4b4dcef3"
+        "edcdc3798590e62b778115b3818df8cc69fa5a8bb3a7fe9fa6d6d5ea706d14c4"
     ],
     [
         [
@@ -81,14 +81,14 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/core.ts"
         ],
-        "5f30328d93582f9c8444720e99f45c19c8647f052b7fbcf5f71b578b9241ac96"
+        "cce982751b463494c048efd683dddb8d4e617d2f354722a79961199990c7201a"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/operations/queries/index.ts"
         ],
-        "882410504b909cc421d50a27c39952f664ba3457438ce746a95d9cab3431944c"
+        "c92c64425986a38f835211c2693380a8b13904cb78bbf6f6ae880e56ade51686"
     ],
     [
         [
@@ -96,6 +96,13 @@
             "../out/sdk/wasp/client/operations/queryClient.ts"
         ],
         "5c1d87ac10513788bcde7ebc7c10601b9ad0854cddff355e8fb7e2d4685ecdef"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/operations/rpc.ts"
+        ],
+        "5ab471422e7916c33a0931ce8d499d7d40191802ce2c6f3343b45c623a963566"
     ],
     [
         [
@@ -137,7 +144,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "b2362e8f80134137fda2f8bb43ef7c0d7ae8aadf8a7adfa472d42d6699e9d918"
+        "b44ff591a2eebfff4de9fa9e9e1b89f1f22f523f03ab0febc19ff3999721b39a"
     ],
     [
         [
@@ -200,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "3b782f30f90af25108f881b4e7d28cd6a8c2894d169dd78c076cf47d76598440"
+        "a675b7fce46675fe7fc2f5a4edabe8abca4db9cd90a03340d9cf9c54c0e7539f"
     ],
     [
         [

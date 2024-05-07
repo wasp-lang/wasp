@@ -6,7 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
-import { Query } from 'wasp/client/operations/core'
+import { Query } from 'wasp/client/operations/rpc'
 import { config } from 'wasp/client'
 import { HttpMethod, Route } from 'wasp/client'
 

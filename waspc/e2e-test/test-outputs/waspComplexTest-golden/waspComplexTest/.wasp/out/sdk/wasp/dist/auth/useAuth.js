@@ -1,17 +1,17 @@
 import { deserialize as superjsonDeserialize } from 'superjson';
-import { useQuery, addMetadataToQuery } from 'wasp/client/operations';
+import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations';
 import { api, handleApiError } from 'wasp/client/api';
 import { HttpMethod } from 'wasp/client';
 // PUBLIC API
 export const getMe = createUserGetter();
 // PUBLIC API
-export default function useAuth(queryFnArgs, config) {
-    return useQuery(getMe, queryFnArgs, config);
+export default function useAuth() {
+    return useQuery(getMe);
 }
 function createUserGetter() {
     const getMeRelativePath = 'auth/me';
     const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` };
-    async function getMe() {
+    const getMe = async () => {
         var _a;
         try {
             const response = await api.get(getMeRoute.path);
@@ -25,12 +25,11 @@ function createUserGetter() {
                 handleApiError(error);
             }
         }
-    }
-    addMetadataToQuery(getMe, {
-        relativeQueryPath: getMeRelativePath,
+    };
+    return buildAndRegisterQuery(getMe, {
+        queryCacheKey: [getMeRelativePath],
         queryRoute: getMeRoute,
         entitiesUsed: ['User'],
     });
-    return getMe;
 }
 //# sourceMappingURL=useAuth.js.map

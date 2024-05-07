@@ -10,7 +10,7 @@ export {
     useQuery,
     // PUBLIC API
     type OptimisticUpdateDefinition,
-} from './core'
+} from './hooks'
 
 export {
     // PUBLIC API

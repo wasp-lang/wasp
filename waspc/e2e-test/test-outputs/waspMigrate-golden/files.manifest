@@ -13,7 +13,7 @@ waspMigrate/.wasp/out/sdk/wasp/client/config.ts
 waspMigrate/.wasp/out/sdk/wasp/client/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/index.ts
-waspMigrate/.wasp/out/sdk/wasp/client/operations/core.ts
+waspMigrate/.wasp/out/sdk/wasp/client/operations/hooks.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/internal/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/internal/resources.js
@@ -21,6 +21,7 @@ waspMigrate/.wasp/out/sdk/wasp/client/operations/internal/updateHandlersMap.js
 waspMigrate/.wasp/out/sdk/wasp/client/operations/queries/core.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/queries/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/queryClient.ts
+waspMigrate/.wasp/out/sdk/wasp/client/operations/rpc.ts
 waspMigrate/.wasp/out/sdk/wasp/client/router/Link.tsx
 waspMigrate/.wasp/out/sdk/wasp/client/router/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
@@ -47,9 +48,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/actions/core.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/actions/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js.map
-waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/core.d.ts
-waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/core.js
-waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/core.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/hooks.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/hooks.js
+waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/hooks.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/index.js.map
@@ -71,6 +72,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/rpc.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/rpc.js
+waspMigrate/.wasp/out/sdk/wasp/dist/client/operations/rpc.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/router/Link.jsx
 waspMigrate/.wasp/out/sdk/wasp/dist/client/router/Link.jsx.map
