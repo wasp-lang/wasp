@@ -41,7 +41,7 @@
     "./client/auth": "./dist/client/auth/index.js",
     "./client/crud": "./dist/client/crud/index.js",
     "./client/operations": "./dist/client/operations/index.js",
-    "./client/operations/core": "./dist/client/operations/core.js",
+    "./client/operations/rpc": "./dist/client/operations/rpc.js",
     "./client/router": "./dist/client/router/index.js",
     "./client/test": "./dist/client/test/index.js",
     "./client/test/*": "./dist/client/test/*.js",

@@ -9,7 +9,7 @@ waspCompile/.wasp/out/sdk/wasp/client/config.ts
 waspCompile/.wasp/out/sdk/wasp/client/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/actions/index.ts
-waspCompile/.wasp/out/sdk/wasp/client/operations/core.ts
+waspCompile/.wasp/out/sdk/wasp/client/operations/hooks.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/internal/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/internal/resources.js
@@ -17,6 +17,7 @@ waspCompile/.wasp/out/sdk/wasp/client/operations/internal/updateHandlersMap.js
 waspCompile/.wasp/out/sdk/wasp/client/operations/queries/core.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/queries/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/queryClient.ts
+waspCompile/.wasp/out/sdk/wasp/client/operations/rpc.ts
 waspCompile/.wasp/out/sdk/wasp/client/router/Link.tsx
 waspCompile/.wasp/out/sdk/wasp/client/router/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
@@ -43,9 +44,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/client/operations/actions/core.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/actions/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js.map
-waspCompile/.wasp/out/sdk/wasp/dist/client/operations/core.d.ts
-waspCompile/.wasp/out/sdk/wasp/dist/client/operations/core.js
-waspCompile/.wasp/out/sdk/wasp/dist/client/operations/core.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/client/operations/hooks.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/client/operations/hooks.js
+waspCompile/.wasp/out/sdk/wasp/dist/client/operations/hooks.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/index.js.map
@@ -67,6 +68,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js
 waspCompile/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/client/operations/rpc.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/client/operations/rpc.js
+waspCompile/.wasp/out/sdk/wasp/dist/client/operations/rpc.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/router/Link.jsx
 waspCompile/.wasp/out/sdk/wasp/dist/client/router/Link.jsx.map

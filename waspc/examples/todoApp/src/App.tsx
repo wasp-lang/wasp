@@ -1,10 +1,12 @@
-import { useSocket } from "wasp/client/webSocket";
-import { Link } from "wasp/client/router";
-import { logout, useAuth } from "wasp/client/auth";
-import { useQuery, getDate } from "wasp/client/operations";
+import { useSocket } from 'wasp/client/webSocket'
+import { Link } from 'wasp/client/router'
+import { logout, useAuth } from 'wasp/client/auth'
+import { useQuery, getDate } from 'wasp/client/operations'
 
 import './Main.css'
 import { getName } from './user'
+// Necessary to trigger type tests.
+import './testTypes'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()

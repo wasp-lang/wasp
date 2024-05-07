@@ -110,7 +110,7 @@
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
       {=! Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
-      "./client/operations/core": "./dist/client/operations/core.js",
+      "./client/operations/rpc": "./dist/client/operations/rpc.js",
       "./server/crud/Tasks": "./dist/server/crud/Tasks.js",
       "./server/operations/actions":  "./dist/server/operations/actions/index.js",
       "./server/operations/queries": "./dist/server/operations/queries/index.js",

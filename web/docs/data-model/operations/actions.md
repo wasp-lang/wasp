@@ -90,7 +90,7 @@ After declaring a Wasp Action, two important things happen:
   Wasp will send this object over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Action's NodeJS implementation under the hood.
 
-Generating these two functions ensures a uniform calling interface across the entire app (both client and server).
+Generating these two functions ensures a similar calling interface across the entire app (both client and server).
 
 ### Implementing Actions in Node
 
@@ -216,7 +216,7 @@ For a detailed explanation of the Action definition API (i.e., arguments and ret
 
 ### Using Actions
 
-To use an Action, you can import it from `wasp/client/operations` and call it directly. As mentioned, the usage doesn't change depending on whether you're on the server or the client:
+To use an Action on the client, you can import it from `wasp/client/operations` and call it directly.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

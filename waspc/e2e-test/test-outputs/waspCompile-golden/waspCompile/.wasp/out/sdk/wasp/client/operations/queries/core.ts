@@ -1,53 +1,83 @@
 import { Route } from 'wasp/client'
-import type { Expand, _Awaited, _ReturnType } from 'wasp/universal/types'
-import { type Query } from '../core.js'
+import type { _Awaited, _ReturnType } from 'wasp/universal/types'
+import type { 
+  GenericBackendOperation,
+  GenericOperationRpc,
+  OperationRpcFor,
+  Query,
+  QueryMetadata,
+} from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
 } from '../internal/resources'
 
-export function createQuery<BackendQuery extends GenericBackendQuery>(
+// PRIVATE API (used in the SDK)
+export function makeQueryCacheKey<Input, Output>(
+  query: Query<Input, Output>,
+  payload: Input
+): (string | Input)[] {
+  return payload !== undefined ? 
+    [...query.queryCacheKey, payload] 
+      : query.queryCacheKey
+}
+
+// PRIVATE API (unsed in SDK)
+export function createQuery<BackendQuery extends GenericBackendOperation>(
   relativeQueryPath: string,
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
   const queryRoute = makeOperationRoute(relativeQueryPath)
+  const queryCacheKey = [relativeQueryPath]
 
-  async function query(queryKey, queryArgs) {
+  const queryFn: QueryFunctionFor<BackendQuery> = async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
-    return getActiveOptimisticUpdates(queryKey).reduce(
+    const queryCacheKey = makeQueryCacheKey(queryFn as QueryFor<BackendQuery>, queryArgs)
+    return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
       serverResult,
     )
   }
 
-  addMetadataToQuery(query, { relativeQueryPath, queryRoute, entitiesUsed })
+  return buildAndRegisterQuery(
+    queryFn,
+    { queryCacheKey, queryRoute, entitiesUsed },
+  )
+}
+
+// PRIVATE API (used in SDK)
+export function buildAndRegisterQuery<QF extends GenericOperationRpc>(
+  queryFn: QF,
+  { queryCacheKey, queryRoute, entitiesUsed }: 
+  { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
+): QueryForFunction<QF> {
+  const query = queryFn as QueryForFunction<QF>
+
+  query.queryCacheKey = queryCacheKey 
+  query.route = queryRoute
+  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 
   return query
 }
 
-// PRIVATE API
-export function addMetadataToQuery(
-  query: (...args: any[]) => Promise<unknown>,
-  metadata: {
-    relativeQueryPath: string
-    queryRoute: Route
-    entitiesUsed: string[]
-  }
-): void
+// PRIVATE API (but should maybe be public, users define values of this type)
+/**
+ * Constructs the client Query object type from the type of the Query's definition
+ * on the backend.
+ */
+export type QueryFor<BackendQuery extends GenericBackendOperation> =
+  QueryForFunction<QueryFunctionFor<BackendQuery>>
 
-// PRIVATE API
-export function addMetadataToQuery(
-  query,
-  { relativeQueryPath, queryRoute, entitiesUsed }
-) {
-  query.queryCacheKey = [relativeQueryPath]
-  query.route = queryRoute
-  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
-}
+/**
+ * Constructs the client Query function type from the type of the Query's
+ * definition on the backend.
+ */ 
+type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
+  OperationRpcFor<BackendQuery>
 
-export type QueryFor<BackendQuery extends GenericBackendQuery> = 
-  Query<Parameters<BackendQuery>[0], _Awaited<_ReturnType<BackendQuery>>>
-
-
-type GenericBackendQuery = (args: never, context: any) => unknown
+/**
+ * Returns the appropriate client Query object type for the provided client
+ * Query function type.
+ */
+type QueryForFunction<QF extends GenericOperationRpc> = QF & QueryMetadata

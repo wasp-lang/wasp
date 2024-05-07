@@ -10,7 +10,7 @@ waspJob/.wasp/out/sdk/wasp/client/config.ts
 waspJob/.wasp/out/sdk/wasp/client/index.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/actions/index.ts
-waspJob/.wasp/out/sdk/wasp/client/operations/core.ts
+waspJob/.wasp/out/sdk/wasp/client/operations/hooks.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/index.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/internal/index.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/internal/resources.js
@@ -18,6 +18,7 @@ waspJob/.wasp/out/sdk/wasp/client/operations/internal/updateHandlersMap.js
 waspJob/.wasp/out/sdk/wasp/client/operations/queries/core.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/queries/index.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/queryClient.ts
+waspJob/.wasp/out/sdk/wasp/client/operations/rpc.ts
 waspJob/.wasp/out/sdk/wasp/client/router/Link.tsx
 waspJob/.wasp/out/sdk/wasp/client/router/index.ts
 waspJob/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
@@ -44,9 +45,9 @@ waspJob/.wasp/out/sdk/wasp/dist/client/operations/actions/core.js.map
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/actions/index.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js.map
-waspJob/.wasp/out/sdk/wasp/dist/client/operations/core.d.ts
-waspJob/.wasp/out/sdk/wasp/dist/client/operations/core.js
-waspJob/.wasp/out/sdk/wasp/dist/client/operations/core.js.map
+waspJob/.wasp/out/sdk/wasp/dist/client/operations/hooks.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/client/operations/hooks.js
+waspJob/.wasp/out/sdk/wasp/dist/client/operations/hooks.js.map
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/index.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/index.js
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/index.js.map
@@ -68,6 +69,9 @@ waspJob/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js.map
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js
 waspJob/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js.map
+waspJob/.wasp/out/sdk/wasp/dist/client/operations/rpc.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/client/operations/rpc.js
+waspJob/.wasp/out/sdk/wasp/dist/client/operations/rpc.js.map
 waspJob/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/router/Link.jsx
 waspJob/.wasp/out/sdk/wasp/dist/client/router/Link.jsx.map

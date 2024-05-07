@@ -1,18 +1,28 @@
 import { callOperation, makeOperationRoute } from '../internal/index.js';
 import { addResourcesUsedByQuery, getActiveOptimisticUpdates, } from '../internal/resources';
+// PRIVATE API (used in the SDK)
+export function makeQueryCacheKey(query, payload) {
+    return payload !== undefined ?
+        [...query.queryCacheKey, payload]
+        : query.queryCacheKey;
+}
+// PRIVATE API (unsed in SDK)
 export function createQuery(relativeQueryPath, entitiesUsed) {
     const queryRoute = makeOperationRoute(relativeQueryPath);
-    async function query(queryKey, queryArgs) {
+    const queryCacheKey = [relativeQueryPath];
+    const queryFn = async (queryArgs) => {
         const serverResult = await callOperation(queryRoute, queryArgs);
-        return getActiveOptimisticUpdates(queryKey).reduce((result, update) => update(result), serverResult);
-    }
-    addMetadataToQuery(query, { relativeQueryPath, queryRoute, entitiesUsed });
-    return query;
+        const queryCacheKey = makeQueryCacheKey(queryFn, queryArgs);
+        return getActiveOptimisticUpdates(queryCacheKey).reduce((result, update) => update(result), serverResult);
+    };
+    return buildAndRegisterQuery(queryFn, { queryCacheKey, queryRoute, entitiesUsed });
 }
-// PRIVATE API
-export function addMetadataToQuery(query, { relativeQueryPath, queryRoute, entitiesUsed }) {
-    query.queryCacheKey = [relativeQueryPath];
+// PRIVATE API (used in SDK)
+export function buildAndRegisterQuery(queryFn, { queryCacheKey, queryRoute, entitiesUsed }) {
+    const query = queryFn;
+    query.queryCacheKey = queryCacheKey;
     query.route = queryRoute;
     addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed);
+    return query;
 }
 //# sourceMappingURL=core.js.map

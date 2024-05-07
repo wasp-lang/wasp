@@ -1,14 +1,14 @@
-import { type Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { type Task } from 'wasp/entities'
+import { HttpError } from 'wasp/server'
 import {
   type CreateTask,
   type DeleteCompletedTasks,
   type ToggleAllTasks,
   type UpdateTaskIsDone,
-} from "wasp/server/operations";
+} from 'wasp/server/operations'
 import { getSomeResource } from './serverSetup.js'
 
-export const createTask: CreateTask<Pick<Task, 'description'>> = async (
+export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
   task,
   context
 ) => {
@@ -29,7 +29,7 @@ export const createTask: CreateTask<Pick<Task, 'description'>> = async (
 
   console.log(
     'New task created! Btw, current value of someResource is: ' +
-    getSomeResource()
+      getSomeResource()
   )
 
   return newTask
@@ -43,8 +43,8 @@ export const updateTaskIsDone: UpdateTaskIsDone<
   }
 
   // Uncomment to test optimistic updates
-  // const sleep = (ms) => new Promise(res => setTimeout(res, ms))
-  // await sleep(3000);
+  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
+  await sleep(5000)
 
   const Task = context.entities.Task
   const updateResult = await Task.updateMany({

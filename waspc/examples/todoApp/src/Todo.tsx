@@ -1,5 +1,5 @@
-import { Link } from "wasp/client/router";
-import { type Task } from "wasp/entities";
+import { Link } from 'wasp/client/router'
+import { type Task } from 'wasp/entities'
 
 import {
   useAction,
@@ -10,11 +10,33 @@ import {
   toggleAllTasks,
   useQuery,
   getTasks,
-} from "wasp/client/operations";
+  getTask,
+  getDate,
+  getAnything,
+} from 'wasp/client/operations'
 
 import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
 
 type NonEmptyArray<T> = [T, ...T[]]
+
+async function logAll() {
+  const tasks = await getTasks()
+  console.info('Got tasks:', tasks)
+
+  const someId = tasks.map((task) => task.id).find((id) => id)
+  if (!someId) {
+    console.info('No tasks found')
+  } else {
+    const task = await getTask({ id: someId })
+    console.info(`Got task with id ${someId}`, task)
+  }
+
+  const date = await getDate()
+  console.info('Got date:', date)
+
+  const anything = await getAnything()
+  console.info('Got anything:', anything)
+}
 
 export function areThereAnyTasks(
   tasks: Task[] | undefined
@@ -23,6 +45,7 @@ export function areThereAnyTasks(
 }
 
 const Todo = () => {
+  logAll()
   const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
 
   const TasksError = () => {
