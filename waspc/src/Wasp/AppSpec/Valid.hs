@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
-import Wasp.AppSpec.Core.Decl (takeDecls)
+import Wasp.AppSpec.Core.Decl (IsDecl, takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
@@ -78,6 +78,7 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
+          validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validatePrismaOptions spec,
           validateWebAppBaseDir spec,
@@ -266,6 +267,51 @@ validateCrudOperations spec =
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
+-- "There are duplicate page declarations with name 'TestPage'."
+-- "There are duplicate route declarations with name 'TestRoute'."
+-- "There are duplicate action declarations with name 'TestAction'."
+-- "There are duplicate query declarations with name 'TestQuery'."
+-- "There are duplicate api declarations with name 'TestApi'."
+-- "There are duplicate api namespace declarations with name 'TestApiNamespace'."
+-- "There are duplicate crud declarations with name 'TestCrud'."
+-- "There are duplicate entity declarations with name 'TestEntity'."
+-- "There are duplicate job declarations with name 'TestJob'."
+-- Which means the generic message is:
+-- "There are duplicate <declaration type> declarations with name '<name>'."
+-- And we should go through:
+-- Pages, Routes, Actions, Queries, Apis, ApiNamespaces, Cruds, Entities, Jobs
+validateUniqueDeclarationNames :: AppSpec -> [ValidationError]
+validateUniqueDeclarationNames spec =
+  concat
+    [ checkIfDeclarationsAreUnique "page" (AS.getPages spec),
+      checkIfDeclarationsAreUnique "route" (AS.getRoutes spec),
+      checkIfDeclarationsAreUnique "action" (AS.getActions spec),
+      checkIfDeclarationsAreUnique "query" (AS.getQueries spec),
+      checkIfDeclarationsAreUnique "api" (AS.getApis spec),
+      checkIfDeclarationsAreUnique "api namespace" (AS.getApiNamespaces spec),
+      checkIfDeclarationsAreUnique "crud" (AS.getCruds spec),
+      checkIfDeclarationsAreUnique "entity" (AS.getEntities spec),
+      checkIfDeclarationsAreUnique "job" (AS.getJobs spec)
+    ]
+  where
+    checkIfDeclarationsAreUnique :: IsDecl a => String -> [(String, a)] -> [ValidationError]
+    checkIfDeclarationsAreUnique declarationTypeName getDecls = case duplicateDeclarationNames of
+      [] -> []
+      _ ->
+        [ GenericValidationError $
+            "There are duplicate "
+              ++ declarationTypeName
+              ++ " declarations with name '"
+              ++ head duplicateDeclarationNames
+              ++ "'."
+        ]
+      where
+        declarationNames :: [String]
+        declarationNames = map fst getDecls
+
+        duplicateDeclarationNames :: [String]
+        duplicateDeclarationNames = map head $ filter ((> 1) . length) (group . sort $ declarationNames)
 
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =
