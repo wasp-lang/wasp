@@ -268,21 +268,10 @@ validateCrudOperations spec =
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
 
--- "There are duplicate page declarations with name 'TestPage'."
--- "There are duplicate route declarations with name 'TestRoute'."
--- "There are duplicate action declarations with name 'TestAction'."
--- "There are duplicate query declarations with name 'TestQuery'."
--- "There are duplicate api declarations with name 'TestApi'."
--- "There are duplicate api namespace declarations with name 'TestApiNamespace'."
--- "There are duplicate crud declarations with name 'TestCrud'."
--- "There are duplicate entity declarations with name 'TestEntity'."
--- "There are duplicate job declarations with name 'TestJob'."
--- Which means the generic message is:
--- "There are duplicate <declaration type> declarations with name '<name>'."
--- And we should go through:
--- Pages, Routes, Actions, Queries, Apis, ApiNamespaces, Cruds, Entities, Jobs
 validateUniqueDeclarationNames :: AppSpec -> [ValidationError]
 validateUniqueDeclarationNames spec =
+  -- NOTE: we need to validate all declaration types, so make sure
+  -- to update this check if new declaration type is added.
   concat
     [ checkIfDeclarationsAreUnique "page" (AS.getPages spec),
       checkIfDeclarationsAreUnique "route" (AS.getRoutes spec),

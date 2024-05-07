@@ -92,6 +92,9 @@ data AppSpec = AppSpec
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
+-- NOTE: if you are adding a new declaration type, you need to update the Valid.hs
+-- to make sure we check for duplicate names for that declaration type.
+
 getQueries :: AppSpec -> [(String, Query)]
 getQueries = getDecls
 

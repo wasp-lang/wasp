@@ -331,8 +331,9 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
             `shouldBe` [ASV.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
 
+    -- NOTE: we need to test all types of declarations here, make sure to add
+    -- tests for new declaration types as they are validated in Valid.hs
     describe "duplicate declarations validation" $ do
-      -- All possible declarations
       -- Page
       let pageDecl = makeBasicPageDecl "testPage"
 
