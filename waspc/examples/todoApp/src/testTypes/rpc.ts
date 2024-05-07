@@ -22,8 +22,6 @@ import { Assert, AreEqual } from './helpers'
 // but I couldn't get it to work yet: https://github.com/wasp-lang/wasp/issues/2004
 type VoidOperationPayload = [args?: void | undefined]
 
-type X = Parameters<typeof getNumTasks>
-
 // When the user doesn't specify an operation payload,
 // we want to be as permissive as possible.
 type UnspecifiedOperationPayload = [args?: unknown]
