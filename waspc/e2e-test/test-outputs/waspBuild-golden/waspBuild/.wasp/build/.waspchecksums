@@ -555,9 +555,23 @@
     [
         [
             "file",
+            "web-app/src/components/FullPageWrapper.tsx"
+        ],
+        "7e2cd2151f3ee931711de0bd7abcbfbbee437189d0398f53f87ff3727ba3bec5"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/components/Loader.tsx"
+        ],
+        "72eb2e7ef83a0b9415a14741b99f9c251c294e71bb9aa7aaea5ae9d83025fe0e"
+    ],
+    [
+        [
+            "file",
             "web-app/src/components/Message.tsx"
         ],
-        "8851c3201f8e165d647a66abe5457e837cfb750790f393428d16be51c41ee2e5"
+        "e00a9e3f02c344154409364e99dcd450b52b51c053e0707cd823946e34dcf3c6"
     ],
     [
         [

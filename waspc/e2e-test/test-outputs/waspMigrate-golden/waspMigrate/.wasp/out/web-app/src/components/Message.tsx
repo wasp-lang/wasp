@@ -1,7 +1,4 @@
 const commonMessageStyles = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '.5rem',
   borderRadius: '.5rem',
   padding: '1rem',
 }
@@ -20,26 +17,50 @@ const loadingMessageStyles = {
   color: 'rgb(55 65 81)',
 }
 
+const titleStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '.5rem',
+}
+
+const subtitleStyles = {
+  marginLeft: '1.75rem',
+}
+
 export function MessageError({
   children,
+  subtitle,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
+  subtitle?: React.ReactNode;
 }) {
   return (
     <div style={errorMessageStyles}>
-      <MessageIcon /> {children}
+      <div>
+        <div style={titleStyles}>
+          <MessageIcon /> {children}
+        </div>
+        {subtitle && <div style={subtitleStyles}>{subtitle}</div>}
+      </div>
     </div>
   )
 }
 
 export function MessageLoading({
   children,
+  subtitle,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
+  subtitle?: React.ReactNode;
 }) {
   return (
     <div style={loadingMessageStyles}>
-      <MessageIcon /> {children}
+      <div>
+        <div style={titleStyles}>
+          <MessageIcon /> {children}
+        </div>
+        {subtitle && <div style={subtitleStyles}>{subtitle}</div>}
+      </div>
     </div>
   )
 }

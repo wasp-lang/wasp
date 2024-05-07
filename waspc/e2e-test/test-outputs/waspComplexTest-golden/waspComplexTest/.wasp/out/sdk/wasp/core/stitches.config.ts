@@ -6,11 +6,13 @@ import { createStitches } from '@stitches/react'
 // Long term we want to move away from Stitches and this is an acceptable workaround for now.
 export const {
   styled,
-  css
+  css,
+  keyframes
 } = createStitches({
   theme: {
     colors: {
       waspYellow: '#ffcc00',
+      gray900: '#1a202c',
       gray700: '#a1a5ab',
       gray600: '#d1d5db',
       gray500: 'gainsboro',

@@ -19,8 +19,7 @@ function createUserGetter(): Query<void, AuthUser | null> {
   const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
-      const response = await api.get(getMeRoute.path)
-  
+      const response = await api.get(getMeRoute.path)  
       return superjsonDeserialize(response.data)
     } catch (error) {
       if (error.response?.status === 401) {

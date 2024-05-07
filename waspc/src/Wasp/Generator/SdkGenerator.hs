@@ -268,6 +268,8 @@ genTsConfigJson = do
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
+  -- NOTE: If Stitches start being used outside of auth,
+  -- we should include this dependency in the SDK deps.
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
