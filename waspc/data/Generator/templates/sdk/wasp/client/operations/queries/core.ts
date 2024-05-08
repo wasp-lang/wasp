@@ -14,6 +14,8 @@ import {
 } from '../internal/resources'
 
 // PRIVATE API (used in the SDK)
+// todo: find ways to remove this duplication and make the type more precise.
+// Details here: https://github.com/wasp-lang/wasp/issues/2017
 export function makeQueryCacheKey<Input, Output>(
   query: Query<Input, Output>,
   payload: Input

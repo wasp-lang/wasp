@@ -74,6 +74,8 @@ export function useAction<Input = unknown, Output = unknown>(
 }
 
 // PUBLIC API
+// todo: Improve this type. Details here:
+// https://github.com/wasp-lang/wasp/issues/2017 
 /**
  * A documented (public) way to define optimistic updates.
  */
@@ -98,6 +100,8 @@ type GetQuerySpecifier<ActionInput, CachedData> = (
   item: ActionInput
 ) => QuerySpecifier<unknown, CachedData>;
 
+// todo: Improve the type's signature for when the cache is empty. Details here:
+// https://github.com/wasp-lang/wasp/issues/2017
 /**
  * A function that takes an item and the previous state of the cache, and returns
  * the desired (new) state of the cache.
@@ -107,12 +111,13 @@ type UpdateQuery<ActionInput, CachedData> = (
   oldData: CachedData | undefined
 ) => CachedData;
 
+// todo: Improve this type signature. Details here:
+// https://github.com/wasp-lang/wasp/issues/2017
 /**
  * A public query specifier used for addressing Wasp queries. See our docs for details:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
  */
 type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]];
-
 
 /**
  * An internal (undocumented, private, desugared) way of defining optimistic updates.
@@ -312,6 +317,8 @@ function getOptimisticUpdateDefinitionForSpecificItem<ActionInput, CachedData>(
   };
 }
 
+// todo: Address the duplication between this function and the one in
+// queries/core.ts. Details here: https://github.com/wasp-lang/wasp/issues/2017
 /**
  * Translates a Wasp query specifier to a query cache key used by React Query.
  *

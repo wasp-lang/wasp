@@ -33,6 +33,8 @@ export type Action<Input, Output> = ClientOperation<Input, Output>
 export type QueryFunction<Input, Output> = ClientOperation<Input, Output>
 
 // PRIVATE API (for SDK)
+// todo: revisit what we expose. Also, queryCacheKey is confusing and
+// incorrect.Details here: https://github.com/wasp-lang/wasp/issues/2017
 /**
  *  All extra properties (metadata) found on a Query object type.
  */
