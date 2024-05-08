@@ -27,7 +27,7 @@ waspComplexTest = do
       <++> addEmailSender
       <++> addClientSetup
       <++> addServerSetup
-      <++> addGoogleAuth
+      <++> addAuth
       <++> sequence
         [ -- Prerequisite for jobs
           setDbToPSQL
@@ -166,23 +166,27 @@ addServerEnvFile = do
           "SENDGRID_API_KEY=sendgrid_api_key"
         ]
 
-addGoogleAuth :: ShellCommandBuilder [ShellCommand]
-addGoogleAuth = do
+-- Adds Google Auth with auth hooks
+addAuth :: ShellCommandBuilder [ShellCommand]
+addAuth = do
   sequence
     [ insertCodeIntoWaspFileAfterVersion authField,
       appendToWaspFile userEntity,
-      appendToWaspFile socialLoginEntity
+      createFile hooksFile "./src/auth" "hooks.ts"
     ]
   where
     authField =
       unlines
         [ "  auth: {",
           "    userEntity: User,",
-          "    externalAuthEntity: SocialLogin,",
           "    methods: {",
           "      google: {}",
           "    },",
-          "    onAuthFailedRedirectTo: \"/login\"",
+          "    onAuthFailedRedirectTo: \"/login\",",
+          "    onBeforeSignup: import { onBeforeSignup } from \"@src/auth/hooks.js\",",
+          "    onAfterSignup: import { onAfterSignup } from \"@src/auth/hooks.js\",",
+          "    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from \"@src/auth/hooks.js\",",
+          "    onAfterOAuthTokenReceived: import { onAfterOAuthTokenReceived } from \"@src/auth/hooks.js\",",
           "  },"
         ]
 
@@ -190,23 +194,41 @@ addGoogleAuth = do
       unlines
         [ "entity User {=psl",
           "  id                        Int           @id @default(autoincrement())",
-          "  username                  String        @unique",
-          "  password                  String",
-          "  externalAuthAssociations  SocialLogin[]",
           "psl=}"
         ]
 
-    socialLoginEntity =
+    hooksFile =
       unlines
-        [ "entity SocialLogin {=psl",
-          "  id          Int       @id @default(autoincrement())",
-          "  provider    String",
-          "  providerId  String",
-          "  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)",
-          "  userId      Int",
-          "  createdAt   DateTime  @default(now())",
-          "  @@unique([provider, providerId, userId])",
-          "psl=}"
+        [ "import type {",
+          "  OnAfterOAuthTokenReceivedHookFn,",
+          "  OnAfterSignupHookFn,",
+          "  OnBeforeOAuthRedirectHookFn,",
+          "  OnBeforeSignupHookFn,",
+          "} from 'wasp/server/auth'",
+          "",
+          "export const onBeforeSignup: OnBeforeSignupHookFn = async (args) => {",
+          "  const count = await args.prisma.user.count()",
+          "  console.log('before', count)",
+          "  console.log(args.providerId)",
+          "}",
+          "",
+          "export const onAfterSignup: OnAfterSignupHookFn = async (args) => {",
+          "  const count = await args.prisma.user.count()",
+          "  console.log('after', count)",
+          "  console.log('user', args.user)",
+          "}",
+          "",
+          "export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async (",
+          "  args,",
+          ") => {",
+          "  console.log('redirect to', args.url.toString())",
+          "  return { url: args.url }",
+          "}",
+          "",
+          "export const onAfterOAuthTokenReceived: OnAfterOAuthTokenReceivedHookFn =",
+          "  async (args) => {",
+          "    console.log('access token', args.accessToken)",
+          "  }"
         ]
 
 addAction :: ShellCommandBuilder [ShellCommand]
