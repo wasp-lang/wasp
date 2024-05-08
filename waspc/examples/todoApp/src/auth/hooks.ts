@@ -20,11 +20,14 @@ export const onAfterSignup: OnAfterSignupHookFn = async (args) => {
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async (
   args,
 ) => {
+  console.log('req.query before redirect', args.req.query)
+  args.url.searchParams.set('someState', '123')
   console.log('redirect to', args.url.toString())
   return { url: args.url }
 }
 
 export const onAfterOAuthTokenReceived: OnAfterOAuthTokenReceivedHookFn =
   async (args) => {
+    console.log('req.query after callback', args.req.query)
     console.log('access token', args.accessToken)
   }
