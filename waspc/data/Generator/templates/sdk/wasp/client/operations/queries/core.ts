@@ -35,6 +35,9 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
 
   const queryFn: QueryFunctionFor<BackendQuery> = async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
+    // todo: The full queryCacheKey is constructed in two places, both here and
+    // inside the useQuery hook. See
+    // https://github.com/wasp-lang/wasp/issues/2017
     const queryCacheKey = makeQueryCacheKey(queryFn as QueryFor<BackendQuery>, queryArgs)
     return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
