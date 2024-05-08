@@ -178,12 +178,9 @@ runPrismaCommandAsJobWithExtraEnv ::
   [String] ->
   J.Job
 runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv (defaultEnvVars ++ envVars) fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+  runNodeCommandAsJobWithExtraEnv envVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
-    defaultEnvVars =
-      [ ("PRISMA_HIDE_UPDATE_MESSAGE", "true")
-      ]
 
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.
