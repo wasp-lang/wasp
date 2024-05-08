@@ -1,40 +1,59 @@
 # Changelog
 
-
 ## 0.14.0 (2024-04-22)
 
 ### 🎉 New Features
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
+- Improved API for calling Operations (Queries and Actions) directly.
 
 ### ⚠️ Breaking Changes & Migration Guide
 
-We had to make a couple of breaking changes to reach the new simpler API:
+#### Directly calling Queries on the client
+
+You can now call Queries directly from the client without dealing with
+`queryCacheKey`s. Wasp takes care of it under the hood:
+
+Now:
+
+```typescript
+const doneTasks = await getTasks({ isDone: true });
+```
+
+Before:
+
+```typescript
+const doneTasks = await getTasks(getTasks.queryCacheKey, { isDone: true });
+```
+
+#### Accessing `AuthUser` data
+
+We had to make a couple of breaking changes to reach the new simpler Auth API:
 
 1. You don't need to use `getUsername` to access the username:
 
-    - Before: Used `getUsername` to access the username.
-    - After: Directly use `user.identities.username?.id`.
-  
+   - Before: Used `getUsername` to access the username.
+   - After: Directly use `user.identities.username?.id`.
+
 2. You don't need to use `getEmail` to access the email:
 
-    - Before: Used `getEmail` to access the email.
-    - After: Directly use `user.identities.email?.id`.
-    
+   - Before: Used `getEmail` to access the email.
+   - After: Directly use `user.identities.email?.id`.
+
 3. Better API for accessing `providerData`:
 
-    - Before: Required complex logic to access typed provider data.
-    - After: Directly use `user.identities.<provider>.<value>` for typed access.
-  
+   - Before: Required complex logic to access typed provider data.
+   - After: Directly use `user.identities.<provider>.<value>` for typed access.
+
 4. Better API for accessing `getFirstProviderUserId`:
 
-    - Before: Used `getFirstProviderUserId(user)` to get the ID.
-    - After: Use `user.getFirstProviderUserId()` directly on the user object.
+   - Before: Used `getFirstProviderUserId(user)` to get the ID.
+   - After: Use `user.getFirstProviderUserId()` directly on the user object.
 
 5. You don't need to use `findUserIdentity` any more:
 
-    - Before: Relied on `findUserIdentity` to check which user identity exists.
-    - After: Directly check `user.identities.<provider>` existence.
+   - Before: Relied on `findUserIdentity` to check which user identity exists.
+   - After: Directly check `user.identities.<provider>` existence.
 
 These changes improve code readability and lower the complexity of accessing user's auth fields. Follow the [detailed migration steps to update your project to 0.14.0](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14).
 
@@ -73,7 +92,6 @@ These changes only apply to getting auth fields from the `user` object you recei
     // ...
   }
   ```
-
 
 ## 0.13.0 (2024-03-18)
 
