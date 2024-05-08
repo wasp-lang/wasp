@@ -14,6 +14,8 @@ import {
 } from '../internal/resources'
 
 // PRIVATE API (used in the SDK)
+// todo: find ways to remove this duplication and make the type more precise.
+// Details here: https://github.com/wasp-lang/wasp/issues/2017
 export function makeQueryCacheKey<Input, Output>(
   query: Query<Input, Output>,
   payload: Input
@@ -33,6 +35,9 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
 
   const queryFn: QueryFunctionFor<BackendQuery> = async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
+    // todo: The full queryCacheKey is constructed in two places, both here and
+    // inside the useQuery hook. See
+    // https://github.com/wasp-lang/wasp/issues/2017
     const queryCacheKey = makeQueryCacheKey(queryFn as QueryFor<BackendQuery>, queryArgs)
     return getActiveOptimisticUpdates(queryCacheKey).reduce(
       (result, update) => update(result),
