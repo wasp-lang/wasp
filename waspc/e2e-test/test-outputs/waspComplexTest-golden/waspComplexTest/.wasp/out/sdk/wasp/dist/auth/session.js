@@ -1,7 +1,7 @@
 import { auth } from "./lucia.js";
 import { throwInvalidCredentialsError } from "./utils.js";
 import { prisma } from 'wasp/server';
-import { createAuthUser } from "../server/auth/user.js";
+import { createAuthUserData } from "../server/auth/user.js";
 // PRIVATE API
 // Creates a new session for the `authId` in the database
 export async function createSession(authId) {
@@ -36,10 +36,10 @@ export async function getSessionAndUserFromSessionId(sessionId) {
     }
     return {
         session,
-        user: await getUser(authEntity.userId)
+        user: await getAuthUserData(authEntity.userId)
     };
 }
-async function getUser(userId) {
+async function getAuthUserData(userId) {
     const user = await prisma.user
         .findUnique({
         where: { id: userId },
@@ -54,7 +54,7 @@ async function getUser(userId) {
     if (!user) {
         throwInvalidCredentialsError();
     }
-    return createAuthUser(user);
+    return createAuthUserData(user);
 }
 // PRIVATE API
 export function invalidateSession(sessionId) {

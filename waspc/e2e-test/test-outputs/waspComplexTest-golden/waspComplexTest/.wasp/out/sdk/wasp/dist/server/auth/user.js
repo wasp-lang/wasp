@@ -11,7 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 import { deserializeAndSanitizeProviderData } from '../../auth/utils.js';
 // PRIVATE API
-export function createAuthUser(user) {
+export function createAuthUserData(user) {
     const { auth } = user, rest = __rest(user, ["auth"]);
     if (!auth) {
         throw new Error(`🐝 Error: trying to create a user without auth data.

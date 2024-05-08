@@ -3,13 +3,13 @@ import {
     serialize as superjsonSerialize,
 } from 'superjson'
 import { handleRejection } from 'wasp/server/utils'
-import { enrichAuthUser } from 'wasp/auth/user'
+import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
 export function createOperation (handlerFn) {
     return handleRejection(async (req, res) => {
         const args = (req.body && superjsonDeserialize(req.body)) || {}
         const context = {
-            user: req.user ? enrichAuthUser(req.user) : null,
+            user: makeAuthUserIfPossible(req.user),
         }  
         const result = await handlerFn(args, context)
         const serializedResult = superjsonSerialize(result)

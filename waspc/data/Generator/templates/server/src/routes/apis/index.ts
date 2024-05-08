@@ -5,7 +5,7 @@ import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from 'wasp/core/auth'
-import { type AuthUserData, enrichAuthUser} from 'wasp/auth/user'
+import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 {=/ isAuthEnabled =}
 
 {=# apiNamespaces =}
@@ -50,7 +50,7 @@ router.{= routeMethod =}(
     ) => {
       const context = {
         {=# usesAuth =}
-        user: req.user ? enrichAuthUser(req.user) : null,
+        user: makeAuthUserIfPossible(req.user),
         {=/ usesAuth =}
         entities: {
           {=# entities =}

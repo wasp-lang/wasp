@@ -31,5 +31,5 @@ export type UserEntityWithAuth = User & {
 export type AuthEntityWithIdentities = Auth & {
     identities: AuthIdentity[];
 };
-export declare function createAuthUser(user: UserEntityWithAuth): AuthUserData;
+export declare function createAuthUserData(user: UserEntityWithAuth): AuthUserData;
 export {};

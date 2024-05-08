@@ -16,8 +16,11 @@ export function getFirstProviderUserId(user) {
     }
     return (_a = user.auth.identities[0].providerUserId) !== null && _a !== void 0 ? _a : null;
 }
-// PRIVATE API
-export function enrichAuthUser(data) {
+// PRIVATE API (used in SDK and server)
+export function makeAuthUserIfPossible(user) {
+    return user ? makeAuthUser(user) : null;
+}
+function makeAuthUser(data) {
     return Object.assign(Object.assign({}, data), { getFirstProviderUserId: () => {
             const identities = Object.values(data.identities).filter(Boolean);
             return identities.length > 0 ? identities[0].id : null;

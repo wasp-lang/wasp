@@ -8,7 +8,7 @@ import { config, prisma } from 'wasp/server'
 
 {=# isAuthEnabled =}
 import { getSessionAndUserFromSessionId } from 'wasp/auth/session'
-import { enrichAuthUser } from 'wasp/auth/user'
+import { makeAuthUserIfPossible } from 'wasp/auth/user'
 {=/ isAuthEnabled =}
 
 {=& userWebSocketFn.importStatement =}
@@ -46,7 +46,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
       const { user } =  await getSessionAndUserFromSessionId(sessionId)
       socket.data = {
         ...socket.data,
-        user: user ? enrichAuthUser(user) : null
+        user: makeAuthUserIfPossible(user),
       }
     } catch (err) { }
   }

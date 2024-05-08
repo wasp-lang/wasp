@@ -49,7 +49,7 @@ export type AuthEntityWithIdentities = Auth & {
 }
 
 // PRIVATE API
-export function createAuthUser(user: UserEntityWithAuth): AuthUserData {
+export function createAuthUserData(user: UserEntityWithAuth): AuthUserData {
   const { auth, ...rest } = user
   if (!auth) {
     throw new Error(`🐝 Error: trying to create a user without auth data.

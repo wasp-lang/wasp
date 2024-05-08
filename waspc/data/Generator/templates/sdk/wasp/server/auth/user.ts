@@ -64,7 +64,7 @@ export type AuthEntityWithIdentities = {= authEntityName =} & {
 }
 
 // PRIVATE API
-export function createAuthUser(user: UserEntityWithAuth): AuthUserData {
+export function createAuthUserData(user: UserEntityWithAuth): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
   if (!{= authFieldOnUserEntityName =}) {
     throw new Error(`🐝 Error: trying to create a user without auth data.

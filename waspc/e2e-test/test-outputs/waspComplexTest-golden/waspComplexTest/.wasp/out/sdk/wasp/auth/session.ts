@@ -8,7 +8,7 @@ import type { Session } from "lucia";
 import { throwInvalidCredentialsError } from "./utils.js";
 
 import { prisma } from 'wasp/server';
-import { createAuthUser } from "../server/auth/user.js";
+import { createAuthUserData } from "../server/auth/user.js";
 
 // PRIVATE API
 // Creates a new session for the `authId` in the database
@@ -16,11 +16,13 @@ export async function createSession(authId: string): Promise<Session> {
   return auth.createSession(authId, {});
 }
 
+type UserAndSession = {
+  user: AuthUserData;
+  session: Session;
+}
+
 // PRIVATE API
-export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<{
-  user: AuthUserData | null,
-  session: Session | null,
-}> {
+export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<UserAndSession | null> {
   const authorizationHeader = req.headers["authorization"];
 
   if (typeof authorizationHeader !== "string") {
@@ -42,10 +44,7 @@ export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Pro
 }
 
 // PRIVATE API
-export async function getSessionAndUserFromSessionId(sessionId: string): Promise<{
-  user: AuthUserData | null,
-  session: Session | null,
-}> {
+export async function getSessionAndUserFromSessionId(sessionId: string): Promise<UserAndSession | null> {
   const { session, user: authEntity } = await auth.validateSession(sessionId);
 
   if (!session || !authEntity) {
@@ -57,11 +56,11 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
 
   return {
     session,
-    user: await getUser(authEntity.userId)
+    user: await getAuthUserData(authEntity.userId)
   }
 }
 
-async function getUser(userId: User['id']): Promise<AuthUserData> {
+async function getAuthUserData(userId: User['id']): Promise<AuthUserData> {
   const user = await prisma.user
     .findUnique({
       where: { id: userId },
@@ -78,7 +77,7 @@ async function getUser(userId: User['id']): Promise<AuthUserData> {
     throwInvalidCredentialsError()
   }
 
-  return createAuthUser(user);
+  return createAuthUserData(user);
 }
 
 // PRIVATE API
