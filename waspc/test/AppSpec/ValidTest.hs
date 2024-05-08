@@ -331,8 +331,6 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
             `shouldBe` [ASV.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
 
-    -- NOTE: we need to test all types of declarations here, make sure to add
-    -- tests for new declaration types as they are validated in Valid.hs
     describe "duplicate declarations validation" $ do
       -- Page
       let pageDecl = makeBasicPageDecl "testPage"
@@ -365,85 +363,23 @@ spec_AppSpecValid = do
       -- Job
       let jobDecl = makeBasicJobDecl "testJob"
 
-      it "returns no error if there are no duplicate declarations" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, pageDecl, routeDecl]
-              }
-          )
-          `shouldBe` []
+      let testDuplicateDecls decls declTypeName expectedErrorMessage = it ("returns an error if there are duplicate " ++ declTypeName ++ " declarations") $ do
+            ASV.validateAppSpec
+              ( basicAppSpec
+                  { AS.decls = decls
+                  }
+              )
+              `shouldBe` [ASV.GenericValidationError expectedErrorMessage]
 
-      it "returns an error if there are duplicate pages" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, pageDecl, pageDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate page declarations with name 'testPage'."]
-
-      it "returns an error if there are duplicate routes" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, routeDecl, routeDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate route declarations with name 'testRoute'."]
-
-      it "returns an error if there are duplicate actions" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, actionDecl, actionDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate action declarations with name 'testAction'."]
-
-      it "returns an error if there are duplicate queries" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, queryDecl, queryDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate query declarations with name 'testQuery'."]
-
-      it "returns an error if there are duplicate apis" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, apiDecl1, apiDecl2]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate api declarations with name 'testApi'."]
-
-      it "returns an error if there are duplicate api namespaces" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, apiNamespaceDecl1, apiNamespaceDecl2]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate api namespace declarations with name 'testApiNamespace'."]
-
-      it "returns an error if there are duplicate cruds" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, crudDecl, crudDecl, entityDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate crud declarations with name 'testCrud'."]
-
-      it "returns an error if there are duplicate entities" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, entityDecl, entityDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate entity declarations with name 'TestEntity'."]
-
-      it "returns an error if there are duplicate jobs" $ do
-        ASV.validateAppSpec
-          ( basicAppSpec
-              { AS.decls = [basicAppDecl, jobDecl, jobDecl]
-              }
-          )
-          `shouldBe` [ASV.GenericValidationError "There are duplicate job declarations with name 'testJob'."]
+      testDuplicateDecls [basicAppDecl, pageDecl, pageDecl] "page" "There are duplicate page declarations with name 'testPage'."
+      testDuplicateDecls [basicAppDecl, routeDecl, routeDecl] "route" "There are duplicate route declarations with name 'testRoute'."
+      testDuplicateDecls [basicAppDecl, actionDecl, actionDecl] "action" "There are duplicate action declarations with name 'testAction'."
+      testDuplicateDecls [basicAppDecl, queryDecl, queryDecl] "query" "There are duplicate query declarations with name 'testQuery'."
+      testDuplicateDecls [basicAppDecl, apiDecl1, apiDecl2] "api" "There are duplicate api declarations with name 'testApi'."
+      testDuplicateDecls [basicAppDecl, apiNamespaceDecl1, apiNamespaceDecl2] "api namespace" "There are duplicate api namespace declarations with name 'testApiNamespace'."
+      testDuplicateDecls [basicAppDecl, crudDecl, crudDecl, entityDecl] "crud" "There are duplicate crud declarations with name 'testCrud'."
+      testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
+      testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
   where
     makeIdField name typ =
       PslM.Field
