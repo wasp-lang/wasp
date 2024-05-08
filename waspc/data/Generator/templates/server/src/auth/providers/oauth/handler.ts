@@ -87,12 +87,14 @@ function createOAuthLoginHandler<ST extends StateType>(
     const oAuthState = generateAndStoreOAuthState(stateTypes, provider, res)
     let url = await getAuthorizationUrl(oAuthState)
     if (onBeforeOAuthRedirectHook) {
-      url = (
-        await onBeforeOAuthRedirectHook({
-          req,
-          url,
-        })
-      ).url
+      url =
+        // TODO: send state as well so it can be connected to the callback
+        (
+          await onBeforeOAuthRedirectHook({
+            req,
+            url,
+          })
+        ).url
     }
     return redirect(res, url.toString())
   })
@@ -117,6 +119,7 @@ function createOAuthCallbackHandler<ST extends StateType>(
       const oAuthState = validateAndGetOAuthState(stateTypes, provider, req)
       const { accessToken } = await getProviderTokens(oAuthState)
       if (onAfterOAuthTokenReceivedHook) {
+        // TODO: send state as well so it can be connected to the redirect
         await onAfterOAuthTokenReceivedHook({
           req,
           accessToken,
