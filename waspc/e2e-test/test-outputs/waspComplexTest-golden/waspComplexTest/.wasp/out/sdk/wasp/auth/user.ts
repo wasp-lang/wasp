@@ -30,8 +30,12 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
 export type { AuthUserData, AuthUser } from '../server/auth/user.js'
 
 // PRIVATE API (used in SDK and server)
-export function makeAuthUserIfPossible(user: AuthUserData | null): AuthUser | null {
-  return user ? makeAuthUser(user) : null;
+export function makeAuthUserIfPossible(user: null): null
+export function makeAuthUserIfPossible(user: AuthUserData): AuthUser
+export function makeAuthUserIfPossible(
+  user: AuthUserData | null,
+): AuthUser | null {
+  return user ? makeAuthUser(user) : null
 }
 
 function makeAuthUser(data: AuthUserData): AuthUser {

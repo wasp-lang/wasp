@@ -16,7 +16,6 @@ export function getFirstProviderUserId(user) {
     }
     return (_a = user.auth.identities[0].providerUserId) !== null && _a !== void 0 ? _a : null;
 }
-// PRIVATE API (used in SDK and server)
 export function makeAuthUserIfPossible(user) {
     return user ? makeAuthUser(user) : null;
 }

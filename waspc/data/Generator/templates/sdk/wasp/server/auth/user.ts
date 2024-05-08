@@ -20,7 +20,7 @@ export type AuthUser = AuthUserData & {
 /**
  * Ideally, we'd do something like this:
  * ```
- * export type AuthUserData = ReturnType<typeof createAuthUser>
+ * export type AuthUserData = ReturnType<typeof createAuthUserData>
  * ```
  * to get the benefits of the createAuthUser and the AuthUserData type being in sync.
  * 
