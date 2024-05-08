@@ -19,11 +19,13 @@ export const ProfilePage = ({ user }: { user: User }) => {
       <div>
         Hello <strong>{user.getFirstProviderUserId()}</strong>! Your status is{' '}
         <strong>
-          {user.identities.email && user.identities.email.isEmailVerified
-            ? 'verfied'
-            : 'unverified'}
+          {user.identities.email?.isEmailVerified ? 'verfied' : 'unverified'}
         </strong>
         .
+      </div>
+      <div>
+        Value of <code>user.isOnAfterSignupHookCalled</code> is{' '}
+        <strong>{user.isOnAfterSignupHookCalled ? 'true' : 'false'}</strong>.
       </div>
       <br />
       <Link to="/">Go to dashboard</Link>
