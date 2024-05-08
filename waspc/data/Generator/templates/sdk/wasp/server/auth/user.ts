@@ -25,7 +25,7 @@ import { Expand } from '../../universal/types.js'
  * 
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
-export type AuthUser = Omit<UserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
+export type AuthUserData = Omit<UserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
   identities: {
     {=# enabledProviders.isEmailAuthEnabled =}
     email: Expand<UserFacingProviderData<'email'>> | null
@@ -43,6 +43,10 @@ export type AuthUser = Omit<UserEntityWithAuth, '{= authFieldOnUserEntityName =}
     github: Expand<UserFacingProviderData<'github'>> | null
     {=/ enabledProviders.isGitHubAuthEnabled =}
   },
+}
+
+// PRIVATE API
+export type AuthUser = AuthUserData & {
   getFirstProviderUserId: () => string | null,
 }
 
@@ -61,7 +65,7 @@ export type AuthEntityWithIdentities = {= authEntityName =} & {
 }
 
 // PRIVATE API
-export function createAuthUser(user: UserEntityWithAuth): AuthUser {
+export function createAuthUser(user: UserEntityWithAuth): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
   if (!{= authFieldOnUserEntityName =}) {
     throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -87,7 +91,6 @@ This should never happen, but it did which means there is a bug in the code.`)
   return {
     ...rest,
     identities,
-    getFirstProviderUserId: () => getFirstProviderUserId(user),
   }
 }
 

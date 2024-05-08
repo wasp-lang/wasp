@@ -1,5 +1,6 @@
 import { type AuthIdentity } from '../entities/index.js'
 import { type ProviderName } from '../server/_types/index.js'
+import type { AuthUserData, AuthUser } from '../server/auth/user.js'
 /**
  * We split the user.ts code into two files to avoid some server-only
  * code (Oslo's hashing functions) being imported on the client.
@@ -23,6 +24,17 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
   }
 
   return user.auth.identities[0].providerUserId ?? null;
+}
+
+// PRIVATE API
+export function enrichAuthUser(data: AuthUserData): AuthUser {
+  return {
+    ...data,
+    getFirstProviderUserId: () => {
+      const identities = Object.values(data.identities).filter(Boolean);
+      return identities.length > 0 ? identities[0].id : null;
+    },
+  };
 }
 
 function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): AuthIdentity | null {

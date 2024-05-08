@@ -7,5 +7,6 @@ export {
 
 // PUBLIC API
 export {
+  type AuthUserData,
   type AuthUser,
-} from '../server/auth/user.js';
+} from '../server/auth/user.js'

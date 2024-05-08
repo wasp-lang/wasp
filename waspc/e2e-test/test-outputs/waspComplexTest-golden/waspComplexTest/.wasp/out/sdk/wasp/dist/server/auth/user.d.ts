@@ -14,10 +14,12 @@ import { Expand } from '../../universal/types.js';
  *
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
-export type AuthUser = Omit<UserEntityWithAuth, 'auth'> & {
+export type AuthUserData = Omit<UserEntityWithAuth, 'auth'> & {
     identities: {
         google: Expand<UserFacingProviderData<'google'>> | null;
     };
+};
+export type AuthUser = AuthUserData & {
     getFirstProviderUserId: () => string | null;
 };
 type UserFacingProviderData<PN extends ProviderName> = {
@@ -29,5 +31,5 @@ export type UserEntityWithAuth = User & {
 export type AuthEntityWithIdentities = Auth & {
     identities: AuthIdentity[];
 };
-export declare function createAuthUser(user: UserEntityWithAuth): AuthUser;
+export declare function createAuthUser(user: UserEntityWithAuth): AuthUserData;
 export {};

@@ -24,10 +24,14 @@ import { Expand } from '../../universal/types.js'
  * 
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
-export type AuthUser = Omit<UserEntityWithAuth, 'auth'> & {
+export type AuthUserData = Omit<UserEntityWithAuth, 'auth'> & {
   identities: {
     google: Expand<UserFacingProviderData<'google'>> | null
   },
+}
+
+// PRIVATE API
+export type AuthUser = AuthUserData & {
   getFirstProviderUserId: () => string | null,
 }
 
@@ -46,7 +50,7 @@ export type AuthEntityWithIdentities = Auth & {
 }
 
 // PRIVATE API
-export function createAuthUser(user: UserEntityWithAuth): AuthUser {
+export function createAuthUser(user: UserEntityWithAuth): AuthUserData {
   const { auth, ...rest } = user
   if (!auth) {
     throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -58,7 +62,6 @@ This should never happen, but it did which means there is a bug in the code.`)
   return {
     ...rest,
     identities,
-    getFirstProviderUserId: () => getFirstProviderUserId(user),
   }
 }
 

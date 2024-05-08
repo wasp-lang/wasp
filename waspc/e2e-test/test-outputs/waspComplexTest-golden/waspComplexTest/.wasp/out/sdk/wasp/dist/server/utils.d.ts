@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { type AuthUser } from 'wasp/auth';
+import { type AuthUserData } from 'wasp/auth';
 type RequestWithExtraFields = Request & {
-    user?: AuthUser;
+    user?: AuthUserData;
     sessionId?: string;
 };
 /**
