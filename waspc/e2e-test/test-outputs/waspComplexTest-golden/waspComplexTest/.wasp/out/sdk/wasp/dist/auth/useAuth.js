@@ -2,6 +2,7 @@ import { deserialize as superjsonDeserialize } from 'superjson';
 import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations';
 import { api, handleApiError } from 'wasp/client/api';
 import { HttpMethod } from 'wasp/client';
+import { makeAuthUserIfPossible } from '../auth/user.js';
 // PUBLIC API
 export const getMe = createUserGetter();
 // PUBLIC API
@@ -15,7 +16,8 @@ function createUserGetter() {
         var _a;
         try {
             const response = await api.get(getMeRoute.path);
-            return superjsonDeserialize(response.data);
+            const userData = superjsonDeserialize(response.data);
+            return makeAuthUserIfPossible(userData);
         }
         catch (error) {
             if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {

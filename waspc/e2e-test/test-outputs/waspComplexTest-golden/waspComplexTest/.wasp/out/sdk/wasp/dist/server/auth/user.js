@@ -10,9 +10,8 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import { deserializeAndSanitizeProviderData } from '../../auth/utils.js';
-import { getFirstProviderUserId } from '../../auth/user.js';
 // PRIVATE API
-export function createAuthUser(user) {
+export function createAuthUserData(user) {
     const { auth } = user, rest = __rest(user, ["auth"]);
     if (!auth) {
         throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -21,7 +20,7 @@ This should never happen, but it did which means there is a bug in the code.`);
     const identities = {
         google: getProviderInfo(auth, 'google'),
     };
-    return Object.assign(Object.assign({}, rest), { identities, getFirstProviderUserId: () => getFirstProviderUserId(user) });
+    return Object.assign(Object.assign({}, rest), { identities });
 }
 function getProviderInfo(auth, providerName) {
     const identity = getIdentity(auth, providerName);

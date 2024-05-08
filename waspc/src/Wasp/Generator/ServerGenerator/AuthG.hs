@@ -46,7 +46,7 @@ genAuth spec = case maybeAuth of
   Just auth ->
     sequence
       [ genAuthRoutesIndex auth,
-        genFileCopy [relfile|routes/auth/me.js|],
+        genFileCopy [relfile|routes/auth/me.ts|],
         genFileCopy [relfile|routes/auth/logout.ts|],
         genProvidersIndex auth
       ]

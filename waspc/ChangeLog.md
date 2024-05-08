@@ -61,6 +61,9 @@ These changes improve code readability and lower the complexity of accessing use
 
 These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp-lang.dev/docs/auth/entities#including-the-user-with-other-entities).
 
+### 🐞 Bug fixes
+- Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
+
 ### 🔧 Small improvements
 
 - Improved the default loading spinner while waiting for the user to be fetched.
