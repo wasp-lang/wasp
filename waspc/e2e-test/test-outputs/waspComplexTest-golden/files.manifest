@@ -223,6 +223,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/entities/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/auth/hooks.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/auth/hooks.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/auth/hooks.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/client/App.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/client/App.jsx
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/client/App.jsx.map
@@ -367,6 +370,7 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspComplexTest/.wasp/out/sdk/wasp/entities/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/Main.css
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
+waspComplexTest/.wasp/out/sdk/wasp/ext-src/auth/hooks.ts
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/client/App.jsx
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/client/myClientSetupCode.js
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/server/actions/bar.js
@@ -492,6 +496,7 @@ waspComplexTest/package.json
 waspComplexTest/public/.gitkeep
 waspComplexTest/src/Main.css
 waspComplexTest/src/MainPage.jsx
+waspComplexTest/src/auth/hooks.ts
 waspComplexTest/src/client/App.jsx
 waspComplexTest/src/client/myClientSetupCode.js
 waspComplexTest/src/server/actions/bar.js
