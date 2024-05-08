@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "a675b7fce46675fe7fc2f5a4edabe8abca4db9cd90a03340d9cf9c54c0e7539f"
+        "77f20065f4a21450ba6d7e146b4fb0c25a5abb1c616dc7a50723c80021ebe13f"
     ],
     [
         [
@@ -522,7 +522,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "23efbb9c408f8c12bdb77359a48177430b7da636163562d0105560891ac225b9"
+        "c165909021613cb6e389b324632f199d392b093d18109f05ab33b720c429c187"
     ],
     [
         [

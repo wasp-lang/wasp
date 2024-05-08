@@ -15,18 +15,20 @@ import { throwInvalidCredentialsError } from 'wasp/auth/utils';
  */
 const auth = handleRejection(async (req, res, next) => {
     const authHeader = req.get('Authorization');
+    // NOTE(matija): for now we let tokenless requests through and make it operation's
+    // responsibility to verify whether the request is authenticated or not. In the future
+    // we will develop our own system at Wasp-level for that.
     if (!authHeader) {
-        // NOTE(matija): for now we let tokenless requests through and make it operation's
-        // responsibility to verify whether the request is authenticated or not. In the future
-        // we will develop our own system at Wasp-level for that.
+        req.sessionId = null;
+        req.user = null;
         return next();
     }
-    const { session, user } = await getSessionAndUserFromBearerToken(req);
-    if (!session || !user) {
+    const sessionAndUser = await getSessionAndUserFromBearerToken(req);
+    if (sessionAndUser === null) {
         throwInvalidCredentialsError();
     }
-    req.sessionId = session.id;
-    req.user = user;
+    req.sessionId = sessionAndUser.session.id;
+    req.user = sessionAndUser.user;
     next();
 });
 export default auth;

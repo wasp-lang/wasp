@@ -447,7 +447,7 @@ waspComplexTest/.wasp/out/server/src/queries/mySpecialQuery.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js
 waspComplexTest/.wasp/out/server/src/routes/auth/logout.ts
-waspComplexTest/.wasp/out/server/src/routes/auth/me.js
+waspComplexTest/.wasp/out/server/src/routes/auth/me.ts
 waspComplexTest/.wasp/out/server/src/routes/crud/index.ts
 waspComplexTest/.wasp/out/server/src/routes/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/routes/index.js
