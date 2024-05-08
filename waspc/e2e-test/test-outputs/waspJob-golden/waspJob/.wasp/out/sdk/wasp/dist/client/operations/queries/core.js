@@ -1,6 +1,8 @@
 import { callOperation, makeOperationRoute } from '../internal/index.js';
 import { addResourcesUsedByQuery, getActiveOptimisticUpdates, } from '../internal/resources';
 // PRIVATE API (used in the SDK)
+// todo: find ways to remove this duplication and make the type more precise.
+// Details here: https://github.com/wasp-lang/wasp/issues/2017
 export function makeQueryCacheKey(query, payload) {
     return payload !== undefined ?
         [...query.queryCacheKey, payload]
@@ -12,6 +14,9 @@ export function createQuery(relativeQueryPath, entitiesUsed) {
     const queryCacheKey = [relativeQueryPath];
     const queryFn = async (queryArgs) => {
         const serverResult = await callOperation(queryRoute, queryArgs);
+        // todo: The full queryCacheKey is constructed in two places, both here and
+        // inside the useQuery hook. See
+        // https://github.com/wasp-lang/wasp/issues/2017
         const queryCacheKey = makeQueryCacheKey(queryFn, queryArgs);
         return getActiveOptimisticUpdates(queryCacheKey).reduce((result, update) => update(result), serverResult);
     };
