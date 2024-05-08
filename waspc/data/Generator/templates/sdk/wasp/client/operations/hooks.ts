@@ -107,7 +107,6 @@ type UpdateQuery<ActionInput, CachedData> = (
   oldData: CachedData | undefined
 ) => CachedData;
 
-// PRIVATE API (but should maybe be public, users define values of this type)
 /**
  * A public query specifier used for addressing Wasp queries. See our docs for details:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.

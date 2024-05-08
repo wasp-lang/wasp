@@ -66,6 +66,7 @@ export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
  */
 export type GenericBackendOperation = (args: never, context: any) => unknown
 
+// PRIVATE API (needed in SDK)
 /**
  * A supertype of all possible frontend RPC function types.
  */
