@@ -11,7 +11,7 @@ export function createOperation (handlerFn) {
         const args = (req.body && superjsonDeserialize(req.body)) || {}
         const context = {
             {=# isAuthEnabled =}
-            user: enrichAuthUser(req.user),
+            user: req.user ? enrichAuthUser(req.user) : null,
             {=/ isAuthEnabled =}
         }  
         const result = await handlerFn(args, context)

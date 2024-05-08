@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 import { type AuthUserData } from 'wasp/auth'
 
 type RequestWithExtraFields = Request & {
-  user?: AuthUserData;
+  user: AuthUserData | null;
   sessionId?: string;
 }
 

@@ -26,11 +26,11 @@ router.get(
   [auth, ...fooBarMiddleware],
   handleRejection(
     (
-      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUserData },
+      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUserData | null },
       res: Parameters<typeof _waspfooBarfn>[1],
     ) => {
       const context = {
-        user: enrichAuthUser(req.user),
+        user: req.user ? enrichAuthUser(req.user) : null,
         entities: {
         },
       }

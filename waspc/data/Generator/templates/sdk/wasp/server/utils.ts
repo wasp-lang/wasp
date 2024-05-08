@@ -7,7 +7,7 @@ import { type AuthUserData } from 'wasp/auth'
 
 type RequestWithExtraFields = Request & {
   {=# isAuthEnabled =}
-  user?: AuthUserData;
+  user: AuthUserData | null;
   sessionId?: string;
   {=/ isAuthEnabled =}
 }

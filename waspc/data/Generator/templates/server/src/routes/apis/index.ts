@@ -46,12 +46,12 @@ router.{= routeMethod =}(
   {=/ usesAuth =}
   handleRejection(
     (
-      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUserData }{=/ usesAuth =},
+      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUserData | null }{=/ usesAuth =},
       res: Parameters<typeof {= importIdentifier =}>[1],
     ) => {
       const context = {
         {=# usesAuth =}
-        user: enrichAuthUser(req.user),
+        user: req.user ? enrichAuthUser(req.user) : null,
         {=/ usesAuth =}
         entities: {
           {=# entities =}

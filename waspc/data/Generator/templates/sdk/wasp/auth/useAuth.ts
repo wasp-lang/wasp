@@ -22,9 +22,8 @@ function createUserGetter(): Query<void, AuthUser | null> {
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
       const response = await api.get(getMeRoute.path)
-      return enrichAuthUser(
-        superjsonDeserialize<AuthUserData>(response.data)
-      )
+      const userData = superjsonDeserialize<AuthUserData | null>(response.data)
+      return userData ? enrichAuthUser(userData) : null;
     } catch (error) {
       if (error.response?.status === 401) {
         return null

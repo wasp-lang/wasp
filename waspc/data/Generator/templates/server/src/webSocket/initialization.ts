@@ -46,7 +46,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
       const { user } =  await getSessionAndUserFromSessionId(sessionId)
       socket.data = {
         ...socket.data,
-        user: enrichAuthUser(user)
+        user: user ? enrichAuthUser(user) : null
       }
     } catch (err) { }
   }

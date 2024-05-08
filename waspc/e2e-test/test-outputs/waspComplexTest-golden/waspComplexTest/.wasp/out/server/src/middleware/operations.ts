@@ -9,7 +9,7 @@ export function createOperation (handlerFn) {
     return handleRejection(async (req, res) => {
         const args = (req.body && superjsonDeserialize(req.body)) || {}
         const context = {
-            user: enrichAuthUser(req.user),
+            user: req.user ? enrichAuthUser(req.user) : null,
         }  
         const result = await handlerFn(args, context)
         const serializedResult = superjsonSerialize(result)

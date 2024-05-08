@@ -16,7 +16,8 @@ function createUserGetter() {
         var _a;
         try {
             const response = await api.get(getMeRoute.path);
-            return enrichAuthUser(superjsonDeserialize(response.data));
+            const userData = superjsonDeserialize(response.data);
+            return userData ? enrichAuthUser(userData) : null;
         }
         catch (error) {
             if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {
