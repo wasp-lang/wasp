@@ -6,12 +6,15 @@
 
 # Gets the directory of where this script lives.
 dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-echo "Running ensure_todoapp_builds.sh from $dir"
+echo "Running ensure_todoapp_works.sh from $dir"
 
 cd "$dir/../examples/todoApp"
 
 # Compile example app.
 cabal run wasp-cli build
+
+echo "Ensure the user's code has no TypeScript errors (shown in the IDE)."
+npx tsc --noEmit --skipLibCheck
 
 # Make sure they build.
 echo "Ensure client builds"
