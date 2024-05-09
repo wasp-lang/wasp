@@ -9,7 +9,10 @@ export function useQuery(query, queryFnArgs, options) {
     if (!query.queryCacheKey) {
         throw new TypeError('queryFn needs to have queryCacheKey property defined.');
     }
-    return rqUseQuery(Object.assign({ queryKey: makeQueryCacheKey(query, queryFnArgs), queryFn: () => query(queryFnArgs) }, options));
+    return rqUseQuery(Object.assign({ 
+        // todo: The full queryCacheKey is constructed in two places, both here and
+        // inside the Query. See https://github.com/wasp-lang/wasp/issues/2017
+        queryKey: makeQueryCacheKey(query, queryFnArgs), queryFn: () => query(queryFnArgs) }, options));
 }
 // PUBLIC API
 /**
@@ -155,6 +158,8 @@ function getOptimisticUpdateDefinitionForSpecificItem(optimisticUpdateDefinition
         updateQuery: (old) => updateQuery(item, old),
     };
 }
+// todo: Address the duplication between this function and the one in
+// queries/core.ts. Details here: https://github.com/wasp-lang/wasp/issues/2017
 /**
  * Translates a Wasp query specifier to a query cache key used by React Query.
  *

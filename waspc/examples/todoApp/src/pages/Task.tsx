@@ -28,7 +28,8 @@ const Todo = (props: any) => {
     optimisticUpdates: [
       {
         getQuerySpecifier: () => [getTask, { id: taskId }],
-        // This query's cache should should never be emtpy
+        // Since we're on a page that uses this Query, its query's cache should
+        // should never be empty.
         updateQuery: ({ isDone }, oldTask) => ({ ...oldTask!, isDone }),
       } as OptimisticUpdateDefinition<TaskPayload, Task>,
       {
