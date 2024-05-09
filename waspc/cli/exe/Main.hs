@@ -133,8 +133,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
       putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
       exitFailure
 
--- | Sets environment variables that are visible to the commands run by the CLI.
+-- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
+-- The env variables are visible to our CLI and any child processes spawned by it.
+-- The env variables won't be set in the terminal session after the CLI exits.
 setDefaultCliEnvVars :: IO ()
 setDefaultCliEnvVars = do
   mapM_ (uncurry Env.setEnv) cliEnvVars
