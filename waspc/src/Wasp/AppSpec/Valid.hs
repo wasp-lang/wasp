@@ -43,7 +43,7 @@ import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
-import Wasp.Util (isCapitalized)
+import Wasp.Util (findDuplicateElems, isCapitalized)
 import qualified Wasp.Version as WV
 
 data ValidationError = GenericValidationError !String | GenericValidationWarning !String
@@ -285,22 +285,19 @@ validateUniqueDeclarationNames spec =
     ]
   where
     checkIfDeclarationsAreUnique :: IsDecl a => String -> [(String, a)] -> [ValidationError]
-    checkIfDeclarationsAreUnique declarationTypeName getDecls = case duplicateDeclarationNames of
+    checkIfDeclarationsAreUnique declTypeName decls = case duplicateDeclNames of
       [] -> []
-      _ ->
+      (firstDuplicateDeclName : _) ->
         [ GenericValidationError $
             "There are duplicate "
-              ++ declarationTypeName
+              ++ declTypeName
               ++ " declarations with name '"
-              ++ head duplicateDeclarationNames
+              ++ firstDuplicateDeclName
               ++ "'."
         ]
       where
-        declarationNames :: [String]
-        declarationNames = map fst getDecls
-
-        duplicateDeclarationNames :: [String]
-        duplicateDeclarationNames = map head $ filter ((> 1) . length) (group . sort $ declarationNames)
+        duplicateDeclNames :: [String]
+        duplicateDeclNames = findDuplicateElems $ map fst decls
 
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =

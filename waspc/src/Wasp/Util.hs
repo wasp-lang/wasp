@@ -39,6 +39,7 @@ module Wasp.Util
     textToLazyBS,
     trim,
     secondsToMicroSeconds,
+    findDuplicateElems,
   )
 where
 
@@ -51,7 +52,7 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
-import Data.List (intercalate)
+import Data.List (group, intercalate, sort)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
@@ -266,3 +267,6 @@ textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
 
 secondsToMicroSeconds :: Int -> Int
 secondsToMicroSeconds = (* 1000000)
+
+findDuplicateElems :: Ord a => [a] -> [a]
+findDuplicateElems = map head . filter ((> 1) . length) . group . sort
