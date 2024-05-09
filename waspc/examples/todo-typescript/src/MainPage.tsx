@@ -40,7 +40,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
       <Link to="/chat">Wonna chat?</Link>
       {user && (
         <h1>
-          {getFirstProviderUserId(user)}
+          {user.getFirstProviderUserId()}
           {`'s tasks :)`}
         </h1>
       )}

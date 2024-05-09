@@ -8,6 +8,7 @@ import type { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
 import { getTasks } from 'wasp/client/operations'
 import { Tasks } from 'wasp/client/crud'
+import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
 const mockTasks = [
   {
@@ -39,22 +40,21 @@ test('handles rendering in context', () => {
 
 const { mockQuery } = mockServer()
 
-const mockUser = {
+// Abusing leaky private API, but it's fine for testing.
+// To whoever has to deal with this when we hide the private API:
+// Sorry, but it's probably me anyway :)
+//
+// On a more serious note, if this function
+// is useful in testing, perhaps we should make it public
+const mockUser = makeAuthUserIfPossible({
   id: 12,
-  auth: {
-    id: '123',
-    userId: 12,
-    identities: [
-      {
-        authId: '123',
-        providerName: 'email',
-        providerUserId: 'elon@tesla.com',
-        providerData: '',
-      },
-    ],
+  address: 'test address',
+  identities: {
+    username: {
+      id: '123',
+    },
   },
-  address: '',
-} satisfies AuthUser
+})
 
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks)

@@ -14,9 +14,9 @@ export function getName(user?: AuthUser) {
     return `Google user ${user.identities.google.id}`
   }
 
-  if (user.identities.github !== null) {
-    return `GitHub user ${user.identities.github.id}`
-  }
+  // if (user.identities.github !== null) {
+  //   return `GitHub user ${user.identities.github.id}`
+  // }
 
   // if (user.identities.keycloak !== undefined) {
   //   return `Keycloak user ${user.identities.keycloak.id}`

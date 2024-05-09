@@ -1,13 +1,31 @@
 import { FormEventHandler } from 'react'
 import { Task } from 'wasp/entities'
-import { updateTask, deleteTasks } from 'wasp/client/operations'
+import {
+  updateTask,
+  deleteTasks,
+  useAction,
+  getTasks,
+  OptimisticUpdateDefinition,
+} from 'wasp/client/operations'
 
 export function Todo({ id, isDone, description }: Task) {
+  const updateTaskOptimistically = useAction(updateTask, {
+    optimisticUpdates: [
+      {
+        getQuerySpecifier: () => [getTasks],
+        updateQuery: (updatedTask, oldTasks) =>
+          oldTasks &&
+          oldTasks.map((task) =>
+            task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+          ),
+      } as OptimisticUpdateDefinition<{ id: number; isDone: boolean }, Task[]>,
+    ],
+  })
   const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (
     event
   ) => {
     try {
-      await updateTask({
+      await updateTaskOptimistically({
         id,
         isDone: event.currentTarget.checked,
       })

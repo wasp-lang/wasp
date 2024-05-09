@@ -49,6 +49,8 @@ export const updateTask: UpdateTask<UpdateArgs> = async (
   if (!context.user) {
     throw new HttpError(401)
   }
+  // sleep for 2 seconds (to test optimistic updates)
+  await new Promise((resolve) => setTimeout(resolve, 2_000))
 
   return context.entities.Task.update({
     where: {
