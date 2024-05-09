@@ -270,8 +270,6 @@ validateCrudOperations spec =
 
 validateUniqueDeclarationNames :: AppSpec -> [ValidationError]
 validateUniqueDeclarationNames spec =
-  -- NOTE: we need to validate all declaration types, so make sure
-  -- to update this check if new declaration type is added.
   concat
     [ checkIfDeclarationsAreUnique "page" (AS.getPages spec),
       checkIfDeclarationsAreUnique "route" (AS.getRoutes spec),
