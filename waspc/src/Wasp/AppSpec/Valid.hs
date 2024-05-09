@@ -268,6 +268,10 @@ validateCrudOperations spec =
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
 
+{- ORMOLU_DISABLE -}
+-- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"
+-- to include the new declaration type.
+{- ORMOLU_ENABLE -}
 validateUniqueDeclarationNames :: AppSpec -> [ValidationError]
 validateUniqueDeclarationNames spec =
   concat
@@ -276,7 +280,7 @@ validateUniqueDeclarationNames spec =
       checkIfDeclarationsAreUnique "action" (AS.getActions spec),
       checkIfDeclarationsAreUnique "query" (AS.getQueries spec),
       checkIfDeclarationsAreUnique "api" (AS.getApis spec),
-      checkIfDeclarationsAreUnique "api namespace" (AS.getApiNamespaces spec),
+      checkIfDeclarationsAreUnique "apiNamespace" (AS.getApiNamespaces spec),
       checkIfDeclarationsAreUnique "crud" (AS.getCruds spec),
       checkIfDeclarationsAreUnique "entity" (AS.getEntities spec),
       checkIfDeclarationsAreUnique "job" (AS.getJobs spec)

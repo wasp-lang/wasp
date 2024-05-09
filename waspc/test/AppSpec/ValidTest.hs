@@ -376,7 +376,7 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, actionDecl, actionDecl] "action" "There are duplicate action declarations with name 'testAction'."
       testDuplicateDecls [basicAppDecl, queryDecl, queryDecl] "query" "There are duplicate query declarations with name 'testQuery'."
       testDuplicateDecls [basicAppDecl, apiDecl1, apiDecl2] "api" "There are duplicate api declarations with name 'testApi'."
-      testDuplicateDecls [basicAppDecl, apiNamespaceDecl1, apiNamespaceDecl2] "api namespace" "There are duplicate api namespace declarations with name 'testApiNamespace'."
+      testDuplicateDecls [basicAppDecl, apiNamespaceDecl1, apiNamespaceDecl2] "apiNamespace" "There are duplicate apiNamespace declarations with name 'testApiNamespace'."
       testDuplicateDecls [basicAppDecl, crudDecl, crudDecl, entityDecl] "crud" "There are duplicate crud declarations with name 'testCrud'."
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."

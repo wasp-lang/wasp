@@ -45,8 +45,6 @@ makeDeclType ''App
 -- *** MAKE SURE TO UPDATE: The `validateUniqueDeclarationNames` function in the `Wasp.AppSpec.Valid` module
 --                          when you add a new declaration type here, we need to check for duplicate declaration names
 --                          for the new declaration type.
--- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation" to
---                         include the new declaration type.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addDeclType @App $
