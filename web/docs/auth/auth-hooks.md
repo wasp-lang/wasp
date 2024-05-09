@@ -3,7 +3,7 @@ title: Auth Hooks
 ---
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill } from "./Pills";
-
+import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 Sometimes you need to do some action _before_ the user signs up or _after_ they sign up. Or you need to access the OAuth redirect URL or the OAuth access token. For these cases, you can use the Auth Hooks.
 
@@ -32,6 +32,21 @@ app myApp {
 Wasp _awaits_ the async hook functions in various stages of the auth process. The hooks are called with an `args` object that contains the necessary information for the hook to do its job. 
 
 The return value is ignored for all hooks except `onBeforeOAuthRedirect` which enables you to modify the OAuth redirect URL.
+
+#### When Are the Hooks Called
+
+<ImgWithCaption
+  source="/img/auth-hooks/signup_flow_with_hooks.png"
+  alt="Signup Flow with Hooks"
+  caption="Signup Flow with Hooks"
+/>
+
+<ImgWithCaption
+  source="/img/auth-hooks/oauth_flow_with_hooks.png"
+  alt="OAuth Flow with Hooks"
+  caption="OAuth Flow with Hooks"
+/>
+
 
 
 ### `onBeforeSignup` hook
