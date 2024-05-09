@@ -44,7 +44,7 @@ export const updateTaskIsDone: UpdateTaskIsDone<
 
   // Uncomment to test optimistic updates
   const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
-  await sleep(5000)
+  await sleep(2000)
 
   const Task = context.entities.Task
   const updateResult = await Task.updateMany({
