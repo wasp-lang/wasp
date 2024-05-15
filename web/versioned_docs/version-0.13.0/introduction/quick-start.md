@@ -46,6 +46,10 @@ That's it 🎉 You have successfully created and served a new full-stack web app
   Give Wasp a spin in the browser with GitHub Codespaces by following the intructions in our [Tutorial App README](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp)
 :::
 
+:::tip Having trouble running Wasp?
+  If you've verified Wasp is installed and Wasp is failing to start, try running `wasp clean` - this is the Wasp equivalent of "turning it off and on again"!
+:::
+
 
 ### What next?
 
