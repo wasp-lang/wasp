@@ -22,12 +22,21 @@ import Wasp.LSP.Debouncer (debounce)
 import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagnostic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
 import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (refreshExportsForAllExtImports)
+import qualified Wasp.LSP.Prisma.Analyze as Prisma
 import Wasp.LSP.ServerMonads (HandlerM, ServerM, handler, modify, sendToReactor)
 import qualified Wasp.LSP.ServerState as State
+import Wasp.LSP.Util (getWaspDirFromWaspFileUri)
 
 -- | Finds diagnostics on a wasp file and sends the diagnostics to the LSP client.
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
+  -- Immediately update Prisma entities only when file watching is enabled
+  prismaSchemaWatchingEnabled <- isJust <$> handler (asks (^. State.regTokens . State.watchPrismaSchemaToken))
+  when prismaSchemaWatchingEnabled $ do
+    case getWaspDirFromWaspFileUri uri of
+      Nothing -> logM $ "Couldn't get wasp dir from wasp file uri " ++ show uri
+      Just waspDir -> Prisma.analyzePrismaSchemaFileAndSetEntities waspDir
+
   analyzeWaspFile uri
 
   -- Immediately update import diagnostics only when file watching is enabled
@@ -65,6 +74,8 @@ analyzeWaspFile :: LSP.Uri -> ServerM ()
 analyzeWaspFile uri = do
   modify (State.waspFileUri ?~ uri)
 
+  prismaEntities <- handler $ asks (^. State.prismaEntities)
+
   -- NOTE: we have to be careful to keep CST and source string in sync at all
   -- times for all threads, so we update them both atomically (via one call to
   -- 'modify').
@@ -78,7 +89,7 @@ analyzeWaspFile uri = do
       modify ((State.currentWaspSource .~ srcString) . (State.cst ?~ concreteSyntax))
       if not $ null concreteErrorMessages
         then storeCSTErrors concreteErrorMessages
-        else runWaspAnalyzer srcString
+        else runWaspAnalyzer prismaEntities srcString
   where
     readSourceString = fmap T.unpack <$> readVFSFile uri
 
@@ -86,9 +97,8 @@ analyzeWaspFile uri = do
       let newDiagnostics = map ParseDiagnostic concreteErrorMessages
       modify (State.latestDiagnostics .~ newDiagnostics)
 
-    runWaspAnalyzer srcString = do
-      let analyzeResult = analyze srcString
-      case analyzeResult of
+    runWaspAnalyzer entities srcString = do
+      case analyze entities srcString of
         Right _ -> do
           modify (State.latestDiagnostics .~ [])
         Left errs -> do

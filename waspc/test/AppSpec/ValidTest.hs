@@ -29,6 +29,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
+import qualified Wasp.Psl.Ast.Model as Psl.Ast
 import qualified Wasp.Psl.Ast.Model as PslM
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
@@ -422,6 +423,8 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
+          AS.entities = [],
+          AS.prismaSchema = Psl.Ast.Schema [],
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
           AS.externalPublicFiles = [],

@@ -8,21 +8,33 @@ import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Model as AST
-import Wasp.Psl.Generator.Model (generateModel)
+import Wasp.Psl.Generator.Model (generateSchemaElement)
 import qualified Wasp.Psl.Parser.Model
 
 spec_generatePslModel :: Spec
 spec_generatePslModel = do
   describe "Complex example" $ do
-    let pslModelAst = AST.Model "User" sampleBodyAst
+    let pslModelAst = AST.SchemaModel $ AST.Model "User" sampleBodyAst
 
     it "parse(generate(sampleBodyAst)) == sampleBodyAst" $ do
-      Parsec.parse Wasp.Psl.Parser.Model.model "" (generateModel pslModelAst) `shouldBe` Right pslModelAst
+      Parsec.parse Wasp.Psl.Parser.Model.model "" (generateSchemaElement pslModelAst) `shouldBe` Right pslModelAst
 
 prop_generatePslModel :: Property
 prop_generatePslModel = mapSize (const 100) $ \modelAst ->
   within 1000000 $
-    Parsec.parse Wasp.Psl.Parser.Model.model "" (generateModel modelAst) `shouldBe` Right modelAst
+    Parsec.parse Wasp.Psl.Parser.Model.model "" (generateSchemaElement modelAst) `shouldBe` Right modelAst
+
+instance Arbitrary AST.SchemaElement where
+  arbitrary = oneof [AST.SchemaModel <$> arbitrary, AST.SchemaEnum <$> arbitrary]
+
+instance Arbitrary AST.Schema where
+  arbitrary = AST.Schema <$> scale (const 5) arbitrary
+
+instance Arbitrary AST.PrismaEnum where
+  arbitrary = do
+    name <- arbitraryIdentifier
+    values <- scale (const 5) arbitrary
+    return $ AST.PrismaEnum name values
 
 instance Arbitrary AST.Model where
   arbitrary = AST.Model <$> arbitraryIdentifier <*> arbitrary

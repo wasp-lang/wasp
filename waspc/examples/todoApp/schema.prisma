@@ -1,0 +1,28 @@
+model User {
+  id      Int        @id @default(autoincrement())
+  tasks   Task[]
+  address String?
+  votes   TaskVote[]
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  description String
+  isDone      Boolean    @default(false)
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  votes       TaskVote[]
+}
+
+model TaskVote {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+  task   Task   @relation(fields: [taskId], references: [id])
+  taskId Int
+}
+
+enum Role {
+  USER
+  ADMIN
+}

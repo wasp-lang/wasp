@@ -1,5 +1,6 @@
 module Wasp.Psl.Parser.Model
-  ( model,
+  ( parsePrismaSchema,
+    model,
     body,
     -- NOTE: Only for testing:
     attrArgument,
@@ -21,10 +22,28 @@ import Text.Parsec
     try,
     (<|>),
   )
+import qualified Text.Parsec as Parsec
 import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as T
 import qualified Wasp.Psl.Ast.Model as Model
+
+parsePrismaSchema :: String -> Either String Model.Schema
+parsePrismaSchema input = case Parsec.parse schema "" input of
+  Left err -> Left $ show err
+  Right parsedSchema -> Right parsedSchema
+
+-- We want to parse a file with extra content but with some models.
+-- Go over the extra content and ignore it. Use <|>. to combine parsers.
+schema :: Parser Model.Schema
+schema = do
+  T.whiteSpace lexer
+  elements <-
+    many
+      ( try model
+          <|> try enum
+      )
+  return $ Model.Schema elements
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:
@@ -33,12 +52,12 @@ import qualified Wasp.Psl.Ast.Model as Model
 --     name String
 --     @@index([name])
 --   }
-model :: Parser Model.Model
+model :: Parser Model.SchemaElement
 model = do
   T.whiteSpace lexer
-  _ <- T.symbol lexer "model"
+  _ <- T.reserved lexer "model"
   modelName <- T.identifier lexer
-  Model.Model modelName <$> T.braces lexer body
+  Model.SchemaModel . Model.Model modelName <$> T.braces lexer body
 
 -- | Parses body of the PSL (Prisma Schema Language) model,
 -- which is everything besides model keyword, name and braces:
@@ -198,6 +217,23 @@ attrArgument = do
 blockAttribute :: Parser Model.Attribute
 blockAttribute = char '@' >> attribute
 
+-- | Parses PSL (Prisma Schema Language enum).
+-- Example of PSL enum:
+--   enum Role {
+--     USER
+--     ADMIN
+--   }
+enum :: Parser Model.SchemaElement
+enum = do
+  T.whiteSpace lexer
+  _ <- T.reserved lexer "enum"
+  enumName <- T.identifier lexer
+  values <-
+    T.braces
+      lexer
+      (many1 $ T.identifier lexer)
+  return $ Model.SchemaEnum $ Model.PrismaEnum enumName values
+
 lexer :: T.TokenParser ()
 lexer =
   T.makeTokenParser
@@ -205,5 +241,6 @@ lexer =
       { T.commentLine = "//",
         T.caseSensitive = True,
         T.identStart = letter,
-        T.identLetter = alphaNum <|> char '_'
+        T.identLetter = alphaNum <|> char '_',
+        T.reservedNames = ["model", "type", "view", "enum", "generator", "datasource"]
       }

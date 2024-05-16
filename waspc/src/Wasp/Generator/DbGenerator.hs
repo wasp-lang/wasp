@@ -42,6 +42,7 @@ import Wasp.Generator.Monad
     logAndThrowGeneratorError,
   )
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import qualified Wasp.Psl.Ast.Model as Psl.Ast
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Extensions as Psl.Generator.Extensions
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
@@ -68,7 +69,8 @@ genPrismaSchema spec = do
 
   let templateData =
         object
-          [ "modelSchemas" .= map entityToPslModelSchema entities,
+          [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
+            "enumSchemas" .= (Psl.Generator.Model.generateSchemaElement <$> enums),
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaPreviewFeatures" .= prismaPreviewFeatures,
@@ -85,8 +87,11 @@ genPrismaSchema spec = do
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Model.generateModel $
-        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
+      Psl.Generator.Model.generateSchemaElement $
+        Psl.Ast.Model.SchemaModel $ Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
+
+    (Psl.Ast.Schema elements) = AS.getPrismaSchema spec
+    enums = [Psl.Ast.SchemaEnum enum | Psl.Ast.SchemaEnum enum <- elements]
 
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.

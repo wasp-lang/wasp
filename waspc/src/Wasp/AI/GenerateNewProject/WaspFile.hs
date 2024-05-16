@@ -159,7 +159,8 @@ data ShouldContinueIfCompileErrors = OnlyIfCompileErrors | EvenIfNoCompileErrors
 
 getWaspFileCompileErrors :: Text -> IO [String]
 getWaspFileCompileErrors waspSource =
-  analyzeWaspFileContent (T.unpack waspSource)
+  -- TODO: analyzeWaspFileContent should get the schema.prisma file from the project root
+  analyzeWaspFileContent [] (T.unpack waspSource)
     <&> either (map showCompileError) (const [])
   where
     showCompileError (errMsg, Ctx {ctxSourceRegion = loc}) = show loc <> ": " <> errMsg

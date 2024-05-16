@@ -22,6 +22,7 @@ module Wasp.AppSpec
     getApiNamespaces,
     getCruds,
     userNodeVersionRange,
+    getPrismaSchema,
   )
 where
 
@@ -50,6 +51,7 @@ import Wasp.Env (EnvVar)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import qualified Wasp.Psl.Ast.Model as Psl.Ast
 import qualified Wasp.SemanticVersion as SV
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
@@ -59,6 +61,10 @@ import qualified Wasp.SemanticVersion as SV
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
+    -- | List of Prisma entities that are defined by the user.
+    entities :: [Decl],
+    -- | Parsed Prisma schema file.
+    prismaSchema :: Psl.Ast.Schema,
     -- | The contents of the package.json file found in the root directory of the wasp project.
     packageJson :: PackageJson,
     -- | Absolute path to the directory containing the wasp project.
@@ -92,6 +98,12 @@ data AppSpec = AppSpec
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
+getDeclsWithEntities :: IsDecl a => AppSpec -> [(String, a)]
+getDeclsWithEntities spec = takeDecls (decls spec ++ entities spec)
+
+getEntities :: AppSpec -> [(String, Entity)]
+getEntities = takeDecls . entities
+
 getQueries :: AppSpec -> [(String, Query)]
 getQueries = getDecls
 
@@ -112,9 +124,6 @@ getApiNamespaces = getDecls
 getCruds :: AppSpec -> [(String, Crud)]
 getCruds = getDecls
 
-getEntities :: AppSpec -> [(String, Entity)]
-getEntities = getDecls
-
 getPages :: AppSpec -> [(String, Page)]
 getPages = getDecls
 
@@ -129,6 +138,9 @@ getApp dcls = case takeDecls @App dcls of
   [] -> Nothing
   apps -> Just $ head apps
 
+getPrismaSchema :: AppSpec -> Psl.Ast.Schema
+getPrismaSchema = prismaSchema
+
 resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =
   fromMaybe
@@ -139,7 +151,7 @@ resolveRef spec ref =
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
     $ find ((== refName ref) . fst) $
-      getDecls spec
+      getDeclsWithEntities spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =

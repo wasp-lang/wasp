@@ -34,7 +34,6 @@ data TypedExpr
   | Var            Identifier Type
   | -- TODO: When adding quoters to TypeDefinitions, these JSON/PSL variants will have to be changed
     JSON           String
-  | PSL            String
   deriving (Eq, Show)
 {- ORMOLU_ENABLE -}
 
@@ -50,4 +49,5 @@ exprType (BoolLiteral _) = BoolType
 exprType (ExtImport _ _) = ExtImportType
 exprType (Var _ t) = t
 exprType (JSON _) = QuoterType "json"
-exprType (PSL _) = QuoterType "psl"
+
+-- exprType (PSL _) = QuoterType "psl"

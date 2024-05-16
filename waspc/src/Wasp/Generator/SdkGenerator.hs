@@ -23,7 +23,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -161,7 +160,7 @@ genEntitiesAndServerTypesDirs spec =
               ]
         )
     userEntityName = fromMaybe "" maybeUserEntityName
-    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft

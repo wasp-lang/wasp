@@ -422,6 +422,8 @@ library waspls
     Wasp.LSP.Syntax
     Wasp.LSP.TypeInference
     Wasp.LSP.Util
+    Wasp.LSP.Prisma.Analyze
+    Wasp.LSP.Prisma.Util
   build-depends:
       base
     , aeson

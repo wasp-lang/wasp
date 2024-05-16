@@ -39,6 +39,7 @@ import Control.Monad (foldM)
 import qualified Data.HashMap.Strict as M
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
 import Data.Maybe (fromJust)
+import qualified Wasp.Analyzer.Evaluator as AS
 import Wasp.Analyzer.Parser (AST)
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type
@@ -46,17 +47,29 @@ import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Monad
 import Wasp.Analyzer.TypeChecker.TypeError
 import qualified Wasp.Analyzer.TypeDefinitions as TD
+import Wasp.AppSpec.Core.Decl (fromDecl)
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Util.Control.Monad (foldMapM')
 
-check :: AST -> TypeChecker TypedAST
-check ast = hoistDeclarations ast >> checkAST ast
+check :: AST -> [AS.Decl] -> TypeChecker TypedAST
+check ast entities = hoistDeclarations ast entities >> checkAST ast
 
-hoistDeclarations :: AST -> TypeChecker ()
-hoistDeclarations (P.AST stmts) = mapM_ hoistDeclaration stmts
+hoistDeclarations :: AST -> [AS.Decl] -> TypeChecker ()
+hoistDeclarations (P.AST stmts) entities = do
+  mapM_ hoistDeclaration stmts
+  -- TODO: figure out how to get DeclType for entities
+  mapM_ setEntityAsType entities
   where
     hoistDeclaration :: P.WithCtx P.Stmt -> TypeChecker ()
     hoistDeclaration (P.WithCtx _ (P.Decl typeName ident _)) =
       setType ident $ DeclType typeName
+
+    setEntityAsType :: AS.Decl -> TypeChecker ()
+    -- TODO: don't hard code DeclType "entity"
+    setEntityAsType decl = setType (fst entity) $ DeclType "entity"
+      where
+        entity :: (String, AS.Entity.Entity)
+        entity = fromJust $ fromDecl decl
 
 checkAST :: AST -> TypeChecker TypedAST
 checkAST (P.AST stmts) = TypedAST <$> mapM checkStmt stmts
@@ -89,7 +102,6 @@ inferExprType = P.withCtx $ \ctx -> \case
   -- For now, the two quoter types are hardcoded here, it is an error to use a different one
   -- TODO: this will change when quoters are added to "Analyzer.TypeDefinitions".
   P.Quoter "json" s -> return $ WithCtx ctx $ JSON s
-  P.Quoter "psl" s -> return $ WithCtx ctx $ PSL s
   P.Quoter tag _ -> throw $ mkTypeError ctx $ QuoterUnknownTag tag
   -- The type of a list is the unified type of its values.
   -- This poses a problem for empty lists, there is not enough information to choose a type.

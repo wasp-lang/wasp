@@ -128,11 +128,12 @@ import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
 import Wasp.Analyzer.Parser (parseStatements)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
+import qualified Wasp.AppSpec as AS
 
 -- | Takes a Wasp source file and produces a list of declarations or a
 --   description of an error in the source file.
-analyze :: String -> Either [AnalyzeError] [Decl]
-analyze =
-  (left (map ParseError) . parseStatements)
-    >=> (left ((: []) . TypeError) . typeCheck stdTypes)
-    >=> (left ((: []) . EvaluationError) . evaluate stdTypes)
+analyze :: [AS.Decl] -> String -> Either [AnalyzeError] [Decl]
+analyze entities =
+  left (map ParseError) . parseStatements
+    >=> left ((: []) . TypeError) . typeCheck stdTypes entities
+    >=> left ((: []) . EvaluationError) . evaluate stdTypes

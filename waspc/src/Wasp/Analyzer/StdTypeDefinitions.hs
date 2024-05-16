@@ -17,7 +17,6 @@ import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.App.EmailSender (EmailProvider)
 import Wasp.AppSpec.Crud (Crud)
-import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Job (Job, JobExecutor)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
@@ -49,7 +48,6 @@ stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addDeclType @App $
   TD.addEnumType @DbSystem $
-  TD.addDeclType @Entity $
   TD.addDeclType @Page $
   TD.addDeclType @Route $
   TD.addDeclType @Query $

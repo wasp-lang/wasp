@@ -4,11 +4,25 @@ module Wasp.Psl.Ast.Model where
 
 import Data.Data (Data)
 
+data Schema = Schema [SchemaElement]
+  deriving (Show, Eq)
+
+data SchemaElement = SchemaModel Model | SchemaEnum PrismaEnum
+  deriving (Show, Eq)
+
 data Model
   = Model
       String
       -- ^ Name of the model
       Body
+  deriving (Show, Eq)
+
+data PrismaEnum
+  = PrismaEnum
+      String
+      -- ^ Name of the enum
+      [String]
+      -- ^ Values of the enum
   deriving (Show, Eq)
 
 newtype Body = Body [Element]

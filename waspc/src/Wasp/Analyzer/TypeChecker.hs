@@ -25,6 +25,7 @@ module Wasp.Analyzer.TypeChecker
   )
 where
 
+import qualified Wasp.Analyzer.Evaluator as AS
 import Wasp.Analyzer.Parser.AST (AST)
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Internal (check)
@@ -34,5 +35,5 @@ import Wasp.Analyzer.TypeDefinitions (TypeDefinitions)
 
 -- | Checks that an AST conforms to the type rules of Wasp and produces
 --   an AST labelled with type information.
-typeCheck :: TypeDefinitions -> AST -> Either TypeError TypedAST
-typeCheck typeDefs ast = run typeDefs $ check ast
+typeCheck :: TypeDefinitions -> [AS.Decl] -> AST -> Either TypeError TypedAST
+typeCheck typeDefs entities ast = run typeDefs $ check ast entities

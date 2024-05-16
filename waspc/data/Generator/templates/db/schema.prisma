@@ -18,3 +18,7 @@ generator client {
 {=# modelSchemas =}
 {=& . =}
 {=/ modelSchemas =}
+
+{=# enumSchemas =}
+{=& . =}
+{=/ enumSchemas =}

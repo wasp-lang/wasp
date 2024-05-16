@@ -26,8 +26,20 @@ import Wasp.LSP.Reactor (startReactorThread)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerMonads (ServerM, runRLspM)
 import Wasp.LSP.ServerState
-  ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
-    ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports, _waspFileUri),
+  ( RegistrationTokens (RegTokens, _watchPrismaSchemaToken, _watchSourceFilesToken),
+    ServerState
+      ( ServerState,
+        _cst,
+        _currentWaspSource,
+        _debouncer,
+        _latestDiagnostics,
+        _prismaEntities,
+        _prismaSchemaUri,
+        _reactorIn,
+        _regTokens,
+        _tsExports,
+        _waspFileUri
+      ),
   )
 import Wasp.LSP.SignatureHelp (signatureHelpRetriggerCharacters, signatureHelpTriggerCharacters)
 
@@ -62,11 +74,13 @@ serve maybeLogFile = do
   let defaultServerState =
         ServerState
           { _waspFileUri = Nothing,
+            _prismaSchemaUri = Nothing,
+            _prismaEntities = [],
             _currentWaspSource = "",
             _latestDiagnostics = [],
             _cst = Nothing,
             _tsExports = M.empty,
-            _regTokens = RegTokens {_watchSourceFilesToken = Nothing},
+            _regTokens = RegTokens {_watchSourceFilesToken = Nothing, _watchPrismaSchemaToken = Nothing},
             _reactorIn = reactorIn,
             _debouncer = debouncer
           }

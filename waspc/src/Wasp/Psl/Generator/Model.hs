@@ -1,16 +1,20 @@
 module Wasp.Psl.Generator.Model
-  ( generateModel,
+  ( generateSchemaElement,
   )
 where
 
 import Data.List (intercalate)
 import qualified Wasp.Psl.Ast.Model as Ast
 
-generateModel :: Ast.Model -> String
-generateModel (Ast.Model name body) = "model " ++ name ++ " {\n" ++ generateBody body ++ "\n}"
+generateSchemaElement :: Ast.SchemaElement -> String
+generateSchemaElement (Ast.SchemaModel (Ast.Model name body)) = "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
+generateSchemaElement (Ast.SchemaEnum (Ast.PrismaEnum name values)) = "enum " ++ name ++ " {\n" ++ generateEnumBody values ++ "}"
 
-generateBody :: Ast.Body -> String
-generateBody (Ast.Body elements) = unlines $ map (("  " ++) . generateElement) elements
+generateModelBody :: Ast.Body -> String
+generateModelBody (Ast.Body elements) = unlines $ map (("  " ++) . generateElement) elements
+
+generateEnumBody :: [String] -> String
+generateEnumBody values = unlines $ map ("  " ++) values
 
 generateElement :: Ast.Element -> String
 generateElement (Ast.ElementField field) =
