@@ -896,7 +896,6 @@ Read more about the render function in the [API Reference](#signupform-customiza
       gitHub: {},
     },
     onAuthFailedRedirectTo: "/someRoute",
-    signup: { ... }
   }
 }
 
@@ -919,7 +918,6 @@ app MyApp {
       gitHub: {},
     },
     onAuthFailedRedirectTo: "/someRoute",
-    signup: { ... }
   }
 }
 
@@ -956,10 +954,6 @@ The default value is `"/"`.
 :::note
 Automatic redirect on successful login only works when using the Wasp-provided [Auth UI](../auth/ui).
 :::
-
-#### `signup: SignupOptions`
-
-Read more about the signup process customization API in the [Signup Fields Customization](#signup-fields-customization) section.
 
 ### Signup Fields Customization
 
@@ -1180,7 +1174,7 @@ The extra fields can be either **objects** or **render functions** (you can comb
    The render function has the following signature:
 
    ```ts
-   ;(form: UseFormReturn, state: FormState) => React.ReactNode
+   (form: UseFormReturn, state: FormState) => React.ReactNode
    ```
 
    - `form` <Required />
