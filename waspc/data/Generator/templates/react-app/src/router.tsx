@@ -31,6 +31,16 @@ const router = (
     <{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}
     <Switch>
+      {=# isExternalAuthEnabled =}
+      {/* 
+        Wasp specific routes *must* go first to prevent user
+        defined routes from overriding them.
+        Details in https://github.com/wasp-lang/wasp/issues/2029
+      */}
+      <Route exact path="{= oAuthCallbackPath =}">
+        <OAuthCallbackPage />
+      </Route>
+      {=/ isExternalAuthEnabled =}
       {Object.entries(routes).map(([routeKey, route]) => (
         <Route
           exact
@@ -39,11 +49,6 @@ const router = (
           component={routeNameToRouteComponent[routeKey]}
         />
       ))}
-      {=# isExternalAuthEnabled =}
-      <Route exact path="{= oAuthCallbackPath =}">
-        <OAuthCallbackPage />
-      </Route>
-      {=/ isExternalAuthEnabled =}
     </Switch>
     {=# rootComponent.isDefined =}
     </{= rootComponent.importIdentifier =}>
