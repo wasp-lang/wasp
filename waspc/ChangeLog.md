@@ -64,8 +64,8 @@ These changes only apply to getting auth fields from the `user` object you recei
 ### 🐞 Bug fixes
 
 - Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
-- Fixes the `netlify.toml` to include the correct build path for the client app.
-- Moves Wasp defined routes above the user defined routes in the client router to ensure that user defined routes don't override Wasp defined routes.
+- Fix the `netlify.toml` to include the correct build path for the client app.
+- Fix the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
 
 ### 🔧 Small improvements
 
