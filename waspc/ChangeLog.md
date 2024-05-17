@@ -64,6 +64,7 @@ These changes only apply to getting auth fields from the `user` object you recei
 ### 🐞 Bug fixes
 
 - Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
+- Fixes the `netlify.toml` to include the correct build path for the client app.
 
 ### 🔧 Small improvements
 
