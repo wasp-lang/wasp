@@ -34,6 +34,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
       : error.message;
     return getRedirectUriForError(errorMessage)
   }
+  console.error("Unknown OAuth error:", error);
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 
