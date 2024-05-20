@@ -1,39 +1,18 @@
 {{={= =}=}}
-import { prisma } from 'wasp/server'
 import { Expand, _Awaited, _ReturnType } from '../../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import {
-  AuthenticatedActionDefinition,
-  Payload,
-  EntityMap,
-  UnauthenticatedActionDefinition,
   _Entity,
-  _Task,
+  EntityMap,
+  Payload,
+  AuthenticatedActionDefinition,
+  UnauthenticatedActionDefinition,
 } from '../../_types'
-{=# operations =}
-{=& jsFn.importStatement =}
-{=/ operations =}
 
-{=# operations =}
-{=# usesAuth =}
-export const {= operationName =}: AuthenticatedActionFor<typeof {= jsFn.importIdentifier =}>  = createAuthenticatedAction(
-{=/ usesAuth =}
-{=^ usesAuth =}
-export const {= operationName =}: UnauthenticatedActionFor<typeof {= jsFn.importIdentifier =}>  = createUnauthenticatedAction(
-{=/ usesAuth =}
-    {= jsFn.importIdentifier =},
-    {
-      {=# entities =}
-      {= name =}: prisma.{= prismaIdentifier =},
-      {=/ entities =}
-    } as EntityMap<_Entity[]>,
-)
-
-{=/ operations =}
-function createUnauthenticatedAction<
+export function createUnauthenticatedAction<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
@@ -52,7 +31,8 @@ function createUnauthenticatedAction<
   return action as UnauthenticatedAction<Input, Output>
 }
 
-function createAuthenticatedAction<
+{=# isAuthEnabled =}
+export function createAuthenticatedAction<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
@@ -149,26 +129,12 @@ type AuthenticatedOperationArgs<Input> =
   | [OperationContext]
   | [Input, OperationContext]
 
-type OperationContext = { user: AuthUser }
 
-type UnauthenticatedAction<Input, Output> = UnauthenticatedOperation<
-  Input,
-  Output
->
+type OperationContext = { user: AuthUser }
 
 type AuthenticatedAction<Input, Output> = AuthenticatedOperation<Input, Output>
 
-type GenericDefinition = (args: never, context: never) => unknown
-
-type UnauthenticatedActionFor<OperationDefinition extends GenericDefinition> =
-  Parameters<OperationDefinition> extends []
-    ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
-    : UnauthenticatedOperation<
-        Parameters<OperationDefinition>[0],
-        _Awaited<_ReturnType<OperationDefinition>>
-      >
-
-type AuthenticatedActionFor<OperationDefinition extends GenericDefinition> =
+export type AuthenticatedActionFor<OperationDefinition extends GenericDefinition> =
   Parameters<OperationDefinition> extends []
     ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
     : AuthenticatedOperation<
@@ -176,9 +142,26 @@ type AuthenticatedActionFor<OperationDefinition extends GenericDefinition> =
         _Awaited<_ReturnType<OperationDefinition>>
       >
 
-type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
-
 type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
+{=/ isAuthEnabled =}
+
+type UnauthenticatedAction<Input, Output> = UnauthenticatedOperation<
+  Input,
+  Output
+>
+
+type GenericDefinition = (args: never, context: never) => unknown
+
+export type UnauthenticatedActionFor<OperationDefinition extends GenericDefinition> =
+  Parameters<OperationDefinition> extends []
+    ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
+    : UnauthenticatedOperation<
+        Parameters<OperationDefinition>[0],
+        _Awaited<_ReturnType<OperationDefinition>>
+      >
+
+
+type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
 
 type Operation<Input, Output, IsAuthenticated extends boolean> = [
   Input

@@ -1,5 +1,5 @@
 import { prisma } from 'wasp/server'
-import {
+import type {
   TestingAction,
   VoidToNumberAuth,
   VoidToNumberNoAuth,
@@ -10,16 +10,17 @@ import {
   voidToNumberNoAuth as waspVoidToNumberNoAuth,
   boolToNumberNoAuth as waspBoolToNumberNoAuth,
   boolToNumberAuth as waspBoolToNumberAuth,
-} from 'wasp/server/operations/actions/wrappers'
+} from 'wasp/server/operations'
 
-export const testingAction: TestingAction = (args, context) => {
-  const result1 = waspVoidToNumberNoAuth()
-  const result2 = waspBoolToNumberNoAuth(true)
+export const testingAction: TestingAction = async (args, context) => {
+  const result1 = await waspVoidToNumberNoAuth()
+  const result2 = await waspBoolToNumberNoAuth(true)
 
   const user = context.user!
 
-  const result3 = waspVoidToNumberAuth({ user })
-  const result4 = waspBoolToNumberAuth(true, { user })
+  const result3 = await waspVoidToNumberAuth({ user })
+  const result4 = await waspBoolToNumberAuth(true, { user })
+  // todo test when function "returns" void
 }
 
 export const voidToNumberAuth: VoidToNumberAuth<void, number> = async (

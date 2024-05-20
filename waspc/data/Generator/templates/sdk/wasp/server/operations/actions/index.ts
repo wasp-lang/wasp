@@ -1,5 +1,15 @@
 {{={= =}=}}
 import { prisma } from 'wasp/server'
+import {
+  type AuthenticatedActionFor,
+  type UnauthenticatedActionFor,
+  createAuthenticatedAction,
+  createUnauthenticatedAction,
+} from './wrappers.js'
+import type {
+  _Entity,
+  EntityMap,
+} from '../../_types'
 {=! TODO: This template is exactly the same at the moment as one for queries,
           consider in the future if it is worth removing this duplication. =}
 
@@ -15,14 +25,18 @@ import { prisma } from 'wasp/server'
 export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =} 
 
 // PUBLIC API
-export const {= operationName =} = async (args, context) => {
-  return ({= jsFn.importIdentifier =} as any)(args, {
-    ...context,
-    entities: {
+{=# usesAuth =}
+export const {= operationName =}: AuthenticatedActionFor<{= operationTypeName =}>  = createAuthenticatedAction(
+{=/ usesAuth =}
+{=^ usesAuth =}
+export const {= operationName =}: UnauthenticatedActionFor<{= operationTypeName =}>  = createUnauthenticatedAction(
+{=/ usesAuth =}
+    {= jsFn.importIdentifier =},
+    {
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},
       {=/ entities =}
-    },
-  })
-}
+    } as EntityMap<_Entity[]>,
+)
+
 {=/ operations =}

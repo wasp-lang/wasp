@@ -53,9 +53,10 @@ genIndexTs spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
-        [ "actions" .= map getActionData (AS.getActions spec),
-          "queries" .= map getQueryData (AS.getQueries spec)
+        [ "actions" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec),
+          "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
+    isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionWrappers :: AppSpec -> Generator FileDraft
 genActionWrappers spec = return $ mkTmplFdWithData relPath tmplData
@@ -68,7 +69,7 @@ genActionWrappers spec = return $ mkTmplFdWithData relPath tmplData
         ]
     getAllActionData op@(name, def) =
       mergeValues
-        (getActionData op)
+        (getActionData isAuthEnabledGlobally op)
         (object ["usesAuth" .= usesAuth (AS.Operation.ActionOp name def)])
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
     isAuthEnabledGlobally = isAuthEnabled spec
@@ -84,8 +85,9 @@ genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
-        [ "operations" .= map getQueryData (AS.getQueries spec)
+        [ "operations" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
+    isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
@@ -93,8 +95,9 @@ genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
-        [ "operations" .= map getActionData (AS.getActions spec)
+        [ "operations" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec)
         ]
+    isAuthEnabledGlobally = isAuthEnabled spec
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec = genOperationTypesFile relPath operations isAuthEnabledGlobally
@@ -113,13 +116,13 @@ genActionTypesFile spec = genOperationTypesFile relPath operations isAuthEnabled
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: (String, AS.Query.Query) -> Aeson.Value
-getQueryData (queryName, query) = getOperationTmplData operation
+getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
+getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData operation isAuthEnabledGlobally
   where
     operation = AS.Operation.QueryOp queryName query
 
-getActionData :: (String, AS.Action.Action) -> Aeson.Value
-getActionData (actionName, action) = getOperationTmplData operation
+getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
+getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData operation isAuthEnabledGlobally
   where
     operation = AS.Operation.ActionOp actionName action
 
@@ -153,14 +156,15 @@ serverOperationsDirInSdkRootDir =
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
-getOperationTmplData :: AS.Operation.Operation -> Aeson.Value
-getOperationTmplData operation =
+getOperationTmplData :: AS.Operation.Operation -> Bool -> Aeson.Value
+getOperationTmplData operation isAuthEnabledGlobally =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= getName operation,
       "operationTypeName" .= toUpperFirst (getName operation),
       "entities"
-        .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation)
+        .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
+      "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 
 extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
