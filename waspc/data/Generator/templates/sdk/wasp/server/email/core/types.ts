@@ -45,6 +45,7 @@ export type Email = {
   {=^ isDefaultFromFieldDefined =}
   from: EmailFromField;
   {=/ isDefaultFromFieldDefined =}
+  replyTo?: string;
   to: string;
   subject: string;
   text: string;
