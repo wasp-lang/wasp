@@ -6,10 +6,10 @@ import { Expand, _Awaited, _ReturnType } from '../../../universal/types'
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import {
-  AuthenticatedAction as AuthenticatedActionDefinition,
+  AuthenticatedActionDefinition,
   Payload,
   EntityMap,
-  Action as UnauthenticatedActionDefinition,
+  UnauthenticatedActionDefinition,
   _Entity,
   _Task,
 } from '../../_types'

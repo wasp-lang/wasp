@@ -12,20 +12,24 @@ import { type Payload } from "./serialization";
 export * from "./taggedEntities"
 export * from "./serialization"
 
-export type Query<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+export type UnauthenticatedQueryDefinition<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   Operation<Entities, Input, Output>
 
-export type Action<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+export type UnauthenticatedActionDefinition<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   Operation<Entities, Input, Output>
 
 {=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
-  AuthenticatedOperation<Entities, Input, Output>
+export type AuthenticatedQueryDefinition<
+  Entities extends _Entity[],
+  Input extends Payload,
+  Output extends Payload
+> = 
+  AuthenticatedOperationDefinition<Entities, Input, Output>
 
-export type AuthenticatedAction<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
-  AuthenticatedOperation<Entities, Input, Output>
+export type AuthenticatedActionDefinition<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  AuthenticatedOperationDefinition<Entities, Input, Output>
 
-type AuthenticatedOperation<Entities extends _Entity[], Input extends Payload, Output extends Payload> = (
+type AuthenticatedOperationDefinition<Entities extends _Entity[], Input extends Payload, Output extends Payload> = (
   args: Input,
   context: ContextWithUser<Entities>,
 ) => Output | Promise<Output>
