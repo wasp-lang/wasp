@@ -29,7 +29,7 @@ export const {= operationName =}: UnauthenticatedActionFor<typeof {= jsFn.import
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},
       {=/ entities =}
-    } as Expand<EntityMap<_Entity[]>>,
+    } as EntityMap<_Entity[]>,
 )
 
 {=/ operations =}
@@ -41,21 +41,14 @@ function createUnauthenticatedAction<
   userAction: UnauthenticatedActionDefinition<Entities, Input, Output>,
   entities: Expand<EntityMap<Entities>>
 ): UnauthenticatedAction<Input, Output> {
-  async function action(...args: UnauthenticatedOperationArgs<Input>) {
-    // Maximum number of arguments is 1 - the payload
-    if (args.length < 1) {
-      // No payload sent -> 'userQuery' is void
-      return userAction(undefined, {
-        entities,
-      })
-    } else {
-      // Payload sent -> forward it to 'userQuery'
-      const [payload] = args
-      return userAction(payload, {
-        entities,
-      })
-    }
+  async function action(payload: Input) {
+    return userAction(payload, {
+      entities
+    })
   }
+  // This cast is necessary because - When the Input is void, we want to present
+  // the function as not accepting a payload (which isn't consistent with how
+  // it's defined).
   return action as UnauthenticatedAction<Input, Output>
 }
 
@@ -142,6 +135,7 @@ function createAuthenticatedAction<
       })
     }
   }
+
   return action as AuthenticatedAction<Input, Output>
 }
 
@@ -150,8 +144,6 @@ function containsPayload<Input>(
 ): args is [Input, OperationContext] {
   return args.length === 2
 }
-
-type UnauthenticatedOperationArgs<Input> = [Input] | []
 
 type AuthenticatedOperationArgs<Input> =
   | [OperationContext]
@@ -166,13 +158,7 @@ type UnauthenticatedAction<Input, Output> = UnauthenticatedOperation<
 
 type AuthenticatedAction<Input, Output> = AuthenticatedOperation<Input, Output>
 
-// type AuthenticatedActionFor<
-//   AuthQ extends AuthenticatedActionDefinition<any, Payload, Payload>
-// > = AuthQ extends AuthenticatedActionDefinition<any, infer Input, infer Output>
-//   ? AuthenticatedAction<Input, Output>
-//   : never
-
-type GenericDefinition = (args: never, context: any) => unknown
+type GenericDefinition = (args: never, context: never) => unknown
 
 type UnauthenticatedActionFor<OperationDefinition extends GenericDefinition> =
   Parameters<OperationDefinition> extends []
