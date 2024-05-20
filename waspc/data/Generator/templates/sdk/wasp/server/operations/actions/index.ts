@@ -1,4 +1,10 @@
 {{={= =}=}}
+{=! TODO: This template is exactly the same at the moment as one for queries,
+          consider in the future if it is worth removing this duplication. =}
+
+{=! TODO: This will generate multiple import statements even though they're
+          importing symbols from the same file. We should improve our importing machinery
+          to support multiple imports from the same file =}
 import { prisma } from 'wasp/server'
 import {
   type AuthenticatedOperationFor,
@@ -10,12 +16,6 @@ import type {
   _Entity,
   EntityMap,
 } from '../../_types'
-{=! TODO: This template is exactly the same at the moment as one for queries,
-          consider in the future if it is worth removing this duplication. =}
-
-{=! TODO: This will generate multiple import statements even though they're
-          importing symbols from the same file. We should improve our importing machinery
-          to support multiple imports from the same file =}
 {=# operations =}
 {=& jsFn.importStatement =}
 {=/ operations =}
