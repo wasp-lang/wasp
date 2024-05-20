@@ -384,6 +384,10 @@ The `send` method accepts an object with the following fields:
 
     The email address of the sender.
 
+- `replyTo?: string`
+
+  The email address to which the recipient can reply to. Only available for SendGrid provider.
+
 - `to: string` <Required />
 
   The recipient's email address.
