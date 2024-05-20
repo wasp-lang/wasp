@@ -5,7 +5,7 @@ import {
   type UnauthenticatedOperationFor,
   createAuthenticatedOperation,
   createUnauthenticatedOperation,
-} from './wrappers.js'
+} from '../wrappers.js'
 import type {
   _Entity,
   EntityMap,

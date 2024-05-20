@@ -43,7 +43,7 @@ genOperations spec =
       genActionTypesFile spec,
       genQueriesIndex spec,
       genActionsIndex spec,
-      genActionWrappers spec,
+      genWrappers spec,
       genIndexTs spec
     ]
 
@@ -58,26 +58,11 @@ genIndexTs spec = return $ mkTmplFdWithData relPath tmplData
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionWrappers :: AppSpec -> Generator FileDraft
-genActionWrappers spec = return $ mkTmplFdWithData relPath tmplData
+genWrappers :: AppSpec -> Generator FileDraft
+genWrappers spec = return $ mkTmplFdWithData relPath tmplData
   where
-    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/wrappers.ts|]
-    tmplData =
-      object
-        [ "operations" .= map getAllActionData (AS.getActions spec),
-          "isAuthEnabled" .= isAuthEnabledGlobally
-        ]
-    getAllActionData op@(name, def) =
-      mergeValues
-        (getActionData isAuthEnabledGlobally op)
-        (object ["usesAuth" .= usesAuth (AS.Operation.ActionOp name def)])
-    usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
-    isAuthEnabledGlobally = isAuthEnabled spec
-
--- a function that merge two aeson objects
-mergeValues :: Aeson.Value -> Aeson.Value -> Aeson.Value
-mergeValues (Aeson.Object a) (Aeson.Object b) = Aeson.Object $ a <> b
-mergeValues _ _ = error "mergeValues: both values must be objects"
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]
+    tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData

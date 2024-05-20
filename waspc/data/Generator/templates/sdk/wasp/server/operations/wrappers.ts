@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { Expand, _Awaited, _ReturnType } from '../../../universal/types'
+import { Expand, _Awaited, _ReturnType } from '../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
@@ -10,7 +10,7 @@ import {
   Payload,
   AuthenticatedOperationDefinition,
   UnauthenticatedOperationDefinition,
-} from '../../_types'
+} from '../_types'
 
 export function createUnauthenticatedOperation<
   Entities extends _Entity[],
