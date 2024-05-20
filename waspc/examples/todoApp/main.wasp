@@ -18,10 +18,10 @@ app todoApp {
         configFn: import { config } from "@src/auth/google",
         userSignupFields: import { userSignupFields } from "@src/auth/google"
       },
-      gitHub: {
-        configFn: import { config } from "@src/auth/github.js",
-        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
-      },
+      // gitHub: {
+      //   configFn: import { config } from "@src/auth/github.js",
+      //   userSignupFields: import { userSignupFields } from "@src/auth/github.js"
+      // },
       // keycloak: {},
       email: {
         userSignupFields: import { userSignupFields } from "@src/auth/email",
@@ -189,8 +189,12 @@ query getTrueVoid {
   entities: []
 }
 
-
 // --------- Actions --------- //
+
+action testingAction {
+  fn: import { testingAction } from "@src/testing",
+  entities: []
+}
 
 action createTask {
   fn: import { createTask } from "@src/actions",
@@ -211,6 +215,31 @@ action toggleAllTasks {
   fn: import { toggleAllTasks } from "@src/actions",
   entities: [Task]
 }
+
+action voidToNumberAuth {
+  fn: import { voidToNumberAuth } from "@src/testing",
+  auth: true,
+  entities: [Task]
+}
+
+action voidToNumberNoAuth {
+  fn: import { voidToNumberNoAuth } from "@src/testing",
+  auth: false,
+  entities: [Task]
+}
+
+action boolToNumberAuth {
+  fn: import { boolToNumberAuth } from "@src/testing",
+  auth: true,
+  entities: [Task]
+}
+
+action boolToNumberNoAuth {
+  fn: import { boolToNumberNoAuth } from "@src/testing",
+  auth: false,
+  entities: [Task]
+}
+
 
 job mySpecialJob {
   executor: PgBoss,

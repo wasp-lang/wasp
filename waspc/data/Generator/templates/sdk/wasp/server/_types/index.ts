@@ -4,14 +4,6 @@ import { type Request, type Response } from 'express'
 import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import { prisma } from 'wasp/server'
 {=# isAuthEnabled =}
-import {
-  type {= authIdentityEntityName =},
-} from "wasp/entities"
-import {
-  type EmailProviderData,
-  type UsernameProviderData,
-  type OAuthProviderData,
-} from 'wasp/auth/utils'
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
@@ -70,7 +62,7 @@ export type Api<
   context: Context<Entities>,
 ) => void
 
-type EntityMap<Entities extends _Entity[]> = {
+export type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
 }
 

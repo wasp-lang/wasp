@@ -1,6 +1,11 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.Server.OperationsGenerator where
+module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
+  ( extImportToJsImport,
+    serverOperationsDirInSdkRootDir,
+    genOperations,
+  )
+where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
@@ -31,9 +36,6 @@ data ServerOpsTemplatesDir
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerOpsTemplatesDir)
 serverOpsDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
 
-genServerOpsFileCopy :: Path' (Rel ServerOpsTemplatesDir) File' -> Generator FileDraft
-genServerOpsFileCopy path = return $ C.mkTmplFd $ serverOpsDirInSdkTemplatesDir </> path
-
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
@@ -41,11 +43,12 @@ genOperations spec =
       genActionTypesFile spec,
       genQueriesIndex spec,
       genActionsIndex spec,
-      genServerTs spec
+      genActionWrappers spec,
+      genIndexTs spec
     ]
 
-genServerTs :: AppSpec -> Generator FileDraft
-genServerTs spec = return $ mkTmplFdWithData relPath tmplData
+genIndexTs :: AppSpec -> Generator FileDraft
+genIndexTs spec = return $ mkTmplFdWithData relPath tmplData
   where
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData =
@@ -53,6 +56,27 @@ genServerTs spec = return $ mkTmplFdWithData relPath tmplData
         [ "actions" .= map getActionData (AS.getActions spec),
           "queries" .= map getQueryData (AS.getQueries spec)
         ]
+
+genActionWrappers :: AppSpec -> Generator FileDraft
+genActionWrappers spec = return $ mkTmplFdWithData relPath tmplData
+  where
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/wrappers.ts|]
+    tmplData =
+      object
+        [ "operations" .= map getAllActionData (AS.getActions spec),
+          "isAuthEnabled" .= isAuthEnabledGlobally
+        ]
+    getAllActionData op@(name, def) =
+      mergeValues
+        (getActionData op)
+        (object ["usesAuth" .= usesAuth (AS.Operation.ActionOp name def)])
+    usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
+    isAuthEnabledGlobally = isAuthEnabled spec
+
+-- a function that merge two aeson objects
+mergeValues :: Aeson.Value -> Aeson.Value -> Aeson.Value
+mergeValues (Aeson.Object a) (Aeson.Object b) = Aeson.Object $ a <> b
+mergeValues _ _ = error "mergeValues: both values must be objects"
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
