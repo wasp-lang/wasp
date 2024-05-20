@@ -19,13 +19,13 @@ export type UnauthenticatedQueryDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = OperationDefinition<Entities, Input, Output>
+> = UnauthenticatedOperationDefinition<Entities, Input, Output>
 
 export type UnauthenticatedActionDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = OperationDefinition<Entities, Input, Output>
+> = UnauthenticatedOperationDefinition<Entities, Input, Output>
 
 {=# isAuthEnabled =}
 export type AuthenticatedQueryDefinition<
@@ -40,7 +40,7 @@ export type AuthenticatedActionDefinition<
   Output extends Payload
 > = AuthenticatedOperationDefinition<Entities, Input, Output>
 
-type AuthenticatedOperationDefinition<
+export type AuthenticatedOperationDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
@@ -63,7 +63,7 @@ export type AuthenticatedApi<
 ) => void
 
 {=/ isAuthEnabled =}
-type OperationDefinition<Entities extends _Entity[], Input, Output> = (
+export type UnauthenticatedOperationDefinition<Entities extends _Entity[], Input, Output> = (
   args: Input,
   context: Context<Entities>,
 ) => Output | Promise<Output>

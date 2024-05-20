@@ -1,10 +1,10 @@
 {{={= =}=}}
 import { prisma } from 'wasp/server'
 import {
-  type AuthenticatedActionFor,
-  type UnauthenticatedActionFor,
-  createAuthenticatedAction,
-  createUnauthenticatedAction,
+  type AuthenticatedOperationFor,
+  type UnauthenticatedOperationFor,
+  createAuthenticatedOperation,
+  createUnauthenticatedOperation,
 } from './wrappers.js'
 import type {
   _Entity,
@@ -26,10 +26,12 @@ export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =}
 
 // PUBLIC API
 {=# usesAuth =}
-export const {= operationName =}: AuthenticatedActionFor<{= operationTypeName =}>  = createAuthenticatedAction(
+export const {= operationName =}: AuthenticatedOperationFor<{= operationTypeName =}> =
+  createAuthenticatedOperation(
 {=/ usesAuth =}
 {=^ usesAuth =}
-export const {= operationName =}: UnauthenticatedActionFor<{= operationTypeName =}>  = createUnauthenticatedAction(
+export const {= operationName =}: UnauthenticatedOperationFor<{= operationTypeName =}> =
+  createUnauthenticatedOperation(
 {=/ usesAuth =}
     {= jsFn.importIdentifier =},
     {
@@ -37,6 +39,6 @@ export const {= operationName =}: UnauthenticatedActionFor<{= operationTypeName 
       {= name =}: prisma.{= prismaIdentifier =},
       {=/ entities =}
     } as EntityMap<_Entity[]>,
-)
+  )
 
 {=/ operations =}

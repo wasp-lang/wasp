@@ -8,39 +8,39 @@ import {
   _Entity,
   EntityMap,
   Payload,
-  AuthenticatedActionDefinition,
-  UnauthenticatedActionDefinition,
+  AuthenticatedOperationDefinition,
+  UnauthenticatedOperationDefinition,
 } from '../../_types'
 
-export function createUnauthenticatedAction<
+export function createUnauthenticatedOperation<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
 >(
-  userAction: UnauthenticatedActionDefinition<Entities, Input, Output>,
+  userOperation: UnauthenticatedOperationDefinition<Entities, Input, Output>,
   entities: Expand<EntityMap<Entities>>
-): UnauthenticatedAction<Input, Output> {
-  async function action(payload: Input) {
-    return userAction(payload, {
-      entities
+): UnauthenticatedOperation<Input, Output> {
+  async function operation(payload: Input) {
+    return userOperation(payload, {
+      entities,
     })
   }
   // This cast is necessary because - When the Input is void, we want to present
   // the function as not accepting a payload (which isn't consistent with how
   // it's defined).
-  return action as UnauthenticatedAction<Input, Output>
+  return operation as UnauthenticatedOperation<Input, Output>
 }
 
 {=# isAuthEnabled =}
-export function createAuthenticatedAction<
+export function createAuthenticatedOperation<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
 >(
-  userAction: AuthenticatedActionDefinition<Entities, Input, Output>,
+  userOperation: AuthenticatedOperationDefinition<Entities, Input, Output>,
   entities: Expand<EntityMap<Entities>>
-): AuthenticatedAction<Input, Output> {
-  async function action(...args: AuthenticatedOperationArgs<Input>) {
+): AuthenticatedOperation<Input, Output> {
+  async function operation(...args: AuthenticatedOperationArgs<Input>) {
     /*
     An authenticated operation expects either a single argument or two arguments,
     depending on whether it was defined to accept a payload.
@@ -102,21 +102,21 @@ export function createAuthenticatedAction<
     } else if (containsPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, { user }] = args
-      return userAction(payload, {
+      return userOperation(payload, {
         user,
         entities,
       })
     } else {
       // One argument sent -> the first and only argument is the user.
       const [{ user }] = args
-      return userAction(undefined, {
+      return userOperation(undefined, {
         user,
         entities,
       })
     }
   }
 
-  return action as AuthenticatedAction<Input, Output>
+  return operation as AuthenticatedOperation<Input, Output>
 }
 
 function containsPayload<Input>(
@@ -129,37 +129,30 @@ type AuthenticatedOperationArgs<Input> =
   | [OperationContext]
   | [Input, OperationContext]
 
-
 type OperationContext = { user: AuthUser }
 
-type AuthenticatedAction<Input, Output> = AuthenticatedOperation<Input, Output>
-
-export type AuthenticatedActionFor<OperationDefinition extends GenericDefinition> =
-  Parameters<OperationDefinition> extends []
-    ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
-    : AuthenticatedOperation<
-        Parameters<OperationDefinition>[0],
-        _Awaited<_ReturnType<OperationDefinition>>
-      >
+export type AuthenticatedOperationFor<
+  OperationDefinition extends GenericDefinition
+> = Parameters<OperationDefinition> extends []
+  ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
+  : AuthenticatedOperation<
+      Parameters<OperationDefinition>[0],
+      _Awaited<_ReturnType<OperationDefinition>>
+    >
 
 type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
 {=/ isAuthEnabled =}
 
-type UnauthenticatedAction<Input, Output> = UnauthenticatedOperation<
-  Input,
-  Output
->
-
 type GenericDefinition = (args: never, context: never) => unknown
 
-export type UnauthenticatedActionFor<OperationDefinition extends GenericDefinition> =
-  Parameters<OperationDefinition> extends []
-    ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
-    : UnauthenticatedOperation<
-        Parameters<OperationDefinition>[0],
-        _Awaited<_ReturnType<OperationDefinition>>
-      >
-
+export type UnauthenticatedOperationFor<
+  OperationDefinition extends GenericDefinition
+> = Parameters<OperationDefinition> extends []
+  ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
+  : UnauthenticatedOperation<
+      Parameters<OperationDefinition>[0],
+      _Awaited<_ReturnType<OperationDefinition>>
+    >
 
 type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
 
