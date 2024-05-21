@@ -6,16 +6,18 @@ import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import {
   _Entity,
+  AuthenticatedOperationDefinition,
+  Payload,
 } from '../_types'
 
-export function createUnauthenticatedOperation<Op extends GenericDefinition>(
+export function createUnauthenticatedOperation<Op extends GenericOperationDefinition>(
   userOperation: Op,
   entities: EntitiesFor<Op>
 ): UnauthenticatedOperationFor<Op> {
   async function operation(payload: Parameters<Op>[0]) {
     return userOperation(payload, {
       entities,
-    } as Parameters<Op>[1])
+    })
   }
   // This cast is necessary because - When the Input is void, we want to present
   // the function as not accepting a payload (which isn't consistent with how
@@ -25,7 +27,7 @@ export function createUnauthenticatedOperation<Op extends GenericDefinition>(
 
 {=# isAuthEnabled =}
 export function createAuthenticatedOperation<
-  Op extends GenericDefinition
+  Op extends GenericOperationDefinition
 >(
   userOperation: Op,
   entities: EntitiesFor<Op>
@@ -95,21 +97,21 @@ export function createAuthenticatedOperation<
       return userOperation(payload, {
         user,
         entities,
-      } as Parameters<Op>[1])
+      })
     } else {
       // One argument sent -> the first and only argument is the user.
       const [{ user }] = args
       return userOperation(undefined as Parameters<Op>[0], {
         user,
         entities,
-      } as Parameters<Op>[1])
+      })
     }
   }
 
   return operation as AuthenticatedOperationFor<Op>
 }
 
-type EntitiesFor<Op extends GenericDefinition> = Parameters<Op>[1]["entities"]
+type EntitiesFor<Op extends GenericOperationDefinition> = Parameters<Op>[1]["entities"]
 
 type X = undefined extends never ? true : false
 
@@ -123,14 +125,14 @@ type AuthenticatedOperationArgs<Input> =
   | [OperationContext]
   | [Input, OperationContext]
 
-type AuthenticatedOperationArgsFor<Op extends GenericDefinition> = Parameters<
+type AuthenticatedOperationArgsFor<Op extends GenericOperationDefinition> = Parameters<
   AuthenticatedOperationFor<Op>
 >
 
 type OperationContext = { user: AuthUser }
 
 export type AuthenticatedOperationFor<
-  OperationDefinition extends GenericDefinition
+  OperationDefinition extends GenericOperationDefinition
 > = Parameters<OperationDefinition> extends []
   ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : AuthenticatedOperation<
@@ -141,10 +143,10 @@ export type AuthenticatedOperationFor<
 type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
 {=/ isAuthEnabled =}
 
-type GenericDefinition = (args: never, context: never) => unknown
+type GenericOperationDefinition = AuthenticatedOperationDefinition<_Entity[], never, Payload>
 
 export type UnauthenticatedOperationFor<
-  OperationDefinition extends GenericDefinition
+  OperationDefinition extends GenericOperationDefinition
 > = Parameters<OperationDefinition> extends []
   ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : UnauthenticatedOperation<
