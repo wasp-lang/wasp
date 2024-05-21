@@ -1,47 +1,37 @@
 {{={= =}=}}
-import { Expand, _Awaited, _ReturnType } from '../../universal/types'
+import { _Awaited, _ReturnType } from '../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import {
   _Entity,
-  EntityMap,
-  Payload,
-  AuthenticatedOperationDefinition,
-  UnauthenticatedOperationDefinition,
 } from '../_types'
 
-export function createUnauthenticatedOperation<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
->(
-  userOperation: UnauthenticatedOperationDefinition<Entities, Input, Output>,
-  entities: Expand<EntityMap<Entities>>
-): UnauthenticatedOperation<Input, Output> {
-  async function operation(payload: Input) {
+export function createUnauthenticatedOperation<Op extends GenericDefinition>(
+  userOperation: Op,
+  entities: EntitiesFor<Op>
+): UnauthenticatedOperationFor<Op> {
+  async function operation(payload: Parameters<Op>[0]) {
     return userOperation(payload, {
       entities,
-    })
+    } as Parameters<Op>[1])
   }
   // This cast is necessary because - When the Input is void, we want to present
   // the function as not accepting a payload (which isn't consistent with how
   // it's defined).
-  return operation as UnauthenticatedOperation<Input, Output>
+  return operation as UnauthenticatedOperationFor<Op>
 }
 
 {=# isAuthEnabled =}
 export function createAuthenticatedOperation<
-  Entities extends _Entity[],
-  Input extends Payload,
-  Output extends Payload
+  Op extends GenericDefinition
 >(
-  userOperation: AuthenticatedOperationDefinition<Entities, Input, Output>,
-  entities: Expand<EntityMap<Entities>>
-): AuthenticatedOperation<Input, Output> {
-  async function operation(...args: AuthenticatedOperationArgs<Input>) {
-    /*
+  userOperation: Op,
+  entities: EntitiesFor<Op>
+): AuthenticatedOperationFor<Op> {
+  async function operation(...args: AuthenticatedOperationArgsFor<Op>) {
+      /*
     An authenticated operation expects either a single argument or two arguments,
     depending on whether it was defined to accept a payload.
     The possible mutually-exclusive options for its type signatures are
@@ -105,19 +95,23 @@ export function createAuthenticatedOperation<
       return userOperation(payload, {
         user,
         entities,
-      })
+      } as Parameters<Op>[1])
     } else {
       // One argument sent -> the first and only argument is the user.
       const [{ user }] = args
-      return userOperation(undefined, {
+      return userOperation(undefined as Parameters<Op>[0], {
         user,
         entities,
-      })
+      } as Parameters<Op>[1])
     }
   }
 
-  return operation as AuthenticatedOperation<Input, Output>
+  return operation as AuthenticatedOperationFor<Op>
 }
+
+type EntitiesFor<Op extends GenericDefinition> = Parameters<Op>[1]["entities"]
+
+type X = undefined extends never ? true : false
 
 function containsPayload<Input>(
   args: AuthenticatedOperationArgs<Input>
@@ -128,6 +122,10 @@ function containsPayload<Input>(
 type AuthenticatedOperationArgs<Input> =
   | [OperationContext]
   | [Input, OperationContext]
+
+type AuthenticatedOperationArgsFor<Op extends GenericDefinition> = Parameters<
+  AuthenticatedOperationFor<Op>
+>
 
 type OperationContext = { user: AuthUser }
 

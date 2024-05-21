@@ -63,10 +63,11 @@ export type AuthenticatedApi<
 ) => void
 
 {=/ isAuthEnabled =}
-export type UnauthenticatedOperationDefinition<Entities extends _Entity[], Input, Output> = (
-  args: Input,
-  context: Context<Entities>,
-) => Output | Promise<Output>
+export type UnauthenticatedOperationDefinition<
+  Entities extends _Entity[],
+  Input extends Payload,
+  Output extends Payload
+> = (args: Input, context: Context<Entities>) => Output | Promise<Output>
 
 export type Api<
   Entities extends _Entity[],

@@ -38,7 +38,7 @@ export const {= operationName =}: UnauthenticatedOperationFor<{= operationTypeNa
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},
       {=/ entities =}
-    } as EntityMap<_Entity[]>,
+    },
   )
 
 {=/ operations =}
