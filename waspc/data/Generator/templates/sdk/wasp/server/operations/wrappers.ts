@@ -10,9 +10,20 @@ import {
   Payload,
 } from '../_types'
 
+// PRIVATE API (used in SDK)
+export type UnauthenticatedOperationFor<
+  OperationDefinition extends GenericOperationDefinition
+> = Parameters<OperationDefinition> extends []
+  ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
+  : UnauthenticatedOperation<
+      Parameters<OperationDefinition>[0],
+      _Awaited<_ReturnType<OperationDefinition>>
+    >
+
+// PRIVATE API (used in SDK)
 export function createUnauthenticatedOperation<Op extends GenericOperationDefinition>(
   userOperation: Op,
-  entities: EntitiesFor<Op>
+  entities: EntityMapFor<Op>
 ): UnauthenticatedOperationFor<Op> {
   async function operation(payload: Parameters<Op>[0]) {
     return userOperation(payload, {
@@ -26,11 +37,22 @@ export function createUnauthenticatedOperation<Op extends GenericOperationDefini
 }
 
 {=# isAuthEnabled =}
+// PRIVATE API (used in SDK)
+export type AuthenticatedOperationFor<
+  OperationDefinition extends GenericOperationDefinition
+> = Parameters<OperationDefinition> extends []
+  ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
+  : AuthenticatedOperation<
+      Parameters<OperationDefinition>[0],
+      _Awaited<_ReturnType<OperationDefinition>>
+    >
+
+// PRIVATE API (used in SDK)
 export function createAuthenticatedOperation<
   Op extends GenericOperationDefinition
 >(
   userOperation: Op,
-  entities: EntitiesFor<Op>
+  entities: EntityMapFor<Op>
 ): AuthenticatedOperationFor<Op> {
   async function operation(...args: AuthenticatedOperationArgsFor<Op>) {
       /*
@@ -91,7 +113,7 @@ export function createAuthenticatedOperation<
     if (args.length < 1) {
       // No arguments sent -> no user and no payload specified -> there's no way this was called correctly.
       throw new Error('Invalid number of arguments')
-    } else if (containsPayload(args)) {
+    } else if (includesPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, { user }] = args
       return userOperation(payload, {
@@ -111,50 +133,33 @@ export function createAuthenticatedOperation<
   return operation as AuthenticatedOperationFor<Op>
 }
 
-type EntitiesFor<Op extends GenericOperationDefinition> = Parameters<Op>[1]["entities"]
-
-type X = undefined extends never ? true : false
-
-function containsPayload<Input>(
-  args: AuthenticatedOperationArgs<Input>
-): args is [Input, OperationContext] {
+function includesPayload<Input>(
+  args: [AuthenticatedOperationContext] | [Input, AuthenticatedOperationContext]
+): args is [Input, AuthenticatedOperationContext] {
   return args.length === 2
 }
-
-type AuthenticatedOperationArgs<Input> =
-  | [OperationContext]
-  | [Input, OperationContext]
 
 type AuthenticatedOperationArgsFor<Op extends GenericOperationDefinition> = Parameters<
   AuthenticatedOperationFor<Op>
 >
 
-type OperationContext = { user: AuthUser }
-
-export type AuthenticatedOperationFor<
-  OperationDefinition extends GenericOperationDefinition
-> = Parameters<OperationDefinition> extends []
-  ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
-  : AuthenticatedOperation<
-      Parameters<OperationDefinition>[0],
-      _Awaited<_ReturnType<OperationDefinition>>
-    >
+type AuthenticatedOperationContext = { user: AuthUser }
 
 type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
+
 {=/ isAuthEnabled =}
-
-type GenericOperationDefinition = AuthenticatedOperationDefinition<_Entity[], never, Payload>
-
-export type UnauthenticatedOperationFor<
-  OperationDefinition extends GenericOperationDefinition
-> = Parameters<OperationDefinition> extends []
-  ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
-  : UnauthenticatedOperation<
-      Parameters<OperationDefinition>[0],
-      _Awaited<_ReturnType<OperationDefinition>>
-    >
-
 type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
+
+// todo(filip): Should i define this independently of AuthenticatedOperationDefinition?
+// Using AuthenticatedOperationDefinition because it's  
+type GenericOperationDefinition = AuthenticatedOperationDefinition<
+  // todo(filip): not quite sure I understand what's going on with Variance here
+  _Entity[],
+  never,
+  Payload
+>
+
+type EntityMapFor<Op extends GenericOperationDefinition> = Parameters<Op>[1]["entities"]
 
 type Operation<Input, Output, IsAuthenticated extends boolean> = [
   Input
@@ -165,8 +170,8 @@ type Operation<Input, Output, IsAuthenticated extends boolean> = [
 type OperationWithPayload<
   Input,
   Output,
-  auth extends boolean
-> = auth extends true
+  IsAuthenticated extends boolean
+> = IsAuthenticated extends true
   ? (args: Input, context: { user: AuthUser }) => Promise<Output>
   : (args: Input) => Promise<Output>
 

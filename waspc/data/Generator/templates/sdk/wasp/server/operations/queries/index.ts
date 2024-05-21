@@ -12,10 +12,6 @@ import {
   createAuthenticatedOperation,
   createUnauthenticatedOperation,
 } from '../wrappers.js'
-import type {
-  _Entity,
-  EntityMap,
-} from '../../_types'
 {=# operations =}
 {=& jsFn.importStatement =}
 {=/ operations =}
