@@ -18,10 +18,10 @@ app todoApp {
         configFn: import { config } from "@src/auth/google",
         userSignupFields: import { userSignupFields } from "@src/auth/google"
       },
-      // gitHub: {
-      //   configFn: import { config } from "@src/auth/github.js",
-      //   userSignupFields: import { userSignupFields } from "@src/auth/github.js"
-      // },
+      gitHub: {
+        configFn: import { config } from "@src/auth/github.js",
+        userSignupFields: import { userSignupFields } from "@src/auth/github.js"
+      },
       // keycloak: {},
       email: {
         userSignupFields: import { userSignupFields } from "@src/auth/email",
