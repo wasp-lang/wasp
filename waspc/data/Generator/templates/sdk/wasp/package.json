@@ -105,7 +105,6 @@
       "./server/email": "./dist/server/email/index.js",
       "./server/jobs": "./dist/server/jobs/index.js",
       "./server/operations": "./dist/server/operations/index.js",
-      "./server/operations/actions/wrappers": "./dist/server/operations/actions/wrappers.js",
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js",
       "./client": "./dist/client/index.js",
