@@ -102,12 +102,12 @@ genActionTypesFile spec = genOperationTypesFile relPath operations isAuthEnabled
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
 getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
-getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData operation isAuthEnabledGlobally
+getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData isAuthEnabledGlobally operation
   where
     operation = AS.Operation.QueryOp queryName query
 
 getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
-getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData operation isAuthEnabledGlobally
+getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData isAuthEnabledGlobally operation
   where
     operation = AS.Operation.ActionOp actionName action
 
