@@ -141,8 +141,8 @@ serverOperationsDirInSdkRootDir =
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
-getOperationTmplData :: AS.Operation.Operation -> Bool -> Aeson.Value
-getOperationTmplData operation isAuthEnabledGlobally =
+getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
+getOperationTmplData isAuthEnabledGlobally operation  =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= getName operation,
