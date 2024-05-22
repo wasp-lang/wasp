@@ -1,6 +1,14 @@
 {{={= =}=}}
-import type {	
-  _{= crud.entityUpper =},	
+import type {
+  {=# isAuthEnabled =}
+  AuthenticatedAction,
+  AuthenticatedQuery,
+  {=/ isAuthEnabled =}
+  {=^ isAuthEnabled =}
+  Action,
+  Query,
+  {=/ isAuthEnabled =}
+  _{= crud.entityUpper =},
 } from "wasp/server/_types";
 import type { Prisma } from "@prisma/client";
 import { Payload } from "wasp/server/_types/serialization";
