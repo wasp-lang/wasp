@@ -4,11 +4,11 @@ import {
 } from "express";
 import { generateCodeVerifier, generateState } from "arctic";
 
-import type { ProviderConfig } from "wasp/auth/providers/types";
+import type { ProviderConfig, OAuthStateType } from "wasp/auth/providers/types";
 
 import { setOAuthCookieValue, getOAuthCookieValue } from "./cookies.js";
 
-export type StateType = 'state' | 'codeVerifier';
+export type StateType = OAuthStateType;
 
 export function generateAndStoreOAuthState<ST extends StateType>(
   stateTypes: ST[],
