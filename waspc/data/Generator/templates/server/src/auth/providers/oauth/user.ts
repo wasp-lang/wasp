@@ -15,16 +15,30 @@ import { getRedirectUriForOneTimeCode, getRedirectUriForError } from './redirect
 import { tokenStore } from './oneTimeCode'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
-export async function finishOAuthFlowAndGetRedirectUri(
-  provider: ProviderConfig,
-  providerProfile: unknown,
-  providerUserId: string,
-  userSignupFields: UserSignupFields | undefined,
-  req: ExpressRequest,
-): Promise<URL> {
+export async function finishOAuthFlowAndGetRedirectUri({
+  provider,
+  providerProfile,
+  providerUserId,
+  userSignupFields,
+  req,
+  accessToken,
+}: {
+  provider: ProviderConfig;
+  providerProfile: unknown;
+  providerUserId: string;
+  userSignupFields: UserSignupFields | undefined;
+  req: ExpressRequest;
+  accessToken: string;
+}): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
-  const authId = await getAuthIdFromProviderDetails(providerId, providerProfile, userSignupFields, req);
+  const authId = await getAuthIdFromProviderDetails({
+    providerId,
+    providerProfile,
+    userSignupFields,
+    req,
+    accessToken,
+  });
 
   const oneTimeCode = await tokenStore.createToken(authId);
 
@@ -48,12 +62,19 @@ function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { d
 
 // We need a user id to create the auth token, so we either find an existing user
 // or create a new one if none exists for this provider.
-async function getAuthIdFromProviderDetails(
-  providerId: ProviderId,
-  providerProfile: any,
-  userSignupFields: UserSignupFields | undefined,
-  req: ExpressRequest,
-): Promise<{= authEntityUpper =}['id']> {
+async function getAuthIdFromProviderDetails({
+  providerId,
+  providerProfile,
+  userSignupFields,
+  req,
+  accessToken,
+}: {
+  providerId: ProviderId;
+  providerProfile: any;
+  userSignupFields: UserSignupFields | undefined;
+  req: ExpressRequest;
+  accessToken: string;
+}): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
       providerName_providerUserId: providerId,
@@ -89,7 +110,7 @@ async function getAuthIdFromProviderDetails(
       userFields as any,
     )
     if (onAfterSignupHook) {
-      await onAfterSignupHook({ req, providerId, user })
+      await onAfterSignupHook({ req, providerId, user, accessToken })
     }
 
     return user.auth.id

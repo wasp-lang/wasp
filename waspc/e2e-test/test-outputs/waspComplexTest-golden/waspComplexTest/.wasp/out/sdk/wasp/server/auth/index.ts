@@ -26,7 +26,6 @@ export type {
   OnBeforeSignupHookFn,
   OnAfterSignupHookFn,
   OnBeforeOAuthRedirectHookFn,
-  OnAfterOAuthTokenReceivedHookFn,
 } from './hooks.js'
 
 

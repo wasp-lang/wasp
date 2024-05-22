@@ -120,13 +120,14 @@ function createOAuthCallbackHandler<ST extends StateType>(
         accessToken,
       })
       try {
-        const redirectUri = await finishOAuthFlowAndGetRedirectUri(
+        const redirectUri = await finishOAuthFlowAndGetRedirectUri({
           provider,
           providerProfile,
           providerUserId,
           userSignupFields,
           req,
-        )
+          accessToken,
+        })
         // Redirect to the client with the one time code
         return redirect(res, redirectUri.toString())
       } catch (e) {

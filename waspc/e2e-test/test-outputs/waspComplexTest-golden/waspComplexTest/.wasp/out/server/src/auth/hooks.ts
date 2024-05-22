@@ -1,6 +1,5 @@
 import { prisma } from 'wasp/server'
 import type {
-  OnAfterOAuthTokenReceivedHookFn,
   OnAfterSignupHookFn,
   OnBeforeOAuthRedirectHookFn,
   OnBeforeSignupHookFn,

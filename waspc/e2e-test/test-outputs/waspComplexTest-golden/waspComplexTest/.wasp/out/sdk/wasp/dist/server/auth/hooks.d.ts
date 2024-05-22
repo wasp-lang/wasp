@@ -14,15 +14,12 @@ export type OnAfterSignupHookFn = (params: OnAfterSignupHookFnInput) => Promise<
 type OnAfterSignupHookFnInput = {
     providerId: ProviderId;
     user: Awaited<ReturnType<typeof createUser>>;
+    accessToken?: string;
 } & CommonInput;
 export type OnBeforeOAuthRedirectHookFn = (params: OnBeforeOAuthRedirectHookFnInput) => Promise<{
     url: URL;
 }>;
 type OnBeforeOAuthRedirectHookFnInput = {
     url: URL;
-} & CommonInput;
-export type OnAfterOAuthTokenReceivedHookFn = (params: OnAfterOAuthTokenReceivedHookFnInput) => Promise<void>;
-type OnAfterOAuthTokenReceivedHookFnInput = {
-    accessToken: string;
 } & CommonInput;
 export {};

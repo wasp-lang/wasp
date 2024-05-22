@@ -14,6 +14,8 @@ export const onAfterSignup: OnAfterSignupHookFn = async (args) => {
   const count = await args.prisma.user.count()
   console.log('after', count)
   console.log('user', args.user)
+  console.log('providerId', args.providerId)
+  console.log('accessToken', args.accessToken)
 }
 
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async (

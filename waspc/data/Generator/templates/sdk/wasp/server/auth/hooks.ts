@@ -25,6 +25,7 @@ export type OnAfterSignupHookFn = (
 type OnAfterSignupHookFnInput = {
   providerId: ProviderId
   user: Awaited<ReturnType<typeof createUser>>
+  accessToken?: string
 } & CommonInput
 
 /* On Before OAuth Redirect Hook */
@@ -34,13 +35,4 @@ export type OnBeforeOAuthRedirectHookFn = (
 
 type OnBeforeOAuthRedirectHookFnInput = {
   url: URL
-} & CommonInput
-
-/* On After OAuth Token Received Hook */
-export type OnAfterOAuthTokenReceivedHookFn = (
-  params: OnAfterOAuthTokenReceivedHookFnInput,
-) => Promise<void>
-
-type OnAfterOAuthTokenReceivedHookFnInput = {
-  accessToken: string
 } & CommonInput
