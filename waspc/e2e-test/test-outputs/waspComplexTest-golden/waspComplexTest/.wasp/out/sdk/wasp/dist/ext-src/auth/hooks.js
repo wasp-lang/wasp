@@ -12,7 +12,4 @@ export const onBeforeOAuthRedirect = async (args) => {
     console.log('redirect to', args.url.toString());
     return { url: args.url };
 };
-export const onAfterOAuthTokenReceived = async (args) => {
-    console.log('access token', args.accessToken);
-};
 //# sourceMappingURL=hooks.js.map

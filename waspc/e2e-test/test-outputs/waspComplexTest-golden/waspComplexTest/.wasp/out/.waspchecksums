@@ -396,7 +396,7 @@
             "file",
             "../out/sdk/wasp/ext-src/auth/hooks.ts"
         ],
-        "f4d4cb6d7c3818480fd96490fbb30fa4247c7660daaf9b8ea51ea616a022c9a1"
+        "cbb72ecab48f9e09dfd136bf1062fbcc44770e62554220de5aa20eedab4db718"
     ],
     [
         [
@@ -858,7 +858,7 @@
             "file",
             "server/src/auth/hooks.ts"
         ],
-        "fb1bf15ffdf1e3f8cbcb160661bf47983b49dd0915fc26f458212b9fb92d5cea"
+        "f834bbe7c9a5b04488feab958ca70d6110c03625814fd91e3d2a52b5d2d4a95c"
     ],
     [
         [
@@ -900,7 +900,7 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "a6d238dbba85754eda5160e4af9c8e19bdadaed9a71427e93d2459589edf55fb"
+        "b2b219f02b6f10a42f6b7f7648196cb370d65349b24bccfb56c25ff986e56ec0"
     ],
     [
         [

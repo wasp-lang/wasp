@@ -17,10 +17,7 @@ import {
   handleOAuthErrorAndGetRedirectUri,
 } from '../oauth/user.js'
 import { callbackPath, loginPath } from './redirect.js'
-import {
-  onBeforeOAuthRedirectHook,
-  onAfterOAuthTokenReceivedHook,
-} from '../../hooks.js'
+import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
 export function createOAuthProviderRouter<ST extends StateType>({
   provider,
@@ -87,12 +84,14 @@ function createOAuthLoginHandler<ST extends StateType>(
     const oAuthState = generateAndStoreOAuthState(stateTypes, provider, res)
     let url = await getAuthorizationUrl(oAuthState)
     if (onBeforeOAuthRedirectHook) {
-      url = (
-        await onBeforeOAuthRedirectHook({
-          req,
-          url,
-        })
-      ).url
+      url =
+        // TODO: send state as well so it can be connected to the callback
+        (
+          await onBeforeOAuthRedirectHook({
+            req,
+            url,
+          })
+        ).url
     }
     return redirect(res, url.toString())
   })
@@ -116,12 +115,6 @@ function createOAuthCallbackHandler<ST extends StateType>(
     try {
       const oAuthState = validateAndGetOAuthState(stateTypes, provider, req)
       const { accessToken } = await getProviderTokens(oAuthState)
-      if (onAfterOAuthTokenReceivedHook) {
-        await onAfterOAuthTokenReceivedHook({
-          req,
-          accessToken,
-        })
-      }
 
       const { providerProfile, providerUserId } = await getProviderInfo({
         accessToken,

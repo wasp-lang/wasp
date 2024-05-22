@@ -186,7 +186,6 @@ addAuth = do
           "    onBeforeSignup: import { onBeforeSignup } from \"@src/auth/hooks.js\",",
           "    onAfterSignup: import { onAfterSignup } from \"@src/auth/hooks.js\",",
           "    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from \"@src/auth/hooks.js\",",
-          "    onAfterOAuthTokenReceived: import { onAfterOAuthTokenReceived } from \"@src/auth/hooks.js\",",
           "  },"
         ]
 
@@ -200,7 +199,6 @@ addAuth = do
     hooksFile =
       unlines
         [ "import type {",
-          "  OnAfterOAuthTokenReceivedHookFn,",
           "  OnAfterSignupHookFn,",
           "  OnBeforeOAuthRedirectHookFn,",
           "  OnBeforeSignupHookFn,",
@@ -223,12 +221,7 @@ addAuth = do
           ") => {",
           "  console.log('redirect to', args.url.toString())",
           "  return { url: args.url }",
-          "}",
-          "",
-          "export const onAfterOAuthTokenReceived: OnAfterOAuthTokenReceivedHookFn =",
-          "  async (args) => {",
-          "    console.log('access token', args.accessToken)",
-          "  }"
+          "}"
         ]
 
 addAction :: ShellCommandBuilder [ShellCommand]
