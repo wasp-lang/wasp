@@ -5,7 +5,9 @@ where
 
 import Data.Aeson (object, (.=))
 import StrongPath (reldir, relfile, (</>))
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.Generator.AuthProviders
   ( gitHubAuthProvider,
     googleAuthProvider,
@@ -20,8 +22,8 @@ import Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
 
-genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthForms auth =
+genAuthForms :: AS.App.App -> AS.Auth.Auth -> Generator [FileDraft]
+genAuthForms app auth =
   sequence
     [ genAuthComponent auth,
       genTypes auth,
@@ -34,7 +36,7 @@ genAuthForms auth =
       genFileCopy [relfile|auth/forms/Signup.tsx|]
     ]
     <++> genEmailForms auth
-    <++> genInternalAuthComponents auth
+    <++> genInternalAuthComponents app auth
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -68,12 +70,12 @@ genEmailForms auth =
     genFileCopy = return . C.mkTmplFd
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
-genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
-genInternalAuthComponents auth =
+genInternalAuthComponents :: AS.App.App -> AS.Auth.Auth -> Generator [FileDraft]
+genInternalAuthComponents app auth =
   sequence
     [ copyInternalAuthComponent [relfile|Form.tsx|],
       copyInternalAuthComponent [relfile|Message.tsx|],
-      genLoginSignupForm auth
+      genLoginSignupForm app auth
     ]
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
@@ -106,8 +108,8 @@ genInternalAuthComponents auth =
     copyInternalAuthComponent = return . C.mkTmplFd . (pathToInternalInAuth </>)
     pathToInternalInAuth = [reldir|auth/forms/internal|]
 
-genLoginSignupForm :: AS.Auth.Auth -> Generator FileDraft
-genLoginSignupForm auth =
+genLoginSignupForm :: AS.App.App -> AS.Auth.Auth -> Generator FileDraft
+genLoginSignupForm app auth =
   return $
     C.mkTmplFdWithData
       [relfile|auth/forms/internal/common/LoginSignupForm.tsx|]
@@ -122,10 +124,12 @@ genLoginSignupForm auth =
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
           "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
+          "isEmailSenderProviderSetToDummy" .= isEmailSenderProviderSetToDummy
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+    isEmailSenderProviderSetToDummy = (AS.EmailSender.provider <$> AS.App.emailSender app) == Just AS.EmailSender.Dummy
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []

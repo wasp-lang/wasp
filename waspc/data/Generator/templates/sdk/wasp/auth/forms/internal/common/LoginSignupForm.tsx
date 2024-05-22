@@ -166,7 +166,12 @@ export const LoginSignupForm = ({
     onError: onErrorHandler,
     showEmailVerificationPending() {
       hookForm.reset()
-      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
+      setSuccessMessage(
+        `You've signed up successfully! Check your email for the confirmation link.`
+        {=# isEmailSenderProviderSetToDummy =}
+        + ` (NOTE(DEV): Your Wasp app is using Dummy email provider, which doesn't really send emails: instead, check server logs in the terminal for the email)`
+        {=/ isEmailSenderProviderSetToDummy =}
+      )
     },
     onLoginSuccess() {
       history.push('{= onAuthSucceededRedirectTo =}')

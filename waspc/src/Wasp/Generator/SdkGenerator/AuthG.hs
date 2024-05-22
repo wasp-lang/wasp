@@ -39,7 +39,7 @@ genAuth spec =
             genFileCopy [relfile|auth/logout.ts|],
             genUseAuth auth
           ]
-        <++> genAuthForms auth
+        <++> genAuthForms app auth
         <++> genLocalAuth auth
         <++> genOAuthAuth auth
         <++> genEmailAuth auth
@@ -56,7 +56,8 @@ genAuth spec =
           ]
         <++> genIndexTs auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    app = snd $ getApp spec
+    maybeAuth = AS.App.auth app
     genFileCopy = return . C.mkTmplFd
 
 -- | Generates React hook that Wasp developer can use in a component to get
