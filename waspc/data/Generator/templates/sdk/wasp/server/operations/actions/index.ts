@@ -36,5 +36,4 @@ export const {= operationName =}: UnauthenticatedOperationFor<{= operationTypeNa
       {=/ entities =}
     },
   )
-
 {=/ operations =}
