@@ -513,9 +513,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/server/auth/hooks.ts"
+        ],
+        "ac2f5bc5caf33df8027585ec1d5f162d39d5b2e0f57e728c918577088f265449"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/server/auth/index.ts"
         ],
-        "61745079707aa8a4134e140b5cf33d5c9977d997da924de606cf606871438455"
+        "22d48e97be774a89586deff8caccc134fff75c3516262a0fd33a43ec685470b5"
     ],
     [
         [
@@ -842,9 +849,16 @@
     [
         [
             "file",
+            "server/src/auth/hooks.ts"
+        ],
+        "2f1910228c8310bbfcec1c06c3b73ee3cc5c23723f304f2170c2f4b599b1c0b8"
+    ],
+    [
+        [
+            "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "d5546bace955d33579dc25fd9b88689435e8d572b1190d18ffc0276521e2db86"
+        "1e67df491908b6a0f3425b6e395c9245399d77c3cdd7e9d98070a0b3ff3acd68"
     ],
     [
         [
@@ -879,7 +893,7 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "d243cf5465c41a2409f2ae6d032e3678dbad7507376ba41c8f300be6bc104b2b"
+        "a6d238dbba85754eda5160e4af9c8e19bdadaed9a71427e93d2459589edf55fb"
     ],
     [
         [
@@ -914,7 +928,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "eaea0f07dee02a72e6ee26ea363adae66930c97659855bdfc3703d075ec73253"
+        "37f401f8363fa59b0e4f934f9996bce2ccab58a3c233b4890b0c4af335235550"
     ],
     [
         [
