@@ -11,6 +11,11 @@ import {
 } from '../_types'
 
 // PRIVATE API (used in SDK)
+// Explanation:
+// - Custom `_Awaited` and `_ReturnType` - Read the comments above their
+// definitions.
+// - `Parameters<OperationDefinition> extends []` - Same reason as described here:
+// https://github.com/wasp-lang/wasp/pull/1992/files#r1583040080
 /**
  * Constructs the unauthenticated operation's server-side API type from its 
  * definition.
@@ -55,6 +60,11 @@ export function createUnauthenticatedOperation<
 
 {=# isAuthEnabled =}
 // PRIVATE API (used in SDK)
+// Explanation:
+// - Custom `_Awaited` and `_ReturnType` - Read the comments above their
+// definitions.
+// - `Parameters<OperationDefinition> extends []` - Same reason as described here:
+// https://github.com/wasp-lang/wasp/pull/1992/files#r1583040080
 /**
  * Constructs the authenticated operation's server-side API type from its
  * definition.
