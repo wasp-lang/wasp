@@ -265,6 +265,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/api/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/api/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/api/index.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/hooks.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/hooks.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/hooks.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.js.map
@@ -381,6 +384,7 @@ waspComplexTest/.wasp/out/sdk/wasp/server/_types/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/api/index.ts
+waspComplexTest/.wasp/out/sdk/wasp/server/auth/hooks.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/user.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/config.ts
@@ -424,6 +428,7 @@ waspComplexTest/.wasp/out/server/rollup.config.js
 waspComplexTest/.wasp/out/server/scripts/validate-env.mjs
 waspComplexTest/.wasp/out/server/src/actions/mySpecialAction.ts
 waspComplexTest/.wasp/out/server/src/app.js
+waspComplexTest/.wasp/out/server/src/auth/hooks.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/config/google.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/index.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/config.ts
