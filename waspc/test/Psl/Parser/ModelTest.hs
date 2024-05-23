@@ -4,8 +4,8 @@ import Data.Either (isLeft)
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Psl.Ast.Model as AST
-import Wasp.Psl.Parser.Model (attrArgument, body, model)
+import qualified Wasp.Psl.Ast.Schema as AST
+import Wasp.Psl.Parser.Model (model, modelAttrArgument, modelBody)
 
 spec_parsePslModel :: Spec
 spec_parsePslModel = do
@@ -14,14 +14,14 @@ spec_parsePslModel = do
         expectedModelAst = AST.Model "User" sampleBodyAst
 
     it "Body parser correctly parses" $ do
-      Parsec.parse body "" sampleBodySchema `shouldBe` Right sampleBodyAst
+      Parsec.parse modelBody "" sampleBodySchema `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
-      Parsec.parse model "" pslModel `shouldBe` Right expectedModelAst
+      Parsec.parse model "" pslModel `shouldBe` Right AST.SchemaElement $ expectedModelAst
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do
-      let runTest psl = it psl $ isLeft (Parsec.parse body "" psl) `shouldBe` True
+      let runTest psl = it psl $ isLeft (Parsec.parse modelBody "" psl) `shouldBe` True
       mapM_
         runTest
         [ "  noType",
@@ -51,5 +51,5 @@ spec_parsePslModel = do
             )
           ]
     let runTest (psl, expected) =
-          it ("correctly parses " ++ psl) $ Parsec.parse attrArgument "" psl `shouldBe` Right expected
+          it ("correctly parses " ++ psl) $ Parsec.parse modelAttrArgument "" psl `shouldBe` Right expected
     mapM_ runTest tests

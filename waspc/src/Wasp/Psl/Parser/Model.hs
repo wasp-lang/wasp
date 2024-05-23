@@ -20,7 +20,7 @@ import Text.Parsec
     (<|>),
   )
 import Text.Parsec.String (Parser)
-import qualified Wasp.Psl.Ast.Model as Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import Wasp.Psl.Parser.Common
   ( braces,
     brackets,
@@ -43,74 +43,74 @@ import Wasp.Psl.Parser.Common
 --     name String
 --     @@index([name])
 --   }
-model :: Parser Model.SchemaElement
+model :: Parser Psl.Ast.SchemaElement
 model = do
   whiteSpace
   _ <- reserved "model"
   modelName <- identifier
-  Model.SchemaModel . Model.Model modelName <$> braces modelBody
+  Psl.Ast.SchemaModel . Psl.Ast.Model modelName <$> braces modelBody
 
 -- | Parses body of the PSL (Prisma Schema Language) model,
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
-modelBody :: Parser Model.Body
+modelBody :: Parser Psl.Ast.Body
 modelBody = do
   whiteSpace
-  Model.Body <$> many1 modelElement
+  Psl.Ast.Body <$> many1 modelElement
 
-modelElement :: Parser Model.Element
+modelElement :: Parser Psl.Ast.Element
 modelElement =
-  try (Model.ElementField <$> modelField)
-    <|> try (Model.ElementBlockAttribute <$> modelBlockAttribute)
+  try (Psl.Ast.ElementField <$> modelField)
+    <|> try (Psl.Ast.ElementBlockAttribute <$> modelBlockAttribute)
 
-modelField :: Parser Model.Field
+modelField :: Parser Psl.Ast.Field
 modelField = do
   name <- identifier
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
   attrs <- many (try modelFieldAttribute)
   return $
-    Model.Field
-      { Model._name = name,
-        Model._type = type',
-        Model._typeModifiers = maybeToList maybeTypeModifier,
-        Model._attrs = attrs
+    Psl.Ast.Field
+      { Psl.Ast._name = name,
+        Psl.Ast._type = type',
+        Psl.Ast._typeModifiers = maybeToList maybeTypeModifier,
+        Psl.Ast._attrs = attrs
       }
   where
-    fieldType :: Parser Model.FieldType
+    fieldType :: Parser Psl.Ast.FieldType
     fieldType =
       foldl1
         (<|>)
         ( map
             (\(s, t) -> try (symbol s) >> return t)
-            [ ("String", Model.String),
-              ("Boolean", Model.Boolean),
-              ("Int", Model.Int),
-              ("BigInt", Model.BigInt),
-              ("Float", Model.Float),
-              ("Decimal", Model.Decimal),
-              ("DateTime", Model.DateTime),
-              ("Json", Model.Json),
-              ("Bytes", Model.Bytes)
+            [ ("String", Psl.Ast.String),
+              ("Boolean", Psl.Ast.Boolean),
+              ("Int", Psl.Ast.Int),
+              ("BigInt", Psl.Ast.BigInt),
+              ("Float", Psl.Ast.Float),
+              ("Decimal", Psl.Ast.Decimal),
+              ("DateTime", Psl.Ast.DateTime),
+              ("Json", Psl.Ast.Json),
+              ("Bytes", Psl.Ast.Bytes)
             ]
         )
         <|> try
-          ( Model.Unsupported
+          ( Psl.Ast.Unsupported
               <$> ( symbol "Unsupported"
                       >> parens stringLiteral
                   )
           )
-        <|> Model.UserType <$> identifier
+        <|> Psl.Ast.UserType <$> identifier
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
-    fieldTypeModifier :: Parser (Maybe Model.FieldTypeModifier)
+    fieldTypeModifier :: Parser (Maybe Psl.Ast.FieldTypeModifier)
     fieldTypeModifier =
       optionMaybe
-        ( (try (brackets whiteSpace) >> return Model.List)
-            <|> (try (symbol "?") >> return Model.Optional)
+        ( (try (brackets whiteSpace) >> return Psl.Ast.List)
+            <|> (try (symbol "?") >> return Psl.Ast.Optional)
         )
 
-modelFieldAttribute :: Parser Model.Attribute
+modelFieldAttribute :: Parser Psl.Ast.Attribute
 modelFieldAttribute = do
   _ <- char '@'
   name <- identifier
@@ -127,29 +127,29 @@ modelFieldAttribute = do
 
   maybeArgs <- optionMaybe (parens (commaSep1 (try modelAttrArgument)))
   return $
-    Model.Attribute
-      { Model._attrName = case maybeSelector of
+    Psl.Ast.Attribute
+      { Psl.Ast._attrName = case maybeSelector of
           Just selector -> name ++ "." ++ selector
           Nothing -> name,
-        Model._attrArgs = fromMaybe [] maybeArgs
+        Psl.Ast._attrArgs = fromMaybe [] maybeArgs
       }
 
 -- Parses attribute argument that ends with delimiter: , or ).
 -- Doesn't parse the delimiter.
-modelAttrArgument :: Parser Model.AttributeArg
+modelAttrArgument :: Parser Psl.Ast.AttributeArg
 modelAttrArgument = do
   try namedArg <|> try unnamedArg
   where
-    namedArg :: Parser Model.AttributeArg
+    namedArg :: Parser Psl.Ast.AttributeArg
     namedArg = do
       name <- identifier
       _ <- colon
-      Model.AttrArgNamed name <$> argValue
+      Psl.Ast.AttrArgNamed name <$> argValue
 
-    unnamedArg :: Parser Model.AttributeArg
-    unnamedArg = Model.AttrArgUnnamed <$> argValue
+    unnamedArg :: Parser Psl.Ast.AttributeArg
+    unnamedArg = Psl.Ast.AttrArgUnnamed <$> argValue
 
-    argValue :: Parser Model.AttrArgValue
+    argValue :: Parser Psl.Ast.AttrArgValue
     argValue =
       choice $
         map
@@ -163,19 +163,19 @@ modelAttrArgument = do
             argValueUnknown
           ]
 
-    argValueString :: Parser Model.AttrArgValue
-    argValueString = Model.AttrArgString <$> stringLiteral
+    argValueString :: Parser Psl.Ast.AttrArgValue
+    argValueString = Psl.Ast.AttrArgString <$> stringLiteral
 
-    argValueFunc :: Parser Model.AttrArgValue
+    argValueFunc :: Parser Psl.Ast.AttrArgValue
     argValueFunc = do
       -- TODO: Could I implement this with applicative?
       name <- identifier
       parens whiteSpace
-      return $ Model.AttrArgFunc name
+      return $ Psl.Ast.AttrArgFunc name
 
-    argValueFieldReferenceList :: Parser Model.AttrArgValue
+    argValueFieldReferenceList :: Parser Psl.Ast.AttrArgValue
     argValueFieldReferenceList =
-      Model.AttrArgFieldRefList
+      Psl.Ast.AttrArgFieldRefList
         <$> brackets (commaSep1 identifier)
 
     -- NOTE: For now we are not supporting negative numbers.
@@ -183,21 +183,21 @@ modelAttrArgument = do
     --   where these numbers could be negative.
     --   Same goes for argValueNumberInt below.
     --   TODO: Probably we should take care of that case.
-    argValueNumberFloat :: Parser Model.AttrArgValue
-    argValueNumberFloat = Model.AttrArgNumber . show <$> float
+    argValueNumberFloat :: Parser Psl.Ast.AttrArgValue
+    argValueNumberFloat = Psl.Ast.AttrArgNumber . show <$> float
 
     -- NOTE/TODO: Check comment on argValueNumberFloat.
-    argValueNumberInt :: Parser Model.AttrArgValue
-    argValueNumberInt = Model.AttrArgNumber . show <$> integer
+    argValueNumberInt :: Parser Psl.Ast.AttrArgValue
+    argValueNumberInt = Psl.Ast.AttrArgNumber . show <$> integer
 
-    argValueIdentifier :: Parser Model.AttrArgValue
-    argValueIdentifier = Model.AttrArgIdentifier <$> identifier
+    argValueIdentifier :: Parser Psl.Ast.AttrArgValue
+    argValueIdentifier = Psl.Ast.AttrArgIdentifier <$> identifier
 
-    argValueUnknown :: Parser Model.AttrArgValue
+    argValueUnknown :: Parser Psl.Ast.AttrArgValue
     argValueUnknown =
-      Model.AttrArgUnknown <$> many1 (try $ noneOf argDelimiters)
+      Psl.Ast.AttrArgUnknown <$> many1 (try $ noneOf argDelimiters)
 
-    delimitedArgValue :: Parser Model.AttrArgValue -> Parser Model.AttrArgValue
+    delimitedArgValue :: Parser Psl.Ast.AttrArgValue -> Parser Psl.Ast.AttrArgValue
     delimitedArgValue argValueP = do
       value <- argValueP
       _ <- lookAhead $ oneOf argDelimiters
@@ -205,5 +205,5 @@ modelAttrArgument = do
 
     argDelimiters = [',', ')']
 
-modelBlockAttribute :: Parser Model.Attribute
+modelBlockAttribute :: Parser Psl.Ast.Attribute
 modelBlockAttribute = char '@' >> modelFieldAttribute

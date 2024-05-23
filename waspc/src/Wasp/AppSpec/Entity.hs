@@ -18,35 +18,35 @@ import Data.List (find)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import Wasp.Psl.Util (doesPslFieldHaveAttribute, findIdBlockAttribute, findIdField)
 
 data Entity = Entity
   { fields :: ![Field],
-    pslModelBody :: !PslModel.Body
+    pslModelBody :: !Psl.Ast.Body
   }
   deriving (Show, Eq, Data)
 
 instance IsDecl Entity
 
-makeEntity :: PslModel.Body -> Entity
+makeEntity :: Psl.Ast.Body -> Entity
 makeEntity body =
   Entity
     { fields = makeEntityFieldsFromPslModelBody body,
       pslModelBody = body
     }
   where
-    makeEntityFieldsFromPslModelBody :: PslModel.Body -> [Field]
-    makeEntityFieldsFromPslModelBody (PslModel.Body pslElements) =
-      Field.pslModelFieldToEntityField <$> [field | (PslModel.ElementField field) <- pslElements]
+    makeEntityFieldsFromPslModelBody :: Psl.Ast.Body -> [Field]
+    makeEntityFieldsFromPslModelBody (Psl.Ast.Body pslElements) =
+      Field.pslModelFieldToEntityField <$> [field | (Psl.Ast.ElementField field) <- pslElements]
 
 getFields :: Entity -> [Field]
 getFields = fields
 
-getPslModelBody :: Entity -> PslModel.Body
+getPslModelBody :: Entity -> Psl.Ast.Body
 getPslModelBody = pslModelBody
 
-getIdField :: Entity -> Maybe PslModel.Field
+getIdField :: Entity -> Maybe Psl.Ast.Field
 getIdField = findIdField . getPslModelBody
 
 isFieldUnique :: String -> Entity -> Maybe Bool
@@ -56,11 +56,11 @@ doesFieldHaveAttribute :: String -> String -> Entity -> Maybe Bool
 doesFieldHaveAttribute fieldName attrName entity =
   doesPslFieldHaveAttribute attrName <$> findPslFieldByName fieldName entity
 
-findPslFieldByName :: String -> Entity -> Maybe PslModel.Field
-findPslFieldByName fieldName Entity {pslModelBody = PslModel.Body elements} =
-  find isField [field | (PslModel.ElementField field) <- elements]
+findPslFieldByName :: String -> Entity -> Maybe Psl.Ast.Field
+findPslFieldByName fieldName Entity {pslModelBody = Psl.Ast.Body elements} =
+  find isField [field | (Psl.Ast.ElementField field) <- elements]
   where
-    isField PslModel.Field {_name = name} = name == fieldName
+    isField Psl.Ast.Field {_name = name} = name == fieldName
 
-getIdBlockAttribute :: Entity -> Maybe PslModel.Attribute
+getIdBlockAttribute :: Entity -> Maybe Psl.Ast.Attribute
 getIdBlockAttribute = findIdBlockAttribute . getPslModelBody

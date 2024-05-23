@@ -41,10 +41,8 @@ import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
-import Wasp.Psl.Ast.Model (Model (Model), Schema (Schema))
-import qualified Wasp.Psl.Ast.Model as Psl
-import qualified Wasp.Psl.Ast.Model as Psl.Ast
-import qualified Wasp.Psl.Parser.Schema as Psl
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -159,10 +157,8 @@ analyzePrismaSchema waspProjectDir = do
   case prismaSchemaFile of
     Just pathToPrismaSchemaFile -> do
       prismaSchemaContent <- IOUtil.readFile pathToPrismaSchemaFile
-      let prismaSchemaParseResult = Psl.parsePrismaSchema prismaSchemaContent
 
-      print prismaSchemaParseResult
-      case prismaSchemaParseResult of
+      case Psl.Parser.parsePrismaSchema prismaSchemaContent of
         Left err -> return $ Left [err]
         Right parsedPrismaSchema -> do
           let entities = getEntitiesFromPrismaSchema parsedPrismaSchema
@@ -170,12 +166,12 @@ analyzePrismaSchema waspProjectDir = do
     Nothing -> return $ Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"]
   where
     getEntitiesFromPrismaSchema :: Psl.Ast.Schema -> [AS.Decl]
-    getEntitiesFromPrismaSchema (Schema elements) =
-      let models = [model | Psl.SchemaModel model <- elements]
+    getEntitiesFromPrismaSchema (Psl.Ast.Schema elements) =
+      let models = [model | Psl.Ast.SchemaModel model <- elements]
        in parsedModelToDecl <$> models
 
-    parsedModelToDecl :: Model -> AS.Decl
-    parsedModelToDecl (Model name body) = Decl.makeDecl @Entity name $ makeEntity body
+    parsedModelToDecl :: Psl.Ast.Model -> AS.Decl
+    parsedModelToDecl (Psl.Ast.Model name body) = Decl.makeDecl @Entity name $ makeEntity body
 
 findPrismaSchemaFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPrismaSchemaFile waspProjectDir = findFileInWaspProjectDir waspProjectDir prismaSchemaFileInWaspProjectDir

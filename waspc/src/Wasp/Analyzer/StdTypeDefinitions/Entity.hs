@@ -14,7 +14,7 @@ import qualified Wasp.Analyzer.TypeChecker.AST as TC.AST
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), IsDeclType (..))
 import qualified Wasp.AppSpec.Core.Decl as Decl
 import Wasp.AppSpec.Entity (Entity)
-import qualified Wasp.Psl.Ast.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.Psl.Parser.Model
 
 instance IsDeclType Entity where
@@ -33,5 +33,5 @@ instance IsDeclType Entity where
 --     makeEntity <$> parsePslBody pslString
 -- _ -> Left $ mkEvaluationError ctx $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)
 
-parsePslBody :: String -> Either Parsec.ParseError Wasp.Psl.Ast.Model.Body
+parsePslBody :: String -> Either Parsec.ParseError Psl.Ast.Body
 parsePslBody = Parsec.parse Wasp.Psl.Parser.Model.modelBody ""

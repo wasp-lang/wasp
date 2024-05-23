@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.Version as WV
 
 spec_Analyzer :: Spec
@@ -221,13 +221,13 @@ spec_Analyzer = do
       let expectedEntities =
             [ ( "User",
                 Entity.makeEntity $
-                  PslModel.Body
-                    [ PslModel.ElementField $
-                        PslModel.Field
-                          { PslModel._name = "description",
-                            PslModel._type = PslModel.String,
-                            PslModel._typeModifiers = [],
-                            PslModel._attrs = []
+                  Psl.Ast.Body
+                    [ Psl.Ast.ElementField $
+                        Psl.Ast.Field
+                          { Psl.Ast._name = "description",
+                            Psl.Ast._type = Psl.Ast.String,
+                            Psl.Ast._typeModifiers = [],
+                            Psl.Ast._attrs = []
                           }
                     ]
               )

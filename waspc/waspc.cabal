@@ -360,7 +360,7 @@ library
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
-    Wasp.Psl.Ast.Model
+    Wasp.Psl.Ast.Schema
     Wasp.Psl.Format
     Wasp.Psl.Generator.Schema
     Wasp.Psl.Generator.ConfigBlock

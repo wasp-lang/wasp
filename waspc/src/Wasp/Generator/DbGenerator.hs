@@ -42,8 +42,7 @@ import Wasp.Generator.Monad
     logAndThrowGeneratorError,
   )
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import qualified Wasp.Psl.Ast.Model as Psl.Ast
-import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.Psl.Generator.ConfigBlock as Psl.Generator.ConfigBlock
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
@@ -89,7 +88,7 @@ genPrismaSchema spec = do
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Schema.generateSchemaElement $
-        Psl.Ast.Model.SchemaModel $ Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
+        Psl.Ast.SchemaModel $ Psl.Ast.Model entityName (AS.Entity.getPslModelBody entity)
 
     (Psl.Ast.Schema elements) = AS.getPrismaSchema spec
     enums = [Psl.Ast.SchemaEnum enum | Psl.Ast.SchemaEnum enum <- elements]

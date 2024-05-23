@@ -40,7 +40,7 @@ import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, isCapitalized)
@@ -468,7 +468,7 @@ findFieldByName name = find ((== name) . Entity.Field.fieldName)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
-getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
+getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Ast.Field
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

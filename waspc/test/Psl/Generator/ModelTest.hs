@@ -7,8 +7,8 @@ import Psl.Common.ModelTest (sampleBodyAst)
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Psl.Ast.Model as AST
-import Wasp.Psl.Generator.Model (generateSchemaElement)
+import qualified Wasp.Psl.Ast.Schema as AST
+import Wasp.Psl.Generator.Schema (generateSchemaElement)
 import qualified Wasp.Psl.Parser.Model
 
 spec_generatePslModel :: Spec

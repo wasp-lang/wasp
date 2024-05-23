@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Wasp.Psl.Ast.Model where
+module Wasp.Psl.Ast.Schema where
 
 import Data.Data (Data)
 

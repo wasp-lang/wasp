@@ -7,7 +7,7 @@ import Text.Parsec
   ( many1,
   )
 import Text.Parsec.String (Parser)
-import qualified Wasp.Psl.Ast.Model as Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
@@ -21,10 +21,10 @@ import Wasp.Psl.Parser.Common
 --     USER
 --     ADMIN
 --   }
-enum :: Parser Model.SchemaElement
+enum :: Parser Psl.Ast.SchemaElement
 enum = do
   whiteSpace
   _ <- reserved "enum"
   enumName <- identifier
   values <- braces (many1 identifier)
-  return $ Model.SchemaEnum $ Model.PrismaEnum enumName values
+  return $ Psl.Ast.SchemaEnum $ Psl.Ast.PrismaEnum enumName values

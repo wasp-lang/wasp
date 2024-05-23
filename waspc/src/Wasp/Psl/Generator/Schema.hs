@@ -4,7 +4,7 @@ module Wasp.Psl.Generator.Schema
 where
 
 import Data.List (intercalate)
-import qualified Wasp.Psl.Ast.Model as Ast
+import qualified Wasp.Psl.Ast.Schema as Ast
 
 generateSchemaElement :: Ast.SchemaElement -> String
 generateSchemaElement (Ast.SchemaModel (Ast.Model name body)) = "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"

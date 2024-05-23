@@ -51,7 +51,7 @@ import Wasp.Env (EnvVar)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
-import qualified Wasp.Psl.Ast.Model as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.SemanticVersion as SV
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,

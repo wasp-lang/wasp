@@ -12,7 +12,7 @@ import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Psl.Ast.Model (Field (_typeModifiers))
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
 spec_GeneratorCrudTest :: Spec
 spec_GeneratorCrudTest = do
@@ -99,16 +99,16 @@ spec_GeneratorCrudTest = do
     crudOperationsName = "tasks"
     crudOperationEntityName = "Task"
     primaryEntityField =
-      PslModel.Field
-        { PslModel._name = "id",
-          PslModel._type = PslModel.Int,
-          PslModel._attrs =
-            [ PslModel.Attribute
-                { PslModel._attrName = "id",
-                  PslModel._attrArgs = []
+      Psl.Ast.Field
+        { Psl.Ast._name = "id",
+          Psl.Ast._type = Psl.Ast.Int,
+          Psl.Ast._attrs =
+            [ Psl.Ast.Attribute
+                { Psl.Ast._attrName = "id",
+                  Psl.Ast._attrArgs = []
                 }
             ],
-          PslModel._typeModifiers = []
+          Psl.Ast._typeModifiers = []
         }
     crudWithoutOperations =
       AS.Crud.Crud

@@ -10,8 +10,7 @@ import Wasp.Generator.Monad
     GeneratorError (GenericGeneratorError),
     logAndThrowGeneratorError,
   )
-import qualified Wasp.Psl.Ast.Model as Psl.Model
-import qualified Wasp.Psl.Ast.Model as Psl.Model.Field
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.Util as Util
 
 {--
@@ -103,7 +102,7 @@ makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
-makeAuthEntity :: Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
+makeAuthEntity :: Psl.Ast.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
 makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
@@ -126,8 +125,8 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEnt
     sessionsFieldOnAuthEntityNameText = T.pack sessionsFieldOnAuthEntityName
     sessionEntityNameText = T.pack sessionEntityName
 
-    userEntityIdTypeText = T.pack $ show . Psl.Model.Field._type $ userEntityIdField
-    userEntityIdFieldName = T.pack $ Psl.Model.Field._name userEntityIdField
+    userEntityIdTypeText = T.pack $ show . Psl.Ast._type $ userEntityIdField
+    userEntityIdFieldName = T.pack $ Psl.Ast._name userEntityIdField
 
 makeSessionEntity :: Generator (String, AS.Entity.Entity)
 makeSessionEntity = case parsePslBody sessionEntityPslBody of
@@ -161,13 +160,13 @@ injectAuthIntoUserEntity userEntityName entities =
     injectRelationToAuth :: AS.Entity.Entity -> AS.Entity.Entity
     injectRelationToAuth entity = AS.Entity.makeEntity newPslBody
       where
-        (Psl.Model.Body existingPsl) = AS.Entity.getPslModelBody entity
+        (Psl.Ast.Body existingPsl) = AS.Entity.getPslModelBody entity
         relationToAuthEntity =
-          [ Psl.Model.ElementField $
-              Psl.Model.Field
+          [ Psl.Ast.ElementField $
+              Psl.Ast.Field
                 authFieldOnUserEntityName
-                (Psl.Model.UserType authEntityName)
-                [Psl.Model.Optional]
+                (Psl.Ast.UserType authEntityName)
+                [Psl.Ast.Optional]
                 []
           ]
-        newPslBody = Psl.Model.Body $ existingPsl ++ relationToAuthEntity
+        newPslBody = Psl.Ast.Body $ existingPsl ++ relationToAuthEntity

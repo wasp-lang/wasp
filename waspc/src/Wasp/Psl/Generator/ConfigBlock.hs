@@ -7,7 +7,7 @@ where
 import Data.List (find)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.Psl.Ast.Model as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
 showPrismaDbExtensions :: AppSpec -> Maybe String
 showPrismaDbExtensions spec = findPrismaConfigBlockKeyValue "extensions" keyValues

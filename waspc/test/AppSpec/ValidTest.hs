@@ -29,8 +29,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.Psl.Ast.Model as Psl.Ast
-import qualified Wasp.Psl.Ast.Model as PslM
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -99,8 +98,8 @@ spec_AppSpecValid = do
       let userEntityName = "User"
       let validUserEntity =
             AS.Entity.makeEntity
-              ( PslM.Body
-                  [ PslM.ElementField $ makeIdField "id" PslM.String
+              ( Psl.Ast.Body
+                  [ Psl.Ast.ElementField $ makeIdField "id" Psl.Ast.String
                   ]
               )
       let validAppAuth =
@@ -246,7 +245,7 @@ spec_AppSpecValid = do
                 }
         let invalidUserEntity =
               AS.Entity.makeEntity
-                ( PslM.Body
+                ( Psl.Ast.Body
                     []
                 )
 
@@ -302,8 +301,8 @@ spec_AppSpecValid = do
                           },
                       AS.Decl.makeDecl userEntityName $
                         AS.Entity.makeEntity
-                          ( PslM.Body
-                              [ PslM.ElementField $ makeIdField "id" PslM.String
+                          ( Psl.Ast.Body
+                              [ Psl.Ast.ElementField $ makeIdField "id" Psl.Ast.String
                               ]
                           ),
                       basicPageDecl,
@@ -383,15 +382,15 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
   where
     makeIdField name typ =
-      PslM.Field
-        { PslM._name = name,
-          PslM._type = typ,
-          PslM._typeModifiers =
+      Psl.Ast.Field
+        { Psl.Ast._name = name,
+          Psl.Ast._type = typ,
+          Psl.Ast._typeModifiers =
             [],
-          PslM._attrs =
-            [ PslM.Attribute
-                { PslM._attrName = "id",
-                  PslM._attrArgs = []
+          Psl.Ast._attrs =
+            [ Psl.Ast.Attribute
+                { Psl.Ast._attrName = "id",
+                  Psl.Ast._attrArgs = []
                 }
             ]
         }
@@ -536,7 +535,7 @@ spec_AppSpecValid = do
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
         name
-        (AS.Entity.makeEntity $ PslM.Body [PslM.ElementField $ makeIdField "id" PslM.String])
+        (AS.Entity.makeEntity $ Psl.Ast.Body [Psl.Ast.ElementField $ makeIdField "id" Psl.Ast.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl
