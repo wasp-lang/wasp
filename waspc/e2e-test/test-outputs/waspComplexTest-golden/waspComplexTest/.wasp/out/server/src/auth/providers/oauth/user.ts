@@ -15,8 +15,6 @@ import { tokenStore } from './oneTimeCode'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 import type { OptionalStateType, RequiredStateType } from './state';
 
-type PossibleOAuthState = { [name in OptionalStateType]?: string } & { [name in RequiredStateType]: string }
-
 export async function finishOAuthFlowAndGetRedirectUri({
   provider,
   providerProfile,
@@ -32,7 +30,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   accessToken: string;
-  oAuthState: PossibleOAuthState;
+  oAuthState: { [name in RequiredStateType]: string };
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -80,7 +78,7 @@ async function getAuthIdFromProviderDetails({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   accessToken: string;
-  oAuthState: PossibleOAuthState;
+  oAuthState: { [name in RequiredStateType]: string };
 }): Promise<Auth['id']> {
   const existingAuthIdentity = await prisma.authIdentity.findUnique({
     where: {
