@@ -167,7 +167,8 @@ type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
 type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
 
 // todo(filip): Should i define this independently of AuthenticatedOperationDefinition?
-// Using AuthenticatedOperationDefinition because it's  
+// I'm using AuthenticatedOperationDefinition because a generic authenticated
+// operation is a supertype of a generic unauthenticated operation.
 /**
  * The principal type for an operation's definition (i.e., all operation
  * definition types are a subtype of this type).
