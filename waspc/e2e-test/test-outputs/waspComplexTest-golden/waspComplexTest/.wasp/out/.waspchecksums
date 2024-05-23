@@ -130,7 +130,7 @@
             "file",
             "../out/sdk/wasp/auth/providers/types.ts"
         ],
-        "5c4ba2930dbaa5328360fd706b7e71fa28d418c1c50ea5164fe45741fbcd5e6b"
+        "d9c62d1c53c0f28d92e42def6cbcc4e1c3fe0a48cb69741fb32a31cf921e7db1"
     ],
     [
         [
@@ -522,7 +522,7 @@
             "file",
             "../out/sdk/wasp/server/auth/hooks.ts"
         ],
-        "e918dda8f7ac135fb3e41c705651bd9e724b919b1d8934d56ed6db5e31dc9f26"
+        "5f86bf94bf850f07ab90f907b6ca114a0d7c867d3eeb7274a506274b65ad6467"
     ],
     [
         [
@@ -865,7 +865,7 @@
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "1e67df491908b6a0f3425b6e395c9245399d77c3cdd7e9d98070a0b3ff3acd68"
+        "f0cc5e63ef81e04df74d2a7c14c676405bd2328a58c85d1f9f154ee3529bf8f9"
     ],
     [
         [
@@ -886,7 +886,7 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "3887cc320c8084201db087ab5d8ede9c72816f99803e66b4178960ca22091bbc"
+        "372cc947a5d9aa45ab7ec7c2b9cda906f4734b015d7ed4219fd9d45837f34e0a"
     ],
     [
         [
@@ -900,7 +900,7 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "fe5135ef33e071cd5792468649482a1b1e536288fea2a7d5cbbfa85bffabbd62"
+        "228539a08d584d01128ad784a578e8f38fbe0ea3607d515b0b6e2a3a360554ba"
     ],
     [
         [
@@ -921,7 +921,7 @@
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "4cce3e8b3408b5ca54f66a2820531c19173ab37db0aeaf8eb399a9a7be528c7e"
+        "4891f5c54fd0fc1519df0840131ebbe205d7033f1cc43348257d061d0ae85e51"
     ],
     [
         [
@@ -935,7 +935,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "1f65fcb291b0b68c35fd4511e8375ec73c2fe63936f64173d9982184e4b81233"
+        "ebd6f3001c08f356638b224790eee3ddd9649c023c542e0eb1674bde5e792657"
     ],
     [
         [

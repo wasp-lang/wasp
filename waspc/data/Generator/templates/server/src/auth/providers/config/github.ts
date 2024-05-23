@@ -77,7 +77,7 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            stateTypes: ['state'],
+            optionalStateTypes: [],
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state }) => github.createAuthorizationURL(state, config),
             getProviderTokens: ({ code }) => github.validateAuthorizationCode(code),

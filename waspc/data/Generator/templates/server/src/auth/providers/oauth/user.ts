@@ -14,7 +14,9 @@ import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/
 import { getRedirectUriForOneTimeCode, getRedirectUriForError } from './redirect'
 import { tokenStore } from './oneTimeCode'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
-import { StateType } from './state';
+import type { OptionalStateType, RequiredStateType } from './state';
+
+type PossibleOAuthState = { [name in OptionalStateType]?: string } & { [name in RequiredStateType]: string }
 
 export async function finishOAuthFlowAndGetRedirectUri({
   provider,
@@ -31,7 +33,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   accessToken: string;
-  oAuthState: { [name in StateType]?: string };
+  oAuthState: PossibleOAuthState;
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -79,7 +81,7 @@ async function getAuthIdFromProviderDetails({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   accessToken: string;
-  oAuthState: { [name in StateType]?: string };
+  oAuthState: PossibleOAuthState;
 }): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
@@ -116,7 +118,15 @@ async function getAuthIdFromProviderDetails({
       userFields as any,
     )
     if (onAfterSignupHook) {
-      await onAfterSignupHook({ req, providerId, user, accessToken, oAuthState })
+      await onAfterSignupHook({
+        req,
+        providerId,
+        user,
+        oauth: {
+          accessToken,
+          uniqueRequestId: oAuthState.state,
+        },
+      })
     }
 
     return user.auth.id

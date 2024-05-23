@@ -18,7 +18,6 @@ export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>;
 export type UserSignupFields = {
     [key in keyof PossibleUserFields]: FieldGetter<PossibleUserFields[key]>;
 };
-export type OAuthStateType = 'state' | 'codeVerifier';
 type FieldGetter<T> = (data: {
     [key: string]: unknown;
 }) => Promise<T | undefined> | T | undefined;

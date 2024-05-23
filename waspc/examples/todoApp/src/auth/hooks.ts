@@ -1,3 +1,4 @@
+import { Request } from 'express'
 import type {
   OnAfterSignupHookFn,
   OnBeforeOAuthRedirectHookFn,
@@ -5,43 +6,49 @@ import type {
 } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHookFn = async (args) => {
+  const log = createLoggerForHook(args.hookName)
   const count = await args.prisma.user.count()
-  console.log('before', count)
-  console.log(args.providerId)
+  log('number of users before', count)
+  log('providerId object', args.providerId)
 }
 
-const oAuthUserState = new Map<string, string>()
+const oAuthQueryStore = new Map<string, Request['query']>()
 
 export const onAfterSignup: OnAfterSignupHookFn = async (args) => {
+  const log = createLoggerForHook(args.hookName)
   const count = await args.prisma.user.count()
-  console.log('after', count)
-  console.log('user', args.user)
-  console.log('providerId', args.providerId)
-  console.log('accessToken', args.accessToken)
+  log('number of users after', count)
+  log('user object', args.user)
+  log('providerId object', args.providerId)
 
-  // Using OAuth state to keep track of user state
-  const state = args.oAuthState.state
-  if (state) {
-    const userState = oAuthUserState.get(state)
-    if (userState) {
-      console.log('user state', JSON.parse(userState))
+  // If this is a OAuth signup, we have access token and uniqueRequestId
+  if (args.oauth) {
+    log('accessToken', args.oauth.accessToken)
+    log('uniqueRequestId', args.oauth.uniqueRequestId)
+    const id = args.oauth.uniqueRequestId
+    const query = oAuthQueryStore.get(id)
+    if (query) {
+      log('saved query params after oAuth redirect', query)
     }
-    oAuthUserState.delete(state)
+    oAuthQueryStore.delete(id)
   }
 }
 
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async (
   args
 ) => {
-  console.log('req.query before redirect', args.req.query)
-  args.url.searchParams.set('someState', '123')
-  console.log('redirect to', args.url.toString())
+  const log = createLoggerForHook(args.hookName)
+  log('query params before oAuth redirect', args.req.query)
 
-  // Using OAuth state to keep track of user state
-  const state = args.oAuthState.state
-  if (state) {
-    oAuthUserState.set(state, JSON.stringify(args.req.query))
-  }
+  // Saving query params for later use in onAfterSignup hook
+  const id = args.uniqueRequestId
+  oAuthQueryStore.set(id, args.req.query)
 
   return { url: args.url }
+}
+
+function createLoggerForHook(hookName: string) {
+  return (...args: unknown[]) => {
+    console.log(`[${hookName}]`, ...args)
+  }
 }

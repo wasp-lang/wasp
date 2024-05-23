@@ -34,9 +34,6 @@ export type UserSignupFields = {
   >
 }
 
-// PRIVATE API
-export type OAuthStateType = 'state' | 'codeVerifier';
-
 type FieldGetter<T> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined

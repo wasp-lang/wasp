@@ -20,7 +20,7 @@ export declare const returnHelloJob: {
         readonly pgBoss: {
             readonly cancel: () => Promise<void>;
             readonly resume: () => Promise<void>;
-            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "state" | "output"> & {
+            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & {
                 data: JSONObject;
             } & ({
                 state: "failed";
