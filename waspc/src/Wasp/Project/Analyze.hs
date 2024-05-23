@@ -44,7 +44,7 @@ import Wasp.Project.Vite (findCustomViteConfigPath)
 import Wasp.Psl.Ast.Model (Model (Model), Schema (Schema))
 import qualified Wasp.Psl.Ast.Model as Psl
 import qualified Wasp.Psl.Ast.Model as Psl.Ast
-import qualified Wasp.Psl.Parser.Model as Psl
+import qualified Wasp.Psl.Parser.Schema as Psl
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -160,6 +160,8 @@ analyzePrismaSchema waspProjectDir = do
     Just pathToPrismaSchemaFile -> do
       prismaSchemaContent <- IOUtil.readFile pathToPrismaSchemaFile
       let prismaSchemaParseResult = Psl.parsePrismaSchema prismaSchemaContent
+
+      print prismaSchemaParseResult
       case prismaSchemaParseResult of
         Left err -> return $ Left [err]
         Right parsedPrismaSchema -> do

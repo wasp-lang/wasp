@@ -34,4 +34,4 @@ instance IsDeclType Entity where
 -- _ -> Left $ mkEvaluationError ctx $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)
 
 parsePslBody :: String -> Either Parsec.ParseError Wasp.Psl.Ast.Model.Body
-parsePslBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
+parsePslBody = Parsec.parse Wasp.Psl.Parser.Model.modelBody ""

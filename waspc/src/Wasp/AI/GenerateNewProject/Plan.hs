@@ -225,7 +225,7 @@ checkPlanForEntityIssues plan =
           ]
         Right _ -> []
 
-    parsePslBody = Parsec.parse Psl.Parser.body ""
+    parsePslBody = Parsec.parse Psl.Parser.modelBody ""
 
 -- | Calls "prisma format" on given entities, and returns formatted/fixed entities + error message
 -- that captures all schema errors that prisma returns, if any.

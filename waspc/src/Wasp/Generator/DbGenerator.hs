@@ -44,8 +44,8 @@ import Wasp.Generator.Monad
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
-import qualified Wasp.Psl.Generator.Extensions as Psl.Generator.Extensions
-import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
+import qualified Wasp.Psl.Generator.ConfigBlock as Psl.Generator.ConfigBlock
+import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
 
@@ -70,7 +70,7 @@ genPrismaSchema spec = do
   let templateData =
         object
           [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
-            "enumSchemas" .= (Psl.Generator.Model.generateSchemaElement <$> enums),
+            "enumSchemas" .= (Psl.Generator.Schema.generateSchemaElement <$> enums),
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaPreviewFeatures" .= prismaPreviewFeatures,
@@ -82,12 +82,13 @@ genPrismaSchema spec = do
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
-    prismaPreviewFeatures = show <$> (AS.Db.clientPreviewFeatures =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
-    dbExtensions = Psl.Generator.Extensions.showDbExtensions <$> (AS.Db.dbExtensions =<< AS.Db.prisma =<< AS.App.db (snd $ getApp spec))
+
+    prismaPreviewFeatures = Psl.Generator.ConfigBlock.showPrismaPreviewFeatures spec
+    dbExtensions = Psl.Generator.ConfigBlock.showPrismaDbExtensions spec
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Model.generateSchemaElement $
+      Psl.Generator.Schema.generateSchemaElement $
         Psl.Ast.Model.SchemaModel $ Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
     (Psl.Ast.Schema elements) = AS.getPrismaSchema spec

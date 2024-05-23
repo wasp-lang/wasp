@@ -1,4 +1,4 @@
-module Wasp.Psl.Generator.Model
+module Wasp.Psl.Generator.Schema
   ( generateSchemaElement,
   )
 where
@@ -9,6 +9,13 @@ import qualified Wasp.Psl.Ast.Model as Ast
 generateSchemaElement :: Ast.SchemaElement -> String
 generateSchemaElement (Ast.SchemaModel (Ast.Model name body)) = "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
 generateSchemaElement (Ast.SchemaEnum (Ast.PrismaEnum name values)) = "enum " ++ name ++ " {\n" ++ generateEnumBody values ++ "}"
+generateSchemaElement (Ast.SchemaDatasource (Ast.Datasource name content)) = "datasource " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
+generateSchemaElement (Ast.SchemaGenerator (Ast.Generator name content)) = "generator " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
+
+generateConfigBlockKeyValues :: [Ast.ConfigBlockKeyValue] -> String
+generateConfigBlockKeyValues keyValues = unlines $ generateConfigBlockKeyValue <$> keyValues
+  where
+    generateConfigBlockKeyValue (Ast.ConfigBlockKeyValue key value) = key ++ " = " ++ value
 
 generateModelBody :: Ast.Body -> String
 generateModelBody (Ast.Body elements) = unlines $ map (("  " ++) . generateElement) elements

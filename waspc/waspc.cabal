@@ -362,9 +362,13 @@ library
     Wasp.Project.Vite
     Wasp.Psl.Ast.Model
     Wasp.Psl.Format
-    Wasp.Psl.Generator.Model
-    Wasp.Psl.Generator.Extensions
+    Wasp.Psl.Generator.Schema
+    Wasp.Psl.Generator.ConfigBlock
+    Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Parser.Enum
+    Wasp.Psl.Parser.ConfigBlock
+    Wasp.Psl.Parser.Schema
     Wasp.Psl.Util
     Wasp.SemanticVersion
     Wasp.SemanticVersion.VersionBound
@@ -606,7 +610,6 @@ test-suite waspc-test
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
-    Psl.Generator.ExtensionsTest
     Psl.Parser.ModelTest
     Test.Util
     Util.FibTest

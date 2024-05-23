@@ -80,7 +80,6 @@ validateAppSpec spec =
           validateCrudOperations spec,
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
-          validatePrismaOptions spec,
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec
         ]
@@ -342,44 +341,44 @@ validateDeclarationNames spec =
                     ++ "."
               ]
 
-validatePrismaOptions :: AppSpec -> [ValidationError]
-validatePrismaOptions spec =
-  concat
-    [ checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem,
-      checkIfDbExtensionsAreUsedWithoutPostgresDbSystem,
-      checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag
-    ]
-  where
-    checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem :: [ValidationError]
-    checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem = maybe [] check prismaClientPreviewFeatures
-      where
-        check :: [String] -> [ValidationError]
-        check previewFeatures =
-          if not isPostgresDbUsed && "postgresqlExtensions" `elem` previewFeatures
-            then [GenericValidationError "You enabled \"postgresqlExtensions\" in app.db.prisma.clientPreviewFeatures but your db system is not PostgreSQL."]
-            else []
+-- validatePrismaOptions :: AppSpec -> [ValidationError]
+-- validatePrismaOptions spec =
+--   concat
+--     [ checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem,
+--       checkIfDbExtensionsAreUsedWithoutPostgresDbSystem,
+--       checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag
+--     ]
+--   where
+--     checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem :: [ValidationError]
+--     checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem = maybe [] check prismaClientPreviewFeatures
+--       where
+--         check :: [String] -> [ValidationError]
+--         check previewFeatures =
+--           if not isPostgresDbUsed && "postgresqlExtensions" `elem` previewFeatures
+--             then [GenericValidationError "You enabled \"postgresqlExtensions\" in app.db.prisma.clientPreviewFeatures but your db system is not PostgreSQL."]
+--             else []
 
-    checkIfDbExtensionsAreUsedWithoutPostgresDbSystem :: [ValidationError]
-    checkIfDbExtensionsAreUsedWithoutPostgresDbSystem = maybe [] check prismaDbExtensions
-      where
-        check :: [AS.Db.PrismaDbExtension] -> [ValidationError]
-        check value =
-          if not isPostgresDbUsed && not (null value)
-            then [GenericValidationError "If you are using app.db.prisma.dbExtensions you must use PostgreSQL as your db system."]
-            else []
+--     checkIfDbExtensionsAreUsedWithoutPostgresDbSystem :: [ValidationError]
+--     checkIfDbExtensionsAreUsedWithoutPostgresDbSystem = maybe [] check prismaDbExtensions
+--       where
+--         check :: [AS.Db.PrismaDbExtension] -> [ValidationError]
+--         check value =
+--           if not isPostgresDbUsed && not (null value)
+--             then [GenericValidationError "If you are using app.db.prisma.dbExtensions you must use PostgreSQL as your db system."]
+--             else []
 
-    checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag :: [ValidationError]
-    checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag = case (prismaDbExtensions, prismaClientPreviewFeatures) of
-      (Nothing, _) -> []
-      (Just _extensions, Just features) | "postgresqlExtensions" `elem` features -> []
-      (Just _extensions, _) -> [GenericValidationError extensionsNotEnabledMessage]
-      where
-        extensionsNotEnabledMessage = "You are using app.db.prisma.dbExtensions but you didn't enable \"postgresqlExtensions\" in app.db.prisma.clientPreviewFeatures."
+--     checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag :: [ValidationError]
+--     checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag = case (prismaDbExtensions, prismaClientPreviewFeatures) of
+--       (Nothing, _) -> []
+--       (Just _extensions, Just features) | "postgresqlExtensions" `elem` features -> []
+--       (Just _extensions, _) -> [GenericValidationError extensionsNotEnabledMessage]
+--       where
+--         extensionsNotEnabledMessage = "You are using app.db.prisma.dbExtensions but you didn't enable \"postgresqlExtensions\" in app.db.prisma.clientPreviewFeatures."
 
-    isPostgresDbUsed = isPostgresUsed spec
-    prismaOptions = AS.Db.prisma =<< AS.App.db (snd $ getApp spec)
-    prismaClientPreviewFeatures = AS.Db.clientPreviewFeatures =<< prismaOptions
-    prismaDbExtensions = AS.Db.dbExtensions =<< prismaOptions
+--     isPostgresDbUsed = isPostgresUsed spec
+--     prismaOptions = AS.Db.prisma =<< AS.App.db (snd $ getApp spec)
+--     prismaClientPreviewFeatures = AS.Db.clientPreviewFeatures =<< prismaOptions
+--     prismaDbExtensions = AS.Db.dbExtensions =<< prismaOptions
 
 validateWebAppBaseDir :: AppSpec -> [ValidationError]
 validateWebAppBaseDir spec = case maybeBaseDir of

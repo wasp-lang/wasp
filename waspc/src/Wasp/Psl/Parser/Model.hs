@@ -1,18 +1,15 @@
 module Wasp.Psl.Parser.Model
-  ( parsePrismaSchema,
-    model,
-    body,
+  ( model,
+    modelBody,
     -- NOTE: Only for testing:
-    attrArgument,
+    modelAttrArgument,
   )
 where
 
 import Data.Maybe (fromMaybe, maybeToList)
 import Text.Parsec
-  ( alphaNum,
-    char,
+  ( char,
     choice,
-    letter,
     lookAhead,
     many,
     many1,
@@ -22,28 +19,22 @@ import Text.Parsec
     try,
     (<|>),
   )
-import qualified Text.Parsec as Parsec
-import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String (Parser)
-import qualified Text.Parsec.Token as T
 import qualified Wasp.Psl.Ast.Model as Model
-
-parsePrismaSchema :: String -> Either String Model.Schema
-parsePrismaSchema input = case Parsec.parse schema "" input of
-  Left err -> Left $ show err
-  Right parsedSchema -> Right parsedSchema
-
--- We want to parse a file with extra content but with some models.
--- Go over the extra content and ignore it. Use <|>. to combine parsers.
-schema :: Parser Model.Schema
-schema = do
-  T.whiteSpace lexer
-  elements <-
-    many
-      ( try model
-          <|> try enum
-      )
-  return $ Model.Schema elements
+import Wasp.Psl.Parser.Common
+  ( braces,
+    brackets,
+    colon,
+    commaSep1,
+    float,
+    identifier,
+    integer,
+    parens,
+    reserved,
+    stringLiteral,
+    symbol,
+    whiteSpace,
+  )
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:
@@ -54,30 +45,30 @@ schema = do
 --   }
 model :: Parser Model.SchemaElement
 model = do
-  T.whiteSpace lexer
-  _ <- T.reserved lexer "model"
-  modelName <- T.identifier lexer
-  Model.SchemaModel . Model.Model modelName <$> T.braces lexer body
+  whiteSpace
+  _ <- reserved "model"
+  modelName <- identifier
+  Model.SchemaModel . Model.Model modelName <$> braces modelBody
 
 -- | Parses body of the PSL (Prisma Schema Language) model,
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
-body :: Parser Model.Body
-body = do
-  T.whiteSpace lexer
-  Model.Body <$> many1 element
+modelBody :: Parser Model.Body
+modelBody = do
+  whiteSpace
+  Model.Body <$> many1 modelElement
 
-element :: Parser Model.Element
-element =
-  try (Model.ElementField <$> field)
-    <|> try (Model.ElementBlockAttribute <$> blockAttribute)
+modelElement :: Parser Model.Element
+modelElement =
+  try (Model.ElementField <$> modelField)
+    <|> try (Model.ElementBlockAttribute <$> modelBlockAttribute)
 
-field :: Parser Model.Field
-field = do
-  name <- T.identifier lexer
+modelField :: Parser Model.Field
+modelField = do
+  name <- identifier
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
-  attrs <- many (try attribute)
+  attrs <- many (try modelFieldAttribute)
   return $
     Model.Field
       { Model._name = name,
@@ -91,7 +82,7 @@ field = do
       foldl1
         (<|>)
         ( map
-            (\(s, t) -> try (T.symbol lexer s) >> return t)
+            (\(s, t) -> try (symbol s) >> return t)
             [ ("String", Model.String),
               ("Boolean", Model.Boolean),
               ("Int", Model.Int),
@@ -105,24 +96,24 @@ field = do
         )
         <|> try
           ( Model.Unsupported
-              <$> ( T.symbol lexer "Unsupported"
-                      >> T.parens lexer (T.stringLiteral lexer)
+              <$> ( symbol "Unsupported"
+                      >> parens stringLiteral
                   )
           )
-        <|> Model.UserType <$> T.identifier lexer
+        <|> Model.UserType <$> identifier
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
     fieldTypeModifier :: Parser (Maybe Model.FieldTypeModifier)
     fieldTypeModifier =
       optionMaybe
-        ( (try (T.brackets lexer (T.whiteSpace lexer)) >> return Model.List)
-            <|> (try (T.symbol lexer "?") >> return Model.Optional)
+        ( (try (brackets whiteSpace) >> return Model.List)
+            <|> (try (symbol "?") >> return Model.Optional)
         )
 
-attribute :: Parser Model.Attribute
-attribute = do
+modelFieldAttribute :: Parser Model.Attribute
+modelFieldAttribute = do
   _ <- char '@'
-  name <- T.identifier lexer
+  name <- identifier
   -- NOTE: we support potential "selector" in order to support native database type attributes.
   --   These have names with single . in them, like this: @db.VarChar(200), @db.TinyInt(1), ... .
   --   We are not trying to be very smart here though: we don't check that "db" part matches
@@ -132,9 +123,9 @@ attribute = do
   --   In case that we wanted to be smarter, we could expand the AST to have special representation for it.
   --   Also, we could do some additional checks here in parser (PascalCase), and some additional checks
   --   in th generator ("db" matching the datasource block name).
-  maybeSelector <- optionMaybe $ try $ char '.' >> T.identifier lexer
+  maybeSelector <- optionMaybe $ try $ char '.' >> identifier
 
-  maybeArgs <- optionMaybe (T.parens lexer (T.commaSep1 lexer (try attrArgument)))
+  maybeArgs <- optionMaybe (parens (commaSep1 (try modelAttrArgument)))
   return $
     Model.Attribute
       { Model._attrName = case maybeSelector of
@@ -145,14 +136,14 @@ attribute = do
 
 -- Parses attribute argument that ends with delimiter: , or ).
 -- Doesn't parse the delimiter.
-attrArgument :: Parser Model.AttributeArg
-attrArgument = do
+modelAttrArgument :: Parser Model.AttributeArg
+modelAttrArgument = do
   try namedArg <|> try unnamedArg
   where
     namedArg :: Parser Model.AttributeArg
     namedArg = do
-      name <- T.identifier lexer
-      _ <- T.colon lexer
+      name <- identifier
+      _ <- colon
       Model.AttrArgNamed name <$> argValue
 
     unnamedArg :: Parser Model.AttributeArg
@@ -173,19 +164,19 @@ attrArgument = do
           ]
 
     argValueString :: Parser Model.AttrArgValue
-    argValueString = Model.AttrArgString <$> T.stringLiteral lexer
+    argValueString = Model.AttrArgString <$> stringLiteral
 
     argValueFunc :: Parser Model.AttrArgValue
     argValueFunc = do
       -- TODO: Could I implement this with applicative?
-      name <- T.identifier lexer
-      T.parens lexer $ T.whiteSpace lexer
+      name <- identifier
+      parens whiteSpace
       return $ Model.AttrArgFunc name
 
     argValueFieldReferenceList :: Parser Model.AttrArgValue
     argValueFieldReferenceList =
       Model.AttrArgFieldRefList
-        <$> T.brackets lexer (T.commaSep1 lexer $ T.identifier lexer)
+        <$> brackets (commaSep1 identifier)
 
     -- NOTE: For now we are not supporting negative numbers.
     --   I couldn't figure out from Prisma docs if there could be the case
@@ -193,14 +184,14 @@ attrArgument = do
     --   Same goes for argValueNumberInt below.
     --   TODO: Probably we should take care of that case.
     argValueNumberFloat :: Parser Model.AttrArgValue
-    argValueNumberFloat = Model.AttrArgNumber . show <$> T.float lexer
+    argValueNumberFloat = Model.AttrArgNumber . show <$> float
 
     -- NOTE/TODO: Check comment on argValueNumberFloat.
     argValueNumberInt :: Parser Model.AttrArgValue
-    argValueNumberInt = Model.AttrArgNumber . show <$> T.integer lexer
+    argValueNumberInt = Model.AttrArgNumber . show <$> integer
 
     argValueIdentifier :: Parser Model.AttrArgValue
-    argValueIdentifier = Model.AttrArgIdentifier <$> T.identifier lexer
+    argValueIdentifier = Model.AttrArgIdentifier <$> identifier
 
     argValueUnknown :: Parser Model.AttrArgValue
     argValueUnknown =
@@ -214,33 +205,5 @@ attrArgument = do
 
     argDelimiters = [',', ')']
 
-blockAttribute :: Parser Model.Attribute
-blockAttribute = char '@' >> attribute
-
--- | Parses PSL (Prisma Schema Language enum).
--- Example of PSL enum:
---   enum Role {
---     USER
---     ADMIN
---   }
-enum :: Parser Model.SchemaElement
-enum = do
-  T.whiteSpace lexer
-  _ <- T.reserved lexer "enum"
-  enumName <- T.identifier lexer
-  values <-
-    T.braces
-      lexer
-      (many1 $ T.identifier lexer)
-  return $ Model.SchemaEnum $ Model.PrismaEnum enumName values
-
-lexer :: T.TokenParser ()
-lexer =
-  T.makeTokenParser
-    emptyDef
-      { T.commentLine = "//",
-        T.caseSensitive = True,
-        T.identStart = letter,
-        T.identLetter = alphaNum <|> char '_',
-        T.reservedNames = ["model", "type", "view", "enum", "generator", "datasource"]
-      }
+modelBlockAttribute :: Parser Model.Attribute
+modelBlockAttribute = char '@' >> modelFieldAttribute

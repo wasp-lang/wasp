@@ -7,7 +7,7 @@ import Data.Data (Data)
 data Schema = Schema [SchemaElement]
   deriving (Show, Eq)
 
-data SchemaElement = SchemaModel Model | SchemaEnum PrismaEnum
+data SchemaElement = SchemaModel Model | SchemaEnum PrismaEnum | SchemaDatasource Datasource | SchemaGenerator Generator
   deriving (Show, Eq)
 
 data Model
@@ -17,6 +17,12 @@ data Model
       Body
   deriving (Show, Eq)
 
+newtype Body = Body [Element]
+  deriving (Show, Eq, Data)
+
+data Element = ElementField Field | ElementBlockAttribute Attribute
+  deriving (Show, Eq, Data)
+
 data PrismaEnum
   = PrismaEnum
       String
@@ -25,11 +31,24 @@ data PrismaEnum
       -- ^ Values of the enum
   deriving (Show, Eq)
 
-newtype Body = Body [Element]
-  deriving (Show, Eq, Data)
+data Datasource
+  = Datasource
+      String
+      -- ^ Name of the datasource
+      [ConfigBlockKeyValue]
+      -- ^ Content of the datasource
+  deriving (Show, Eq)
 
-data Element = ElementField Field | ElementBlockAttribute Attribute
-  deriving (Show, Eq, Data)
+data Generator
+  = Generator
+      String
+      -- ^ Name of the generator
+      [ConfigBlockKeyValue]
+      -- ^ Content of the generator
+  deriving (Show, Eq)
+
+data ConfigBlockKeyValue = ConfigBlockKeyValue String String
+  deriving (Show, Eq)
 
 -- TODO: To support attributes before the field,
 --   we could just have `attrsBefore :: [[Attr]]`,
