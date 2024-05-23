@@ -12,10 +12,10 @@
     "strict": false,
     "strictBindCallApply": true,
     "alwaysStrict": true,
+    "noImplicitThis": true,
     // "strictNullChecks": true,
     // "strictPropertyInitialization": true,
     // "noImplicitAny": true,
-    // "noImplicitThis": true,
     // "strictFunctionTypes": true,
     // "useUnknownInCatchVariables": true,
     // Overriding this because we want to use top-level await
