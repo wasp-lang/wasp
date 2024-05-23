@@ -50,7 +50,7 @@ spec_TypeChecker = do
                       ],
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck typeDefs ast
+        let actual = typeCheck typeDefs [] ast
         actual `shouldSatisfy` isRight
       it "Fails to type check a simple, ill-typed example" $ do
         let ast = P.AST [wctx1 $ P.Decl "string" "App" $ wctx2 $ P.IntegerLiteral 5]
@@ -59,7 +59,7 @@ spec_TypeChecker = do
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck typeDefs ast
+        let actual = typeCheck typeDefs [] ast
         let expectedError =
               mkTypeError ctx1 $
                 CoercionError $
@@ -78,7 +78,7 @@ spec_TypeChecker = do
                 { TD.declTypes = H.singleton "llnode" (TD.DeclType "llnode" llnodeArgType undefined),
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck typeDefs ast
+        let actual = typeCheck typeDefs [] ast
         actual `shouldSatisfy` isRight
       it "Type checks an existing enum value" $ do
         let ast = P.AST [wctx1 $ P.Decl "food" "Cucumber" $ wctx2 $ P.Var "Dill"]
@@ -87,7 +87,7 @@ spec_TypeChecker = do
                 { TD.declTypes = H.singleton "food" (TD.DeclType "food" (EnumType "flavor") undefined),
                   TD.enumTypes = H.singleton "flavor" (TD.EnumType "flavor" ["Fresh", "Dill"])
                 }
-        let actual = typeCheck typeDefs ast
+        let actual = typeCheck typeDefs [] ast
         let expected =
               Right $
                 TypedAST
@@ -101,7 +101,7 @@ spec_TypeChecker = do
                 { TD.declTypes = H.singleton "rooms" (TD.DeclType "rooms" (ListType StringType) undefined),
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck typeDefs ast
+        let actual = typeCheck typeDefs [] ast
         let expected =
               Right $
                 TypedAST

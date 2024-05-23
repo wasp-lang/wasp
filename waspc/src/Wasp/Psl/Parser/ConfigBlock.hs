@@ -4,7 +4,8 @@ module Wasp.Psl.Parser.ConfigBlock
 where
 
 import Text.Parsec
-  ( many1,
+  ( many,
+    many1,
     newline,
     noneOf,
     optional,
@@ -33,9 +34,10 @@ configBlock = try datasource <|> try generator
 datasource :: Parser Psl.Ast.SchemaElement
 datasource = do
   whiteSpace
-  _ <- reserved "datasource"
+  reserved "datasource"
   datasourceName <- identifier
-  content <- braces (many1 keyValue)
+  content <- configBlockBody
+  optional newline
   return $ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource datasourceName content
 
 -- | Parses a generator.
@@ -47,10 +49,14 @@ datasource = do
 generator :: Parser Psl.Ast.SchemaElement
 generator = do
   whiteSpace
-  _ <- reserved "generator"
+  reserved "generator"
   generatorName <- identifier
-  content <- braces (many1 keyValue)
+  content <- configBlockBody
+  optional newline
   return $ Psl.Ast.SchemaGenerator $ Psl.Ast.Generator generatorName content
+
+configBlockBody :: Parser [Psl.Ast.ConfigBlockKeyValue]
+configBlockBody = braces (many keyValue)
 
 -- | Parses a key-value pair.
 -- Example of PSL key-value pair:
@@ -61,7 +67,7 @@ keyValue = do
   whiteSpace
   key <- identifier
   whiteSpace
-  _ <- reserved "="
+  reserved "="
   whiteSpace
   value <- many1 (noneOf "\n") -- value can be anything until
   optional newline

@@ -281,7 +281,7 @@ validateUniqueDeclarationNames spec =
       checkIfDeclarationsAreUnique "api" (AS.getApis spec),
       checkIfDeclarationsAreUnique "apiNamespace" (AS.getApiNamespaces spec),
       checkIfDeclarationsAreUnique "crud" (AS.getCruds spec),
-      checkIfDeclarationsAreUnique "entity" (AS.getEntities spec),
+      -- checkIfDeclarationsAreUnique "entity" (AS.getEntities spec),
       checkIfDeclarationsAreUnique "job" (AS.getJobs spec)
     ]
   where

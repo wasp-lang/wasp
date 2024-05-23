@@ -85,7 +85,7 @@ spec_Internal = do
                   [ wctx1 $ P.Decl "person" "John" $ wctx2 $ P.Dict [("favoritePet", wctx3 $ P.Var "Riu")],
                     wctx4 $ P.Decl "pet" "Riu" $ wctx5 $ P.Dict []
                   ]
-          let actual = run typeDefs $ check ast
+          let actual = run typeDefs $ check ast []
           let expected =
                 Right $
                   TypedAST
@@ -177,7 +177,6 @@ spec_Internal = do
         ExtImportType
 
       testSuccess "Types quoted json as JSONType" (wctx1 $ P.Quoter "json" "\"key\": \"value\"") (QuoterType "json")
-      testSuccess "Types quoted psl as PSLType" (wctx1 $ P.Quoter "psl" "id Int @id") (QuoterType "psl")
       testFail
         "Fails to type check quoters with tag besides json or psl"
         (wctx1 $ P.Quoter "toml" "key = \"value\"")

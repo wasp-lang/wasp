@@ -20,6 +20,7 @@ import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
+import qualified Wasp.AppSpec.Core.Decl as Decl
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
@@ -36,6 +37,20 @@ import qualified Wasp.Version as WV
 spec_Analyzer :: Spec
 spec_Analyzer = do
   describe "Analyzer" $ do
+    let entitiesFromPrisma =
+          [ Decl.makeDecl @Entity "User" $
+              Entity.makeEntity $
+                Psl.Ast.Body
+                  [ Psl.Ast.ElementField $
+                      Psl.Ast.Field
+                        { Psl.Ast._name = "description",
+                          Psl.Ast._type = Psl.Ast.String,
+                          Psl.Ast._typeModifiers = [],
+                          Psl.Ast._attrs = []
+                        }
+                  ]
+          ]
+
     it "Analyzes a well-typed example" $ do
       let source =
             unlines
@@ -74,10 +89,6 @@ spec_Analyzer = do
                 "    }",
                 "  }",
                 "}",
-                "",
-                "entity User {=psl",
-                "  description String",
-                "psl=}",
                 "",
                 "page HomePage {",
                 "  component: import Home from \"@src/pages/Main\"",
@@ -119,7 +130,7 @@ spec_Analyzer = do
                 "}"
               ]
 
-      let decls = analyze source
+      let decls = analyze entitiesFromPrisma source
 
       let expectedApps =
             [ ( "Todo",
@@ -218,22 +229,6 @@ spec_Analyzer = do
             ]
       takeDecls <$> decls `shouldBe` Right expectedPages
 
-      let expectedEntities =
-            [ ( "User",
-                Entity.makeEntity $
-                  Psl.Ast.Body
-                    [ Psl.Ast.ElementField $
-                        Psl.Ast.Field
-                          { Psl.Ast._name = "description",
-                            Psl.Ast._type = Psl.Ast.String,
-                            Psl.Ast._typeModifiers = [],
-                            Psl.Ast._attrs = []
-                          }
-                    ]
-              )
-            ]
-      takeDecls <$> decls `shouldBe` Right expectedEntities
-
       let expectedRoutes =
             [ ( "HomeRoute",
                 Route.Route {Route.path = "/", Route.to = Ref "HomePage"}
@@ -308,7 +303,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
               ]
-      takeDecls @Route <$> analyze source
+      takeDecls @Route <$> analyze entitiesFromPrisma source
         `shouldBe` Left [TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage"]
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
@@ -316,7 +311,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomeRoute }"
               ]
-      analyze source
+      analyze entitiesFromPrisma source
         `errorMessageShouldBe` ( ctx (1, 35) (1, 43),
                                  intercalate
                                    "\n"
@@ -334,7 +329,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
                 "page HomePage { component: import Home from \"@src/HomePage.js\" }"
               ]
-      isRight (analyze source) `shouldBe` True
+      isRight (analyze entitiesFromPrisma source) `shouldBe` True
 
     describe "Returns correct error message" $ do
       it "For nested unexpected type error" $ do
@@ -347,7 +342,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze source
+        analyze entitiesFromPrisma source
           `errorMessageShouldBe` ( ctx (4, 14) (4, 27),
                                    intercalate
                                      "\n"
@@ -371,7 +366,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze source
+        analyze entitiesFromPrisma source
           `errorMessageShouldBe` ( ctx (4, 18) (4, 22),
                                    intercalate
                                      "\n"
@@ -389,7 +384,7 @@ spec_Analyzer = do
                   "  ttle: \"My app\",",
                   "}"
                 ]
-        analyze source
+        analyze entitiesFromPrisma source
           `errorMessageShouldBe` ( ctx (1, 11) (3, 1),
                                    intercalate
                                      "\n"

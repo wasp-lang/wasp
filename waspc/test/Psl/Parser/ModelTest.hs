@@ -17,7 +17,7 @@ spec_parsePslModel = do
       Parsec.parse modelBody "" sampleBodySchema `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
-      Parsec.parse model "" pslModel `shouldBe` Right AST.SchemaElement $ expectedModelAst
+      Parsec.parse model "" pslModel `shouldBe` Right (AST.SchemaModel expectedModelAst)
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do

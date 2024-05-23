@@ -1,4 +1,9 @@
-module Wasp.Psl.Parser.Schema (parsePrismaSchema) where
+module Wasp.Psl.Parser.Schema
+  ( parsePrismaSchema,
+    -- For testing only
+    schema,
+  )
+where
 
 import Text.Parsec
   ( many,

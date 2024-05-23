@@ -46,7 +46,7 @@ import Wasp.Psl.Parser.Common
 model :: Parser Psl.Ast.SchemaElement
 model = do
   whiteSpace
-  _ <- reserved "model"
+  reserved "model"
   modelName <- identifier
   Psl.Ast.SchemaModel . Psl.Ast.Model modelName <$> braces modelBody
 

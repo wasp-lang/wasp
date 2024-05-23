@@ -153,7 +153,7 @@ instance IsDecl AllJson
 makeDeclType ''AllJson
 
 eval :: TD.TypeDefinitions -> [String] -> Either EvaluationError [Decl]
-eval typeDefs source = evaluate typeDefs . fromRight . typeCheck typeDefs . fromRight . parseStatements $ unlines source
+eval typeDefs source = evaluate typeDefs . fromRight . typeCheck typeDefs [] . fromRight . parseStatements $ unlines source
 
 spec_Evaluator :: Spec
 spec_Evaluator = do

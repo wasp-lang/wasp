@@ -24,7 +24,7 @@ import Wasp.Psl.Parser.Common
 enum :: Parser Psl.Ast.SchemaElement
 enum = do
   whiteSpace
-  _ <- reserved "enum"
+  reserved "enum"
   enumName <- identifier
   values <- braces (many1 identifier)
   return $ Psl.Ast.SchemaEnum $ Psl.Ast.PrismaEnum enumName values

@@ -11,7 +11,6 @@ import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import Wasp.Generator.Crud (getCrudOperationJson)
-import Wasp.Psl.Ast.Model (Field (_typeModifiers))
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
 spec_GeneratorCrudTest :: Spec

@@ -610,7 +610,11 @@ test-suite waspc-test
     Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
+    Psl.Generator.SchemaTest
+    Psl.Parser.SchemaTest
     Psl.Parser.ModelTest
+    Psl.Parser.EnumTest
+    Psl.Parser.ConfigBlockTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest
