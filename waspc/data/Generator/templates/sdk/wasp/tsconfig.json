@@ -11,10 +11,9 @@
     "declaration": true,
     "strict": false,
     "strictBindCallApply": true,
+    "alwaysStrict": true,
     // "strictNullChecks": true,
     // "strictPropertyInitialization": true,
-    // list all strict options below explicitly
-    // "alwaysStrict": true,
     // "noImplicitAny": true,
     // "noImplicitThis": true,
     // "strictFunctionTypes": true,
