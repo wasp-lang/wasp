@@ -63,10 +63,20 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <GithubPill /> <GooglePill 
 
 Its **input** is an `args` object with the following properties:
 
-- `providerId: { providerName: string, providerUserId: string }` - The provider ID of the user
-- `prisma: PrismaClient` - Prisma client instance
-- `req: Request` - Express request object
-- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onBeforeSignup'`)
+- `providerId: { providerName: string, providerUserId: string }`
+
+  The provider ID of the user. It is an object with two properties:
+  - `providerName: string` - The name of the provider (e.g. `'email'`, `'google'`, `'github'`)
+  - `providerUserId: string` - The unique ID of the user in the provider's system (e.g. email, Google ID, GitHub ID)
+- `prisma: PrismaClient`
+
+  Prisma client instance. You can use it to query your database.
+- `req: Request`
+
+  Express request object. You can access the request headers, cookies, etc. from this object.
+- `hookName: string`
+
+  The name of the hook that is being called (in this case, it will be `'onBeforeSignup'`).
 
 The **return value** of this hook is ignored.
 
@@ -84,8 +94,21 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
+import { HttpError } from 'wasp/server'
+
 export const onBeforeSignup = async ({ providerId, prisma, req, hookName }) => {
-  // Do something before signup
+  const count = await prisma.user.count()
+  console.log('number of users before', count)
+  console.log('provider name', providerId.providerName)
+  console.log('provider user ID', providerId.providerUserId)
+
+  if (count > 100) {
+    throw new HttpError(403, 'Too many users')
+  }
+
+  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+    throw new HttpError(403, 'This email is not allowed')
+  }
 }
 ```
 
@@ -103,10 +126,22 @@ app myApp {
 ```
 
 ```ts title="src/auth/hooks.ts"
+import { HttpError } from 'wasp/server'
 import type { OnBeforeSignupHookFn } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHookFn = async ({ providerId, prisma, req, hookName }) => {
-  // Do something before signup
+  const count = await prisma.user.count()
+  console.log('number of users before', count)
+  console.log('provider name', providerId.providerName)
+  console.log('provider user ID', providerId.providerUserId)
+
+  if (count > 100) {
+    throw new HttpError(403, 'Too many users')
+  }
+
+  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+    throw new HttpError(403, 'This email is not allowed')
+  }
 }
 ```
 
@@ -129,13 +164,35 @@ It can also be useful to store the OAuth access token for the user in your datab
 Works with <EmailPill /> <UsernameAndPasswordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 Its **input** is an `args` object with the following properties:
-- `providerId: { providerName: string, providerUserId: string }` - The provider ID of the user
-- `user: User` - The user object that was created
-- `accessToken: string` - The access token of the user (only for OAuth providers)
-- `oAuthState: { state?: string, codeVerifier?: string }` - The OAuth state object (only for OAuth providers)
-- `prisma: PrismaClient` - Prisma client instance
-- `req: Request` - Express request object
-- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onAfterSignup'`)
+- `providerId: { providerName: string, providerUserId: string }`
+
+  The provider ID of the user. It is an object with two properties:
+  - `providerName: string` - The name of the provider (e.g. `'email'`, `'google'`, `'github'`)
+  - `providerUserId: string` - The unique ID of the user in the provider's system (e.g. email, Google ID, GitHub ID)
+- `user: User`
+  
+  The user object that was created.
+- `oauth?: OAuthFields`
+
+  This object is present only when the user is created using [Social Auth](./social-auth/overview.md).
+  It contains the following fields:
+  - `accessToken: string`
+
+    The OAuth access token. It can be used to make requests to the provider's API on behalf of the user.
+  - `uniqueRequestId: string`
+  
+      The unique request ID for the OAuth flow. (Some might know it as the `state` parameter in OAuth.)
+      
+      It's the same value that was passed to `onBeforeOAuthRedirect` hook.
+- `prisma: PrismaClient`
+
+  Prisma client instance. You can use it to query your database.
+- `req: Request`
+  
+  Express request object. You can access the request headers, cookies, etc. from this object.
+- `hookName: string`
+
+  The name of the hook that is being called (in this case, it will be `'onAfterSignup'`).
 
 The **return value** of this hook is ignored.
 
@@ -153,8 +210,23 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onAfterSignup = async ({ providerId, user, accessToken, oAuthState, prisma, req, hookName }) => {
-  // Do something after signup
+export const onAfterSignup = async ({ providerId, user, oauth, prisma, req, hookName }) => {
+  const count = await prisma.user.count()
+  console.log('number of users after', count)
+  console.log('user object', user)
+
+  // If this is a OAuth signup, we have the access token and uniqueRequestId
+  if (oauth) {
+    console.log('accessToken', oauth.accessToken)
+    console.log('uniqueRequestId', oauth.uniqueRequestId)
+
+    const id = oauth.uniqueRequestId
+    const data = someKindOfStore.get(id)
+    if (data) {
+      console.log('saved data for the ID', data)
+    }
+    someKindOfStore.delete(id)
+  }
 }
 ```
 
@@ -174,8 +246,23 @@ app myApp {
 ```ts title="src/auth/hooks.ts"
 import type { OnAfterSignupHookFn } from 'wasp/server/auth'
 
-export const onAfterSignup: OnAfterSignupHookFn = async ({ providerId, user, accessToken, oAuthState, prisma, req, hookName }) => {
-  // Do something after signup
+export const onAfterSignup: OnAfterSignupHookFn = async ({ providerId, user, oauth, prisma, req, hookName }) => {
+  const count = await prisma.user.count()
+  console.log('number of users after', count)
+  console.log('user object', user)
+
+  // If this is a OAuth signup, we have the access token and uniqueRequestId
+  if (oauth) {
+    console.log('accessToken', oauth.accessToken)
+    console.log('uniqueRequestId', oauth.uniqueRequestId)
+
+    const id = oauth.uniqueRequestId
+    const data = someKindOfStore.get(id)
+    if (data) {
+      console.log('saved data for the ID', data)
+    }
+    someKindOfStore.delete(id)
+  }
 }
 ```
 
@@ -189,17 +276,29 @@ This hook is called before the OAuth redirect URL is generated. It is an async f
 
 :::info
 
-If can be useful if you want to add some query params to the OAuth redirect URL which can be used later in the OAuth callback.
+It can be useful if you want to save some data in the database that can be used later in the OAuth flow. For that, you can use the `uniqueRequestId` parameter.
 :::
 
 Works with <GithubPill /> <GooglePill /> <KeycloakPill />
 
 Its **input** is an `args` object with the following properties:
-- `url: URL` - The URL object that will be used for the OAuth redirect
-- `oAuthState: { state?: string, codeVerifier?: string }` - The OAuth state object
-- `prisma: PrismaClient` - Prisma client instance
-- `req: Request` - Express request object
-- `hookName: string` - The name of the hook that is being called (in this case, it will be `'onBeforeOAuthRedirect'`)
+- `url: URL`
+
+    The URL object that will be used for the OAuth redirect.
+- `uniqueRequestId: string`
+
+    The unique request ID for the OAuth flow. (Some might know it as `state` parameter in OAuth.)
+
+    This is the same value that will be passed to `onAfterSignup` hook and can be used to save some user data temporarily that can be used later.
+- `prisma: PrismaClient`
+    
+    Prisma client instance. You can use it to query your database.
+- `req: Request`
+
+  Express request object. You can access the request headers, cookies, etc. from this object.
+- `hookName: string`
+    
+  The name of the hook that is being called (in this case, it will be `'onBeforeOAuthRedirect'`)
 
 The **return value** of this hook should be an object with a `url` property that is a URL object. This URL object will be used for the OAuth redirect.
 
@@ -217,8 +316,13 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onBeforeOAuthRedirect = async ({ url, oAuthState, prisma, req, hookName }) => {
-  // Do something before OAuth redirect
+export const onBeforeOAuthRedirect = async ({ url, uniqueRequestId, prisma, req, hookName }) => {
+  console.log('query params before oAuth redirect', req.query)
+
+  // Saving query params for later use in onAfterSignup hook
+  const id = uniqueRequestId
+  someKindOfStore.set(id, req.query)
+
   return { url }
 }
 ```
@@ -239,8 +343,13 @@ app myApp {
 ```ts title="src/auth/hooks.ts"
 import type { OnBeforeOAuthRedirectHookFn } from 'wasp/server/auth'
 
-export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async ({ url, oAuthState, prisma, req, hookName }) => {
-  // Do something before OAuth redirect
+export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async ({ url, uniqueRequestId, prisma, req, hookName }) => {
+  console.log('query params before oAuth redirect', req.query)
+
+  // Saving query params for later use in onAfterSignup hook
+  const id = uniqueRequestId
+  someKindOfStore.set(id, req.query)
+
   return { url }
 }
 ```
