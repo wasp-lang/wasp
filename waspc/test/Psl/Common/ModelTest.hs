@@ -1,18 +1,20 @@
 module Psl.Common.ModelTest where
 
+import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import qualified Wasp.Psl.Ast.Schema as AST
 
 -- | Corresponds to sampleBodyAst below.
-sampleBodySchema :: String
+sampleBodySchema :: T.Text
 sampleBodySchema =
-  unlines
-    [ "  id Int @id @default(value: autoincrement())",
-      "  username String? @db.VarChar(200)",
-      "  posts Post[] @relation(\"UserPosts\", references: [id]) @customattr",
-      "  weirdType Unsupported(\"weird\")",
-      "",
-      "  @@someattr([id, username], 2 + 4, [posts])"
-    ]
+  [trimming|
+    id Int @id @default(value: autoincrement())
+    username String? @db.VarChar(200)
+    posts Post[] @relation("UserPosts", references: [id]) @customattr
+    weirdType Unsupported("weird")
+
+    @@someattr([id, username], 2 + 4, [posts])
+  |]
 
 -- | Corresponds to sampleBodySchema above.
 sampleBodyAst :: AST.Body

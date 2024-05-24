@@ -82,7 +82,7 @@ modelField = do
       foldl1
         (<|>)
         ( map
-            (\(s, t) -> try (symbol s) >> return t)
+            (\(s, t) -> try (reserved s) >> return t)
             [ ("String", Psl.Ast.String),
               ("Boolean", Psl.Ast.Boolean),
               ("Int", Psl.Ast.Int),
