@@ -1,0 +1,23 @@
+// We ignore all fields from the datasource apart from the **extensions** field
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// We ignore all fields from the generator apart from the **previewFeatures** field
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id      Int     @id @default(autoincrement())
+  address String?
+  tasks   Task[]
+}
+
+model Task {
+  id     Int    @id @default(autoincrement())
+  title  String
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+}

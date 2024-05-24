@@ -1,11 +1,11 @@
-// We parse the `datastore` field, but only use the `extensions` field
+// We parse the `datastore` declaration, but only use the `extensions` field
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
 }
 
-// We parse the `generator` field, but only use the `previewFeatures` field
+// We parse the `generator` declaration, but only use the `previewFeatures` field
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]

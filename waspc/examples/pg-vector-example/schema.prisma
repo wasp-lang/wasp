@@ -1,9 +1,11 @@
+// We parse the `datastore` declaration, but only use the `extensions` field
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   extensions = [pgvector(map: "vector")]
 }
 
+// We parse the `generator` declaration, but only use the `previewFeatures` field
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]

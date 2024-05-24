@@ -1,6 +1,6 @@
 app crudTesting {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   head: [
     "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"
@@ -44,21 +44,6 @@ page DetailPage {
   component: import Main from "@src/DetailPage.tsx",
   authRequired: true,
 }
-
-entity User {=psl
-  id Int @id @default(autoincrement())
-  address String?
-  tasks Task[]
-psl=}
-
-// TODO: validate the fields
-// Maybe delegate to Prisma
-entity Task {=psl
-  id Int @id @default(autoincrement())
-  title String
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-psl=}
 
 crud tasks {
   entity: Task,
