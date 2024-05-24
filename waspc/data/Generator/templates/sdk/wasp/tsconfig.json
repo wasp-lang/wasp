@@ -17,6 +17,7 @@
     // "strictNullChecks": true,
     // "strictPropertyInitialization": true,
     // "noImplicitAny": true,
+      // See https://github.com/wasp-lang/wasp/issues/2056 before activating this:
     // "useUnknownInCatchVariables": true,
     // Overriding this because we want to use top-level await
     "module": "esnext",
