@@ -24,6 +24,7 @@ import Wasp.LSP.ServerState
         _currentWaspSource,
         _debouncer,
         _latestDiagnostics,
+        _prismaEntities,
         _reactorIn,
         _regTokens,
         _tsExports,
@@ -112,8 +113,8 @@ runCompletionTest testInput =
       serverState =
         ServerState
           { _waspFileUri = Nothing,
-            _prismaSchemaUri = Nothing,
             _currentWaspSource = waspSource,
+            _prismaEntities = [],
             _latestDiagnostics = [],
             _cst = Just parsedCST,
             _tsExports = error "_tsExports not available in completion tests",

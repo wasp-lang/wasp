@@ -34,7 +34,6 @@ import Wasp.LSP.ServerState
         _debouncer,
         _latestDiagnostics,
         _prismaEntities,
-        _prismaSchemaUri,
         _reactorIn,
         _regTokens,
         _tsExports,
@@ -74,7 +73,6 @@ serve maybeLogFile = do
   let defaultServerState =
         ServerState
           { _waspFileUri = Nothing,
-            _prismaSchemaUri = Nothing,
             _prismaEntities = [],
             _currentWaspSource = "",
             _latestDiagnostics = [],
