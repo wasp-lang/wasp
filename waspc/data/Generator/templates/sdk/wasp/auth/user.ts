@@ -1,25 +1,27 @@
-{{={= =}=}}
-import { type {= authIdentityEntityName =} } from '../entities/index.js'
 import { type ProviderName } from '../server/_types/index.js'
-import type { AuthUserData, AuthUser } from '../server/auth/user.js'
+import type {
+  AuthUserData,
+  AuthUser,
+  MinimalUserEntityWithAuth,
+} from '../server/auth/user.js'
+
 /**
  * We split the user.ts code into two files to avoid some server-only
  * code (Oslo's hashing functions) being imported on the client.
  */
-import { type UserEntityWithAuth } from '../server/auth/user.js'
 
 // PUBLIC API
-export function getEmail(user: UserEntityWithAuth): string | null {
+export function getEmail(user: MinimalUserEntityWithAuth): string | null {
   return findUserIdentity(user, "email")?.providerUserId ?? null;
 }
 
 // PUBLIC API
-export function getUsername(user: UserEntityWithAuth): string | null {
+export function getUsername(user: MinimalUserEntityWithAuth): string | null {
   return findUserIdentity(user, "username")?.providerUserId ?? null;
 }
 
 // PUBLIC API
-export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
+export function getFirstProviderUserId(user?: MinimalUserEntityWithAuth): string | null {
   if (!user || !user.auth || !user.auth.identities || user.auth.identities.length === 0) {
     return null;
   }
@@ -49,7 +51,7 @@ function makeAuthUser(data: AuthUserData): AuthUser {
   };
 }
 
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): {= authIdentityEntityName =} | null {
+function findUserIdentity(user: MinimalUserEntityWithAuth, providerName: ProviderName): MinimalUserEntityWithAuth['auth']['identities'][number] | null {
   if (!user.auth) {
     return null;
   }
