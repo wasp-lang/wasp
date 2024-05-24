@@ -1,5 +1,6 @@
 module Wasp.Psl.Parser.Model
-  ( model,
+  ( parsePslBody,
+    model,
     modelBody,
     -- NOTE: Only for testing:
     modelAttrArgument,
@@ -19,6 +20,7 @@ import Text.Parsec
     try,
     (<|>),
   )
+import qualified Text.Parsec as Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import Wasp.Psl.Parser.Common
@@ -35,6 +37,9 @@ import Wasp.Psl.Parser.Common
     symbol,
     whiteSpace,
   )
+
+parsePslBody :: String -> Either Parsec.ParseError Psl.Ast.Body
+parsePslBody = Parsec.parse Wasp.Psl.Parser.Model.modelBody ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:

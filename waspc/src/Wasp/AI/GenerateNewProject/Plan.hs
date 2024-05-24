@@ -21,7 +21,6 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Numeric.Natural (Natural)
-import qualified Text.Parsec as Parsec
 import Wasp.AI.CodeAgent (writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( CodeAgent,
@@ -35,7 +34,7 @@ import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Psl.Format as Prisma
-import qualified Wasp.Psl.Parser.Model as Psl.Parser
+import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 import qualified Wasp.Util.Aeson as Util.Aeson
 import qualified Wasp.Util.Terminal as Term
 
@@ -218,14 +217,12 @@ checkPlanForEntityIssues plan =
         Nothing -> ["'User' entity is missing."]
 
     checkIfEntityPSLCompiles entity =
-      case parsePslBody (entityBodyPsl entity) of
+      case Psl.Parser.Model.parsePslBody (entityBodyPsl entity) of
         Left parseError ->
           [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
               <> show parseError
           ]
         Right _ -> []
-
-    parsePslBody = Parsec.parse Psl.Parser.modelBody ""
 
 -- | Calls "prisma format" on given entities, and returns formatted/fixed entities + error message
 -- that captures all schema errors that prisma returns, if any.

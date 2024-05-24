@@ -3,7 +3,6 @@ module Wasp.Generator.DbGenerator.Auth where
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Wasp.Analyzer.StdTypeDefinitions.Entity (parsePslBody)
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.Monad
   ( Generator,
@@ -11,6 +10,7 @@ import Wasp.Generator.Monad
     logAndThrowGeneratorError,
   )
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 import qualified Wasp.Util as Util
 
 {--
@@ -80,7 +80,7 @@ injectAuth entities (userEntityName, userEntity) = do
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
 
 makeAuthIdentityEntity :: Generator (String, AS.Entity.Entity)
-makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
+makeAuthIdentityEntity = case Psl.Parser.Model.parsePslBody authIdentityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authIdentityEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authIdentityEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -103,7 +103,7 @@ makeAuthIdentityEntity = case parsePslBody authIdentityPslBody of
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
 makeAuthEntity :: Psl.Ast.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEntityPslBody of
+makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parsePslBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -129,7 +129,7 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case parsePslBody authEnt
     userEntityIdFieldName = T.pack $ Psl.Ast._name userEntityIdField
 
 makeSessionEntity :: Generator (String, AS.Entity.Entity)
-makeSessionEntity = case parsePslBody sessionEntityPslBody of
+makeSessionEntity = case Psl.Parser.Model.parsePslBody sessionEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ sessionEntityName ++ " entity: " ++ show err
   Right pslBody -> return (sessionEntityName, AS.Entity.makeEntity pslBody)
   where
