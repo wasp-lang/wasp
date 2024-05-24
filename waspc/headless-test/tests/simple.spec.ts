@@ -57,6 +57,9 @@ test.describe('signup and login', () => {
     await page.locator("input[type='text']").fill(randomTask)
     await page.getByText('Create new task').click()
 
-    await expect(page.locator('body')).toContainText(randomTask)
+    const fullTaskText = `${randomTask} by ${randomEmail}`
+    await page.waitForSelector(`text=${fullTaskText}`)
+
+    await expect(page.locator("body")).toContainText(fullTaskText)
   })
 })

@@ -49,6 +49,23 @@ export type AuthEntityWithIdentities = Auth & {
 }
 
 // PRIVATE API
+/**
+ * This Minimal* types are used for user facing helper functions like `getUsername` and `getEmail`.
+ * By keeping the types minimal, we allow users to use these functions without having to send
+ * the whole user object from the server to the client.
+ */
+export type MinimalUserEntityWithAuth = User & {
+  auth: MinimalAuthEntityWithIdentities | null
+}
+
+// PRIVATE API
+export type MinimalAuthEntityWithIdentities = Auth & {
+  identities: MinimalAuthIdentityEntity[]
+}
+
+type MinimalAuthIdentityEntity = Pick<AuthIdentity, 'providerName' | 'providerUserId'>
+
+// PRIVATE API
 export function createAuthUserData(user: UserEntityWithAuth): AuthUserData {
   const { auth, ...rest } = user
   if (!auth) {

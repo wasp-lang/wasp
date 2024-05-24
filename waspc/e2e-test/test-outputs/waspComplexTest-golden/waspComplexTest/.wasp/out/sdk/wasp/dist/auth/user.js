@@ -1,3 +1,7 @@
+/**
+ * We split the user.ts code into two files to avoid some server-only
+ * code (Oslo's hashing functions) being imported on the client.
+ */
 // PUBLIC API
 export function getEmail(user) {
     var _a, _b;
