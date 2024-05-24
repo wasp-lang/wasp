@@ -21,17 +21,13 @@ instance IsDeclType Entity where
   declType =
     DeclType
       { dtName = "entity",
-        dtBodyType = Type.QuoterType "psl",
+        -- TODO: I'm not sure what should be do with this. I'm just returning BoolType for now.
+        dtBodyType = Type.BoolType,
         dtEvaluate = \typeDefinitions bindings declName expr ->
           Decl.makeDecl @Entity declName <$> declEvaluate typeDefinitions bindings expr
       }
 
-  declEvaluate _ _ (TC.AST.WithCtx ctx expr) = Left $ mkEvaluationError ctx $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)
-
--- TC.AST.PSL pslString ->
---   left (ER.mkEvaluationError ctx . ER.ParseError . ER.EvaluationParseErrorParsec) $
---     makeEntity <$> parsePslBody pslString
--- _ -> Left $ mkEvaluationError ctx $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)
+  declEvaluate _ _ (TC.AST.WithCtx ctx _) = Left $ mkEvaluationError ctx ER.EntitiesNotSupported
 
 parsePslBody :: String -> Either Parsec.ParseError Psl.Ast.Body
 parsePslBody = Parsec.parse Wasp.Psl.Parser.Model.modelBody ""

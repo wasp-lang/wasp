@@ -32,8 +32,7 @@ chooseType =
       NumberType,
       BoolType,
       ExtImportType,
-      QuoterType "json",
-      QuoterType "psl"
+      QuoterType "json"
     ]
 
 inferExprType' :: Bindings -> P.WithCtx P.Expr -> Either TypeError (WithCtx TypedExpr)

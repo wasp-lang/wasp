@@ -49,5 +49,3 @@ exprType (BoolLiteral _) = BoolType
 exprType (ExtImport _ _) = ExtImportType
 exprType (Var _ t) = t
 exprType (JSON _) = QuoterType "json"
-
--- exprType (PSL _) = QuoterType "psl"

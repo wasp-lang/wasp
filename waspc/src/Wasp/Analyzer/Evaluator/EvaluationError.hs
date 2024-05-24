@@ -38,6 +38,8 @@ data EvaluationError'
     ParseError         EvaluationParseError
   | -- | Not an actual error, but a wrapper that provides additional context.
     WithEvalErrorCtx   EvalErrorCtx EvaluationError
+  | -- | Defining Entities in Wasp file is not allowed.
+    EntitiesNotSupported
   deriving (Show, Eq)
 {- ORMOLU_ENABLE -}
 
@@ -108,6 +110,7 @@ getErrorMsgAndErrorCtxMsgsAndParsingCtx (EvaluationError (WithCtx ctx evalError)
   ParseError (EvaluationParseErrorParsec e) -> makeMainMsg ("Parse error:\n" ++ indent 2 (show e))
   ParseError (EvaluationParseError msg) -> makeMainMsg ("Parse error:\n" ++ indent 2 msg)
   WithEvalErrorCtx evalCtx subError -> second3 (evalCtxMsg evalCtx :) $ getErrorMsgAndErrorCtxMsgsAndParsingCtx subError
+  EntitiesNotSupported -> makeMainMsg "Defining Entities in Wasp file is not supported anymore."
   where
     makeMainMsg msg = (msg, [], ctx)
 
