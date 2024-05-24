@@ -57,7 +57,6 @@ check ast entities = hoistDeclarations ast entities >> checkAST ast
 hoistDeclarations :: AST -> [AS.Decl] -> TypeChecker ()
 hoistDeclarations (P.AST stmts) entities = do
   mapM_ hoistDeclaration stmts
-  -- TODO: figure out how to get DeclType for entities
   mapM_ setEntityAsType entities
   where
     hoistDeclaration :: P.WithCtx P.Stmt -> TypeChecker ()
@@ -65,11 +64,14 @@ hoistDeclarations (P.AST stmts) entities = do
       setType ident $ DeclType typeName
 
     setEntityAsType :: AS.Decl -> TypeChecker ()
-    -- TODO: don't hard code DeclType "entity"
-    setEntityAsType decl = setType (fst entity) $ DeclType "entity"
+    setEntityAsType decl = setType (fst entity) entityDeclType
       where
         entity :: (String, AS.Entity.Entity)
         entity = fromJust $ fromDecl decl
+
+    -- Ideally we would do this:
+    -- entityDeclType = DeclType $ TD.dtName $ TD.declType @Entity
+    entityDeclType = DeclType "entity"
 
 checkAST :: AST -> TypeChecker TypedAST
 checkAST (P.AST stmts) = TypedAST <$> mapM checkStmt stmts
