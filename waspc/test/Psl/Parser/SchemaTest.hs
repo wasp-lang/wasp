@@ -201,7 +201,11 @@ spec_parsePslSchema = do
                       ]
                   ),
               AST.SchemaEnum $
-                AST.PrismaEnum "Role" ["USER", "ADMIN"]
+                AST.PrismaEnum
+                  "Role"
+                  [ AST.EnumValue "USER" [],
+                    AST.EnumValue "ADMIN" []
+                  ]
             ]
 
     it "Prisma file is correctly parsed" $ do

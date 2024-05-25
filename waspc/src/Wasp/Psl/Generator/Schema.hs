@@ -18,23 +18,28 @@ generateConfigBlockKeyValues keyValues = unlines $ generateConfigBlockKeyValue <
   where
     generateConfigBlockKeyValue (Ast.ConfigBlockKeyValue key value) = key ++ " = " ++ value
 
+generateEnumBody :: [Ast.EnumField] -> String
+generateEnumBody values = unlines $ map ("  " ++) $ generateEnumField <$> values
+
+generateEnumField :: Ast.EnumField -> String
+generateEnumField (Ast.EnumValue value attrs) =
+  value ++ concatMap ((" " ++) . generateAttribute) attrs
+generateEnumField (Ast.EnumBlockAttribute attribute) = "@" ++ generateAttribute attribute
+
 generateModelBody :: Ast.Body -> String
-generateModelBody (Ast.Body elements) = unlines $ map (("  " ++) . generateElement) elements
+generateModelBody (Ast.Body elements) = unlines $ map (("  " ++) . generateModelElement) elements
 
-generateEnumBody :: [String] -> String
-generateEnumBody values = unlines $ map ("  " ++) values
-
-generateElement :: Ast.Element -> String
-generateElement (Ast.ElementField field) =
+generateModelElement :: Ast.Element -> String
+generateModelElement (Ast.ElementField field) =
   Ast._name field ++ " "
-    ++ generateFieldType (Ast._type field)
-    ++ concatMap generateFieldTypeModifier (Ast._typeModifiers field)
+    ++ generateModelFieldType (Ast._type field)
+    ++ concatMap generateModelFieldTypeModifier (Ast._typeModifiers field)
     ++ concatMap ((" " ++) . generateAttribute) (Ast._attrs field)
-generateElement (Ast.ElementBlockAttribute attribute) =
+generateModelElement (Ast.ElementBlockAttribute attribute) =
   "@" ++ generateAttribute attribute
 
-generateFieldType :: Ast.FieldType -> String
-generateFieldType fieldType = case fieldType of
+generateModelFieldType :: Ast.FieldType -> String
+generateModelFieldType fieldType = case fieldType of
   Ast.String -> "String"
   Ast.Boolean -> "Boolean"
   Ast.Int -> "Int"
@@ -47,8 +52,8 @@ generateFieldType fieldType = case fieldType of
   Ast.UserType label -> label
   Ast.Unsupported typeName -> "Unsupported(" ++ show typeName ++ ")"
 
-generateFieldTypeModifier :: Ast.FieldTypeModifier -> String
-generateFieldTypeModifier typeModifier = case typeModifier of
+generateModelFieldTypeModifier :: Ast.FieldTypeModifier -> String
+generateModelFieldTypeModifier typeModifier = case typeModifier of
   Ast.List -> "[]"
   Ast.Optional -> "?"
 

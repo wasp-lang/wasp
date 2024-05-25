@@ -118,8 +118,15 @@ instance Arbitrary AST.AttrArgValue where
 instance Arbitrary AST.PrismaEnum where
   arbitrary = do
     name <- arbitraryIdentifier
-    values <- scale (const 5) (listOf1 arbitraryIdentifier)
+    values <- scale (const 5) (listOf1 arbitrary)
     return $ AST.PrismaEnum name values
+
+instance Arbitrary AST.EnumField where
+  arbitrary =
+    oneof
+      [ AST.EnumValue <$> arbitraryIdentifier <*> scale (const 5) arbitrary,
+        AST.EnumBlockAttribute <$> arbitrary
+      ]
 
 instance Arbitrary AST.Datasource where
   arbitrary = do

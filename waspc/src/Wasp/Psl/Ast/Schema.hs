@@ -23,41 +23,6 @@ newtype Body = Body [Element]
 data Element = ElementField Field | ElementBlockAttribute Attribute
   deriving (Show, Eq, Data)
 
-data PrismaEnum
-  = PrismaEnum
-      String
-      -- ^ Name of the enum
-      [String]
-      -- ^ Values of the enum
-  deriving (Show, Eq)
-
-data Datasource
-  = Datasource
-      String
-      -- ^ Name of the datasource
-      [ConfigBlockKeyValue]
-      -- ^ Content of the datasource
-  deriving (Show, Eq)
-
-data Generator
-  = Generator
-      String
-      -- ^ Name of the generator
-      [ConfigBlockKeyValue]
-      -- ^ Content of the generator
-  deriving (Show, Eq)
-
--- | Represents a key-value pair in a config block.
---  For example, in the following config block:
---  ```
---  generator client {
---    provider = "prisma-client-js"
---  }
---  ```
---  The key-value pair would be `ConfigBlockKeyValue "provider" "prisma-client-js"`.
-data ConfigBlockKeyValue = ConfigBlockKeyValue String String
-  deriving (Show, Eq)
-
 -- TODO: To support attributes before the field,
 --   we could just have `attrsBefore :: [[Attr]]`,
 --   which represents lines, each one with list of attributes.
@@ -85,6 +50,43 @@ data FieldType
 
 data FieldTypeModifier = List | Optional
   deriving (Show, Eq, Data)
+
+data PrismaEnum
+  = PrismaEnum
+      String
+      -- ^ Name of the enum
+      [EnumField]
+  deriving (Show, Eq)
+
+data EnumField = EnumValue String [Attribute] | EnumBlockAttribute Attribute
+  deriving (Show, Eq, Data)
+
+data Datasource
+  = Datasource
+      String
+      -- ^ Name of the datasource
+      [ConfigBlockKeyValue]
+      -- ^ Content of the datasource
+  deriving (Show, Eq)
+
+data Generator
+  = Generator
+      String
+      -- ^ Name of the generator
+      [ConfigBlockKeyValue]
+      -- ^ Content of the generator
+  deriving (Show, Eq)
+
+-- | Represents a key-value pair in a config block.
+--  For example, in the following config block:
+--  ```
+--  generator client {
+--    provider = "prisma-client-js"
+--  }
+--  ```
+--  The key-value pair would be `ConfigBlockKeyValue "provider" "prisma-client-js"`.
+data ConfigBlockKeyValue = ConfigBlockKeyValue String String
+  deriving (Show, Eq)
 
 -- NOTE: We don't differentiate "native database type" attributes from normal attributes right now,
 --   they are all represented with `data Attribute`.

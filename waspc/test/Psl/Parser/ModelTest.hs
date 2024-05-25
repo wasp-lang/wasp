@@ -7,7 +7,7 @@ import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Schema as AST
-import Wasp.Psl.Parser.Model (model, modelAttrArgument, modelBody)
+import Wasp.Psl.Parser.Model (model, modelBody)
 
 spec_parsePslModel :: Spec
 spec_parsePslModel = do
@@ -34,31 +34,6 @@ spec_parsePslModel = do
           "  @startsWithAttribute",
           "  @@@tooManyMonkeys"
         ]
-
-  describe "Attribute argument parser" $ do
-    let tests =
-          [ ( "[foo, bar],",
-              AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["foo", "bar"])
-            ),
-            ( "\"test\")",
-              AST.AttrArgUnnamed (AST.AttrArgString "test")
-            ),
-            ( "foo: bar(),",
-              AST.AttrArgNamed "foo" (AST.AttrArgFunc "bar")
-            ),
-            ( "Bob,",
-              AST.AttrArgUnnamed (AST.AttrArgIdentifier "Bob")
-            ),
-            ( "42.3)",
-              AST.AttrArgUnnamed (AST.AttrArgNumber "42.3")
-            ),
-            ( "2 + 3,",
-              AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 3")
-            )
-          ]
-    let runTest (psl, expected) =
-          it ("correctly parses " ++ psl) $ Parsec.parse modelAttrArgument "" psl `shouldBe` Right expected
-    mapM_ runTest tests
 
   -- Based on https://github.com/wasp-lang/wasp/issues/2019
   -- Model names like Internet have Int as a prefix, which is a Prisma field type.

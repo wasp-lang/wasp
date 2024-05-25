@@ -616,6 +616,7 @@ test-suite waspc-test
     Psl.Parser.ModelTest
     Psl.Parser.EnumTest
     Psl.Parser.ConfigBlockTest
+    Psl.Parser.CommonTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest
