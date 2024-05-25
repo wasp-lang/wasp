@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
     readPackageJsonFile,
@@ -18,8 +16,6 @@ import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.Core.Decl as Decl
-import Wasp.AppSpec.Entity (Entity, makeEntity)
 import Wasp.AppSpec.PackageJson (PackageJson)
 import Wasp.AppSpec.Valid (isValidationError, isValidationWarning, validateAppSpec)
 import Wasp.CompileOptions (CompileOptions)
@@ -58,34 +54,33 @@ analyzeWaspProject waspDir options = do
     Right waspFilePath ->
       analyzePrismaSchema waspDir >>= \case
         Left errors -> return (Left errors, [])
-        Right (parsedPrismaSchema, entities) ->
-          analyzeWaspFile waspFilePath entities >>= \case
+        Right prismaSchemaAst ->
+          analyzeWaspFile waspFilePath prismaSchemaAst >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
               analyzePackageJsonContent waspDir >>= \case
                 Left errors -> return (Left errors, [])
-                Right packageJsonContent -> constructAppSpec waspDir options packageJsonContent declarations entities parsedPrismaSchema
+                Right packageJsonContent -> constructAppSpec waspDir options packageJsonContent declarations prismaSchemaAst
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
-analyzeWaspFile :: Path' Abs File' -> [AS.Decl] -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspFile waspFilePath entities = do
+analyzeWaspFile :: Path' Abs File' -> Psl.Ast.Schema -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspFile waspFilePath prismaSchemaAst = do
   waspFileContent <- IOUtil.readFile waspFilePath
   left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
-    <$> analyzeWaspFileContent entities waspFileContent
+    <$> analyzeWaspFileContent prismaSchemaAst waspFileContent
 
-analyzeWaspFileContent :: [AS.Decl] -> String -> IO (Either [(String, Ctx)] [AS.Decl])
-analyzeWaspFileContent entities = return . left (map getErrorMessageAndCtx) . Analyzer.analyze entities
+analyzeWaspFileContent :: Psl.Ast.Schema -> String -> IO (Either [(String, Ctx)] [AS.Decl])
+analyzeWaspFileContent prismaSchemaAst = return . left (map getErrorMessageAndCtx) . Analyzer.analyze prismaSchemaAst
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   PackageJson ->
   [AS.Decl] ->
-  [AS.Decl] ->
   Psl.Ast.Schema ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir options packageJson decls entities parsedPrismaSchema = do
+constructAppSpec waspDir options packageJson decls parsedPrismaSchema = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
@@ -100,7 +95,6 @@ constructAppSpec waspDir options packageJson decls entities parsedPrismaSchema =
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
-            AS.entities = entities,
             AS.prismaSchema = parsedPrismaSchema,
             AS.packageJson = packageJson,
             AS.waspProjectDir = waspDir,
@@ -151,7 +145,7 @@ readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
-analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] (Psl.Ast.Schema, [AS.Decl]))
+analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Ast.Schema)
 analyzePrismaSchema waspProjectDir = do
   prismaSchemaFile <- findPrismaSchemaFile waspProjectDir
   case prismaSchemaFile of
@@ -161,17 +155,8 @@ analyzePrismaSchema waspProjectDir = do
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
         Left err -> return $ Left [err]
         Right parsedPrismaSchema -> do
-          let entities = getEntitiesFromPrismaSchema parsedPrismaSchema
-          return $ Right (parsedPrismaSchema, entities)
+          return $ Right parsedPrismaSchema
     Nothing -> return $ Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"]
-  where
-    getEntitiesFromPrismaSchema :: Psl.Ast.Schema -> [AS.Decl]
-    getEntitiesFromPrismaSchema (Psl.Ast.Schema elements) =
-      let models = [model | Psl.Ast.SchemaModel model <- elements]
-       in parsedModelToDecl <$> models
-
-    parsedModelToDecl :: Psl.Ast.Model -> AS.Decl
-    parsedModelToDecl (Psl.Ast.Model name body) = Decl.makeDecl @Entity name $ makeEntity body
 
 findPrismaSchemaFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPrismaSchemaFile waspProjectDir = findFileInWaspProjectDir waspProjectDir prismaSchemaFileInWaspProjectDir

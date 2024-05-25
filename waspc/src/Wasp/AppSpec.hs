@@ -61,8 +61,6 @@ import qualified Wasp.SemanticVersion as SV
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
-    -- | List of Prisma entities that are defined by the user.
-    entities :: [Decl],
     -- | Parsed Prisma schema file.
     prismaSchema :: Psl.Ast.Schema,
     -- | The contents of the package.json file found in the root directory of the wasp project.
@@ -98,11 +96,8 @@ data AppSpec = AppSpec
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
-getDeclsWithEntities :: IsDecl a => AppSpec -> [(String, a)]
-getDeclsWithEntities spec = takeDecls (decls spec ++ entities spec)
-
 getEntities :: AppSpec -> [(String, Entity)]
-getEntities = takeDecls . entities
+getEntities = getDecls
 
 getQueries :: AppSpec -> [(String, Query)]
 getQueries = getDecls
@@ -151,7 +146,7 @@ resolveRef spec ref =
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
     $ find ((== refName ref) . fst) $
-      getDeclsWithEntities spec
+      getDecls spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =

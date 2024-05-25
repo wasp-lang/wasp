@@ -17,7 +17,7 @@ module Wasp.LSP.ServerState
     watchPrismaSchemaToken,
     reactorIn,
     debouncer,
-    prismaEntities,
+    prismaSchemaAst,
   )
 where
 
@@ -29,11 +29,11 @@ import GHC.Generics (Generic)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
-import qualified Wasp.AppSpec as AS
 import Wasp.LSP.Debouncer (Debouncer)
 import Wasp.LSP.Diagnostic (WaspDiagnostic)
 import Wasp.LSP.ExtImport.Path (ExtFileCachePath)
 import Wasp.LSP.Reactor (ReactorInput)
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import Wasp.TypeScript.Inspect.Exports (TsExport)
 
 -- | LSP State preserved between handlers.
@@ -53,8 +53,8 @@ data ServerState = ServerState
     _cst :: Maybe [SyntaxNode],
     -- | Cache of source file export lists.
     _tsExports :: TsExportCache,
-    -- | Cache of Prisma schema entities.
-    _prismaEntities :: [AS.Decl],
+    -- | Cache of Prisma schema AST.
+    _prismaSchemaAst :: Psl.Ast.Schema,
     -- | Registration tokens for dynamic capabilities.
     _regTokens :: RegistrationTokens,
     -- | Thread safe channel for sending actions to the LSP reactor thread.

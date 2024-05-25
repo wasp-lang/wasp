@@ -47,7 +47,6 @@ spec_WebAppGenerator = do
                       AS.App.webSocket = Nothing
                     }
               ],
-            AS.entities = [],
             AS.prismaSchema = Psl.Ast.Schema [],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
             AS.externalCodeFiles = [],

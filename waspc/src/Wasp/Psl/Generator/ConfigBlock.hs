@@ -10,23 +10,20 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
 showPrismaDbExtensions :: AppSpec -> Maybe String
-showPrismaDbExtensions spec = findPrismaConfigBlockKeyValue "extensions" keyValues
-  where
-    (Psl.Ast.Schema prismaSchemaElements) = AS.getPrismaSchema spec
-    datasources = [datasource | Psl.Ast.SchemaDatasource datasource <- prismaSchemaElements]
-    -- We are looking through all datasources
-    keyValues = concatMap (\(Psl.Ast.Datasource _ kv) -> kv) datasources
+showPrismaDbExtensions =
+  findPrismaConfigBlockKeyValue "extensions"
+    . concatMap (\(Psl.Ast.Datasource _ keyValues) -> keyValues)
+    . Psl.Ast.getDatasources
+    . AS.getPrismaSchema
 
 showPrismaPreviewFeatures :: AppSpec -> Maybe String
-showPrismaPreviewFeatures spec = findPrismaConfigBlockKeyValue "previewFeatures" keyValues
-  where
-    (Psl.Ast.Schema prismaSchemaElements) = AS.getPrismaSchema spec
-    generators = [generator | Psl.Ast.SchemaGenerator generator <- prismaSchemaElements]
-    -- We are looking through all generators
-    keyValues = concatMap (\(Psl.Ast.Generator _ kv) -> kv) generators
+showPrismaPreviewFeatures =
+  findPrismaConfigBlockKeyValue "previewFeatures"
+    . concatMap (\(Psl.Ast.Generator _ keyValues) -> keyValues)
+    . Psl.Ast.getGenerators
+    . AS.getPrismaSchema
 
 findPrismaConfigBlockKeyValue :: String -> [Psl.Ast.ConfigBlockKeyValue] -> Maybe String
-findPrismaConfigBlockKeyValue key keyValues = do
-  keyValue <- find (\(Psl.Ast.ConfigBlockKeyValue key' _) -> key' == key) keyValues
-  case keyValue of
-    Psl.Ast.ConfigBlockKeyValue _ value -> Just value
+findPrismaConfigBlockKeyValue needle =
+  fmap (\(Psl.Ast.ConfigBlockKeyValue _ value) -> value)
+    . find (\(Psl.Ast.ConfigBlockKeyValue key _) -> key == needle)

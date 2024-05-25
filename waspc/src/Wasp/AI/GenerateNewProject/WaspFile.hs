@@ -29,6 +29,7 @@ import Wasp.AI.GenerateNewProject.Plan (Plan)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Analyzer.Parser.Ctx (Ctx (..))
 import Wasp.Project.Analyze (analyzeWaspFileContent)
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.Util.Aeson as Utils.Aeson
 
 fixWaspFile :: NewProjectDetails -> FilePath -> Plan -> CodeAgent ()
@@ -159,8 +160,8 @@ data ShouldContinueIfCompileErrors = OnlyIfCompileErrors | EvenIfNoCompileErrors
 
 getWaspFileCompileErrors :: Text -> IO [String]
 getWaspFileCompileErrors waspSource =
-  -- TODO: analyzeWaspFileContent should get the schema.prisma file from the project root
-  analyzeWaspFileContent [] (T.unpack waspSource)
+  -- TODO: analyzeWaspFileContent should receive the Prisma Schema AST
+  analyzeWaspFileContent (Psl.Ast.Schema []) (T.unpack waspSource)
     <&> either (map showCompileError) (const [])
   where
     showCompileError (errMsg, Ctx {ctxSourceRegion = loc}) = show loc <> ": " <> errMsg

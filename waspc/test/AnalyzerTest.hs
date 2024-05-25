@@ -20,10 +20,8 @@ import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
-import qualified Wasp.AppSpec.Core.Decl as Decl
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
-import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import qualified Wasp.AppSpec.JSON as JSON
 import qualified Wasp.AppSpec.Job as Job
@@ -37,19 +35,20 @@ import qualified Wasp.Version as WV
 spec_Analyzer :: Spec
 spec_Analyzer = do
   describe "Analyzer" $ do
-    let entitiesFromPrisma =
-          [ Decl.makeDecl @Entity "User" $
-              Entity.makeEntity $
-                Psl.Ast.Body
-                  [ Psl.Ast.ElementField $
-                      Psl.Ast.Field
-                        { Psl.Ast._name = "description",
-                          Psl.Ast._type = Psl.Ast.String,
-                          Psl.Ast._typeModifiers = [],
-                          Psl.Ast._attrs = []
-                        }
-                  ]
-          ]
+    let prismaSchemaAst =
+          Psl.Ast.Schema
+            [ Psl.Ast.SchemaModel $
+                Psl.Ast.Model "User" $
+                  Psl.Ast.Body
+                    [ Psl.Ast.ElementField $
+                        Psl.Ast.Field
+                          { Psl.Ast._name = "description",
+                            Psl.Ast._type = Psl.Ast.String,
+                            Psl.Ast._typeModifiers = [],
+                            Psl.Ast._attrs = []
+                          }
+                    ]
+            ]
 
     it "Analyzes a well-typed example" $ do
       let source =
@@ -130,7 +129,7 @@ spec_Analyzer = do
                 "}"
               ]
 
-      let decls = analyze entitiesFromPrisma source
+      let decls = analyze prismaSchemaAst source
 
       let expectedApps =
             [ ( "Todo",
@@ -303,7 +302,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
               ]
-      takeDecls @Route <$> analyze entitiesFromPrisma source
+      takeDecls @Route <$> analyze prismaSchemaAst source
         `shouldBe` Left [TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage"]
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
@@ -311,7 +310,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomeRoute }"
               ]
-      analyze entitiesFromPrisma source
+      analyze prismaSchemaAst source
         `errorMessageShouldBe` ( ctx (1, 35) (1, 43),
                                  intercalate
                                    "\n"
@@ -329,7 +328,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
                 "page HomePage { component: import Home from \"@src/HomePage.js\" }"
               ]
-      isRight (analyze entitiesFromPrisma source) `shouldBe` True
+      isRight (analyze prismaSchemaAst source) `shouldBe` True
 
     describe "Returns correct error message" $ do
       it "For nested unexpected type error" $ do
@@ -342,7 +341,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze entitiesFromPrisma source
+        analyze prismaSchemaAst source
           `errorMessageShouldBe` ( ctx (4, 14) (4, 27),
                                    intercalate
                                      "\n"
@@ -366,7 +365,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze entitiesFromPrisma source
+        analyze prismaSchemaAst source
           `errorMessageShouldBe` ( ctx (4, 18) (4, 22),
                                    intercalate
                                      "\n"
@@ -384,7 +383,7 @@ spec_Analyzer = do
                   "  ttle: \"My app\",",
                   "}"
                 ]
-        analyze entitiesFromPrisma source
+        analyze prismaSchemaAst source
           `errorMessageShouldBe` ( ctx (1, 11) (3, 1),
                                    intercalate
                                      "\n"

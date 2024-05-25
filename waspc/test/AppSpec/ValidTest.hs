@@ -422,7 +422,6 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
-          AS.entities = [],
           AS.prismaSchema = Psl.Ast.Schema [],
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],

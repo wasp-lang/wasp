@@ -84,7 +84,7 @@ spec_Internal = do
                   [ wctx1 $ P.Decl "person" "John" $ wctx2 $ P.Dict [("favoritePet", wctx3 $ P.Var "Riu")],
                     wctx4 $ P.Decl "pet" "Riu" $ wctx5 $ P.Dict []
                   ]
-          let actual = run typeDefs $ check ast []
+          let actual = run typeDefs $ check ast
           let expected =
                 Right $
                   TypedAST

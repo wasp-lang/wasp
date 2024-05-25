@@ -1,5 +1,6 @@
 module Wasp.Psl.Generator.Schema
   ( generateSchemaElement,
+    generateModelBody,
   )
 where
 

@@ -47,6 +47,14 @@ data Generator
       -- ^ Content of the generator
   deriving (Show, Eq)
 
+-- | Represents a key-value pair in a config block.
+--  For example, in the following config block:
+--  ```
+--  generator client {
+--    provider = "prisma-client-js"
+--  }
+--  ```
+--  The key-value pair would be `ConfigBlockKeyValue "provider" "prisma-client-js"`.
 data ConfigBlockKeyValue = ConfigBlockKeyValue String String
   deriving (Show, Eq)
 
@@ -100,3 +108,15 @@ data AttrArgValue
   | AttrArgNumber String
   | AttrArgUnknown String
   deriving (Show, Eq, Data)
+
+getModels :: Schema -> [Model]
+getModels (Schema elements) = [model | SchemaModel model <- elements]
+
+getEnums :: Schema -> [PrismaEnum]
+getEnums (Schema elements) = [enum | SchemaEnum enum <- elements]
+
+getDatasources :: Schema -> [Datasource]
+getDatasources (Schema elements) = [datasource | SchemaDatasource datasource <- elements]
+
+getGenerators :: Schema -> [Generator]
+getGenerators (Schema elements) = [generator | SchemaGenerator generator <- elements]

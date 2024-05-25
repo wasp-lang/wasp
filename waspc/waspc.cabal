@@ -217,6 +217,7 @@ library
     Wasp.Analyzer.TypeDefinitions.TH.Common
     Wasp.Analyzer.TypeDefinitions.TH.Decl
     Wasp.Analyzer.TypeDefinitions.TH.Enum
+    Wasp.Analyzer.Prisma
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api

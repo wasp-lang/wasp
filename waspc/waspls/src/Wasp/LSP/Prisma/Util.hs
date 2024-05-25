@@ -1,11 +1,9 @@
 module Wasp.LSP.Prisma.Util where
 
-import Wasp.Analyzer (takeDecls)
-import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.Entity as AS.Entity
+import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
-showEntities :: [AS.Decl] -> String
-showEntities = unwords . map fst . getEntities
+showModels :: Psl.Ast.Schema -> String
+showModels = unwords . getModelNames
 
-getEntities :: [AS.Decl] -> [(String, AS.Entity.Entity)]
-getEntities = takeDecls
+getModelNames :: Psl.Ast.Schema -> [String]
+getModelNames = fmap (\(Psl.Ast.Model name _) -> name) . Psl.Ast.getModels

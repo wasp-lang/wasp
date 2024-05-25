@@ -69,7 +69,7 @@ genPrismaSchema spec = do
   let templateData =
         object
           [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
-            "enumSchemas" .= (Psl.Generator.Schema.generateSchemaElement <$> enums),
+            "enumSchemas" .= enumSchemas,
             "datasourceProvider" .= datasourceProvider,
             "datasourceUrl" .= datasourceUrl,
             "prismaPreviewFeatures" .= prismaPreviewFeatures,
@@ -90,8 +90,7 @@ genPrismaSchema spec = do
       Psl.Generator.Schema.generateSchemaElement $
         Psl.Ast.SchemaModel $ Psl.Ast.Model entityName (AS.Entity.getPslModelBody entity)
 
-    (Psl.Ast.Schema elements) = AS.getPrismaSchema spec
-    enums = [Psl.Ast.SchemaEnum enum | Psl.Ast.SchemaEnum enum <- elements]
+    enumSchemas = Psl.Generator.Schema.generateSchemaElement . Psl.Ast.SchemaEnum <$> (Psl.Ast.getEnums . AS.getPrismaSchema $ spec)
 
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.

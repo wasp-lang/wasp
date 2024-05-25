@@ -35,7 +35,7 @@ diagnoseWaspFile uri = do
   when prismaSchemaWatchingEnabled $ do
     case getWaspDirFromWaspFileUri uri of
       Nothing -> logM $ "Couldn't get wasp dir from wasp file uri " ++ show uri
-      Just waspDir -> Prisma.analyzePrismaSchemaFileAndSetEntities waspDir
+      Just waspDir -> Prisma.analyzeAndSetPrismaSchema waspDir
 
   analyzeWaspFile uri
 
@@ -74,7 +74,7 @@ analyzeWaspFile :: LSP.Uri -> ServerM ()
 analyzeWaspFile uri = do
   modify (State.waspFileUri ?~ uri)
 
-  prismaEntities <- handler $ asks (^. State.prismaEntities)
+  prismaSchemaAst <- handler $ asks (^. State.prismaSchemaAst)
 
   -- NOTE: we have to be careful to keep CST and source string in sync at all
   -- times for all threads, so we update them both atomically (via one call to
@@ -89,7 +89,7 @@ analyzeWaspFile uri = do
       modify ((State.currentWaspSource .~ srcString) . (State.cst ?~ concreteSyntax))
       if not $ null concreteErrorMessages
         then storeCSTErrors concreteErrorMessages
-        else runWaspAnalyzer prismaEntities srcString
+        else runWaspAnalyzer prismaSchemaAst srcString
   where
     readSourceString = fmap T.unpack <$> readVFSFile uri
 

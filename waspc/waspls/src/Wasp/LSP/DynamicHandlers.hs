@@ -168,7 +168,7 @@ prismaSchemaFileChangeHandler msg = do
     case getWaspDirFromWaspFileUri $ head uris of
       Nothing -> logM "[prismaSchemaFileChangeHandler] Could not get waspDir from file URI"
       Just waspDir -> do
-        Prisma.analyzePrismaSchemaFileAndSetEntities waspDir
+        Prisma.analyzeAndSetPrismaSchema waspDir
         handler $
           asks (^. State.waspFileUri) >>= \case
             Just uri -> do
