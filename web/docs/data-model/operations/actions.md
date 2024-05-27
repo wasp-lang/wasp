@@ -216,7 +216,12 @@ For a detailed explanation of the Action definition API (i.e., arguments and ret
 
 ### Using Actions
 
-To use an Action on the client, you can import it from `wasp/client/operations` and call it directly.
+#### Using Actions on the client
+
+To call an Action on the client, you can import it from `wasp/client/operations` and call it directly.
+
+The usage doesn't depend on whether the Action is authenticated or not.
+Wasp authenticates the logged-in user in the background.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -321,6 +326,50 @@ export const TaskPage = ({ id }: { id: number }) => {
 </Tabs>
 
 Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
+
+
+#### Using Actions on the server
+
+Calling an Action on the server is similar to calling it on the client.
+
+Here's what you have to do differently:
+ - Import Actions from `wasp/server/operations` instead of `wasp/client/operations`.
+ - Make sure you pass in a context object with the user to authenticated Actions.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js
+import { createTask, markTasAsDone } from 'wasp/server/operations'
+
+const user = // Get an AuthUser object
+
+const newTask = await createTask(
+  { description: 'Learn TypeScript' },
+  { user },
+)
+await markTasAsDone({ id: 1 }, { user })
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts
+import { createTask, markTasAsDone } from 'wasp/server/operations'
+
+const user = // Get an AuthUser object
+
+// TypeScript automatically infers the return values and type-checks
+// the payloads.
+const newTask = await createTask(
+  { description: 'Keep learning TypeScript' },
+  { user },
+)
+await markTasAsDone({ id: 1 }, { user })
+```
+
+</TabItem>
+</Tabs>
 
 ### Error Handling
 

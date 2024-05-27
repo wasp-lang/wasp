@@ -188,7 +188,11 @@ For a detailed explanation of the Query definition API (i.e., arguments and retu
 
 ### Using Queries
 
-To call a Query in the client code, you can import it from `wasp/client/operations` and call it directly.
+#### Using Queries on the client
+To call a Query on the client, you can import it from `wasp/client/operations` and call it directly.
+
+The usage doesn't change depending on whether the Query is authenticated or not.
+Wasp authenticates the logged-in user in the background.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -216,6 +220,47 @@ const doneTasks = await getFilteredTasks({ isDone: true })
 
 </TabItem>
 </Tabs>
+
+#### Using Queries on the server
+Calling a Query on the server is similar to calling it on the client.
+
+Here's what you have to do differently:
+ - Import Queries from `wasp/server/operations` instead of `wasp/client/operations`.
+ - Make sure you pass in a context object with the user to authenticated Queries.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js
+import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
+
+
+const user = // Get an AuthUser object
+
+// ...
+
+const allTasks = await getAllTasks({ user })
+const doneTasks = await getFilteredTasks({ isDone: true }, { user })
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts
+import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
+
+const user = // Get an AuthUser object
+
+// TypeScript automatically infers the return values and type-checks
+// the payloads.
+const allTasks = await getAllTasks({ user })
+const doneTasks = await getFilteredTasks({ isDone: true }, { user })
+```
+
+</TabItem>
+</Tabs>
+
+
 
 #### The `useQuery` hook
 
