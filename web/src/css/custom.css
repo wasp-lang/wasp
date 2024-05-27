@@ -86,8 +86,8 @@
 
   /* Docs */
   --ifm-menu-color: var(--ifm-color-gray-800);
-  --sidebar-category-color: var(--ifm-color-gray-600);
-  --sidebar-category-spacing: 2em;
+  --sidebar-item-level-1-color: var(--ifm-color-primary);
+  --sidebar-item-level-1-spacing: 1em;
 }
 
 :root[data-theme='dark'] {
@@ -116,21 +116,18 @@
   opacity: 0.7;
 }
 
-.theme-doc-sidebar-item-category-level-1 {
-  margin-bottom: var(--sidebar-category-spacing);
+.theme-doc-sidebar-item-category-level-1,.theme-doc-sidebar-item-link-level-1 {
+  margin-bottom: var(--sidebar-item-level-1-spacing);
 }
 
-.theme-doc-sidebar-item-category-level-1 > .menu__list {
-  /* remove indentation from 1st level categories */
-  padding-left: 0;
-}
-
-.theme-doc-sidebar-item-category-level-1
-  > .menu__list-item-collapsible
-  > .menu__link {
-  color: var(--sidebar-category-color);
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
+.theme-doc-sidebar-item-link-level-1 > .menu__link {
+  color: var(--sidebar-item-level-1-color);
   font-weight: bold;
-  font-size: var(--ifm-h6-font-size);
+}
+
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__link {
+  color: var(--sidebar-item-level-1-color);
 }
 
 /******** DOCS NAVBAR *********/

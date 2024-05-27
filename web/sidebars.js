@@ -4,7 +4,7 @@ module.exports = {
       type: 'category',
       label: 'Getting Started',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'introduction/introduction',
         'introduction/quick-start',
@@ -14,8 +14,8 @@ module.exports = {
     {
       type: 'category',
       label: 'Tutorial',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: [
         'tutorial/create',
         'tutorial/project-structure',
@@ -27,10 +27,15 @@ module.exports = {
       ],
     },
     {
+      type: 'link',
+      label: 'Examples',
+      href: 'https://github.com/wasp-lang/wasp/tree/release/examples'
+    },
+    {
       type: 'category',
       label: 'Data Model',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: [
         'data-model/entities',
         {
@@ -50,8 +55,8 @@ module.exports = {
     {
       type: 'category',
       label: 'Authentication',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: [
         'auth/overview',
         'auth/ui',
@@ -74,8 +79,8 @@ module.exports = {
     {
       type: 'category',
       label: 'Project Setup',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: [
         'project/starter-templates',
         'project/customizing-app',
@@ -92,15 +97,15 @@ module.exports = {
     {
       type: 'category',
       label: 'Wasp AI',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: ['wasp-ai/creating-new-app', 'wasp-ai/developing-existing-app'],
     },
     {
       type: 'category',
       label: 'Advanced Features',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: [
         {
           type: 'category',
@@ -124,15 +129,15 @@ module.exports = {
     {
       type: 'category',
       label: 'General',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: ['general/language', 'general/cli'],
     },
     {
       type: 'category',
       label: 'Miscellaneous',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       items: [
         'contributing',
         'telemetry',

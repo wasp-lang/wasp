@@ -535,8 +535,9 @@ You should be ready to learn about more complicated features and go more in-dept
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](../project/starter-templates)
-- Make a real-time app with [Web Sockets](../advanced/web-sockets)
+- Get a jump start on your next project with [Starter Templates](../project/starter-templates).
+- Check out our [official examples](https://github.com/wasp-lang/wasp/tree/release/examples).
+- Make a real-time app with [Web Sockets](../advanced/web-sockets).
 
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
