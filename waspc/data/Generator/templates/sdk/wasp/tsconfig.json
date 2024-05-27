@@ -14,11 +14,12 @@
     "alwaysStrict": true,
     "noImplicitThis": true,
     "strictFunctionTypes": true,
+    // See https://github.com/wasp-lang/wasp/issues/2056 before activating this:
+    // "useUnknownInCatchVariables": true,
+    // The following 3 stict options will require more work:
+    // "noImplicitAny": true,
     // "strictNullChecks": true,
     // "strictPropertyInitialization": true,
-    // "noImplicitAny": true,
-      // See https://github.com/wasp-lang/wasp/issues/2056 before activating this:
-    // "useUnknownInCatchVariables": true,
     // Overriding this because we want to use top-level await
     "module": "esnext",
     "target": "es2017",
