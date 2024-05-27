@@ -102,16 +102,6 @@ module.exports = {
       collapsed: false,
       collapsible: false,
       items: [
-        {
-          type: 'category',
-          label: 'Deployment',
-          collapsed: true,
-          items: [
-            'advanced/deployment/overview',
-            'advanced/deployment/cli',
-            'advanced/deployment/manually',
-          ],
-        },
         'advanced/email/email',
         'advanced/jobs',
         'advanced/web-sockets',
@@ -119,6 +109,17 @@ module.exports = {
         'advanced/apis',
         'advanced/middleware-config',
         'advanced/links',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Deployment',
+      collapsed: false,
+      collapsible: false,
+      items: [
+        'advanced/deployment/overview',
+        'advanced/deployment/cli',
+        'advanced/deployment/manually',
       ],
     },
     {
