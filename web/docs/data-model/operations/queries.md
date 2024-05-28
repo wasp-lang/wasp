@@ -235,7 +235,7 @@ Here's what you have to do differently:
 import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
 
 
-const user = // Get an AuthUser object
+const user = // Get an AuthUser object, e.g., from context.user in an operation.
 
 // ...
 
@@ -249,7 +249,7 @@ const doneTasks = await getFilteredTasks({ isDone: true }, { user })
 ```ts
 import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
 
-const user = // Get an AuthUser object
+const user = // Get an AuthUser object, e.g., from context.user in an operation.
 
 // TypeScript automatically infers the return values and type-checks
 // the payloads.
@@ -549,6 +549,8 @@ import { getFoo } from 'wasp/client/operations'
 // Use it on the server
 import { getFoo } from 'wasp/server/operations'
 ```
+
+On the the client, the Query expects  
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">

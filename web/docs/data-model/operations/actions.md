@@ -342,7 +342,7 @@ Here's what you have to do differently:
 ```js
 import { createTask, markTasAsDone } from 'wasp/server/operations'
 
-const user = // Get an AuthUser object
+const user = // Get an AuthUser object, e.g., from context.user
 
 const newTask = await createTask(
   { description: 'Learn TypeScript' },
@@ -357,7 +357,7 @@ await markTasAsDone({ id: 1 }, { user })
 ```ts
 import { createTask, markTasAsDone } from 'wasp/server/operations'
 
-const user = // Get an AuthUser object
+const user = // Get an AuthUser object, e.g., from context.user
 
 // TypeScript automatically infers the return values and type-checks
 // the payloads.
