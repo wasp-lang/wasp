@@ -14,13 +14,12 @@ import qualified Data.Text as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
-import Wasp.LSP.Analysis (publishDiagnostics)
+import Wasp.LSP.Analysis (diagnoseWaspFile, publishDiagnostics)
 import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (refreshExportsOfFiles)
-import qualified Wasp.LSP.Prisma.Analyze as Prisma
 import Wasp.LSP.ServerMonads (ServerM, handler, modify, sendToReactor)
 import qualified Wasp.LSP.ServerState as State
-import Wasp.LSP.Util (getWaspDirFromWaspFileUri, lspUriToPath)
+import Wasp.LSP.Util (lspUriToPath)
 
 -- | Sends capability registration requests for all dynamic capabilities that
 -- @waspls@ uses.
@@ -123,7 +122,11 @@ sourceJsTsFilesChangeHandler msg = do
 -- | Register file watcher watcher for Prisma schema file.
 registerPrismaSchemaFileWatcher :: ServerM ()
 registerPrismaSchemaFileWatcher = do
-  let prismaSchemaGlob = "schema.prisma"
+  -- We have two options here:
+  -- 1) Watch any schema.prisma file in the project directory tree
+  -- 2) Watch only the schema.prisma file in workspace root which might not be correct
+  --   if the user openned their IDE some other folder other than the workspace root.
+  let prismaSchemaGlob = "**/schema.prisma"
 
   globPattern <-
     -- NOTE: We use the workspace root, instead of the wasp root here, because
@@ -165,13 +168,11 @@ prismaSchemaFileChangeHandler msg = do
   let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
   logM $ "[prismaSchemaFileChangeHandler] Received file changes: " ++ show uris
   sendToReactor $ do
-    case getWaspDirFromWaspFileUri $ head uris of
-      Nothing -> logM "[prismaSchemaFileChangeHandler] Could not get waspDir from file URI"
-      Just waspDir -> do
-        Prisma.analyzeAndSetPrismaSchema waspDir
-        handler $
-          asks (^. State.waspFileUri) >>= \case
-            Just uri -> do
-              logM "[prismaSchemaFileChangeHandler] Updating missing diagnostics for schema.prisma"
-              publishDiagnostics uri
-            Nothing -> pure ()
+    maybeUri <- handler $ asks (^. State.waspFileUri)
+
+    case maybeUri of
+      Just uri -> do
+        logM "[prismaSchemaFileChangeHandler] Running Wasp diagnostics after change in schema.prisma"
+        -- We run the Wasp file diagnostics since those run the Prisma diagnostics as well.
+        diagnoseWaspFile uri
+      Nothing -> pure ()
