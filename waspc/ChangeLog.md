@@ -9,6 +9,15 @@
 
 ### ⚠️ Breaking Changes & Migration Guide
 
+#### Strict options when building the `wasp` package
+
+The `wasp` package is now built with `strictBindCallApply`, `alwaysStrict`, `noImplicitThis`, and `strictFunctionTypes`.
+This is a breaking change only if you have manually set your `tsconfig.json`'s `strict` field to `false` and are relying on it being more permissive.
+To fix the errors, enable the options listed above and make sure your code type checks.
+
+This quirk is only temporary. You'll soon be able to use any `tsconfig.json` options you want.
+Track this issue for progress: https://github.com/wasp-lang/wasp/issues/1827
+
 #### Directly calling Queries on the client
 
 You can now call Queries directly from the client without dealing with
