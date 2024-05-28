@@ -4,10 +4,11 @@ module Wasp.Psl.Parser.ConfigBlock
 where
 
 import Text.Parsec
-  ( many,
-    many1,
+  ( anyChar,
+    char,
+    many,
+    manyTill,
     newline,
-    noneOf,
     optional,
     try,
     (<|>),
@@ -69,6 +70,6 @@ keyValue = do
   whiteSpace
   reserved "="
   whiteSpace
-  value <- many1 (noneOf "\n") -- value can be anything until
-  optional newline
+  value <- manyTill anyChar (char '\n')
+  optional whiteSpace
   return $ Psl.Ast.ConfigBlockKeyValue key value

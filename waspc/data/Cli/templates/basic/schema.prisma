@@ -1,0 +1,14 @@
+// Wasp parses the `datastore` declaration, but only uses the `extensions` field
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // extensions = []
+}
+
+// Wasp parses the `generator` declaration, but only uses the `previewFeatures` field
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["postgresqlExtensions"]
+}
+
+// Define your Prisma schema below
