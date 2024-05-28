@@ -5,7 +5,7 @@
 ### 🎉 New Features
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
-- Improved API for calling Operations (Queries and Actions) directly.
+- Improved the API for calling Operations (Queries and Actions) directly on both the client and the server.
 
 ### ⚠️ Breaking Changes & Migration Guide
 
