@@ -107,7 +107,12 @@ export function createAuthenticatedOperation<
     // https://github.com/wasp-lang/wasp/issues/2050
     if (args.length < 1) {
       // No arguments sent -> no user and no payload specified -> there's no way this was called correctly.
-      throw new Error('Invalid number of arguments')
+      throw new Error(`
+        You called the operation without arguments, which is a mistake.
+        Check your definition and read the docs to understand what you need to send:
+        https://wasp-lang.dev/docs/data-model/operations/overview
+        `
+      )
     } else if (includesPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, context] = args
@@ -131,6 +136,9 @@ export function createAuthenticatedOperation<
 /**
  * Returns a boolean carrying compiler type information about whether the
  * provided arguments array (of an authenticated operation) includes a payload.
+ *
+ * To understand why "two arguments" means "includes payload", read
+ * https://github.com/wasp-lang/wasp/issues/2050
  *
  * @template Input The type of the payload the operation expects.
  * @param args The arguments array for an authenticated operation.
