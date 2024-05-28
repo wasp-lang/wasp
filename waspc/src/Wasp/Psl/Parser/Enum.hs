@@ -23,8 +23,9 @@ import Wasp.Psl.Parser.Common
 -- | Parses PSL (Prisma Schema Language enum).
 -- Example of PSL enum:
 --   enum Role {
---     USER
+--     USER @map("user")
 --     ADMIN
+--     @@map("role")
 --   }
 enum :: Parser Psl.Ast.SchemaElement
 enum = do

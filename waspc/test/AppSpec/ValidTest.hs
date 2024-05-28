@@ -378,9 +378,29 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, apiDecl1, apiDecl2] "api" "There are duplicate api declarations with name 'testApi'."
       testDuplicateDecls [basicAppDecl, apiNamespaceDecl1, apiNamespaceDecl2] "apiNamespace" "There are duplicate apiNamespace declarations with name 'testApiNamespace'."
       testDuplicateDecls [basicAppDecl, crudDecl, crudDecl, entityDecl] "crud" "There are duplicate crud declarations with name 'testCrud'."
-      -- TODO: decide how do we handle this case?
-      -- testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
+      testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
+
+    describe "Prisma schema validation" $
+      it "should validate that Prisma models are not using unsupported field modifiers" $ do
+        let prismaSchema =
+              Psl.Ast.Schema
+                [ Psl.Ast.SchemaModel $
+                    Psl.Ast.Model "User" $
+                      Psl.Ast.Body
+                        [ Psl.Ast.ElementField $
+                            Psl.Ast.Field
+                              { Psl.Ast._name = "id",
+                                Psl.Ast._type = Psl.Ast.String,
+                                Psl.Ast._typeModifiers =
+                                  [ Psl.Ast.UnsupportedOptionalList
+                                  ],
+                                Psl.Ast._attrs = []
+                              }
+                        ]
+                ]
+        let appSpec = basicAppSpec {AS.prismaSchema = prismaSchema}
+        ASV.validateAppSpec appSpec `shouldBe` [ASV.GenericValidationError "Model \"User\" in schema.prisma has defined \"id\" field as an optional list, which is not supported by Prisma."]
   where
     makeIdField name typ =
       Psl.Ast.Field

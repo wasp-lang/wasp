@@ -19,7 +19,6 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import Wasp.Psl.Parser.Common
   ( blockAttribute,
     braces,
-    brackets,
     fieldAttribute,
     identifier,
     parens,
@@ -75,9 +74,21 @@ modelField = do
   where
     fieldType :: Parser Psl.Ast.FieldType
     fieldType =
+      scalarFieldType
+        <|> try
+          ( Psl.Ast.Unsupported
+              <$> ( symbol "Unsupported"
+                      >> parens stringLiteral
+                  )
+          )
+        <|> Psl.Ast.UserType <$> identifier
+
+    scalarFieldType :: Parser Psl.Ast.FieldType
+    scalarFieldType =
       foldl1
         (<|>)
         ( map
+            -- Supported scalar types from https://github.com/prisma/prisma-engines/blob/main/psl/parser-database/src/types.rs#L1429
             (\(s, t) -> try (reserved s) >> return t)
             [ ("String", Psl.Ast.String),
               ("Boolean", Psl.Ast.Boolean),
@@ -90,18 +101,12 @@ modelField = do
               ("Bytes", Psl.Ast.Bytes)
             ]
         )
-        <|> try
-          ( Psl.Ast.Unsupported
-              <$> ( symbol "Unsupported"
-                      >> parens stringLiteral
-                  )
-          )
-        <|> Psl.Ast.UserType <$> identifier
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
     fieldTypeModifier :: Parser (Maybe Psl.Ast.FieldTypeModifier)
     fieldTypeModifier =
       optionMaybe
-        ( (try (brackets whiteSpace) >> return Psl.Ast.List)
+        ( (try (symbol "[]?") >> return Psl.Ast.UnsupportedOptionalList)
+            <|> (try (symbol "[]") >> return Psl.Ast.List)
             <|> (try (symbol "?") >> return Psl.Ast.Optional)
         )

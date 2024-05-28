@@ -54,6 +54,9 @@ generateModelFieldType fieldType = case fieldType of
 
 generateModelFieldTypeModifier :: Ast.FieldTypeModifier -> String
 generateModelFieldTypeModifier typeModifier = case typeModifier of
+  -- We validate the unsupported optional list in the AppSpec validator so it's okay if we decide to handle it here.
+  -- It helps us with writing unit tests for the generator.
+  Ast.UnsupportedOptionalList -> "[]?"
   Ast.List -> "[]"
   Ast.Optional -> "?"
 

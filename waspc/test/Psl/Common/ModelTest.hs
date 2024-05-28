@@ -12,6 +12,7 @@ sampleBodySchema =
     username String? @db.VarChar(200)
     posts Post[] @relation("UserPosts", references: [id]) @customattr
     weirdType Unsupported("weird")
+    unsupportedOptionalList Sometype[]?
 
     @@someattr([id, username], 2 + 4, [posts])
   |]
@@ -79,6 +80,14 @@ sampleBodyAst =
             { AST._name = "weirdType",
               AST._type = AST.Unsupported "weird",
               AST._typeModifiers = [],
+              AST._attrs = []
+            }
+        ),
+      AST.ElementField
+        ( AST.Field
+            { AST._name = "unsupportedOptionalList",
+              AST._type = AST.UserType "Sometype",
+              AST._typeModifiers = [AST.UnsupportedOptionalList],
               AST._attrs = []
             }
         ),

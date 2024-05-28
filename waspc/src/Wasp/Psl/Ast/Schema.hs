@@ -48,7 +48,7 @@ data FieldType
   | UserType String
   deriving (Show, Eq, Data)
 
-data FieldTypeModifier = List | Optional
+data FieldTypeModifier = List | Optional | UnsupportedOptionalList
   deriving (Show, Eq, Data)
 
 data PrismaEnum
@@ -113,6 +113,9 @@ data AttrArgValue
 
 getModels :: Schema -> [Model]
 getModels (Schema elements) = [model | SchemaModel model <- elements]
+
+getModelFields :: Model -> [Field]
+getModelFields (Model _ (Body elements)) = [field | ElementField field <- elements]
 
 getEnums :: Schema -> [PrismaEnum]
 getEnums (Schema elements) = [enum | SchemaEnum enum <- elements]

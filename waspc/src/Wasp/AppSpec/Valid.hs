@@ -81,7 +81,8 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
-          validateUserNodeVersionRange spec
+          validateUserNodeVersionRange spec,
+          validatePrismaSchema spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -391,6 +392,23 @@ validateUserNodeVersionRange spec =
                 <> " we recommend you narrow down your Node version range to not allow breaking changes."
           ]
         else []
+
+validatePrismaSchema :: AppSpec -> [ValidationError]
+validatePrismaSchema spec = concat $ validateModel <$> models
+  where
+    validateModel :: Psl.Ast.Model -> [ValidationError]
+    validateModel model@(Psl.Ast.Model modelName _) = concatMap validateModelField $ Psl.Ast.getModelFields model
+      where
+        validateModelField :: Psl.Ast.Field -> [ValidationError]
+        validateModelField (Psl.Ast.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
+
+        validateTypeModifier :: String -> Psl.Ast.FieldTypeModifier -> [ValidationError]
+        -- Desired message: Prisma model \"User\" in schema.prisma has defined \"id\" as an optional list, which is not supported by Prisma.
+        validateTypeModifier fieldName Psl.Ast.UnsupportedOptionalList = [GenericValidationError $ "Model \"" ++ modelName ++ "\" in schema.prisma has defined \"" ++ fieldName ++ "\" field as an optional list, which is not supported by Prisma."]
+        validateTypeModifier _ _ = []
+
+    models = Psl.Ast.getModels prismaSchemaAst
+    prismaSchemaAst = AS.getPrismaSchema spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
