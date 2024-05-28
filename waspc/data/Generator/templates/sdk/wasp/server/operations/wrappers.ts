@@ -7,6 +7,7 @@ import { type AuthUser } from 'wasp/auth'
 import {
   _Entity,
   AuthenticatedOperationDefinition,
+  UnauthenticatedOperationDefinition,
   Payload,
 } from '../_types'
 
@@ -24,7 +25,7 @@ import {
  * definition.
  */
 export type UnauthenticatedOperationFor<
-  OperationDefinition extends GenericOperationDefinition
+  OperationDefinition extends GenericAuthenticatedOperationDefinition
 > = Parameters<OperationDefinition> extends []
   ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : UnauthenticatedOperation<
@@ -42,7 +43,7 @@ export type UnauthenticatedOperationFor<
  * @returns The server-side API for the provided unauthenticated operation.
  */
 export function createUnauthenticatedOperation<
-  OperationDefinition extends GenericOperationDefinition
+  OperationDefinition extends GenericUnauthenticatedOperationDefinition
 >(
   userOperation: OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
@@ -73,7 +74,7 @@ export function createUnauthenticatedOperation<
  * definition.
  */
 export type AuthenticatedOperationFor<
-  OperationDefinition extends GenericOperationDefinition
+  OperationDefinition extends GenericUnauthenticatedOperationDefinition
 > = Parameters<OperationDefinition> extends []
   ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : AuthenticatedOperation<
@@ -97,7 +98,7 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  * @returns The server-side API for the provided authenticated operation.
  */
 export function createAuthenticatedOperation<
-  OperationDefinition extends GenericOperationDefinition
+  OperationDefinition extends GenericAuthenticatedOperationDefinition
 >(
   userOperation: OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
@@ -154,7 +155,7 @@ function includesPayload<Input>(
  * Constructs the type of the arguments array for an authenticated operation
  * based on the type of its definition.
  */
-type AuthenticatedOperationArgsFor<Op extends GenericOperationDefinition> =
+type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefinition> =
   Parameters<AuthenticatedOperationFor<Op>>
 
 /**
@@ -165,6 +166,18 @@ type AuthenticatedOperationArgsFor<Op extends GenericOperationDefinition> =
  */
 type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
 
+/**
+ * The principal type for an authenticated operation's definition (i.e., all
+ * authenticated operation definition types are a subtype of this type).
+ *
+ */
+type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
+  // NOTE(filip): Not quite sure I understand what's going on with Variance here.
+  _Entity[],
+  never,
+  Payload
+>
+
 {=/ isAuthEnabled =}
 /**
  * Constructs the type for an unauthenticated operation's server-side API.
@@ -174,16 +187,13 @@ type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
  */
 type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
 
-// todo(filip): Should i define this independently of AuthenticatedOperationDefinition?
-// I'm using AuthenticatedOperationDefinition because a generic authenticated
-// operation is a supertype of a generic unauthenticated operation.
 /**
- * The principal type for an operation's definition (i.e., all operation
- * definition types are a subtype of this type).
+ * The principal type for an unauthenticated operation's definition (i.e., all
+ * unauthenticated operation definition types are a subtype of this type).
  *
  */
-type GenericOperationDefinition = AuthenticatedOperationDefinition<
-  // todo(filip): not quite sure I understand what's going on with Variance here
+type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinition<
+  // NOTE(filip): Not quite sure I understand what's going on with Variance here.
   _Entity[],
   never,
   Payload
@@ -194,7 +204,7 @@ type GenericOperationDefinition = AuthenticatedOperationDefinition<
  *
  * @template OperationDefinition The type of the operation's definition.
  */
-type EntityMapFor<OperationDefinition extends GenericOperationDefinition> = 
+type EntityMapFor<OperationDefinition extends GenericAuthenticatedOperationDefinition> = 
   Parameters<OperationDefinition>[1]["entities"]
 
 /**
