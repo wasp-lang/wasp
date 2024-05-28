@@ -91,7 +91,6 @@ data Model
     GPT_3_5_turbo -- Alias model
   | GPT_3_5_turbo_0125
   | GPT_3_5_turbo_1106
-  | GPT_3_5_turbo_0613
   | --
     GPT_4_turbo_Preview -- Alias model
   | GPT_4_0125_Preview
@@ -112,7 +111,6 @@ modelOpenAiId = \case
   GPT_3_5_turbo -> "gpt-3.5-turbo"
   GPT_3_5_turbo_0125 -> "gpt-3.5-turbo-0125"
   GPT_3_5_turbo_1106 -> "gpt-3.5-turbo-1106"
-  GPT_3_5_turbo_0613 -> "gpt-3.5-turbo-0613"
   GPT_4_turbo_Preview -> "gpt-4-turbo-preview"
   GPT_4_0125_Preview -> "gpt-4-0125-preview"
   GPT_4_1106_Preview -> "gpt-4-1106-preview"

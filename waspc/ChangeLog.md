@@ -9,6 +9,15 @@
 
 ### ⚠️ Breaking Changes & Migration Guide
 
+#### Strict options when building the `wasp` package
+
+The `wasp` package is now built with `strictBindCallApply`, `alwaysStrict`, `noImplicitThis`, and `strictFunctionTypes`.
+This is a breaking change only if you have manually set your `tsconfig.json`'s `strict` field to `false` and are relying on it being more permissive.
+To fix the errors, enable the options listed above and make sure your code type checks.
+
+This quirk is only temporary. You'll soon be able to use any `tsconfig.json` options you want.
+Track this issue for progress: https://github.com/wasp-lang/wasp/issues/1827
+
 #### Directly calling Queries on the client
 
 You can now call Queries directly from the client without dealing with
@@ -62,11 +71,16 @@ These changes improve code readability and lower the complexity of accessing use
 These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp-lang.dev/docs/auth/entities#including-the-user-with-other-entities).
 
 ### 🐞 Bug fixes
+
 - Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
+- Fix the `netlify.toml` to include the correct build path for the client app.
+- Fix the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
 
 ### 🔧 Small improvements
 
 - Improved the default loading spinner while waiting for the user to be fetched.
+- Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
+- When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
 
 ## 0.13.2 (2024-04-11)
 

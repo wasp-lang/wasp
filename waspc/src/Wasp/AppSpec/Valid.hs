@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
-import Wasp.AppSpec.Core.Decl (takeDecls)
+import Wasp.AppSpec.Core.Decl (IsDecl, takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
@@ -43,7 +43,7 @@ import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
-import Wasp.Util (isCapitalized)
+import Wasp.Util (findDuplicateElems, isCapitalized)
 import qualified Wasp.Version as WV
 
 data ValidationError = GenericValidationError !String | GenericValidationWarning !String
@@ -78,6 +78,7 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
+          validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validatePrismaOptions spec,
           validateWebAppBaseDir spec,
@@ -266,6 +267,39 @@ validateCrudOperations spec =
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
+{- ORMOLU_DISABLE -}
+-- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"
+-- to include the new declaration type.
+{- ORMOLU_ENABLE -}
+validateUniqueDeclarationNames :: AppSpec -> [ValidationError]
+validateUniqueDeclarationNames spec =
+  concat
+    [ checkIfDeclarationsAreUnique "page" (AS.getPages spec),
+      checkIfDeclarationsAreUnique "route" (AS.getRoutes spec),
+      checkIfDeclarationsAreUnique "action" (AS.getActions spec),
+      checkIfDeclarationsAreUnique "query" (AS.getQueries spec),
+      checkIfDeclarationsAreUnique "api" (AS.getApis spec),
+      checkIfDeclarationsAreUnique "apiNamespace" (AS.getApiNamespaces spec),
+      checkIfDeclarationsAreUnique "crud" (AS.getCruds spec),
+      checkIfDeclarationsAreUnique "entity" (AS.getEntities spec),
+      checkIfDeclarationsAreUnique "job" (AS.getJobs spec)
+    ]
+  where
+    checkIfDeclarationsAreUnique :: IsDecl a => String -> [(String, a)] -> [ValidationError]
+    checkIfDeclarationsAreUnique declTypeName decls = case duplicateDeclNames of
+      [] -> []
+      (firstDuplicateDeclName : _) ->
+        [ GenericValidationError $
+            "There are duplicate "
+              ++ declTypeName
+              ++ " declarations with name '"
+              ++ firstDuplicateDeclName
+              ++ "'."
+        ]
+      where
+        duplicateDeclNames :: [String]
+        duplicateDeclNames = findDuplicateElems $ map fst decls
 
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =

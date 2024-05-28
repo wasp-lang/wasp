@@ -132,10 +132,14 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 
 <a href="https://github.com/ThomasJonesUK"><img src="https://github.com/ThomasJonesUK.png" width="50px" alt="ThomasJonesUK" /></a> - Thanks Thomas for supporting Wasp :)!
 
+<a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a> - Our awesome sponsor again and again!
+
+<a href="https://github.com/Case-E"><img src="https://github.com/Case-E.png" width="50px" alt="Case-E" /></a> - Big thanks for supporting us both via sponsorship and great suggestions!
+
 ## Past sponsors
 
 <a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a>
 <a href="https://github.com/Tech4Money"><img src="https://github.com/Tech4Money.png" width="50px" alt="Tech4Money" /></a>
 <a href="https://github.com/haseeb-heaven"><img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" /></a>
-<a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a>
+
 

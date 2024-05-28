@@ -130,7 +130,7 @@
             "file",
             "../out/sdk/wasp/client/router/types.ts"
         ],
-        "d6feb23110d8cae5c94badd5cdec320207e1a5406cb827eb684aa4cffc3d7050"
+        "9bfaabe92126b641e6b939c26bac121dbbe1bb495392a5d40474ef4981432b5f"
     ],
     [
         [
@@ -144,7 +144,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "b44ff591a2eebfff4de9fa9e9e1b89f1f22f523f03ab0febc19ff3999721b39a"
+        "184454828b021bbc8f9927533cea271614ac9661598c7f458909980ad4b68d80"
     ],
     [
         [
@@ -319,7 +319,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "d96d435d03a397474a3edf3f1c0bbc58edd9860d9575bb59ba51e7d764339544"
+        "4323884e7e8c52683788995be58e8f583c00fc611845fdbd481157d0118dccd2"
     ],
     [
         [
@@ -515,7 +515,7 @@
             "file",
             "web-app/netlify.toml"
         ],
-        "854009c7d1b2630a55099439f89e4947188ea4160c9d1388b46b5a5cf6ab461a"
+        "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
     ],
     [
         [

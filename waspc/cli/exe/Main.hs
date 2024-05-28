@@ -8,6 +8,7 @@ import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
+import qualified System.Environment as Env
 import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
@@ -80,6 +81,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
       exitFailure
     NodeVersion.VersionCheckSuccess -> pure ()
 
+  setDefaultCliEnvVars
+
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.NewAi newAiArgs -> case newAiArgs of
@@ -129,6 +132,17 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+-- | Sets env variables that are visible to the commands run by the CLI.
+-- For example, we can use this to hide update messages by tools like Prisma.
+-- The env variables are visible to our CLI and any child processes spawned by it.
+-- The env variables won't be set in the terminal session after the CLI exits.
+setDefaultCliEnvVars :: IO ()
+setDefaultCliEnvVars = do
+  mapM_ (uncurry Env.setEnv) cliEnvVars
+  where
+    cliEnvVars :: [(String, String)]
+    cliEnvVars = [("PRISMA_HIDE_UPDATE_MESSAGE", "true")]
 
 {- ORMOLU_DISABLE -}
 printUsage :: IO ()

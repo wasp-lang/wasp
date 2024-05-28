@@ -130,6 +130,11 @@ page TaskPage {
   component: import Task from "@src/pages/Task"
 }
 
+route CatchAllRoute { path: "*", to: CatchAllPage }
+page CatchAllPage {
+  component: import { CatchAllPage } from "@src/pages/CatchAll"
+}
+
 // --------- Queries --------- //
 
 query getTasks {

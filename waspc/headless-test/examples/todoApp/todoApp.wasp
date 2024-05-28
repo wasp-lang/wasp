@@ -112,6 +112,11 @@ page TaskPage {
   component: import Task from "@src/client/pages/Task.tsx"
 }
 
+route CatchAllRoute { path: "*", to: CatchAllPage }
+page CatchAllPage {
+  component: import { CatchAllPage } from "@src/client/pages/CatchAll"
+}
+
 // --------- Queries --------- //
 
 query getTasks {
