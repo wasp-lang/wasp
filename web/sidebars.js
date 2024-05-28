@@ -14,7 +14,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Tutorial',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: [
         'tutorial/create',
@@ -34,7 +34,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Data Model',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: [
         'data-model/entities',
@@ -55,7 +55,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Authentication',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: [
         'auth/overview',
@@ -79,7 +79,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Project Setup',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: [
         'project/starter-templates',
@@ -97,14 +97,14 @@ module.exports = {
     {
       type: 'category',
       label: 'Wasp AI',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: ['wasp-ai/creating-new-app', 'wasp-ai/developing-existing-app'],
     },
     {
       type: 'category',
       label: 'Advanced Features',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: [
         {
@@ -129,14 +129,14 @@ module.exports = {
     {
       type: 'category',
       label: 'General',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: ['general/language', 'general/cli'],
     },
     {
       type: 'category',
       label: 'Miscellaneous',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       items: [
         'contributing',
