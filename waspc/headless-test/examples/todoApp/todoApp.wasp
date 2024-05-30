@@ -34,7 +34,6 @@ app todoApp {
     setupFn: import setup from "@src/client/clientSetup.js"
   },
   db: {
-    system: PostgreSQL,
     seeds: [
       import { devSeedSimple } from "@src/server/dbSeeds.js",
       import { prodSeed } from "@src/server/dbSeeds.js"
