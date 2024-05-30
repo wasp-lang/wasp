@@ -23,6 +23,7 @@ module Wasp.AppSpec
     getCruds,
     userNodeVersionRange,
     getPrismaSchema,
+    getDbSystem,
   )
 where
 
@@ -34,6 +35,7 @@ import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
+import qualified Wasp.AppSpec.App.Db as Db
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
@@ -85,7 +87,8 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File')
+    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
+    dbSystem :: Db.DbSystem
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -135,6 +138,9 @@ getApp dcls = case takeDecls @App dcls of
 
 getPrismaSchema :: AppSpec -> Psl.Ast.Schema
 getPrismaSchema = prismaSchema
+
+getDbSystem :: AppSpec -> Db.DbSystem
+getDbSystem = dbSystem
 
 resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =

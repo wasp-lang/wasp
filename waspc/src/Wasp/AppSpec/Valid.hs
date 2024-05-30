@@ -41,6 +41,7 @@ import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import Wasp.Psl.Util (findPrismaConfigBlockKeyValue)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, isCapitalized)
@@ -175,7 +176,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
-      "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
+      "The database provider in the schema.prisma file must be \"postgres\" since there are jobs with executor set to PgBoss."
     | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
@@ -394,7 +395,12 @@ validateUserNodeVersionRange spec =
         else []
 
 validatePrismaSchema :: AppSpec -> [ValidationError]
-validatePrismaSchema spec = concat $ validateModel <$> models
+validatePrismaSchema spec =
+  concat
+    [ concatMap validateModel models,
+      validateGenerators generators,
+      validateDatasources datasources
+    ]
   where
     validateModel :: Psl.Ast.Model -> [ValidationError]
     validateModel model@(Psl.Ast.Model modelName _) = concatMap validateModelField $ Psl.Ast.getModelFields model
@@ -407,7 +413,23 @@ validatePrismaSchema spec = concat $ validateModel <$> models
         validateTypeModifier fieldName Psl.Ast.UnsupportedOptionalList = [GenericValidationError $ "Model \"" ++ modelName ++ "\" in schema.prisma has defined \"" ++ fieldName ++ "\" field as an optional list, which is not supported by Prisma."]
         validateTypeModifier _ _ = []
 
+    validateGenerators :: [Psl.Ast.Generator] -> [ValidationError]
+    validateGenerators [] = [GenericValidationError "Prisma schema should have at least one generator defined."]
+    validateGenerators generators' =
+      if not isTherePrismaClientJsGenerator
+        then [GenericValidationError "Prisma schema should have one generator with the provider set to \"prisma-client-js\"."]
+        else []
+      where
+        isTherePrismaClientJsGenerator = any (\(Psl.Ast.Generator _name keyValues) -> findPrismaConfigBlockKeyValue "provider" keyValues == Just "\"prisma-client-js\"") generators'
+
+    validateDatasources :: [Psl.Ast.Datasource] -> [ValidationError]
+    validateDatasources [] = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
+    validateDatasources [_anyDataSource] = []
+    validateDatasources _ = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
+
     models = Psl.Ast.getModels prismaSchemaAst
+    generators = Psl.Ast.getGenerators prismaSchemaAst
+    datasources = Psl.Ast.getDatasources prismaSchemaAst
     prismaSchemaAst = AS.getPrismaSchema spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
@@ -426,12 +448,8 @@ isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
-getDbSystem :: AppSpec -> Maybe AS.Db.DbSystem
-getDbSystem spec = AS.Db.system =<< AS.App.db (snd $ getApp spec)
-
--- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
+isPostgresUsed = (AS.Db.PostgreSQL ==) . AS.getDbSystem
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- If there is no user entity, it returns Nothing.

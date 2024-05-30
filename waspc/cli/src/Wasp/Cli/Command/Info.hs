@@ -8,13 +8,13 @@ import Control.Monad.Except (MonadIO (liftIO))
 import StrongPath (Abs, Dir, Path', fromRelFile)
 import StrongPath.Operations ()
 import System.Directory (getFileSize)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Command.Start.Db (getDbSystem)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
@@ -29,7 +29,7 @@ info = do
   projectSize <- liftIO $ readDirectorySizeMB waspDir
 
   appSpec <- analyze waspDir
-  let (appName, app) = ASV.getApp appSpec
+  let (appName, _) = ASV.getApp appSpec
 
   cliSendMessageC $
     Msg.Info $
@@ -37,7 +37,7 @@ info = do
         [ "",
           title "Project information",
           printInfo "Name" appName,
-          printInfo "Database system" $ show $ getDbSystem app,
+          printInfo "Database system" $ show $ AS.getDbSystem appSpec,
           printInfo "Last compile" compileInfo,
           printInfo "Project dir size" projectSize
         ]

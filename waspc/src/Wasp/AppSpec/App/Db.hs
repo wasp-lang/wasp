@@ -10,10 +10,9 @@ import Data.Data (Data)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Db = Db
-  { system :: Maybe DbSystem,
-    seeds :: Maybe [ExtImport]
+  { seeds :: Maybe [ExtImport]
   }
   deriving (Show, Eq, Data)
 
-data DbSystem = PostgreSQL | SQLite
+data DbSystem = PostgreSQL | SQLite | UnsupportedDbSystem String | MissingDbSystem
   deriving (Show, Eq, Data)

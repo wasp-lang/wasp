@@ -6,9 +6,6 @@ app pgVectorExample {
   client: {
     rootComponent: import { Layout } from "@src/Layout.tsx",
   },
-  db: {
-    system: PostgreSQL
-  }
 }
 
 route RootRoute { path: "/", to: MainPage }

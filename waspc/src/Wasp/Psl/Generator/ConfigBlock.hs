@@ -1,29 +1,26 @@
 module Wasp.Psl.Generator.ConfigBlock
-  ( showPrismaDbExtensions,
-    showPrismaPreviewFeatures,
+  ( makeConfigBlockJson,
   )
 where
 
-import Data.List (find)
-import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
+import Data.Aeson (KeyValue ((.=)), Value, object)
+import Data.Function (on)
+import Data.Functor ((<&>))
+import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
-showPrismaDbExtensions :: AppSpec -> Maybe String
-showPrismaDbExtensions =
-  findPrismaConfigBlockKeyValue "extensions"
-    . concatMap (\(Psl.Ast.Datasource _ keyValues) -> keyValues)
-    . Psl.Ast.getDatasources
-    . AS.getPrismaSchema
+makeConfigBlockJson :: Psl.Ast.IsConfigBlock a => [(String, String)] -> a -> Value
+makeConfigBlockJson defaultValues configBlock =
+  object
+    [ "name" .= name,
+      "keyValues" .= (makeKeyValueJson <$> keyValues)
+    ]
+  where
+    name = Psl.Ast.getConfigBlockName configBlock
+    configBlockValues =
+      Psl.Ast.getConfigBlockKeyValues configBlock
+        <&> (\(Psl.Ast.ConfigBlockKeyValue key value) -> (key, value))
+    keyValues = nubBy ((==) `on` fst) (defaultValues ++ configBlockValues)
 
-showPrismaPreviewFeatures :: AppSpec -> Maybe String
-showPrismaPreviewFeatures =
-  findPrismaConfigBlockKeyValue "previewFeatures"
-    . concatMap (\(Psl.Ast.Generator _ keyValues) -> keyValues)
-    . Psl.Ast.getGenerators
-    . AS.getPrismaSchema
-
-findPrismaConfigBlockKeyValue :: String -> [Psl.Ast.ConfigBlockKeyValue] -> Maybe String
-findPrismaConfigBlockKeyValue needle =
-  fmap (\(Psl.Ast.ConfigBlockKeyValue _ value) -> value)
-    . find (\(Psl.Ast.ConfigBlockKeyValue key _) -> key == needle)
+    makeKeyValueJson :: (String, String) -> Value
+    makeKeyValueJson (key, value) = object ["key" .= key, "value" .= value]

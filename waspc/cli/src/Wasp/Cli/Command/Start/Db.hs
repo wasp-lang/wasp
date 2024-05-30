@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.Start.Db
   ( start,
-    getDbSystem,
     waspDevDbDockerVolumePrefix,
   )
 where
@@ -8,13 +7,12 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (isJust)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
 import System.Process (callCommand)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -42,10 +40,23 @@ start = do
 
   throwIfCustomDbAlreadyInUse appSpec
 
-  let (appName, app) = ASV.getApp appSpec
-  case getDbSystem app of
+  let (appName, _) = ASV.getApp appSpec
+  case AS.getDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
+    AS.App.Db.UnsupportedDbSystem provider ->
+      E.throwError $
+        CommandError
+          "Unsupported database provider"
+          ( printf
+              "Wasp doesn't support the database provider %s specified in the schema.prisma file."
+              provider
+          )
+    AS.App.Db.MissingDbSystem ->
+      E.throwError $
+        CommandError
+          "Missing database provider"
+          "Wasp couldn't find a database provider in the schema.prisma file."
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
@@ -84,10 +95,6 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError :: String -> Command ()
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
-
-getDbSystem :: AS.App.App -> AS.App.Db.DbSystem
-getDbSystem app =
-  fromMaybe AS.App.Db.SQLite (AS.App.db app >>= AS.App.Db.system)
 
 startPostgreDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Command ()
 startPostgreDevDb waspProjectDir appName = do

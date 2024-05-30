@@ -628,6 +628,7 @@ test-suite waspc-test
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
     Project.WaspignoreTest
+    Project.DbTest
     Paths_waspc
     Generator.NpmDependenciesTest
     JsImportTest

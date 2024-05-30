@@ -4,6 +4,10 @@ module Wasp.Psl.Ast.Schema where
 
 import Data.Data (Data)
 
+class IsConfigBlock a where
+  getConfigBlockName :: a -> String
+  getConfigBlockKeyValues :: a -> [ConfigBlockKeyValue]
+
 data Schema = Schema [SchemaElement]
   deriving (Show, Eq)
 
@@ -69,6 +73,10 @@ data Datasource
       -- ^ Content of the datasource
   deriving (Show, Eq)
 
+instance IsConfigBlock Datasource where
+  getConfigBlockName (Datasource name _) = name
+  getConfigBlockKeyValues (Datasource _ keyValues) = keyValues
+
 data Generator
   = Generator
       String
@@ -76,6 +84,10 @@ data Generator
       [ConfigBlockKeyValue]
       -- ^ Content of the generator
   deriving (Show, Eq)
+
+instance IsConfigBlock Generator where
+  getConfigBlockName (Generator name _) = name
+  getConfigBlockKeyValues (Generator _ keyValues) = keyValues
 
 -- | Represents a key-value pair in a config block.
 --  For example, in the following config block:

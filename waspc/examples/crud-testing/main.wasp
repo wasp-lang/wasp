@@ -16,7 +16,6 @@ app crudTesting {
     onAuthFailedRedirectTo: "/login",
   },
   db: {
-    system: PostgreSQL,
     seeds: [
       import { migrateAuth } from "@src/seeds/migrateAuth.js"
     ]

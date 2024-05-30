@@ -31,7 +31,7 @@ import Wasp.Project.Common
     packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
   )
-import Wasp.Project.Db (makeDevDatabaseUrl)
+import Wasp.Project.Db (getDbSystemFromPrismaSchema, makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
@@ -88,7 +88,8 @@ constructAppSpec waspDir options packageJson decls parsedPrismaSchema = do
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
-  let devDbUrl = makeDevDatabaseUrl waspDir decls
+  let dbSystem = getDbSystemFromPrismaSchema parsedPrismaSchema
+  let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
@@ -107,7 +108,8 @@ constructAppSpec waspDir options packageJson decls parsedPrismaSchema = do
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
             AS.devDatabaseUrl = devDbUrl,
-            AS.customViteConfigPath = customViteConfigPath
+            AS.customViteConfigPath = customViteConfigPath,
+            AS.dbSystem = dbSystem
           }
   let (validationErrors, validationWarnings) =
         let errsAndWarns = validateAppSpec appSpec

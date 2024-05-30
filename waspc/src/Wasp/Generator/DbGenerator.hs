@@ -8,7 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (find)
-import Data.Maybe (fromMaybe, maybeToList)
+import Data.Maybe (maybeToList)
 import Data.Text (Text, pack)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -58,11 +58,15 @@ genPrismaSchema ::
   Generator FileDraft
 genPrismaSchema spec = do
   (datasourceProvider :: String, datasourceUrl) <- case dbSystem of
-    AS.Db.PostgreSQL -> return ("postgresql", makeEnvVarField databaseUrlEnvVarName)
+    AS.Db.PostgreSQL -> return ("\"postgresql\"", makeEnvVarField databaseUrlEnvVarName)
     AS.Db.SQLite ->
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
-        else return ("sqlite", "\"file:./dev.db\"")
+        else return ("\"sqlite\"", "\"file:./dev.db\"")
+    AS.Db.UnsupportedDbSystem unsupportedDbSystem ->
+      logAndThrowGeneratorError $ GenericGeneratorError $ "Wasp doesn't support the database provider " ++ unsupportedDbSystem ++ " specified in the schema.prisma file."
+    AS.Db.MissingDbSystem ->
+      logAndThrowGeneratorError $ GenericGeneratorError "You need to specify the \"provider\" field in the \"datasource\" block in your Prisma schema."
 
   entities <- getEntitiesForPrismaSchema spec
 
@@ -70,27 +74,36 @@ genPrismaSchema spec = do
         object
           [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
             "enumSchemas" .= enumSchemas,
-            "datasourceProvider" .= datasourceProvider,
-            "datasourceUrl" .= datasourceUrl,
-            "prismaPreviewFeatures" .= prismaPreviewFeatures,
-            "dbExtensions" .= dbExtensions
+            "datasource" .= makeDatasourceJson datasourceProvider datasourceUrl,
+            "generators" .= generatorJsons
           ]
 
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
   where
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
-    dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
+    dbSystem = AS.getDbSystem spec
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
-    prismaPreviewFeatures = Psl.Generator.ConfigBlock.showPrismaPreviewFeatures spec
-    dbExtensions = Psl.Generator.ConfigBlock.showPrismaDbExtensions spec
+    makeDatasourceJson datasourceProvider datasourceUrl =
+      Psl.Generator.ConfigBlock.makeConfigBlockJson
+        [("provider", datasourceProvider), ("url", datasourceUrl)]
+        -- As per Prisma's docs there can be only ONE datasource block in the schema.
+        -- We validated AppSpec so we know there is exactly one datasource block.
+        -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
+        (head $ Psl.Ast.getDatasources prismaSchemaAst)
+
+    generatorJsons =
+      Psl.Generator.ConfigBlock.makeConfigBlockJson []
+        <$> Psl.Ast.getGenerators prismaSchemaAst
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Schema.generateSchemaElement $
         Psl.Ast.SchemaModel $ Psl.Ast.Model entityName (AS.Entity.getPslModelBody entity)
 
-    enumSchemas = Psl.Generator.Schema.generateSchemaElement . Psl.Ast.SchemaEnum <$> (Psl.Ast.getEnums . AS.getPrismaSchema $ spec)
+    enumSchemas = Psl.Generator.Schema.generateSchemaElement . Psl.Ast.SchemaEnum <$> Psl.Ast.getEnums prismaSchemaAst
+
+    prismaSchemaAst = AS.getPrismaSchema spec
 
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.

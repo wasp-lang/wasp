@@ -381,26 +381,74 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
 
-    describe "Prisma schema validation" $
+    describe "Prisma schema validation" $ do
       it "should validate that Prisma models are not using unsupported field modifiers" $ do
         let prismaSchema =
-              Psl.Ast.Schema
-                [ Psl.Ast.SchemaModel $
-                    Psl.Ast.Model "User" $
-                      Psl.Ast.Body
-                        [ Psl.Ast.ElementField $
-                            Psl.Ast.Field
-                              { Psl.Ast._name = "id",
-                                Psl.Ast._type = Psl.Ast.String,
-                                Psl.Ast._typeModifiers =
-                                  [ Psl.Ast.UnsupportedOptionalList
-                                  ],
-                                Psl.Ast._attrs = []
-                              }
-                        ]
-                ]
+              Psl.Ast.Schema $
+                minimalPassingPrismaConfig
+                  ++ [ Psl.Ast.SchemaModel $
+                         Psl.Ast.Model "User" $
+                           Psl.Ast.Body
+                             [ Psl.Ast.ElementField $
+                                 Psl.Ast.Field
+                                   { Psl.Ast._name = "id",
+                                     Psl.Ast._type = Psl.Ast.String,
+                                     Psl.Ast._typeModifiers =
+                                       [ Psl.Ast.UnsupportedOptionalList
+                                       ],
+                                     Psl.Ast._attrs = []
+                                   }
+                             ]
+                     ]
         let appSpec = basicAppSpec {AS.prismaSchema = prismaSchema}
         ASV.validateAppSpec appSpec `shouldBe` [ASV.GenericValidationError "Model \"User\" in schema.prisma has defined \"id\" field as an optional list, which is not supported by Prisma."]
+
+    it "should validate that some datasource exists" $
+      let prismaSchema =
+            Psl.Ast.Schema
+              [ Psl.Ast.SchemaGenerator $
+                  Psl.Ast.Generator
+                    "client"
+                    [ Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
+                    ]
+              ]
+       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
+            `shouldBe` [ASV.GenericValidationError "Prisma schema must have exactly one datasource defined."]
+
+    it "should validate that only one datasource exists" $
+      let prismaSchema =
+            Psl.Ast.Schema
+              [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
+                Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
+                Psl.Ast.SchemaGenerator $
+                  Psl.Ast.Generator
+                    "client"
+                    [ Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
+                    ]
+              ]
+       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
+            `shouldBe` [ASV.GenericValidationError "Prisma schema must have exactly one datasource defined."]
+
+    it "should validate that there is at least one generator" $
+      let prismaSchema =
+            Psl.Ast.Schema
+              [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" []
+              ]
+       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
+            `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator defined."]
+
+    it "should validate that there is at least one client generator" $
+      let prismaSchema =
+            Psl.Ast.Schema
+              [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
+                Psl.Ast.SchemaGenerator $
+                  Psl.Ast.Generator
+                    "client"
+                    [ Psl.Ast.ConfigBlockKeyValue "provider" "\"bla\""
+                    ]
+              ]
+       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
+            `shouldBe` [ASV.GenericValidationError "Prisma schema should have one generator with the provider set to \"prisma-client-js\"."]
   where
     makeIdField name typ =
       Psl.Ast.Field
@@ -426,8 +474,7 @@ spec_AppSpecValid = do
           AS.App.db =
             Just $
               AS.Db.Db
-                { AS.Db.system = Just AS.Db.PostgreSQL,
-                  AS.Db.seeds = Nothing
+                { AS.Db.seeds = Nothing
                 },
           AS.App.server = Nothing,
           AS.App.client = Nothing,
@@ -442,7 +489,7 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
-          AS.prismaSchema = Psl.Ast.Schema [],
+          AS.prismaSchema = Psl.Ast.Schema minimalPassingPrismaConfig,
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
           AS.externalPublicFiles = [],
@@ -459,8 +506,18 @@ spec_AppSpecValid = do
           AS.userDockerfileContents = Nothing,
           AS.configFiles = [],
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing
+          AS.customViteConfigPath = Nothing,
+          AS.dbSystem = AS.Db.PostgreSQL
         }
+
+    minimalPassingPrismaConfig =
+      [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
+        Psl.Ast.SchemaGenerator $
+          Psl.Ast.Generator
+            "client"
+            [ Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
+            ]
+      ]
 
     basicPage =
       AS.Page.Page

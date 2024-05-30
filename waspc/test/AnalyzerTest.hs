@@ -77,7 +77,6 @@ spec_Analyzer = do
                 "    baseDir: \"/\"",
                 "  },",
                 "  db: {",
-                "    system: PostgreSQL,",
                 "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds.js\" ],",
                 "  },",
                 "  emailSender: {",
@@ -181,8 +180,7 @@ spec_Analyzer = do
                     App.db =
                       Just
                         Db.Db
-                          { Db.system = Just Db.PostgreSQL,
-                            Db.seeds =
+                          { Db.seeds =
                               Just
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")

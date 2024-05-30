@@ -1,24 +1,26 @@
 {{={= =}=}}
 
-datasource db {
-  provider = "{= datasourceProvider =}"
-  url      = {=& datasourceUrl =}
-  {=# dbExtensions =}
-  extensions = {=& . =}
-  {=/ dbExtensions =}
+datasource {= datasource.name =} {
+  {=# datasource.keyValues =}
+  {= key =} = {=& value =}
+  {=/ datasource.keyValues =}
 }
 
-generator client {
-  provider = "prisma-client-js"
-  {=# prismaPreviewFeatures =}
-  previewFeatures = {=& . =}
-  {=/ prismaPreviewFeatures =}
+{=# generators =}
+{=# . =}
+generator {= name =} {
+  {=# keyValues =}
+  {= key =} = {=& value =}
+  {=/ keyValues =}
 }
+{=/ . =}
+{=/ generators =}
 
 {=# modelSchemas =}
 {=& . =}
-{=/ modelSchemas =}
 
+{=/ modelSchemas =}
 {=# enumSchemas =}
 {=& . =}
+
 {=/ enumSchemas =}
