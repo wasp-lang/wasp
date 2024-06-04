@@ -162,6 +162,7 @@ library
     Wasp.AI.GenerateNewProject.Plan
     Wasp.AI.GenerateNewProject.Skeleton
     Wasp.AI.GenerateNewProject.WaspFile
+    Wasp.AI.GenerateNewProject.PrismaFile
     Wasp.AI.OpenAI
     Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer

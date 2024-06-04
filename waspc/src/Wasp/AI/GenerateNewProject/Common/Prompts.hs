@@ -76,11 +76,6 @@ waspFileExample =
           client: {
             rootComponent: import { Layout } from "@src/Layout.jsx",
           },
-          db: {
-            prisma: {
-              clientPreviewFeatures: ["extendedWhereUnique"]
-            }
-          },
         }
 
         route SignupRoute { path: "/signup", to: SignupPage }
@@ -98,19 +93,6 @@ waspFileExample =
           authRequired: true,
           component: import Dashboard from "@src/pages/Dashboard.jsx"
         }
-
-        entity User {=psl
-            id          Int       @id @default(autoincrement())
-            tasks       Task[]
-        psl=}
-
-        entity Task {=psl
-            id          Int       @id @default(autoincrement())
-            description String
-            isDone      Boolean   @default(false)
-            user        User      @relation(fields: [userId], references: [id])
-            userId      Int
-        psl=}
 
         query getUser {
           fn: import { getUser } from "@src/queries.js",

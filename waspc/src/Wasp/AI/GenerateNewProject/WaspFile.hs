@@ -114,28 +114,9 @@ fixWaspFile newProjectDetails waspFilePath plan = do
               - Value of `fn:` field in `query` or `action` not having correct import syntax,
                 for example it might have invalid syntax, e.g. `fn: @src/actions.js`.
                 Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@src/actions.js"`.
-              - If two entities are in a relation, make sure that they both have a field that references the other entity.
-              - If an entity has a field that references another entity (e.g. location), make sure to include @relation directive on that field.
-              - If an entity references another entity, make sure the ID field (e.g. locationId) of the referenced entity is also included.
-                ```wasp
-                entity Location {=psl
-                  id Int @id @default(autoincrement())
-                  latitude Float
-                  longitude Float
-                  weathers Weather[]
-                psl=}
-
-                entity Weather {=psl
-                  id Int @id @default(autoincrement())
-                  temperature Float
-                  description String
-                  location Location @relation(fields: [locationId], references: [id])
-                  locationId Int
-                psl=}
-                ```
               - I noticed that you sometimes by accident add redundant "}" at the end of the Wasp file while fixing it.
                 Be careful not to do that.
-              - Don't by accident put all the declarations under `app {...}`! `route`, `page`, `entity`, `job`, `action`, `query`, those are all standalone and don't go inside of `app`. Assume all the declarations are at the right level in the file and keep that as it is, don't change that.
+              - Don't by accident put all the declarations under `app {...}`! `route`, `page`, `job`, `action`, `query`, those are all standalone and don't go inside of `app`. Assume all the declarations are at the right level in the file and keep that as it is, don't change that.
               - Don't remove any newlines.
               - We are using SQLite as a database for Prisma, so we can't use scalar arrays in PSL, like `String[]`,
                 as those are not supported in SQLite. We can of course normally use arrays of other models, like `Task[]`.

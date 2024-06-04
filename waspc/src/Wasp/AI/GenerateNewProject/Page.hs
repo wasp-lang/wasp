@@ -26,22 +26,22 @@ import Wasp.AI.GenerateNewProject.Common
     writeToWaspFileEnd,
   )
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
+import Wasp.AI.GenerateNewProject.Entity (modelPlanToPrismaModelText)
 import Wasp.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
 generateAndWritePage ::
-  NewProjectDetails -> FilePath -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
-generateAndWritePage newProjectDetails waspFilePath entityPlans queries actions pPlan = do
-  page <- generatePage newProjectDetails entityPlans queries actions pPlan
+  NewProjectDetails -> FilePath -> [Plan.Model] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
+generateAndWritePage newProjectDetails waspFilePath modelPlans queries actions pPlan = do
+  page <- generatePage newProjectDetails modelPlans queries actions pPlan
   writePageToJsFile page
   writePageToWaspFile waspFilePath page
   writeToLog $ "Generated page: " <> fromString (Plan.pageName pPlan)
   return page
 
-generatePage :: NewProjectDetails -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
-generatePage newProjectDetails entityPlans queries actions pPlan = do
+generatePage :: NewProjectDetails -> [Plan.Model] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
+generatePage newProjectDetails modelPlans queries actions pPlan = do
   impl <- queryChatGPTForJSON (codingChatGPTParams newProjectDetails) chatMessages
   return Page {pageImpl = impl, pagePlan = pPlan}
   where
@@ -59,7 +59,7 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
     routePath = T.pack $ Plan.routePath pPlan
     pageDesc = T.pack $ Plan.pageDesc pPlan
 
-    entityDecls = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
+    modelDecls = T.intercalate "\n\n" $ modelPlanToPrismaModelText <$> modelPlans
     queriesInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> queries
     actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
     pageDocPrompt = makePageDocPrompt
@@ -76,8 +76,8 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
 
         We are implementing a Wasp app (check bottom for description).
 
-        Entities in our app:
-        ${entityDecls}
+        Models in our app:
+        ${modelDecls}
 
         Actions in our app:
         ${actionsInfo}

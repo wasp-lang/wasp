@@ -2,7 +2,7 @@
 
 module Wasp.AI.GenerateNewProject.Plan
   ( Plan (..),
-    Entity (..),
+    Model (..),
     Operation (..),
     Page (..),
     generatePlan,
@@ -75,18 +75,18 @@ generatePlan newProjectDetails planRules = do
         Plan is represented as JSON with the following schema:
 
         {
-          "entities": [{ "entityName": string, "entityBodyPsl": string }],
+          "models": [{ "modelName": string, "modelBody": string }],
           "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
           "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
           "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
         }
 
-      Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
+      Here is an example of a plan (a bit simplified, as we didn't list all of the models/actions/queries/pages):
 
         {
-          "entities": [{
-            "entityName": "User",
-            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  tasks Task[]"
+          "models": [{
+            "modelName": "User",
+            "modelBody": "  id Int @id @default(autoincrement())\n  tasks Task[]"
           }],
           "actions": [{
             "opName": "createTask",
@@ -109,11 +109,11 @@ generatePlan newProjectDetails planRules = do
 
         We will later use this plan to write main.wasp file and all the other parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
-        Also, mention in the descriptions of actions/queries which entities they work with,
+        Also, mention in the descriptions of actions/queries which models they work with,
         and in descriptions of pages mention which actions/queries they use.
 
         Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
-        least two entities. It will very likely have more than one of each, though.
+        least two models. It will very likely have more than one of each, though.
 
         DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
 
@@ -141,10 +141,10 @@ generatePlan newProjectDetails planRules = do
     -- no further fixing, or False if we are not sure and it might need further fixing.
     fixPlan :: Plan -> CodeAgent (Bool, Plan)
     fixPlan initialPlan = do
-      (maybePrismaFormatErrorsMsg, formattedEntities) <- liftIO $ prismaFormat $ entities initialPlan
-      let plan' = initialPlan {entities = formattedEntities}
+      (maybePrismaFormatErrorsMsg, formattedEntities) <- liftIO $ prismaFormat $ models initialPlan
+      let plan' = initialPlan {models = formattedEntities}
       let issues =
-            checkPlanForEntityIssues plan'
+            checkPlanForModelIssues plan'
               <> checkPlanForOperationIssues Query plan'
               <> checkPlanForOperationIssues Action plan'
               <> checkPlanForLogoutAndLoginActions plan'
@@ -195,55 +195,55 @@ generatePlan newProjectDetails planRules = do
                    ]
           return (False, fixedPlan)
 
-checkPlanForEntityIssues :: Plan -> [String]
-checkPlanForEntityIssues plan =
+checkPlanForModelIssues :: Plan -> [String]
+checkPlanForModelIssues plan =
   checkNumEntities
     <> checkUserEntity
-    <> concatMap checkIfEntityPSLCompiles (entities plan)
+    <> concatMap checkIfEntityPSLCompiles (models plan)
   where
     checkNumEntities =
-      let numEntities = length (entities plan)
+      let numEntities = length (models plan)
           expectedNumEntities = 2
        in if numEntities < expectedNumEntities
             then
-              [ "There is only " <> show numEntities <> " entities in the plan,"
+              [ "There is only " <> show numEntities <> " models in the plan,"
                   <> (" I would expect at least " <> show expectedNumEntities <> " or more.")
               ]
             else []
 
     checkUserEntity =
-      case find ((== "User") . entityName) (entities plan) of
+      case find ((== "User") . modelName) (models plan) of
         Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
-        Nothing -> ["'User' entity is missing."]
+        Nothing -> ["'User' model is missing."]
 
-    checkIfEntityPSLCompiles entity =
-      case Psl.Parser.Model.parsePslBody (entityBodyPsl entity) of
+    checkIfEntityPSLCompiles model =
+      case Psl.Parser.Model.parsePslBody (modelBody model) of
         Left parseError ->
-          [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
+          [ "Failed to parse PSL body of model '" <> modelName model <> "': "
               <> show parseError
           ]
         Right _ -> []
 
--- | Calls "prisma format" on given entities, and returns formatted/fixed entities + error message
+-- | Calls "prisma format" on given models, and returns formatted/fixed models + error message
 -- that captures all schema errors that prisma returns, if any.
 -- Prisma format does not only do formatting, but also fixes some small mistakes and reports errors.
-prismaFormat :: [Entity] -> IO (Maybe Text, [Entity])
+prismaFormat :: [Model] -> IO (Maybe Text, [Model])
 prismaFormat unformattedEntities = do
-  let pslModels = getPslModelTextForEntity <$> unformattedEntities
+  let pslModels = getPslModelTextForModel <$> unformattedEntities
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
   let formattedEntities =
         zipWith
-          (\e m -> e {entityBodyPsl = T.unpack $ getPslBodyFromPslModelText m})
+          (\e m -> e {modelBody = T.unpack $ getPslBodyFromPslModelText m})
           unformattedEntities
           formattedPslModels
   return (maybeErrorsMsg, formattedEntities)
   where
-    getPslModelTextForEntity :: Entity -> Text
-    getPslModelTextForEntity entity =
-      let modelName = T.pack $ entityName entity
-          modelBody = T.pack $ entityBodyPsl entity
-       in [trimming|model ${modelName} {
-                      ${modelBody}
+    getPslModelTextForModel :: Model -> Text
+    getPslModelTextForModel model =
+      let pslModelName = T.pack $ modelName model
+          pslModelBody = T.pack $ modelBody model
+       in [trimming|model ${pslModelName} {
+                      ${pslModelBody}
                     }|]
 
     -- Example: @getPslBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.
@@ -316,15 +316,15 @@ summarizePlan plan =
   let numQueries = showT $ length $ queries plan
       numActions = showT $ length $ actions plan
       numPages = showT $ length $ pages plan
-      numEntities = showT $ length $ entities plan
+      numEntities = showT $ length $ models plan
       queryNames = showT $ opName <$> queries plan
       actionNames = showT $ opName <$> actions plan
       pageNames = showT $ pageName <$> pages plan
-      entityNames = showT $ entityName <$> entities plan
+      modelNames = showT $ modelName <$> models plan
    in [trimming|
         - ${numQueries} queries: ${queryNames}
         - ${numActions} actions: ${actionNames}
-        - ${numEntities} entities: ${entityNames}
+        - ${numEntities} models: ${modelNames}
         - ${numPages} pages: ${pageNames}
       |]
   where
@@ -365,7 +365,7 @@ summarizePlan plan =
 --   they also do it in their UI.
 
 data Plan = Plan
-  { entities :: [Entity],
+  { models :: [Model],
     queries :: [Operation],
     actions :: [Operation],
     pages :: [Page]
@@ -376,15 +376,15 @@ instance FromJSON Plan
 
 instance ToJSON Plan
 
-data Entity = Entity
-  { entityName :: String,
-    entityBodyPsl :: String
+data Model = Model
+  { modelName :: String,
+    modelBody :: String
   }
   deriving (Generic, Show)
 
-instance FromJSON Entity
+instance FromJSON Model
 
-instance ToJSON Entity
+instance ToJSON Model
 
 data OperationType = Action | Query
 
