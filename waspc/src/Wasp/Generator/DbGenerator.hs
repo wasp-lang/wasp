@@ -215,6 +215,9 @@ warnProjectDiffersFromDb projectRootDir = do
 generatePrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 generatePrismaClient spec projectRootDir =
   ifM
+    -- TODO: add an extra check here: if the generated client's schema doesn't
+    -- match the current Wasp schema.prisma, we should regenerate the client.
+    -- This can happen if the user runs `npx prisma generate` manually!
     wasCurrentSchemaAlreadyGenerated
     (return Nothing)
     generatePrismaClientIfEntitiesExist
