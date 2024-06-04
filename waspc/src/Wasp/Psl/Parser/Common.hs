@@ -62,8 +62,7 @@ lexer =
       { T.commentLine = "//",
         T.caseSensitive = True,
         T.identStart = letter,
-        T.identLetter = alphaNum <|> char '_',
-        T.reservedNames = ["model", "type", "view", "enum", "generator", "datasource"]
+        T.identLetter = alphaNum <|> char '_'
       }
 
 fieldAttribute :: Parser Psl.Ast.Attribute

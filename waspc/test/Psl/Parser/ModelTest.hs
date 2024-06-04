@@ -75,3 +75,33 @@ spec_parsePslModel = do
 
     it "Model is correctly parsed" $ do
       Parsec.parse model "" (T.unpack modelPsl) `shouldBe` Right modelAst
+
+  -- Prisma PSL allows for model fields to be named with decl keywords.
+  describe "Model fields can be named with reserved names" $ do
+    let modelPsl =
+          [trimming|
+            model User {
+              model Int
+              type String
+              view Boolean
+              enum Float
+              generator Decimal
+              datasource String
+            }
+        |]
+        modelAst =
+          AST.SchemaModel $
+            AST.Model
+              "User"
+              ( AST.Body
+                  [ AST.ElementField (AST.Field "model" AST.Int [] []),
+                    AST.ElementField (AST.Field "type" AST.String [] []),
+                    AST.ElementField (AST.Field "view" AST.Boolean [] []),
+                    AST.ElementField (AST.Field "enum" AST.Float [] []),
+                    AST.ElementField (AST.Field "generator" AST.Decimal [] []),
+                    AST.ElementField (AST.Field "datasource" AST.String [] [])
+                  ]
+              )
+
+    it "Model is correctly parsed" $ do
+      Parsec.parse model "" (T.unpack modelPsl) `shouldBe` Right modelAst
