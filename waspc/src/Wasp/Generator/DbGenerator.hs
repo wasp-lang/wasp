@@ -1,7 +1,7 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
-    warnIfDbNeedsMigration,
     postWriteDbGeneratorActions,
+    warnIfDbNeedsMigration,
     getEntitiesForPrismaSchema,
   )
 where
@@ -109,9 +109,16 @@ genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir gen
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
-  dbGeneratorWarnings <- maybeToList <$> warnIfDbNeedsMigration spec dstDir
+  dbGeneratorWarnings <-
+    -- It makes sense to check if db needs migration only if the db is known at this moment, for
+    -- example if we are in development (`wasp start`).
+    -- However if we are in build (`wasp build`), then there is no database to check against right
+    -- now.
+    if not (AS.isBuild spec)
+      then maybeToList <$> warnIfDbNeedsMigration spec dstDir
+      else pure []
   dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir
-  return (dbGeneratorWarnings, dbGeneratorErrors)
+  pure (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.

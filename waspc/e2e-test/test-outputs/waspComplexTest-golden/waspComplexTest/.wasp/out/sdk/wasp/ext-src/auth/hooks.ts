@@ -1,5 +1,4 @@
 import type {
-  OnAfterOAuthTokenReceivedHookFn,
   OnAfterSignupHookFn,
   OnBeforeOAuthRedirectHookFn,
   OnBeforeSignupHookFn,
@@ -23,9 +22,4 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async (
   console.log('redirect to', args.url.toString())
   return { url: args.url }
 }
-
-export const onAfterOAuthTokenReceived: OnAfterOAuthTokenReceivedHookFn =
-  async (args) => {
-    console.log('access token', args.accessToken)
-  }
 

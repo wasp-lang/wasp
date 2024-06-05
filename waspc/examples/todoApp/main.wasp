@@ -44,7 +44,6 @@ app todoApp {
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
     onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks.js",
-    onAfterOAuthTokenReceived: import { onAfterOAuthTokenReceived } from "@src/auth/hooks.js",
   },
   server: {
     setupFn: import setup from "@src/serverSetup",

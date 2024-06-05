@@ -108,13 +108,11 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
       object
         [ "onBeforeSignupHook" .= onBeforeSignupHook,
           "onAfterSignupHook" .= onAfterSignupHook,
-          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook,
-          "onAfterOAuthTokenReceivedHook" .= onAfterOAuthTokenReceivedHook
+          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook
         ]
     onBeforeSignupHook = aliasedExtImportToImportJson "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
     onAfterSignupHook = aliasedExtImportToImportJson "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
     onBeforeOAuthRedirectHook = aliasedExtImportToImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
-    onAfterOAuthTokenReceivedHook = aliasedExtImportToImportJson "onAfterOAuthTokenReceivedHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterOAuthTokenReceived auth
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|../|]

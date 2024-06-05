@@ -6,7 +6,7 @@
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
 - Improved API for calling Operations (Queries and Actions) directly.
-- Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook and get the provider token with `onAfterOAuthTokenReceived` hook.
+- Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
 
   ```wasp
   app myApp {
@@ -15,12 +15,20 @@
       onBeforeSignup: import { onBeforeSignup } from "...",
       onAfterSignup: import { onAfterSignup } from "...",
       onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "...",
-      onAfterOAuthTokenReceived: import { onAfterOAuthTokenReceived } from "...",
     },
   }
   ```
 
 ### ⚠️ Breaking Changes & Migration Guide
+
+#### Strict options when building the `wasp` package
+
+The `wasp` package is now built with `strictBindCallApply`, `alwaysStrict`, `noImplicitThis`, and `strictFunctionTypes`.
+This is a breaking change only if you have manually set your `tsconfig.json`'s `strict` field to `false` and are relying on it being more permissive.
+To fix the errors, enable the options listed above and make sure your code type checks.
+
+This quirk is only temporary. You'll soon be able to use any `tsconfig.json` options you want.
+Track this issue for progress: https://github.com/wasp-lang/wasp/issues/1827
 
 #### Directly calling Queries on the client
 

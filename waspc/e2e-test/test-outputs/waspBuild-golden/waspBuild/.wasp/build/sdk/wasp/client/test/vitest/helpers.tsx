@@ -1,4 +1,4 @@
-import { ReactElement } from 'react'
+import { ReactElement, ReactNode } from 'react'
 import { serialize as superjsonSerialize } from 'superjson'
 import { rest, type ResponseResolver, type RestContext } from 'msw'
 import { setupServer, type SetupServer } from 'msw/node'
@@ -31,7 +31,7 @@ export function renderInContext(ui: ReactElement): RenderResult {
   )
   return {
     ...result,
-    rerender: (rerenderUi: ReactElement) =>
+    rerender: (rerenderUi: ReactNode) =>
       rerender(
         <QueryClientProvider client={client}>
           <Router>{rerenderUi}</Router>

@@ -1,7 +1,6 @@
 {{={= =}=}}
 import { prisma } from 'wasp/server'
 import type {
-  OnAfterOAuthTokenReceivedHookFn,
   OnAfterSignupHookFn,
   OnBeforeOAuthRedirectHookFn,
   OnBeforeSignupHookFn,
@@ -15,9 +14,6 @@ import type {
 {=# onBeforeOAuthRedirectHook.isDefined =}
 {=& onBeforeOAuthRedirectHook.importStatement =}
 {=/ onBeforeOAuthRedirectHook.isDefined =}
-{=# onAfterOAuthTokenReceivedHook.isDefined =}
-{=& onAfterOAuthTokenReceivedHook.importStatement =}
-{=/ onAfterOAuthTokenReceivedHook.isDefined =}
 
 /*
   These are "internal hook functions" based on the user defined hook functions.
@@ -69,20 +65,6 @@ export const onBeforeOAuthRedirectHook = (
 {=^ onBeforeOAuthRedirectHook.isDefined =}
 export const onBeforeOAuthRedirectHook = undefined
 {=/ onBeforeOAuthRedirectHook.isDefined =}
-
-{=# onAfterOAuthTokenReceivedHook.isDefined =}
-export const onAfterOAuthTokenReceivedHook = (
-  params: UserHookParamsToInternalHookParams<OnAfterOAuthTokenReceivedHookFn>,
-) =>
-  {= onAfterOAuthTokenReceivedHook.importIdentifier =}({
-    hookName: 'onAfterOAuthTokenReceived',
-    prisma,
-    ...params,
-  })
-{=/ onAfterOAuthTokenReceivedHook.isDefined =}
-{=^ onAfterOAuthTokenReceivedHook.isDefined =}
-export const onAfterOAuthTokenReceivedHook = undefined
-{=/ onAfterOAuthTokenReceivedHook.isDefined =}
 
 /*
   We pass extra params to the user defined hook functions, but we don't want to

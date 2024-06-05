@@ -8,7 +8,7 @@ import {
 } from 'wasp/auth/providers/types'
 
 import {
-  type StateType,
+  type OptionalStateType,
   generateAndStoreOAuthState,
   validateAndGetOAuthState,
 } from '../oauth/state.js'
@@ -17,14 +17,11 @@ import {
   handleOAuthErrorAndGetRedirectUri,
 } from '../oauth/user.js'
 import { callbackPath, loginPath } from './redirect.js'
-import {
-  onBeforeOAuthRedirectHook,
-  onAfterOAuthTokenReceivedHook,
-} from '../../hooks.js'
+import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<ST extends StateType>({
+export function createOAuthProviderRouter<OST extends OptionalStateType>({
   provider,
-  stateTypes,
+  optionalStateTypes,
   userSignupFields,
   getAuthorizationUrl,
   getProviderTokens,
@@ -34,39 +31,39 @@ export function createOAuthProviderRouter<ST extends StateType>({
   /*
     - State is used to validate the callback to ensure the user
       that requested the login is the same that is completing it.
-    - It can include just the "state" or an extra "codeVerifier" for PKCE.
+    - It includes "state" and an optional "codeVerifier" for PKCE.
     - The state types used depend on the provider.
   */
-  stateTypes: ST[]
+  optionalStateTypes: OST[]
   userSignupFields: UserSignupFields | undefined
   /*
     The function that returns the URL to redirect the user to the
     provider's login page.
   */
-  getAuthorizationUrl: Parameters<typeof createOAuthLoginHandler<ST>>[2]
+  getAuthorizationUrl: Parameters<typeof createOAuthLoginHandler<OST>>[2]
   /*
     The function that returns the access token and refresh token from the
     provider's callback.
   */
-  getProviderTokens: Parameters<typeof createOAuthCallbackHandler<ST>>[3]
+  getProviderTokens: Parameters<typeof createOAuthCallbackHandler<OST>>[3]
   /*
     The function that returns the user's profile and ID using the access
     token.
   */
-  getProviderInfo: Parameters<typeof createOAuthCallbackHandler<ST>>[4]
+  getProviderInfo: Parameters<typeof createOAuthCallbackHandler<OST>>[4]
 }): Router {
   const router = Router()
 
   router.get(
     `/${loginPath}`,
-    createOAuthLoginHandler(provider, stateTypes, getAuthorizationUrl),
+    createOAuthLoginHandler(provider, optionalStateTypes, getAuthorizationUrl),
   )
 
   router.get(
     `/${callbackPath}`,
     createOAuthCallbackHandler(
       provider,
-      stateTypes,
+      optionalStateTypes,
       userSignupFields,
       getProviderTokens,
       getProviderInfo,
@@ -76,36 +73,35 @@ export function createOAuthProviderRouter<ST extends StateType>({
   return router
 }
 
-function createOAuthLoginHandler<ST extends StateType>(
+function createOAuthLoginHandler<OST extends OptionalStateType>(
   provider: ProviderConfig,
-  stateTypes: ST[],
+  optionalStateTypes: OST[],
   getAuthorizationUrl: (
-    oAuthState: ReturnType<typeof generateAndStoreOAuthState<ST>>,
+    oAuthState: ReturnType<typeof generateAndStoreOAuthState<OST>>,
   ) => Promise<URL>,
 ) {
   return handleRejection(async (req, res) => {
-    const oAuthState = generateAndStoreOAuthState(stateTypes, provider, res)
+    const oAuthState = generateAndStoreOAuthState(optionalStateTypes, provider, res)
     let url = await getAuthorizationUrl(oAuthState)
     if (onBeforeOAuthRedirectHook) {
-      url =
-        // TODO: send state as well so it can be connected to the callback
-        (
-          await onBeforeOAuthRedirectHook({
-            req,
-            url,
-          })
-        ).url
+      url = (
+        await onBeforeOAuthRedirectHook({
+          req,
+          url,
+          uniqueRequestId: oAuthState.state,
+        })
+      ).url
     }
     return redirect(res, url.toString())
   })
 }
 
-function createOAuthCallbackHandler<ST extends StateType>(
+function createOAuthCallbackHandler<OST extends OptionalStateType>(
   provider: ProviderConfig,
-  stateTypes: ST[],
+  optionalStateTypes: OST[],
   userSignupFields: UserSignupFields | undefined,
   getProviderTokens: (
-    oAuthState: ReturnType<typeof validateAndGetOAuthState<ST>>,
+    oAuthState: ReturnType<typeof validateAndGetOAuthState<OST>>,
   ) => Promise<{
     accessToken: string
   }>,
@@ -116,27 +112,22 @@ function createOAuthCallbackHandler<ST extends StateType>(
 ) {
   return handleRejection(async (req, res) => {
     try {
-      const oAuthState = validateAndGetOAuthState(stateTypes, provider, req)
+      const oAuthState = validateAndGetOAuthState(optionalStateTypes, provider, req)
       const { accessToken } = await getProviderTokens(oAuthState)
-      if (onAfterOAuthTokenReceivedHook) {
-        // TODO: send state as well so it can be connected to the redirect
-        await onAfterOAuthTokenReceivedHook({
-          req,
-          accessToken,
-        })
-      }
 
       const { providerProfile, providerUserId } = await getProviderInfo({
         accessToken,
       })
       try {
-        const redirectUri = await finishOAuthFlowAndGetRedirectUri(
+        const redirectUri = await finishOAuthFlowAndGetRedirectUri({
           provider,
           providerProfile,
           providerUserId,
           userSignupFields,
           req,
-        )
+          accessToken,
+          oAuthState,
+        })
         // Redirect to the client with the one time code
         return redirect(res, redirectUri.toString())
       } catch (e) {

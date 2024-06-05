@@ -1,6 +1,5 @@
 import { prisma } from 'wasp/server'
 import type {
-  OnAfterOAuthTokenReceivedHookFn,
   OnAfterSignupHookFn,
   OnBeforeOAuthRedirectHookFn,
   OnBeforeSignupHookFn,
@@ -8,7 +7,6 @@ import type {
 import { onBeforeSignup as onBeforeSignupHook_ext } from '../../../../../src/auth/hooks.js'
 import { onAfterSignup as onAfterSignupHook_ext } from '../../../../../src/auth/hooks.js'
 import { onBeforeOAuthRedirect as onBeforeOAuthRedirectHook_ext } from '../../../../../src/auth/hooks.js'
-import { onAfterOAuthTokenReceived as onAfterOAuthTokenReceivedHook_ext } from '../../../../../src/auth/hooks.js'
 
 /*
   These are "internal hook functions" based on the user defined hook functions.
@@ -42,15 +40,6 @@ export const onBeforeOAuthRedirectHook = (
 ) =>
   onBeforeOAuthRedirectHook_ext({
     hookName: 'onBeforeOAuthRedirect',
-    prisma,
-    ...params,
-  })
-
-export const onAfterOAuthTokenReceivedHook = (
-  params: UserHookParamsToInternalHookParams<OnAfterOAuthTokenReceivedHookFn>,
-) =>
-  onAfterOAuthTokenReceivedHook_ext({
-    hookName: 'onAfterOAuthTokenReceived',
     prisma,
     ...params,
   })

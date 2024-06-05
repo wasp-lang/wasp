@@ -1,29 +1,31 @@
 import {
   Response as ExpressResponse,
   Request as ExpressRequest,
-} from "express";
-import { generateCodeVerifier, generateState } from "arctic";
+} from 'express';
+import { generateCodeVerifier, generateState } from 'arctic';
 
-import type { ProviderConfig } from "wasp/auth/providers/types";
+import type { ProviderConfig } from 'wasp/auth/providers/types';
 
-import { setOAuthCookieValue, getOAuthCookieValue } from "./cookies.js";
+import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
 
-export type StateType = 'state' | 'codeVerifier';
+export type RequiredStateType = 'state';
 
-export function generateAndStoreOAuthState<ST extends StateType>(
-  stateTypes: ST[],
+export type OptionalStateType = 'codeVerifier';
+
+export function generateAndStoreOAuthState<OST extends OptionalStateType>(
+  optionalStateTypes: OST[],
   provider: ProviderConfig,
-  res: ExpressResponse,
-): { [name in ST]: string } {
-  const result = {} as { [name in StateType]: string }
+  res: ExpressResponse
+): { [name in OST]: string } & { [name in RequiredStateType]: string } {
+  const result = {} as {
+    [name in OptionalStateType | RequiredStateType]: string;
+  };
 
-  if (stateTypes.includes('state' as ST)) {
-    const state = generateState();
-    setOAuthCookieValue(provider, res, 'state', state);
-    result.state = state;
-  }
+  const state = generateState();
+  setOAuthCookieValue(provider, res, 'state', state);
+  result.state = state;
 
-  if (stateTypes.includes('codeVerifier' as ST)) {
+  if (optionalStateTypes.includes('codeVerifier' as ST)) {
     const codeVerifier = generateCodeVerifier();
     setOAuthCookieValue(provider, res, 'codeVerifier', codeVerifier);
     result.codeVerifier = codeVerifier;
@@ -32,37 +34,43 @@ export function generateAndStoreOAuthState<ST extends StateType>(
   return result;
 }
 
-export function validateAndGetOAuthState<ST extends StateType>(
-  stateTypes: ST[],
+export function validateAndGetOAuthState<OST extends OptionalStateType>(
+  optionalStateTypes: OST[],
   provider: ProviderConfig,
-  req: ExpressRequest,
-): { [name in ST]: string } & { code: string } {
-  const result = {} as { [name in StateType]: string } & { code: string };
+  req: ExpressRequest
+): { [name in OST]: string } & { [name in RequiredStateType]: string } & {
+  code: string;
+} {
+  const result = {} as {
+    [name in OptionalStateType]: string;
+  } & {
+    [name in RequiredStateType]: string;
+  } & {
+    code: string;
+  };
 
-  if (stateTypes.includes('state' as ST)) {
-    const state = req.query.state;
-    const storedState = getOAuthCookieValue(provider, req, 'state');
-    if (
-      !state ||
-      !storedState ||
-      storedState !== state
-    ) {
-      throw new Error("Invalid state");
-    }
-    result.state = storedState;
+  const state = req.query.state;
+  const storedState = getOAuthCookieValue(provider, req, 'state');
+  if (!state || !storedState || storedState !== state) {
+    throw new Error('Invalid state');
   }
+  result.state = storedState;
 
-  if (stateTypes.includes('codeVerifier' as ST)) {
-    const storedCodeVerifier = getOAuthCookieValue(provider, req, 'codeVerifier');
+  if (optionalStateTypes.includes('codeVerifier' as OST)) {
+    const storedCodeVerifier = getOAuthCookieValue(
+      provider,
+      req,
+      'codeVerifier'
+    );
     if (!storedCodeVerifier) {
-      throw new Error("Invalid code verifier");
+      throw new Error('Invalid code verifier');
     }
     result.codeVerifier = storedCodeVerifier;
   }
 
   const code = req.query.code;
-  if (typeof code !== "string") {
-    throw new Error("Invalid code");
+  if (typeof code !== 'string') {
+    throw new Error('Invalid code');
   }
   result.code = code;
 

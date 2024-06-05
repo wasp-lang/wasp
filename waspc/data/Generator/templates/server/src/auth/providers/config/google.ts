@@ -66,7 +66,7 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            stateTypes: ['state', 'codeVerifier'],
+            optionalStateTypes: ['codeVerifier'],
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state, codeVerifier }) => google.createAuthorizationURL(state, codeVerifier, config),
             getProviderTokens: ({ code, codeVerifier }) => google.validateAuthorizationCode(code, codeVerifier),
