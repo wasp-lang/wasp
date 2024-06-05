@@ -1,5 +1,6 @@
-module Wasp.AI.GenerateNewProject.Skeleton
-  ( generateAndWriteProjectSkeletonAndPresetFiles,
+module Wasp.AI.GenerateNewProject.InitialFiles
+  ( genAndWriteInitialFiles,
+    IniitalFilesGenResult (..),
   )
 where
 
@@ -24,11 +25,17 @@ import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
 
-generateAndWriteProjectSkeletonAndPresetFiles ::
+data IniitalFilesGenResult = IniitalFilesGenResult
+  { _waspFilePath :: FilePath,
+    _prismaFilePath :: FilePath,
+    _planRules :: [PlanRule]
+  }
+
+genAndWriteInitialFiles ::
   NewProjectDetails ->
   [(Path System (Rel WaspProjectDir) File', Text)] ->
-  CodeAgent (FilePath, FilePath, [PlanRule])
-generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles = do
+  CodeAgent IniitalFilesGenResult
+genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
   let skeletonFiles = first SP.fromRelFile <$> waspProjectSkeletonFiles
   mapM_ writeNewFile skeletonFiles
 
@@ -54,7 +61,7 @@ generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkele
   writeNewFile $ generateLayoutComponent newProjectDetails
   writeNewFile generateMainCssFile
 
-  return (waspFilePath, prismaFilePath, planRules)
+  return $ IniitalFilesGenResult waspFilePath prismaFilePath planRules
 
 generateBaseWaspFile :: NewProjectDetails -> (File, [PlanRule])
 generateBaseWaspFile newProjectDetails = ((path, content), planRules)
@@ -76,12 +83,6 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
             },
         |],
           [ "App uses username and password authentication.",
-            -- T.unpack
-            --   [trimming|
-            --   App MUST have a 'User' entity, with following field(s) required:
-            --     - `id Int @id @default(autoincrement())`
-            --   It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
-            --   |],
             "One of the pages in the app must have a route path \"/\"."
           ]
         )

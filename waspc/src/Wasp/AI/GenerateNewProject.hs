@@ -17,6 +17,7 @@ import Wasp.AI.GenerateNewProject.Common
     codingChatGPTParams,
     planningChatGPTParams,
   )
+import qualified Wasp.AI.GenerateNewProject.InitialFiles as IF
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.GenerateNewProject.Model (writeModelsToPrismaFile)
 import Wasp.AI.GenerateNewProject.Operation
@@ -30,7 +31,6 @@ import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.PrismaFile (fixPrismaFile)
-import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
 import Wasp.AI.GenerateNewProject.WaspFile (fixWaspFile)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 import Wasp.Project (WaspProjectDir)
@@ -57,9 +57,13 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
           <> showParams (codingChatGPTParams newProjectDetails)
           <> " for coding."
 
-  writeToLogGenerating "project skeleton..."
-  (waspFilePath, prismaFilePath, planRules) <-
-    generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles
+  writeToLogGenerating "project's initial files..."
+  IF.IniitalFilesGenResult
+    { IF._waspFilePath = waspFilePath,
+      IF._prismaFilePath = prismaFilePath,
+      IF._planRules = planRules
+    } <-
+    IF.genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles
   writeToLog "Generated project skeleton."
 
   plan <- generatePlan newProjectDetails planRules
