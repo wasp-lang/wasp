@@ -101,6 +101,9 @@ data Model
   | --
     GPT_4_32k -- Alias model
   | GPT_4_32k_0613
+  | --
+    GPT_4o
+  | GPT_4o_2024_05_13
   deriving (Eq, Bounded, Enum)
 
 instance Show Model where
@@ -118,6 +121,8 @@ modelOpenAiId = \case
   GPT_4_0613 -> "gpt-4-0613"
   GPT_4_32k -> "gpt-4-32k"
   GPT_4_32k_0613 -> "gpt-4-32k-0613"
+  GPT_4o -> "gpt-4o"
+  GPT_4o_2024_05_13 -> "gpt-4o-2024-05-13"
 
 instance FromJSON Model where
   parseJSON = Aeson.withText "Model" $ \t ->
