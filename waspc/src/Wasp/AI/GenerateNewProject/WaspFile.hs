@@ -87,6 +87,8 @@ fixWaspFile newProjectDetails waspFilePath plan = do
             ${compileErrorsText}
 
             Some common mistakes to look for:
+              - Don't by accident put all the declarations under `app {...}`! `route`, `page`, `job`, `action`, `query`, those are all standalone and don't go inside of `app`. Assume all the declarations are at the right level in the file and keep that as it is, don't change that.
+              - Don't remove any newlines. Sometimes you return the file without newlines, don't do that.
               - Using non-default imports in page components.
                   In a Wasp `page` declaration, the `component` should always use the "default import" JS syntax.
                   Instead of `component: import { PageName } from ...`, it should 
@@ -112,8 +114,6 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@src/actions.js"`.
               - I noticed that you sometimes by accident add redundant "}" at the end of the Wasp file while fixing it.
                 Be careful not to do that.
-              - Don't by accident put all the declarations under `app {...}`! `route`, `page`, `job`, `action`, `query`, those are all standalone and don't go inside of `app`. Assume all the declarations are at the right level in the file and keep that as it is, don't change that.
-              - Don't remove any newlines.
               - We are using SQLite as a database for Prisma, so we can't use scalar arrays in PSL, like `String[]`,
                 as those are not supported in SQLite. We can of course normally use arrays of other models, like `Task[]`.
 
