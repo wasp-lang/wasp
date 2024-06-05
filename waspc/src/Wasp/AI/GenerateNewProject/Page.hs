@@ -220,7 +220,7 @@ makePageDocPrompt =
 
         ```jsx
         import React from 'react';
-        import { Link } from 'react-router-dom';
+        import { Link } from 'wasp/client/router';
         import { useQuery, useAction, getUsers, deleteUser } from 'wasp/client/operations';
 
         const DashboardPage = () => {

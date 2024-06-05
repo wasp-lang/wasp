@@ -161,7 +161,7 @@ generateLoginJsPage =
   ( "src/pages/auth/Login.jsx",
     [trimming|
       import React from "react";
-      import { Link } from "react-router-dom";
+      import { Link } from "wasp/client/router";
       import { LoginForm } from "wasp/client/auth";
 
       export default function Login() {
@@ -200,7 +200,7 @@ generateSignupJsPage =
   ( "src/pages/auth/Signup.jsx",
     [trimming|
       import React from "react";
-      import { Link } from "react-router-dom";
+      import { Link } from "wasp/client/router";
       import { SignupForm } from "wasp/client/auth";
 
       export default function Signup() {
@@ -263,7 +263,7 @@ generateLayoutComponent :: NewProjectDetails -> File
 generateLayoutComponent newProjectDetails =
   ( "src/Layout.jsx",
     [trimming|
-      import { Link } from "react-router-dom";
+      import { Link } from "wasp/client/router";
       import { useAuth, logout } from "wasp/client/auth";
       import "./Main.css";
 

@@ -173,10 +173,9 @@ actionDocPrompt =
       if (!context.user) { throw new HttpError(401) }; // If user needs to be authenticated.
 
       const task = await context.entities.Task.findUnique({
-        where: { id: args.id },
-        include: { user: true }
+        where: { id: args.id }
       });
-      if (task.user.id !== context.user.id) { throw new HttpError(403) };
+      if (task.userId !== context.user.id) { throw new HttpError(403) };
 
       return context.entities.Task.update({
         where: { id: args.id },
@@ -204,10 +203,9 @@ actionDocPrompt =
 
       // We make sure that user is not trying to delete somebody else's list.
       const list = await context.entities.List.findUnique({
-        where: { id: listId },
-        include: { user: true }
+        where: { id: listId }
       });
-      if (list.user.id !== context.user.id) { throw new HttpError(403) };
+      if (list.userId !== context.user.id) { throw new HttpError(403) };
 
       // First delete all the cards that are in the list we want to delete.
       await context.entities.Card.deleteMany({

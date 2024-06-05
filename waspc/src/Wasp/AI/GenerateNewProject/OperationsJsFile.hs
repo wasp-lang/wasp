@@ -74,6 +74,7 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
             - js imports of local modules (`from "./`, `from "../`).
               If there are any, remove them and instead add the needed implementation directly into the file we are fixing right now.
             - Redundant imports of prisma client or of prisma entities. Those imports are not needed -> remove them!
+            - Using `task.someEntity.id` without including the someEntity relation: `include: { someEntity: true }` in the Prisma query.
 
               We are not using PrismaClient directly, we are using it through the context. For example: `context.entities.Task.findMany({})`
 

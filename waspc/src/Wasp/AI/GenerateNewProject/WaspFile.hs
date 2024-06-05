@@ -1,23 +1,19 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Wasp.AI.GenerateNewProject.WaspFile
   ( fixWaspFile,
   )
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (FromJSON)
-import Data.Aeson.Types (ToJSON)
 import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
   ( CodeAgent,
+    FileContent (..),
     NewProjectDetails,
     codingChatGPTParams,
     fixingChatGPTParams,
@@ -40,18 +36,18 @@ fixWaspFile newProjectDetails waspFilePath plan = do
   -- to give chatGPT opportunity to fix some other stuff we mention in the prompt.
   -- Then, we do two more attempts at fixing, but only if there are compiler errors.
   fixedWaspFile <-
-    pure (WaspFile {waspFileContent = currentWaspFileContent})
+    pure (FileContent {fileContent = currentWaspFileContent})
       >>= askChatGptToFixWaspFile EvenIfNoCompileErrors
       >>= askChatGptToFixWaspFile OnlyIfCompileErrors
       >>= askChatGptToFixWaspFile OnlyIfCompileErrors
 
-  writeToFile waspFilePath (const $ waspFileContent fixedWaspFile)
+  writeToFile waspFilePath (const $ fileContent fixedWaspFile)
   where
-    askChatGptToFixWaspFile :: ShouldContinueIfCompileErrors -> WaspFile -> CodeAgent WaspFile
-    askChatGptToFixWaspFile shouldContinueIfCompileErrors WaspFile {waspFileContent = wfContent} = do
+    askChatGptToFixWaspFile :: ShouldContinueIfCompileErrors -> FileContent -> CodeAgent FileContent
+    askChatGptToFixWaspFile shouldContinueIfCompileErrors FileContent {fileContent = wfContent} = do
       compileErrors <- liftIO $ getWaspFileCompileErrors wfContent
       case shouldContinueIfCompileErrors of
-        OnlyIfCompileErrors | null compileErrors -> return $ WaspFile {waspFileContent = wfContent}
+        OnlyIfCompileErrors | null compileErrors -> return $ FileContent {fileContent = wfContent}
         _otherwise ->
           queryChatGPTForJSON
             (fixingChatGPTParams $ codingChatGPTParams newProjectDetails)
@@ -126,7 +122,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
             Don't touch `app` declaration, `Login` page, and `Signup` page.
             Do actual fixes, don't leave comments with "TODO"!
             Make extra sure to fix compiler errors, if there are any.
-            Please respond ONLY with a valid JSON of the format { waspFileContent: string }.
+            Please respond ONLY with a valid JSON of the format { fileContent: string }.
             There should be no other text in your response. Don't wrap content with the "```" code delimiters.
             Don't ommit newlines from the code.
 
@@ -146,12 +142,3 @@ getWaspFileCompileErrors waspSource =
     <&> either (map showCompileError) (const [])
   where
     showCompileError (errMsg, Ctx {ctxSourceRegion = loc}) = show loc <> ": " <> errMsg
-
-data WaspFile = WaspFile
-  { waspFileContent :: Text
-  }
-  deriving (Generic, Show)
-
-instance FromJSON WaspFile
-
-instance ToJSON WaspFile
