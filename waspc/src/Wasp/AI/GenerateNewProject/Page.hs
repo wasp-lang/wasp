@@ -26,7 +26,7 @@ import Wasp.AI.GenerateNewProject.Common
     writeToWaspFileEnd,
   )
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Entity (modelPlanToPrismaModelText)
+import Wasp.AI.GenerateNewProject.Model (modelPlanToPrismaModelText)
 import Wasp.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))

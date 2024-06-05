@@ -1,4 +1,4 @@
-module Wasp.AI.GenerateNewProject.Entity
+module Wasp.AI.GenerateNewProject.Model
   ( writeModelsToPrismaFile,
     modelPlanToPrismaModelText,
   )
@@ -12,9 +12,9 @@ import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 
 writeModelsToPrismaFile :: FilePath -> [Plan.Model] -> CodeAgent ()
 writeModelsToPrismaFile prismaFilePath modelPlans = do
-  writeToWaspFileEnd prismaFilePath $ "\n" <> entitiesCode
+  writeToWaspFileEnd prismaFilePath $ "\n" <> modelsCode
   where
-    entitiesCode = T.intercalate "\n\n" $ modelPlanToPrismaModelText <$> modelPlans
+    modelsCode = T.intercalate "\n\n" $ modelPlanToPrismaModelText <$> modelPlans
 
 modelPlanToPrismaModelText :: Plan.Model -> Text
 modelPlanToPrismaModelText plan =

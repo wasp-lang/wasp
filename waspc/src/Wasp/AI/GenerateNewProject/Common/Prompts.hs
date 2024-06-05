@@ -1,5 +1,6 @@
 module Wasp.AI.GenerateNewProject.Common.Prompts
   ( waspFileExample,
+    prismaFileExample,
     basicWaspLangInfo,
     systemPrompt,
     appDescriptionStartMarkerLine,
@@ -47,14 +48,15 @@ basicWaspLangInfo :: Text
 basicWaspLangInfo =
   [trimming|
     Wasp is a full-stack web app framework that uses React (for client), NodeJS and Prisma (for server).
-    High-level of the app is described in main.wasp file (which is written in special Wasp DSL), details in JS/JSX files.
+    High-level of the app is described in main.wasp file (which is written in special Wasp DSL), DB models in Prisma file,
+    details in JS/JSX files.
     Wasp DSL (used in main.wasp) reminds a bit of JSON, and doesn't use single quotes for strings, only double quotes. Examples will follow.
 
     Important Wasp features:
      - Routes and Pages: client side, Pages are written in React.
      - Queries and Actions: RPC, called from client, execute on server (nodejs).
        Queries are for fetching and should not do any mutations, Actions are for mutations.
-     - Entities: central data models, defined via PSL (Prisma schema language), manipulated via Prisma.
+     - Entities: central data models, defined in the schema.prisma file, manipulated via Prisma.
     Typical flow: Routes point to Pages, Pages call Queries and Actions, Queries and Actions work with Entities.
   |]
 
@@ -112,6 +114,32 @@ waspFileExample =
         action updateTask {
           fn: import { updateTask } from "@src/actions.js",
           entities: [Task]
+        }
+        ```
+      |]
+
+prismaFileExample :: Text
+prismaFileExample =
+  [trimming|
+        Example schema.prisma (only models, comments are explanation for you):
+
+        ```wasp
+        // You'll notice that the User doesn't need the
+        // username or passwords fields since they are injected
+        // by Wasp auth system.
+        model User {
+          id      Int        @id @default(autoincrement())
+          tasks   Task[]
+          address String?
+          votes   TaskVote[]
+        }
+
+        model Task {
+          id          Int        @id @default(autoincrement())
+          description String
+          isDone      Boolean    @default(false)
+          user        User       @relation(fields: [userId], references: [id])
+          userId      Int
         }
         ```
       |]

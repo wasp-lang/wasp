@@ -17,8 +17,8 @@ import Wasp.AI.GenerateNewProject.Common
     codingChatGPTParams,
     planningChatGPTParams,
   )
-import Wasp.AI.GenerateNewProject.Entity (writeModelsToPrismaFile)
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
+import Wasp.AI.GenerateNewProject.Model (writeModelsToPrismaFile)
 import Wasp.AI.GenerateNewProject.Operation
   ( OperationType (..),
     generateAndWriteOperation,
@@ -64,7 +64,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
 
   plan <- generatePlan newProjectDetails planRules
   writeModelsToPrismaFile prismaFilePath (Plan.models plan)
-  writeToLog "Updated the Prisma file with entities."
+  writeToLog "Updated the Prisma file with models."
 
   writeToLogGenerating "actions..."
   actions <-

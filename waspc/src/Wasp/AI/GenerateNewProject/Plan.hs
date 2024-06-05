@@ -61,12 +61,15 @@ generatePlan newProjectDetails planRules = do
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
+    prismaFileExamplePrompt = Prompts.prismaFileExample
     rulesText = T.pack . unlines $ "Instructions you must follow while generating plan:" : map (" - " ++) planRules
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
 
         ${waspFileExamplePrompt}
+
+        ${prismaFileExamplePrompt}
 
         We are looking for a plan to build a new Wasp app (description at the end of prompt).
 
@@ -197,21 +200,21 @@ generatePlan newProjectDetails planRules = do
 
 checkPlanForModelIssues :: Plan -> [String]
 checkPlanForModelIssues plan =
-  checkNumEntities
-    <> checkUserEntity
+  checkNumModels
+    <> checkUserModel
     <> concatMap checkIfEntityPSLCompiles (models plan)
   where
-    checkNumEntities =
-      let numEntities = length (models plan)
+    checkNumModels =
+      let numModels = length (models plan)
           expectedNumEntities = 2
-       in if numEntities < expectedNumEntities
+       in if numModels < expectedNumEntities
             then
-              [ "There is only " <> show numEntities <> " models in the plan,"
+              [ "There is only " <> show numModels <> " models in the plan,"
                   <> (" I would expect at least " <> show expectedNumEntities <> " or more.")
               ]
             else []
 
-    checkUserEntity =
+    checkUserModel =
       case find ((== "User") . modelName) (models plan) of
         Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
         Nothing -> ["'User' model is missing."]
@@ -316,7 +319,7 @@ summarizePlan plan =
   let numQueries = showT $ length $ queries plan
       numActions = showT $ length $ actions plan
       numPages = showT $ length $ pages plan
-      numEntities = showT $ length $ models plan
+      numModels = showT $ length $ models plan
       queryNames = showT $ opName <$> queries plan
       actionNames = showT $ opName <$> actions plan
       pageNames = showT $ pageName <$> pages plan
@@ -324,7 +327,7 @@ summarizePlan plan =
    in [trimming|
         - ${numQueries} queries: ${queryNames}
         - ${numActions} actions: ${actionNames}
-        - ${numEntities} models: ${modelNames}
+        - ${numModels} models: ${modelNames}
         - ${numPages} pages: ${pageNames}
       |]
   where
