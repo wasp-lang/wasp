@@ -9,7 +9,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Wasp.AI.CodeAgent (getFile, writeToFile)
 import Wasp.AI.GenerateNewProject.Common
@@ -32,43 +31,40 @@ fixPrismaFile :: NewProjectDetails -> FilePath -> Plan -> CodeAgent ()
 fixPrismaFile newProjectDetails prismaFilePath plan = do
   currentPrismaFileContent <- getFile prismaFilePath <&> fromMaybe (error "couldn't find Prisma file to fix")
 
-  result <- liftIO $ Prisma.prismaFormat currentPrismaFileContent
+  prismaFormatResult <- liftIO $ Prisma.prismaFormat currentPrismaFileContent
 
-  fixedPrismaFile <- askChatGptToFixWaspFile result (FileContent {fileContent = currentPrismaFileContent})
+  fixedPrismaFile <- askChatGptToFixPrismaFile prismaFormatResult (FileContent {fileContent = currentPrismaFileContent})
 
   writeToFile prismaFilePath (const $ fileContent fixedPrismaFile)
   where
-    askChatGptToFixWaspFile :: PrismaFormatResult -> FileContent -> CodeAgent FileContent
-    askChatGptToFixWaspFile prismaFormatResult FileContent {fileContent = prismaFileContent} = do
+    askChatGptToFixPrismaFile :: PrismaFormatResult -> FileContent -> CodeAgent FileContent
+    askChatGptToFixPrismaFile prismaFormatResult FileContent {fileContent = prismaFileContent} = do
       case prismaFormatResult of
         PrismaFormatResult {_schemaErrors = Nothing} -> return $ FileContent {fileContent = prismaFileContent}
         PrismaFormatResult {_schemaErrors = Just schemaErrors} ->
           queryChatGPTForJSON
             (fixingChatGPTParams $ codingChatGPTParams newProjectDetails)
             [ ChatMessage {role = System, content = Prompts.systemPrompt},
-              ChatMessage {role = User, content = fixPrismaFilePrompts prismaFileContent schemaErrors}
+              ChatMessage {role = User, content = fixPrismaFilePrompt prismaFileContent schemaErrors}
             ]
 
-    fixPrismaFilePrompts :: Text -> Text -> Text
-    fixPrismaFilePrompts currentPrismaFileContent schemaErrors =
-      let compileErrorsText =
-            if T.null schemaErrors
-              then ""
-              else "Prisma schema errors we detected:\n" <> schemaErrors
-       in [trimming|
+    fixPrismaFilePrompt :: Text -> Text -> Text
+    fixPrismaFilePrompt currentPrismaFileContent schemaErrors =
+      [trimming|
             ${basicWaspLangInfoPrompt}
 
             We are together building a new Wasp app (description at the end of prompt).
             Here is a Prisma file that we generated together so far:
 
-            ```wasp
+            ```prisma
             ${currentPrismaFileContent}
             ```
 
             Here is the plan which we used to generate it:
             ${planJSON}
 
-            ${compileErrorsText}
+            Prisma schema errors we detected:
+            ${schemaErrors}
 
             With this in mind, generate a new, fixed Prisma file.
             Do actual fixes, don't leave comments with "TODO"!
