@@ -86,7 +86,7 @@ In the root of your Wasp project you can create two distinct files:
     ```
 
 `.env.server` should not be committed to version control as it can contain secrets and is therefore by default already ignored in the `.gitignore` file that comes with a new Wasp app.
-On the other hand, `.env.client` can be commited as it must not contain any secrets.
+On the other hand, `.env.client` can be committed as it must not contain any secrets.
 
 <!-- `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [dotenv npm package](https://www.npmjs.com/package/dotenv). -->
 
