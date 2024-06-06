@@ -1,13 +1,14 @@
 .wasp/
+
 node_modules/
-**/.DS_Store
 
-# We ignore env files recognized and used by Wasp.
-.env.server
-.env.client
-
-# To be extra safe, we by default ignore any files with `.env` extension in them.
+# We by default ignore any dot-env files to avoid committing any secrets by accident.
 # If this is too agressive for you, consider allowing specific files with `!` operator,
 # or modify/delete these two lines.
-*.env
-*.env.*
+.env
+.env.*
+# Don't ignore .env.client as it can't contain any secrets.
+!.env.client
+# Don't ignore example env files.
+!.env.example
+!.env.*.example
