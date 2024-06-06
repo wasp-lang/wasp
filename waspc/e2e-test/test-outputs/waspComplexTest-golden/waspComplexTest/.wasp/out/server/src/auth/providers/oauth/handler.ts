@@ -29,10 +29,9 @@ export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
 }: {
   provider: ProviderConfig
   /*
-    - State is used to validate the callback to ensure the user
+    - OAuth state is used to validate the callback to ensure the user
       that requested the login is the same that is completing it.
     - It includes "state" and an optional "codeVerifier" for PKCE.
-    - The state types used depend on the provider.
   */
   isCodeVerifierUsed: IsCodeVerifierUsed,
   userSignupFields: UserSignupFields | undefined

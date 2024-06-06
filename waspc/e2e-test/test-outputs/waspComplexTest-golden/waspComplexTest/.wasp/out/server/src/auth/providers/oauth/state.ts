@@ -20,25 +20,33 @@ export type OAuthState<UsesCodeVerifier extends boolean = false> = {
 
 export type OAuthStateType = keyof OAuthState<true>;
 
-export function generateAndStoreOAuthState<IsCodeVerifierGenerated extends boolean>(
-  isCodeVerifierGenerated: IsCodeVerifierGenerated,
+export function generateAndStoreOAuthState<IsCodeVerifierUsed extends boolean>({
+  isCodeVerifierUsed,
+  provider,
+  res,
+}: {
+  isCodeVerifierUsed: IsCodeVerifierUsed,
   provider: ProviderConfig,
   res: ExpressResponse
-): OAuthState<IsCodeVerifierGenerated> {
+}): OAuthState<IsCodeVerifierUsed> {
   const state = generateState();
   setOAuthCookieValue(provider, res, 'state', state);
 
   return {
     state,
-    ...(isCodeVerifierGenerated && generateAndSetCodeVerifier(provider, res)),
+    ...(isCodeVerifierUsed && generateAndSetCodeVerifier(provider, res)),
   };
 }
 
-export function validateAndGetOAuthState<IsCodeVerifierValidated extends boolean>(
-  isCodeVerifierValidated: IsCodeVerifierValidated,
+export function validateAndGetOAuthState<IsCodeVerifierUsed extends boolean>({
+  isCodeVerifierUsed,
+  provider,
+  req,
+}: {
+  isCodeVerifierUsed: IsCodeVerifierUsed,
   provider: ProviderConfig,
   req: ExpressRequest
-): OAuthState<IsCodeVerifierValidated> & {
+}): OAuthState<IsCodeVerifierUsed> & {
   code: string;
 } {
   const code = req.query.code;
@@ -55,7 +63,7 @@ export function validateAndGetOAuthState<IsCodeVerifierValidated extends boolean
   return {
     state,
     code,
-    ...(isCodeVerifierValidated && validateAndGetCodeVerifier(provider, req)),
+    ...(isCodeVerifierUsed && validateAndGetCodeVerifier(provider, req)),
   };
 }
 
@@ -73,15 +81,13 @@ function validateAndGetCodeVerifier(
   provider: ProviderConfig,
   req: ExpressRequest
 ) {
-  const storedCodeVerifier = getOAuthCookieValue(
+  const codeVerifier = getOAuthCookieValue(
     provider,
     req,
     'codeVerifier'
   );
-  if (!storedCodeVerifier) {
-    throw new Error('Invalid code verifier');
+  if (!codeVerifier) {
+    throw new Error('Missing code verifier');
   }
-  return {
-    codeVerifier: storedCodeVerifier,
-  };
+  return { codeVerifier };
 }
