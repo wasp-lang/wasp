@@ -8,7 +8,7 @@ import {
 } from 'wasp/auth/providers/types'
 
 import {
-  type OptionalStateType,
+  type OAuthState,
   generateAndStoreOAuthState,
   validateAndGetOAuthState,
 } from '../oauth/state.js'
@@ -19,9 +19,9 @@ import {
 import { callbackPath, loginPath } from './redirect.js'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<OST extends OptionalStateType>({
+export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
   provider,
-  optionalStateTypes,
+  isCodeVerifierUsed,
   userSignupFields,
   getAuthorizationUrl,
   getProviderTokens,
@@ -34,74 +34,80 @@ export function createOAuthProviderRouter<OST extends OptionalStateType>({
     - It includes "state" and an optional "codeVerifier" for PKCE.
     - The state types used depend on the provider.
   */
-  optionalStateTypes: OST[]
+  isCodeVerifierUsed: IsCodeVerifierUsed,
   userSignupFields: UserSignupFields | undefined
   /*
     The function that returns the URL to redirect the user to the
     provider's login page.
   */
-  getAuthorizationUrl: Parameters<typeof createOAuthLoginHandler<OST>>[2]
+  getAuthorizationUrl: Parameters<typeof createOAuthLoginHandler<IsCodeVerifierUsed>>[0]['getAuthorizationUrl']
   /*
     The function that returns the access token and refresh token from the
     provider's callback.
   */
-  getProviderTokens: Parameters<typeof createOAuthCallbackHandler<OST>>[3]
+  getProviderTokens: Parameters<typeof createOAuthCallbackHandler<IsCodeVerifierUsed>>[0]['getProviderTokens']
   /*
     The function that returns the user's profile and ID using the access
     token.
   */
-  getProviderInfo: Parameters<typeof createOAuthCallbackHandler<OST>>[4]
+  getProviderInfo: Parameters<typeof createOAuthCallbackHandler<IsCodeVerifierUsed>>[0]['getProviderInfo']
 }): Router {
   const router = Router()
 
   router.get(
     `/${loginPath}`,
-    createOAuthLoginHandler(provider, optionalStateTypes, getAuthorizationUrl),
+    createOAuthLoginHandler({ provider, isCodeVerifierUsed, getAuthorizationUrl }),
   )
 
   router.get(
     `/${callbackPath}`,
-    createOAuthCallbackHandler(
+    createOAuthCallbackHandler({
       provider,
-      optionalStateTypes,
+      isCodeVerifierUsed,
       userSignupFields,
       getProviderTokens,
       getProviderInfo,
-    ),
+    }),
   )
 
   return router
 }
 
-function createOAuthLoginHandler<OST extends OptionalStateType>(
+function createOAuthLoginHandler<IsCodeVerifierUsed extends boolean>({
+  provider,
+  isCodeVerifierUsed,
+  getAuthorizationUrl,
+}: {
   provider: ProviderConfig,
-  optionalStateTypes: OST[],
+  isCodeVerifierUsed: IsCodeVerifierUsed,
   getAuthorizationUrl: (
-    oAuthState: ReturnType<typeof generateAndStoreOAuthState<OST>>,
+    oAuthState: OAuthState<IsCodeVerifierUsed>,
   ) => Promise<URL>,
-) {
+}) {
   return handleRejection(async (req, res) => {
-    const oAuthState = generateAndStoreOAuthState(optionalStateTypes, provider, res)
-    let url = await getAuthorizationUrl(oAuthState)
-    if (onBeforeOAuthRedirectHook) {
-      url = (
-        await onBeforeOAuthRedirectHook({
-          req,
-          url,
-          uniqueRequestId: oAuthState.state,
-        })
-      ).url
-    }
-    return redirect(res, url.toString())
+    const oAuthState = generateAndStoreOAuthState(isCodeVerifierUsed, provider, res)
+    const redirectUrl = await getAuthorizationUrl(oAuthState)
+    const { url: redirectUrlAfterHook } = await onBeforeOAuthRedirectHook({
+      req,
+      url: redirectUrl,
+      uniqueRequestId: oAuthState.state,
+    })
+    return redirect(res, redirectUrlAfterHook.toString())
   })
 }
 
-function createOAuthCallbackHandler<OST extends OptionalStateType>(
+function createOAuthCallbackHandler<IsCodeVerifierUsed extends boolean>({
+  provider,
+  isCodeVerifierUsed,
+  userSignupFields,
+  getProviderTokens,
+  getProviderInfo,
+}: {
   provider: ProviderConfig,
-  optionalStateTypes: OST[],
+  isCodeVerifierUsed: IsCodeVerifierUsed,
   userSignupFields: UserSignupFields | undefined,
   getProviderTokens: (
-    oAuthState: ReturnType<typeof validateAndGetOAuthState<OST>>,
+    oAuthState: OAuthState<IsCodeVerifierUsed>,
   ) => Promise<{
     accessToken: string
   }>,
@@ -109,10 +115,10 @@ function createOAuthCallbackHandler<OST extends OptionalStateType>(
     providerUserId: string
     providerProfile: unknown
   }>,
-) {
+}) {
   return handleRejection(async (req, res) => {
     try {
-      const oAuthState = validateAndGetOAuthState(optionalStateTypes, provider, req)
+      const oAuthState = validateAndGetOAuthState(isCodeVerifierUsed, provider, req)
       const { accessToken } = await getProviderTokens(oAuthState)
 
       const { providerProfile, providerUserId } = await getProviderInfo({

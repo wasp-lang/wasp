@@ -1,8 +1,8 @@
 import { prisma } from 'wasp/server'
 import type {
-  OnAfterSignupHookFn,
-  OnBeforeOAuthRedirectHookFn,
-  OnBeforeSignupHookFn,
+  OnAfterSignupHook,
+  OnBeforeOAuthRedirectHook,
+  OnBeforeSignupHook,
 } from 'wasp/server/auth'
 import { onBeforeSignup as onBeforeSignupHook_ext } from '../../../../../src/auth/hooks.js'
 import { onAfterSignup as onAfterSignupHook_ext } from '../../../../../src/auth/hooks.js'
@@ -17,27 +17,21 @@ import { onBeforeOAuthRedirect as onBeforeOAuthRedirectHook_ext } from '../../..
   pass 'prisma' and 'hookName' to them when we call them in the server code.
 */
 
-export const onBeforeSignupHook = (
-  params: UserHookParamsToInternalHookParams<OnBeforeSignupHookFn>,
-) =>
+export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = (params) =>
   onBeforeSignupHook_ext({
     hookName: 'onBeforeSignup',
     prisma,
     ...params,
   })
 
-export const onAfterSignupHook = (
-  params: UserHookParamsToInternalHookParams<OnAfterSignupHookFn>,
-) =>
+export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (params) =>
   onAfterSignupHook_ext({
     hookName: 'onAfterSignup',
     prisma,
     ...params,
   })
 
-export const onBeforeOAuthRedirectHook = (
-  params: UserHookParamsToInternalHookParams<OnBeforeOAuthRedirectHookFn>,
-) =>
+export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = (params) =>
   onBeforeOAuthRedirectHook_ext({
     hookName: 'onBeforeOAuthRedirect',
     prisma,
@@ -50,8 +44,8 @@ export const onBeforeOAuthRedirectHook = (
   So, we need to remove them from the params object which is used to define the
   internal hook functions.
 */
-type UserHookParamsToInternalHookParams<T> = T extends (
+type InternalFunctionForHook<Fn extends (args: never) => unknown | Promise<unknown>> = Fn extends (
   params: infer P,
-) => unknown
-  ? Omit<P, 'prisma' | 'hookName'>
+) => infer R
+  ? (args: Omit<P, 'prisma' | 'hookName'>) => R
   : never

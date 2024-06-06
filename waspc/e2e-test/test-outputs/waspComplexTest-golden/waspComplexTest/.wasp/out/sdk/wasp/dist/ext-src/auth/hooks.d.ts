@@ -1,4 +1,4 @@
-import type { OnAfterSignupHookFn, OnBeforeOAuthRedirectHookFn, OnBeforeSignupHookFn } from 'wasp/server/auth';
-export declare const onBeforeSignup: OnBeforeSignupHookFn;
-export declare const onAfterSignup: OnAfterSignupHookFn;
-export declare const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn;
+import type { OnAfterSignupHook, OnBeforeOAuthRedirectHook, OnBeforeSignupHook } from 'wasp/server/auth';
+export declare const onBeforeSignup: OnBeforeSignupHook;
+export declare const onAfterSignup: OnAfterSignupHook;
+export declare const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook;

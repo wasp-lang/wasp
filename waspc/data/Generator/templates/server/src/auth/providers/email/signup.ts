@@ -118,9 +118,7 @@ export function getSignupRoute({
     )
 
     try {
-      if (onBeforeSignupHook) {
-        await onBeforeSignupHook({ req, providerId })
-      }
+      await onBeforeSignupHook({ req, providerId })
       const user = await createUser(
         providerId,
         newUserProviderData,
@@ -128,9 +126,7 @@ export function getSignupRoute({
         // rely on Prisma to validate the data.
         userFields as any,
       )
-      if (onAfterSignupHook) {
-        await onAfterSignupHook({ req, providerId, user })
-      }
+      await onAfterSignupHook({ req, providerId, user })
     } catch (e: unknown) {
       rethrowPossibleAuthError(e)
     }

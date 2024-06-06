@@ -14,7 +14,7 @@ import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/
 import { getRedirectUriForOneTimeCode, getRedirectUriForError } from './redirect'
 import { tokenStore } from './oneTimeCode'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
-import type { OptionalStateType, RequiredStateType } from './state';
+import type { OAuthState } from './state';
 
 export async function finishOAuthFlowAndGetRedirectUri({
   provider,
@@ -31,7 +31,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   accessToken: string;
-  oAuthState: { [name in RequiredStateType]: string };
+  oAuthState: OAuthState;
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -79,7 +79,7 @@ async function getAuthIdFromProviderDetails({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   accessToken: string;
-  oAuthState: { [name in RequiredStateType]: string };
+  oAuthState: OAuthState;
 }): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
@@ -105,9 +105,7 @@ async function getAuthIdFromProviderDetails({
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})
   
-    if (onBeforeSignupHook) {
-      await onBeforeSignupHook({ req, providerId })
-    }
+    await onBeforeSignupHook({ req, providerId })
     const user = await createUser(
       providerId,
       providerData,
@@ -115,17 +113,15 @@ async function getAuthIdFromProviderDetails({
       // rely on Prisma to validate the data.
       userFields as any,
     )
-    if (onAfterSignupHook) {
-      await onAfterSignupHook({
-        req,
-        providerId,
-        user,
-        oauth: {
-          accessToken,
-          uniqueRequestId: oAuthState.state,
-        },
-      })
-    }
+    await onAfterSignupHook({
+      req,
+      providerId,
+      user,
+      oauth: {
+        accessToken,
+        uniqueRequestId: oAuthState.state,
+      },
+    })
 
     return user.auth.id
   }

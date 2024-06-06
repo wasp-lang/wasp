@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { prisma } from 'wasp/server'
 import type {
-  OnAfterSignupHookFn,
-  OnBeforeOAuthRedirectHookFn,
-  OnBeforeSignupHookFn,
+  OnAfterSignupHook,
+  OnBeforeOAuthRedirectHook,
+  OnBeforeSignupHook,
 } from 'wasp/server/auth'
 {=# onBeforeSignupHook.isDefined =}
 {=& onBeforeSignupHook.importStatement =}
@@ -25,9 +25,7 @@ import type {
 */
 
 {=# onBeforeSignupHook.isDefined =}
-export const onBeforeSignupHook = (
-  params: UserHookParamsToInternalHookParams<OnBeforeSignupHookFn>,
-) =>
+export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = (params) =>
   {= onBeforeSignupHook.importIdentifier =}({
     hookName: 'onBeforeSignup',
     prisma,
@@ -35,13 +33,14 @@ export const onBeforeSignupHook = (
   })
 {=/ onBeforeSignupHook.isDefined =}
 {=^ onBeforeSignupHook.isDefined =}
-export const onBeforeSignupHook = undefined
+/**
+ * This is a no-op function since the user didn't define the onBeforeSignup hook.
+ */
+export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = async (params) => {}
 {=/ onBeforeSignupHook.isDefined =}
 
 {=# onAfterSignupHook.isDefined =}
-export const onAfterSignupHook = (
-  params: UserHookParamsToInternalHookParams<OnAfterSignupHookFn>,
-) =>
+export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (params) =>
   {= onAfterSignupHook.importIdentifier =}({
     hookName: 'onAfterSignup',
     prisma,
@@ -49,13 +48,14 @@ export const onAfterSignupHook = (
   })
 {=/ onAfterSignupHook.isDefined =}
 {=^ onAfterSignupHook.isDefined =}
-export const onAfterSignupHook = undefined
+/**
+ * This is a no-op function since the user didn't define the onAfterSignup hook.
+ */
+export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = async (params) => {}
 {=/ onAfterSignupHook.isDefined =}
 
 {=# onBeforeOAuthRedirectHook.isDefined =}
-export const onBeforeOAuthRedirectHook = (
-  params: UserHookParamsToInternalHookParams<OnBeforeOAuthRedirectHookFn>,
-) =>
+export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = (params) =>
   {= onBeforeOAuthRedirectHook.importIdentifier =}({
     hookName: 'onBeforeOAuthRedirect',
     prisma,
@@ -63,7 +63,10 @@ export const onBeforeOAuthRedirectHook = (
   })
 {=/ onBeforeOAuthRedirectHook.isDefined =}
 {=^ onBeforeOAuthRedirectHook.isDefined =}
-export const onBeforeOAuthRedirectHook = undefined
+/**
+ * This is an identity function since the user didn't define the onBeforeOAuthRedirect hook.
+ */
+export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = async (params) => params
 {=/ onBeforeOAuthRedirectHook.isDefined =}
 
 /*
@@ -72,8 +75,8 @@ export const onBeforeOAuthRedirectHook = undefined
   So, we need to remove them from the params object which is used to define the
   internal hook functions.
 */
-type UserHookParamsToInternalHookParams<T> = T extends (
+type InternalFunctionForHook<Fn extends (args: never) => unknown | Promise<unknown>> = Fn extends (
   params: infer P,
-) => unknown
-  ? Omit<P, 'prisma' | 'hookName'>
+) => infer R
+  ? (args: Omit<P, 'prisma' | 'hookName'>) => R
   : never

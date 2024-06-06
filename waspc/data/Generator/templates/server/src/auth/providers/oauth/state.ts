@@ -8,71 +8,80 @@ import type { ProviderConfig } from 'wasp/auth/providers/types';
 
 import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
 
-export type RequiredStateType = 'state';
+/**
+ * OAuth state shape depends on whether the provider uses PKCE.
+ * If a provider uses PKCE, the state will include a code verifier.
+ */
+export type OAuthState<UsesCodeVerifier extends boolean = false> = {
+  state: string;
+} & (UsesCodeVerifier extends true
+  ? { codeVerifier: string }
+  : {});
 
-export type OptionalStateType = 'codeVerifier';
+export type OAuthStateType = keyof OAuthState<true>;
 
-export function generateAndStoreOAuthState<OST extends OptionalStateType>(
-  optionalStateTypes: OST[],
+export function generateAndStoreOAuthState<IsCodeVerifierGenerated extends boolean>(
+  isCodeVerifierGenerated: IsCodeVerifierGenerated,
   provider: ProviderConfig,
   res: ExpressResponse
-): { [name in OST]: string } & { [name in RequiredStateType]: string } {
-  const result = {} as {
-    [name in OptionalStateType | RequiredStateType]: string;
-  };
-
+): OAuthState<IsCodeVerifierGenerated> {
   const state = generateState();
   setOAuthCookieValue(provider, res, 'state', state);
-  result.state = state;
 
-  if (optionalStateTypes.includes('codeVerifier' as ST)) {
-    const codeVerifier = generateCodeVerifier();
-    setOAuthCookieValue(provider, res, 'codeVerifier', codeVerifier);
-    result.codeVerifier = codeVerifier;
-  }
-
-  return result;
+  return {
+    state,
+    ...(isCodeVerifierGenerated && generateAndSetCodeVerifier(provider, res)),
+  };
 }
 
-export function validateAndGetOAuthState<OST extends OptionalStateType>(
-  optionalStateTypes: OST[],
+export function validateAndGetOAuthState<IsCodeVerifierValidated extends boolean>(
+  isCodeVerifierValidated: IsCodeVerifierValidated,
   provider: ProviderConfig,
   req: ExpressRequest
-): { [name in OST]: string } & { [name in RequiredStateType]: string } & {
+): OAuthState<IsCodeVerifierValidated> & {
   code: string;
 } {
-  const result = {} as {
-    [name in OptionalStateType]: string;
-  } & {
-    [name in RequiredStateType]: string;
-  } & {
-    code: string;
-  };
+  const code = req.query.code;
+  if (typeof code !== 'string') {
+    throw new Error('Invalid code');
+  }
 
   const state = req.query.state;
   const storedState = getOAuthCookieValue(provider, req, 'state');
   if (!state || !storedState || storedState !== state) {
     throw new Error('Invalid state');
   }
-  result.state = storedState;
 
-  if (optionalStateTypes.includes('codeVerifier' as OST)) {
-    const storedCodeVerifier = getOAuthCookieValue(
-      provider,
-      req,
-      'codeVerifier'
-    );
-    if (!storedCodeVerifier) {
-      throw new Error('Invalid code verifier');
-    }
-    result.codeVerifier = storedCodeVerifier;
+  return {
+    state,
+    code,
+    ...(isCodeVerifierValidated && validateAndGetCodeVerifier(provider, req)),
+  };
+}
+
+function generateAndSetCodeVerifier(
+  provider: ProviderConfig,
+  res: ExpressResponse
+) {
+  const codeVerifier = generateCodeVerifier();
+  setOAuthCookieValue(provider, res, 'codeVerifier', codeVerifier);
+
+  return { codeVerifier };
+}
+
+function validateAndGetCodeVerifier(
+  provider: ProviderConfig,
+  req: ExpressRequest
+) {
+  const storedCodeVerifier = getOAuthCookieValue(
+    provider,
+    req,
+    'codeVerifier'
+  );
+  if (!storedCodeVerifier) {
+    throw new Error('Invalid code verifier');
   }
-
-  const code = req.query.code;
-  if (typeof code !== 'string') {
-    throw new Error('Invalid code');
-  }
-  result.code = code;
-
-  return result;
+  return {
+    codeVerifier: storedCodeVerifier,
+  };
 }

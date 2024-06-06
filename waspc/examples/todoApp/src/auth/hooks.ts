@@ -1,11 +1,11 @@
 import { Request } from 'express'
 import type {
-  OnAfterSignupHookFn,
-  OnBeforeOAuthRedirectHookFn,
-  OnBeforeSignupHookFn,
+  OnAfterSignupHook,
+  OnBeforeOAuthRedirectHook,
+  OnBeforeSignupHook,
 } from 'wasp/server/auth'
 
-export const onBeforeSignup: OnBeforeSignupHookFn = async (args) => {
+export const onBeforeSignup: OnBeforeSignupHook = async (args) => {
   const log = createLoggerForHook(args.hookName)
   const count = await args.prisma.user.count()
   log('number of users before', count)
@@ -14,7 +14,7 @@ export const onBeforeSignup: OnBeforeSignupHookFn = async (args) => {
 
 const oAuthQueryStore = new Map<string, Request['query']>()
 
-export const onAfterSignup: OnAfterSignupHookFn = async (args) => {
+export const onAfterSignup: OnAfterSignupHook = async (args) => {
   const log = createLoggerForHook(args.hookName)
   const count = await args.prisma.user.count()
   log('number of users after', count)
@@ -34,7 +34,7 @@ export const onAfterSignup: OnAfterSignupHookFn = async (args) => {
   }
 }
 
-export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async (
+export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
   args
 ) => {
   const log = createLoggerForHook(args.hookName)

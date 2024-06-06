@@ -6,12 +6,12 @@ import { parseCookies } from "oslo/cookie";
 
 import type { ProviderConfig } from "wasp/auth/providers/types";
 
-import type { OptionalStateType, RequiredStateType } from './state';
+import type { OAuthStateType } from './state';
 
 export function setOAuthCookieValue(
   provider: ProviderConfig,
   res: ExpressResponse,
-  stateType: RequiredStateType | OptionalStateType,
+  stateType: OAuthStateType,
   value: string,
 ) {
   const cookieName = `${provider.id}_${stateType}`;
@@ -27,7 +27,7 @@ export function setOAuthCookieValue(
 export function getOAuthCookieValue(
   provider: ProviderConfig,
   req: ExpressRequest,
-  stateType: RequiredStateType | OptionalStateType,
+  stateType: OAuthStateType,
 ) {
   const cookieName = `${provider.id}_${stateType}`;
   const cookies = parseCookies(req.headers.cookie ?? "");

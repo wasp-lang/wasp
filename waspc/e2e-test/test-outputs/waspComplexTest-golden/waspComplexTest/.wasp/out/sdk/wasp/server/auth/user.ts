@@ -16,7 +16,7 @@ export type AuthUser = AuthUserData & {
 }
 
 // PRIVATE API
-/**
+/*
  * Ideally, we'd do something like this:
  * ```
  * export type AuthUserData = ReturnType<typeof createAuthUserData>

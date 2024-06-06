@@ -23,9 +23,9 @@ export {
 } from '../../auth/validation.js'
 
 export type {
-  OnBeforeSignupHookFn,
-  OnAfterSignupHookFn,
-  OnBeforeOAuthRedirectHookFn,
+  OnBeforeSignupHook,
+  OnAfterSignupHook,
+  OnBeforeOAuthRedirectHook,
 } from './hooks.js'
 
 

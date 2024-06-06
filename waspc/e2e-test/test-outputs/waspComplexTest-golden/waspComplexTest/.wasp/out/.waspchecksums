@@ -396,7 +396,7 @@
             "file",
             "../out/sdk/wasp/ext-src/auth/hooks.ts"
         ],
-        "cbb72ecab48f9e09dfd136bf1062fbcc44770e62554220de5aa20eedab4db718"
+        "80a8edba2313a81dfd01eb952a09c02fba22554206601342289de60d6f377291"
     ],
     [
         [
@@ -522,21 +522,21 @@
             "file",
             "../out/sdk/wasp/server/auth/hooks.ts"
         ],
-        "5f86bf94bf850f07ab90f907b6ca114a0d7c867d3eeb7274a506274b65ad6467"
+        "7c12d245db7b50d4cc16b64827896b84fbc6b9f3f9b5d7cf12b5adf5d22ccbfc"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/auth/index.ts"
         ],
-        "886cf27860728241e09f072e8977c588898cd7406be3d455775167965a1c10ef"
+        "caa27bb70b3c3f11d6f40e9eaaa67ff3be74268bffc6554ca850d236a0ea2a57"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/auth/user.ts"
         ],
-        "6c026b896fe346b8e0ccc188d21f86f17f0d482800a793b590df326821c33a7f"
+        "eb5754af49265911b6423004068cd829cf2e4b1b6a25e2477318f7e07e3029c9"
     ],
     [
         [
@@ -858,14 +858,14 @@
             "file",
             "server/src/auth/hooks.ts"
         ],
-        "4dbb8773c201e65920e267c4c6e1729815bc82c2602b595b86294825f56c4c7a"
+        "0b7c4fb332581aff2471887d9e5a58ac5123b76647dec8b3c4f27e1bcbc32b03"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "f0cc5e63ef81e04df74d2a7c14c676405bd2328a58c85d1f9f154ee3529bf8f9"
+        "81f4f19aa28f825952b967a159c32698a42a84807be43b7e73815aab88706919"
     ],
     [
         [
@@ -886,7 +886,7 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "372cc947a5d9aa45ab7ec7c2b9cda906f4734b015d7ed4219fd9d45837f34e0a"
+        "eaafd9d65c9d32e05287b408a02fb888de0fea835ab5a5f04059f6d6f3c979fa"
     ],
     [
         [
@@ -900,7 +900,7 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "228539a08d584d01128ad784a578e8f38fbe0ea3607d515b0b6e2a3a360554ba"
+        "a00a15ff9898fcc6f5790555ceb4178e35b86d2616eb18d975fc14d8fee7e35b"
     ],
     [
         [
@@ -921,7 +921,7 @@
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "4891f5c54fd0fc1519df0840131ebbe205d7033f1cc43348257d061d0ae85e51"
+        "108378c46af7ab47778c58ee78cee484eafa35e6946a05bd5609c9dd3eb93ae8"
     ],
     [
         [
@@ -935,7 +935,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "36bb478a649a0b1877093295e7f1dfc132cc28d22364df0e56dc10d3300adf8c"
+        "b969b7e39bd5decfa84ef44d02f1bf8e207543df87caf8a813556ca2ea622fb1"
     ],
     [
         [

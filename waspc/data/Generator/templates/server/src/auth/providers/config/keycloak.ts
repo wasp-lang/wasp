@@ -68,7 +68,7 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            optionalStateTypes: ['codeVerifier'],
+            isCodeVerifierUsed: true,
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state, codeVerifier }) => keycloak.createAuthorizationURL(state, codeVerifier, config),
             getProviderTokens: ({ code, codeVerifier }) => keycloak.validateAuthorizationCode(code, codeVerifier),

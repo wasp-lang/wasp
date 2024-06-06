@@ -127,9 +127,9 @@ app myApp {
 
 ```ts title="src/auth/hooks.ts"
 import { HttpError } from 'wasp/server'
-import type { OnBeforeSignupHookFn } from 'wasp/server/auth'
+import type { OnBeforeSignupHook } from 'wasp/server/auth'
 
-export const onBeforeSignup: OnBeforeSignupHookFn = async ({ providerId, prisma, req, hookName }) => {
+export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId, prisma, req, hookName }) => {
   const count = await prisma.user.count()
   console.log('number of users before', count)
   console.log('provider name', providerId.providerName)
@@ -244,9 +244,9 @@ app myApp {
 ```
 
 ```ts title="src/auth/hooks.ts"
-import type { OnAfterSignupHookFn } from 'wasp/server/auth'
+import type { OnAfterSignupHook } from 'wasp/server/auth'
 
-export const onAfterSignup: OnAfterSignupHookFn = async ({ providerId, user, oauth, prisma, req, hookName }) => {
+export const onAfterSignup: OnAfterSignupHook = async ({ providerId, user, oauth, prisma, req, hookName }) => {
   const count = await prisma.user.count()
   console.log('number of users after', count)
   console.log('user object', user)
@@ -341,9 +341,9 @@ app myApp {
 ```
 
 ```ts title="src/auth/hooks.ts"
-import type { OnBeforeOAuthRedirectHookFn } from 'wasp/server/auth'
+import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
-export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHookFn = async ({ url, uniqueRequestId, prisma, req, hookName }) => {
+export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({ url, uniqueRequestId, prisma, req, hookName }) => {
   console.log('query params before oAuth redirect', req.query)
 
   // Saving query params for later use in onAfterSignup hook
