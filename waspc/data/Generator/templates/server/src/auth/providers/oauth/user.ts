@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { Request as ExpressRequest } from 'express'
-import { HttpError } from 'wasp/server'
 import {
   type ProviderId,
   createUser,
@@ -11,7 +10,7 @@ import {
 import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
-import { getRedirectUriForOneTimeCode, getRedirectUriForError } from './redirect'
+import { getRedirectUriForOneTimeCode } from './redirect'
 import { tokenStore } from './oneTimeCode'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 import type { OAuthState } from './state';
@@ -47,21 +46,6 @@ export async function finishOAuthFlowAndGetRedirectUri({
   const oneTimeCode = await tokenStore.createToken(authId);
 
   return getRedirectUriForOneTimeCode(oneTimeCode);
-}
-
-export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
-  if (error instanceof HttpError) {
-    const errorMessage = isHttpErrorWithExtraMessage(error)
-      ? `${error.message}: ${error.data.message}`
-      : error.message;
-    return getRedirectUriForError(errorMessage)
-  }
-  console.error("Unknown OAuth error:", error);
-  return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
-}
-
-function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { data: { message: string } } {
-  return error.data && typeof (error.data as any).message === 'string';
 }
 
 // We need a user id to create the auth token, so we either find an existing user

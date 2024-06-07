@@ -34,7 +34,7 @@ export function generateAndStoreOAuthState<IsCodeVerifierUsed extends boolean>({
 
   return {
     state,
-    ...(isCodeVerifierUsed && generateAndSetCodeVerifier(provider, res)),
+    ...(isCodeVerifierUsed && generateAndStoreCodeVerifier(provider, res)),
   };
 }
 
@@ -67,7 +67,7 @@ export function validateAndGetOAuthState<IsCodeVerifierUsed extends boolean>({
   };
 }
 
-function generateAndSetCodeVerifier(
+function generateAndStoreCodeVerifier(
   provider: ProviderConfig,
   res: ExpressResponse
 ) {

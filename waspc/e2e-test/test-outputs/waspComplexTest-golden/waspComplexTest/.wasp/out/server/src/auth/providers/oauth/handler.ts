@@ -12,11 +12,12 @@ import {
   generateAndStoreOAuthState,
   validateAndGetOAuthState,
 } from '../oauth/state.js'
+import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
 import {
-  finishOAuthFlowAndGetRedirectUri,
+  callbackPath,
+  loginPath,
   handleOAuthErrorAndGetRedirectUri,
-} from '../oauth/user.js'
-import { callbackPath, loginPath } from './redirect.js'
+} from './redirect.js'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
 export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
@@ -84,7 +85,11 @@ function createOAuthLoginHandler<IsCodeVerifierUsed extends boolean>({
   ) => Promise<URL>,
 }) {
   return handleRejection(async (req, res) => {
-    const oAuthState = generateAndStoreOAuthState(isCodeVerifierUsed, provider, res)
+    const oAuthState = generateAndStoreOAuthState({
+      isCodeVerifierUsed,
+      provider,
+      res,
+    })
     const redirectUrl = await getAuthorizationUrl(oAuthState)
     const { url: redirectUrlAfterHook } = await onBeforeOAuthRedirectHook({
       req,
@@ -117,7 +122,11 @@ function createOAuthCallbackHandler<IsCodeVerifierUsed extends boolean>({
 }) {
   return handleRejection(async (req, res) => {
     try {
-      const oAuthState = validateAndGetOAuthState(isCodeVerifierUsed, provider, req)
+      const oAuthState = validateAndGetOAuthState({
+        isCodeVerifierUsed,
+        provider,
+        req,
+      })
       const { accessToken } = await getProviderTokens(oAuthState)
 
       const { providerProfile, providerUserId } = await getProviderInfo({
