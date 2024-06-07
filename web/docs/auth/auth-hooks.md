@@ -512,7 +512,7 @@ The hook receives an object as **input** with the following properties:
     The OAuth access token can be used to make requests to the provider's API on behalf of the user.
   - `uniqueRequestId: string`
   
-      The unique request ID for the OAuth flow. (You might know it as the `state` parameter in OAuth.)
+      The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
       
       The `onBeforeOAuthRedirect` hook receives the same value which can be used to reference data saved in that hook.
 - `prisma: PrismaClient`
@@ -574,7 +574,7 @@ The hook receives an object as **input** with the following properties:
     The URL object that is used for the OAuth redirect.
 - `uniqueRequestId: string`
 
-    The unique request ID for the OAuth flow. (You might know it as the `state` parameter in OAuth.)
+    The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
     The`onAfterSignup` hook receives the same value which can be used to reference data saved in this hook.
 - `prisma: PrismaClient`
