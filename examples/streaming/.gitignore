@@ -1,8 +1,7 @@
 .wasp/
-
 node_modules/
 
-# We by default ignore any dot-env files to avoid committing any secrets by accident.
+# We by default ignore any dotenv files to avoid committing any secrets by accident.
 # If this is too agressive for you, consider allowing specific files with `!` operator,
 # or modify/delete these two lines.
 .env
