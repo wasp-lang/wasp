@@ -6,7 +6,7 @@ import type {
 } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHook = async (args) => {
-  const log = createLoggerForHook(args.hookName)
+  const log = createLoggerForHook('onBeforeSignup')
   const count = await args.prisma.user.count()
   log('number of users before', count)
   log('providerId object', args.providerId)
@@ -15,7 +15,7 @@ export const onBeforeSignup: OnBeforeSignupHook = async (args) => {
 const oAuthQueryStore = new Map<string, Request['query']>()
 
 export const onAfterSignup: OnAfterSignupHook = async (args) => {
-  const log = createLoggerForHook(args.hookName)
+  const log = createLoggerForHook('onAfterSignup')
   const count = await args.prisma.user.count()
   log('number of users after', count)
   log('user object', args.user)
@@ -37,7 +37,7 @@ export const onAfterSignup: OnAfterSignupHook = async (args) => {
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
   args
 ) => {
-  const log = createLoggerForHook(args.hookName)
+  const log = createLoggerForHook('onBeforeOAuthRedirect')
   log('query params before oAuth redirect', args.req.query)
 
   // Saving query params for later use in onAfterSignup hook

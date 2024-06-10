@@ -27,6 +27,7 @@ export type {
   OnBeforeSignupHook,
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
+  InternalAuthHookParams,
 } from './hooks.js'
 
 {=# isEmailAuthEnabled =}

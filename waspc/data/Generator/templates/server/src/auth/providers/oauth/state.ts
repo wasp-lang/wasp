@@ -29,11 +29,8 @@ export function generateAndStoreOAuthState<IsCodeVerifierUsed extends boolean>({
   provider: ProviderConfig,
   res: ExpressResponse
 }): OAuthState<IsCodeVerifierUsed> {
-  const state = generateState();
-  setOAuthCookieValue(provider, res, 'state', state);
-
   return {
-    state,
+    ...generateAndStoreState(provider, res),
     ...(isCodeVerifierUsed && generateAndStoreCodeVerifier(provider, res)),
   };
 }
@@ -46,25 +43,22 @@ export function validateAndGetOAuthState<IsCodeVerifierUsed extends boolean>({
   isCodeVerifierUsed: IsCodeVerifierUsed,
   provider: ProviderConfig,
   req: ExpressRequest
-}): OAuthState<IsCodeVerifierUsed> & {
-  code: string;
-} {
-  const code = req.query.code;
-  if (typeof code !== 'string') {
-    throw new Error('Invalid code');
-  }
-
-  const state = req.query.state;
-  const storedState = getOAuthCookieValue(provider, req, 'state');
-  if (!state || !storedState || storedState !== state) {
-    throw new Error('Invalid state');
-  }
-
+}): OAuthState<IsCodeVerifierUsed> & { code: string } {
   return {
-    state,
-    code,
+    ...validateAndGetCode(req),
+    ...validateAndGetState(provider, req),
     ...(isCodeVerifierUsed && validateAndGetCodeVerifier(provider, req)),
   };
+}
+
+function generateAndStoreState(
+  provider: ProviderConfig,
+  res: ExpressResponse
+) {
+  const state = generateState();
+  setOAuthCookieValue(provider, res, 'state', state);
+
+  return { state };
 }
 
 function generateAndStoreCodeVerifier(
@@ -75,6 +69,26 @@ function generateAndStoreCodeVerifier(
   setOAuthCookieValue(provider, res, 'codeVerifier', codeVerifier);
 
   return { codeVerifier };
+}
+
+function validateAndGetCode(req: ExpressRequest) {
+  const code = req.query.code;
+  if (typeof code !== 'string') {
+    throw new Error('Invalid code');
+  }
+  return { code };
+}
+
+function validateAndGetState(
+  provider: ProviderConfig,
+  req: ExpressRequest
+) {
+  const state = req.query.state;
+  const storedState = getOAuthCookieValue(provider, req, 'state');
+  if (!state || !storedState || storedState !== state) {
+    throw new Error('Invalid state');
+  }
+  return { state };
 }
 
 function validateAndGetCodeVerifier(

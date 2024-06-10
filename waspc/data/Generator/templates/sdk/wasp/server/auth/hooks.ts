@@ -3,20 +3,31 @@ import type { ProviderId, createUser } from '../../auth/utils.js'
 import { prisma } from '../index.js'
 import { Expand } from '../../universal/types.js'
 
+// PUBLIC API
 export type OnBeforeSignupHook = (
   params: Expand<OnBeforeSignupHookParams>,
 ) => void | Promise<void>
 
+// PUBLIC API
 export type OnAfterSignupHook = (
   params: Expand<OnAfterSignupHookParams>,
 ) => void | Promise<void>
 
+// PUBLIC API
 /**
  * @returns Object with a URL that the OAuth flow should redirect to.
  */
 export type OnBeforeOAuthRedirectHook = (
   params: Expand<OnBeforeOAuthRedirectHookParams>,
 ) => { url: URL } | Promise<{ url: URL }>
+
+// PRIVATE API (used in the SDK and the server)
+export type InternalAuthHookParams = {
+  /**
+   * Prisma instance that can be used to interact with the database.
+   */
+  prisma: typeof prisma
+}
 
 // NOTE: We should be exporting types that can be reached by users via other
 // exported types (e.g. using the Parameters<T> Typescript helper).
@@ -29,7 +40,11 @@ type OnBeforeSignupHookParams = {
    * Provider ID object that contains the provider name and the provide user ID.
    */
   providerId: ProviderId
-} & CommonAuthHookParams
+  /**
+   * Request object that can be used to access the incoming request.
+   */
+  req: ExpressRequest
+} & InternalAuthHookParams
 
 type OnAfterSignupHookParams = {
   /**
@@ -49,8 +64,12 @@ type OnAfterSignupHookParams = {
      * Unique request ID that was generated during the OAuth flow.
      */
     uniqueRequestId: string
+    /**
+     * Request object that can be used to access the incoming request.
+     */
+    req: ExpressRequest
   },
-} & CommonAuthHookParams
+} & InternalAuthHookParams
 
 type OnBeforeOAuthRedirectHookParams = {
   /**
@@ -61,19 +80,8 @@ type OnBeforeOAuthRedirectHookParams = {
    * Unique request ID that was generated during the OAuth flow.
    */
   uniqueRequestId: string
-} & CommonAuthHookParams
-
-type CommonAuthHookParams = {
-  /**
-   * Name of the hook that is being executed.
-   */
-  hookName: string
-  /**
-   * Prisma instance that can be used to interact with the database.
-   */
-  prisma: typeof prisma
   /**
    * Request object that can be used to access the incoming request.
    */
   req: ExpressRequest
-}
+} & InternalAuthHookParams

@@ -109,7 +109,6 @@ export const onBeforeSignup = async ({
   providerId,
   prisma,
   req,
-  hookName,
 }) => {
   const count = await prisma.user.count()
   console.log('number of users before', count)
@@ -147,7 +146,6 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
   providerId,
   prisma,
   req,
-  hookName,
 }) => {
   const count = await prisma.user.count()
   console.log('number of users before', count)
@@ -199,7 +197,6 @@ export const onAfterSignup = async ({
   oauth,
   prisma,
   req,
-  hookName,
 }) => {
   const count = await prisma.user.count()
   console.log('number of users after', count)
@@ -242,7 +239,6 @@ export const onAfterSignup: OnAfterSignupHook = async ({
   oauth,
   prisma,
   req,
-  hookName,
 }) => {
   const count = await prisma.user.count()
   console.log('number of users after', count)
@@ -295,7 +291,6 @@ export const onBeforeOAuthRedirect = async ({
   uniqueRequestId,
   prisma,
   req,
-  hookName,
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
@@ -328,7 +323,6 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   uniqueRequestId,
   prisma,
   req,
-  hookName,
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
@@ -402,7 +396,6 @@ export const onBeforeSignup = async ({
   providerId,
   prisma,
   req,
-  hookName,
 }) => {
   // Hook code here
 }
@@ -419,7 +412,6 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
   providerId,
   prisma,
   req,
-  hookName,
 }) => {
   // Hook code here
 }
@@ -445,9 +437,6 @@ The hook receives an object as **input** with the following properties:
 - `req: Request`
 
   The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
-- `hookName: string`
-
-  The current hook name (`'onBeforeSignup'`). This value can be useful when logging or debugging.
 
 Wasp ignores this hook's **return value**.
 
@@ -463,7 +452,6 @@ export const onAfterSignup = async ({
   oauth,
   prisma,
   req,
-  hookName,
 }) => {
   // Hook code here
 }
@@ -481,7 +469,6 @@ export const onAfterSignup: OnAfterSignupHook = async ({
   oauth,
   prisma,
   req,
-  hookName,
 }) => {
   // Hook code here
 }
@@ -521,9 +508,6 @@ The hook receives an object as **input** with the following properties:
 - `req: Request`
   
   The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
-- `hookName: string`
-
-  The current hook name (`'onAfterSignup'`). This value can be useful when logging or debugging.
 
 Wasp ignores this hook's **return value**.
 
@@ -538,7 +522,6 @@ export const onBeforeOAuthRedirect = async ({
   uniqueRequestId,
   prisma,
   req,
-  hookName,
 }) => {
   // Hook code here
 
@@ -557,7 +540,6 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   uniqueRequestId,
   prisma,
   req,
-  hookName,
 }) => {
   // Hook code here
 
@@ -583,8 +565,5 @@ The hook receives an object as **input** with the following properties:
 - `req: Request`
 
   The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
-- `hookName: string`
-    
-  The current hook name (`'onBeforeOAuthRedirect'`). This value can be useful when logging or debugging.
 
 The **return value** of this hook must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.

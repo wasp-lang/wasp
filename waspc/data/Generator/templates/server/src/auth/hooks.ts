@@ -4,6 +4,7 @@ import type {
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
+  InternalAuthHookParams,
 } from 'wasp/server/auth'
 {=# onBeforeSignupHook.isDefined =}
 {=& onBeforeSignupHook.importStatement =}
@@ -21,13 +22,12 @@ import type {
   In the server code (e.g. email signup) we import these functions and call them.
 
   We want to pass extra params to the user defined hook functions, but we don't want to
-  pass 'prisma' and 'hookName' to them when we call them in the server code.
+  pass them when we call them in the server code.
 */
 
 {=# onBeforeSignupHook.isDefined =}
 export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = (params) =>
   {= onBeforeSignupHook.importIdentifier =}({
-    hookName: 'onBeforeSignup',
     prisma,
     ...params,
   })
@@ -42,7 +42,6 @@ export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = a
 {=# onAfterSignupHook.isDefined =}
 export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (params) =>
   {= onAfterSignupHook.importIdentifier =}({
-    hookName: 'onAfterSignup',
     prisma,
     ...params,
   })
@@ -57,7 +56,6 @@ export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = asy
 {=# onBeforeOAuthRedirectHook.isDefined =}
 export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = (params) =>
   {= onBeforeOAuthRedirectHook.importIdentifier =}({
-    hookName: 'onBeforeOAuthRedirect',
     prisma,
     ...params,
   })
@@ -71,12 +69,12 @@ export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRed
 
 /*
   We pass extra params to the user defined hook functions, but we don't want to
-  pass 'prisma' and 'hookName' to them when we call them in the server code.
+  pass extra params when we call the hooks in the server code.
   So, we need to remove them from the params object which is used to define the
   internal hook functions.
 */
 type InternalFunctionForHook<Fn extends (args: never) => unknown | Promise<unknown>> = Fn extends (
   params: infer P,
 ) => infer R
-  ? (args: Omit<P, 'prisma' | 'hookName'>) => R
+  ? (args: Omit<P, keyof InternalAuthHookParams>) => R
   : never
