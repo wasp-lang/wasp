@@ -337,7 +337,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 </TabItem>
 </Tabs>
 
-The **return value** of this hook must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
+This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
 
 Read more about the data the `onBeforeOAuthRedirect` hook receives in the [API Reference](#the-onbeforeoauthredirect-hook).
 
@@ -566,4 +566,4 @@ The hook receives an object as **input** with the following properties:
 
   The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
 
-The **return value** of this hook must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
+This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
