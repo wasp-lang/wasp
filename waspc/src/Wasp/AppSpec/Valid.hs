@@ -409,7 +409,14 @@ validatePrismaSchema spec =
         validateModelField (Psl.Ast.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
 
         validateTypeModifier :: String -> Psl.Ast.FieldTypeModifier -> [ValidationError]
-        validateTypeModifier fieldName Psl.Ast.UnsupportedOptionalList = [GenericValidationError $ "Model \"" ++ modelName ++ "\" in schema.prisma has defined \"" ++ fieldName ++ "\" field as an optional list, which is not supported by Prisma."]
+        validateTypeModifier fieldName Psl.Ast.UnsupportedOptionalList =
+          [ GenericValidationError $
+              "Model \""
+                ++ modelName
+                ++ "\" in schema.prisma has defined \""
+                ++ fieldName
+                ++ "\" field as an optional list, which is not supported by Prisma."
+          ]
         validateTypeModifier _ _ = []
 
     validateGenerators :: [Psl.Ast.Generator] -> [ValidationError]
@@ -419,10 +426,14 @@ validatePrismaSchema spec =
         then [GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
         else []
       where
-        isTherePrismaClientJsGenerator = any (\(Psl.Ast.Generator _name keyValues) -> findPrismaConfigBlockKeyValue "provider" keyValues == Just "\"prisma-client-js\"") generators'
+        isTherePrismaClientJsGenerator =
+          any
+            ( \(Psl.Ast.Generator _name keyValues) ->
+                findPrismaConfigBlockKeyValue "provider" keyValues == Just "\"prisma-client-js\""
+            )
+            generators'
 
     validateDatasources :: [Psl.Ast.Datasource] -> [ValidationError]
-    validateDatasources [] = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
     validateDatasources [_anyDataSource] = []
     validateDatasources _ = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
 
