@@ -23,7 +23,7 @@ export type OAuthStateFieldName = keyof OAuthState | keyof OAuthStateWithPKCE;
 type OAuthStateForOAuthType = {
   OAuth2: OAuthState,
   OAuth2WithPKCE: OAuthStateWithPKCE,
-}
+};
 
 type OAuthState = {
   state: string;
