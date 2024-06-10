@@ -132,8 +132,9 @@ import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
--- | Takes a Wasp source file and produces a list of declarations or a
---   description of an error in the source file.
+-- | Takes a Prisma Schema AST and a Wasp source file and
+--   produces a list of declarations or a description of
+--   an error in the source file.
 analyze :: Psl.Ast.Schema -> String -> Either [AnalyzeError] [Decl]
 analyze prismaSchemaAst =
   (left (map ParseError) . parseStatements)
