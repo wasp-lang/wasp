@@ -85,7 +85,7 @@ In the root of your Wasp project you can create two distinct files:
     REACT_APP_SOME_VAR_NAME=somevalue
     ```
 
-`.env.server` should not be committed to version control as it can contain secrets, while `.env.server` can be versioned as it must not contain any secrets.
+`.env.server` should not be committed to version control as it can contain secrets, while `.env.client` can be versioned as it must not contain any secrets.
 By default, in the `.gitignore` file that comes with a new Wasp app, we ignore all dotenv files.
 
 :::info Dotenv files
