@@ -416,7 +416,7 @@ validatePrismaSchema spec =
     validateGenerators [] = [GenericValidationError "Prisma schema should have at least one generator defined."]
     validateGenerators generators' =
       if not isTherePrismaClientJsGenerator
-        then [GenericValidationError "Prisma schema should have one generator with the provider set to \"prisma-client-js\"."]
+        then [GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
         else []
       where
         isTherePrismaClientJsGenerator = any (\(Psl.Ast.Generator _name keyValues) -> findPrismaConfigBlockKeyValue "provider" keyValues == Just "\"prisma-client-js\"") generators'

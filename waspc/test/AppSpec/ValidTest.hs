@@ -448,7 +448,7 @@ spec_AppSpecValid = do
                     ]
               ]
        in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
-            `shouldBe` [ASV.GenericValidationError "Prisma schema should have one generator with the provider set to \"prisma-client-js\"."]
+            `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
   where
     makeIdField name typ =
       Psl.Ast.Field
