@@ -5,7 +5,30 @@ title: Auth Hooks
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill } from "./Pills";
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
-Auth hooks allow you to "hook into" the auth process at various stages and run your custom code. For example, if you want to forbid certain emails from signing up, or if you want to send a welcome email to the user after they sign up, auth hooks are the way to go.
+Auth hooks allow you to "hook into" the auth process at various stages and run your custom code. For example, if you want to forbid certain emails from signing up, or if you wish to send a welcome email to the user after they sign up, auth hooks are the way to go.
+
+## Supported hooks
+
+The following auth hooks are available in Wasp:
+- [`onBeforeSignup`](#executing-code-before-the-user-signs-up)
+- [`onAfterSignup`](#executing-code-after-the-user-signs-up)
+- [`onBeforeOAuthRedirect`](#executing-code-before-the-oauth-redirect)
+
+We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the signup flow:
+
+<ImgWithCaption
+  source="/img/auth-hooks/signup_flow_with_hooks.png"
+  alt="Signup Flow with Hooks"
+  caption="Signup Flow with Hooks"
+/>
+
+If you are using OAuth, the flow includes extra steps before the signup flow:
+
+<ImgWithCaption
+  source="/img/auth-hooks/oauth_flow_with_hooks.png"
+  alt="OAuth Flow with Hooks"
+  caption="OAuth Flow with Hooks"
+/>
 
 ## Using hooks
 
@@ -54,32 +77,9 @@ app myApp {
 
 If the hooks are defined as async functions, Wasp _awaits_ them. This means the auth process waits for the hooks to finish before continuing.
 
-Wasp ignores the return values of the hooks. The only exception is the `onBeforeOAuthRedirect` hook, whose return value affects the OAuth redirect URL.
+Wasp ignores the hooks' return values. The only exception is the `onBeforeOAuthRedirect` hook, whose return value affects the OAuth redirect URL.
 
-### When are the hooks called
-
-Below you can see the flow of the auth process with hooks:
-
-<ImgWithCaption
-  source="/img/auth-hooks/signup_flow_with_hooks.png"
-  alt="Signup Flow with Hooks"
-  caption="Signup Flow with Hooks"
-/>
-
-<ImgWithCaption
-  source="/img/auth-hooks/oauth_flow_with_hooks.png"
-  alt="OAuth Flow with Hooks"
-  caption="OAuth Flow with Hooks"
-/>
-
-## Available hooks
-
-Wasp supports the following auth hooks:
-- `onBeforeSignup`
-- `onAfterSignup`
-- `onBeforeOAuthRedirect`
-
-Let's go through each of them.
+We'll now go through each of the available hooks.
 
 ### Executing code before the user signs up
 
@@ -205,7 +205,7 @@ export const onAfterSignup = async ({
   console.log('number of users after', count)
   console.log('user object', user)
 
-  // If this is a OAuth signup, we have the access token and uniqueRequestId
+  // If this is an OAuth signup, we have the access token and uniqueRequestId
   if (oauth) {
     console.log('accessToken', oauth.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
@@ -248,7 +248,7 @@ export const onAfterSignup: OnAfterSignupHook = async ({
   console.log('number of users after', count)
   console.log('user object', user)
 
-  // If this is a OAuth signup, we have the access token and uniqueRequestId
+  // If this is an OAuth signup, we have the access token and uniqueRequestId
   if (oauth) {
     console.log('accessToken', oauth.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
@@ -270,7 +270,7 @@ Read more about the data the `onAfterSignup` hook receives in the [API Reference
 
 ### Executing code before the OAuth redirect
 
-Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is generated but before the user is redirected to it. This hook has access to the request object that was sent from the client when the OAuth flow was initiated.
+Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is generated but before redirecting the user. This hook can access the request object sent from the client at the start of the OAuth process.
 
 The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that can be used later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` hook.
 
@@ -299,7 +299,7 @@ export const onBeforeOAuthRedirect = async ({
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
-  // Saving query params for later use in onAfterSignup hook
+  // Saving query params for later use in the onAfterSignup hook
   const id = uniqueRequestId
   someKindOfStore.set(id, req.query)
 
@@ -332,7 +332,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
-  // Saving query params for later use in onAfterSignup hook
+  // Saving query params for later use in the onAfterSignup hook
   const id = uniqueRequestId
   someKindOfStore.set(id, req.query)
 
@@ -343,7 +343,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 </TabItem>
 </Tabs>
 
-The **return value** of this hook must be an object that looks like this: `{ url: URL }`. This URL object is used to redirect the user to the OAuth provider.
+The **return value** of this hook must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
 
 Read more about the data the `onBeforeOAuthRedirect` hook receives in the [API Reference](#the-onbeforeoauthredirect-hook).
 
@@ -435,19 +435,19 @@ The hook receives an object as **input** with the following properties:
   The user's provider ID is an object with two properties:
   - `providerName: string`
 
-    The name of the provider (e.g. `'email'`, `'google'`, `'github'`)
+    The provider's name (e.g. `'email'`, `'google'`, `'github'`)
   - `providerUserId: string`
     
-    The unique ID of the user in the provider's system (e.g. email, Google ID, GitHub ID)
+    The user's unique ID in the provider's system (e.g. email, Google ID, GitHub ID)
 - `prisma: PrismaClient`
 
-  Prisma client instance which you can use to query your database.
+  The Prisma client instance which you can use to query your database.
 - `req: Request`
 
-  [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
 - `hookName: string`
 
-  The name of the current hook (`'onBeforeSignup'`). This value can be useful when logging or debugging.
+  The current hook name (`'onBeforeSignup'`). This value can be useful when logging or debugging.
 
 Wasp ignores this hook's **return value**.
 
@@ -496,10 +496,10 @@ The hook receives an object as **input** with the following properties:
   The user's provider ID is an object with two properties:
   - `providerName: string`
   
-    The name of the provider (e.g. `'email'`, `'google'`, `'github'`)
+    The provider's name (e.g. `'email'`, `'google'`, `'github'`)
   - `providerUserId: string`
   
-  The unique ID of the user in the provider's system (e.g. email, Google ID, GitHub ID)
+  The user's unique ID in the provider's system (e.g. email, Google ID, GitHub ID)
 - `user: User`
   
   The user object that was created.
@@ -509,21 +509,21 @@ The hook receives an object as **input** with the following properties:
   It contains the following fields:
   - `accessToken: string`
 
-    The OAuth access token can be used to make requests to the provider's API on behalf of the user.
+    You can use the OAuth access token to use the provider's API on behalf of the user.
   - `uniqueRequestId: string`
   
       The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
       
-      The `onBeforeOAuthRedirect` hook receives the same value which can be used to reference data saved in that hook.
+      You can use the unique request ID to get the data saved in the `onBeforeOAuthRedirect` hook.
 - `prisma: PrismaClient`
 
-  Prisma client instance which you can use to query your database.
+  The Prisma client instance which you can use to query your database.
 - `req: Request`
   
-  [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
 - `hookName: string`
 
-  The name of the current hook (`'onAfterSignup'`). This value can be useful when logging or debugging.
+  The current hook name (`'onAfterSignup'`). This value can be useful when logging or debugging.
 
 Wasp ignores this hook's **return value**.
 
@@ -571,20 +571,20 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 The hook receives an object as **input** with the following properties:
 - `url: URL`
 
-    The URL object that is used for the OAuth redirect.
+    Wasp uses the URL for the OAuth redirect.
 - `uniqueRequestId: string`
 
     The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
-    The`onAfterSignup` hook receives the same value which can be used to reference data saved in this hook.
+    You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` hook.
 - `prisma: PrismaClient`
     
-    Prisma client instance which you can use to query your database.
+    The Prisma client instance which you can use to query your database.
 - `req: Request`
 
-  [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
 - `hookName: string`
     
-  The name of the current hook (`'onBeforeOAuthRedirect'`). This value can be useful when logging or debugging.
+  The current hook name (`'onBeforeOAuthRedirect'`). This value can be useful when logging or debugging.
 
-The **return value** of this hook must be an object that looks like this: `{ url: URL }`. This URL object is used to redirect the user to the OAuth provider.
+The **return value** of this hook must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
