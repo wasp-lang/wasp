@@ -430,7 +430,7 @@ validatePrismaSchema spec =
     models = Psl.Ast.getModels prismaSchemaAst
     generators = Psl.Ast.getGenerators prismaSchemaAst
     datasources = Psl.Ast.getDatasources prismaSchemaAst
-    prismaSchemaAst = AS.getPrismaSchema spec
+    prismaSchemaAst = AS.prismaSchema spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
@@ -449,7 +449,7 @@ isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed = (AS.Db.PostgreSQL ==) . AS.getDbSystem
+isPostgresUsed = (AS.Db.PostgreSQL ==) . AS.dbSystem
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- If there is no user entity, it returns Nothing.

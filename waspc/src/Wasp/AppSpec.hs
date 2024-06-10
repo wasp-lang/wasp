@@ -22,8 +22,6 @@ module Wasp.AppSpec
     getApiNamespaces,
     getCruds,
     userNodeVersionRange,
-    getPrismaSchema,
-    getDbSystem,
   )
 where
 
@@ -135,12 +133,6 @@ getApp :: [Decl] -> Maybe (String, App)
 getApp dcls = case takeDecls @App dcls of
   [] -> Nothing
   apps -> Just $ head apps
-
-getPrismaSchema :: AppSpec -> Psl.Ast.Schema
-getPrismaSchema = prismaSchema
-
-getDbSystem :: AppSpec -> Db.DbSystem
-getDbSystem = dbSystem
 
 resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =

@@ -81,7 +81,7 @@ genPrismaSchema spec = do
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
   where
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
-    dbSystem = AS.getDbSystem spec
+    dbSystem = AS.dbSystem spec
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
     makeDatasourceJson datasourceProvider datasourceUrl =
@@ -103,7 +103,7 @@ genPrismaSchema spec = do
 
     enumSchemas = Psl.Generator.Schema.generateSchemaElement . Psl.Ast.SchemaEnum <$> Psl.Ast.getEnums prismaSchemaAst
 
-    prismaSchemaAst = AS.getPrismaSchema spec
+    prismaSchemaAst = AS.prismaSchema spec
 
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.

@@ -156,7 +156,7 @@ studio = do
 
     getDbInfo spec =
       object
-        [ "system" .= show (AS.getDbSystem spec)
+        [ "system" .= show (AS.dbSystem spec)
         ]
 
     getAuthInfo spec app = do
