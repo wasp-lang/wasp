@@ -69,8 +69,8 @@ export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRed
 
 /*
   We pass extra params to the user defined hook functions, but we don't want to
-  pass extra params when we call the hooks in the server code.
-  So, we need to remove them from the params object which is used to define the
+  pass the extra params (e.g. 'prisma') when we call the hooks in the server code.
+  So, we need to remove the extra params from the params object which is used to define the
   internal hook functions.
 */
 type InternalFunctionForHook<Fn extends (args: never) => unknown | Promise<unknown>> = Fn extends (
