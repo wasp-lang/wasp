@@ -2,9 +2,12 @@ module Wasp.Project.Db
   ( makeDevDatabaseUrl,
     databaseUrlEnvVarName,
     getDbSystemFromPrismaSchema,
+    validateDbSystem,
+    DbSystemParseError (..),
   )
 where
 
+import Control.Exception (throwIO)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
@@ -28,15 +31,28 @@ makeDevDatabaseUrl waspProjectDir dbSystem decls = do
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
 
-getDbSystemFromPrismaSchema :: Psl.Ast.Schema -> AS.Db.DbSystem
+data DbSystemParseError = UnsupportedDbSystem String | MissingDbSystem
+  deriving (Eq, Show)
+
+getDbSystemFromPrismaSchema :: Psl.Ast.Schema -> Either DbSystemParseError AS.Db.DbSystem
 getDbSystemFromPrismaSchema prismaSchema =
   case getProviderFromPrismaSchema prismaSchema of
     -- We parse raw config block values from Prisma file,
     -- so we need match the provider names with quotes.
-    Just "\"postgresql\"" -> AS.App.Db.PostgreSQL
-    Just "\"sqlite\"" -> AS.App.Db.SQLite
-    Just provider -> AS.App.Db.UnsupportedDbSystem provider
-    Nothing -> AS.App.Db.MissingDbSystem
+    Just "\"postgresql\"" -> Right AS.App.Db.PostgreSQL
+    Just "\"sqlite\"" -> Right AS.App.Db.SQLite
+    Just provider -> Left $ UnsupportedDbSystem provider
+    Nothing -> Left MissingDbSystem
+
+validateDbSystem :: Either DbSystemParseError AS.Db.DbSystem -> IO AS.Db.DbSystem
+validateDbSystem (Right dbSystem) = return dbSystem
+validateDbSystem (Left MissingDbSystem) =
+  throwIO $
+    userError "You need to specify the \"provider\" field in the \"datasource\" block in your Prisma schema."
+validateDbSystem (Left (UnsupportedDbSystem unsupportedDbSystem)) =
+  throwIO $
+    userError $
+      "Wasp doesn't support the database provider " ++ unsupportedDbSystem ++ " specified in the schema.prisma file."
 
 getProviderFromPrismaSchema :: Psl.Ast.Schema -> Maybe String
 getProviderFromPrismaSchema =

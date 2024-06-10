@@ -2,7 +2,10 @@ module Project.DbTest where
 
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
-import Wasp.Project.Db (getDbSystemFromPrismaSchema)
+import Wasp.Project.Db
+  ( DbSystemParseError (..),
+    getDbSystemFromPrismaSchema,
+  )
 import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 
 spec_DbHelperTest :: Spec
@@ -26,7 +29,7 @@ spec_DbHelperTest = do
                     ]
               ]
 
-      getDbSystemFromPrismaSchema prismaSchema `shouldBe` AS.App.Db.PostgreSQL
+      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Right AS.App.Db.PostgreSQL
 
     it "Correctly extracts SQLite" $ do
       let prismaSchema =
@@ -43,7 +46,7 @@ spec_DbHelperTest = do
                     [Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""]
               ]
 
-      getDbSystemFromPrismaSchema prismaSchema `shouldBe` AS.App.Db.SQLite
+      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Right AS.App.Db.SQLite
 
     it "Correctly extracts UnsupportedDbSystem" $ do
       let prismaSchema =
@@ -60,7 +63,7 @@ spec_DbHelperTest = do
                     [Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""]
               ]
 
-      getDbSystemFromPrismaSchema prismaSchema `shouldBe` AS.App.Db.UnsupportedDbSystem "\"mongodb\""
+      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Left (UnsupportedDbSystem "\"mongodb\"")
 
     it "Correctly extracts MissingDbSystem when provider missing" $ do
       let prismaSchema =
@@ -76,7 +79,7 @@ spec_DbHelperTest = do
                     [Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""]
               ]
 
-      getDbSystemFromPrismaSchema prismaSchema `shouldBe` AS.App.Db.MissingDbSystem
+      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Left MissingDbSystem
 
     it "Correctly extracts MissingDbSystem when no datasource" $ do
       let prismaSchema =
@@ -87,4 +90,4 @@ spec_DbHelperTest = do
                     [Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""]
               ]
 
-      getDbSystemFromPrismaSchema prismaSchema `shouldBe` AS.App.Db.MissingDbSystem
+      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Left MissingDbSystem

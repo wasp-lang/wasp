@@ -44,19 +44,6 @@ start = do
   case AS.dbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
-    AS.App.Db.UnsupportedDbSystem provider ->
-      E.throwError $
-        CommandError
-          "Unsupported database provider"
-          ( printf
-              "Wasp doesn't support the database provider %s specified in the schema.prisma file."
-              provider
-          )
-    AS.App.Db.MissingDbSystem ->
-      E.throwError $
-        CommandError
-          "Missing database provider"
-          "Wasp couldn't find a database provider in the schema.prisma file."
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $

@@ -63,10 +63,6 @@ genPrismaSchema spec = do
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
         else return ("\"sqlite\"", "\"file:./dev.db\"")
-    AS.Db.UnsupportedDbSystem unsupportedDbSystem ->
-      logAndThrowGeneratorError $ GenericGeneratorError $ "Wasp doesn't support the database provider " ++ unsupportedDbSystem ++ " specified in the schema.prisma file."
-    AS.Db.MissingDbSystem ->
-      logAndThrowGeneratorError $ GenericGeneratorError "You need to specify the \"provider\" field in the \"datasource\" block in your Prisma schema."
 
   entities <- getEntitiesForPrismaSchema spec
 
