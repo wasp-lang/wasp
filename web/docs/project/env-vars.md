@@ -85,9 +85,12 @@ In the root of your Wasp project you can create two distinct files:
     REACT_APP_SOME_VAR_NAME=somevalue
     ```
 
-These files should not be committed to version control, and they are already ignored by default in the `.gitignore` file that comes with Wasp.
+`.env.server` should not be committed to version control as it can contain secrets and is therefore by default already ignored in the `.gitignore` file that comes with a new Wasp app.
+On the other hand, `.env.client` can be committed as it must not contain any secrets.
 
-<!-- `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [README of the lib we use for them](https://github.com/stackbuilders/dotenv-hs). -->
+:::info Dotenv files
+  `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [dotenv npm package](https://www.npmjs.com/package/dotenv).
+:::
 
 ### 2. Using Shell
 If you set environment variables in the shell where you run your Wasp commands (e.g., `wasp start`), Wasp will recognize them.
