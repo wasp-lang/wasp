@@ -409,7 +409,6 @@ validatePrismaSchema spec =
         validateModelField (Psl.Ast.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
 
         validateTypeModifier :: String -> Psl.Ast.FieldTypeModifier -> [ValidationError]
-        -- Desired message: Prisma model \"User\" in schema.prisma has defined \"id\" as an optional list, which is not supported by Prisma.
         validateTypeModifier fieldName Psl.Ast.UnsupportedOptionalList = [GenericValidationError $ "Model \"" ++ modelName ++ "\" in schema.prisma has defined \"" ++ fieldName ++ "\" field as an optional list, which is not supported by Prisma."]
         validateTypeModifier _ _ = []
 
