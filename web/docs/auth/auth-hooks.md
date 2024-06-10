@@ -496,7 +496,7 @@ The hook receives an object as **input** with the following properties:
   It contains the following fields:
   - `accessToken: string`
 
-    You can use the OAuth access token to use the provider's API on behalf of the user.
+    You can use the OAuth access token to use the provider's API on user's behalf.
   - `uniqueRequestId: string`
   
       The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
