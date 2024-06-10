@@ -6,15 +6,15 @@ import { parseCookies } from "oslo/cookie";
 
 import type { ProviderConfig } from "wasp/auth/providers/types";
 
-import type { OAuthStateType } from './state';
+import type { OAuthStateFieldName } from './state';
 
 export function setOAuthCookieValue(
   provider: ProviderConfig,
   res: ExpressResponse,
-  stateType: OAuthStateType,
+  fieldName: OAuthStateFieldName,
   value: string,
 ) {
-  const cookieName = `${provider.id}_${stateType}`;
+  const cookieName = `${provider.id}_${fieldName}`;
   res.cookie(cookieName, value, {
     httpOnly: true,
     // TODO: use server config to determine if secure
@@ -27,9 +27,9 @@ export function setOAuthCookieValue(
 export function getOAuthCookieValue(
   provider: ProviderConfig,
   req: ExpressRequest,
-  stateType: OAuthStateType,
+  fieldName: OAuthStateFieldName,
 ) {
-  const cookieName = `${provider.id}_${stateType}`;
+  const cookieName = `${provider.id}_${fieldName}`;
   const cookies = parseCookies(req.headers.cookie ?? "");
   return cookies.get(cookieName);
 }

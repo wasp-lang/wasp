@@ -8,7 +8,9 @@ import {
 } from 'wasp/auth/providers/types'
 
 import {
-  type OAuthState,
+  type OAuthType,
+  type OAuthStateFor,
+  type OAuthStateWithCodeFor,
   generateAndStoreOAuthState,
   validateAndGetOAuthState,
 } from '../oauth/state.js'
@@ -20,9 +22,9 @@ import {
 } from './redirect.js'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
+export function createOAuthProviderRouter<OT extends OAuthType>({
   provider,
-  isCodeVerifierUsed,
+  oAuthType,
   userSignupFields,
   getAuthorizationUrl,
   getProviderTokens,
@@ -34,21 +36,21 @@ export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
       that requested the login is the same that is completing it.
     - It includes "state" and an optional "codeVerifier" for PKCE.
   */
-  isCodeVerifierUsed: IsCodeVerifierUsed
+  oAuthType: OT
   userSignupFields: UserSignupFields | undefined
   /*
     The function that returns the URL to redirect the user to the
     provider's login page.
   */
   getAuthorizationUrl: (
-    oAuthState: OAuthState<IsCodeVerifierUsed>
+    oAuthState: OAuthStateFor<OT>,
   ) => Promise<URL>
   /*
     The function that returns the access token and refresh token from the
     provider's callback.
   */
   getProviderTokens: (
-    oAuthState: OAuthState<IsCodeVerifierUsed>,
+    oAuthState: OAuthStateWithCodeFor<OT>,
   ) => Promise<{
     accessToken: string
   }>
@@ -67,7 +69,7 @@ export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
     `/${loginPath}`,
     handleRejection(async (req, res) => {
       const oAuthState = generateAndStoreOAuthState({
-        isCodeVerifierUsed,
+        oAuthType,
         provider,
         res,
       })
@@ -86,7 +88,7 @@ export function createOAuthProviderRouter<IsCodeVerifierUsed extends boolean>({
     handleRejection(async (req, res) => {
       try {
         const oAuthState = validateAndGetOAuthState({
-          isCodeVerifierUsed,
+          oAuthType,
           provider,
           req,
         })

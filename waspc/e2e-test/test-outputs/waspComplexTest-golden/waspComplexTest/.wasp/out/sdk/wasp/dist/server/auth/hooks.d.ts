@@ -12,12 +12,22 @@ export type OnBeforeOAuthRedirectHook = (params: Expand<OnBeforeOAuthRedirectHoo
 } | Promise<{
     url: URL;
 }>;
+export type InternalAuthHookParams = {
+    /**
+     * Prisma instance that can be used to interact with the database.
+     */
+    prisma: typeof prisma;
+};
 type OnBeforeSignupHookParams = {
     /**
      * Provider ID object that contains the provider name and the provide user ID.
      */
     providerId: ProviderId;
-} & CommonAuthHookParams;
+    /**
+     * Request object that can be used to access the incoming request.
+     */
+    req: ExpressRequest;
+} & InternalAuthHookParams;
 type OnAfterSignupHookParams = {
     /**
      * Provider ID object that contains the provider name and the provide user ID.
@@ -36,8 +46,12 @@ type OnAfterSignupHookParams = {
          * Unique request ID that was generated during the OAuth flow.
          */
         uniqueRequestId: string;
+        /**
+         * Request object that can be used to access the incoming request.
+         */
+        req: ExpressRequest;
     };
-} & CommonAuthHookParams;
+} & InternalAuthHookParams;
 type OnBeforeOAuthRedirectHookParams = {
     /**
      * URL that the OAuth flow should redirect to.
@@ -47,19 +61,9 @@ type OnBeforeOAuthRedirectHookParams = {
      * Unique request ID that was generated during the OAuth flow.
      */
     uniqueRequestId: string;
-} & CommonAuthHookParams;
-type CommonAuthHookParams = {
-    /**
-     * Name of the hook that is being executed.
-     */
-    hookName: string;
-    /**
-     * Prisma instance that can be used to interact with the database.
-     */
-    prisma: typeof prisma;
     /**
      * Request object that can be used to access the incoming request.
      */
     req: ExpressRequest;
-};
+} & InternalAuthHookParams;
 export {};
