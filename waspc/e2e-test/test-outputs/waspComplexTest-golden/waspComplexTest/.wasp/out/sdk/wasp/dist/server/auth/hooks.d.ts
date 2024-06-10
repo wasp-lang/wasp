@@ -46,11 +46,11 @@ type OnAfterSignupHookParams = {
          * Unique request ID that was generated during the OAuth flow.
          */
         uniqueRequestId: string;
-        /**
-         * Request object that can be used to access the incoming request.
-         */
-        req: ExpressRequest;
     };
+    /**
+     * Request object that can be used to access the incoming request.
+     */
+    req: ExpressRequest;
 } & InternalAuthHookParams;
 type OnBeforeOAuthRedirectHookParams = {
     /**
