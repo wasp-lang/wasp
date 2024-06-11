@@ -433,6 +433,8 @@ validatePrismaSchema spec =
             )
             generators'
 
+    -- As per Prisma's docs there can be only ONE datasource block in the schema.
+    -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
     validateDatasources :: [Psl.Ast.Datasource] -> [ValidationError]
     validateDatasources [_anyDataSource] = []
     validateDatasources _ = [GenericValidationError "Prisma schema must have exactly one datasource defined."]

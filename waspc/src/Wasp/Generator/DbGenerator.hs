@@ -83,9 +83,7 @@ genPrismaSchema spec = do
     makeDatasourceJson datasourceProvider datasourceUrl =
       Psl.Generator.ConfigBlock.makeConfigBlockJson
         [("provider", datasourceProvider), ("url", datasourceUrl)]
-        -- As per Prisma's docs there can be only ONE datasource block in the schema.
         -- We validated AppSpec so we know there is exactly one datasource block.
-        -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
         (head $ Psl.Ast.getDatasources prismaSchemaAst)
 
     generatorJsons =
