@@ -6,78 +6,82 @@ module Psl.Generator.SchemaTest where
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Psl.Ast.Schema as AST
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+import qualified Wasp.Psl.Ast.Enum as Psl.Enum
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Generator.Schema (generateSchemaElement)
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser.Schema
 
 prop_generatePslSchema :: Property
 prop_generatePslSchema = mapSize (const 100) $ \schemaElementAst ->
   within 1000000 $
-    Parsec.parse Psl.Parser.Schema.schema "" (generateSchemaElement schemaElementAst) `shouldBe` Right (AST.Schema [schemaElementAst])
+    Parsec.parse Psl.Parser.Schema.schema "" (generateSchemaElement schemaElementAst) `shouldBe` Right (Psl.Schema.Schema [schemaElementAst])
 
-instance Arbitrary AST.SchemaElement where
+instance Arbitrary Psl.Schema.SchemaElement where
   arbitrary =
     oneof
-      [ AST.SchemaModel <$> arbitrary,
-        AST.SchemaEnum <$> arbitrary,
-        AST.SchemaDatasource <$> arbitrary,
-        AST.SchemaGenerator <$> arbitrary
+      [ Psl.Schema.SchemaModel <$> arbitrary,
+        Psl.Schema.SchemaEnum <$> arbitrary,
+        Psl.Schema.SchemaDatasource <$> arbitrary,
+        Psl.Schema.SchemaGenerator <$> arbitrary
       ]
 
-instance Arbitrary AST.Schema where
-  arbitrary = AST.Schema <$> scale (const 5) arbitrary
+instance Arbitrary Psl.Schema.Schema where
+  arbitrary = Psl.Schema.Schema <$> scale (const 5) arbitrary
 
-instance Arbitrary AST.Model where
-  arbitrary = AST.Model <$> arbitraryIdentifier <*> arbitrary
+instance Arbitrary Psl.Model.Model where
+  arbitrary = Psl.Model.Model <$> arbitraryIdentifier <*> arbitrary
 
-instance Arbitrary AST.Body where
+instance Arbitrary Psl.Model.ModelBody where
   arbitrary = do
-    fieldElement <- AST.ElementField <$> arbitrary
+    fieldElement <- Psl.Model.ModelElementField <$> arbitrary
     elementsBefore <- scale (const 5) arbitrary
     elementsAfter <- scale (const 5) arbitrary
-    return $ AST.Body $ elementsBefore ++ [fieldElement] ++ elementsAfter
+    return $ Psl.Model.ModelBody $ elementsBefore ++ [fieldElement] ++ elementsAfter
 
-instance Arbitrary AST.Element where
+instance Arbitrary Psl.Model.ModelElement where
   arbitrary =
     oneof
-      [ AST.ElementField <$> arbitrary,
-        AST.ElementBlockAttribute <$> arbitrary
+      [ Psl.Model.ModelElementField <$> arbitrary,
+        Psl.Model.ModelElementBlockAttribute <$> arbitrary
       ]
 
-instance Arbitrary AST.Field where
+instance Arbitrary Psl.Model.ModelField where
   arbitrary = do
     name <- arbitraryIdentifier
     fieldType <- arbitrary
     modifiers <- oneof [(: []) <$> arbitrary, return []]
     attrs <- scale (const 5) arbitrary
     return $
-      AST.Field
-        { AST._name = name,
-          AST._type = fieldType,
-          AST._typeModifiers = modifiers,
-          AST._attrs = attrs
+      Psl.Model.ModelField
+        { Psl.Model._name = name,
+          Psl.Model._type = fieldType,
+          Psl.Model._typeModifiers = modifiers,
+          Psl.Model._attrs = attrs
         }
 
-instance Arbitrary AST.FieldType where
+instance Arbitrary Psl.Model.ModelFieldType where
   arbitrary =
     oneof
-      [ return AST.String,
-        return AST.Boolean,
-        return AST.Int,
-        return AST.BigInt,
-        return AST.Float,
-        return AST.Decimal,
-        return AST.DateTime,
-        return AST.Json,
-        return AST.Bytes,
-        AST.Unsupported . show <$> arbitraryIdentifier,
-        AST.UserType <$> arbitraryIdentifier
+      [ return Psl.Model.String,
+        return Psl.Model.Boolean,
+        return Psl.Model.Int,
+        return Psl.Model.BigInt,
+        return Psl.Model.Float,
+        return Psl.Model.Decimal,
+        return Psl.Model.DateTime,
+        return Psl.Model.Json,
+        return Psl.Model.Bytes,
+        Psl.Model.Unsupported . show <$> arbitraryIdentifier,
+        Psl.Model.UserType <$> arbitraryIdentifier
       ]
 
-instance Arbitrary AST.FieldTypeModifier where
-  arbitrary = oneof [return AST.List, return AST.Optional]
+instance Arbitrary Psl.Model.ModelFieldTypeModifier where
+  arbitrary = oneof [return Psl.Model.List, return Psl.Model.Optional]
 
-instance Arbitrary AST.Attribute where
+instance Arbitrary Psl.Attribute.Attribute where
   arbitrary = do
     name <-
       frequency
@@ -85,26 +89,26 @@ instance Arbitrary AST.Attribute where
           (1, ("db." ++) <$> arbitraryIdentifier)
         ]
     args <- scale (const 5) arbitrary
-    return $ AST.Attribute {AST._attrName = name, AST._attrArgs = args}
+    return $ Psl.Attribute.Attribute {Psl.Attribute._attrName = name, Psl.Attribute._attrArgs = args}
 
-instance Arbitrary AST.AttributeArg where
+instance Arbitrary Psl.Attribute.AttributeArg where
   arbitrary =
     oneof
-      [ AST.AttrArgNamed <$> arbitraryIdentifier <*> arbitrary,
-        AST.AttrArgUnnamed <$> arbitrary
+      [ Psl.Attribute.AttrArgNamed <$> arbitraryIdentifier <*> arbitrary,
+        Psl.Attribute.AttrArgUnnamed <$> arbitrary
       ]
 
-instance Arbitrary AST.AttrArgValue where
+instance Arbitrary Psl.Attribute.AttrArgValue where
   arbitrary =
     oneof
-      [ AST.AttrArgString <$> arbitraryNonEmptyPrintableString,
-        AST.AttrArgIdentifier <$> arbitraryIdentifier,
-        AST.AttrArgFunc <$> arbitraryIdentifier,
-        AST.AttrArgFieldRefList <$> scale (const 5) (listOf1 arbitraryIdentifier),
+      [ Psl.Attribute.AttrArgString <$> arbitraryNonEmptyPrintableString,
+        Psl.Attribute.AttrArgIdentifier <$> arbitraryIdentifier,
+        Psl.Attribute.AttrArgFunc <$> arbitraryIdentifier,
+        Psl.Attribute.AttrArgFieldRefList <$> scale (const 5) (listOf1 arbitraryIdentifier),
         -- NOTE: For now we are not supporting negative numbers.
         --   I couldn't figure out from Prisma docs if there could be the case
         --   where these numbers could be negative. Probably we should take care of that case.
-        AST.AttrArgNumber
+        Psl.Attribute.AttrArgNumber
           <$> oneof
             [ show <$> (arbitrary :: Gen Int) `suchThat` (>= 0),
               show <$> (arbitrary :: Gen Float) `suchThat` (>= 0)
@@ -112,36 +116,36 @@ instance Arbitrary AST.AttrArgValue where
             -- NOTE: Unknown is commented out because unknown should contain only values
             --   that are not recognized as any other type of attribute argument,
             --   and defining how those are generated is not so simple, so I skipped it for now.
-            -- , AST.AttrArgUnknown <$> arbitraryNonEmptyPrintableString
+            -- , Psl.Attribute.AttrArgUnknown <$> arbitraryNonEmptyPrintableString
       ]
 
-instance Arbitrary AST.PrismaEnum where
+instance Arbitrary Psl.Enum.Enum where
   arbitrary = do
     name <- arbitraryIdentifier
     values <- scale (const 5) (listOf1 arbitrary)
-    return $ AST.PrismaEnum name values
+    return $ Psl.Enum.Enum name values
 
-instance Arbitrary AST.EnumField where
+instance Arbitrary Psl.Enum.EnumElement where
   arbitrary =
     oneof
-      [ AST.EnumValue <$> arbitraryIdentifier <*> scale (const 5) arbitrary,
-        AST.EnumBlockAttribute <$> arbitrary
+      [ Psl.Enum.EnumElementValue <$> arbitraryIdentifier <*> scale (const 5) arbitrary,
+        Psl.Enum.EnumElementBlockAttribute <$> arbitrary
       ]
 
-instance Arbitrary AST.Datasource where
+instance Arbitrary Psl.ConfigBlock.Datasource where
   arbitrary = do
     name <- arbitraryIdentifier
     config <- scale (const 5) arbitrary
-    return $ AST.Datasource name config
+    return $ Psl.ConfigBlock.Datasource name config
 
-instance Arbitrary AST.Generator where
+instance Arbitrary Psl.ConfigBlock.Generator where
   arbitrary = do
     name <- arbitraryIdentifier
     config <- scale (const 5) arbitrary
-    return $ AST.Generator name config
+    return $ Psl.ConfigBlock.Generator name config
 
-instance Arbitrary AST.ConfigBlockKeyValue where
-  arbitrary = AST.ConfigBlockKeyValue <$> arbitraryIdentifier <*> arbitraryIdentifier
+instance Arbitrary Psl.ConfigBlock.ConfigBlockKeyValue where
+  arbitrary = Psl.ConfigBlock.ConfigBlockKeyValue <$> arbitraryIdentifier <*> arbitraryIdentifier
 
 arbitraryNonEmptyPrintableString :: Gen String
 arbitraryNonEmptyPrintableString = listOf1 arbitraryPrintableChar

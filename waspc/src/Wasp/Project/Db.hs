@@ -14,7 +14,8 @@ import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValue)
 
 makeDevDatabaseUrl ::
@@ -34,7 +35,7 @@ databaseUrlEnvVarName = "DATABASE_URL"
 data DbSystemParseError = UnsupportedDbSystem String | MissingDbSystem
   deriving (Eq, Show)
 
-getDbSystemFromPrismaSchema :: Psl.Ast.Schema -> Either DbSystemParseError AS.Db.DbSystem
+getDbSystemFromPrismaSchema :: Psl.Schema.Schema -> Either DbSystemParseError AS.Db.DbSystem
 getDbSystemFromPrismaSchema prismaSchema =
   case getProviderFromPrismaSchema prismaSchema of
     -- We parse raw config block values from Prisma file,
@@ -54,11 +55,11 @@ validateDbSystem (Left (UnsupportedDbSystem unsupportedDbSystem)) =
     userError $
       "Wasp doesn't support the database provider " ++ unsupportedDbSystem ++ " specified in the schema.prisma file."
 
-getProviderFromPrismaSchema :: Psl.Ast.Schema -> Maybe String
+getProviderFromPrismaSchema :: Psl.Schema.Schema -> Maybe String
 getProviderFromPrismaSchema =
   findPrismaConfigBlockKeyValue "provider"
     -- As per Prisma's docs there can be only ONE datasource block in the schema.
     -- But we are still handling the case where there are multiple datasource blocks.
     -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
-    . concatMap (\(Psl.Ast.Datasource _ keyValues) -> keyValues)
-    . Psl.Ast.getDatasources
+    . concatMap (\(Psl.ConfigBlock.Datasource _ keyValues) -> keyValues)
+    . Psl.Schema.getDatasources

@@ -17,7 +17,7 @@ import Text.Parsec
 import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as T
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 
 whiteSpace :: Parser ()
 whiteSpace = T.whiteSpace lexer
@@ -65,7 +65,7 @@ lexer =
         T.identLetter = alphaNum <|> char '_'
       }
 
-fieldAttribute :: Parser Psl.Ast.Attribute
+fieldAttribute :: Parser Psl.Attribute.Attribute
 fieldAttribute = do
   _ <- char '@'
   name <- identifier
@@ -82,29 +82,29 @@ fieldAttribute = do
 
   maybeArgs <- optionMaybe (parens (commaSep1 (try attrArgument)))
   return $
-    Psl.Ast.Attribute
-      { Psl.Ast._attrName = case maybeSelector of
+    Psl.Attribute.Attribute
+      { Psl.Attribute._attrName = case maybeSelector of
           Just selector -> name ++ "." ++ selector
           Nothing -> name,
-        Psl.Ast._attrArgs = fromMaybe [] maybeArgs
+        Psl.Attribute._attrArgs = fromMaybe [] maybeArgs
       }
 
 -- Parses attribute argument that ends with delimiter: , or ).
 -- Doesn't parse the delimiter.
-attrArgument :: Parser Psl.Ast.AttributeArg
+attrArgument :: Parser Psl.Attribute.AttributeArg
 attrArgument = do
   try namedArg <|> try unnamedArg
   where
-    namedArg :: Parser Psl.Ast.AttributeArg
+    namedArg :: Parser Psl.Attribute.AttributeArg
     namedArg = do
       name <- identifier
       _ <- colon
-      Psl.Ast.AttrArgNamed name <$> argValue
+      Psl.Attribute.AttrArgNamed name <$> argValue
 
-    unnamedArg :: Parser Psl.Ast.AttributeArg
-    unnamedArg = Psl.Ast.AttrArgUnnamed <$> argValue
+    unnamedArg :: Parser Psl.Attribute.AttributeArg
+    unnamedArg = Psl.Attribute.AttrArgUnnamed <$> argValue
 
-    argValue :: Parser Psl.Ast.AttrArgValue
+    argValue :: Parser Psl.Attribute.AttrArgValue
     argValue =
       choice $
         map
@@ -118,19 +118,19 @@ attrArgument = do
             argValueUnknown
           ]
 
-    argValueString :: Parser Psl.Ast.AttrArgValue
-    argValueString = Psl.Ast.AttrArgString <$> stringLiteral
+    argValueString :: Parser Psl.Attribute.AttrArgValue
+    argValueString = Psl.Attribute.AttrArgString <$> stringLiteral
 
-    argValueFunc :: Parser Psl.Ast.AttrArgValue
+    argValueFunc :: Parser Psl.Attribute.AttrArgValue
     argValueFunc = do
       -- TODO: Could I implement this with applicative?
       name <- identifier
       parens whiteSpace
-      return $ Psl.Ast.AttrArgFunc name
+      return $ Psl.Attribute.AttrArgFunc name
 
-    argValueFieldReferenceList :: Parser Psl.Ast.AttrArgValue
+    argValueFieldReferenceList :: Parser Psl.Attribute.AttrArgValue
     argValueFieldReferenceList =
-      Psl.Ast.AttrArgFieldRefList
+      Psl.Attribute.AttrArgFieldRefList
         <$> brackets (commaSep1 identifier)
 
     -- NOTE: For now we are not supporting negative numbers.
@@ -138,21 +138,21 @@ attrArgument = do
     --   where these numbers could be negative.
     --   Same goes for argValueNumberInt below.
     --   TODO: Probably we should take care of that case.
-    argValueNumberFloat :: Parser Psl.Ast.AttrArgValue
-    argValueNumberFloat = Psl.Ast.AttrArgNumber . show <$> float
+    argValueNumberFloat :: Parser Psl.Attribute.AttrArgValue
+    argValueNumberFloat = Psl.Attribute.AttrArgNumber . show <$> float
 
     -- NOTE/TODO: Check comment on argValueNumberFloat.
-    argValueNumberInt :: Parser Psl.Ast.AttrArgValue
-    argValueNumberInt = Psl.Ast.AttrArgNumber . show <$> integer
+    argValueNumberInt :: Parser Psl.Attribute.AttrArgValue
+    argValueNumberInt = Psl.Attribute.AttrArgNumber . show <$> integer
 
-    argValueIdentifier :: Parser Psl.Ast.AttrArgValue
-    argValueIdentifier = Psl.Ast.AttrArgIdentifier <$> identifier
+    argValueIdentifier :: Parser Psl.Attribute.AttrArgValue
+    argValueIdentifier = Psl.Attribute.AttrArgIdentifier <$> identifier
 
-    argValueUnknown :: Parser Psl.Ast.AttrArgValue
+    argValueUnknown :: Parser Psl.Attribute.AttrArgValue
     argValueUnknown =
-      Psl.Ast.AttrArgUnknown <$> many1 (try $ noneOf argDelimiters)
+      Psl.Attribute.AttrArgUnknown <$> many1 (try $ noneOf argDelimiters)
 
-    delimitedArgValue :: Parser Psl.Ast.AttrArgValue -> Parser Psl.Ast.AttrArgValue
+    delimitedArgValue :: Parser Psl.Attribute.AttrArgValue -> Parser Psl.Attribute.AttrArgValue
     delimitedArgValue argValueP = do
       value <- argValueP
       _ <- lookAhead $ oneOf argDelimiters
@@ -160,5 +160,5 @@ attrArgument = do
 
     argDelimiters = [',', ')']
 
-blockAttribute :: Parser Psl.Ast.Attribute
+blockAttribute :: Parser Psl.Attribute.Attribute
 blockAttribute = char '@' >> fieldAttribute

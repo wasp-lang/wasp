@@ -4,10 +4,11 @@ module Wasp.Analyzer.Prisma
 where
 
 import Wasp.Analyzer.Parser as Parser
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator
 
-injectEntitiesFromPrismaSchema :: Psl.Ast.Schema -> Parser.AST -> Either a Parser.AST
+injectEntitiesFromPrismaSchema :: Psl.Schema.Schema -> Parser.AST -> Either a Parser.AST
 injectEntitiesFromPrismaSchema schema ast = Right $ ast {Parser.astStmts = stmts ++ entityStmts}
   where
     entityStmts = makeEntityStmt <$> generatePrismaModelSources schema
@@ -29,10 +30,10 @@ makeEntityStmt (name, body) = wrapWithCtx $ Parser.Decl "entity" name $ wrapWith
     mockSourceRegion = SourceRegion (SourcePosition 0 0) (SourcePosition 0 0)
 
 -- | Generates Prisma models source code so that it can be injected into Wasp AST.
-generatePrismaModelSources :: Psl.Ast.Schema -> [(ModelName, ModelBody)]
+generatePrismaModelSources :: Psl.Schema.Schema -> [(ModelName, ModelBody)]
 generatePrismaModelSources schema =
   [ ( name,
       Psl.Generator.generateModelBody body
     )
-    | (Psl.Ast.Model name body) <- Psl.Ast.getModels schema
+    | (Psl.Model.Model name body) <- Psl.Schema.getModels schema
   ]

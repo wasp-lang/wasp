@@ -7,8 +7,10 @@ import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import qualified Util.Prisma as Util
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC
@@ -29,26 +31,18 @@ import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
 import qualified Wasp.Version as WV
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
   describe "Analyzer" $ do
-    let prismaSchemaAst =
-          Psl.Ast.Schema
-            [ Psl.Ast.SchemaModel $
-                Psl.Ast.Model "User" $
-                  Psl.Ast.Body
-                    [ Psl.Ast.ElementField $
-                        Psl.Ast.Field
-                          { Psl.Ast._name = "description",
-                            Psl.Ast._type = Psl.Ast.String,
-                            Psl.Ast._typeModifiers = [],
-                            Psl.Ast._attrs = []
-                          }
-                    ]
-            ]
+    let prismaSchema =
+          Util.getPrismaSchema
+            [trimming|
+              model User {
+                description String
+              }
+            |]
 
     it "Analyzes a well-typed example" $ do
       let source =
@@ -128,7 +122,7 @@ spec_Analyzer = do
                 "}"
               ]
 
-      let decls = analyze prismaSchemaAst source
+      let decls = analyze prismaSchema source
 
       let expectedApps =
             [ ( "Todo",
@@ -300,7 +294,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
               ]
-      takeDecls @Route <$> analyze prismaSchemaAst source
+      takeDecls @Route <$> analyze prismaSchema source
         `shouldBe` Left [TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage"]
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
@@ -308,7 +302,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomeRoute }"
               ]
-      analyze prismaSchemaAst source
+      analyze prismaSchema source
         `errorMessageShouldBe` ( ctx (1, 35) (1, 43),
                                  intercalate
                                    "\n"
@@ -326,7 +320,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
                 "page HomePage { component: import Home from \"@src/HomePage.js\" }"
               ]
-      isRight (analyze prismaSchemaAst source) `shouldBe` True
+      isRight (analyze prismaSchema source) `shouldBe` True
 
     describe "Returns correct error message" $ do
       it "For nested unexpected type error" $ do
@@ -339,7 +333,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze prismaSchemaAst source
+        analyze prismaSchema source
           `errorMessageShouldBe` ( ctx (4, 14) (4, 27),
                                    intercalate
                                      "\n"
@@ -363,7 +357,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze prismaSchemaAst source
+        analyze prismaSchema source
           `errorMessageShouldBe` ( ctx (4, 18) (4, 22),
                                    intercalate
                                      "\n"
@@ -381,7 +375,7 @@ spec_Analyzer = do
                   "  ttle: \"My app\",",
                   "}"
                 ]
-        analyze prismaSchemaAst source
+        analyze prismaSchema source
           `errorMessageShouldBe` ( ctx (1, 11) (3, 1),
                                    intercalate
                                      "\n"

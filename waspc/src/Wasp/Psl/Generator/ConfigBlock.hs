@@ -7,19 +7,19 @@ import Data.Aeson (KeyValue ((.=)), Value, object)
 import Data.Function (on)
 import Data.Functor ((<&>))
 import Data.List (nubBy)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 
-makeConfigBlockJson :: Psl.Ast.IsConfigBlock a => [(String, String)] -> a -> Value
+makeConfigBlockJson :: Psl.ConfigBlock.IsConfigBlock a => [(String, String)] -> a -> Value
 makeConfigBlockJson defaultValues configBlock =
   object
     [ "name" .= name,
       "keyValues" .= (makeKeyValueJson <$> keyValues)
     ]
   where
-    name = Psl.Ast.getConfigBlockName configBlock
+    name = Psl.ConfigBlock.getConfigBlockName configBlock
     configBlockValues =
-      Psl.Ast.getConfigBlockKeyValues configBlock
-        <&> (\(Psl.Ast.ConfigBlockKeyValue key value) -> (key, value))
+      Psl.ConfigBlock.getConfigBlockKeyValues configBlock
+        <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
     keyValues = nubBy ((==) `on` fst) (defaultValues ++ configBlockValues)
 
     makeKeyValueJson :: (String, String) -> Value

@@ -41,7 +41,7 @@ import Wasp.LSP.ServerState
       ),
   )
 import Wasp.LSP.SignatureHelp (signatureHelpRetriggerCharacters, signatureHelpTriggerCharacters)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
 lspServerHandlers :: IO () -> LSP.Handlers ServerM
 lspServerHandlers stopReactor =
@@ -74,7 +74,7 @@ serve maybeLogFile = do
   let defaultServerState =
         ServerState
           { _waspFileUri = Nothing,
-            _prismaSchemaAst = Psl.Ast.Schema [],
+            _prismaSchemaAst = Psl.Schema.Schema [],
             _currentWaspSource = "",
             _latestDiagnostics = [],
             _cst = Nothing,

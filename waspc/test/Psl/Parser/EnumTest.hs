@@ -4,7 +4,9 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Enum as Psl.Enum
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Enum as Psl.Parser
 
 spec_parsePslEnum :: Spec
@@ -22,20 +24,20 @@ spec_parsePslEnum = do
                 }
               |]
           expectedAst =
-            Psl.Ast.SchemaEnum $
-              Psl.Ast.PrismaEnum
+            Psl.Schema.SchemaEnum $
+              Psl.Enum.Enum
                 "Role"
-                [ Psl.Ast.EnumValue "USER" [],
-                  Psl.Ast.EnumValue
+                [ Psl.Enum.EnumElementValue "USER" [],
+                  Psl.Enum.EnumElementValue
                     "ADMIN"
-                    [ Psl.Ast.Attribute
+                    [ Psl.Attribute.Attribute
                         "map"
-                        [Psl.Ast.AttrArgUnnamed $ Psl.Ast.AttrArgString "ADMIN_MAPPING"]
+                        [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "ADMIN_MAPPING"]
                     ],
-                  Psl.Ast.EnumBlockAttribute $
-                    Psl.Ast.Attribute
+                  Psl.Enum.EnumElementBlockAttribute $
+                    Psl.Attribute.Attribute
                       "map"
-                      [Psl.Ast.AttrArgUnnamed $ Psl.Ast.AttrArgString "enum_name"]
+                      [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
                 ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
 
@@ -51,13 +53,13 @@ spec_parsePslEnum = do
                 }
               |]
           expectedAst =
-            Psl.Ast.SchemaEnum $
-              Psl.Ast.PrismaEnum
+            Psl.Schema.SchemaEnum $
+              Psl.Enum.Enum
                 "Role"
-                [ Psl.Ast.EnumValue "USER" [],
-                  Psl.Ast.EnumBlockAttribute $
-                    Psl.Ast.Attribute
+                [ Psl.Enum.EnumElementValue "USER" [],
+                  Psl.Enum.EnumElementBlockAttribute $
+                    Psl.Attribute.Attribute
                       "map"
-                      [Psl.Ast.AttrArgUnnamed $ Psl.Ast.AttrArgString "enum_name"]
+                      [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
                 ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst

@@ -217,7 +217,7 @@ checkPlanForEntityIssues plan =
         Nothing -> ["'User' entity is missing."]
 
     checkIfEntityPSLCompiles entity =
-      case Psl.Parser.Model.parsePslBody (entityBodyPsl entity) of
+      case Psl.Parser.Model.parseModelBody (entityBodyPsl entity) of
         Left parseError ->
           [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
               <> show parseError

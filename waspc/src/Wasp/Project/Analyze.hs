@@ -41,7 +41,7 @@ import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
@@ -68,20 +68,20 @@ analyzeWaspProject waspDir options = do
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
-analyzeWaspFile :: Psl.Ast.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFile prismaSchemaAst waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
   left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
     <$> analyzeWaspFileContent prismaSchemaAst waspFileContent
 
-analyzeWaspFileContent :: Psl.Ast.Schema -> String -> IO (Either [(String, Ctx)] [AS.Decl])
+analyzeWaspFileContent :: Psl.Schema.Schema -> String -> IO (Either [(String, Ctx)] [AS.Decl])
 analyzeWaspFileContent prismaSchemaAst = return . left (map getErrorMessageAndCtx) . Analyzer.analyze prismaSchemaAst
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   PackageJson ->
-  Psl.Ast.Schema ->
+  Psl.Schema.Schema ->
   [AS.Decl] ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
@@ -151,7 +151,7 @@ readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
-analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Ast.Schema)
+analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema)
 analyzePrismaSchema waspProjectDir = do
   findPrismaSchemaFile waspProjectDir >>= \case
     Just pathToPrismaSchemaFile -> do

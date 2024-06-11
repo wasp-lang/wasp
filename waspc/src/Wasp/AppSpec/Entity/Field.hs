@@ -10,7 +10,7 @@ module Wasp.AppSpec.Entity.Field
 where
 
 import Data.Data (Data)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 
 data Field = Field
   { fieldName :: !String,
@@ -41,35 +41,35 @@ data Scalar
   | Unsupported String
   deriving (Show, Eq, Data)
 
-pslModelFieldToEntityField :: Psl.Ast.Field -> Field
+pslModelFieldToEntityField :: Psl.Model.ModelField -> Field
 pslModelFieldToEntityField pslField =
   Field
-    { fieldName = Psl.Ast._name pslField,
+    { fieldName = Psl.Model._name pslField,
       fieldType =
         pslFieldTypeToEntityFieldType
-          (Psl.Ast._type pslField)
-          (Psl.Ast._typeModifiers pslField)
+          (Psl.Model._type pslField)
+          (Psl.Model._typeModifiers pslField)
     }
   where
-    pslFieldTypeToEntityFieldType :: Psl.Ast.FieldType -> [Psl.Ast.FieldTypeModifier] -> FieldType
+    pslFieldTypeToEntityFieldType :: Psl.Model.ModelFieldType -> [Psl.Model.ModelFieldTypeModifier] -> FieldType
     pslFieldTypeToEntityFieldType fType fTypeModifiers =
       let scalar = pslFieldTypeToScalar fType
        in case fTypeModifiers of
             [] -> FieldTypeScalar scalar
-            [Psl.Ast.List] -> FieldTypeComposite $ List scalar
-            [Psl.Ast.Optional] -> FieldTypeComposite $ Optional scalar
+            [Psl.Model.List] -> FieldTypeComposite $ List scalar
+            [Psl.Model.Optional] -> FieldTypeComposite $ Optional scalar
             _ -> error "Not a valid list of modifiers."
 
-    pslFieldTypeToScalar :: Psl.Ast.FieldType -> Scalar
+    pslFieldTypeToScalar :: Psl.Model.ModelFieldType -> Scalar
     pslFieldTypeToScalar fType = case fType of
-      Psl.Ast.String -> String
-      Psl.Ast.Boolean -> Boolean
-      Psl.Ast.Int -> Int
-      Psl.Ast.BigInt -> BigInt
-      Psl.Ast.Float -> Float
-      Psl.Ast.Decimal -> Decimal
-      Psl.Ast.DateTime -> DateTime
-      Psl.Ast.Json -> Json
-      Psl.Ast.Bytes -> Bytes
-      Psl.Ast.UserType typeName -> UserType typeName
-      Psl.Ast.Unsupported typeName -> Unsupported typeName
+      Psl.Model.String -> String
+      Psl.Model.Boolean -> Boolean
+      Psl.Model.Int -> Int
+      Psl.Model.BigInt -> BigInt
+      Psl.Model.Float -> Float
+      Psl.Model.Decimal -> Decimal
+      Psl.Model.DateTime -> DateTime
+      Psl.Model.Json -> Json
+      Psl.Model.Bytes -> Bytes
+      Psl.Model.UserType typeName -> UserType typeName
+      Psl.Model.Unsupported typeName -> Unsupported typeName

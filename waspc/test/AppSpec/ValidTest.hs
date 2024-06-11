@@ -5,8 +5,10 @@ module AppSpec.ValidTest where
 import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
+import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -29,7 +31,8 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -98,8 +101,8 @@ spec_AppSpecValid = do
       let userEntityName = "User"
       let validUserEntity =
             AS.Entity.makeEntity
-              ( Psl.Ast.Body
-                  [ Psl.Ast.ElementField $ makeIdField "id" Psl.Ast.String
+              ( Psl.Model.ModelBody
+                  [ Psl.Model.ModelElementField $ makeIdField "id" Psl.Model.String
                   ]
               )
       let validAppAuth =
@@ -245,7 +248,7 @@ spec_AppSpecValid = do
                 }
         let invalidUserEntity =
               AS.Entity.makeEntity
-                ( Psl.Ast.Body
+                ( Psl.Model.ModelBody
                     []
                 )
 
@@ -301,8 +304,8 @@ spec_AppSpecValid = do
                           },
                       AS.Decl.makeDecl userEntityName $
                         AS.Entity.makeEntity
-                          ( Psl.Ast.Body
-                              [ Psl.Ast.ElementField $ makeIdField "id" Psl.Ast.String
+                          ( Psl.Model.ModelBody
+                              [ Psl.Model.ModelElementField $ makeIdField "id" Psl.Model.String
                               ]
                           ),
                       basicPageDecl,
@@ -384,82 +387,70 @@ spec_AppSpecValid = do
     describe "Prisma schema validation" $ do
       it "should validate that Prisma models are not using unsupported field modifiers" $ do
         let prismaSchema =
-              Psl.Ast.Schema $
-                minimalPassingPrismaConfig
-                  ++ [ Psl.Ast.SchemaModel $
-                         Psl.Ast.Model "User" $
-                           Psl.Ast.Body
-                             [ Psl.Ast.ElementField $
-                                 Psl.Ast.Field
-                                   { Psl.Ast._name = "id",
-                                     Psl.Ast._type = Psl.Ast.String,
-                                     Psl.Ast._typeModifiers =
-                                       [ Psl.Ast.UnsupportedOptionalList
-                                       ],
-                                     Psl.Ast._attrs = []
-                                   }
-                             ]
-                     ]
+              getPrismaSchemaWithConfig
+                [trimming|
+                  model User {
+                    id String[]?
+                  }
+                |]
         let appSpec = basicAppSpec {AS.prismaSchema = prismaSchema}
         ASV.validateAppSpec appSpec `shouldBe` [ASV.GenericValidationError "Model \"User\" in schema.prisma has defined \"id\" field as an optional list, which is not supported by Prisma."]
 
     it "should validate that some datasource exists" $
       let prismaSchema =
-            Psl.Ast.Schema
-              [ Psl.Ast.SchemaGenerator $
-                  Psl.Ast.Generator
-                    "client"
-                    [ Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
-                    ]
-              ]
+            Util.getPrismaSchema
+              [trimming|
+                generator client {
+                  provider = "prisma-client-js"
+                }
+              |]
        in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
             `shouldBe` [ASV.GenericValidationError "Prisma schema must have exactly one datasource defined."]
 
     it "should validate that only one datasource exists" $
       let prismaSchema =
-            Psl.Ast.Schema
-              [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
-                Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
-                Psl.Ast.SchemaGenerator $
-                  Psl.Ast.Generator
-                    "client"
-                    [ Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
-                    ]
-              ]
+            Util.getPrismaSchema
+              [trimming|
+                datasource db {}
+                datasource db {}
+                generator client {
+                  provider = "prisma-client-js"
+                }
+              |]
        in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
             `shouldBe` [ASV.GenericValidationError "Prisma schema must have exactly one datasource defined."]
 
     it "should validate that there is at least one generator" $
       let prismaSchema =
-            Psl.Ast.Schema
-              [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" []
-              ]
+            Util.getPrismaSchema
+              [trimming|
+                datasource db {}
+              |]
        in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
             `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator defined."]
 
     it "should validate that there is at least one client generator" $
       let prismaSchema =
-            Psl.Ast.Schema
-              [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
-                Psl.Ast.SchemaGenerator $
-                  Psl.Ast.Generator
-                    "client"
-                    [ Psl.Ast.ConfigBlockKeyValue "provider" "\"bla\""
-                    ]
-              ]
+            Util.getPrismaSchema
+              [trimming|
+                datasource db {}
+                generator bla {
+                  provider = "bla"
+                }
+              |]
        in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
             `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
   where
     makeIdField name typ =
-      Psl.Ast.Field
-        { Psl.Ast._name = name,
-          Psl.Ast._type = typ,
-          Psl.Ast._typeModifiers =
+      Psl.Model.ModelField
+        { Psl.Model._name = name,
+          Psl.Model._type = typ,
+          Psl.Model._typeModifiers =
             [],
-          Psl.Ast._attrs =
-            [ Psl.Ast.Attribute
-                { Psl.Ast._attrName = "id",
-                  Psl.Ast._attrArgs = []
+          Psl.Model._attrs =
+            [ Psl.Attribute.Attribute
+                { Psl.Attribute._attrName = "id",
+                  Psl.Attribute._attrArgs = []
                 }
             ]
         }
@@ -489,7 +480,7 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
-          AS.prismaSchema = Psl.Ast.Schema minimalPassingPrismaConfig,
+          AS.prismaSchema = getPrismaSchemaWithConfig "",
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
           AS.externalPublicFiles = [],
@@ -510,14 +501,15 @@ spec_AppSpecValid = do
           AS.dbSystem = AS.Db.PostgreSQL
         }
 
-    minimalPassingPrismaConfig =
-      [ Psl.Ast.SchemaDatasource $ Psl.Ast.Datasource "db" [],
-        Psl.Ast.SchemaGenerator $
-          Psl.Ast.Generator
-            "client"
-            [ Psl.Ast.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
-            ]
-      ]
+    getPrismaSchemaWithConfig restOfPrismaSource =
+      Util.getPrismaSchema
+        [trimming|
+          datasource db {}
+          generator client {
+            provider = "prisma-client-js"
+          }
+          ${restOfPrismaSource}
+        |]
 
     basicPage =
       AS.Page.Page
@@ -611,7 +603,7 @@ spec_AppSpecValid = do
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
         name
-        (AS.Entity.makeEntity $ Psl.Ast.Body [Psl.Ast.ElementField $ makeIdField "id" Psl.Ast.String])
+        (AS.Entity.makeEntity $ Psl.Model.ModelBody [Psl.Model.ModelElementField $ makeIdField "id" Psl.Model.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl

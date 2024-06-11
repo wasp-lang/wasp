@@ -4,7 +4,8 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Psl.Ast.Schema as AST
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.ConfigBlock as Psl.Parser
 
 spec_parsePslConfigBlock :: Spec
@@ -21,12 +22,12 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            AST.SchemaDatasource $
-              AST.Datasource
+            Psl.Schema.SchemaDatasource $
+              Psl.ConfigBlock.Datasource
                 "db"
-                [ AST.ConfigBlockKeyValue "provider" "\"postgresql\"",
-                  AST.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
-                  AST.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
+                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
+                  Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
+                  Psl.ConfigBlock.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -41,11 +42,11 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            AST.SchemaDatasource $
-              AST.Datasource
+            Psl.Schema.SchemaDatasource $
+              Psl.ConfigBlock.Datasource
                 "db"
-                [ AST.ConfigBlockKeyValue "provider" "\"postgresql\"",
-                  AST.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")"
+                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
+                  Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -60,11 +61,11 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            AST.SchemaGenerator $
-              AST.Generator
+            Psl.Schema.SchemaGenerator $
+              Psl.ConfigBlock.Generator
                 "client"
-                [ AST.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
-                  AST.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
+                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
+                  Psl.ConfigBlock.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -78,9 +79,9 @@ spec_parsePslConfigBlock = do
                   }
                 |]
           expectedAst =
-            AST.SchemaGenerator $
-              AST.Generator
+            Psl.Schema.SchemaGenerator $
+              Psl.ConfigBlock.Generator
                 "client"
-                [ AST.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
+                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst

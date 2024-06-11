@@ -130,12 +130,12 @@ import Wasp.Analyzer.Parser (parseStatements)
 import Wasp.Analyzer.Prisma (injectEntitiesFromPrismaSchema)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
 -- | Takes a Prisma Schema AST and a Wasp source file and
 --   produces a list of declarations or a description of
 --   an error in the source file.
-analyze :: Psl.Ast.Schema -> String -> Either [AnalyzeError] [Decl]
+analyze :: Psl.Schema.Schema -> String -> Either [AnalyzeError] [Decl]
 analyze prismaSchemaAst =
   (left (map ParseError) . parseStatements)
     >=> injectEntitiesFromPrismaSchema prismaSchemaAst

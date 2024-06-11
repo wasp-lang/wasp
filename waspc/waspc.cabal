@@ -362,6 +362,10 @@ library
     Wasp.Project.Studio
     Wasp.Project.Vite
     Wasp.Psl.Ast.Schema
+    Wasp.Psl.Ast.Model
+    Wasp.Psl.Ast.Enum
+    Wasp.Psl.Ast.Attribute
+    Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Format
     Wasp.Psl.Generator.Schema
     Wasp.Psl.Generator.ConfigBlock
@@ -624,6 +628,7 @@ test-suite waspc-test
     Util.Diff
     Util.FilePathTest
     Util.IO.RetryTest
+    Util.Prisma
     SemanticVersionTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest

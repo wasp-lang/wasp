@@ -5,7 +5,11 @@ module Psl.Parser.SchemaTest where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
-import qualified Wasp.Psl.Ast.Schema as AST
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+import qualified Wasp.Psl.Ast.Enum as Psl.Enum
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 
 spec_parsePslSchema :: Spec
@@ -59,152 +63,152 @@ spec_parsePslSchema = do
           }
         |]
         expectedAst =
-          AST.Schema
-            [ AST.SchemaDatasource $
-                AST.Datasource
+          Psl.Schema.Schema
+            [ Psl.Schema.SchemaDatasource $
+                Psl.ConfigBlock.Datasource
                   "db"
-                  [ AST.ConfigBlockKeyValue "provider" "\"postgresql\"",
-                    AST.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
-                    AST.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
+                  [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
+                    Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
+                    Psl.ConfigBlock.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
                   ],
-              AST.SchemaGenerator $
-                AST.Generator
+              Psl.Schema.SchemaGenerator $
+                Psl.ConfigBlock.Generator
                   "client"
-                  [ AST.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
-                    AST.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
+                  [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
+                    Psl.ConfigBlock.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
                   ],
-              AST.SchemaModel $
-                AST.Model
+              Psl.Schema.SchemaModel $
+                Psl.Model.Model
                   "User"
-                  ( AST.Body
-                      [ AST.ElementField $
-                          AST.Field
+                  ( Psl.Model.ModelBody
+                      [ Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "id"
-                            AST.Int
+                            Psl.Model.Int
                             []
-                            [ AST.Attribute "id" [],
-                              AST.Attribute "default" [AST.AttrArgUnnamed $ AST.AttrArgFunc "autoincrement"]
+                            [ Psl.Attribute.Attribute "id" [],
+                              Psl.Attribute.Attribute "default" [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgFunc "autoincrement"]
                             ],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "tasks"
-                            (AST.UserType "Task")
-                            [AST.List]
+                            (Psl.Model.UserType "Task")
+                            [Psl.Model.List]
                             [],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "address"
-                            AST.String
-                            [AST.Optional]
+                            Psl.Model.String
+                            [Psl.Model.Optional]
                             [],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "votes"
-                            (AST.UserType "TaskVote")
-                            [AST.List]
+                            (Psl.Model.UserType "TaskVote")
+                            [Psl.Model.List]
                             []
                       ]
                   ),
-              AST.SchemaModel $
-                AST.Model
+              Psl.Schema.SchemaModel $
+                Psl.Model.Model
                   "Task"
-                  ( AST.Body
-                      [ AST.ElementField $
-                          AST.Field
+                  ( Psl.Model.ModelBody
+                      [ Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "id"
-                            AST.Int
+                            Psl.Model.Int
                             []
-                            [ AST.Attribute "id" [],
-                              AST.Attribute "default" [AST.AttrArgUnnamed $ AST.AttrArgFunc "autoincrement"]
+                            [ Psl.Attribute.Attribute "id" [],
+                              Psl.Attribute.Attribute "default" [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgFunc "autoincrement"]
                             ],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "description"
-                            AST.String
+                            Psl.Model.String
                             []
                             [],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "isDone"
-                            AST.Boolean
+                            Psl.Model.Boolean
                             []
-                            [ AST.Attribute "default" [AST.AttrArgUnnamed $ AST.AttrArgIdentifier "false"]
+                            [ Psl.Attribute.Attribute "default" [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgIdentifier "false"]
                             ],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "user"
-                            (AST.UserType "User")
+                            (Psl.Model.UserType "User")
                             []
-                            [ AST.Attribute
+                            [ Psl.Attribute.Attribute
                                 "relation"
-                                [ AST.AttrArgNamed "fields" (AST.AttrArgFieldRefList ["userId"]),
-                                  AST.AttrArgNamed "references" (AST.AttrArgFieldRefList ["id"])
+                                [ Psl.Attribute.AttrArgNamed "fields" (Psl.Attribute.AttrArgFieldRefList ["userId"]),
+                                  Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                                 ]
                             ],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "userId"
-                            AST.Int
+                            Psl.Model.Int
                             []
                             [],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "votes"
-                            (AST.UserType "TaskVote")
-                            [AST.List]
+                            (Psl.Model.UserType "TaskVote")
+                            [Psl.Model.List]
                             []
                       ]
                   ),
-              AST.SchemaModel $
-                AST.Model
+              Psl.Schema.SchemaModel $
+                Psl.Model.Model
                   "TaskVote"
-                  ( AST.Body
-                      [ AST.ElementField $
-                          AST.Field
+                  ( Psl.Model.ModelBody
+                      [ Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "user"
-                            (AST.UserType "User")
+                            (Psl.Model.UserType "User")
                             []
-                            [ AST.Attribute
+                            [ Psl.Attribute.Attribute
                                 "relation"
-                                [ AST.AttrArgNamed "fields" (AST.AttrArgFieldRefList ["userId"]),
-                                  AST.AttrArgNamed "references" (AST.AttrArgFieldRefList ["id"])
+                                [ Psl.Attribute.AttrArgNamed "fields" (Psl.Attribute.AttrArgFieldRefList ["userId"]),
+                                  Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                                 ]
                             ],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "userId"
-                            AST.Int
+                            Psl.Model.Int
                             []
                             [],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "task"
-                            (AST.UserType "Task")
+                            (Psl.Model.UserType "Task")
                             []
-                            [ AST.Attribute
+                            [ Psl.Attribute.Attribute
                                 "relation"
-                                [ AST.AttrArgNamed "fields" (AST.AttrArgFieldRefList ["taskId"]),
-                                  AST.AttrArgNamed "references" (AST.AttrArgFieldRefList ["id"])
+                                [ Psl.Attribute.AttrArgNamed "fields" (Psl.Attribute.AttrArgFieldRefList ["taskId"]),
+                                  Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                                 ]
                             ],
-                        AST.ElementField $
-                          AST.Field
+                        Psl.Model.ModelElementField $
+                          Psl.Model.ModelField
                             "taskId"
-                            AST.Int
+                            Psl.Model.Int
                             []
                             [],
-                        AST.ElementBlockAttribute $
-                          AST.Attribute
+                        Psl.Model.ModelElementBlockAttribute $
+                          Psl.Attribute.Attribute
                             "id"
-                            [ AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["userId", "taskId"])
+                            [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["userId", "taskId"])
                             ]
                       ]
                   ),
-              AST.SchemaEnum $
-                AST.PrismaEnum
+              Psl.Schema.SchemaEnum $
+                Psl.Enum.Enum
                   "Role"
-                  [ AST.EnumValue "USER" [],
-                    AST.EnumValue "ADMIN" []
+                  [ Psl.Enum.EnumElementValue "USER" [],
+                    Psl.Enum.EnumElementValue "ADMIN" []
                   ]
             ]
 

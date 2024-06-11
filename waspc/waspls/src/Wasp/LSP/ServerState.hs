@@ -33,7 +33,7 @@ import Wasp.LSP.Debouncer (Debouncer)
 import Wasp.LSP.Diagnostic (WaspDiagnostic)
 import Wasp.LSP.ExtImport.Path (ExtFileCachePath)
 import Wasp.LSP.Reactor (ReactorInput)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.TypeScript.Inspect.Exports (TsExport)
 
 -- | LSP State preserved between handlers.
@@ -54,7 +54,7 @@ data ServerState = ServerState
     -- | Cache of source file export lists.
     _tsExports :: TsExportCache,
     -- | Cache of Prisma schema AST.
-    _prismaSchemaAst :: Psl.Ast.Schema,
+    _prismaSchemaAst :: Psl.Schema.Schema,
     -- | Registration tokens for dynamic capabilities.
     _regTokens :: RegistrationTokens,
     -- | Thread safe channel for sending actions to the LSP reactor thread.
