@@ -129,6 +129,8 @@ Here's an example:
 |-------|------|----------------------|------|
 | CNAME | www  | mycoolapp.com   | 3600 |
 
+With the CNAME record (Canonical name), you are assigning the `www` subdomain as an alias to the root domain. 
+
 Your app should now be available both at the root domain  `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`! 🎉
 
 ## API Reference
