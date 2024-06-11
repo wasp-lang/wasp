@@ -202,7 +202,7 @@ checkPlanForModelIssues :: Plan -> [String]
 checkPlanForModelIssues plan =
   checkNumModels
     <> checkUserModel
-    <> concatMap checkIfEntityPSLCompiles (models plan)
+    <> concatMap checkIfModelBodyParses (models plan)
   where
     checkNumModels =
       let numModels = length (models plan)
@@ -219,7 +219,7 @@ checkPlanForModelIssues plan =
         Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
         Nothing -> ["'User' model is missing."]
 
-    checkIfEntityPSLCompiles entity =
+    checkIfModelBodyParses entity =
       case Psl.Parser.Model.parseModelBody (modelBody entity) of
         Left parseError ->
           [ "Failed to parse PSL body of model '" <> modelName model <> "': "
