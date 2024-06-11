@@ -4,9 +4,7 @@ The main purpose of this app is for contributors to easily test the version of t
 
 That is why it is a bit crowded with features and somewhat incoherent: it is not an app to be used as a showcase, but an app that we use as a "workbench" / "playground" while working on `wasp`.
 
-This app should always be "up to date", in the sense that we keep updating it to always work with the latest changes to `wasp`. This means you can count on it being up to date, but also that you should make sure to keep it up to date as you do changes. You should also be adding new features to it if you implement them.
-
-NOTE: This app has no Playwright tests, while on the other hand we have `headless-tests/examples/todoApp` which is similar to this one and has Playwright tests. We plan on merging those two to get the best of both worlds.
+This app should always be "up to date", in the sense that we keep updating it to always work with the latest changes to `wasp`. This means you can count on it being up to date, but also that you should make sure to keep it up to date as you do changes. You should also be adding new features to it if you implement them, so they can easily be tested / tried out.
 
 ## Set up
 
@@ -44,8 +42,17 @@ Run the app!
 cabal run wasp-cli start
 ```
 
-This app will not open in the browser on its own: you need to open `localhost:3000` in the browser on your own.
+Open `localhost:3000` in the browser to see the app!  
+NOTE: Normally wasp apps open automatically in browser, to help new users find their way, but that can become annoying after some time so here we turned that off.
 
-## Building
+## Testing
 
-TODO: We have tests for building. Say something about those here?
+### Compiling and building
+
+Run `./ensure_app_compiles_and_builds.sh` to verify the app correctly compiles (TS) and builds (both client and server).
+
+This is also run in CI.
+
+### E2E tests
+
+We don't have any yet, but there is `headless-tests/examples/todoApp` that is a fork from this app but with Playwright tests. We plan to merge these two into one app, to get the best of both worlds.
