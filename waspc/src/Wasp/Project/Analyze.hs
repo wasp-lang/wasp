@@ -158,7 +158,7 @@ analyzePrismaSchema waspProjectDir = do
       prismaSchemaContent <- IOUtil.readFile pathToPrismaSchemaFile
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
-        Left err -> return $ Left [err]
+        Left err -> return $ Left [show err]
         Right parsedPrismaSchema -> do
           return $ Right parsedPrismaSchema
     Nothing -> return $ Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"]

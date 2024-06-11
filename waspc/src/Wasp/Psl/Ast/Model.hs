@@ -15,9 +15,11 @@ import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Prelude hiding (Enum)
 
+type ModelName = String
+
 data Model
   = Model
-      String
+      ModelName
       ModelBody
   deriving (Show, Eq)
 

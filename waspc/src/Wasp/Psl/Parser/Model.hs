@@ -28,7 +28,9 @@ import Wasp.Psl.Parser.Common
     whiteSpace,
   )
 
-parseModelBody :: String -> Either Parsec.ParseError Psl.Model.ModelBody
+type SourceCode = String
+
+parseModelBody :: SourceCode -> Either Parsec.ParseError Psl.Model.ModelBody
 parseModelBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
 
 -- | Parses PSL (Prisma Schema Language model).

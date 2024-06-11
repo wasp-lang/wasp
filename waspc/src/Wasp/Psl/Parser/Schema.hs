@@ -18,10 +18,10 @@ import Wasp.Psl.Parser.ConfigBlock (configBlock)
 import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
 
-parsePrismaSchema :: String -> Either String Model.Schema
-parsePrismaSchema input = case Parsec.parse schema "" input of
-  Left err -> Left $ show err
-  Right parsedSchema -> Right parsedSchema
+type SourceCode = String
+
+parsePrismaSchema :: SourceCode -> Either Parsec.ParseError Model.Schema
+parsePrismaSchema = Parsec.parse schema ""
 
 schema :: Parser Model.Schema
 schema = do

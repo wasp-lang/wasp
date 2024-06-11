@@ -6,9 +6,11 @@ module Wasp.Psl.Ast.ConfigBlock
   )
 where
 
+type ConfigBlockName = String
+
 data Datasource
   = Datasource
-      String
+      ConfigBlockName
       [ConfigBlockKeyValue]
   deriving (Show, Eq)
 
@@ -18,7 +20,7 @@ instance IsConfigBlock Datasource where
 
 data Generator
   = Generator
-      String
+      ConfigBlockName
       [ConfigBlockKeyValue]
   deriving (Show, Eq)
 

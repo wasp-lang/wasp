@@ -10,9 +10,11 @@ import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Prelude hiding (Enum)
 
+type EnumName = String
+
 data Enum
   = Enum
-      String
+      EnumName
       [EnumElement]
   deriving (Show, Eq)
 
