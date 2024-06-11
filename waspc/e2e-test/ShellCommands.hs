@@ -56,13 +56,13 @@ cdIntoCurrentProject = do
   context <- ask
   return $ "cd " ++ _ctxtCurrentProjectName context
 
-appendToWaspFile :: String -> ShellCommandBuilder ShellCommand
+appendToWaspFile :: FilePath -> ShellCommandBuilder ShellCommand
 appendToWaspFile = appendToFile "main.wasp"
 
-appendToPrismaFile :: String -> ShellCommandBuilder ShellCommand
+appendToPrismaFile :: FilePath -> ShellCommandBuilder ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
 
-appendToFile :: String -> String -> ShellCommandBuilder ShellCommand
+appendToFile :: FilePath -> String -> ShellCommandBuilder ShellCommand
 appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
