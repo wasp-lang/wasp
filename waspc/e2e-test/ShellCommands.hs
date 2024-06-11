@@ -92,7 +92,11 @@ insertCodeIntoFileAtLineNumber fileName atLineNumber line =
 
 replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
 replaceLineInFile fileName lineNumber line =
-  return $ "sed -i '' '" ++ show lineNumber ++ "s/.*/" ++ escapeQuotes line ++ "/' " ++ fileName
+  return $
+    combineShellCommands
+      [ "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
+        "mv " ++ fileName ++ ".tmp " ++ fileName
+      ]
 
 waspCliNew :: ShellCommandBuilder ShellCommand
 waspCliNew = do
@@ -126,9 +130,3 @@ dockerBuild :: ShellCommandBuilder ShellCommand
 dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
-
-escapeQuotes :: String -> String
-escapeQuotes = concatMap escapeChar
-  where
-    escapeChar '"' = "\\\""
-    escapeChar c = [c]
