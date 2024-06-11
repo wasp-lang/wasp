@@ -55,4 +55,4 @@ This is also run in CI.
 
 ### E2E tests
 
-We don't have any yet, but there is `headless-tests/examples/todoApp` that is a fork from this app but with Playwright tests. We plan to merge these two into one app, to get the best of both worlds.
+We don't have any yet, but there is `headless-test/examples/todoApp` that is a fork from this app but with Playwright tests. We plan to merge these two into one app, to get the best of both worlds.
