@@ -116,6 +116,21 @@ We need to do this to keep our CORS configuration up to date.
 
 That's it, your app should be available at `https://mycoolapp.com`! 🎉
 
+If you'd like to also access your app at `https://www.mycoolapp.com`, you can generate certs for the `www` subdomain. 
+
+```shell
+wasp deploy fly cmd --context client certs create www.mycoolapp.com
+```
+
+Once you do that, you will need to add another DNS record for your domain. It should be a CNAME record for `www` with the value of your root domain.
+Here's an example:
+
+| Type  | Name | Value                | TTL  |
+|-------|------|----------------------|------|
+| CNAME | www  | mycoolapp.com   | 3600 |
+
+Your app should now be available both at the root domain  `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`! 🎉
+
 ## API Reference
 
 ### `launch`
