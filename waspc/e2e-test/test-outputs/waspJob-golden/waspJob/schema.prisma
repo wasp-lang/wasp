@@ -1,0 +1,12 @@
+datasource db {
+  provider = "postgresql"
+  // Wasp uses the datasource you specify but overwrites the `url` field
+  url      = env("DATABASE_URL")
+}
+
+// Wasp requires the `prisma-client-js` generator to be present.
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Define your Prisma schema below

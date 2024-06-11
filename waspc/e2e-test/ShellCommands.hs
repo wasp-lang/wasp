@@ -8,6 +8,7 @@ module ShellCommands
     combineShellCommands,
     cdIntoCurrentProject,
     appendToWaspFile,
+    appendToPrismaFile,
     createFile,
     setDbToPSQL,
     waspCliNew,
@@ -56,9 +57,15 @@ cdIntoCurrentProject = do
   return $ "cd " ++ _ctxtCurrentProjectName context
 
 appendToWaspFile :: String -> ShellCommandBuilder ShellCommand
-appendToWaspFile content =
+appendToWaspFile = appendToFile "main.wasp"
+
+appendToPrismaFile :: String -> ShellCommandBuilder ShellCommand
+appendToPrismaFile = appendToFile "schema.prisma"
+
+appendToFile :: String -> String -> ShellCommandBuilder ShellCommand
+appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
-  return $ "printf " ++ show (content ++ "\n") ++ " >> main.wasp"
+  return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
 
 -- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
 createFile :: String -> FilePath -> String -> ShellCommandBuilder ShellCommand
@@ -73,7 +80,7 @@ createFile content relDirFp filename = return $ combineShellCommands [createPare
 --       we do not have a `db` field. Consider better alternatives.
 setDbToPSQL :: ShellCommandBuilder ShellCommand
 -- Change DB to postgres by adding string at specific line so it still parses.
-setDbToPSQL = insertCodeIntoFileAtLineNumber "main.wasp" 2 "  db: { system: PostgreSQL },"
+setDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
 insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
 insertCodeIntoFileAtLineNumber fileName atLineNumber line =
@@ -82,6 +89,10 @@ insertCodeIntoFileAtLineNumber fileName atLineNumber line =
       [ "awk 'NR==" ++ show atLineNumber ++ "{print " ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
+
+replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
+replaceLineInFile fileName lineNumber newLine =
+  return $ "sed -i '' '" ++ show lineNumber ++ "s/.*/" ++ newLine ++ "/' " ++ fileName
 
 waspCliNew :: ShellCommandBuilder ShellCommand
 waspCliNew = do

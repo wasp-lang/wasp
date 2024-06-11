@@ -234,6 +234,7 @@ waspMigrate/migrations/migration_lock.toml
 waspMigrate/migrations/no-date-foo/migration.sql
 waspMigrate/package.json
 waspMigrate/public/.gitkeep
+waspMigrate/schema.prisma
 waspMigrate/src/Main.css
 waspMigrate/src/MainPage.jsx
 waspMigrate/src/vite-env.d.ts

@@ -263,6 +263,7 @@ waspJob/.wasproot
 waspJob/main.wasp
 waspJob/package.json
 waspJob/public/.gitkeep
+waspJob/schema.prisma
 waspJob/src/Main.css
 waspJob/src/MainPage.jsx
 waspJob/src/server/jobs/bar.js

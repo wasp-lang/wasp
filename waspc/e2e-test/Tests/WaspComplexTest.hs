@@ -4,6 +4,7 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    appendToPrismaFile,
     appendToWaspFile,
     cdIntoCurrentProject,
     createFile,
@@ -170,15 +171,13 @@ addGoogleAuth :: ShellCommandBuilder [ShellCommand]
 addGoogleAuth = do
   sequence
     [ insertCodeIntoWaspFileAfterVersion authField,
-      appendToWaspFile userEntity,
-      appendToWaspFile socialLoginEntity
+      appendToPrismaFile userModel
     ]
   where
     authField =
       unlines
         [ "  auth: {",
           "    userEntity: User,",
-          "    externalAuthEntity: SocialLogin,",
           "    methods: {",
           "      google: {}",
           "    },",
@@ -186,27 +185,11 @@ addGoogleAuth = do
           "  },"
         ]
 
-    userEntity =
+    userModel =
       unlines
-        [ "entity User {=psl",
-          "  id                        Int           @id @default(autoincrement())",
-          "  username                  String        @unique",
-          "  password                  String",
-          "  externalAuthAssociations  SocialLogin[]",
-          "psl=}"
-        ]
-
-    socialLoginEntity =
-      unlines
-        [ "entity SocialLogin {=psl",
-          "  id          Int       @id @default(autoincrement())",
-          "  provider    String",
-          "  providerId  String",
-          "  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)",
-          "  userId      Int",
-          "  createdAt   DateTime  @default(now())",
-          "  @@unique([provider, providerId, userId])",
-          "psl=}"
+        [ "model User {",
+          "  id          Int     @id @default(autoincrement())",
+          "}"
         ]
 
 addAction :: ShellCommandBuilder [ShellCommand]
@@ -345,18 +328,19 @@ addEmailSender = do
 addCrud :: ShellCommandBuilder [ShellCommand]
 addCrud = do
   sequence
-    [ appendToWaspFile taskEntityDecl,
+    [ appendToPrismaFile taskModel,
       appendToWaspFile crudDecl
     ]
   where
-    taskEntityDecl =
+    taskModel =
       unlines
-        [ "entity Task {=psl",
+        [ "model Task {",
           "  id          Int     @id @default(autoincrement())",
           "  description String",
           "  isDone      Boolean @default(false)",
-          "psl=}"
+          "}"
         ]
+
     crudDecl =
       unlines
         [ "crud tasks {",

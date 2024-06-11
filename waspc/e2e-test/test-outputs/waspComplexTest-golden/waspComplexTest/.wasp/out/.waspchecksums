@@ -375,7 +375,7 @@
             "file",
             "../out/sdk/wasp/entities/index.ts"
         ],
-        "cdd9cdbeebfdad8c54ddbf4978a3c4974faa66df05b87b42a5030fcc214394f8"
+        "becac9b39c6920dee40a97958331da143e06dd26d6756ad08dcc6402b23e2efb"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "../out/sdk/wasp/server/_types/index.ts"
         ],
-        "7a9bd946ac8b55a110a6d1ed93040c1ec4def2104b0de58961b56c678d31ab91"
+        "f436c855b151a95179fd59193b8fe426ae0138265be3cef450e430302c3aeafb"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "../out/sdk/wasp/server/_types/taggedEntities.ts"
         ],
-        "6df33c5f432a8931138b4605bc2f3d84ac1ec130cc6233edc258321ed7c8da48"
+        "1b07d45c9a0b34e75cac0e0dd58f1ad89b03c1d38363198b355387819607d3da"
     ],
     [
         [
@@ -767,7 +767,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "196026a80ee5430c1a4e01746f66d46d44ce21464cc8f580e0995d19034530d7"
+        "7fcc6ab1e398627cb0d7be85679d369fd39cc97ac4813b07717fea5885f7a6f5"
     ],
     [
         [
