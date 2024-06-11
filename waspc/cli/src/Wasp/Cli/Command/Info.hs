@@ -37,7 +37,7 @@ info = do
         [ "",
           title "Project information",
           printInfo "Name" appName,
-          printInfo "Database system" $ show $ AS.getDbSystem appSpec,
+          printInfo "Database system" $ show $ AS.dbSystem appSpec,
           printInfo "Last compile" compileInfo,
           printInfo "Project dir size" projectSize
         ]

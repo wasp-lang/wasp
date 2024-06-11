@@ -25,5 +25,5 @@ instance IsDeclType Entity where
   declEvaluate _ _ (TC.AST.WithCtx ctx expr) = case expr of
     TC.AST.PSL pslString ->
       left (ER.mkEvaluationError ctx . ER.ParseError . ER.EvaluationParseErrorParsec) $
-        makeEntity <$> Wasp.Psl.Parser.Model.parsePslBody pslString
+        makeEntity <$> Wasp.Psl.Parser.Model.parseModelBody pslString
     _ -> Left $ mkEvaluationError ctx $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)

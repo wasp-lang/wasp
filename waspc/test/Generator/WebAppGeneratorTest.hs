@@ -7,6 +7,7 @@ import System.FilePath ((</>))
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.PackageJson as AS.PJS
@@ -19,7 +20,7 @@ import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.Monad (runGenerator)
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Version as WV
 
 -- TODO(martin): We could maybe define Arbitrary instance for AppSpec, define properties
@@ -47,7 +48,7 @@ spec_WebAppGenerator = do
                       AS.App.webSocket = Nothing
                     }
               ],
-            AS.prismaSchema = Psl.Ast.Schema [],
+            AS.prismaSchema = Psl.Schema.Schema [],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
             AS.externalCodeFiles = [],
             AS.externalPublicFiles = [],
@@ -64,7 +65,8 @@ spec_WebAppGenerator = do
             AS.userDockerfileContents = Nothing,
             AS.configFiles = [],
             AS.devDatabaseUrl = Nothing,
-            AS.customViteConfigPath = Nothing
+            AS.customViteConfigPath = Nothing,
+            AS.dbSystem = AS.Db.PostgreSQL
           }
 
   describe "genWebApp" $ do

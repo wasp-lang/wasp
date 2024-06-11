@@ -2,7 +2,8 @@ module Psl.Common.ModelTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import qualified Wasp.Psl.Ast.Schema as AST
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 
 -- | Corresponds to sampleBodyAst below.
 sampleBodySchema :: T.Text
@@ -18,86 +19,86 @@ sampleBodySchema =
   |]
 
 -- | Corresponds to sampleBodySchema above.
-sampleBodyAst :: AST.Body
+sampleBodyAst :: Psl.Model.ModelBody
 sampleBodyAst =
-  AST.Body
-    [ AST.ElementField
-        ( AST.Field
-            { AST._name = "id",
-              AST._type = AST.Int,
-              AST._typeModifiers = [],
-              AST._attrs =
-                [ AST.Attribute
-                    { AST._attrName = "id",
-                      AST._attrArgs = []
+  Psl.Model.ModelBody
+    [ Psl.Model.ModelElementField
+        ( Psl.Model.ModelField
+            { Psl.Model._name = "id",
+              Psl.Model._type = Psl.Model.Int,
+              Psl.Model._typeModifiers = [],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "id",
+                      Psl.Attribute._attrArgs = []
                     },
-                  AST.Attribute
-                    { AST._attrName = "default",
-                      AST._attrArgs =
-                        [ AST.AttrArgNamed "value" (AST.AttrArgFunc "autoincrement")
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "default",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Attribute.AttrArgNamed "value" (Psl.Attribute.AttrArgFunc "autoincrement")
                         ]
                     }
                 ]
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "username",
-              AST._type = AST.String,
-              AST._typeModifiers = [AST.Optional],
-              AST._attrs =
-                [ AST.Attribute
-                    { AST._attrName = "db.VarChar",
-                      AST._attrArgs =
-                        [ AST.AttrArgUnnamed (AST.AttrArgNumber "200")
+      Psl.Model.ModelElementField
+        ( Psl.Model.ModelField
+            { Psl.Model._name = "username",
+              Psl.Model._type = Psl.Model.String,
+              Psl.Model._typeModifiers = [Psl.Model.Optional],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "db.VarChar",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgNumber "200")
                         ]
                     }
                 ]
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "posts",
-              AST._type = AST.UserType "Post",
-              AST._typeModifiers = [AST.List],
-              AST._attrs =
-                [ AST.Attribute
-                    { AST._attrName = "relation",
-                      AST._attrArgs =
-                        [ AST.AttrArgUnnamed (AST.AttrArgString "UserPosts"),
-                          AST.AttrArgNamed "references" (AST.AttrArgFieldRefList ["id"])
+      Psl.Model.ModelElementField
+        ( Psl.Model.ModelField
+            { Psl.Model._name = "posts",
+              Psl.Model._type = Psl.Model.UserType "Post",
+              Psl.Model._typeModifiers = [Psl.Model.List],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "relation",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgString "UserPosts"),
+                          Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                         ]
                     },
-                  AST.Attribute
-                    { AST._attrName = "customattr",
-                      AST._attrArgs = []
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "customattr",
+                      Psl.Attribute._attrArgs = []
                     }
                 ]
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "weirdType",
-              AST._type = AST.Unsupported "weird",
-              AST._typeModifiers = [],
-              AST._attrs = []
+      Psl.Model.ModelElementField
+        ( Psl.Model.ModelField
+            { Psl.Model._name = "weirdType",
+              Psl.Model._type = Psl.Model.Unsupported "weird",
+              Psl.Model._typeModifiers = [],
+              Psl.Model._attrs = []
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "unsupportedOptionalList",
-              AST._type = AST.UserType "Sometype",
-              AST._typeModifiers = [AST.UnsupportedOptionalList],
-              AST._attrs = []
+      Psl.Model.ModelElementField
+        ( Psl.Model.ModelField
+            { Psl.Model._name = "unsupportedOptionalList",
+              Psl.Model._type = Psl.Model.UserType "Sometype",
+              Psl.Model._typeModifiers = [Psl.Model.UnsupportedOptionalList],
+              Psl.Model._attrs = []
             }
         ),
-      AST.ElementBlockAttribute
-        ( AST.Attribute
-            { AST._attrName = "someattr",
-              AST._attrArgs =
-                [ AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["id", "username"]),
-                  AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 4"),
-                  AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["posts"])
+      Psl.Model.ModelElementBlockAttribute
+        ( Psl.Attribute.Attribute
+            { Psl.Attribute._attrName = "someattr",
+              Psl.Attribute._attrArgs =
+                [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["id", "username"]),
+                  Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgUnknown "2 + 4"),
+                  Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["posts"])
                 ]
             }
         )

@@ -4,7 +4,7 @@ import Control.Lens ((.~))
 import Control.Monad.Cont (liftIO)
 import Control.Monad.Log.Class (logM)
 import StrongPath (Abs, Dir, Path')
-import Wasp.LSP.Prisma.Util (showModels)
+import Wasp.LSP.Prisma.Util (showModelNames)
 import Wasp.LSP.ServerMonads (ServerM, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.Project (WaspProjectDir)
@@ -12,9 +12,8 @@ import Wasp.Project.Analyze (analyzePrismaSchema)
 
 analyzeAndSetPrismaSchema :: Path' Abs (Dir WaspProjectDir) -> ServerM ()
 analyzeAndSetPrismaSchema waspDir = do
-  liftIO (analyzePrismaSchema waspDir)
-    >>= \case
-      Left err -> logM $ "[analyzeAndSetPrismaSchema] Error analyzing Prisma schema: " ++ show err
-      Right prismaSchemaAst -> do
-        logM $ "[analyzeAndSetPrismaSchema] Got the following entities: " ++ showModels prismaSchemaAst
-        modify (State.prismaSchemaAst .~ prismaSchemaAst)
+  liftIO (analyzePrismaSchema waspDir) >>= \case
+    Left err -> logM $ "[analyzeAndSetPrismaSchema] Error analyzing Prisma schema: " ++ show err
+    Right prismaSchemaAst -> do
+      logM $ "[analyzeAndSetPrismaSchema] Got the following models: " ++ showModelNames prismaSchemaAst
+      modify (State.prismaSchemaAst .~ prismaSchemaAst)

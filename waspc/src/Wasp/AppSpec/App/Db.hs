@@ -14,5 +14,5 @@ data Db = Db
   }
   deriving (Show, Eq, Data)
 
-data DbSystem = PostgreSQL | SQLite | UnsupportedDbSystem String | MissingDbSystem
+data DbSystem = PostgreSQL | SQLite
   deriving (Show, Eq, Data)

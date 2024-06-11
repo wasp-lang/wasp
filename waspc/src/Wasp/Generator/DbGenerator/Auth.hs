@@ -9,7 +9,7 @@ import Wasp.Generator.Monad
     GeneratorError (GenericGeneratorError),
     logAndThrowGeneratorError,
   )
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 import qualified Wasp.Util as Util
 
@@ -80,7 +80,7 @@ injectAuth entities (userEntityName, userEntity) = do
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
 
 makeAuthIdentityEntity :: Generator (String, AS.Entity.Entity)
-makeAuthIdentityEntity = case Psl.Parser.Model.parsePslBody authIdentityPslBody of
+makeAuthIdentityEntity = case Psl.Parser.Model.parseModelBody authIdentityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authIdentityEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authIdentityEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -102,8 +102,8 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parsePslBody authIdentityPslBody 
     authEntityNameText = T.pack authEntityName
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
-makeAuthEntity :: Psl.Ast.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parsePslBody authEntityPslBody of
+makeAuthEntity :: Psl.Model.ModelField -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
+makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parseModelBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -125,11 +125,11 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.par
     sessionsFieldOnAuthEntityNameText = T.pack sessionsFieldOnAuthEntityName
     sessionEntityNameText = T.pack sessionEntityName
 
-    userEntityIdTypeText = T.pack $ show . Psl.Ast._type $ userEntityIdField
-    userEntityIdFieldName = T.pack $ Psl.Ast._name userEntityIdField
+    userEntityIdTypeText = T.pack $ show . Psl.Model._type $ userEntityIdField
+    userEntityIdFieldName = T.pack $ Psl.Model._name userEntityIdField
 
 makeSessionEntity :: Generator (String, AS.Entity.Entity)
-makeSessionEntity = case Psl.Parser.Model.parsePslBody sessionEntityPslBody of
+makeSessionEntity = case Psl.Parser.Model.parseModelBody sessionEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ sessionEntityName ++ " entity: " ++ show err
   Right pslBody -> return (sessionEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -160,13 +160,13 @@ injectAuthIntoUserEntity userEntityName entities =
     injectRelationToAuth :: AS.Entity.Entity -> AS.Entity.Entity
     injectRelationToAuth entity = AS.Entity.makeEntity newPslBody
       where
-        (Psl.Ast.Body existingPsl) = AS.Entity.getPslModelBody entity
+        (Psl.Model.ModelBody existingPsl) = AS.Entity.getPslModelBody entity
         relationToAuthEntity =
-          [ Psl.Ast.ElementField $
-              Psl.Ast.Field
+          [ Psl.Model.ModelElementField $
+              Psl.Model.ModelField
                 authFieldOnUserEntityName
-                (Psl.Ast.UserType authEntityName)
-                [Psl.Ast.Optional]
+                (Psl.Model.UserType authEntityName)
+                [Psl.Model.Optional]
                 []
           ]
-        newPslBody = Psl.Ast.Body $ existingPsl ++ relationToAuthEntity
+        newPslBody = Psl.Model.ModelBody $ existingPsl ++ relationToAuthEntity

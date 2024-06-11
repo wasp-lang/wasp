@@ -219,8 +219,8 @@ checkPlanForModelIssues plan =
         Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
         Nothing -> ["'User' model is missing."]
 
-    checkIfEntityPSLCompiles model =
-      case Psl.Parser.Model.parsePslBody (modelBody model) of
+    checkIfEntityPSLCompiles entity =
+      case Psl.Parser.Model.parseModelBody (modelBody entity) of
         Left parseError ->
           [ "Failed to parse PSL body of model '" <> modelName model <> "': "
               <> show parseError

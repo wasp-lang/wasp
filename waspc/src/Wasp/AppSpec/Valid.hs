@@ -40,8 +40,10 @@ import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
-import Wasp.Psl.Util (findPrismaConfigBlockKeyValue)
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Util (findPrismaConfigBlockValueByKey)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, isCapitalized)
@@ -402,35 +404,47 @@ validatePrismaSchema spec =
       validateDatasources datasources
     ]
   where
-    validateModel :: Psl.Ast.Model -> [ValidationError]
-    validateModel model@(Psl.Ast.Model modelName _) = concatMap validateModelField $ Psl.Ast.getModelFields model
+    validateModel :: Psl.Model.Model -> [ValidationError]
+    validateModel model@(Psl.Model.Model modelName _) = concatMap validateModelField $ Psl.Model.getModelFields model
       where
-        validateModelField :: Psl.Ast.Field -> [ValidationError]
-        validateModelField (Psl.Ast.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
+        validateModelField :: Psl.Model.ModelField -> [ValidationError]
+        validateModelField (Psl.Model.ModelField fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
 
-        validateTypeModifier :: String -> Psl.Ast.FieldTypeModifier -> [ValidationError]
-        -- Desired message: Prisma model \"User\" in schema.prisma has defined \"id\" as an optional list, which is not supported by Prisma.
-        validateTypeModifier fieldName Psl.Ast.UnsupportedOptionalList = [GenericValidationError $ "Model \"" ++ modelName ++ "\" in schema.prisma has defined \"" ++ fieldName ++ "\" field as an optional list, which is not supported by Prisma."]
+        validateTypeModifier :: String -> Psl.Model.ModelFieldTypeModifier -> [ValidationError]
+        validateTypeModifier fieldName Psl.Model.UnsupportedOptionalList =
+          [ GenericValidationError $
+              "Model \""
+                ++ modelName
+                ++ "\" in schema.prisma has defined \""
+                ++ fieldName
+                ++ "\" field as an optional list, which is not supported by Prisma."
+          ]
         validateTypeModifier _ _ = []
 
-    validateGenerators :: [Psl.Ast.Generator] -> [ValidationError]
+    validateGenerators :: [Psl.ConfigBlock.Generator] -> [ValidationError]
     validateGenerators [] = [GenericValidationError "Prisma schema should have at least one generator defined."]
     validateGenerators generators' =
       if not isTherePrismaClientJsGenerator
-        then [GenericValidationError "Prisma schema should have one generator with the provider set to \"prisma-client-js\"."]
+        then [GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
         else []
       where
-        isTherePrismaClientJsGenerator = any (\(Psl.Ast.Generator _name keyValues) -> findPrismaConfigBlockKeyValue "provider" keyValues == Just "\"prisma-client-js\"") generators'
+        isTherePrismaClientJsGenerator =
+          any
+            ( \(Psl.ConfigBlock.Generator _name keyValues) ->
+                findPrismaConfigBlockValueByKey "provider" keyValues == Just "\"prisma-client-js\""
+            )
+            generators'
 
-    validateDatasources :: [Psl.Ast.Datasource] -> [ValidationError]
-    validateDatasources [] = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
+    -- As per Prisma's docs there can be only ONE datasource block in the schema.
+    -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
+    validateDatasources :: [Psl.ConfigBlock.Datasource] -> [ValidationError]
     validateDatasources [_anyDataSource] = []
     validateDatasources _ = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
 
-    models = Psl.Ast.getModels prismaSchemaAst
-    generators = Psl.Ast.getGenerators prismaSchemaAst
-    datasources = Psl.Ast.getDatasources prismaSchemaAst
-    prismaSchemaAst = AS.getPrismaSchema spec
+    models = Psl.Schema.getModels prismaSchemaAst
+    generators = Psl.Schema.getGenerators prismaSchemaAst
+    datasources = Psl.Schema.getDatasources prismaSchemaAst
+    prismaSchemaAst = AS.prismaSchema spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
@@ -449,7 +463,7 @@ isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed = (AS.Db.PostgreSQL ==) . AS.getDbSystem
+isPostgresUsed = (AS.Db.PostgreSQL ==) . AS.dbSystem
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- If there is no user entity, it returns Nothing.
@@ -465,7 +479,7 @@ findFieldByName name = find ((== name) . Entity.Field.fieldName)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
-getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Ast.Field
+getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Model.ModelField
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

@@ -363,13 +363,18 @@ library
     Wasp.Project.Studio
     Wasp.Project.Vite
     Wasp.Psl.Ast.Schema
+    Wasp.Psl.Ast.Model
+    Wasp.Psl.Ast.Enum
+    Wasp.Psl.Ast.Attribute
+    Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Format
     Wasp.Psl.Generator.Schema
     Wasp.Psl.Generator.ConfigBlock
+    Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
-    Wasp.Psl.Parser.Model
-    Wasp.Psl.Parser.Enum
     Wasp.Psl.Parser.ConfigBlock
+    Wasp.Psl.Parser.Enum
+    Wasp.Psl.Parser.Model
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Util
     Wasp.SemanticVersion
@@ -613,11 +618,11 @@ test-suite waspc-test
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
-    Psl.Parser.SchemaTest
-    Psl.Parser.ModelTest
-    Psl.Parser.EnumTest
+    Psl.Parser.AttributeTest
     Psl.Parser.ConfigBlockTest
-    Psl.Parser.CommonTest
+    Psl.Parser.EnumTest
+    Psl.Parser.ModelTest
+    Psl.Parser.SchemaTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest
@@ -625,6 +630,7 @@ test-suite waspc-test
     Util.Diff
     Util.FilePathTest
     Util.IO.RetryTest
+    Util.Prisma
     SemanticVersionTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest

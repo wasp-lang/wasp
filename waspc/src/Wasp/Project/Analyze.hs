@@ -31,13 +31,17 @@ import Wasp.Project.Common
     packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
   )
-import Wasp.Project.Db (getDbSystemFromPrismaSchema, makeDevDatabaseUrl)
+import Wasp.Project.Db
+  ( getDbSystemFromPrismaSchema,
+    makeDevDatabaseUrl,
+    validateDbSystem,
+  )
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
@@ -55,32 +59,32 @@ analyzeWaspProject waspDir options = do
       analyzePrismaSchema waspDir >>= \case
         Left errors -> return (Left errors, [])
         Right prismaSchemaAst ->
-          analyzeWaspFile waspFilePath prismaSchemaAst >>= \case
+          analyzeWaspFile prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
               analyzePackageJsonContent waspDir >>= \case
                 Left errors -> return (Left errors, [])
-                Right packageJsonContent -> constructAppSpec waspDir options packageJsonContent declarations prismaSchemaAst
+                Right packageJsonContent -> constructAppSpec waspDir options packageJsonContent prismaSchemaAst declarations
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
-analyzeWaspFile :: Path' Abs File' -> Psl.Ast.Schema -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspFile waspFilePath prismaSchemaAst = do
+analyzeWaspFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspFile prismaSchemaAst waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
   left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
     <$> analyzeWaspFileContent prismaSchemaAst waspFileContent
 
-analyzeWaspFileContent :: Psl.Ast.Schema -> String -> IO (Either [(String, Ctx)] [AS.Decl])
+analyzeWaspFileContent :: Psl.Schema.Schema -> String -> IO (Either [(String, Ctx)] [AS.Decl])
 analyzeWaspFileContent prismaSchemaAst = return . left (map getErrorMessageAndCtx) . Analyzer.analyze prismaSchemaAst
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   PackageJson ->
+  Psl.Schema.Schema ->
   [AS.Decl] ->
-  Psl.Ast.Schema ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir options packageJson decls parsedPrismaSchema = do
+constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
@@ -88,7 +92,7 @@ constructAppSpec waspDir options packageJson decls parsedPrismaSchema = do
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
-  let dbSystem = getDbSystemFromPrismaSchema parsedPrismaSchema
+  dbSystem <- validateDbSystem . getDbSystemFromPrismaSchema $ parsedPrismaSchema
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
@@ -147,15 +151,14 @@ readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
-analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Ast.Schema)
+analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema)
 analyzePrismaSchema waspProjectDir = do
-  prismaSchemaFile <- findPrismaSchemaFile waspProjectDir
-  case prismaSchemaFile of
+  findPrismaSchemaFile waspProjectDir >>= \case
     Just pathToPrismaSchemaFile -> do
       prismaSchemaContent <- IOUtil.readFile pathToPrismaSchemaFile
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
-        Left err -> return $ Left [err]
+        Left err -> return $ Left [show err]
         Right parsedPrismaSchema -> do
           return $ Right parsedPrismaSchema
     Nothing -> return $ Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"]

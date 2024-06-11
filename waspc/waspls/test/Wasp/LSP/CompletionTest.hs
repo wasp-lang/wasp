@@ -31,7 +31,7 @@ import Wasp.LSP.ServerState
         _waspFileUri
       ),
   )
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
 -- | A string containing the input to a completion test. It represents wasp
 -- source code with a cursor position.
@@ -115,7 +115,7 @@ runCompletionTest testInput =
         ServerState
           { _waspFileUri = Nothing,
             _currentWaspSource = waspSource,
-            _prismaSchemaAst = Psl.Ast.Schema [],
+            _prismaSchemaAst = Psl.Schema.Schema [],
             _latestDiagnostics = [],
             _cst = Just parsedCST,
             _tsExports = error "_tsExports not available in completion tests",

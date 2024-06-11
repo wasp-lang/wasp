@@ -20,10 +20,10 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.Crud.Routes as Routes
-import qualified Wasp.Psl.Ast.Schema as Psl.Ast
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Util as Util
 
-getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Ast.Field -> Aeson.Value
+getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Model.ModelField -> Aeson.Value
 getCrudOperationJson crudOperationName crud idField =
   object
     [ "name" .= crudOperationName,
@@ -31,7 +31,7 @@ getCrudOperationJson crudOperationName crud idField =
       "entityUpper" .= crudEntityName,
       "entityLower" .= Util.toLowerFirst crudEntityName,
       "entitiesArray" .= makeJsArrayFromHaskellList [crudEntityName],
-      "idFieldName" .= Psl.Ast._name idField
+      "idFieldName" .= Psl.Model._name idField
     ]
   where
     crudEntityName = AS.refName $ AS.Crud.entity crud

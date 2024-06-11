@@ -6,8 +6,10 @@ import NeatInterpolation (trimming)
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Psl.Ast.Schema as AST
-import Wasp.Psl.Parser.Model (model, modelBody)
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Parser.Model (body, model)
 
 spec_parsePslModel :: Spec
 spec_parsePslModel = do
@@ -20,14 +22,14 @@ spec_parsePslModel = do
         |]
 
     it "Body parser correctly parses" $ do
-      Parsec.parse modelBody "" (T.unpack sampleBodySchema) `shouldBe` Right sampleBodyAst
+      Parsec.parse body "" (T.unpack sampleBodySchema) `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
-      Parsec.parse model "" (T.unpack pslModel) `shouldBe` Right (AST.SchemaModel $ AST.Model "User" sampleBodyAst)
+      Parsec.parse model "" (T.unpack pslModel) `shouldBe` Right (Psl.Schema.SchemaModel $ Psl.Model.Model "User" sampleBodyAst)
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do
-      let runTest psl = it psl $ isLeft (Parsec.parse modelBody "" psl) `shouldBe` True
+      let runTest psl = it psl $ isLeft (Parsec.parse body "" psl) `shouldBe` True
       mapM_
         runTest
         [ "  noType",
@@ -48,27 +50,27 @@ spec_parsePslModel = do
             }
           |]
         modelAst =
-          AST.SchemaModel $
-            AST.Model
+          Psl.Schema.SchemaModel $
+            Psl.Model.Model
               "User"
-              ( AST.Body
-                  [ AST.ElementField
-                      ( AST.Field
+              ( Psl.Model.ModelBody
+                  [ Psl.Model.ModelElementField
+                      ( Psl.Model.ModelField
                           "id"
-                          AST.Int
+                          Psl.Model.Int
                           []
-                          [ AST.Attribute "id" [],
-                            AST.Attribute
+                          [ Psl.Attribute.Attribute "id" [],
+                            Psl.Attribute.Attribute
                               "default"
-                              [ AST.AttrArgNamed "value" (AST.AttrArgFunc "autoincrement")
+                              [ Psl.Attribute.AttrArgNamed "value" (Psl.Attribute.AttrArgFunc "autoincrement")
                               ]
                           ]
                       ),
-                    AST.ElementField
-                      ( AST.Field "internets" (AST.UserType "Internet") [AST.List] []
+                    Psl.Model.ModelElementField
+                      ( Psl.Model.ModelField "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
                       ),
-                    AST.ElementField
-                      ( AST.Field "strings" (AST.UserType "Strings") [AST.List] []
+                    Psl.Model.ModelElementField
+                      ( Psl.Model.ModelField "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
                       )
                   ]
               )
@@ -90,16 +92,16 @@ spec_parsePslModel = do
             }
         |]
         modelAst =
-          AST.SchemaModel $
-            AST.Model
+          Psl.Schema.SchemaModel $
+            Psl.Model.Model
               "User"
-              ( AST.Body
-                  [ AST.ElementField (AST.Field "model" AST.Int [] []),
-                    AST.ElementField (AST.Field "type" AST.String [] []),
-                    AST.ElementField (AST.Field "view" AST.Boolean [] []),
-                    AST.ElementField (AST.Field "enum" AST.Float [] []),
-                    AST.ElementField (AST.Field "generator" AST.Decimal [] []),
-                    AST.ElementField (AST.Field "datasource" AST.String [] [])
+              ( Psl.Model.ModelBody
+                  [ Psl.Model.ModelElementField (Psl.Model.ModelField "model" Psl.Model.Int [] []),
+                    Psl.Model.ModelElementField (Psl.Model.ModelField "type" Psl.Model.String [] []),
+                    Psl.Model.ModelElementField (Psl.Model.ModelField "view" Psl.Model.Boolean [] []),
+                    Psl.Model.ModelElementField (Psl.Model.ModelField "enum" Psl.Model.Float [] []),
+                    Psl.Model.ModelElementField (Psl.Model.ModelField "generator" Psl.Model.Decimal [] []),
+                    Psl.Model.ModelElementField (Psl.Model.ModelField "datasource" Psl.Model.String [] [])
                   ]
               )
 
