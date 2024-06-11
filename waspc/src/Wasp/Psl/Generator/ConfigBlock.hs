@@ -10,7 +10,7 @@ import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 
 makeConfigBlockJson :: Psl.ConfigBlock.IsConfigBlock a => [(String, String)] -> a -> Value
-makeConfigBlockJson defaultValues configBlock =
+makeConfigBlockJson overrideValues configBlock =
   object
     [ "name" .= name,
       "keyValues" .= (makeKeyValueJson <$> keyValues)
@@ -20,7 +20,7 @@ makeConfigBlockJson defaultValues configBlock =
     configBlockValues =
       Psl.ConfigBlock.getConfigBlockKeyValues configBlock
         <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
-    keyValues = nubBy ((==) `on` fst) (defaultValues ++ configBlockValues)
+    keyValues = nubBy ((==) `on` fst) (overrideValues ++ configBlockValues)
 
     makeKeyValueJson :: (String, String) -> Value
     makeKeyValueJson (key, value) = object ["key" .= key, "value" .= value]
