@@ -123,7 +123,7 @@ NOTE: Reload page if blank.
    Rinse and repeat.
 4. Run `cabal test` to confirm that the project's unit and integration tests are passing (both new and old).
 5. For easily testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app. Check its README for more details (including how to run it).
-6. There is also `headless-tests/examples/todoApp`, that comes equiped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
+6. There is also `headless-test/examples/todoApp`, that comes equiped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
 8. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR.
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
