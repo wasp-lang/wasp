@@ -1,4 +1,9 @@
-module Wasp.Psl.Parser.Attribute where
+module Wasp.Psl.Parser.Attribute
+  ( attribute,
+    blockAttribute,
+    attrArgument,
+  )
+where
 
 import Data.Maybe (fromMaybe)
 import Text.Parsec

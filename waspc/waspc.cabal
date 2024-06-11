@@ -369,10 +369,11 @@ library
     Wasp.Psl.Format
     Wasp.Psl.Generator.Schema
     Wasp.Psl.Generator.ConfigBlock
+    Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
-    Wasp.Psl.Parser.Model
-    Wasp.Psl.Parser.Enum
     Wasp.Psl.Parser.ConfigBlock
+    Wasp.Psl.Parser.Enum
+    Wasp.Psl.Parser.Model
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Util
     Wasp.SemanticVersion

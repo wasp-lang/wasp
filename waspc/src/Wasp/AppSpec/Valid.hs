@@ -43,7 +43,7 @@ import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Util (findPrismaConfigBlockKeyValue)
+import Wasp.Psl.Util (findPrismaConfigBlockValueByKey)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, isCapitalized)
@@ -431,7 +431,7 @@ validatePrismaSchema spec =
         isTherePrismaClientJsGenerator =
           any
             ( \(Psl.ConfigBlock.Generator _name keyValues) ->
-                findPrismaConfigBlockKeyValue "provider" keyValues == Just "\"prisma-client-js\""
+                findPrismaConfigBlockValueByKey "provider" keyValues == Just "\"prisma-client-js\""
             )
             generators'
 

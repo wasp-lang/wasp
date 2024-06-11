@@ -16,7 +16,7 @@ import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Util (findPrismaConfigBlockKeyValue)
+import Wasp.Psl.Util (findPrismaConfigBlockValueByKey)
 
 makeDevDatabaseUrl ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -57,7 +57,7 @@ validateDbSystem (Left (UnsupportedDbSystem unsupportedDbSystem)) =
 
 getProviderFromPrismaSchema :: Psl.Schema.Schema -> Maybe String
 getProviderFromPrismaSchema =
-  findPrismaConfigBlockKeyValue "provider"
+  findPrismaConfigBlockValueByKey "provider"
     -- As per Prisma's docs there can be only ONE datasource block in the schema.
     -- But we are still handling the case where there are multiple datasource blocks.
     -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks

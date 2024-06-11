@@ -47,7 +47,7 @@ registerDynamicCapabilities =
       registerPrismaSchemaFileWatcher
     ]
 
--- | Register file watcher watcher for JS and TS files in the src/ directory.
+-- | Register a file watcher for JS and TS files in the src/ directory.
 -- When these files change, the export lists for the changed files are
 -- automatically refreshed.
 --
@@ -119,7 +119,7 @@ sourceJsTsFilesChangeHandler msg = do
           publishDiagnostics uri
         Nothing -> pure ()
 
--- | Register file watcher watcher for Prisma schema file.
+-- | Register a file watcher for Prisma schema file.
 registerPrismaSchemaFileWatcher :: ServerM ()
 registerPrismaSchemaFileWatcher = do
   -- We have two options here:
