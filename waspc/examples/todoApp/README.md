@@ -21,12 +21,11 @@ This will create a `.env.server` file with some basic env vars set to dummy valu
 To obtain all the API keys to get all the features of the app working, if you do need that, you will have to obtain them on your own, normally from the corresponding third-party services. Check Wasp docs for instructions on how to do this for Google Auth, GitHub Auth, and so on.
 
 #### Obtaining API keys as a Wasp Team member
+If you are a member of the Wasp Team, you don't have to obtain all the API keys on your own.
 
-If you are a member of the Wasp Team, you don't have to obtain all the additional API keys on your own, but can instead pull the default .env.server file that we share among the team, that has API keys we use exclusively for development.
-
-We are using vault.dotenv.org for storing and sharing this file.
-
-TODO: instructions + set it up.
+Instead, you can run `npm run env:pull`: this will obtain `.env.server` file that we share on the team level.  
+We are using https://vault.dotenv.org to power this and have an account/organization up there.  
+If you modify `.env.server` and want to persist the changes (for yourself and for the other team members), do `npm run env:push`.
 
 ## Running
 
@@ -45,7 +44,7 @@ Run the app!
 cabal run wasp-cli start
 ```
 
-App will not open in the browser on its own: open localhost:3000 in the browser to check it out.
+This app will not open in the browser on its own: you need to open `localhost:3000` in the browser on your own.
 
 ## Building
 
