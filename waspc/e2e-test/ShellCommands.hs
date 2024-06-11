@@ -76,8 +76,6 @@ createFile content relDirFp filename = return $ combineShellCommands [createPare
     contents = show (content ++ "\n")
     writeContentsToFile = unwords ["printf", contents, ">", destinationFile]
 
--- NOTE: This is fragile and will likely break in future. Assumes `app` decl is first line and by default
---       we do not have a `db` field. Consider better alternatives.
 setDbToPSQL :: ShellCommandBuilder ShellCommand
 -- Change DB to postgres by adding string at specific line so it still parses.
 setDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
