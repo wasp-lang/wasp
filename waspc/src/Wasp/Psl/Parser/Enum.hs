@@ -12,10 +12,9 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
-  ( blockAttribute,
-    braces,
-    fieldAttribute,
+  ( braces,
     identifier,
     reserved,
     whiteSpace,
@@ -42,7 +41,7 @@ enumField =
     <|> try enumBlockAttribute
 
 enumValue :: Parser Psl.Enum.EnumElement
-enumValue = Psl.Enum.EnumElementValue <$> identifier <*> many (try fieldAttribute)
+enumValue = Psl.Enum.EnumElementValue <$> identifier <*> many (try attribute)
 
 enumBlockAttribute :: Parser Psl.Enum.EnumElement
 enumBlockAttribute = Psl.Enum.EnumElementBlockAttribute <$> blockAttribute

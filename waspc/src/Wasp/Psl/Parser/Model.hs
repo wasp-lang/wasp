@@ -17,10 +17,9 @@ import qualified Text.Parsec as Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
-  ( blockAttribute,
-    braces,
-    fieldAttribute,
+  ( braces,
     identifier,
     parens,
     reserved,
@@ -64,7 +63,7 @@ field = do
   name <- identifier
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
-  attrs <- many (try fieldAttribute)
+  attrs <- many (try attribute)
   return $
     Psl.Model.ModelField
       { Psl.Model._name = name,

@@ -616,11 +616,11 @@ test-suite waspc-test
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
-    Psl.Parser.SchemaTest
-    Psl.Parser.ModelTest
-    Psl.Parser.EnumTest
+    Psl.Parser.AttributeTest
     Psl.Parser.ConfigBlockTest
-    Psl.Parser.CommonTest
+    Psl.Parser.EnumTest
+    Psl.Parser.ModelTest
+    Psl.Parser.SchemaTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest

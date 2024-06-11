@@ -1,12 +1,12 @@
-module Psl.Parser.CommonTest where
+module Psl.Parser.AttributeTest where
 
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
-import Wasp.Psl.Parser.Common (attrArgument)
+import Wasp.Psl.Parser.Attribute (attrArgument)
 
-spec_parseCommonPslPart :: Spec
-spec_parseCommonPslPart = do
+spec_parseAttributePslPart :: Spec
+spec_parseAttributePslPart = do
   describe "Attribute argument parser" $ do
     let tests =
           [ ( "[foo, bar],",

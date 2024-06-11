@@ -30,7 +30,7 @@ import Wasp.LSP.Util (getWaspDirFromWaspFileUri)
 -- | Finds diagnostics on a wasp file and sends the diagnostics to the LSP client.
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
-  -- Immediately update Prisma entities only when file watching is enabled
+  -- Immediately update Prisma schema only when file watching is enabled
   prismaSchemaWatchingEnabled <- isJust <$> handler (asks (^. State.regTokens . State.watchPrismaSchemaToken))
   when prismaSchemaWatchingEnabled $ do
     case getWaspDirFromWaspFileUri uri of
@@ -97,8 +97,8 @@ analyzeWaspFile uri = do
       let newDiagnostics = map ParseDiagnostic concreteErrorMessages
       modify (State.latestDiagnostics .~ newDiagnostics)
 
-    runWaspAnalyzer entities srcString = do
-      case analyze entities srcString of
+    runWaspAnalyzer prismaSchemaAst srcString = do
+      case analyze prismaSchemaAst srcString of
         Right _ -> do
           modify (State.latestDiagnostics .~ [])
         Left errs -> do
