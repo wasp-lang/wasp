@@ -117,7 +117,7 @@ export function createAuthenticatedOperation<
     } else if (includesPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, context] = args
-      return userOperation(payload, {
+      return userOperation(payload as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })
@@ -217,7 +217,9 @@ type EntityMapFor<OperationDefinition extends GenericAuthenticatedOperationDefin
  */
 type Operation<Input, Output, IsAuthenticated extends boolean> = [
   Input
-] extends [void]
+] extends [never]
+  ? OperationWithPayload<unknown, Output, IsAuthenticated>
+  : [Input] extends [void]
   ? OperationWithoutPayload<Output, IsAuthenticated>
   : OperationWithPayload<Input, Output, IsAuthenticated>
 

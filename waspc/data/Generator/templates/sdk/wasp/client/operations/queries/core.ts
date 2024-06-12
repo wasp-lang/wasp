@@ -33,7 +33,7 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
   const queryRoute = makeOperationRoute(relativeQueryPath)
   const queryCacheKey = [relativeQueryPath]
 
-  const queryFn: QueryFunctionFor<BackendQuery> = async (queryArgs) => { 
+  const queryFn = (async (queryArgs) => { 
     const serverResult = await callOperation(queryRoute, queryArgs)
     // todo: The full queryCacheKey is constructed in two places, both here and
     // inside the useQuery hook. See
@@ -43,7 +43,10 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
       (result, update) => update(result),
       serverResult,
     )
-  }
+  // This cast is necessary because - When the Input is void, we want to present
+  // the function as not accepting a payload (which isn't consistent with how
+  // it's defined).
+  }) as QueryFunctionFor<BackendQuery>
 
   return buildAndRegisterQuery(
     queryFn,
