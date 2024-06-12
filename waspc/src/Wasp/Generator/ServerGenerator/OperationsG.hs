@@ -77,7 +77,6 @@ operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
     [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
-      "operationTypeName" .= toUpperFirst (getName operation),
       "entities"
         .= maybe
           []
