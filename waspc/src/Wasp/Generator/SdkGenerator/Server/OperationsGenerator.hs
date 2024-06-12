@@ -25,7 +25,7 @@ import Wasp.Generator.Common (dropExtensionFromImportPath, makeJsonWithEntityDat
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, getOperationTypeName, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
 import qualified Wasp.JsImport as JI
@@ -142,11 +142,11 @@ serverOperationsDirInSdkRootDir =
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
-getOperationTmplData isAuthEnabledGlobally operation  =
+getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= getName operation,
-      "operationTypeName" .= toUpperFirst (getName operation),
+      "operationTypeName" .= getOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
