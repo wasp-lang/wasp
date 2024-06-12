@@ -15,11 +15,14 @@ generateConfigBlockKeyValues keyValues = unlines . map ("  " ++) $ generateConfi
     generateConfigBlockKeyValue (Psl.ConfigBlock.ConfigBlockKeyValue key value) = key ++ " = " ++ value
 
 overrideConfigBlockValues :: [(String, String)] -> Psl.ConfigBlock.ConfigBlock -> Psl.ConfigBlock.ConfigBlock
-overrideConfigBlockValues overridePairs (Psl.ConfigBlock.ConfigBlock configBlockType name originalKeyValues) = Psl.ConfigBlock.ConfigBlock configBlockType name overridenKeyValues
-  where
-    configBlockPairs =
-      originalKeyValues
-        <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
-    overridenKeyValues =
-      nubBy ((==) `on` fst) (overridePairs ++ configBlockPairs)
-        <&> uncurry Psl.ConfigBlock.ConfigBlockKeyValue
+overrideConfigBlockValues
+  overridePairs
+  (Psl.ConfigBlock.ConfigBlock configBlockType name originalKeyValues) =
+    Psl.ConfigBlock.ConfigBlock configBlockType name overridenKeyValues
+    where
+      configBlockPairs =
+        originalKeyValues
+          <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
+      overridenKeyValues =
+        nubBy ((==) `on` fst) (overridePairs ++ configBlockPairs)
+          <&> uncurry Psl.ConfigBlock.ConfigBlockKeyValue
