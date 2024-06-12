@@ -64,15 +64,17 @@ spec_parsePslSchema = do
         |]
         expectedAst =
           Psl.Schema.Schema
-            [ Psl.Schema.DatasourceBlock $
-                Psl.ConfigBlock.Datasource
+            [ Psl.Schema.ConfigBlock $
+                Psl.ConfigBlock.ConfigBlock
+                  Psl.ConfigBlock.Datasource
                   "db"
                   [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
                     Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
                     Psl.ConfigBlock.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
                   ],
-              Psl.Schema.GeneratorBlock $
-                Psl.ConfigBlock.Generator
+              Psl.Schema.ConfigBlock $
+                Psl.ConfigBlock.ConfigBlock
+                  Psl.ConfigBlock.Generator
                   "client"
                   [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
                     Psl.ConfigBlock.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"

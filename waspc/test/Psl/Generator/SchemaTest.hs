@@ -24,8 +24,7 @@ instance Arbitrary Psl.Schema.Block where
     oneof
       [ Psl.Schema.ModelBlock <$> arbitrary,
         Psl.Schema.EnumBlock <$> arbitrary,
-        Psl.Schema.DatasourceBlock <$> arbitrary,
-        Psl.Schema.GeneratorBlock <$> arbitrary
+        Psl.Schema.ConfigBlock <$> arbitrary
       ]
 
 instance Arbitrary Psl.Schema.Schema where
@@ -132,17 +131,16 @@ instance Arbitrary Psl.Enum.Element where
         Psl.Enum.ElementBlockAttribute <$> arbitrary
       ]
 
-instance Arbitrary Psl.ConfigBlock.Datasource where
+instance Arbitrary Psl.ConfigBlock.ConfigBlock where
   arbitrary = do
     name <- arbitraryIdentifier
     config <- scale (const 5) arbitrary
-    return $ Psl.ConfigBlock.Datasource name config
-
-instance Arbitrary Psl.ConfigBlock.Generator where
-  arbitrary = do
-    name <- arbitraryIdentifier
-    config <- scale (const 5) arbitrary
-    return $ Psl.ConfigBlock.Generator name config
+    configBlockType <-
+      oneof
+        [ return Psl.ConfigBlock.Datasource,
+          return Psl.ConfigBlock.Generator
+        ]
+    return $ Psl.ConfigBlock.ConfigBlock configBlockType name config
 
 instance Arbitrary Psl.ConfigBlock.ConfigBlockKeyValue where
   arbitrary = Psl.ConfigBlock.ConfigBlockKeyValue <$> arbitraryIdentifier <*> arbitraryIdentifier

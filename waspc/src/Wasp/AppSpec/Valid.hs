@@ -421,7 +421,7 @@ validatePrismaSchema spec =
           ]
         validateTypeModifier _ _ = []
 
-    validateGenerators :: [Psl.ConfigBlock.Generator] -> [ValidationError]
+    validateGenerators :: [Psl.ConfigBlock.ConfigBlock] -> [ValidationError]
     validateGenerators [] = [GenericValidationError "Prisma schema should have at least one generator defined."]
     validateGenerators generators' =
       if not isTherePrismaClientJsGenerator
@@ -430,14 +430,14 @@ validatePrismaSchema spec =
       where
         isTherePrismaClientJsGenerator =
           any
-            ( \(Psl.ConfigBlock.Generator _name keyValues) ->
+            ( \(Psl.ConfigBlock.ConfigBlock _type _name keyValues) ->
                 findPrismaConfigBlockValueByKey "provider" keyValues == Just "\"prisma-client-js\""
             )
             generators'
 
     -- As per Prisma's docs there can be only ONE datasource block in the schema.
     -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
-    validateDatasources :: [Psl.ConfigBlock.Datasource] -> [ValidationError]
+    validateDatasources :: [Psl.ConfigBlock.ConfigBlock] -> [ValidationError]
     validateDatasources [_anyDataSource] = []
     validateDatasources _ = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
 

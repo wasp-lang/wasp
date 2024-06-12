@@ -71,8 +71,8 @@ genPrismaSchema spec = do
         object
           [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
             "enumSchemas" .= enumSchemas,
-            "datasource" .= makeDatasourceJson datasourceProvider datasourceUrl,
-            "generators" .= generatorJsons
+            "datasourceSchema" .= generateConfigBlockSchema (getDatasource datasourceProvider datasourceUrl),
+            "generatorSchemas" .= (generateConfigBlockSchema <$> generators)
           ]
 
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
@@ -81,22 +81,25 @@ genPrismaSchema spec = do
     dbSystem = AS.dbSystem spec
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
-    makeDatasourceJson datasourceProvider datasourceUrl =
-      Psl.Generator.ConfigBlock.makeConfigBlockJson
+    enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
+
+    generateConfigBlockSchema = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ConfigBlock
+
+    getDatasource datasourceProvider datasourceUrl =
+      Psl.Generator.ConfigBlock.overrideConfigBlockValues
         [("provider", datasourceProvider), ("url", datasourceUrl)]
         -- We validated AppSpec so we know there is exactly one datasource block.
         (head $ Psl.Schema.getDatasources prismaSchemaAst)
 
-    generatorJsons =
-      Psl.Generator.ConfigBlock.makeConfigBlockJson []
+    generators =
+      -- We are not overriding any values for now in the generator blocks.
+      Psl.Generator.ConfigBlock.overrideConfigBlockValues []
         <$> Psl.Schema.getGenerators prismaSchemaAst
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Schema.generateSchemaBlock $
         Psl.Schema.ModelBlock $ Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
-
-    enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
 
     prismaSchemaAst = AS.prismaSchema spec
 

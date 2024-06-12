@@ -17,5 +17,5 @@ generateSchemaBlock :: Psl.Schema.Block -> PslSource
 generateSchemaBlock = \case
   Psl.Schema.ModelBlock (Psl.Model.Model name body) -> "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
   Psl.Schema.EnumBlock (Psl.Enum.Enum name values) -> "enum " ++ name ++ " {\n" ++ generateEnumBody values ++ "}"
-  Psl.Schema.DatasourceBlock (Psl.ConfigBlock.Datasource name content) -> "datasource " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
-  Psl.Schema.GeneratorBlock (Psl.ConfigBlock.Generator name content) -> "generator " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
+  Psl.Schema.ConfigBlock (Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource name content) -> "datasource " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
+  Psl.Schema.ConfigBlock (Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator name content) -> "generator " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
