@@ -11,8 +11,11 @@ import Wasp.Psl.Generator.ConfigBlock (generateConfigBlockKeyValues)
 import Wasp.Psl.Generator.Enum (generateEnumBody)
 import Wasp.Psl.Generator.Model (generateModelBody)
 
-generateSchemaBlock :: Psl.Schema.Block -> String
-generateSchemaBlock (Psl.Schema.ModelBlock (Psl.Model.Model name body)) = "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
-generateSchemaBlock (Psl.Schema.EnumBlock (Psl.Enum.Enum name values)) = "enum " ++ name ++ " {\n" ++ generateEnumBody values ++ "}"
-generateSchemaBlock (Psl.Schema.DatasourceBlock (Psl.ConfigBlock.Datasource name content)) = "datasource " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
-generateSchemaBlock (Psl.Schema.GeneratorBlock (Psl.ConfigBlock.Generator name content)) = "generator " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
+type PslSource = String
+
+generateSchemaBlock :: Psl.Schema.Block -> PslSource
+generateSchemaBlock = \case
+  Psl.Schema.ModelBlock (Psl.Model.Model name body) -> "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
+  Psl.Schema.EnumBlock (Psl.Enum.Enum name values) -> "enum " ++ name ++ " {\n" ++ generateEnumBody values ++ "}"
+  Psl.Schema.DatasourceBlock (Psl.ConfigBlock.Datasource name content) -> "datasource " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
+  Psl.Schema.GeneratorBlock (Psl.ConfigBlock.Generator name content) -> "generator " ++ name ++ " {\n" ++ generateConfigBlockKeyValues content ++ "}"
