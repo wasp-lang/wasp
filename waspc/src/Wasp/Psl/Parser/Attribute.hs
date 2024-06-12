@@ -49,9 +49,7 @@ attribute = do
   maybeArgs <- optionMaybe (parens (commaSep1 (try attrArgument)))
   return $
     Psl.Attribute.Attribute
-      { Psl.Attribute._attrName = case maybeSelector of
-          Just selector -> name ++ "." ++ selector
-          Nothing -> name,
+      { Psl.Attribute._attrName = name <> maybe "" ('.' :) maybeSelector,
         Psl.Attribute._attrArgs = fromMaybe [] maybeArgs
       }
 
