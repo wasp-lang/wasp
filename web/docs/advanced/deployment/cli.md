@@ -116,6 +116,9 @@ We need to do this to keep our CORS configuration up to date.
 
 That's it, your app should be available at `https://mycoolapp.com`! 🎉
 
+#### Adding www Subdomain
+
+
 If you'd like to also access your app at `https://www.mycoolapp.com`, you can generate certs for the `www` subdomain. 
 
 ```shell
