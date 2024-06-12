@@ -53,7 +53,7 @@ export function createUnauthenticatedOperation<
       entities,
     })
   }
-  // This cast is necessary because - When the Input is void, we want to present
+  // This assertion is necessary because, when the Input is void, we want to present
   // the function as not accepting a payload (which isn't consistent with how
   // it's defined).
   return operation as UnauthenticatedOperationFor<OperationDefinition>

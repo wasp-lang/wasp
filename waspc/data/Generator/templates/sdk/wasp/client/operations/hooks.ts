@@ -73,9 +73,9 @@ export function useAction<Input = unknown, Output = unknown>(
   // advanced API (which users can also use)
   const mutation = useMutation(mutationFn, options);
 
-  // This cast is necessary because - When the Input is void, we want to present
-  // the function as not accepting a payload (which isn't consistent with how
-  // it's defined).
+  // This assertion is necessary because, when the Input is void, we want to
+  // present the function as not accepting a payload (which isn't consistent
+  // with how it's defined).
   return ((args: Input) => mutation.mutateAsync(args)) as typeof actionFn;
 }
 
@@ -213,9 +213,9 @@ function makeOptimisticUpdateMutationFn<Input, Output, CachedData>(
       item,
       specificOptimisticUpdateDefinitions
     );
-  // This cast is necessary because - When the Input is void, we want to present
-  // the function as not accepting a payload (which isn't consistent with how
-  // it's defined).
+  // This assertion is necessary because - When the Input is void, we want to
+  // present the function as not accepting a payload (which isn't consistent
+  // with how it's defined).
   }) as typeof actionFn;
 }
 

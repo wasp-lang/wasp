@@ -43,9 +43,9 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
       (result, update) => update(result),
       serverResult,
     )
-  // This cast is necessary because - When the Input is void, we want to present
-  // the function as not accepting a payload (which isn't consistent with how
-  // it's defined).
+  // This assertion is necessary because, when the Input is void, we want to
+  // present the function as not accepting a payload (which isn't consistent
+  // with how it's defined).
   }) as QueryFunctionFor<BackendQuery>
 
   return buildAndRegisterQuery(
