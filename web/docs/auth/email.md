@@ -956,7 +956,8 @@ app myApp {
 #### `userSignupFields: ExtImport`
 
 <UserSignupFieldsExplainer />
-Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields).
+
+Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields). 
 
 #### `fromField: EmailFromField` <Required />
 `fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by your app. 
