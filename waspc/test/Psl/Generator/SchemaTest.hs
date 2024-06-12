@@ -11,21 +11,21 @@ import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Generator.Schema (generateSchemaElement)
+import Wasp.Psl.Generator.Schema (generateSchemaBlock)
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser.Schema
 
 prop_generatePslSchema :: Property
 prop_generatePslSchema = mapSize (const 100) $ \schemaElementAst ->
   within 1000000 $
-    Parsec.parse Psl.Parser.Schema.schema "" (generateSchemaElement schemaElementAst) `shouldBe` Right (Psl.Schema.Schema [schemaElementAst])
+    Parsec.parse Psl.Parser.Schema.schema "" (generateSchemaBlock schemaElementAst) `shouldBe` Right (Psl.Schema.Schema [schemaElementAst])
 
-instance Arbitrary Psl.Schema.SchemaElement where
+instance Arbitrary Psl.Schema.Block where
   arbitrary =
     oneof
-      [ Psl.Schema.SchemaModel <$> arbitrary,
-        Psl.Schema.SchemaEnum <$> arbitrary,
-        Psl.Schema.SchemaDatasource <$> arbitrary,
-        Psl.Schema.SchemaGenerator <$> arbitrary
+      [ Psl.Schema.ModelBlock <$> arbitrary,
+        Psl.Schema.EnumBlock <$> arbitrary,
+        Psl.Schema.DatasourceBlock <$> arbitrary,
+        Psl.Schema.GeneratorBlock <$> arbitrary
       ]
 
 instance Arbitrary Psl.Schema.Schema where
@@ -34,35 +34,35 @@ instance Arbitrary Psl.Schema.Schema where
 instance Arbitrary Psl.Model.Model where
   arbitrary = Psl.Model.Model <$> arbitraryIdentifier <*> arbitrary
 
-instance Arbitrary Psl.Model.ModelBody where
+instance Arbitrary Psl.Model.Body where
   arbitrary = do
-    fieldElement <- Psl.Model.ModelElementField <$> arbitrary
+    fieldElement <- Psl.Model.ElementField <$> arbitrary
     elementsBefore <- scale (const 5) arbitrary
     elementsAfter <- scale (const 5) arbitrary
-    return $ Psl.Model.ModelBody $ elementsBefore ++ [fieldElement] ++ elementsAfter
+    return $ Psl.Model.Body $ elementsBefore ++ [fieldElement] ++ elementsAfter
 
-instance Arbitrary Psl.Model.ModelElement where
+instance Arbitrary Psl.Model.Element where
   arbitrary =
     oneof
-      [ Psl.Model.ModelElementField <$> arbitrary,
-        Psl.Model.ModelElementBlockAttribute <$> arbitrary
+      [ Psl.Model.ElementField <$> arbitrary,
+        Psl.Model.ElementBlockAttribute <$> arbitrary
       ]
 
-instance Arbitrary Psl.Model.ModelField where
+instance Arbitrary Psl.Model.Field where
   arbitrary = do
     name <- arbitraryIdentifier
     fieldType <- arbitrary
     modifiers <- oneof [(: []) <$> arbitrary, return []]
     attrs <- scale (const 5) arbitrary
     return $
-      Psl.Model.ModelField
+      Psl.Model.Field
         { Psl.Model._name = name,
           Psl.Model._type = fieldType,
           Psl.Model._typeModifiers = modifiers,
           Psl.Model._attrs = attrs
         }
 
-instance Arbitrary Psl.Model.ModelFieldType where
+instance Arbitrary Psl.Model.FieldType where
   arbitrary =
     oneof
       [ return Psl.Model.String,
@@ -78,7 +78,7 @@ instance Arbitrary Psl.Model.ModelFieldType where
         Psl.Model.UserType <$> arbitraryIdentifier
       ]
 
-instance Arbitrary Psl.Model.ModelFieldTypeModifier where
+instance Arbitrary Psl.Model.FieldTypeModifier where
   arbitrary = oneof [return Psl.Model.List, return Psl.Model.Optional]
 
 instance Arbitrary Psl.Attribute.Attribute where
@@ -125,11 +125,11 @@ instance Arbitrary Psl.Enum.Enum where
     values <- scale (const 5) (listOf1 arbitrary)
     return $ Psl.Enum.Enum name values
 
-instance Arbitrary Psl.Enum.EnumElement where
+instance Arbitrary Psl.Enum.Element where
   arbitrary =
     oneof
-      [ Psl.Enum.EnumElementValue <$> arbitraryIdentifier <*> scale (const 5) arbitrary,
-        Psl.Enum.EnumElementBlockAttribute <$> arbitrary
+      [ Psl.Enum.ElementValue <$> arbitraryIdentifier <*> scale (const 5) arbitrary,
+        Psl.Enum.ElementBlockAttribute <$> arbitrary
       ]
 
 instance Arbitrary Psl.ConfigBlock.Datasource where

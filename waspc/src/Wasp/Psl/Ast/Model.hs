@@ -2,12 +2,12 @@
 
 module Wasp.Psl.Ast.Model
   ( Model (..),
-    ModelBody (..),
-    ModelElement (..),
-    ModelField (..),
-    ModelFieldType (..),
-    ModelFieldTypeModifier (..),
-    getModelFields,
+    Body (..),
+    Element (..),
+    Field (..),
+    FieldType (..),
+    FieldTypeModifier (..),
+    getFields,
   )
 where
 
@@ -15,34 +15,34 @@ import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Prelude hiding (Enum)
 
-type ModelName = String
+type Name = String
 
 data Model
   = Model
-      ModelName
-      ModelBody
+      Name
+      Body
   deriving (Show, Eq)
 
-newtype ModelBody = ModelBody [ModelElement]
+newtype Body = Body [Element]
   deriving (Show, Eq, Data)
 
-data ModelElement
-  = ModelElementField ModelField
-  | ModelElementBlockAttribute Attribute
+data Element
+  = ElementField Field
+  | ElementBlockAttribute Attribute
   deriving (Show, Eq, Data)
 
 -- TODO: To support attributes before the field,
 --   we could just have `attrsBefore :: [[Attr]]`,
 --   which represents lines, each one with list of attributes.
-data ModelField = ModelField
+data Field = Field
   { _name :: String,
-    _type :: ModelFieldType,
-    _typeModifiers :: [ModelFieldTypeModifier],
+    _type :: FieldType,
+    _typeModifiers :: [FieldTypeModifier],
     _attrs :: [Attribute]
   }
   deriving (Show, Eq, Data)
 
-data ModelFieldType
+data FieldType
   = String
   | Boolean
   | Int
@@ -56,11 +56,11 @@ data ModelFieldType
   | UserType String
   deriving (Show, Eq, Data)
 
-data ModelFieldTypeModifier
+data FieldTypeModifier
   = List
   | Optional
   | UnsupportedOptionalList
   deriving (Show, Eq, Data)
 
-getModelFields :: Model -> [ModelField]
-getModelFields (Model _ (ModelBody elements)) = [field | ModelElementField field <- elements]
+getFields :: Model -> [Field]
+getFields (Model _ (Body elements)) = [field | ElementField field <- elements]

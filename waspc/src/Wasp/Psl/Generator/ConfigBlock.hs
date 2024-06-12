@@ -1,5 +1,6 @@
 module Wasp.Psl.Generator.ConfigBlock
-  ( makeConfigBlockJson,
+  ( generateConfigBlockKeyValues,
+    makeConfigBlockJson,
   )
 where
 
@@ -8,6 +9,11 @@ import Data.Function (on)
 import Data.Functor ((<&>))
 import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+
+generateConfigBlockKeyValues :: [Psl.ConfigBlock.ConfigBlockKeyValue] -> String
+generateConfigBlockKeyValues keyValues = unlines $ generateConfigBlockKeyValue <$> keyValues
+  where
+    generateConfigBlockKeyValue (Psl.ConfigBlock.ConfigBlockKeyValue key value) = key ++ " = " ++ value
 
 makeConfigBlockJson :: Psl.ConfigBlock.IsConfigBlock a => [(String, String)] -> a -> Value
 makeConfigBlockJson overrideValues configBlock =

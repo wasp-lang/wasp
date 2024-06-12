@@ -19,11 +19,11 @@ sampleBodySchema =
   |]
 
 -- | Corresponds to sampleBodySchema above.
-sampleBodyAst :: Psl.Model.ModelBody
+sampleBodyAst :: Psl.Model.Body
 sampleBodyAst =
-  Psl.Model.ModelBody
-    [ Psl.Model.ModelElementField
-        ( Psl.Model.ModelField
+  Psl.Model.Body
+    [ Psl.Model.ElementField
+        ( Psl.Model.Field
             { Psl.Model._name = "id",
               Psl.Model._type = Psl.Model.Int,
               Psl.Model._typeModifiers = [],
@@ -41,8 +41,8 @@ sampleBodyAst =
                 ]
             }
         ),
-      Psl.Model.ModelElementField
-        ( Psl.Model.ModelField
+      Psl.Model.ElementField
+        ( Psl.Model.Field
             { Psl.Model._name = "username",
               Psl.Model._type = Psl.Model.String,
               Psl.Model._typeModifiers = [Psl.Model.Optional],
@@ -56,8 +56,8 @@ sampleBodyAst =
                 ]
             }
         ),
-      Psl.Model.ModelElementField
-        ( Psl.Model.ModelField
+      Psl.Model.ElementField
+        ( Psl.Model.Field
             { Psl.Model._name = "posts",
               Psl.Model._type = Psl.Model.UserType "Post",
               Psl.Model._typeModifiers = [Psl.Model.List],
@@ -76,23 +76,23 @@ sampleBodyAst =
                 ]
             }
         ),
-      Psl.Model.ModelElementField
-        ( Psl.Model.ModelField
+      Psl.Model.ElementField
+        ( Psl.Model.Field
             { Psl.Model._name = "weirdType",
               Psl.Model._type = Psl.Model.Unsupported "weird",
               Psl.Model._typeModifiers = [],
               Psl.Model._attrs = []
             }
         ),
-      Psl.Model.ModelElementField
-        ( Psl.Model.ModelField
+      Psl.Model.ElementField
+        ( Psl.Model.Field
             { Psl.Model._name = "unsupportedOptionalList",
               Psl.Model._type = Psl.Model.UserType "Sometype",
               Psl.Model._typeModifiers = [Psl.Model.UnsupportedOptionalList],
               Psl.Model._attrs = []
             }
         ),
-      Psl.Model.ModelElementBlockAttribute
+      Psl.Model.ElementBlockAttribute
         ( Psl.Attribute.Attribute
             { Psl.Attribute._attrName = "someattr",
               Psl.Attribute._attrArgs =

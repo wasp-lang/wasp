@@ -93,10 +93,10 @@ genPrismaSchema spec = do
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Schema.generateSchemaElement $
-        Psl.Schema.SchemaModel $ Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
+      Psl.Generator.Schema.generateSchemaBlock $
+        Psl.Schema.ModelBlock $ Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
-    enumSchemas = Psl.Generator.Schema.generateSchemaElement . Psl.Schema.SchemaEnum <$> Psl.Schema.getEnums prismaSchemaAst
+    enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
 
     prismaSchemaAst = AS.prismaSchema spec
 

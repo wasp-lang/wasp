@@ -5,22 +5,22 @@ import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 
-findIdField :: Psl.Model.ModelBody -> Maybe Psl.Model.ModelField
-findIdField (Psl.Model.ModelBody elements) = find isIdField fields
+findIdField :: Psl.Model.Body -> Maybe Psl.Model.Field
+findIdField (Psl.Model.Body elements) = find isIdField fields
   where
-    fields = [field | (Psl.Model.ModelElementField field) <- elements]
+    fields = [field | (Psl.Model.ElementField field) <- elements]
 
-    isIdField :: Psl.Model.ModelField -> Bool
-    isIdField Psl.Model.ModelField {_attrs = attrs} = any (\attr -> Psl.Attribute._attrName attr == attrNameAssociatedWitIdField) attrs
+    isIdField :: Psl.Model.Field -> Bool
+    isIdField Psl.Model.Field {_attrs = attrs} = any (\attr -> Psl.Attribute._attrName attr == attrNameAssociatedWitIdField) attrs
 
     -- We define an ID field as a field that has the @id attribute.
     attrNameAssociatedWitIdField :: String
     attrNameAssociatedWitIdField = "id"
 
-findIdBlockAttribute :: Psl.Model.ModelBody -> Maybe Psl.Attribute.Attribute
-findIdBlockAttribute (Psl.Model.ModelBody elements) = find isIdBlockAttribute attributes
+findIdBlockAttribute :: Psl.Model.Body -> Maybe Psl.Attribute.Attribute
+findIdBlockAttribute (Psl.Model.Body elements) = find isIdBlockAttribute attributes
   where
-    attributes = [attr | (Psl.Model.ModelElementBlockAttribute attr) <- elements]
+    attributes = [attr | (Psl.Model.ElementBlockAttribute attr) <- elements]
 
     isIdBlockAttribute :: Psl.Attribute.Attribute -> Bool
     isIdBlockAttribute Psl.Attribute.Attribute {_attrName = attrName} = attrName == idBlockAttributeName
@@ -29,8 +29,8 @@ findIdBlockAttribute (Psl.Model.ModelBody elements) = find isIdBlockAttribute at
     idBlockAttributeName :: String
     idBlockAttributeName = "id"
 
-doesPslFieldHaveAttribute :: String -> Psl.Model.ModelField -> Bool
-doesPslFieldHaveAttribute name Psl.Model.ModelField {_attrs = attrs} = any ((== name) . Psl.Attribute._attrName) attrs
+doesPslFieldHaveAttribute :: String -> Psl.Model.Field -> Bool
+doesPslFieldHaveAttribute name Psl.Model.Field {_attrs = attrs} = any ((== name) . Psl.Attribute._attrName) attrs
 
 findPrismaConfigBlockValueByKey :: String -> [Psl.ConfigBlock.ConfigBlockKeyValue] -> Maybe String
 findPrismaConfigBlockValueByKey searchKey =

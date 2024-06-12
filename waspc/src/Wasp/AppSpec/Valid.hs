@@ -405,12 +405,12 @@ validatePrismaSchema spec =
     ]
   where
     validateModel :: Psl.Model.Model -> [ValidationError]
-    validateModel model@(Psl.Model.Model modelName _) = concatMap validateModelField $ Psl.Model.getModelFields model
+    validateModel model@(Psl.Model.Model modelName _) = concatMap validateField $ Psl.Model.getFields model
       where
-        validateModelField :: Psl.Model.ModelField -> [ValidationError]
-        validateModelField (Psl.Model.ModelField fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
+        validateField :: Psl.Model.Field -> [ValidationError]
+        validateField (Psl.Model.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
 
-        validateTypeModifier :: String -> Psl.Model.ModelFieldTypeModifier -> [ValidationError]
+        validateTypeModifier :: String -> Psl.Model.FieldTypeModifier -> [ValidationError]
         validateTypeModifier fieldName Psl.Model.UnsupportedOptionalList =
           [ GenericValidationError $
               "Model \""
@@ -479,7 +479,7 @@ findFieldByName name = find ((== name) . Entity.Field.fieldName)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
-getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Model.ModelField
+getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Model.Field
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

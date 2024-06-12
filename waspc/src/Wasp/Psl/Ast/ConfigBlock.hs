@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module Wasp.Psl.Ast.ConfigBlock
   ( Datasource (..),
     Generator (..),
@@ -6,11 +8,11 @@ module Wasp.Psl.Ast.ConfigBlock
   )
 where
 
-type ConfigBlockName = String
+type Name = String
 
 data Datasource
   = Datasource
-      ConfigBlockName
+      Name
       [ConfigBlockKeyValue]
   deriving (Show, Eq)
 
@@ -20,13 +22,18 @@ instance IsConfigBlock Datasource where
 
 data Generator
   = Generator
-      ConfigBlockName
+      Name
       [ConfigBlockKeyValue]
   deriving (Show, Eq)
 
 instance IsConfigBlock Generator where
+  getConfigBlockName :: Generator -> String
   getConfigBlockName (Generator name _) = name
   getConfigBlockKeyValues (Generator _ keyValues) = keyValues
+
+type Identifier = String
+
+type Value = String
 
 -- | Represents a key-value pair in a config block.
 --  For example, in the following config block:
@@ -36,7 +43,7 @@ instance IsConfigBlock Generator where
 --  }
 --  ```
 --  The key-value pair would be `ConfigBlockKeyValue "provider" "prisma-client-js"`.
-data ConfigBlockKeyValue = ConfigBlockKeyValue String String
+data ConfigBlockKeyValue = ConfigBlockKeyValue Identifier Value
   deriving (Show, Eq)
 
 class IsConfigBlock a where

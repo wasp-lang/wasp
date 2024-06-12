@@ -64,78 +64,78 @@ spec_parsePslSchema = do
         |]
         expectedAst =
           Psl.Schema.Schema
-            [ Psl.Schema.SchemaDatasource $
+            [ Psl.Schema.DatasourceBlock $
                 Psl.ConfigBlock.Datasource
                   "db"
                   [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
                     Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
                     Psl.ConfigBlock.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
                   ],
-              Psl.Schema.SchemaGenerator $
+              Psl.Schema.GeneratorBlock $
                 Psl.ConfigBlock.Generator
                   "client"
                   [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
                     Psl.ConfigBlock.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
                   ],
-              Psl.Schema.SchemaModel $
+              Psl.Schema.ModelBlock $
                 Psl.Model.Model
                   "User"
-                  ( Psl.Model.ModelBody
-                      [ Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                  ( Psl.Model.Body
+                      [ Psl.Model.ElementField $
+                          Psl.Model.Field
                             "id"
                             Psl.Model.Int
                             []
                             [ Psl.Attribute.Attribute "id" [],
                               Psl.Attribute.Attribute "default" [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgFunc "autoincrement"]
                             ],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "tasks"
                             (Psl.Model.UserType "Task")
                             [Psl.Model.List]
                             [],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "address"
                             Psl.Model.String
                             [Psl.Model.Optional]
                             [],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "votes"
                             (Psl.Model.UserType "TaskVote")
                             [Psl.Model.List]
                             []
                       ]
                   ),
-              Psl.Schema.SchemaModel $
+              Psl.Schema.ModelBlock $
                 Psl.Model.Model
                   "Task"
-                  ( Psl.Model.ModelBody
-                      [ Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                  ( Psl.Model.Body
+                      [ Psl.Model.ElementField $
+                          Psl.Model.Field
                             "id"
                             Psl.Model.Int
                             []
                             [ Psl.Attribute.Attribute "id" [],
                               Psl.Attribute.Attribute "default" [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgFunc "autoincrement"]
                             ],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "description"
                             Psl.Model.String
                             []
                             [],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "isDone"
                             Psl.Model.Boolean
                             []
                             [ Psl.Attribute.Attribute "default" [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgIdentifier "false"]
                             ],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "user"
                             (Psl.Model.UserType "User")
                             []
@@ -145,26 +145,26 @@ spec_parsePslSchema = do
                                   Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                                 ]
                             ],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "userId"
                             Psl.Model.Int
                             []
                             [],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "votes"
                             (Psl.Model.UserType "TaskVote")
                             [Psl.Model.List]
                             []
                       ]
                   ),
-              Psl.Schema.SchemaModel $
+              Psl.Schema.ModelBlock $
                 Psl.Model.Model
                   "TaskVote"
-                  ( Psl.Model.ModelBody
-                      [ Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                  ( Psl.Model.Body
+                      [ Psl.Model.ElementField $
+                          Psl.Model.Field
                             "user"
                             (Psl.Model.UserType "User")
                             []
@@ -174,14 +174,14 @@ spec_parsePslSchema = do
                                   Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                                 ]
                             ],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "userId"
                             Psl.Model.Int
                             []
                             [],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "task"
                             (Psl.Model.UserType "Task")
                             []
@@ -191,24 +191,24 @@ spec_parsePslSchema = do
                                   Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
                                 ]
                             ],
-                        Psl.Model.ModelElementField $
-                          Psl.Model.ModelField
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
                             "taskId"
                             Psl.Model.Int
                             []
                             [],
-                        Psl.Model.ModelElementBlockAttribute $
+                        Psl.Model.ElementBlockAttribute $
                           Psl.Attribute.Attribute
                             "id"
                             [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["userId", "taskId"])
                             ]
                       ]
                   ),
-              Psl.Schema.SchemaEnum $
+              Psl.Schema.EnumBlock $
                 Psl.Enum.Enum
                   "Role"
-                  [ Psl.Enum.EnumElementValue "USER" [],
-                    Psl.Enum.EnumElementValue "ADMIN" []
+                  [ Psl.Enum.ElementValue "USER" [],
+                    Psl.Enum.ElementValue "ADMIN" []
                   ]
             ]
 

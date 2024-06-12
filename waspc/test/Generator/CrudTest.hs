@@ -99,7 +99,7 @@ spec_GeneratorCrudTest = do
     crudOperationsName = "tasks"
     crudOperationEntityName = "Task"
     primaryEntityField =
-      Psl.Model.ModelField
+      Psl.Model.Field
         { Psl.Model._name = "id",
           Psl.Model._type = Psl.Model.Int,
           Psl.Model._attrs =

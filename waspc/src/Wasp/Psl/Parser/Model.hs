@@ -1,5 +1,5 @@
 module Wasp.Psl.Parser.Model
-  ( parseModelBody,
+  ( parseBody,
     model,
     body,
   )
@@ -30,8 +30,8 @@ import Wasp.Psl.Parser.Common
 
 type SourceCode = String
 
-parseModelBody :: SourceCode -> Either Parsec.ParseError Psl.Model.ModelBody
-parseModelBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
+parseBody :: SourceCode -> Either Parsec.ParseError Psl.Model.Body
+parseBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:
@@ -40,41 +40,41 @@ parseModelBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
 --     name String
 --     @@index([name])
 --   }
-model :: Parser Psl.Schema.SchemaElement
+model :: Parser Psl.Schema.Block
 model = do
   whiteSpace
   reserved "model"
   modelName <- identifier
-  Psl.Schema.SchemaModel . Psl.Model.Model modelName <$> braces body
+  Psl.Schema.ModelBlock . Psl.Model.Model modelName <$> braces body
 
 -- | Parses body of the PSL (Prisma Schema Language) model,
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
-body :: Parser Psl.Model.ModelBody
+body :: Parser Psl.Model.Body
 body = do
   whiteSpace
-  Psl.Model.ModelBody <$> many1 element
+  Psl.Model.Body <$> many1 element
 
-element :: Parser Psl.Model.ModelElement
+element :: Parser Psl.Model.Element
 element =
-  try (Psl.Model.ModelElementField <$> field)
-    <|> try (Psl.Model.ModelElementBlockAttribute <$> blockAttribute)
+  try (Psl.Model.ElementField <$> field)
+    <|> try (Psl.Model.ElementBlockAttribute <$> blockAttribute)
 
-field :: Parser Psl.Model.ModelField
+field :: Parser Psl.Model.Field
 field = do
   name <- identifier
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
   attrs <- many (try attribute)
   return $
-    Psl.Model.ModelField
+    Psl.Model.Field
       { Psl.Model._name = name,
         Psl.Model._type = type',
         Psl.Model._typeModifiers = maybeToList maybeTypeModifier,
         Psl.Model._attrs = attrs
       }
   where
-    fieldType :: Parser Psl.Model.ModelFieldType
+    fieldType :: Parser Psl.Model.FieldType
     fieldType =
       scalarFieldType
         <|> try
@@ -85,7 +85,7 @@ field = do
           )
         <|> Psl.Model.UserType <$> identifier
 
-    scalarFieldType :: Parser Psl.Model.ModelFieldType
+    scalarFieldType :: Parser Psl.Model.FieldType
     scalarFieldType =
       foldl1
         (<|>)
@@ -105,7 +105,7 @@ field = do
         )
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
-    fieldTypeModifier :: Parser (Maybe Psl.Model.ModelFieldTypeModifier)
+    fieldTypeModifier :: Parser (Maybe Psl.Model.FieldTypeModifier)
     fieldTypeModifier =
       optionMaybe
         ( (try (symbol "[]?") >> return Psl.Model.UnsupportedOptionalList)

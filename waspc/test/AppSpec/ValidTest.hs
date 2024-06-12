@@ -101,8 +101,8 @@ spec_AppSpecValid = do
       let userEntityName = "User"
       let validUserEntity =
             AS.Entity.makeEntity
-              ( Psl.Model.ModelBody
-                  [ Psl.Model.ModelElementField $ makeIdField "id" Psl.Model.String
+              ( Psl.Model.Body
+                  [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
                   ]
               )
       let validAppAuth =
@@ -248,7 +248,7 @@ spec_AppSpecValid = do
                 }
         let invalidUserEntity =
               AS.Entity.makeEntity
-                ( Psl.Model.ModelBody
+                ( Psl.Model.Body
                     []
                 )
 
@@ -304,8 +304,8 @@ spec_AppSpecValid = do
                           },
                       AS.Decl.makeDecl userEntityName $
                         AS.Entity.makeEntity
-                          ( Psl.Model.ModelBody
-                              [ Psl.Model.ModelElementField $ makeIdField "id" Psl.Model.String
+                          ( Psl.Model.Body
+                              [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
                               ]
                           ),
                       basicPageDecl,
@@ -442,7 +442,7 @@ spec_AppSpecValid = do
             `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
   where
     makeIdField name typ =
-      Psl.Model.ModelField
+      Psl.Model.Field
         { Psl.Model._name = name,
           Psl.Model._type = typ,
           Psl.Model._typeModifiers =
@@ -603,7 +603,7 @@ spec_AppSpecValid = do
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
         name
-        (AS.Entity.makeEntity $ Psl.Model.ModelBody [Psl.Model.ModelElementField $ makeIdField "id" Psl.Model.String])
+        (AS.Entity.makeEntity $ Psl.Model.Body [Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl
