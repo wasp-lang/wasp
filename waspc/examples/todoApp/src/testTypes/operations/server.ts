@@ -49,7 +49,7 @@ type TestCases = [
     ) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
   >,
   // todo(filip): Prisma errors casuing this test to fail, try to add Except
-  // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099 
+  // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
   Equal<
     typeof taskToTaskSatisfies,
     (
