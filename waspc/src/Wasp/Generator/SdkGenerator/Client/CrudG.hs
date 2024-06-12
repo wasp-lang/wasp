@@ -22,13 +22,15 @@ genNewClientCrudApi spec =
   if areThereAnyCruds
     then
       sequence
-        [ genCrudIndex spec cruds
+        [ genCrudIndex spec cruds,
+          genFileCopy [relfile|client/crud/operationsHelpers.ts|]
         ]
         <++> genCrudOperations spec cruds
     else return []
   where
     cruds = getCruds spec
     areThereAnyCruds = not $ null cruds
+    genFileCopy = return . C.mkTmplFd
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds = return $ C.mkTmplFdWithData [relfile|client/crud/index.ts|] tmplData
