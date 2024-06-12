@@ -212,9 +212,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/crud/operationsHelpers.ts"
+        ],
+        "61f798f6e32f86839b31cff1c7d1a1e37a10adc0de61a146c1441d11576f341f"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/crud/tasks.ts"
         ],
-        "2114cf0cc99408b1bb501f8a278c90239349744f3593a9cd2f80cbea0b1fbbe3"
+        "4947286d60b6652052edd7bc47230481a27ce5cbaa62ed62bac727576ececa43"
     ],
     [
         [
