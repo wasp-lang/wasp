@@ -29,13 +29,13 @@ import { QueryMetadata } from 'wasp/client/operations/rpc'
 type TestCases = [
   Expect<Equal<typeof taskToTaskSpecified, (args: Task) => Promise<Task>>>,
   // todo(filip): Prisma errors casuing this test to fail, try to add Except
-  // after updating Prisma
+  // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
   Equal<
     typeof taskToTaskUnspecified,
     (args: Task) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
   >,
   // todo(filip): Prisma errors casuing this test to fail, try to add Except
-  // after updating Prisma
+  // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
   Equal<
     typeof taskToTaskSatisfies,
     (args: Task) => ReturnType<typeof taskToTaskSatisfiesDefinition>
