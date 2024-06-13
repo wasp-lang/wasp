@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.3 (TBD)
+
+### 🎉 New features
+
+- Wasp now supports the replyTo field in the emailSender.send method. This field allows you to specify the email address to which the recipient can reply to. This feature is only available for the SendGrid provider.
+
 ## 0.13.2 (2024-04-11)
 
 ### 🐞 Bug fixes
