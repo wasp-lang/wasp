@@ -25,7 +25,7 @@ spec_parsePslModel = do
       Parsec.parse body "" (T.unpack sampleBodySchema) `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
-      Parsec.parse model "" (T.unpack pslModel) `shouldBe` Right (Psl.Schema.SchemaModel $ Psl.Model.Model "User" sampleBodyAst)
+      Parsec.parse model "" (T.unpack pslModel) `shouldBe` Right (Psl.Schema.ModelBlock $ Psl.Model.Model "User" sampleBodyAst)
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do
@@ -50,12 +50,12 @@ spec_parsePslModel = do
             }
           |]
         modelAst =
-          Psl.Schema.SchemaModel $
+          Psl.Schema.ModelBlock $
             Psl.Model.Model
               "User"
-              ( Psl.Model.ModelBody
-                  [ Psl.Model.ModelElementField
-                      ( Psl.Model.ModelField
+              ( Psl.Model.Body
+                  [ Psl.Model.ElementField
+                      ( Psl.Model.Field
                           "id"
                           Psl.Model.Int
                           []
@@ -66,11 +66,11 @@ spec_parsePslModel = do
                               ]
                           ]
                       ),
-                    Psl.Model.ModelElementField
-                      ( Psl.Model.ModelField "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
+                    Psl.Model.ElementField
+                      ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
                       ),
-                    Psl.Model.ModelElementField
-                      ( Psl.Model.ModelField "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
+                    Psl.Model.ElementField
+                      ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
                       )
                   ]
               )
@@ -92,16 +92,16 @@ spec_parsePslModel = do
             }
         |]
         modelAst =
-          Psl.Schema.SchemaModel $
+          Psl.Schema.ModelBlock $
             Psl.Model.Model
               "User"
-              ( Psl.Model.ModelBody
-                  [ Psl.Model.ModelElementField (Psl.Model.ModelField "model" Psl.Model.Int [] []),
-                    Psl.Model.ModelElementField (Psl.Model.ModelField "type" Psl.Model.String [] []),
-                    Psl.Model.ModelElementField (Psl.Model.ModelField "view" Psl.Model.Boolean [] []),
-                    Psl.Model.ModelElementField (Psl.Model.ModelField "enum" Psl.Model.Float [] []),
-                    Psl.Model.ModelElementField (Psl.Model.ModelField "generator" Psl.Model.Decimal [] []),
-                    Psl.Model.ModelElementField (Psl.Model.ModelField "datasource" Psl.Model.String [] [])
+              ( Psl.Model.Body
+                  [ Psl.Model.ElementField (Psl.Model.Field "model" Psl.Model.Int [] []),
+                    Psl.Model.ElementField (Psl.Model.Field "type" Psl.Model.String [] []),
+                    Psl.Model.ElementField (Psl.Model.Field "view" Psl.Model.Boolean [] []),
+                    Psl.Model.ElementField (Psl.Model.Field "enum" Psl.Model.Float [] []),
+                    Psl.Model.ElementField (Psl.Model.Field "generator" Psl.Model.Decimal [] []),
+                    Psl.Model.ElementField (Psl.Model.Field "datasource" Psl.Model.String [] [])
                   ]
               )
 

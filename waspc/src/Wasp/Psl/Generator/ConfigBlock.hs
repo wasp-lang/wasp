@@ -1,26 +1,28 @@
 module Wasp.Psl.Generator.ConfigBlock
-  ( makeConfigBlockJson,
+  ( generateConfigBlockKeyValues,
+    overrideConfigBlockValues,
   )
 where
 
-import Data.Aeson (KeyValue ((.=)), Value, object)
 import Data.Function (on)
 import Data.Functor ((<&>))
 import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 
-makeConfigBlockJson :: Psl.ConfigBlock.IsConfigBlock a => [(String, String)] -> a -> Value
-makeConfigBlockJson overrideValues configBlock =
-  object
-    [ "name" .= name,
-      "keyValues" .= (makeKeyValueJson <$> keyValues)
-    ]
+generateConfigBlockKeyValues :: [Psl.ConfigBlock.ConfigBlockKeyValue] -> String
+generateConfigBlockKeyValues keyValues = unlines . map ("  " ++) $ generateConfigBlockKeyValue <$> keyValues
   where
-    name = Psl.ConfigBlock.getConfigBlockName configBlock
-    configBlockValues =
-      Psl.ConfigBlock.getConfigBlockKeyValues configBlock
-        <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
-    keyValues = nubBy ((==) `on` fst) (overrideValues ++ configBlockValues)
+    generateConfigBlockKeyValue (Psl.ConfigBlock.ConfigBlockKeyValue key value) = key ++ " = " ++ value
 
-    makeKeyValueJson :: (String, String) -> Value
-    makeKeyValueJson (key, value) = object ["key" .= key, "value" .= value]
+overrideConfigBlockValues :: [(String, String)] -> Psl.ConfigBlock.ConfigBlock -> Psl.ConfigBlock.ConfigBlock
+overrideConfigBlockValues
+  overridePairs
+  (Psl.ConfigBlock.ConfigBlock configBlockType name originalKeyValues) =
+    Psl.ConfigBlock.ConfigBlock configBlockType name overridenKeyValues
+    where
+      configBlockPairs =
+        originalKeyValues
+          <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
+      overridenKeyValues =
+        nubBy ((==) `on` fst) (overridePairs ++ configBlockPairs)
+          <&> uncurry Psl.ConfigBlock.ConfigBlockKeyValue

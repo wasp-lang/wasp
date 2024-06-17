@@ -23,39 +23,23 @@ import Wasp.Psl.Parser.Common
     whiteSpace,
   )
 
-configBlock :: Parser Psl.Schema.SchemaElement
-configBlock = try datasource <|> try generator
-
--- | Parses a datasource.
--- Example of PSL datasource:
+-- | Parses a config block.
+-- Example of PSL config block:
 -- datasource db {
 --   provider   = "postgresql"
 --   url        = env("DATABASE_URL")
 --   extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
 -- }
-datasource :: Parser Psl.Schema.SchemaElement
-datasource = do
+configBlock :: Parser Psl.Schema.Block
+configBlock = do
   whiteSpace
-  reserved "datasource"
-  datasourceName <- identifier
+  configBlockType <-
+    try (reserved "datasource" >> return Psl.ConfigBlock.Datasource)
+      <|> try (reserved "generator" >> return Psl.ConfigBlock.Generator)
+  name <- identifier
   content <- configBlockBody
   optional newline
-  return $ Psl.Schema.SchemaDatasource $ Psl.ConfigBlock.Datasource datasourceName content
-
--- | Parses a generator.
--- Example of PSL generator:
--- generator client {
---   provider        = "prisma-client-js"
---   previewFeatures = ["postgresqlExtensions"]
--- }
-generator :: Parser Psl.Schema.SchemaElement
-generator = do
-  whiteSpace
-  reserved "generator"
-  generatorName <- identifier
-  content <- configBlockBody
-  optional newline
-  return $ Psl.Schema.SchemaGenerator $ Psl.ConfigBlock.Generator generatorName content
+  return $ Psl.Schema.ConfigBlock $ Psl.ConfigBlock.ConfigBlock configBlockType name content
 
 configBlockBody :: Parser [Psl.ConfigBlock.ConfigBlockKeyValue]
 configBlockBody = braces (many keyValue)

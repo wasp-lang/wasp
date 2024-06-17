@@ -61,5 +61,5 @@ getProviderFromPrismaSchema =
     -- As per Prisma's docs there can be only ONE datasource block in the schema.
     -- But we are still handling the case where there are multiple datasource blocks.
     -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
-    . concatMap (\(Psl.ConfigBlock.Datasource _ keyValues) -> keyValues)
+    . concatMap (\(Psl.ConfigBlock.ConfigBlock _type _name keyValues) -> keyValues)
     . Psl.Schema.getDatasources

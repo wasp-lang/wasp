@@ -1,20 +1,10 @@
 {{={= =}=}}
 
-datasource {= datasource.name =} {
-  {=# datasource.keyValues =}
-  {= key =} = {=& value =}
-  {=/ datasource.keyValues =}
-}
+{=& datasourceSchema =}
 
-{=# generators =}
-{=# . =}
-generator {= name =} {
-  {=# keyValues =}
-  {= key =} = {=& value =}
-  {=/ keyValues =}
-}
-{=/ . =}
-{=/ generators =}
+{=# generatorSchemas =}
+{=& . =}
+{=/ generatorSchemas =}
 
 {=# modelSchemas =}
 {=& . =}

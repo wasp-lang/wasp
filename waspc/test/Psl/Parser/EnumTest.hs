@@ -24,17 +24,17 @@ spec_parsePslEnum = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaEnum $
+            Psl.Schema.EnumBlock $
               Psl.Enum.Enum
                 "Role"
-                [ Psl.Enum.EnumElementValue "USER" [],
-                  Psl.Enum.EnumElementValue
+                [ Psl.Enum.ElementValue "USER" [],
+                  Psl.Enum.ElementValue
                     "ADMIN"
                     [ Psl.Attribute.Attribute
                         "map"
                         [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "ADMIN_MAPPING"]
                     ],
-                  Psl.Enum.EnumElementBlockAttribute $
+                  Psl.Enum.ElementBlockAttribute $
                     Psl.Attribute.Attribute
                       "map"
                       [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
@@ -53,11 +53,11 @@ spec_parsePslEnum = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaEnum $
+            Psl.Schema.EnumBlock $
               Psl.Enum.Enum
                 "Role"
-                [ Psl.Enum.EnumElementValue "USER" [],
-                  Psl.Enum.EnumElementBlockAttribute $
+                [ Psl.Enum.ElementValue "USER" [],
+                  Psl.Enum.ElementBlockAttribute $
                     Psl.Attribute.Attribute
                       "map"
                       [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]

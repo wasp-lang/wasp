@@ -368,8 +368,11 @@ library
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Format
-    Wasp.Psl.Generator.Schema
+    Wasp.Psl.Generator.Attribute
     Wasp.Psl.Generator.ConfigBlock
+    Wasp.Psl.Generator.Enum
+    Wasp.Psl.Generator.Model
+    Wasp.Psl.Generator.Schema
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.ConfigBlock
@@ -461,6 +464,7 @@ library waspls
     , unordered-containers
     , waspc
     , directory ^>= 1.3.6.0
+    , filepath
 
 library cli-lib
   import: common-all

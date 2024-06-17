@@ -22,8 +22,9 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaDatasource $
-              Psl.ConfigBlock.Datasource
+            Psl.Schema.ConfigBlock $
+              Psl.ConfigBlock.ConfigBlock
+                Psl.ConfigBlock.Datasource
                 "db"
                 [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
                   Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
@@ -42,8 +43,9 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaDatasource $
-              Psl.ConfigBlock.Datasource
+            Psl.Schema.ConfigBlock $
+              Psl.ConfigBlock.ConfigBlock
+                Psl.ConfigBlock.Datasource
                 "db"
                 [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
                   Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")"
@@ -61,8 +63,9 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaGenerator $
-              Psl.ConfigBlock.Generator
+            Psl.Schema.ConfigBlock $
+              Psl.ConfigBlock.ConfigBlock
+                Psl.ConfigBlock.Generator
                 "client"
                 [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
                   Psl.ConfigBlock.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
@@ -79,8 +82,9 @@ spec_parsePslConfigBlock = do
                   }
                 |]
           expectedAst =
-            Psl.Schema.SchemaGenerator $
-              Psl.ConfigBlock.Generator
+            Psl.Schema.ConfigBlock $
+              Psl.ConfigBlock.ConfigBlock
+                Psl.ConfigBlock.Generator
                 "client"
                 [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
                 ]

@@ -2,7 +2,7 @@
 
 module Wasp.Psl.Ast.Enum
   ( Enum (..),
-    EnumElement (..),
+    Element (..),
   )
 where
 
@@ -10,15 +10,15 @@ import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Prelude hiding (Enum)
 
-type EnumName = String
+type Name = String
 
 data Enum
   = Enum
-      EnumName
-      [EnumElement]
+      Name
+      [Element]
   deriving (Show, Eq)
 
-data EnumElement
-  = EnumElementValue String [Attribute]
-  | EnumElementBlockAttribute Attribute
+data Element
+  = ElementValue String [Attribute]
+  | ElementBlockAttribute Attribute
   deriving (Show, Eq, Data)

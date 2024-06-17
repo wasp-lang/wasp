@@ -32,18 +32,18 @@ spec_AppSpecEntityTest = do
   where
     entityWithIdField =
       Entity.makeEntity $
-        Psl.Model.ModelBody
-          [ Psl.Model.ModelElementField idField,
-            Psl.Model.ModelElementField someOtherField
+        Psl.Model.Body
+          [ Psl.Model.ElementField idField,
+            Psl.Model.ElementField someOtherField
           ]
     entityWithoutIdField =
       Entity.makeEntity $
-        Psl.Model.ModelBody
-          [ Psl.Model.ModelElementField someOtherField
+        Psl.Model.Body
+          [ Psl.Model.ElementField someOtherField
           ]
 
     idField =
-      Psl.Model.ModelField
+      Psl.Model.Field
         { Psl.Model._name = "id",
           Psl.Model._type = Psl.Model.Int,
           Psl.Model._attrs =
@@ -60,7 +60,7 @@ spec_AppSpecEntityTest = do
         }
 
     someOtherField =
-      Psl.Model.ModelField
+      Psl.Model.Field
         { Psl.Model._name = "description",
           Psl.Model._type = Psl.Model.String,
           Psl.Model._attrs = [],
