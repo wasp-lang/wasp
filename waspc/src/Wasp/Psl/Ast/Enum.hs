@@ -12,10 +12,7 @@ import Prelude hiding (Enum)
 
 type Name = String
 
-data Enum
-  = Enum
-      Name
-      [Element]
+data Enum = Enum Name [Element]
   deriving (Show, Eq)
 
 data Element
