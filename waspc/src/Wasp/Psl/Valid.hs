@@ -5,7 +5,7 @@ import Wasp.Project.Db (DbSystemParseError (..), getDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Util (findPrismaConfigBlockValueByKey)
+import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Valid as Valid
 
@@ -58,7 +58,7 @@ validateGenerators = validate . Psl.Schema.getGenerators
         isTherePrismaClientJsGenerator =
           any
             ( \(Psl.ConfigBlock.ConfigBlock _type _name keyValues) ->
-                findPrismaConfigBlockValueByKey "provider" keyValues == Just "\"prisma-client-js\""
+                findPrismaConfigBlockKeyValuePair "provider" keyValues == Just "\"prisma-client-js\""
             )
             generators'
 
