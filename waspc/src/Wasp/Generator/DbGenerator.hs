@@ -42,7 +42,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
-import Wasp.Project.Db (validDbUrlExprInPrismaSchema)
+import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -88,8 +88,8 @@ genPrismaSchema spec = do
 
     getDatasource datasourceProvider =
       Psl.Ast.ConfigBlock.overrideKeyValuePairs
-        [("provider", Psl.Argument.StringExpr datasourceProvider), ("url", validDbUrlExprInPrismaSchema)]
-        -- We validated AppSpec so we know there is exactly one datasource block.
+        [("provider", Psl.Argument.StringExpr datasourceProvider), ("url", validDbUrlExprForPrismaSchema)]
+        -- We validated the Prisma schema so we know there is exactly one datasource block.
         (head $ Psl.Schema.getDatasources prismaSchemaAst)
 
     generators =

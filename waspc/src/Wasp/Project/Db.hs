@@ -2,7 +2,7 @@ module Wasp.Project.Db
   ( makeDevDatabaseUrl,
     databaseUrlEnvVarName,
     validDbUrlInPrismaSchema,
-    validDbUrlExprInPrismaSchema,
+    validDbUrlExprForPrismaSchema,
     getDbSystemFromPrismaSchema,
     isDbUrlInPrismaSchemaValid,
     DbSystemParseError (..),
@@ -36,11 +36,13 @@ makeDevDatabaseUrl waspProjectDir dbSystem decls = do
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
 
-validDbUrlExprInPrismaSchema :: Psl.Argument.Expression
-validDbUrlExprInPrismaSchema = Psl.Argument.FuncExpr "env" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr databaseUrlEnvVarName]
+-- | Datasource block in Prisma schema should have a `url` key with a value of `env("DATABASE_URL")`.
+-- This is validatd in Wasp.Psl.Valid where we check if the `url` key has the correct value.
+validDbUrlExprForPrismaSchema :: Psl.Argument.Expression
+validDbUrlExprForPrismaSchema = Psl.Argument.FuncExpr "env" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr databaseUrlEnvVarName]
 
 validDbUrlInPrismaSchema :: String
-validDbUrlInPrismaSchema = generateExpression validDbUrlExprInPrismaSchema
+validDbUrlInPrismaSchema = generateExpression validDbUrlExprForPrismaSchema
 
 data DbSystemParseError = UnsupportedDbSystem String | MissingDbSystem
   deriving (Eq, Show)
@@ -58,7 +60,7 @@ getDbSystemFromPrismaSchema prismaSchema =
 
 isDbUrlInPrismaSchemaValid :: Psl.Schema.Schema -> Bool
 isDbUrlInPrismaSchemaValid =
-  (Just validDbUrlExprInPrismaSchema ==)
+  (Just validDbUrlExprForPrismaSchema ==)
     . getDbUrlFromPrismaSchema
 
 getDbProviderFromPrismaSchema :: Psl.Schema.Schema -> Maybe Psl.Argument.Expression
