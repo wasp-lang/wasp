@@ -109,16 +109,3 @@ spec_PrismaSchemaValid = do
                   |]
            in PslV.validatePrismaSchema prismaSchema
                 `shouldBe` [Valid.GenericValidationError "Wasp doesn't support the database provider \"mongodb\" specified in the schema.prisma file."]
-  where
-    getPrismaSchemaWithConfig restOfPrismaSource =
-      Util.getPrismaSchema
-        [trimming|
-          datasource db {
-            provider = "postgresql"
-            url      = env("DATABASE_URL")
-          }
-          generator client {
-            provider = "prisma-client-js"
-          }
-          ${restOfPrismaSource}
-        |]
