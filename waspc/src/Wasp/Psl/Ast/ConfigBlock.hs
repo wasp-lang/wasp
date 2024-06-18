@@ -1,7 +1,7 @@
 module Wasp.Psl.Ast.ConfigBlock
   ( ConfigBlock (..),
     ConfigBlockType (..),
-    ConfigBlockKeyValuePair (..),
+    KeyValuePair (..),
     overrideKeyValuePairs,
   )
 where
@@ -18,7 +18,7 @@ import Wasp.Psl.Ast.Common (Name)
 --     provider = "prisma-client-js"
 --   }
 --   ```
---   The config block would be `ConfigBlock Generator "client" [ConfigBlockKeyValuePair "provider" "\"prisma-client-js\""]`.
+--   The config block would be `ConfigBlock Generator "client" [KeyValuePair "provider" "\"prisma-client-js\""]`.
 --   Another example:
 --   ```
 --   datasource db {
@@ -29,9 +29,9 @@ import Wasp.Psl.Ast.Common (Name)
 --   ```
 --   The config block would be `ConfigBlock Datasource "db" [ ... ]`.
 data ConfigBlock = ConfigBlock
-  { _configBlockType :: ConfigBlockType,
+  { _type :: ConfigBlockType,
     _name :: Name,
-    _keyValuePairs :: [ConfigBlockKeyValuePair]
+    _keyValuePairs :: [KeyValuePair]
   }
   deriving (Show, Eq)
 
@@ -49,8 +49,8 @@ type Value = String
 --    provider = "prisma-client-js"
 --  }
 --  ```
---  The key-value pair would be `ConfigBlockKeyValuePair "provider" "prisma-client-js"`.
-data ConfigBlockKeyValuePair = ConfigBlockKeyValuePair Identifier Value
+--  The key-value pair would be `KeyValuePair "provider" "prisma-client-js"`.
+data KeyValuePair = KeyValuePair Identifier Value
   deriving (Show, Eq)
 
 overrideKeyValuePairs :: [(String, String)] -> ConfigBlock -> ConfigBlock
@@ -61,7 +61,7 @@ overrideKeyValuePairs
     where
       configBlockPairs =
         originalKeyValues
-          <&> (\(ConfigBlockKeyValuePair key value) -> (key, value))
+          <&> (\(KeyValuePair key value) -> (key, value))
       overridenKeyValues =
         nubBy ((==) `on` fst) (overridePairs ++ configBlockPairs)
-          <&> uncurry ConfigBlockKeyValuePair
+          <&> uncurry KeyValuePair

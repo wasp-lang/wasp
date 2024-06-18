@@ -26,9 +26,9 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Datasource
                 "db"
-                [ Psl.ConfigBlock.ConfigBlockKeyValuePair "provider" "\"postgresql\"",
-                  Psl.ConfigBlock.ConfigBlockKeyValuePair "url" "env(\"DATABASE_URL\")",
-                  Psl.ConfigBlock.ConfigBlockKeyValuePair "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
+                [ Psl.ConfigBlock.KeyValuePair "provider" "\"postgresql\"",
+                  Psl.ConfigBlock.KeyValuePair "url" "env(\"DATABASE_URL\")",
+                  Psl.ConfigBlock.KeyValuePair "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -47,8 +47,8 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Datasource
                 "db"
-                [ Psl.ConfigBlock.ConfigBlockKeyValuePair "provider" "\"postgresql\"",
-                  Psl.ConfigBlock.ConfigBlockKeyValuePair "url" "env(\"DATABASE_URL\")"
+                [ Psl.ConfigBlock.KeyValuePair "provider" "\"postgresql\"",
+                  Psl.ConfigBlock.KeyValuePair "url" "env(\"DATABASE_URL\")"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -67,8 +67,8 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Generator
                 "client"
-                [ Psl.ConfigBlock.ConfigBlockKeyValuePair "provider" "\"prisma-client-js\"",
-                  Psl.ConfigBlock.ConfigBlockKeyValuePair "previewFeatures" "[\"postgresqlExtensions\"]"
+                [ Psl.ConfigBlock.KeyValuePair "provider" "\"prisma-client-js\"",
+                  Psl.ConfigBlock.KeyValuePair "previewFeatures" "[\"postgresqlExtensions\"]"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -86,6 +86,6 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Generator
                 "client"
-                [ Psl.ConfigBlock.ConfigBlockKeyValuePair "provider" "\"prisma-client-js\""
+                [ Psl.ConfigBlock.KeyValuePair "provider" "\"prisma-client-js\""
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst

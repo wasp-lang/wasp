@@ -68,16 +68,16 @@ spec_parsePslSchema = do
                 Psl.ConfigBlock.ConfigBlock
                   Psl.ConfigBlock.Datasource
                   "db"
-                  [ Psl.ConfigBlock.ConfigBlockKeyValuePair "provider" "\"postgresql\"",
-                    Psl.ConfigBlock.ConfigBlockKeyValuePair "url" "env(\"DATABASE_URL\")",
-                    Psl.ConfigBlock.ConfigBlockKeyValuePair "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
+                  [ Psl.ConfigBlock.KeyValuePair "provider" "\"postgresql\"",
+                    Psl.ConfigBlock.KeyValuePair "url" "env(\"DATABASE_URL\")",
+                    Psl.ConfigBlock.KeyValuePair "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
                   ],
               Psl.Schema.ConfigBlock $
                 Psl.ConfigBlock.ConfigBlock
                   Psl.ConfigBlock.Generator
                   "client"
-                  [ Psl.ConfigBlock.ConfigBlockKeyValuePair "provider" "\"prisma-client-js\"",
-                    Psl.ConfigBlock.ConfigBlockKeyValuePair "previewFeatures" "[\"postgresqlExtensions\"]"
+                  [ Psl.ConfigBlock.KeyValuePair "provider" "\"prisma-client-js\"",
+                    Psl.ConfigBlock.KeyValuePair "previewFeatures" "[\"postgresqlExtensions\"]"
                   ],
               Psl.Schema.ModelBlock $
                 Psl.Model.Model

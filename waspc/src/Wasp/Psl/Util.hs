@@ -32,7 +32,7 @@ findIdBlockAttribute (Psl.Model.Body elements) = find isIdBlockAttribute attribu
 doesPslFieldHaveAttribute :: String -> Psl.Model.Field -> Bool
 doesPslFieldHaveAttribute name Psl.Model.Field {_attrs = attrs} = any ((== name) . Psl.Attribute._attrName) attrs
 
-findPrismaConfigBlockKeyValuePair :: String -> [Psl.ConfigBlock.ConfigBlockKeyValuePair] -> Maybe String
+findPrismaConfigBlockKeyValuePair :: String -> [Psl.ConfigBlock.KeyValuePair] -> Maybe String
 findPrismaConfigBlockKeyValuePair searchKey =
-  fmap (\(Psl.ConfigBlock.ConfigBlockKeyValuePair _ value) -> value)
-    . find (\(Psl.ConfigBlock.ConfigBlockKeyValuePair key _) -> key == searchKey)
+  fmap (\(Psl.ConfigBlock.KeyValuePair _ value) -> value)
+    . find (\(Psl.ConfigBlock.KeyValuePair key _) -> key == searchKey)
