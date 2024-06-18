@@ -42,7 +42,8 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
-import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.Db (validDbUrlExprInPrismaSchema)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -59,12 +60,12 @@ genPrismaSchema ::
   AppSpec ->
   Generator FileDraft
 genPrismaSchema spec = do
-  (datasourceProvider :: String, datasourceUrl) <- case dbSystem of
-    AS.Db.PostgreSQL -> return ("\"postgresql\"", makeEnvVarField databaseUrlEnvVarName)
+  (datasourceProvider :: String) <- case dbSystem of
+    AS.Db.PostgreSQL -> return "postgresql"
     AS.Db.SQLite ->
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
-        else return ("\"sqlite\"", makeEnvVarField databaseUrlEnvVarName)
+        else return "sqlite"
 
   entities <- getEntitiesForPrismaSchema spec
 
@@ -72,7 +73,7 @@ genPrismaSchema spec = do
         object
           [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
             "enumSchemas" .= enumSchemas,
-            "datasourceSchema" .= generateConfigBlockSchema (getDatasource datasourceProvider datasourceUrl),
+            "datasourceSchema" .= generateConfigBlockSchema (getDatasource datasourceProvider),
             "generatorSchemas" .= (generateConfigBlockSchema <$> generators)
           ]
 
@@ -80,15 +81,14 @@ genPrismaSchema spec = do
   where
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
     dbSystem = ASV.getValidDbSystem spec
-    makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
     enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
 
     generateConfigBlockSchema = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ConfigBlock
 
-    getDatasource datasourceProvider datasourceUrl =
+    getDatasource datasourceProvider =
       Psl.Ast.ConfigBlock.overrideKeyValuePairs
-        [("provider", datasourceProvider), ("url", datasourceUrl)]
+        [("provider", Psl.Argument.StringExpr datasourceProvider), ("url", validDbUrlExprInPrismaSchema)]
         -- We validated AppSpec so we know there is exactly one datasource block.
         (head $ Psl.Schema.getDatasources prismaSchemaAst)
 

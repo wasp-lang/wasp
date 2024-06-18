@@ -6,6 +6,7 @@ import NeatInterpolation (trimming)
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -62,7 +63,7 @@ spec_parsePslModel = do
                           [ Psl.Attribute.Attribute "id" [],
                             Psl.Attribute.Attribute
                               "default"
-                              [ Psl.Attribute.AttrArgNamed "value" (Psl.Attribute.AttrArgFunc "autoincrement")
+                              [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
                               ]
                           ]
                       ),

@@ -10,6 +10,7 @@ import Text.Parsec
   ( many,
     many1,
     optionMaybe,
+    optional,
     try,
     (<|>),
   )
@@ -66,6 +67,7 @@ field = do
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
   attrs <- many (try attribute)
+  optional whiteSpace
   return $
     Psl.Model.Field
       { Psl.Model._name = name,

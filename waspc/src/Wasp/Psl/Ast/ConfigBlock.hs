@@ -9,6 +9,7 @@ where
 import Data.Function (on)
 import Data.Functor ((<&>))
 import Data.List (nubBy)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import Wasp.Psl.Ast.Common (Name)
 
 -- | Represents a config block in the PSL.
@@ -40,8 +41,6 @@ data ConfigBlockType = Datasource | Generator
 
 type Identifier = String
 
-type Value = String
-
 -- | Represents a key-value pair in a config block.
 --  For example, in the following config block:
 --  ```
@@ -50,10 +49,10 @@ type Value = String
 --  }
 --  ```
 --  The key-value pair would be `KeyValuePair "provider" "prisma-client-js"`.
-data KeyValuePair = KeyValuePair Identifier Value
+data KeyValuePair = KeyValuePair Identifier Psl.Argument.Expression
   deriving (Show, Eq)
 
-overrideKeyValuePairs :: [(String, String)] -> ConfigBlock -> ConfigBlock
+overrideKeyValuePairs :: [(String, Psl.Argument.Expression)] -> ConfigBlock -> ConfigBlock
 overrideKeyValuePairs
   overridePairs
   (ConfigBlock configBlockType name originalKeyValues) =

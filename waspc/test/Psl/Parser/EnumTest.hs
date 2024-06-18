@@ -4,6 +4,7 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -17,7 +18,7 @@ spec_parsePslEnum = do
             T.unpack
               [trimming|
                 enum Role {
-                  USER
+                  USER // inline comments
                   ADMIN @map("ADMIN_MAPPING")
 
                   @@map("enum_name")
@@ -32,12 +33,12 @@ spec_parsePslEnum = do
                     "ADMIN"
                     [ Psl.Attribute.Attribute
                         "map"
-                        [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "ADMIN_MAPPING"]
+                        [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
                     ],
                   Psl.Enum.ElementBlockAttribute $
                     Psl.Attribute.Attribute
                       "map"
-                      [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
+                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
                 ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
 
@@ -60,6 +61,6 @@ spec_parsePslEnum = do
                   Psl.Enum.ElementBlockAttribute $
                     Psl.Attribute.Attribute
                       "map"
-                      [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
+                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
                 ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst

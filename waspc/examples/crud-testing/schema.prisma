@@ -1,14 +1,15 @@
-// We ignore all fields from the datasource apart from the **extensions** field
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
+  // Wasp requires that the url is set to the DATABASE_URL environment variable.
   url      = env("DATABASE_URL")
 }
 
-// We ignore all fields from the generator apart from the **previewFeatures** field
+// Wasp requires the `prisma-client-js` generator to be present.
 generator client {
   provider = "prisma-client-js"
 }
 
+// Define your Prisma schema below
 model User {
   id      Int     @id @default(autoincrement())
   address String?

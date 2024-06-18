@@ -362,19 +362,22 @@ library
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
+    Wasp.Psl.Ast.Argument
+    Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common
     Wasp.Psl.Ast.Schema
     Wasp.Psl.Ast.Model
     Wasp.Psl.Ast.Enum
-    Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Format
+    Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
     Wasp.Psl.Generator.Common
     Wasp.Psl.Generator.ConfigBlock
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Schema
+    Wasp.Psl.Parser.Argument 
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.ConfigBlock
@@ -626,6 +629,7 @@ test-suite waspc-test
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
+    Psl.Parser.ArgumentTest
     Psl.Parser.AttributeTest
     Psl.Parser.ConfigBlockTest
     Psl.Parser.EnumTest

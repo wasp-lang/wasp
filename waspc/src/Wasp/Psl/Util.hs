@@ -1,6 +1,7 @@
 module Wasp.Psl.Util where
 
 import Data.Foldable (find)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -32,7 +33,7 @@ findIdBlockAttribute (Psl.Model.Body elements) = find isIdBlockAttribute attribu
 doesPslFieldHaveAttribute :: String -> Psl.Model.Field -> Bool
 doesPslFieldHaveAttribute name Psl.Model.Field {_attrs = attrs} = any ((== name) . Psl.Attribute._attrName) attrs
 
-findPrismaConfigBlockKeyValuePair :: String -> [Psl.ConfigBlock.KeyValuePair] -> Maybe String
+findPrismaConfigBlockKeyValuePair :: String -> [Psl.ConfigBlock.KeyValuePair] -> Maybe Psl.Argument.Expression
 findPrismaConfigBlockKeyValuePair searchKey =
   fmap (\(Psl.ConfigBlock.KeyValuePair _ value) -> value)
     . find (\(Psl.ConfigBlock.KeyValuePair key _) -> key == searchKey)

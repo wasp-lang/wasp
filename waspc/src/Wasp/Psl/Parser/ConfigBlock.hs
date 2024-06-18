@@ -4,10 +4,7 @@ module Wasp.Psl.Parser.ConfigBlock
 where
 
 import Text.Parsec
-  ( anyChar,
-    char,
-    many,
-    manyTill,
+  ( many,
     newline,
     optional,
     try,
@@ -16,6 +13,7 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Parser.Argument (expression)
 import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
@@ -55,6 +53,6 @@ keyValue = do
   whiteSpace
   reserved "="
   whiteSpace
-  value <- manyTill anyChar (char '\n')
+  value <- expression
   optional whiteSpace
   return $ Psl.ConfigBlock.KeyValuePair key value

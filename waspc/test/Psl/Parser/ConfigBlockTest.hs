@@ -4,6 +4,7 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.ConfigBlock as Psl.Parser
@@ -16,7 +17,7 @@ spec_parsePslConfigBlock = do
             T.unpack
               [trimming|
                 datasource db {
-                  provider = "postgresql"
+                  provider = "postgresql" // some inline comment
                   url      = env("DATABASE_URL")
                   extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
                 }
@@ -26,9 +27,18 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Datasource
                 "db"
-                [ Psl.ConfigBlock.KeyValuePair "provider" "\"postgresql\"",
-                  Psl.ConfigBlock.KeyValuePair "url" "env(\"DATABASE_URL\")",
-                  Psl.ConfigBlock.KeyValuePair "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
+                [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "postgresql",
+                  Psl.ConfigBlock.KeyValuePair "url" $
+                    Psl.Argument.FuncExpr
+                      "env"
+                      [ Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "DATABASE_URL"
+                      ],
+                  Psl.ConfigBlock.KeyValuePair "extensions" $
+                    Psl.Argument.ArrayExpr
+                      [ Psl.Argument.FuncExpr "hstore" [Psl.Argument.ArgNamed "schema" $ Psl.Argument.StringExpr "myHstoreSchema"],
+                        Psl.Argument.IdentifierExpr "pg_trgm",
+                        Psl.Argument.FuncExpr "postgis" [Psl.Argument.ArgNamed "version" $ Psl.Argument.StringExpr "2.1"]
+                      ]
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -47,8 +57,8 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Datasource
                 "db"
-                [ Psl.ConfigBlock.KeyValuePair "provider" "\"postgresql\"",
-                  Psl.ConfigBlock.KeyValuePair "url" "env(\"DATABASE_URL\")"
+                [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "postgresql",
+                  Psl.ConfigBlock.KeyValuePair "url" $ Psl.Argument.FuncExpr "env" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "DATABASE_URL"]
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -67,8 +77,11 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Generator
                 "client"
-                [ Psl.ConfigBlock.KeyValuePair "provider" "\"prisma-client-js\"",
-                  Psl.ConfigBlock.KeyValuePair "previewFeatures" "[\"postgresqlExtensions\"]"
+                [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "prisma-client-js",
+                  Psl.ConfigBlock.KeyValuePair "previewFeatures" $
+                    Psl.Argument.ArrayExpr
+                      [ Psl.Argument.StringExpr "postgresqlExtensions"
+                      ]
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
@@ -86,6 +99,6 @@ spec_parsePslConfigBlock = do
               Psl.ConfigBlock.ConfigBlock
                 Psl.ConfigBlock.Generator
                 "client"
-                [ Psl.ConfigBlock.KeyValuePair "provider" "\"prisma-client-js\""
+                [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "prisma-client-js"
                 ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst

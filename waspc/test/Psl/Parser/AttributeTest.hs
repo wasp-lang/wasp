@@ -2,32 +2,91 @@ module Psl.Parser.AttributeTest where
 
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
+import Text.Parsec.String (Parser)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
-import Wasp.Psl.Parser.Attribute (attrArgument)
+import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 
 spec_parseAttributePslPart :: Spec
 spec_parseAttributePslPart = do
-  describe "Attribute argument parser" $ do
+  describe "Inline attribute parser" $ do
     let tests =
-          [ ( "[foo, bar],",
-              Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["foo", "bar"])
+          [ ( "@id",
+              Psl.Attribute.Attribute "id" []
             ),
-            ( "\"test\")",
-              Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgString "test")
+            ( "@default(autoincrement())",
+              Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed (Psl.Argument.FuncExpr "autoincrement" [])]
             ),
-            ( "foo: bar(),",
-              Psl.Attribute.AttrArgNamed "foo" (Psl.Attribute.AttrArgFunc "bar")
+            ( "@default(false)",
+              Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed (Psl.Argument.IdentifierExpr "false")]
             ),
-            ( "Bob,",
-              Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgIdentifier "Bob")
+            ( "@default(value: false)",
+              Psl.Attribute.Attribute "default" [Psl.Argument.ArgNamed "value" (Psl.Argument.IdentifierExpr "false")]
             ),
-            ( "42.3)",
-              Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgNumber "42.3")
+            ( "@id(name: \"fullName\", fields: [firstName, lastName])",
+              Psl.Attribute.Attribute
+                "id"
+                [ Psl.Argument.ArgNamed "name" (Psl.Argument.StringExpr "fullName"),
+                  Psl.Argument.ArgNamed
+                    "fields"
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "firstName",
+                          Psl.Argument.IdentifierExpr "lastName"
+                        ]
+                    )
+                ]
             ),
-            ( "2 + 3,",
-              Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgUnknown "2 + 3")
+            ( "@db.VarChar(255)",
+              Psl.Attribute.Attribute "db.VarChar" [Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "255")]
+            ),
+            ( "@db.ObjectId",
+              Psl.Attribute.Attribute "db.ObjectId" []
             )
           ]
-    let runTest (psl, expected) =
-          it ("correctly parses " ++ psl) $ Parsec.parse attrArgument "" psl `shouldBe` Right expected
-    mapM_ runTest tests
+    runTestsFor attribute tests
+
+  describe "Block attribute parser" $ do
+    let tests =
+          [ ( "@@id(name: \"fullName\", fields: [firstName, lastName])",
+              Psl.Attribute.Attribute
+                "id"
+                [ Psl.Argument.ArgNamed "name" (Psl.Argument.StringExpr "fullName"),
+                  Psl.Argument.ArgNamed
+                    "fields"
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "firstName",
+                          Psl.Argument.IdentifierExpr "lastName"
+                        ]
+                    )
+                ]
+            ),
+            ( "@@index([firstName,lastName])",
+              Psl.Attribute.Attribute
+                "index"
+                [ Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "firstName",
+                          Psl.Argument.IdentifierExpr "lastName"
+                        ]
+                    )
+                ]
+            ),
+            ( "@@unique([firstName, lastName])",
+              Psl.Attribute.Attribute
+                "unique"
+                [ Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "firstName",
+                          Psl.Argument.IdentifierExpr "lastName"
+                        ]
+                    )
+                ]
+            )
+          ]
+
+    runTestsFor blockAttribute tests
+  where
+    runTestsFor :: Parser Psl.Attribute.Attribute -> [(String, Psl.Attribute.Attribute)] -> Spec
+    runTestsFor parser tests = do
+      let runTest (psl, expected) = it ("correctly parses " ++ psl) $ Parsec.parse parser "" psl `shouldBe` Right expected
+      mapM_ runTest tests
