@@ -1,6 +1,5 @@
 datasource db {
   provider = "sqlite"
-  // Wasp uses the datasource you specify but overwrites the `url` field
   url      = env("DATABASE_URL")
 }
 

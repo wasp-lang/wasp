@@ -12,6 +12,7 @@ import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
+import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
@@ -25,7 +26,7 @@ makeDevDatabaseUrl waspProjectDir dbSystem decls = do
   (appName, _) <- AS.getApp decls
   case dbSystem of
     AS.App.Db.PostgreSQL -> Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
-    _allOtherCases -> Nothing
+    AS.App.Db.SQLite -> Just DevSqlite.defaultDevDbFile
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"

@@ -356,6 +356,7 @@ library
     Wasp.Project.Db.Migrations
     Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
+    Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalFiles
