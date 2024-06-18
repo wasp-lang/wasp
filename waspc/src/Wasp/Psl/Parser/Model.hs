@@ -108,7 +108,6 @@ field = do
     fieldTypeModifier :: Parser (Maybe Psl.Model.FieldTypeModifier)
     fieldTypeModifier =
       optionMaybe
-        ( (try (symbol "[]?") >> return Psl.Model.UnsupportedOptionalList)
-            <|> (try (symbol "[]") >> return Psl.Model.List)
+        ( (try (symbol "[]") >> return Psl.Model.List)
             <|> (try (symbol "?") >> return Psl.Model.Optional)
         )

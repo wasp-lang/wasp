@@ -3,7 +3,6 @@ module Wasp.Psl.Valid where
 import qualified Wasp.AppSpec.App.Db as AS
 import Wasp.Project.Db (DbSystemParseError (..), getDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
-import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 import Wasp.Valid (ValidationError (..))
@@ -12,8 +11,7 @@ import qualified Wasp.Valid as Valid
 validatePrismaSchema :: Psl.Schema.Schema -> [Valid.ValidationError]
 validatePrismaSchema schema =
   concat
-    [ validateModels schema,
-      validateGenerators schema,
+    [ validateGenerators schema,
       -- Validating the DB system only if there are no other datasource validation errors,
       -- to avoid showing DB related errors if there are other more important errors.
       if null datasourceValidationErrors
@@ -22,28 +20,6 @@ validatePrismaSchema schema =
     ]
   where
     datasourceValidationErrors = validateDatasources schema
-
-validateModels :: Psl.Schema.Schema -> [ValidationError]
-validateModels schema = concatMap validateModel models
-  where
-    validateModel :: Psl.Model.Model -> [ValidationError]
-    validateModel model@(Psl.Model.Model modelName _) = concatMap validateField $ Psl.Model.getFields model
-      where
-        validateField :: Psl.Model.Field -> [ValidationError]
-        validateField (Psl.Model.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
-
-        validateTypeModifier :: String -> Psl.Model.FieldTypeModifier -> [ValidationError]
-        validateTypeModifier fieldName Psl.Model.UnsupportedOptionalList =
-          [ GenericValidationError $
-              "Model \""
-                ++ modelName
-                ++ "\" in schema.prisma has defined \""
-                ++ fieldName
-                ++ "\" field as an optional list, which is not supported by Prisma."
-          ]
-        validateTypeModifier _ _ = []
-
-    models = Psl.Schema.getModels schema
 
 validateGenerators :: Psl.Schema.Schema -> [ValidationError]
 validateGenerators = validate . Psl.Schema.getGenerators

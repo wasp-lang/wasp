@@ -58,7 +58,6 @@ data FieldType
 data FieldTypeModifier
   = List
   | Optional
-  | UnsupportedOptionalList
   deriving (Show, Eq, Data)
 
 getFields :: Model -> [Field]

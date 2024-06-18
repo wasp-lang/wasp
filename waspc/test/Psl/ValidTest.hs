@@ -9,17 +9,6 @@ import qualified Wasp.Valid as Valid
 spec_PrismaSchemaValid :: Spec
 spec_PrismaSchemaValid = do
   describe "validatePrismaSchema" $ do
-    describe "models validation" $ do
-      it "should validate that Prisma models are not using unsupported field modifiers" $ do
-        let prismaSchema =
-              getPrismaSchemaWithConfig
-                [trimming|
-                  model User {
-                    id String[]?
-                  }
-                |]
-        PslV.validatePrismaSchema prismaSchema `shouldBe` [Valid.GenericValidationError "Model \"User\" in schema.prisma has defined \"id\" field as an optional list, which is not supported by Prisma."]
-
     describe "datasource validation" $ do
       it "should validate that some datasource exists" $
         let prismaSchema =

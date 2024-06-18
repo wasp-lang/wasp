@@ -6,7 +6,8 @@ module Wasp.Psl.Parser.Schema
 where
 
 import Text.Parsec
-  ( many,
+  ( eof,
+    many,
     try,
     (<|>),
   )
@@ -32,4 +33,5 @@ schema = do
           <|> try enum
           <|> try configBlock
       )
+  eof
   return $ Model.Schema elements

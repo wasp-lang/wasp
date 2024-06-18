@@ -157,7 +157,8 @@ analyzePrismaSchema waspProjectDir = do
       prismaSchemaContent <- IOUtil.readFile pathToPrismaSchemaFile
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
-        Left err -> return (Left [show err], [])
+        Left err ->
+          return (Left [waspCouldntParsePrismaSchemaMessage ++ "\n\n" ++ show err], [])
         Right parsedPrismaSchema -> do
           let (validationErrors, validationWarnings) =
                 let errsAndWarns = PslV.validatePrismaSchema parsedPrismaSchema
@@ -169,6 +170,8 @@ analyzePrismaSchema waspProjectDir = do
               show <$> validationWarnings
             )
     Nothing -> return (Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"], [])
+  where
+    waspCouldntParsePrismaSchemaMessage = "Wasp couldn't parse your Prisma schema file, please check if you have any errors in it."
 
 findPrismaSchemaFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPrismaSchemaFile waspProjectDir = findFileInWaspProjectDir waspProjectDir prismaSchemaFileInWaspProjectDir

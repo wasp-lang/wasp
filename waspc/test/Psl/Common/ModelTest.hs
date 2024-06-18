@@ -13,7 +13,6 @@ sampleBodySchema =
     username String? @db.VarChar(200)
     posts Post[] @relation("UserPosts", references: [id]) @customattr
     weirdType Unsupported("weird")
-    unsupportedOptionalList Sometype[]?
 
     @@someattr([id, username], 2 + 4, [posts])
   |]
@@ -81,14 +80,6 @@ sampleBodyAst =
             { Psl.Model._name = "weirdType",
               Psl.Model._type = Psl.Model.Unsupported "weird",
               Psl.Model._typeModifiers = [],
-              Psl.Model._attrs = []
-            }
-        ),
-      Psl.Model.ElementField
-        ( Psl.Model.Field
-            { Psl.Model._name = "unsupportedOptionalList",
-              Psl.Model._type = Psl.Model.UserType "Sometype",
-              Psl.Model._typeModifiers = [Psl.Model.UnsupportedOptionalList],
               Psl.Model._attrs = []
             }
         ),
