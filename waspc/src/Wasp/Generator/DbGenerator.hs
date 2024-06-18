@@ -18,6 +18,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DbGenerator.Common
@@ -42,9 +43,9 @@ import Wasp.Generator.Monad
     logAndThrowGeneratorError,
   )
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import qualified Wasp.Psl.Generator.ConfigBlock as Psl.Generator.ConfigBlock
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
@@ -78,7 +79,7 @@ genPrismaSchema spec = do
   return $ createTemplateFileDraft Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
   where
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
-    dbSystem = AS.dbSystem spec
+    dbSystem = ASV.getValidDbSystem spec
     makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
     enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
@@ -86,14 +87,14 @@ genPrismaSchema spec = do
     generateConfigBlockSchema = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ConfigBlock
 
     getDatasource datasourceProvider datasourceUrl =
-      Psl.Generator.ConfigBlock.overrideConfigBlockValues
+      Psl.Ast.ConfigBlock.overrideKeyValuePairs
         [("provider", datasourceProvider), ("url", datasourceUrl)]
         -- We validated AppSpec so we know there is exactly one datasource block.
         (head $ Psl.Schema.getDatasources prismaSchemaAst)
 
     generators =
       -- We are not overriding any values for now in the generator blocks.
-      Psl.Generator.ConfigBlock.overrideConfigBlockValues []
+      Psl.Ast.ConfigBlock.overrideKeyValuePairs []
         <$> Psl.Schema.getGenerators prismaSchemaAst
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String

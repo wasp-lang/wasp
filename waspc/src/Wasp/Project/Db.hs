@@ -2,12 +2,10 @@ module Wasp.Project.Db
   ( makeDevDatabaseUrl,
     databaseUrlEnvVarName,
     getDbSystemFromPrismaSchema,
-    validateDbSystem,
     DbSystemParseError (..),
   )
 where
 
-import Control.Exception (throwIO)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
@@ -44,16 +42,6 @@ getDbSystemFromPrismaSchema prismaSchema =
     Just "\"sqlite\"" -> Right AS.App.Db.SQLite
     Just provider -> Left $ UnsupportedDbSystem provider
     Nothing -> Left MissingDbSystem
-
-validateDbSystem :: Either DbSystemParseError AS.Db.DbSystem -> IO AS.Db.DbSystem
-validateDbSystem (Right dbSystem) = return dbSystem
-validateDbSystem (Left MissingDbSystem) =
-  throwIO $
-    userError "You need to specify the \"provider\" field in the \"datasource\" block in your Prisma schema."
-validateDbSystem (Left (UnsupportedDbSystem unsupportedDbSystem)) =
-  throwIO $
-    userError $
-      "Wasp doesn't support the database provider " ++ unsupportedDbSystem ++ " specified in the schema.prisma file."
 
 getProviderFromPrismaSchema :: Psl.Schema.Schema -> Maybe String
 getProviderFromPrismaSchema =

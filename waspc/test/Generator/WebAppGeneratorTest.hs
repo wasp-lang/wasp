@@ -7,7 +7,6 @@ import System.FilePath ((</>))
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.PackageJson as AS.PJS
@@ -65,8 +64,7 @@ spec_WebAppGenerator = do
             AS.userDockerfileContents = Nothing,
             AS.configFiles = [],
             AS.devDatabaseUrl = Nothing,
-            AS.customViteConfigPath = Nothing,
-            AS.dbSystem = AS.Db.PostgreSQL
+            AS.customViteConfigPath = Nothing
           }
 
   describe "genWebApp" $ do

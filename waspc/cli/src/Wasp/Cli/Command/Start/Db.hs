@@ -41,7 +41,7 @@ start = do
   throwIfCustomDbAlreadyInUse appSpec
 
   let (appName, _) = ASV.getApp appSpec
-  case AS.dbSystem appSpec of
+  case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
   where

@@ -142,8 +142,8 @@ instance Arbitrary Psl.ConfigBlock.ConfigBlock where
         ]
     return $ Psl.ConfigBlock.ConfigBlock configBlockType name config
 
-instance Arbitrary Psl.ConfigBlock.ConfigBlockKeyValue where
-  arbitrary = Psl.ConfigBlock.ConfigBlockKeyValue <$> arbitraryIdentifier <*> arbitraryIdentifier
+instance Arbitrary Psl.ConfigBlock.ConfigBlockKeyValuePair where
+  arbitrary = Psl.ConfigBlock.ConfigBlockKeyValuePair <$> arbitraryIdentifier <*> arbitraryIdentifier
 
 arbitraryNonEmptyPrintableString :: Gen String
 arbitraryNonEmptyPrintableString = listOf1 arbitraryPrintableChar

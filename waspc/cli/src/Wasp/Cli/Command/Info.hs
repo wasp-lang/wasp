@@ -8,7 +8,6 @@ import Control.Monad.Except (MonadIO (liftIO))
 import StrongPath (Abs, Dir, Path', fromRelFile)
 import StrongPath.Operations ()
 import System.Directory (getFileSize)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
@@ -37,7 +36,7 @@ info = do
         [ "",
           title "Project information",
           printInfo "Name" appName,
-          printInfo "Database system" $ show $ AS.dbSystem appSpec,
+          printInfo "Database system" $ show $ ASV.getValidDbSystem appSpec,
           printInfo "Last compile" compileInfo,
           printInfo "Project dir size" projectSize
         ]

@@ -17,7 +17,7 @@ import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.PackageJson (PackageJson)
-import Wasp.AppSpec.Valid (isValidationError, isValidationWarning, validateAppSpec)
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
@@ -31,11 +31,7 @@ import Wasp.Project.Common
     packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
   )
-import Wasp.Project.Db
-  ( getDbSystemFromPrismaSchema,
-    makeDevDatabaseUrl,
-    validateDbSystem,
-  )
+import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
@@ -43,8 +39,11 @@ import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
+import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
+import qualified Wasp.Psl.Valid as PslV
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
+import qualified Wasp.Valid as Valid
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -57,8 +56,9 @@ analyzeWaspProject waspDir options = do
     Left err -> return (Left err, [])
     Right waspFilePath ->
       analyzePrismaSchema waspDir >>= \case
-        Left errors -> return (Left errors, [])
-        Right prismaSchemaAst ->
+        (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
+        -- NOTE: we are ignoring Prisma schema warnings if there are no errors for now
+        (Right prismaSchemaAst, _prismaSchemaWarnings) ->
           analyzeWaspFile prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
@@ -92,7 +92,7 @@ constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
-  dbSystem <- validateDbSystem . getDbSystemFromPrismaSchema $ parsedPrismaSchema
+  let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
@@ -112,13 +112,12 @@ constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
             AS.devDatabaseUrl = devDbUrl,
-            AS.customViteConfigPath = customViteConfigPath,
-            AS.dbSystem = dbSystem
+            AS.customViteConfigPath = customViteConfigPath
           }
   let (validationErrors, validationWarnings) =
-        let errsAndWarns = validateAppSpec appSpec
-         in ( filter isValidationError errsAndWarns,
-              filter isValidationWarning errsAndWarns
+        let errsAndWarns = ASV.validateAppSpec appSpec
+         in ( filter Valid.isValidationError errsAndWarns,
+              filter Valid.isValidationWarning errsAndWarns
             )
   return
     ( if null validationErrors then Right appSpec else Left (show <$> validationErrors),
@@ -151,17 +150,25 @@ readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
-analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema)
+analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do
   findPrismaSchemaFile waspProjectDir >>= \case
     Just pathToPrismaSchemaFile -> do
       prismaSchemaContent <- IOUtil.readFile pathToPrismaSchemaFile
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
-        Left err -> return $ Left [show err]
+        Left err -> return (Left [show err], [])
         Right parsedPrismaSchema -> do
-          return $ Right parsedPrismaSchema
-    Nothing -> return $ Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"]
+          let (validationErrors, validationWarnings) =
+                let errsAndWarns = PslV.validatePrismaSchema parsedPrismaSchema
+                 in ( filter Valid.isValidationError errsAndWarns,
+                      filter Valid.isValidationWarning errsAndWarns
+                    )
+          return
+            ( if null validationErrors then Right parsedPrismaSchema else Left (show <$> validationErrors),
+              show <$> validationWarnings
+            )
+    Nothing -> return (Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"], [])
 
 findPrismaSchemaFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPrismaSchemaFile waspProjectDir = findFileInWaspProjectDir waspProjectDir prismaSchemaFileInWaspProjectDir

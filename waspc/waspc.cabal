@@ -361,6 +361,7 @@ library
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
+    Wasp.Psl.Ast.Common
     Wasp.Psl.Ast.Schema
     Wasp.Psl.Ast.Model
     Wasp.Psl.Ast.Enum
@@ -368,6 +369,7 @@ library
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Format
     Wasp.Psl.Generator.Attribute
+    Wasp.Psl.Generator.Common
     Wasp.Psl.Generator.ConfigBlock
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
@@ -379,6 +381,7 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Util
+    Wasp.Psl.Valid
     Wasp.SemanticVersion
     Wasp.SemanticVersion.VersionBound
     Wasp.SemanticVersion.Version
@@ -398,6 +401,7 @@ library
     Wasp.Util.TH
     Wasp.Util.StrongPath
     Wasp.Util.WebRouterPath
+    Wasp.Valid
     Wasp.Version
     Wasp.Project.Waspignore
 
@@ -626,6 +630,7 @@ test-suite waspc-test
     Psl.Parser.EnumTest
     Psl.Parser.ModelTest
     Psl.Parser.SchemaTest
+    Psl.ValidTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest

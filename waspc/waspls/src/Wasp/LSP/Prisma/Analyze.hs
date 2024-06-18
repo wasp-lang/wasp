@@ -13,7 +13,14 @@ import Wasp.Project.Analyze (analyzePrismaSchema)
 analyzeAndSetPrismaSchema :: Path' Abs (Dir WaspProjectDir) -> ServerM ()
 analyzeAndSetPrismaSchema waspDir = do
   liftIO (analyzePrismaSchema waspDir) >>= \case
-    Left err -> logM $ "[analyzeAndSetPrismaSchema] Error analyzing Prisma schema: " ++ show err
-    Right prismaSchemaAst -> do
-      logM $ "[analyzeAndSetPrismaSchema] Got the following models: " ++ showModelNames prismaSchemaAst
+    (Left err, warnings) -> do
+      logOutput "errors" $ show err
+      logOutput "warnings" $ show warnings
+    (Right prismaSchemaAst, warnings) -> do
+      logOutput "warnings" $ show warnings
+      logOutput "models" $ showModelNames prismaSchemaAst
       modify (State.prismaSchemaAst .~ prismaSchemaAst)
+  where
+    logOutput :: String -> String -> ServerM ()
+    logOutput _ [] = return ()
+    logOutput outputName output = logM $ "[analyzeAndSetPrismaSchema] Got the following " ++ outputName ++ ": " ++ output

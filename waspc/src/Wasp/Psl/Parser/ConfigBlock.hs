@@ -41,14 +41,14 @@ configBlock = do
   optional newline
   return $ Psl.Schema.ConfigBlock $ Psl.ConfigBlock.ConfigBlock configBlockType name content
 
-configBlockBody :: Parser [Psl.ConfigBlock.ConfigBlockKeyValue]
+configBlockBody :: Parser [Psl.ConfigBlock.ConfigBlockKeyValuePair]
 configBlockBody = braces (many keyValue)
 
 -- | Parses a key-value pair.
 -- Example of PSL key-value pair:
 -- provider = "postgresql"
 -- It works for both datasources and generators.
-keyValue :: Parser Psl.ConfigBlock.ConfigBlockKeyValue
+keyValue :: Parser Psl.ConfigBlock.ConfigBlockKeyValuePair
 keyValue = do
   whiteSpace
   key <- identifier
@@ -57,4 +57,4 @@ keyValue = do
   whiteSpace
   value <- manyTill anyChar (char '\n')
   optional whiteSpace
-  return $ Psl.ConfigBlock.ConfigBlockKeyValue key value
+  return $ Psl.ConfigBlock.ConfigBlockKeyValuePair key value

@@ -5,11 +5,12 @@ where
 
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Generator.Attribute (generateAttribute)
+import Wasp.Psl.Generator.Common (PslSource)
 
-generateModelBody :: Psl.Model.Body -> String
+generateModelBody :: Psl.Model.Body -> PslSource
 generateModelBody (Psl.Model.Body elements) = unlines $ map (("  " ++) . generateModelElement) elements
 
-generateModelElement :: Psl.Model.Element -> String
+generateModelElement :: Psl.Model.Element -> PslSource
 generateModelElement (Psl.Model.ElementField field) =
   Psl.Model._name field ++ " "
     ++ generateModelFieldType (Psl.Model._type field)
@@ -18,7 +19,7 @@ generateModelElement (Psl.Model.ElementField field) =
 generateModelElement (Psl.Model.ElementBlockAttribute attribute) =
   "@" ++ generateAttribute attribute
 
-generateModelFieldType :: Psl.Model.FieldType -> String
+generateModelFieldType :: Psl.Model.FieldType -> PslSource
 generateModelFieldType fieldType = case fieldType of
   Psl.Model.String -> "String"
   Psl.Model.Boolean -> "Boolean"
@@ -32,7 +33,7 @@ generateModelFieldType fieldType = case fieldType of
   Psl.Model.UserType label -> label
   Psl.Model.Unsupported typeName -> "Unsupported(" ++ show typeName ++ ")"
 
-generateModelFieldTypeModifier :: Psl.Model.FieldTypeModifier -> String
+generateModelFieldTypeModifier :: Psl.Model.FieldTypeModifier -> PslSource
 generateModelFieldTypeModifier typeModifier = case typeModifier of
   -- We validate the unsupported optional list in the AppSpec validator so it's okay if we decide to handle it here.
   -- It helps us with writing unit tests for the generator.

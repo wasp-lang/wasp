@@ -2,14 +2,12 @@
 
 module Wasp.AppSpec.Valid
   ( validateAppSpec,
-    ValidationError (..),
     getApp,
     isAuthEnabled,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
-    isValidationError,
-    isValidationWarning,
     getLowestNodeVersionUserAllows,
+    getValidDbSystem,
   )
 where
 
@@ -40,29 +38,13 @@ import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
-import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Util (findPrismaConfigBlockValueByKey)
+import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, isCapitalized)
+import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
-
-data ValidationError = GenericValidationError !String | GenericValidationWarning !String
-  deriving (Eq)
-
-instance Show ValidationError where
-  show (GenericValidationError e) = e
-  show (GenericValidationWarning e) = e
-
-isValidationError :: ValidationError -> Bool
-isValidationError (GenericValidationError _) = True
-isValidationError (GenericValidationWarning _) = False
-
-isValidationWarning :: ValidationError -> Bool
-isValidationWarning (GenericValidationError _) = False
-isValidationWarning (GenericValidationWarning _) = True
 
 validateAppSpec :: AppSpec -> [ValidationError]
 validateAppSpec spec =
@@ -84,8 +66,7 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
-          validateUserNodeVersionRange spec,
-          validatePrismaSchema spec
+          validateUserNodeVersionRange spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -396,56 +377,6 @@ validateUserNodeVersionRange spec =
           ]
         else []
 
-validatePrismaSchema :: AppSpec -> [ValidationError]
-validatePrismaSchema spec =
-  concat
-    [ concatMap validateModel models,
-      validateGenerators generators,
-      validateDatasources datasources
-    ]
-  where
-    validateModel :: Psl.Model.Model -> [ValidationError]
-    validateModel model@(Psl.Model.Model modelName _) = concatMap validateField $ Psl.Model.getFields model
-      where
-        validateField :: Psl.Model.Field -> [ValidationError]
-        validateField (Psl.Model.Field fieldName _type typeModifiers _attrs) = concatMap (validateTypeModifier fieldName) typeModifiers
-
-        validateTypeModifier :: String -> Psl.Model.FieldTypeModifier -> [ValidationError]
-        validateTypeModifier fieldName Psl.Model.UnsupportedOptionalList =
-          [ GenericValidationError $
-              "Model \""
-                ++ modelName
-                ++ "\" in schema.prisma has defined \""
-                ++ fieldName
-                ++ "\" field as an optional list, which is not supported by Prisma."
-          ]
-        validateTypeModifier _ _ = []
-
-    validateGenerators :: [Psl.ConfigBlock.ConfigBlock] -> [ValidationError]
-    validateGenerators [] = [GenericValidationError "Prisma schema should have at least one generator defined."]
-    validateGenerators generators' =
-      if not isTherePrismaClientJsGenerator
-        then [GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
-        else []
-      where
-        isTherePrismaClientJsGenerator =
-          any
-            ( \(Psl.ConfigBlock.ConfigBlock _type _name keyValues) ->
-                findPrismaConfigBlockValueByKey "provider" keyValues == Just "\"prisma-client-js\""
-            )
-            generators'
-
-    -- As per Prisma's docs there can be only ONE datasource block in the schema.
-    -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
-    validateDatasources :: [Psl.ConfigBlock.ConfigBlock] -> [ValidationError]
-    validateDatasources [_anyDataSource] = []
-    validateDatasources _ = [GenericValidationError "Prisma schema must have exactly one datasource defined."]
-
-    models = Psl.Schema.getModels prismaSchemaAst
-    generators = Psl.Schema.getGenerators prismaSchemaAst
-    datasources = Psl.Schema.getDatasources prismaSchemaAst
-    prismaSchemaAst = AS.prismaSchema spec
-
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
@@ -461,9 +392,12 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
+getValidDbSystem :: AppSpec -> AS.Db.DbSystem
+getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed = (AS.Db.PostgreSQL ==) . AS.dbSystem
+isPostgresUsed = (AS.Db.PostgreSQL ==) . getValidDbSystem
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- If there is no user entity, it returns Nothing.
