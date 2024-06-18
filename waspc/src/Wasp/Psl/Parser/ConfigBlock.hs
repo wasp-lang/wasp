@@ -4,15 +4,14 @@ module Wasp.Psl.Parser.ConfigBlock
 where
 
 import Text.Parsec
-  ( many,
+  ( choice,
+    many,
     newline,
     optional,
     try,
-    (<|>),
   )
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
-import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Parser.Argument (expression)
 import Wasp.Psl.Parser.Common
   ( braces,
@@ -28,16 +27,18 @@ import Wasp.Psl.Parser.Common
 --   url        = env("DATABASE_URL")
 --   extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
 -- }
-configBlock :: Parser Psl.Schema.Block
+configBlock :: Parser Psl.ConfigBlock.ConfigBlock
 configBlock = do
   whiteSpace
   configBlockType <-
-    try (reserved "datasource" >> return Psl.ConfigBlock.Datasource)
-      <|> try (reserved "generator" >> return Psl.ConfigBlock.Generator)
+    choice
+      [ try (reserved "datasource" >> return Psl.ConfigBlock.Datasource),
+        try (reserved "generator" >> return Psl.ConfigBlock.Generator)
+      ]
   name <- identifier
   content <- configBlockBody
   optional newline
-  return $ Psl.Schema.ConfigBlock $ Psl.ConfigBlock.ConfigBlock configBlockType name content
+  return $ Psl.ConfigBlock.ConfigBlock configBlockType name content
 
 configBlockBody :: Parser [Psl.ConfigBlock.KeyValuePair]
 configBlockBody = braces (many keyValue)

@@ -14,7 +14,7 @@ import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 spec_generatePslModel :: Spec
 spec_generatePslModel = do
   describe "Complex example" $ do
-    let pslModelAst = Psl.Schema.ModelBlock $ Psl.Model.Model "User" sampleBodyAst
+    let pslModelAst = Psl.Model.Model "User" sampleBodyAst
 
     it "parse(generate(sampleBodyAst)) == sampleBodyAst" $ do
-      Parsec.parse Psl.Parser.Model.model "" (generateSchemaBlock pslModelAst) `shouldBe` Right pslModelAst
+      Parsec.parse Psl.Parser.Model.model "" (generateSchemaBlock $ Psl.Schema.ModelBlock pslModelAst) `shouldBe` Right pslModelAst

@@ -11,7 +11,6 @@ import Text.Parsec
     choice,
     optionMaybe,
     try,
-    (<|>),
   )
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
@@ -30,8 +29,11 @@ import Wasp.Psl.Parser.Common
 -- Parses attribute argument that ends with delimiter: , or ).
 -- Doesn't parse the delimiter.
 argument :: Parser Psl.Argument.Argument
-argument = do
-  try namedArg <|> try unnamedArg
+argument =
+  choice
+    [ try namedArg,
+      try unnamedArg
+    ]
   where
     namedArg :: Parser Psl.Argument.Argument
     namedArg = do
