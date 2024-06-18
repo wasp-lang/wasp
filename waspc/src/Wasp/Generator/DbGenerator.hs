@@ -30,6 +30,7 @@ import Wasp.Generator.DbGenerator.Common
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
+    dbSchemaFileInNodeModulesDir,
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
   )
@@ -212,20 +213,27 @@ warnProjectDiffersFromDb projectRootDir = do
           <> " Running `wasp db migrate-dev` may fix this and will provide more info."
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
-generatePrismaClient spec projectRootDir =
-  ifM
-    -- TODO: add an extra check here: if the generated client's schema doesn't
-    -- match the current Wasp schema.prisma, we should regenerate the client.
-    -- This can happen if the user runs `npx prisma generate` manually!
-    wasCurrentSchemaAlreadyGenerated
-    (return Nothing)
-    generatePrismaClientIfEntitiesExist
+generatePrismaClient spec projectRootDir = do
+  first <- wasCurrentSchemaAlreadyGenerated
+  second <- isNodeModulesSchemaSameAsProjectSchema
+  if not first || not second
+    then generatePrismaClientIfEntitiesExist
+    else return Nothing
   where
     wasCurrentSchemaAlreadyGenerated :: IO Bool
     wasCurrentSchemaAlreadyGenerated =
       checksumFileExistsAndMatchesSchema
         projectRootDir
-        Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileProjectRootDir
+        Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir
+
+    -- If the generated client's schema doesn't match the current Wasp schema.prisma,
+    -- we should regenerate the client.
+    -- This can happen if the user runs `npx prisma generate` manually.
+    isNodeModulesSchemaSameAsProjectSchema :: IO Bool
+    isNodeModulesSchemaSameAsProjectSchema =
+      checksumFileExistsAndMatchesSchema
+        projectRootDir
+        Wasp.Generator.DbGenerator.Common.dbSchemaFileInNodeModulesDir
 
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
@@ -236,18 +244,17 @@ generatePrismaClient spec projectRootDir =
     entitiesExist = not . null $ getEntities spec
 
 checksumFileExistsAndMatchesSchema ::
-  Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f =>
   Path' Abs (Dir ProjectRootDir) ->
-  Path' (Rel ProjectRootDir) (File f) ->
+  Path' (Rel ProjectRootDir) (File PrismaDbSchema) ->
   IO Bool
-checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
+checksumFileExistsAndMatchesSchema projectRootDir schemaFileInProjectDir =
   ifM
     (IOUtil.doesFileExist checksumFileAbs)
     (checksumFileMatchesSchema dbSchemaFileAbs checksumFileAbs)
     (return False)
   where
-    dbSchemaFileAbs = projectRootDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir
-    checksumFileAbs = projectRootDir </> dbSchemaChecksumInProjectDir
+    dbSchemaFileAbs = projectRootDir </> schemaFileInProjectDir
+    checksumFileAbs = projectRootDir </> Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
 checksumFileMatchesSchema :: Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f => Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
 checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs = do
