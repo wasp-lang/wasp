@@ -1,22 +1,26 @@
 module Wasp.Project.Db
   ( makeDevDatabaseUrl,
     databaseUrlEnvVarName,
+    validDbUrlInPrismaSchema,
+    validDbUrlExprForPrismaSchema,
     getDbSystemFromPrismaSchema,
-    validateDbSystem,
+    isDbUrlInPrismaSchemaValid,
     DbSystemParseError (..),
   )
 where
 
-import Control.Exception (throwIO)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
+import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Util (findPrismaConfigBlockValueByKey)
+import Wasp.Psl.Generator.Argument (generateExpression)
+import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 
 makeDevDatabaseUrl ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -27,39 +31,52 @@ makeDevDatabaseUrl waspProjectDir dbSystem decls = do
   (appName, _) <- AS.getApp decls
   case dbSystem of
     AS.App.Db.PostgreSQL -> Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
-    _allOtherCases -> Nothing
+    AS.App.Db.SQLite -> Just DevSqlite.defaultDevDbFile
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
+
+-- | Datasource block in Prisma schema should have a `url` key with a value of `env("DATABASE_URL")`.
+-- This is validatd in Wasp.Psl.Valid where we check if the `url` key has the correct value.
+validDbUrlExprForPrismaSchema :: Psl.Argument.Expression
+validDbUrlExprForPrismaSchema = Psl.Argument.FuncExpr "env" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr databaseUrlEnvVarName]
+
+validDbUrlInPrismaSchema :: String
+validDbUrlInPrismaSchema = generateExpression validDbUrlExprForPrismaSchema
 
 data DbSystemParseError = UnsupportedDbSystem String | MissingDbSystem
   deriving (Eq, Show)
 
 getDbSystemFromPrismaSchema :: Psl.Schema.Schema -> Either DbSystemParseError AS.Db.DbSystem
 getDbSystemFromPrismaSchema prismaSchema =
-  case getProviderFromPrismaSchema prismaSchema of
+  case getDbProviderFromPrismaSchema prismaSchema of
     -- We parse raw config block values from Prisma file,
     -- so we need match the provider names with quotes.
-    Just "\"postgresql\"" -> Right AS.App.Db.PostgreSQL
-    Just "\"sqlite\"" -> Right AS.App.Db.SQLite
-    Just provider -> Left $ UnsupportedDbSystem provider
+    Just (Psl.Argument.StringExpr "postgresql") -> Right AS.App.Db.PostgreSQL
+    Just (Psl.Argument.StringExpr "sqlite") -> Right AS.App.Db.SQLite
+    Just (Psl.Argument.StringExpr provider) -> Left $ UnsupportedDbSystem provider
+    Just anyOtherArgument -> Left $ UnsupportedDbSystem $ show anyOtherArgument
     Nothing -> Left MissingDbSystem
 
-validateDbSystem :: Either DbSystemParseError AS.Db.DbSystem -> IO AS.Db.DbSystem
-validateDbSystem (Right dbSystem) = return dbSystem
-validateDbSystem (Left MissingDbSystem) =
-  throwIO $
-    userError "You need to specify the \"provider\" field in the \"datasource\" block in your Prisma schema."
-validateDbSystem (Left (UnsupportedDbSystem unsupportedDbSystem)) =
-  throwIO $
-    userError $
-      "Wasp doesn't support the database provider " ++ unsupportedDbSystem ++ " specified in the schema.prisma file."
+isDbUrlInPrismaSchemaValid :: Psl.Schema.Schema -> Bool
+isDbUrlInPrismaSchemaValid =
+  (Just validDbUrlExprForPrismaSchema ==)
+    . getDbUrlFromPrismaSchema
 
-getProviderFromPrismaSchema :: Psl.Schema.Schema -> Maybe String
-getProviderFromPrismaSchema =
-  findPrismaConfigBlockValueByKey "provider"
-    -- As per Prisma's docs there can be only ONE datasource block in the schema.
-    -- But we are still handling the case where there are multiple datasource blocks.
-    -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
-    . concatMap (\(Psl.ConfigBlock.ConfigBlock _type _name keyValues) -> keyValues)
+getDbProviderFromPrismaSchema :: Psl.Schema.Schema -> Maybe Psl.Argument.Expression
+getDbProviderFromPrismaSchema =
+  findPrismaConfigBlockKeyValuePair "provider"
+    . getAllDatasourceKeyValuePairs
+
+getDbUrlFromPrismaSchema :: Psl.Schema.Schema -> Maybe Psl.Argument.Expression
+getDbUrlFromPrismaSchema =
+  findPrismaConfigBlockKeyValuePair "url"
+    . getAllDatasourceKeyValuePairs
+
+-- As per Prisma's docs there can be only ONE datasource block in the schema.
+-- But we are still handling the case where there are multiple datasource blocks.
+-- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
+getAllDatasourceKeyValuePairs :: Psl.Schema.Schema -> [Psl.ConfigBlock.KeyValuePair]
+getAllDatasourceKeyValuePairs =
+  concatMap (\(Psl.ConfigBlock.ConfigBlock _type _name keyValuePairs) -> keyValuePairs)
     . Psl.Schema.getDatasources

@@ -2,6 +2,7 @@ module Psl.Common.ModelTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 
@@ -10,12 +11,11 @@ sampleBodySchema :: T.Text
 sampleBodySchema =
   [trimming|
     id Int @id @default(value: autoincrement())
-    username String? @db.VarChar(200)
+    username String? @db.VarChar(200) // inline comments
     posts Post[] @relation("UserPosts", references: [id]) @customattr
     weirdType Unsupported("weird")
-    unsupportedOptionalList Sometype[]?
 
-    @@someattr([id, username], 2 + 4, [posts])
+    @@someattr([id, username], [posts])
   |]
 
 -- | Corresponds to sampleBodySchema above.
@@ -35,7 +35,7 @@ sampleBodyAst =
                   Psl.Attribute.Attribute
                     { Psl.Attribute._attrName = "default",
                       Psl.Attribute._attrArgs =
-                        [ Psl.Attribute.AttrArgNamed "value" (Psl.Attribute.AttrArgFunc "autoincrement")
+                        [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
                         ]
                     }
                 ]
@@ -50,7 +50,7 @@ sampleBodyAst =
                 [ Psl.Attribute.Attribute
                     { Psl.Attribute._attrName = "db.VarChar",
                       Psl.Attribute._attrArgs =
-                        [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgNumber "200")
+                        [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
                         ]
                     }
                 ]
@@ -65,8 +65,8 @@ sampleBodyAst =
                 [ Psl.Attribute.Attribute
                     { Psl.Attribute._attrName = "relation",
                       Psl.Attribute._attrArgs =
-                        [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgString "UserPosts"),
-                          Psl.Attribute.AttrArgNamed "references" (Psl.Attribute.AttrArgFieldRefList ["id"])
+                        [ Psl.Argument.ArgUnnamed (Psl.Argument.StringExpr "UserPosts"),
+                          Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"])
                         ]
                     },
                   Psl.Attribute.Attribute
@@ -84,21 +84,21 @@ sampleBodyAst =
               Psl.Model._attrs = []
             }
         ),
-      Psl.Model.ElementField
-        ( Psl.Model.Field
-            { Psl.Model._name = "unsupportedOptionalList",
-              Psl.Model._type = Psl.Model.UserType "Sometype",
-              Psl.Model._typeModifiers = [Psl.Model.UnsupportedOptionalList],
-              Psl.Model._attrs = []
-            }
-        ),
       Psl.Model.ElementBlockAttribute
         ( Psl.Attribute.Attribute
             { Psl.Attribute._attrName = "someattr",
               Psl.Attribute._attrArgs =
-                [ Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["id", "username"]),
-                  Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgUnknown "2 + 4"),
-                  Psl.Attribute.AttrArgUnnamed (Psl.Attribute.AttrArgFieldRefList ["posts"])
+                [ Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "id",
+                          Psl.Argument.IdentifierExpr "username"
+                        ]
+                    ),
+                  Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "posts"
+                        ]
+                    )
                 ]
             }
         )

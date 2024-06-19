@@ -8,14 +8,10 @@ where
 
 import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
+import Wasp.Psl.Ast.Common (Name)
 import Prelude hiding (Enum)
 
-type Name = String
-
-data Enum
-  = Enum
-      Name
-      [Element]
+data Enum = Enum Name [Element]
   deriving (Show, Eq)
 
 data Element

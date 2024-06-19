@@ -34,6 +34,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Valid as Valid
 import qualified Wasp.Version as WV
 
 spec_AppSpecValid :: Spec
@@ -44,7 +45,7 @@ spec_AppSpecValid = do
         ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl]}) `shouldBe` []
       it "returns an error if there is no 'app' declaration." $ do
         ASV.validateAppSpec (basicAppSpec {AS.decls = []})
-          `shouldBe` [ ASV.GenericValidationError
+          `shouldBe` [ Valid.GenericValidationError
                          "You are missing an 'app' declaration in your Wasp app."
                      ]
       it "returns an error if there are 2 'app' declarations." $ do
@@ -56,7 +57,7 @@ spec_AppSpecValid = do
                   ]
               }
           )
-          `shouldBe` [ ASV.GenericValidationError
+          `shouldBe` [ Valid.GenericValidationError
                          "You have more than one 'app' declaration in your Wasp app. You have 2."
                      ]
 
@@ -77,7 +78,7 @@ spec_AppSpecValid = do
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
           ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
-            `shouldBe` [ ASV.GenericValidationError
+            `shouldBe` [ Valid.GenericValidationError
                            "Wasp version should be in the format ^major.minor.patch"
                        ]
 
@@ -85,7 +86,7 @@ spec_AppSpecValid = do
           let incompatibleWaspVersion = WV.waspVersion {SV.major = SV.major WV.waspVersion + 1}
 
           ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
-            `shouldBe` [ ASV.GenericValidationError $
+            `shouldBe` [ Valid.GenericValidationError $
                            unlines
                              [ "Your Wasp version does not match the app's requirements.",
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
@@ -140,7 +141,7 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) (Just True)) `shouldBe` []
         it "returns an error if there is a page with authRequired and app.auth is not set" $ do
           ASV.validateAppSpec (makeSpec Nothing (Just True))
-            `shouldBe` [ ASV.GenericValidationError
+            `shouldBe` [ Valid.GenericValidationError
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
         it "contains expected fields" $ do
@@ -235,7 +236,7 @@ spec_AppSpecValid = do
                 )
                 validUserEntity
             )
-            `shouldContain` [ASV.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
+            `shouldContain` [Valid.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
         let makeSpec appAuth userEntity =
@@ -259,7 +260,7 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) validUserEntity) `shouldBe` []
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
-            `shouldBe` [ ASV.GenericValidationError
+            `shouldBe` [ Valid.GenericValidationError
                            "Entity 'User' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
                        ]
 
@@ -325,14 +326,14 @@ spec_AppSpecValid = do
                 }
 
         it "returns an error if no email sender is set but email auth is used" $ do
-          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [ASV.GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
+          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [Valid.GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
         it "returns no error if email sender is defined while using email auth" $ do
           ASV.validateAppSpec (makeSpec (Just mailgunEmailSender) False) `shouldBe` []
         it "returns no error if the Dummy email sender is used in development" $ do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) False) `shouldBe` []
         it "returns an error if the Dummy email sender is used when building the app" $ do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
-            `shouldBe` [ASV.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
+            `shouldBe` [Valid.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
 
     describe "duplicate declarations validation" $ do
       -- Page
@@ -369,10 +370,11 @@ spec_AppSpecValid = do
       let testDuplicateDecls decls declTypeName expectedErrorMessage = it ("returns an error if there are duplicate " ++ declTypeName ++ " declarations") $ do
             ASV.validateAppSpec
               ( basicAppSpec
-                  { AS.decls = decls
+                  { AS.decls = decls,
+                    AS.prismaSchema = getPrismaSchemaWithConfig ""
                   }
               )
-              `shouldBe` [ASV.GenericValidationError expectedErrorMessage]
+              `shouldBe` [Valid.GenericValidationError expectedErrorMessage]
 
       testDuplicateDecls [basicAppDecl, pageDecl, pageDecl] "page" "There are duplicate page declarations with name 'testPage'."
       testDuplicateDecls [basicAppDecl, routeDecl, routeDecl] "route" "There are duplicate route declarations with name 'testRoute'."
@@ -383,63 +385,6 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, crudDecl, crudDecl, entityDecl] "crud" "There are duplicate crud declarations with name 'testCrud'."
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
-
-    describe "Prisma schema validation" $ do
-      it "should validate that Prisma models are not using unsupported field modifiers" $ do
-        let prismaSchema =
-              getPrismaSchemaWithConfig
-                [trimming|
-                  model User {
-                    id String[]?
-                  }
-                |]
-        let appSpec = basicAppSpec {AS.prismaSchema = prismaSchema}
-        ASV.validateAppSpec appSpec `shouldBe` [ASV.GenericValidationError "Model \"User\" in schema.prisma has defined \"id\" field as an optional list, which is not supported by Prisma."]
-
-    it "should validate that some datasource exists" $
-      let prismaSchema =
-            Util.getPrismaSchema
-              [trimming|
-                generator client {
-                  provider = "prisma-client-js"
-                }
-              |]
-       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
-            `shouldBe` [ASV.GenericValidationError "Prisma schema must have exactly one datasource defined."]
-
-    it "should validate that only one datasource exists" $
-      let prismaSchema =
-            Util.getPrismaSchema
-              [trimming|
-                datasource db {}
-                datasource db {}
-                generator client {
-                  provider = "prisma-client-js"
-                }
-              |]
-       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
-            `shouldBe` [ASV.GenericValidationError "Prisma schema must have exactly one datasource defined."]
-
-    it "should validate that there is at least one generator" $
-      let prismaSchema =
-            Util.getPrismaSchema
-              [trimming|
-                datasource db {}
-              |]
-       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
-            `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator defined."]
-
-    it "should validate that there is at least one client generator" $
-      let prismaSchema =
-            Util.getPrismaSchema
-              [trimming|
-                datasource db {}
-                generator bla {
-                  provider = "bla"
-                }
-              |]
-       in ASV.validateAppSpec (basicAppSpec {AS.prismaSchema = prismaSchema})
-            `shouldBe` [ASV.GenericValidationError "Prisma schema should have at least one generator with the provider set to \"prisma-client-js\"."]
   where
     makeIdField name typ =
       Psl.Model.Field
@@ -497,14 +442,16 @@ spec_AppSpecValid = do
           AS.userDockerfileContents = Nothing,
           AS.configFiles = [],
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing,
-          AS.dbSystem = AS.Db.PostgreSQL
+          AS.customViteConfigPath = Nothing
         }
 
     getPrismaSchemaWithConfig restOfPrismaSource =
       Util.getPrismaSchema
         [trimming|
-          datasource db {}
+          datasource db {
+            provider = "postgresql"
+            url      = env("DATABASE_URL")
+          }
           generator client {
             provider = "prisma-client-js"
           }

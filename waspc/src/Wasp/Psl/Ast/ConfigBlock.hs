@@ -1,13 +1,16 @@
 module Wasp.Psl.Ast.ConfigBlock
   ( ConfigBlock (..),
     ConfigBlockType (..),
-    ConfigBlockKeyValue (..),
-    configBlockName,
-    configBlockKeyValues,
+    KeyValuePair (..),
+    overrideKeyValuePairs,
   )
 where
 
-type Name = String
+import Data.Function (on)
+import Data.Functor ((<&>))
+import Data.List (nubBy)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
+import Wasp.Psl.Ast.Common (Name)
 
 -- | Represents a config block in the PSL.
 --   For example, in the following PSL:
@@ -16,7 +19,7 @@ type Name = String
 --     provider = "prisma-client-js"
 --   }
 --   ```
---   The config block would be `ConfigBlock Generator "client" [ConfigBlockKeyValue "provider" "\"prisma-client-js\""]`.
+--   The config block would be `ConfigBlock Generator "client" [KeyValuePair "provider" "\"prisma-client-js\""]`.
 --   Another example:
 --   ```
 --   datasource db {
@@ -26,21 +29,17 @@ type Name = String
 --   }
 --   ```
 --   The config block would be `ConfigBlock Datasource "db" [ ... ]`.
-data ConfigBlock = ConfigBlock ConfigBlockType Name [ConfigBlockKeyValue]
+data ConfigBlock = ConfigBlock
+  { _type :: ConfigBlockType,
+    _name :: Name,
+    _keyValuePairs :: [KeyValuePair]
+  }
   deriving (Show, Eq)
-
-configBlockName :: ConfigBlock -> Name
-configBlockName (ConfigBlock _ name _) = name
-
-configBlockKeyValues :: ConfigBlock -> [ConfigBlockKeyValue]
-configBlockKeyValues (ConfigBlock _ _ keyValues) = keyValues
 
 data ConfigBlockType = Datasource | Generator
   deriving (Show, Eq)
 
 type Identifier = String
-
-type Value = String
 
 -- | Represents a key-value pair in a config block.
 --  For example, in the following config block:
@@ -49,6 +48,19 @@ type Value = String
 --    provider = "prisma-client-js"
 --  }
 --  ```
---  The key-value pair would be `ConfigBlockKeyValue "provider" "prisma-client-js"`.
-data ConfigBlockKeyValue = ConfigBlockKeyValue Identifier Value
+--  The key-value pair would be `KeyValuePair "provider" "prisma-client-js"`.
+data KeyValuePair = KeyValuePair Identifier Psl.Argument.Expression
   deriving (Show, Eq)
+
+overrideKeyValuePairs :: [(String, Psl.Argument.Expression)] -> ConfigBlock -> ConfigBlock
+overrideKeyValuePairs
+  overridePairs
+  (ConfigBlock configBlockType name originalKeyValues) =
+    ConfigBlock configBlockType name overridenKeyValues
+    where
+      configBlockPairs =
+        originalKeyValues
+          <&> (\(KeyValuePair key value) -> (key, value))
+      overridenKeyValues =
+        nubBy ((==) `on` fst) (overridePairs ++ configBlockPairs)
+          <&> uncurry KeyValuePair

@@ -357,22 +357,28 @@ library
     Wasp.Project.Db.Migrations
     Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
+    Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
+    Wasp.Psl.Ast.Argument
+    Wasp.Psl.Ast.Attribute
+    Wasp.Psl.Ast.Common
     Wasp.Psl.Ast.Schema
     Wasp.Psl.Ast.Model
     Wasp.Psl.Ast.Enum
-    Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Format
+    Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
+    Wasp.Psl.Generator.Common
     Wasp.Psl.Generator.ConfigBlock
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Schema
+    Wasp.Psl.Parser.Argument 
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.ConfigBlock
@@ -380,6 +386,7 @@ library
     Wasp.Psl.Parser.Model
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Util
+    Wasp.Psl.Valid
     Wasp.SemanticVersion
     Wasp.SemanticVersion.VersionBound
     Wasp.SemanticVersion.Version
@@ -399,6 +406,7 @@ library
     Wasp.Util.TH
     Wasp.Util.StrongPath
     Wasp.Util.WebRouterPath
+    Wasp.Valid
     Wasp.Version
     Wasp.Project.Waspignore
 
@@ -622,11 +630,13 @@ test-suite waspc-test
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
+    Psl.Parser.ArgumentTest
     Psl.Parser.AttributeTest
     Psl.Parser.ConfigBlockTest
     Psl.Parser.EnumTest
     Psl.Parser.ModelTest
     Psl.Parser.SchemaTest
+    Psl.ValidTest
     Test.Util
     Util.FibTest
     Util.Control.MonadTest

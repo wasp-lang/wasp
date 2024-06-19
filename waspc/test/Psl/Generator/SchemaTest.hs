@@ -6,6 +6,7 @@ module Psl.Generator.SchemaTest where
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Parsec as Parsec
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
@@ -90,32 +91,32 @@ instance Arbitrary Psl.Attribute.Attribute where
     args <- scale (const 5) arbitrary
     return $ Psl.Attribute.Attribute {Psl.Attribute._attrName = name, Psl.Attribute._attrArgs = args}
 
-instance Arbitrary Psl.Attribute.AttributeArg where
+instance Arbitrary Psl.Argument.Argument where
   arbitrary =
     oneof
-      [ Psl.Attribute.AttrArgNamed <$> arbitraryIdentifier <*> arbitrary,
-        Psl.Attribute.AttrArgUnnamed <$> arbitrary
+      [ Psl.Argument.ArgNamed <$> arbitraryIdentifier <*> arbitrary,
+        Psl.Argument.ArgUnnamed <$> arbitrary
       ]
 
-instance Arbitrary Psl.Attribute.AttrArgValue where
+instance Arbitrary Psl.Argument.Expression where
   arbitrary =
-    oneof
-      [ Psl.Attribute.AttrArgString <$> arbitraryNonEmptyPrintableString,
-        Psl.Attribute.AttrArgIdentifier <$> arbitraryIdentifier,
-        Psl.Attribute.AttrArgFunc <$> arbitraryIdentifier,
-        Psl.Attribute.AttrArgFieldRefList <$> scale (const 5) (listOf1 arbitraryIdentifier),
+    frequency
+      [ (5, Psl.Argument.StringExpr <$> arbitraryNonEmptyPrintableString),
+        (5, Psl.Argument.IdentifierExpr <$> arbitraryIdentifier),
+        (5, Psl.Argument.FuncExpr <$> arbitraryIdentifier <*> scale (const 5) arbitrary),
         -- NOTE: For now we are not supporting negative numbers.
         --   I couldn't figure out from Prisma docs if there could be the case
         --   where these numbers could be negative. Probably we should take care of that case.
-        Psl.Attribute.AttrArgNumber
-          <$> oneof
-            [ show <$> (arbitrary :: Gen Int) `suchThat` (>= 0),
-              show <$> (arbitrary :: Gen Float) `suchThat` (>= 0)
-            ]
-            -- NOTE: Unknown is commented out because unknown should contain only values
-            --   that are not recognized as any other type of attribute argument,
-            --   and defining how those are generated is not so simple, so I skipped it for now.
-            -- , Psl.Attribute.AttrArgUnknown <$> arbitraryNonEmptyPrintableString
+        ( 5,
+          Psl.Argument.NumberExpr
+            <$> oneof
+              [ show <$> (arbitrary :: Gen Int) `suchThat` (>= 0),
+                show <$> (arbitrary :: Gen Float) `suchThat` (>= 0)
+              ]
+        ),
+        -- We want to generate arrays with a smaller frequency, because they can be nested and
+        -- tests with nested arrays take too long to run.
+        (1, Psl.Argument.ArrayExpr <$> scale (const 5) (listOf1 arbitrary))
       ]
 
 instance Arbitrary Psl.Enum.Enum where
@@ -142,8 +143,8 @@ instance Arbitrary Psl.ConfigBlock.ConfigBlock where
         ]
     return $ Psl.ConfigBlock.ConfigBlock configBlockType name config
 
-instance Arbitrary Psl.ConfigBlock.ConfigBlockKeyValue where
-  arbitrary = Psl.ConfigBlock.ConfigBlockKeyValue <$> arbitraryIdentifier <*> arbitraryIdentifier
+instance Arbitrary Psl.ConfigBlock.KeyValuePair where
+  arbitrary = Psl.ConfigBlock.KeyValuePair <$> arbitraryIdentifier <*> arbitrary
 
 arbitraryNonEmptyPrintableString :: Gen String
 arbitraryNonEmptyPrintableString = listOf1 arbitraryPrintableChar

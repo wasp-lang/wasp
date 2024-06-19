@@ -13,9 +13,8 @@ where
 
 import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
+import Wasp.Psl.Ast.Common (Name)
 import Prelude hiding (Enum)
-
-type Name = String
 
 data Model
   = Model
@@ -59,7 +58,6 @@ data FieldType
 data FieldTypeModifier
   = List
   | Optional
-  | UnsupportedOptionalList
   deriving (Show, Eq, Data)
 
 getFields :: Model -> [Field]

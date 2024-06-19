@@ -4,9 +4,9 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
-import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Enum as Psl.Parser
 
 spec_parsePslEnum :: Spec
@@ -17,28 +17,27 @@ spec_parsePslEnum = do
             T.unpack
               [trimming|
                 enum Role {
-                  USER
+                  USER // inline comments
                   ADMIN @map("ADMIN_MAPPING")
 
                   @@map("enum_name")
                 }
               |]
           expectedAst =
-            Psl.Schema.EnumBlock $
-              Psl.Enum.Enum
-                "Role"
-                [ Psl.Enum.ElementValue "USER" [],
-                  Psl.Enum.ElementValue
-                    "ADMIN"
-                    [ Psl.Attribute.Attribute
-                        "map"
-                        [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "ADMIN_MAPPING"]
-                    ],
-                  Psl.Enum.ElementBlockAttribute $
-                    Psl.Attribute.Attribute
+            Psl.Enum.Enum
+              "Role"
+              [ Psl.Enum.ElementValue "USER" [],
+                Psl.Enum.ElementValue
+                  "ADMIN"
+                  [ Psl.Attribute.Attribute
                       "map"
-                      [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
-                ]
+                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
+                  ],
+                Psl.Enum.ElementBlockAttribute $
+                  Psl.Attribute.Attribute
+                    "map"
+                    [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
+              ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
@@ -53,13 +52,12 @@ spec_parsePslEnum = do
                 }
               |]
           expectedAst =
-            Psl.Schema.EnumBlock $
-              Psl.Enum.Enum
-                "Role"
-                [ Psl.Enum.ElementValue "USER" [],
-                  Psl.Enum.ElementBlockAttribute $
-                    Psl.Attribute.Attribute
-                      "map"
-                      [Psl.Attribute.AttrArgUnnamed $ Psl.Attribute.AttrArgString "enum_name"]
-                ]
+            Psl.Enum.Enum
+              "Role"
+              [ Psl.Enum.ElementValue "USER" [],
+                Psl.Enum.ElementBlockAttribute $
+                  Psl.Attribute.Attribute
+                    "map"
+                    [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
+              ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
