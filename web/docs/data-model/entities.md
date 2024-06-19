@@ -22,23 +22,23 @@ Each `Entity` declaration corresponds 1-to-1 to [Prisma's data model](https://ww
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-psl=}
+```prisma
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-psl=}
+```prisma
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+}
 ```
 
 </TabItem>

@@ -8,14 +8,14 @@ Entities are one of the most important concepts in Wasp and are how you define w
 
 Since our Todo app is all about tasks, we will define a Task entity in the Wasp file:
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // ...
 
-entity Task {=psl
+model Task {
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
-psl=}
+}
 ```
 
 :::note

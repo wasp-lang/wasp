@@ -534,11 +534,13 @@ app crudTesting {
     onAuthFailedRedirectTo: "/login",
   },
 }
+```
 
-entity User {=psl
-  id Int @id @default(autoincrement())
+```prisma title="schema.prisma"
+model User {
+  id      Int     @id @default(autoincrement())
   address String?
-psl=}
+}
 ```
 
 Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:
@@ -576,11 +578,13 @@ app crudTesting {
     onAuthFailedRedirectTo: "/login",
   },
 }
+```
 
-entity User {=psl
-  id Int @id @default(autoincrement())
+```prisma title="schema.prisma"
+model User {
+  id      Int     @id @default(autoincrement())
   address String?
-psl=}
+}
 ```
 
 Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:

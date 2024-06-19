@@ -11,8 +11,8 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 .
 ├── .gitignore
 ├── main.wasp          # Your Wasp code goes here.
+├── schema.prisma      # Your Prisma schema goes here.
 ├── package.json       # Your dependencies and project info go here.
-├── package-lock.json
 ├── public             # Your static files (e.g., images, favicon) go here.
 ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
 │   ├── Main.css

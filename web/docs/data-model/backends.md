@@ -14,7 +14,7 @@ Wasp supports multiple database backends. We'll list and explain each one.
 
 The default database Wasp uses is [SQLite](https://www.sqlite.org/index.html).
 
-SQLite is a great way for getting started with a new project because it doesn't require any configuration, but Wasp can only use it in development. Once you want to deploy your Wasp app to production, you'll need to switch to PostgreSQL and stick with it.
+SQLite is a great way to get started with a new project because it doesn't require any configuration, but Wasp can only use it in development. Once you want to deploy your Wasp app to production, you'll need to switch to PostgreSQL and stick with it.
 
 Fortunately, migrating from SQLite to PostgreSQL is pretty simple, and we have [a guide](#migrating-from-sqlite-to-postgresql) to help you.
 

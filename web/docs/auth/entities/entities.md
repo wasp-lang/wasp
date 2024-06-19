@@ -460,11 +460,11 @@ When you want to add authentication to your app, you need to specify the user en
 
 You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
 
-```wasp
-entity User {=psl
+```prisma title="schema.prisma"
+model User {
   id Int @id @default(autoincrement())
   // Any other fields you want to store about the user
-psl=}
+}
 ```
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
@@ -502,15 +502,15 @@ If we take a look at an example user in the database, we can see:
 
 Wasp's internal `Auth` entity is used to connect the business logic user, `User` with the user's login credentials.
 
-```wasp
-entity Auth {=psl
+```prisma
+model Auth {
   id         String         @id @default(uuid())
   userId     Int?           @unique
   // Wasp injects this relation on the User entity as well
   user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   identities AuthIdentity[]
   sessions   Session[]
-psl=}
+}
 ```
 
 The `Auth` fields:
@@ -527,8 +527,8 @@ The `Auth` fields:
 
 The `AuthIdentity` entity is used to store the user's login credentials for various authentication methods.
 
-```wasp
-entity AuthIdentity {=psl
+```prisma
+model AuthIdentity {
   providerName   String
   providerUserId String
   providerData   String @default("{}")
@@ -536,7 +536,7 @@ entity AuthIdentity {=psl
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
-psl=}
+}
 ```
 
 The `AuthIdentity` fields:
@@ -556,15 +556,15 @@ The `AuthIdentity` fields:
 
 The `Session` entity is used to store the user's session information. It is used to keep the user logged in between page refreshes.
 
-```wasp
-entity Session {=psl
+```prisma
+model Session {
   id        String   @id @unique
   expiresAt DateTime
   userId    String
   auth      Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@index([userId])
-psl=}
+}
 ```
 
 The `Session` fields:

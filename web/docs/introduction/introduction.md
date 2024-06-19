@@ -17,8 +17,7 @@ It is an opinionated way of building **full-stack web applications**. It takes c
 major parts of a web application: **client** (front-end), **server** (back-end) and **database**.
 
 ### Works well with your existing stack
-Wasp is not trying to do everything at once but rather focuses on the complexity
-which arises from connecting all the parts of the stack (client, server, database, deployment) together.
+Wasp is not trying to do everything at once but rather focuses on the complexity that arises from connecting all the parts of the stack (client, server, database, deployment).
 
 Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on them to define web components and server queries and actions.
 
@@ -67,21 +66,22 @@ app RecipeApp {
 
 Let's then add the data models for your recipes. We will want to have Users and Users can own Recipes:
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 ...
 
-entity User {=psl  // Data models are defined using Prisma Schema Language.
+// Data models are defined using Prisma Schema Language.
+model User {
   id          Int @id @default(autoincrement())
   recipes     Recipe[]
-psl=}
+}
 
-entity Recipe {=psl
+model Recipe {
   id          Int @id @default(autoincrement())
   title       String
   description String?
   userId      Int
   user        User @relation(fields: [userId], references: [id])
-psl=}
+}
 ```
 
 Next, let's define how to do something with these data models!

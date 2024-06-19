@@ -91,26 +91,26 @@ The `User` entity can be as simple as including only the `id` field:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // 3. Define the user entity
-entity User {=psl
-    // highlight-next-line
-    id                        Int           @id @default(autoincrement())
-    // Add your own fields below
-    // ...
-psl=}
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // 3. Define the user entity
-entity User {=psl
-    // highlight-next-line
-    id                        Int           @id @default(autoincrement())
-    // Add your own fields below
-    // ...
-psl=}
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 </TabItem>
 </Tabs>
@@ -637,10 +637,12 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   }
 }
+```
 
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 </TabItem>
 <TabItem value="ts" label="TypeScript">
@@ -659,10 +661,12 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   }
 }
+```
 
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 </TabItem>
 </Tabs>

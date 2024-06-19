@@ -94,27 +94,27 @@ Let's now define the `app.auth.userEntity` entity:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    // ...
-psl=}
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    // ...
-psl=}
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 </TabItem>
@@ -377,12 +377,14 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    displayName               String
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
 // ...
 ```
@@ -422,12 +424,14 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    displayName               String
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
 // ...
 ```

@@ -23,12 +23,12 @@ Since Wasp manages authentication, it will create [the auth related entities](..
 
 You must only add the `User` Entity to keep track of who owns which tasks.
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // ...
 
-entity User {=psl
-    id       Int    @id @default(autoincrement())
-psl=}
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 ## Adding Auth to the Project
@@ -290,24 +290,24 @@ You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Sessi
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // ...
 
-entity User {=psl
-    id       Int    @id @default(autoincrement())
-    // highlight-next-line
-    tasks    Task[]
-psl=}
+model User {
+  id    Int    @id @default(autoincrement())
+  // highlight-next-line
+  tasks Task[]
+}
 
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    // highlight-next-line
-    user        User?   @relation(fields: [userId], references: [id])
-    // highlight-next-line
-    userId      Int?
-psl=}
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  // highlight-next-line
+  user        User?   @relation(fields: [userId], references: [id])
+  // highlight-next-line
+  userId      Int?
+}
 
 // ...
 ```

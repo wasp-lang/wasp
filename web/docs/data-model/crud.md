@@ -20,12 +20,12 @@ This feature is currently in early preview and we are actively working on it. Re
 
 Imagine we have a `Task` entity and we want to enable CRUD operations for it.
 
-```wasp title="main.wasp"
-entity Task {=psl
-  id          Int @id @default(autoincrement())
+```prisma title="schema.prisma"
+model Task {
+  id          Int     @id @default(autoincrement())
   description String
   isDone      Boolean
-psl=}
+}
 ```
 
 We can then define a new `crud` called `Tasks`.
@@ -87,20 +87,6 @@ app tasksCrudApp {
   },
 }
 
-entity User {=psl
-  id       Int @id @default(autoincrement())
-  tasks    Task[]
-psl=}
-
-// We defined a Task entity on which we'll enable CRUD later on
-entity Task {=psl
-  id          Int @id @default(autoincrement())
-  description String
-  isDone      Boolean
-  userId      Int
-  user        User @relation(fields: [userId], references: [id])
-psl=}
-
 // Tasks app routes
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
@@ -116,6 +102,22 @@ page LoginPage {
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
   component: import { SignupPage } from "@src/SignupPage.jsx",
+}
+```
+
+```prisma title="schema.prisma"
+model User {
+  id    Int    @id @default(autoincrement())
+  tasks Task[]
+}
+
+// We defined a Task entity on which we'll enable CRUD later on
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean
+  userId      Int
+  user        User    @relation(fields: [userId], references: [id])
 }
 ```
 
@@ -444,7 +446,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 ## API Reference
 
-CRUD declaration work on top of existing entity declaration. We'll fully explore the API using two examples:
+CRUD declaration works on top of an existing entity declaration. We'll fully explore the API using two examples:
 
 1. A basic CRUD declaration that relies on default options.
 2. A more involved CRUD declaration that uses extra options and overrides.
