@@ -26,8 +26,6 @@ import Wasp.Psl.Parser.Common
     stringLiteral,
   )
 
--- Parses attribute argument that ends with delimiter: , or ).
--- Doesn't parse the delimiter.
 argument :: Parser Psl.Argument.Argument
 argument =
   choice

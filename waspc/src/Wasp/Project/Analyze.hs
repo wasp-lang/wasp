@@ -43,6 +43,7 @@ import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Valid as PslV
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Valid (ValidationError)
 import qualified Wasp.Valid as Valid
 
 analyzeWaspProject ::
@@ -57,8 +58,8 @@ analyzeWaspProject waspDir options = do
     Right waspFilePath ->
       analyzePrismaSchema waspDir >>= \case
         (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
-        -- NOTE: we are ignoring Prisma schema warnings if there are no errors for now
-        (Right prismaSchemaAst, _prismaSchemaWarnings) ->
+        -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
+        (Right prismaSchemaAst, _) ->
           analyzeWaspFile prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
@@ -114,15 +115,8 @@ constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
             AS.devDatabaseUrl = devDbUrl,
             AS.customViteConfigPath = customViteConfigPath
           }
-  let (validationErrors, validationWarnings) =
-        let errsAndWarns = ASV.validateAppSpec appSpec
-         in ( filter Valid.isValidationError errsAndWarns,
-              filter Valid.isValidationWarning errsAndWarns
-            )
-  return
-    ( if null validationErrors then Right appSpec else Left (show <$> validationErrors),
-      show <$> validationWarnings
-    )
+
+  return $ runValidation ASV.validateAppSpec appSpec
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
@@ -159,19 +153,21 @@ analyzePrismaSchema waspProjectDir = do
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
         Left err ->
           return (Left [waspCouldntParsePrismaSchemaMessage ++ "\n\n" ++ show err], [])
-        Right parsedPrismaSchema -> do
-          let (validationErrors, validationWarnings) =
-                let errsAndWarns = PslV.validatePrismaSchema parsedPrismaSchema
-                 in ( filter Valid.isValidationError errsAndWarns,
-                      filter Valid.isValidationWarning errsAndWarns
-                    )
-          return
-            ( if null validationErrors then Right parsedPrismaSchema else Left (show <$> validationErrors),
-              show <$> validationWarnings
-            )
+        Right parsedPrismaSchema -> return $ runValidation PslV.validatePrismaSchema parsedPrismaSchema
     Nothing -> return (Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"], [])
   where
     waspCouldntParsePrismaSchemaMessage = "Wasp couldn't parse your Prisma schema file, please check if you have any errors in it."
+
+runValidation :: (result -> [ValidationError]) -> result -> (Either [CompileError] result, [CompileWarning])
+runValidation getErrorsAndWarnings result =
+  if null errors
+    then (Right result, warnings)
+    else (Left errors, warnings)
+  where
+    errors = showErrorsBy Valid.isValidationError errsAndWarns
+    warnings = showErrorsBy Valid.isValidationWarning errsAndWarns
+    errsAndWarns = getErrorsAndWarnings result
+    showErrorsBy predicate = map show . filter predicate
 
 findPrismaSchemaFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPrismaSchemaFile waspProjectDir = findFileInWaspProjectDir waspProjectDir prismaSchemaFileInWaspProjectDir
