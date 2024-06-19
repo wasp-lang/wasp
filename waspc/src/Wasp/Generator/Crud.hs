@@ -23,7 +23,7 @@ import qualified Wasp.Generator.Crud.Routes as Routes
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Util as Util
 
-getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Model.ModelField -> Aeson.Value
+getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Model.Field -> Aeson.Value
 getCrudOperationJson crudOperationName crud idField =
   object
     [ "name" .= crudOperationName,

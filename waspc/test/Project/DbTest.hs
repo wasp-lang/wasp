@@ -60,7 +60,7 @@ spec_DbHelperTest = do
                 }
               |]
 
-      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Left (UnsupportedDbSystem "\"mongodb\"")
+      getDbSystemFromPrismaSchema prismaSchema `shouldBe` Left (UnsupportedDbSystem "mongodb")
 
     it "Correctly extracts MissingDbSystem when provider missing" $ do
       let prismaSchema =

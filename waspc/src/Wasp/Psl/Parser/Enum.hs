@@ -4,14 +4,13 @@ module Wasp.Psl.Parser.Enum
 where
 
 import Text.Parsec
-  ( many,
+  ( choice,
+    many,
     many1,
     try,
-    (<|>),
   )
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
-import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
   ( braces,
@@ -27,21 +26,22 @@ import Wasp.Psl.Parser.Common
 --     ADMIN
 --     @@map("role")
 --   }
-enum :: Parser Psl.Schema.SchemaElement
+enum :: Parser Psl.Enum.Enum
 enum = do
   whiteSpace
   reserved "enum"
   enumName <- identifier
-  values <- braces (many1 enumField)
-  return $ Psl.Schema.SchemaEnum $ Psl.Enum.Enum enumName values
+  Psl.Enum.Enum enumName <$> braces (many1 enumField)
 
-enumField :: Parser Psl.Enum.EnumElement
+enumField :: Parser Psl.Enum.Element
 enumField =
-  try enumValue
-    <|> try enumBlockAttribute
+  choice
+    [ try enumValue,
+      try enumBlockAttribute
+    ]
 
-enumValue :: Parser Psl.Enum.EnumElement
-enumValue = Psl.Enum.EnumElementValue <$> identifier <*> many (try attribute)
+enumValue :: Parser Psl.Enum.Element
+enumValue = Psl.Enum.ElementValue <$> identifier <*> many (try attribute)
 
-enumBlockAttribute :: Parser Psl.Enum.EnumElement
-enumBlockAttribute = Psl.Enum.EnumElementBlockAttribute <$> blockAttribute
+enumBlockAttribute :: Parser Psl.Enum.Element
+enumBlockAttribute = Psl.Enum.ElementBlockAttribute <$> blockAttribute

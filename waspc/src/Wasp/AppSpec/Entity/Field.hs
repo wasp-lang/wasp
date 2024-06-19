@@ -5,7 +5,7 @@ module Wasp.AppSpec.Entity.Field
     FieldType (..),
     Composite (..),
     Scalar (..),
-    pslModelFieldToEntityField,
+    pslFieldToEntityField,
   )
 where
 
@@ -41,8 +41,8 @@ data Scalar
   | Unsupported String
   deriving (Show, Eq, Data)
 
-pslModelFieldToEntityField :: Psl.Model.ModelField -> Field
-pslModelFieldToEntityField pslField =
+pslFieldToEntityField :: Psl.Model.Field -> Field
+pslFieldToEntityField pslField =
   Field
     { fieldName = Psl.Model._name pslField,
       fieldType =
@@ -51,7 +51,7 @@ pslModelFieldToEntityField pslField =
           (Psl.Model._typeModifiers pslField)
     }
   where
-    pslFieldTypeToEntityFieldType :: Psl.Model.ModelFieldType -> [Psl.Model.ModelFieldTypeModifier] -> FieldType
+    pslFieldTypeToEntityFieldType :: Psl.Model.FieldType -> [Psl.Model.FieldTypeModifier] -> FieldType
     pslFieldTypeToEntityFieldType fType fTypeModifiers =
       let scalar = pslFieldTypeToScalar fType
        in case fTypeModifiers of
@@ -60,7 +60,7 @@ pslModelFieldToEntityField pslField =
             [Psl.Model.Optional] -> FieldTypeComposite $ Optional scalar
             _ -> error "Not a valid list of modifiers."
 
-    pslFieldTypeToScalar :: Psl.Model.ModelFieldType -> Scalar
+    pslFieldTypeToScalar :: Psl.Model.FieldType -> Scalar
     pslFieldTypeToScalar fType = case fType of
       Psl.Model.String -> String
       Psl.Model.Boolean -> Boolean

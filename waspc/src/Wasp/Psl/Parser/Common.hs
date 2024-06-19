@@ -8,6 +8,7 @@ module Wasp.Psl.Parser.Common
     stringLiteral,
     brackets,
     commaSep1,
+    commaSep,
     colon,
     float,
     integer,
@@ -50,6 +51,9 @@ brackets = T.brackets lexer
 
 commaSep1 :: Parser a -> Parser [a]
 commaSep1 = T.commaSep1 lexer
+
+commaSep :: Parser a -> Parser [a]
+commaSep = T.commaSep lexer
 
 colon :: Parser String
 colon = T.colon lexer

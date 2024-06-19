@@ -8,13 +8,13 @@ import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Generator.Schema (generateSchemaElement)
+import Wasp.Psl.Generator.Schema (generateSchemaBlock)
 import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 
 spec_generatePslModel :: Spec
 spec_generatePslModel = do
   describe "Complex example" $ do
-    let pslModelAst = Psl.Schema.SchemaModel $ Psl.Model.Model "User" sampleBodyAst
+    let pslModelAst = Psl.Model.Model "User" sampleBodyAst
 
     it "parse(generate(sampleBodyAst)) == sampleBodyAst" $ do
-      Parsec.parse Psl.Parser.Model.model "" (generateSchemaElement pslModelAst) `shouldBe` Right pslModelAst
+      Parsec.parse Psl.Parser.Model.model "" (generateSchemaBlock $ Psl.Schema.ModelBlock pslModelAst) `shouldBe` Right pslModelAst

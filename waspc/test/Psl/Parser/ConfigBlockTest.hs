@@ -4,8 +4,8 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
 import qualified Text.Parsec as Parsec
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
-import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.ConfigBlock as Psl.Parser
 
 spec_parsePslConfigBlock :: Spec
@@ -16,19 +16,28 @@ spec_parsePslConfigBlock = do
             T.unpack
               [trimming|
                 datasource db {
-                  provider = "postgresql"
+                  provider = "postgresql" // some inline comment
                   url      = env("DATABASE_URL")
                   extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaDatasource $
+            Psl.ConfigBlock.ConfigBlock
               Psl.ConfigBlock.Datasource
-                "db"
-                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
-                  Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")",
-                  Psl.ConfigBlock.ConfigBlockKeyValue "extensions" "[hstore(schema: \"myHstoreSchema\"), pg_trgm, postgis(version: \"2.1\")]"
-                ]
+              "db"
+              [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "postgresql",
+                Psl.ConfigBlock.KeyValuePair "url" $
+                  Psl.Argument.FuncExpr
+                    "env"
+                    [ Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "DATABASE_URL"
+                    ],
+                Psl.ConfigBlock.KeyValuePair "extensions" $
+                  Psl.Argument.ArrayExpr
+                    [ Psl.Argument.FuncExpr "hstore" [Psl.Argument.ArgNamed "schema" $ Psl.Argument.StringExpr "myHstoreSchema"],
+                      Psl.Argument.IdentifierExpr "pg_trgm",
+                      Psl.Argument.FuncExpr "postgis" [Psl.Argument.ArgNamed "version" $ Psl.Argument.StringExpr "2.1"]
+                    ]
+              ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
@@ -42,12 +51,12 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaDatasource $
+            Psl.ConfigBlock.ConfigBlock
               Psl.ConfigBlock.Datasource
-                "db"
-                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"postgresql\"",
-                  Psl.ConfigBlock.ConfigBlockKeyValue "url" "env(\"DATABASE_URL\")"
-                ]
+              "db"
+              [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "postgresql",
+                Psl.ConfigBlock.KeyValuePair "url" $ Psl.Argument.FuncExpr "env" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "DATABASE_URL"]
+              ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
   describe "Generator parsing" $ do
@@ -61,12 +70,15 @@ spec_parsePslConfigBlock = do
                 }
               |]
           expectedAst =
-            Psl.Schema.SchemaGenerator $
+            Psl.ConfigBlock.ConfigBlock
               Psl.ConfigBlock.Generator
-                "client"
-                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\"",
-                  Psl.ConfigBlock.ConfigBlockKeyValue "previewFeatures" "[\"postgresqlExtensions\"]"
-                ]
+              "client"
+              [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "prisma-client-js",
+                Psl.ConfigBlock.KeyValuePair "previewFeatures" $
+                  Psl.Argument.ArrayExpr
+                    [ Psl.Argument.StringExpr "postgresqlExtensions"
+                    ]
+              ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
@@ -79,9 +91,9 @@ spec_parsePslConfigBlock = do
                   }
                 |]
           expectedAst =
-            Psl.Schema.SchemaGenerator $
+            Psl.ConfigBlock.ConfigBlock
               Psl.ConfigBlock.Generator
-                "client"
-                [ Psl.ConfigBlock.ConfigBlockKeyValue "provider" "\"prisma-client-js\""
-                ]
+              "client"
+              [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "prisma-client-js"
+              ]
       Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst

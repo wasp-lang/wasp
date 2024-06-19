@@ -8,12 +8,12 @@ where
 import Control.Lens ((.~), (^.))
 import Control.Monad.Log.Class (logM)
 import Control.Monad.Reader.Class (asks)
-import Data.List (isSuffixOf)
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
+import qualified System.FilePath as FP
 import Wasp.LSP.Analysis (diagnoseWaspFile, publishDiagnostics)
 import Wasp.LSP.ExtImport.Diagnostic (updateMissingExtImportDiagnostics)
 import Wasp.LSP.ExtImport.ExportsCache (refreshExportsOfFiles)
@@ -73,11 +73,7 @@ registerJsTsSourceFileWatcher = do
         logM "Could not access projectRootDir when setting up source file watcher. Watching any TS/JS file instead of limiting to src/."
         return tsJsGlobPattern
       Just projectRootDir -> do
-        let srcGlobPattern = "src/" <> tsJsGlobPattern
-        return $
-          if "/" `isSuffixOf` projectRootDir
-            then projectRootDir <> srcGlobPattern
-            else projectRootDir <> "/" <> srcGlobPattern
+        return $ projectRootDir FP.</> "src/" <> tsJsGlobPattern
 
   watchSourceFilesToken <-
     LSP.registerCapability
@@ -139,10 +135,7 @@ registerPrismaSchemaFileWatcher = do
         logM "Could not access projectRootDir when setting up source file watcher. Watching any schema.prisma file instead of limiting to src/."
         return prismaSchemaGlob
       Just projectRootDir -> do
-        return $
-          if "/" `isSuffixOf` projectRootDir
-            then projectRootDir <> prismaSchemaGlob
-            else projectRootDir <> "/" <> prismaSchemaGlob
+        return $ projectRootDir FP.</> prismaSchemaGlob
 
   watchPrismaSchemaToken <-
     LSP.registerCapability

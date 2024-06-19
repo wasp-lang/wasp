@@ -1,26 +1,13 @@
 module Wasp.Psl.Generator.ConfigBlock
-  ( makeConfigBlockJson,
+  ( generateConfigBlockKeyValuePairs,
   )
 where
 
-import Data.Aeson (KeyValue ((.=)), Value, object)
-import Data.Function (on)
-import Data.Functor ((<&>))
-import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
+import Wasp.Psl.Generator.Argument (generateExpression)
+import Wasp.Psl.Generator.Common (PslSource)
 
-makeConfigBlockJson :: Psl.ConfigBlock.IsConfigBlock a => [(String, String)] -> a -> Value
-makeConfigBlockJson overrideValues configBlock =
-  object
-    [ "name" .= name,
-      "keyValues" .= (makeKeyValueJson <$> keyValues)
-    ]
+generateConfigBlockKeyValuePairs :: [Psl.ConfigBlock.KeyValuePair] -> PslSource
+generateConfigBlockKeyValuePairs keyValues = unlines . map ("  " ++) $ generateConfigBlockKeyValuePair <$> keyValues
   where
-    name = Psl.ConfigBlock.getConfigBlockName configBlock
-    configBlockValues =
-      Psl.ConfigBlock.getConfigBlockKeyValues configBlock
-        <&> (\(Psl.ConfigBlock.ConfigBlockKeyValue key value) -> (key, value))
-    keyValues = nubBy ((==) `on` fst) (overrideValues ++ configBlockValues)
-
-    makeKeyValueJson :: (String, String) -> Value
-    makeKeyValueJson (key, value) = object ["key" .= key, "value" .= value]
+    generateConfigBlockKeyValuePair (Psl.ConfigBlock.KeyValuePair key value) = key ++ " = " ++ generateExpression value

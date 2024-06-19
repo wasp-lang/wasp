@@ -217,7 +217,7 @@ checkPlanForEntityIssues plan =
         Nothing -> ["'User' entity is missing."]
 
     checkIfEntityPSLCompiles entity =
-      case Psl.Parser.Model.parseModelBody (entityBodyPsl entity) of
+      case Psl.Parser.Model.parseBody (entityBodyPsl entity) of
         Left parseError ->
           [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
               <> show parseError
@@ -233,7 +233,7 @@ prismaFormat unformattedEntities = do
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
   let formattedEntities =
         zipWith
-          (\e m -> e {entityBodyPsl = T.unpack $ getPslBodyFromPslModelText m})
+          (\e m -> e {entityBodyPsl = T.unpack $ getPslModelBodyFromPslModelText m})
           unformattedEntities
           formattedPslModels
   return (maybeErrorsMsg, formattedEntities)
@@ -246,8 +246,8 @@ prismaFormat unformattedEntities = do
                       ${modelBody}
                     }|]
 
-    -- Example: @getPslBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.
-    getPslBodyFromPslModelText = removeEnd . removeStart . T.strip
+    -- Example: @getPslModelBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.
+    getPslModelBodyFromPslModelText = removeEnd . removeStart . T.strip
       where
         removeStart = T.dropWhile (== '\n') . T.drop 1 . T.dropWhile (/= '{')
         removeEnd = T.dropWhileEnd isSpace . T.dropEnd 1 . T.dropWhileEnd (/= '}')
