@@ -6,6 +6,15 @@ node_modules/
 .env
 .env.*
 
+# These two we added only because dotenv-vault keeps adding them if it doesn't find them,
+# even though we don't need them. Remove them once dotenv-vault stops doing that.
+.env*
+.flaskenv*
+
 # Don't ignore example dotenv files.
 !.env.example
 !.env.*.example
+
+# These are config files for dotenv-vault, so we don't want to ignore them.
+!.env.project
+!.env.vault
