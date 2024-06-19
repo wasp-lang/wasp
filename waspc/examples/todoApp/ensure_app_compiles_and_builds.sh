@@ -6,9 +6,9 @@
 
 # Gets the directory of where this script lives.
 dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-echo "Running ensure_todoapp_works.sh from $dir"
+echo "Running ensure_app_compiles_and_builds.sh from $dir"
 
-cd "$dir/../examples/todoApp"
+cd "$dir"
 
 # Compile example app.
 cabal run wasp-cli build
