@@ -112,6 +112,12 @@ page TaskPage {
   component: import Task from "@src/client/pages/Task.tsx"
 }
 
+route CrudRoute { path: "/crud", to: Crud }
+page Crud {
+  component: import { CrudTestPage } from "@src/client/pages/CrudTest.tsx",
+  authRequired: true
+}
+
 route CatchAllRoute { path: "*", to: CatchAllPage }
 page CatchAllPage {
   component: import { CatchAllPage } from "@src/client/pages/CatchAll"
@@ -210,5 +216,15 @@ job mySpecialScheduledJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 2 } json=}
     }
+  }
+}
+
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      overrideFn: import { getAllFilteredTasks } from "@src/server/crud"
+    },
+    create: {}
   }
 }
