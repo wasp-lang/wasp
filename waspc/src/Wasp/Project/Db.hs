@@ -50,8 +50,6 @@ data DbSystemParseError = UnsupportedDbSystem String | MissingDbSystem
 getDbSystemFromPrismaSchema :: Psl.Schema.Schema -> Either DbSystemParseError AS.Db.DbSystem
 getDbSystemFromPrismaSchema prismaSchema =
   case getDbProviderFromPrismaSchema prismaSchema of
-    -- We parse raw config block values from Prisma file,
-    -- so we need match the provider names with quotes.
     Just (Psl.Argument.StringExpr "postgresql") -> Right AS.App.Db.PostgreSQL
     Just (Psl.Argument.StringExpr "sqlite") -> Right AS.App.Db.SQLite
     Just (Psl.Argument.StringExpr provider) -> Left $ UnsupportedDbSystem provider
