@@ -1,8 +1,10 @@
-import { useAction, useQuery } from "wasp/client/operations";
+import { useAction, useQuery } from "../operations";
+// PRIVATE API
 export function makeUseQueryFor(query) {
-    return (args, options) => useQuery(query, args, options);
+    return (...rest) => useQuery(query, ...rest);
 }
+// PRIVATE API
 export function makeUseActionFor(action) {
-    return (actionOptions) => useAction(action, actionOptions);
+    return (...rest) => useAction(action, ...rest);
 }
 //# sourceMappingURL=operationsHelpers.js.map

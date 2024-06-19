@@ -3,3 +3,4 @@ export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: A) =
 } : never;
 export type _Awaited<T> = T extends Promise<infer V> ? _Awaited<V> : T;
 export type _ReturnType<T extends (...args: never[]) => unknown> = T extends (...args: never[]) => infer R ? R : never;
+export type Tail<T extends unknown[]> = T extends [unknown, ...infer R] ? R : never;
