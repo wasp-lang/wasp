@@ -86,4 +86,4 @@ getValidDbSystemFromPrismaSchema :: Psl.Schema.Schema -> AS.DbSystem
 getValidDbSystemFromPrismaSchema schema =
   case getDbSystemFromPrismaSchema schema of
     Right dbSystem -> dbSystem
-    Left _ -> error "Prisma schema has not been validated before calling getValidDbSystemFromPrismaSchema."
+    Left _ -> error "Unable to get valid DB system from Prisma schema. This is probably a bug in the Wasp compiler, please report it."
