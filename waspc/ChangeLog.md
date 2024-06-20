@@ -81,6 +81,7 @@ These changes only apply to getting auth fields from the `user` object you recei
 - Improved the default loading spinner while waiting for the user to be fetched.
 - Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
 - When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
+- Improved default gitignore to more tightly target dotenv files and to allow for example dotenv files and .env.client.
 
 ## 0.13.2 (2024-04-11)
 
