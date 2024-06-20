@@ -179,6 +179,9 @@ studio = do
                        [ [ "usernameAndPassword"
                            | isJust $ AS.App.Auth.usernameAndPassword methods
                          ],
+                         [ "discord"
+                           | isJust $ AS.App.Auth.discord methods
+                         ],
                          [ "google"
                            | isJust $ AS.App.Auth.google methods
                          ],

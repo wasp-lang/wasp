@@ -1,6 +1,7 @@
 :root {
   --auth-pills-color: #333;
   --auth-pills-email: #e0f2fe;
+  --aut-pills-discord: #f1f5f9;
   --auth-pills-github: #f1f5f9;
   --auth-pills-google: #ecfccb;
   --auth-pills-keycloak: #d0ebf5;
@@ -10,6 +11,7 @@
 :root[data-theme='dark'] {
   --auth-pills-color: #fff;
   --auth-pills-email: #0c4a6e;
+  --auth-pills-discord: #1f2d3d;
   --auth-pills-github: #334155;
   --auth-pills-google: #365314;
   --auth-pills-keycloak: #2d5866;

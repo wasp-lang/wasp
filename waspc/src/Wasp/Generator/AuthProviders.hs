@@ -47,10 +47,19 @@ emailAuthProvider =
       E._displayName = "Email and password"
     }
 
+discordAuthProvider :: OA.OAuthAuthProvider
+discordAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "discord",
+      OA._displayName = "Discord",
+      OA._requiredScope = ["identify", "email"]
+    }
+
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object
-    [ "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+    [ "isDiscordAuthEnabled" .= AS.Auth.isDiscordAuthEnabled auth,
+      "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,

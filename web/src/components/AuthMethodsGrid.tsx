@@ -14,6 +14,11 @@ export function AuthMethodsGrid() {
       linkToDocs: '/docs/auth/username-and-pass',
     },
     {
+      title: 'Discord',
+      description: 'Users sign in with their Discord account',
+      linkToDocs: '/docs/auth/social-auth/discord',
+    },
+    {
       title: 'Google',
       description: 'Users sign in with their Google account',
       linkToDocs: '/docs/auth/social-auth/google',

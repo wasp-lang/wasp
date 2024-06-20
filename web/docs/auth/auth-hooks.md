@@ -2,7 +2,7 @@
 title: Auth Hooks
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, DiscordPill, GithubPill, GooglePill, KeycloakPill } from "./Pills";
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 Auth hooks allow you to "hook into" the auth process at various stages and run your custom code. For example, if you want to forbid certain emails from signing up, or if you wish to send a welcome email to the user after they sign up, auth hooks are the way to go.
@@ -87,7 +87,7 @@ Wasp calls the `onBeforeSignup` hook before the user is created.
 
 The `onBeforeSignup` hook can be useful if you want to reject a user based on some criteria before they sign up.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -175,7 +175,7 @@ The `onAfterSignup` hook can be useful if you want to send the user a welcome em
 
 Since the `onAfterSignup` hook receives the OAuth access token, it can also be used to store the OAuth access token for the user in your database.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -270,7 +270,7 @@ Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is gene
 
 The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that can be used later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` hook.
 
-Works with <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

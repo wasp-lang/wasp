@@ -39,6 +39,7 @@ export type OAuthProviderData = {}
 export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
+  discord: OAuthProviderData;
   google: OAuthProviderData;
   keycloak: OAuthProviderData;
   github: OAuthProviderData;
