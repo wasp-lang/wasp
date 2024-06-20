@@ -2,7 +2,7 @@ import {
   Response as ExpressResponse,
   Request as ExpressRequest,
 } from 'express';
-import { generateCodeVerifier, generateState } from 'arctic';
+import * as arctic from 'arctic';
 
 import type { ProviderConfig } from 'wasp/auth/providers/types';
 
@@ -12,9 +12,7 @@ export type OAuthStateFor<
   OT extends OAuthType
 > = OAuthStateForOAuthType[OT];
 
-export type OAuthStateWithCodeFor<OT extends OAuthType> = OAuthStateFor<OT> & {
-  code: string;
-};
+export type OAuthStateWithCodeFor<OT extends OAuthType> = OAuthStateFor<OT> & OAuthCode
 
 export type OAuthType = keyof OAuthStateForOAuthType;
 
@@ -34,6 +32,14 @@ type OAuthStateWithPKCE = {
   codeVerifier: string;
 };
 
+/**
+ * When the OAuth flow is completed, the OAuth provider will redirect the user back to the app
+ * with a code. This code is then exchanged for an access token.
+ */
+type OAuthCode = {
+  code: string;
+};
+
 export function generateAndStoreOAuthState<OT extends OAuthType>({
   oAuthType,
   provider,
@@ -43,10 +49,14 @@ export function generateAndStoreOAuthState<OT extends OAuthType>({
   provider: ProviderConfig,
   res: ExpressResponse
 }): OAuthStateFor<OT> {
-  return {
-    ...generateAndStoreState(provider, res),
-    ...(oAuthType === 'OAuth2WithPKCE' && generateAndStoreCodeVerifier(provider, res)),
+  const state: OAuthStateFor<OT> = {
+    ...generateState(),
+    ...(oAuthType === 'OAuth2WithPKCE' && generateCodeVerifier()),
   };
+
+  storeOAuthStateInCookies(provider, res, state);
+
+  return state;
 }
 
 export function validateAndGetOAuthState<OT extends OAuthType>({
@@ -58,54 +68,64 @@ export function validateAndGetOAuthState<OT extends OAuthType>({
   provider: ProviderConfig,
   req: ExpressRequest
 }): OAuthStateWithCodeFor<OT> {
-  return {
-    ...validateAndGetCode(req),
-    ...validateAndGetState(provider, req),
-    ...(oAuthType === 'OAuth2WithPKCE' && validateAndGetCodeVerifier(provider, req)),
+  const state: OAuthStateWithCodeFor<OT> = {
+    ...getCode(req),
+    ...getState(req),
+    ...(oAuthType === 'OAuth2WithPKCE' && getCodeVerifier(provider, req)),
   };
+
+  validateOAuthState(provider, req, state);
+
+  return state;
 }
 
-function generateAndStoreState(
+function storeOAuthStateInCookies<OT extends OAuthType>(
   provider: ProviderConfig,
-  res: ExpressResponse
-): { state: string } {
-  const state = generateState();
-  setOAuthCookieValue(provider, res, 'state', state);
-
-  return { state };
+  res: ExpressResponse,
+  state: OAuthStateFor<OT>
+): void {
+  setOAuthCookieValue(provider, res, 'state', state.state);
+  if (isOAuthStateWithPKCE(state)) {
+    setOAuthCookieValue(provider, res, 'codeVerifier', state.codeVerifier);
+  }
 }
 
-function generateAndStoreCodeVerifier(
+function validateOAuthState<OT extends OAuthType>(
   provider: ProviderConfig,
-  res: ExpressResponse
-): { codeVerifier: string } {
-  const codeVerifier = generateCodeVerifier();
-  setOAuthCookieValue(provider, res, 'codeVerifier', codeVerifier);
-
-  return { codeVerifier };
-}
-
-function validateAndGetCode(req: ExpressRequest): { code: string } {
-  const code = req.query.code;
-  if (typeof code !== 'string') {
+  req: ExpressRequest,
+  state: OAuthStateWithCodeFor<OT>
+): void {
+  if (typeof state.code !== 'string') {
     throw new Error('Invalid code');
   }
-  return { code };
-}
 
-function validateAndGetState(
-  provider: ProviderConfig,
-  req: ExpressRequest
-): { state: string } {
-  const state = req.query.state;
   const storedState = getOAuthCookieValue(provider, req, 'state');
-  if (!state || !storedState || storedState !== state) {
+  if (!state.state || !storedState || storedState !== state.state) {
     throw new Error('Invalid state');
   }
-  return { state };
+
+  if (isOAuthStateWithPKCE(state) && !state.codeVerifier) {
+    throw new Error('Missing code verifier');
+  }
 }
 
-function validateAndGetCodeVerifier(
+function generateState(): { state: string } {
+  return { state: arctic.generateState() };
+}
+
+function generateCodeVerifier(): { codeVerifier: string } {
+  return { codeVerifier: arctic.generateCodeVerifier() };
+}
+
+function getCode(req: ExpressRequest): { code: string } {
+  return { code: `${req.query.code}` };
+}
+
+function getState(req: ExpressRequest): { state: string } {
+  return { state:  `${req.query.state}` };
+}
+
+function getCodeVerifier(
   provider: ProviderConfig,
   req: ExpressRequest
 ): { codeVerifier: string } {
@@ -114,8 +134,11 @@ function validateAndGetCodeVerifier(
     req,
     'codeVerifier'
   );
-  if (!codeVerifier) {
-    throw new Error('Missing code verifier');
-  }
   return { codeVerifier };
+}
+
+function isOAuthStateWithPKCE(
+  state: OAuthState | OAuthStateWithPKCE
+): state is OAuthStateWithPKCE {
+  return 'codeVerifier' in state;
 }
