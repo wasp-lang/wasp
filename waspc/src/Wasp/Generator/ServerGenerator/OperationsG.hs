@@ -16,7 +16,6 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.Common (makeJsonWithEntityData)
@@ -24,7 +23,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
-import Wasp.Util (toUpperFirst, (<++>))
+import Wasp.Util ((<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
