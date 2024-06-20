@@ -7,10 +7,12 @@
           to support multiple imports from the same file =}
 import { prisma } from 'wasp/server'
 import {
-  type AuthenticatedOperationFor,
   type UnauthenticatedOperationFor,
-  createAuthenticatedOperation,
   createUnauthenticatedOperation,
+  {=# isAuthEnabled =}
+  type AuthenticatedOperationFor,
+  createAuthenticatedOperation,
+  {=/ isAuthEnabled =}
 } from '../wrappers.js'
 {=# operations =}
 {=& jsFn.importStatement =}

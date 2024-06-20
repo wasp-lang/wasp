@@ -80,7 +80,8 @@ genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
-        [ "operations" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec)
+        [ "isAuthEnabled" .= isAuthEnabledGlobally,
+          "operations" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 

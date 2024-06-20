@@ -6,7 +6,9 @@ import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import {
   _Entity,
+  {=# isAuthEnabled =}
   AuthenticatedOperationDefinition,
+  {=/ isAuthEnabled =}
   UnauthenticatedOperationDefinition,
   Payload,
 } from '../_types'
@@ -25,7 +27,7 @@ import {
  * definition.
  */
 export type UnauthenticatedOperationFor<
-  OperationDefinition extends GenericAuthenticatedOperationDefinition
+  OperationDefinition extends GenericUnauthenticatedOperationDefinition
 > = Parameters<OperationDefinition> extends []
   ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : UnauthenticatedOperation<
@@ -74,7 +76,7 @@ export function createUnauthenticatedOperation<
  * definition.
  */
 export type AuthenticatedOperationFor<
-  OperationDefinition extends GenericUnauthenticatedOperationDefinition
+  OperationDefinition extends GenericAuthenticatedOperationDefinition
 > = Parameters<OperationDefinition> extends []
   ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : AuthenticatedOperation<
