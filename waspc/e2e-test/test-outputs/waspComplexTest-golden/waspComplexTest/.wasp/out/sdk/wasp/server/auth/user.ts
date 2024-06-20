@@ -28,7 +28,7 @@ export type AuthUser = AuthUserData & {
  * 
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
-export type AuthUserData = Omit<UserEntityWithAuth, 'auth'> & {
+export type AuthUserData = Omit<CompleteUserEntityWithAuth, 'auth'> & {
   identities: {
     google: Expand<UserFacingProviderData<'google'>> | null
   },
@@ -39,34 +39,36 @@ type UserFacingProviderData<PN extends ProviderName> = {
 } & Omit<PossibleProviderData[PN], 'hashedPassword'>
 
 // PRIVATE API
-export type UserEntityWithAuth = User & {
-  auth: AuthEntityWithIdentities | null
-}
+export type CompleteUserEntityWithAuth =
+  MakeUserEntityWithAuth<CompleteAuthEntityWithIdentities>
 
 // PRIVATE API
-export type AuthEntityWithIdentities = Auth & {
-  identities: AuthIdentity[]
-}
+export type CompleteAuthEntityWithIdentities =
+  MakeAuthEntityWithIdentities<AuthIdentity>
 
 // PRIVATE API
 /**
- * This Minimal* types are used for user facing helper functions like `getUsername` and `getEmail`.
- * By keeping the types minimal, we allow users to use these functions without having to send
- * the whole user object from the server to the client.
+ * User entity with all of the auth related data that's needed for the user facing
+ * helper functions like `getUsername` and `getEmail`.
  */
-export type MinimalUserEntityWithAuth = User & {
-  auth: MinimalAuthEntityWithIdentities | null
+export type UserEntityWithAuth = MakeUserEntityWithAuth<
+  MakeAuthEntityWithIdentities<
+    // It's constructed like the Complete* types, but only with the fields needed
+    // for the user facing functions.
+    Pick<AuthIdentity, 'providerName' | 'providerUserId'>
+  >
+>
+
+type MakeUserEntityWithAuth<AuthType> = User & {
+  auth: AuthType | null
+}
+
+type MakeAuthEntityWithIdentities<IdentityType> = Auth & {
+  identities: IdentityType[]
 }
 
 // PRIVATE API
-export type MinimalAuthEntityWithIdentities = Auth & {
-  identities: MinimalAuthIdentityEntity[]
-}
-
-type MinimalAuthIdentityEntity = Pick<AuthIdentity, 'providerName' | 'providerUserId'>
-
-// PRIVATE API
-export function createAuthUserData(user: UserEntityWithAuth): AuthUserData {
+export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
   const { auth, ...rest } = user
   if (!auth) {
     throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -82,7 +84,7 @@ This should never happen, but it did which means there is a bug in the code.`)
 }
 
 function getProviderInfo<PN extends ProviderName>(
-  auth: AuthEntityWithIdentities,
+  auth: CompleteAuthEntityWithIdentities,
   providerName: PN
 ):
   | UserFacingProviderData<PN>
@@ -100,7 +102,7 @@ function getProviderInfo<PN extends ProviderName>(
 }
 
 function getIdentity(
-  auth: AuthEntityWithIdentities,
+  auth: CompleteAuthEntityWithIdentities,
   providerName: ProviderName
 ): AuthIdentity | null {
   return auth.identities.find((i) => i.providerName === providerName) ?? null

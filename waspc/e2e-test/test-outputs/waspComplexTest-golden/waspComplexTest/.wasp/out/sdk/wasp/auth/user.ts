@@ -2,7 +2,7 @@ import { type ProviderName } from '../server/_types/index.js'
 import type {
   AuthUserData,
   AuthUser,
-  MinimalUserEntityWithAuth,
+  UserEntityWithAuth,
 } from '../server/auth/user.js'
 
 /**
@@ -11,17 +11,17 @@ import type {
  */
 
 // PUBLIC API
-export function getEmail(user: MinimalUserEntityWithAuth): string | null {
+export function getEmail(user: UserEntityWithAuth): string | null {
   return findUserIdentity(user, "email")?.providerUserId ?? null;
 }
 
 // PUBLIC API
-export function getUsername(user: MinimalUserEntityWithAuth): string | null {
+export function getUsername(user: UserEntityWithAuth): string | null {
   return findUserIdentity(user, "username")?.providerUserId ?? null;
 }
 
 // PUBLIC API
-export function getFirstProviderUserId(user?: MinimalUserEntityWithAuth): string | null {
+export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
   if (!user || !user.auth || !user.auth.identities || user.auth.identities.length === 0) {
     return null;
   }
@@ -51,7 +51,7 @@ function makeAuthUser(data: AuthUserData): AuthUser {
   };
 }
 
-function findUserIdentity(user: MinimalUserEntityWithAuth, providerName: ProviderName): MinimalUserEntityWithAuth['auth']['identities'][number] | null {
+function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): UserEntityWithAuth['auth']['identities'][number] | null {
   if (!user.auth) {
     return null;
   }
