@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { Link as RouterLink } from 'react-router-dom';
 import { type Routes } from './index';
 type RouterLinkProps = Parameters<typeof RouterLink>[0];

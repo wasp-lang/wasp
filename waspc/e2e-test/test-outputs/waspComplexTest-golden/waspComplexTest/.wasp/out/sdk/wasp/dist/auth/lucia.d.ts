@@ -12,7 +12,7 @@ import { type User } from "wasp/entities";
  *    make fetching the User easier.
  */
 export declare const auth: Lucia<{}, {
-    userId: User['id'];
+    userId: User["id"];
 }>;
 declare module "lucia" {
     interface Register {

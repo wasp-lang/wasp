@@ -5,28 +5,28 @@ declare const entities: {
 };
 export type ReturnHelloJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
 export declare const returnHelloJob: {
-    readonly defaultJobOptions: import("pg-boss").SendOptions;
-    readonly startAfter: string | number | Date;
+    readonly defaultJobOptions: Parameters<import("pg-boss")["send"]>[2];
+    readonly startAfter: number | string | Date;
     readonly entities: {
         User: import(".prisma/client").Prisma.UserDelegate<import(".prisma/client").Prisma.RejectOnNotFound | import(".prisma/client").Prisma.RejectPerOperation, import("@prisma/client/runtime").DefaultArgs>;
     };
     readonly jobSchedule: {
-        cron: string;
-        args: object;
-        options: import("pg-boss").ScheduleOptions;
-    };
-    delay(startAfter: string | number | Date): any;
-    submit(jobArgs: JSONObject, jobOptions?: import("pg-boss").SendOptions): Promise<{
+        cron: Parameters<import("pg-boss")["schedule"]>[1];
+        args: Parameters<import("pg-boss")["schedule"]>[2];
+        options: Parameters<import("pg-boss")["schedule"]>[3];
+    } | null;
+    delay(startAfter: number | string | Date): any;
+    submit(jobArgs: JSONObject, jobOptions?: Parameters<import("pg-boss")["send"]>[2]): Promise<{
         readonly pgBoss: {
-            readonly cancel: () => Promise<void>;
-            readonly resume: () => Promise<void>;
-            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & {
+            readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;
+            readonly resume: () => ReturnType<import("pg-boss")["resume"]>;
+            readonly details: () => Promise<(Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & {
                 data: JSONObject;
             } & ({
                 state: "failed";
                 output: object;
             } | {
-                state: "retry" | "created" | "active" | "expired" | "cancelled";
+                state: "created" | "retry" | "active" | "expired" | "cancelled";
                 output: null;
             } | {
                 state: "completed";
@@ -39,7 +39,7 @@ export declare const returnHelloJob: {
                 } | {
                     value: true;
                 };
-            })>;
+            })) | null>;
         };
         readonly job: import("./core/job").Job;
         readonly jobId: string;
