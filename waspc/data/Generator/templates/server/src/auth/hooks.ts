@@ -36,7 +36,7 @@ export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = (
 /**
  * This is a no-op function since the user didn't define the onBeforeSignup hook.
  */
-export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = async (params) => {}
+export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = async (_params) => {}
 {=/ onBeforeSignupHook.isDefined =}
 
 {=# onAfterSignupHook.isDefined =}
@@ -50,7 +50,7 @@ export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (pa
 /**
  * This is a no-op function since the user didn't define the onAfterSignup hook.
  */
-export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = async (params) => {}
+export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = async (_params) => {}
 {=/ onAfterSignupHook.isDefined =}
 
 {=# onBeforeOAuthRedirectHook.isDefined =}

@@ -12,9 +12,7 @@ export type OAuthStateFor<
   OT extends OAuthType
 > = OAuthStateForOAuthType[OT];
 
-export type OAuthStateWithCodeFor<OT extends OAuthType> = OAuthStateFor<OT> & {
-  code: string;
-};
+export type OAuthStateWithCodeFor<OT extends OAuthType> = OAuthStateFor<OT> & OAuthCode
 
 export type OAuthType = keyof OAuthStateForOAuthType;
 
@@ -32,6 +30,14 @@ type OAuthState = {
 type OAuthStateWithPKCE = {
   state: string;
   codeVerifier: string;
+};
+
+/**
+ * When the OAuth flow is completed, the OAuth provider will redirect the user back to the app
+ * with a code. This code is then exchanged for an access token.
+ */
+type OAuthCode = {
+  code: string;
 };
 
 export function generateAndStoreOAuthState<OT extends OAuthType>({
