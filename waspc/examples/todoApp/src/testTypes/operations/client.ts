@@ -23,7 +23,7 @@ import {
 
 import { Task } from 'wasp/entities'
 import { Payload } from 'wasp/server/_types'
-import { Expect, Equal } from './helpers'
+import { Expect, Equal } from '../helpers'
 import { QueryMetadata } from 'wasp/client/operations/rpc'
 
 type TestCases = [

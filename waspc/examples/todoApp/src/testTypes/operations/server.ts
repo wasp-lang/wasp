@@ -17,12 +17,15 @@ import {
   taskToTaskSatisfies as taskToTaskSatisfiesDefinition,
 } from './definitions'
 
-import { Equal, Expect } from './helpers'
+import { Equal, Expect } from '../helpers'
 import { AuthUser } from 'wasp/auth'
 import { Task } from 'wasp/entities'
 
 export const testingAction: TestingAction = async (args, context) => {
-  // todo: test whether the outputs are correct
+  // todo(filip): When sorting out the tests, we should also test whether the
+  // outputs are correct. See:
+  // - https://github.com/wasp-lang/wasp/issues/2024
+  // - https://github.com/wasp-lang/wasp/issues/2011
   await voidToStringNoAuth()
   await boolToStringNoAuth(true)
 
