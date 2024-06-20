@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.1
+
+### 🎉 New Feature
+
+- Discord Auth: you can now integrate Discord as a social auth provider.
+
 ## 0.14.0 (TBD)
 
 ### 🎉 New Features
