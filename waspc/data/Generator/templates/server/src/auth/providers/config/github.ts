@@ -77,13 +77,11 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            stateTypes: ['state'],
+            oAuthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state }) => github.createAuthorizationURL(state, config),
-            getProviderInfo: async ({ code }) => {
-                const { accessToken } = await github.validateAuthorizationCode(code);
-                return getGithubProfile(accessToken);
-            },
+            getProviderTokens: ({ code }) => github.validateAuthorizationCode(code),
+            getProviderInfo: ({ accessToken }) => getGithubProfile(accessToken),
         });
     },
 }

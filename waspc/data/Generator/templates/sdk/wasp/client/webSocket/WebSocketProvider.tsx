@@ -36,7 +36,7 @@ apiEventsEmitter.on('sessionId.set', refreshAuthToken)
 apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
 
 // PRIVATE API
-export const WebSocketContext: Context<WebSocketContextValue> = createContext({
+export const WebSocketContext: Context<WebSocketContextValue> = createContext<WebSocketContextValue>({
   socket,
   isConnected: false,
 });

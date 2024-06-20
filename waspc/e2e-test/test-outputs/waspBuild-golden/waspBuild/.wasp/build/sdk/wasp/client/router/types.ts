@@ -32,7 +32,7 @@ type RoutesDefinition = {
   }
 }
 
-type BuildFn = (params: unknown) => string
+type BuildFn = (params: never) => string
 
 type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
   params: infer Params

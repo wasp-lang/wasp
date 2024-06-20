@@ -1,108 +1,125 @@
-import { Router } from "express";
+import { Router } from 'express'
 
-import { handleRejection, redirect } from "wasp/server/utils";
-import { rethrowPossibleAuthError } from "wasp/auth/utils";
-import { type UserSignupFields, type ProviderConfig } from "wasp/auth/providers/types";
+import { handleRejection, redirect } from 'wasp/server/utils'
+import { rethrowPossibleAuthError } from 'wasp/auth/utils'
+import {
+  type UserSignupFields,
+  type ProviderConfig,
+} from 'wasp/auth/providers/types'
 
 import {
-  type StateType,
+  type OAuthType,
+  type OAuthStateFor,
+  type OAuthStateWithCodeFor,
   generateAndStoreOAuthState,
   validateAndGetOAuthState,
-} from "../oauth/state.js";
+} from '../oauth/state.js'
+import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
 import {
-  finishOAuthFlowAndGetRedirectUri,
+  callbackPath,
+  loginPath,
   handleOAuthErrorAndGetRedirectUri,
-} from "../oauth/user.js";
-import { callbackPath, loginPath } from "./redirect.js";
+} from './redirect.js'
+import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<ST extends StateType>({
+export function createOAuthProviderRouter<OT extends OAuthType>({
   provider,
-  stateTypes,
+  oAuthType,
   userSignupFields,
   getAuthorizationUrl,
+  getProviderTokens,
   getProviderInfo,
 }: {
-  provider: ProviderConfig,
+  provider: ProviderConfig
   /*
-    - State is used to validate the callback to ensure the user
+    - OAuth state is used to validate the callback to ensure the user
       that requested the login is the same that is completing it.
-    - It can include just the "state" or an extra "codeVerifier" for PKCE.
-    - The state types used depend on the provider.
+    - It includes "state" and an optional "codeVerifier" for PKCE.
   */
-  stateTypes: ST[],
-  userSignupFields: UserSignupFields | undefined,
+  oAuthType: OT
+  userSignupFields: UserSignupFields | undefined
   /*
     The function that returns the URL to redirect the user to the
     provider's login page.
   */
-  getAuthorizationUrl: Parameters<typeof createOAuthLoginHandler<ST>>[2],
+  getAuthorizationUrl: (
+    oAuthState: OAuthStateFor<OT>,
+  ) => Promise<URL>
   /*
-    The function that returns the user's profile and ID from the
+    The function that returns the access token and refresh token from the
     provider's callback.
   */
-  getProviderInfo: Parameters<typeof createOAuthCallbackHandler<ST>>[3],
+  getProviderTokens: (
+    oAuthState: OAuthStateWithCodeFor<OT>,
+  ) => Promise<{
+    accessToken: string
+  }>
+  /*
+    The function that returns the user's profile and ID using the access
+    token.
+  */
+  getProviderInfo: ({ accessToken }: { accessToken: string }) => Promise<{
+    providerUserId: string
+    providerProfile: unknown
+  }>
 }): Router {
-  const router = Router();
+  const router = Router()
 
   router.get(
     `/${loginPath}`,
-    createOAuthLoginHandler(provider, stateTypes, getAuthorizationUrl)
+    handleRejection(async (req, res) => {
+      const oAuthState = generateAndStoreOAuthState({
+        oAuthType,
+        provider,
+        res,
+      })
+      const redirectUrl = await getAuthorizationUrl(oAuthState)
+      const { url: redirectUrlAfterHook } = await onBeforeOAuthRedirectHook({
+        req,
+        url: redirectUrl,
+        uniqueRequestId: oAuthState.state,
+      })
+      return redirect(res, redirectUrlAfterHook.toString())
+    }),
   )
 
   router.get(
     `/${callbackPath}`,
-    createOAuthCallbackHandler(
-      provider,
-      stateTypes,
-      userSignupFields,
-      getProviderInfo
-    )
-  )
-
-  return router;
-}
-
-function createOAuthLoginHandler<ST extends StateType>(
-  provider: ProviderConfig,
-  stateTypes: ST[],
-  getAuthorizationUrl: (oAuthState: ReturnType<typeof generateAndStoreOAuthState<ST>>) => Promise<URL>,
-) {
-  return handleRejection(async (_req, res) => {
-    const oAuthState = generateAndStoreOAuthState(stateTypes, provider, res);
-    const url = await getAuthorizationUrl(oAuthState);
-    return redirect(res, url.toString());
-  })
-}
-
-function createOAuthCallbackHandler<ST extends StateType>(
-  provider: ProviderConfig,
-  stateTypes: ST[],
-  userSignupFields: UserSignupFields | undefined,
-  getProviderInfo: (oAuthState: ReturnType<typeof validateAndGetOAuthState<ST>>) => Promise<{
-    providerUserId: string,
-    providerProfile: unknown,
-  }>,
-) {
-  return handleRejection(async (req, res) => {
-    try {
-      const oAuthState = validateAndGetOAuthState(stateTypes, provider, req);
-      const { providerProfile, providerUserId } = await getProviderInfo(oAuthState);
+    handleRejection(async (req, res) => {
       try {
-        const redirectUri = await finishOAuthFlowAndGetRedirectUri(
+        const oAuthState = validateAndGetOAuthState({
+          oAuthType,
+          provider,
+          req,
+        })
+        const { accessToken } = await getProviderTokens(oAuthState)
+  
+        const { providerProfile, providerUserId } = await getProviderInfo({
+          accessToken,
+        })
+        try {
+          const redirectUri = await finishOAuthFlowAndGetRedirectUri({
             provider,
             providerProfile,
             providerUserId,
             userSignupFields,
-        );
-        // Redirect to the client with the one time code
-        return redirect(res, redirectUri.toString());
+            req,
+            accessToken,
+            oAuthState,
+          })
+          // Redirect to the client with the one time code
+          return redirect(res, redirectUri.toString())
+        } catch (e) {
+          rethrowPossibleAuthError(e)
+        }
       } catch (e) {
-        rethrowPossibleAuthError(e);
+        console.error(e)
+        const redirectUri = handleOAuthErrorAndGetRedirectUri(e)
+        // Redirect to the client with the error
+        return redirect(res, redirectUri.toString())
       }
-    } catch (e) {
-      const redirectUri = handleOAuthErrorAndGetRedirectUri(e);
-      // Redirect to the client with the error
-      return redirect(res, redirectUri.toString());
-    }
-  })
+    }),
+  )
+
+  return router
 }

@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { type State, type CustomizationOptions, type ErrorMessage, type AdditionalSignupFields } from './types';
 export declare const AuthContext: import("react").Context<{
     isLoading: boolean;

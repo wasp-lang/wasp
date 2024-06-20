@@ -1,13 +1,34 @@
 # Changelog
 
-## 0.14.0 (2024-04-22)
+## 0.14.0 (TBD)
 
 ### 🎉 New Features
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
 - Improved API for calling Operations (Queries and Actions) directly.
+- Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
+
+  ```wasp
+  app myApp {
+    ...
+    auth: {
+      onBeforeSignup: import { onBeforeSignup } from "...",
+      onAfterSignup: import { onAfterSignup } from "...",
+      onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "...",
+    },
+  }
+  ```
 
 ### ⚠️ Breaking Changes & Migration Guide
+
+#### Strict options when building the `wasp` package
+
+The `wasp` package is now built with `strictBindCallApply`, `alwaysStrict`, `noImplicitThis`, and `strictFunctionTypes`.
+This is a breaking change only if you have manually set your `tsconfig.json`'s `strict` field to `false` and are relying on it being more permissive.
+To fix the errors, enable the options listed above and make sure your code type checks.
+
+This quirk is only temporary. You'll soon be able to use any `tsconfig.json` options you want.
+Track this issue for progress: https://github.com/wasp-lang/wasp/issues/1827
 
 #### Directly calling Queries on the client
 
@@ -72,6 +93,7 @@ These changes only apply to getting auth fields from the `user` object you recei
 - Improved the default loading spinner while waiting for the user to be fetched.
 - Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
 - When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
+- Improved default gitignore to more tightly target dotenv files and to allow for example dotenv files and .env.client.
 
 ## 0.13.2 (2024-04-11)
 

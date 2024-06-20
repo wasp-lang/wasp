@@ -25,7 +25,8 @@ genNewServerApi spec =
     Just auth ->
       sequence
         [ genAuthIndex auth,
-          genAuthUser auth
+          genAuthUser auth,
+          genFileCopy [relfile|server/auth/hooks.ts|]
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
