@@ -334,10 +334,6 @@ Let's deploy our server first:
    - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`)
    - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
-:::caution
-Make sure to add `https://` to the copied url, otherwise you could have problems once the app is deployed.
-:::
-
      <AddExternalAuthEnvVarsReminder />
 
 4. Push and deploy the project:
