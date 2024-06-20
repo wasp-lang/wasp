@@ -16,7 +16,6 @@ import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
     reserved,
-    whiteSpace,
   )
 
 -- | Parses PSL (Prisma Schema Language enum).
@@ -28,7 +27,6 @@ import Wasp.Psl.Parser.Common
 --   }
 enum :: Parser Psl.Enum.Enum
 enum = do
-  whiteSpace
   reserved "enum"
   enumName <- identifier
   Psl.Enum.Enum enumName <$> braces (many1 enumField)

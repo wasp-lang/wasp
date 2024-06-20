@@ -11,7 +11,7 @@ sampleBodySchema :: T.Text
 sampleBodySchema =
   [trimming|
     id Int @id @default(value: autoincrement())
-    username String? @db.VarChar(200) // inline comments
+      username String? @db.VarChar(200) // inline comments
     posts Post[] @relation("UserPosts", references: [id]) @customattr
     weirdType Unsupported("weird")
 
