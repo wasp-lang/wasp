@@ -54,7 +54,7 @@ export function generateAndStoreOAuthState<OT extends OAuthType>({
     ...(oAuthType === 'OAuth2WithPKCE' && generateCodeVerifier()),
   };
 
-  storeOAuthStateInCookies(provider, res, state);
+  storeOAuthState(provider, res, state);
 
   return state;
 }
@@ -79,21 +79,21 @@ export function validateAndGetOAuthState<OT extends OAuthType>({
   return state;
 }
 
-function storeOAuthStateInCookies<OT extends OAuthType>(
+function storeOAuthState(
   provider: ProviderConfig,
   res: ExpressResponse,
-  state: OAuthStateFor<OT>
+  state: OAuthStateFor<OAuthType>
 ): void {
-  setOAuthCookieValue(provider, res, 'state', state.state);
-  if (isOAuthStateWithPKCE(state)) {
-    setOAuthCookieValue(provider, res, 'codeVerifier', state.codeVerifier);
+  let key: keyof typeof state;
+  for (key in state) {
+    setOAuthCookieValue(provider, res, key, state[key]);
   }
 }
 
-function validateOAuthState<OT extends OAuthType>(
+function validateOAuthState(
   provider: ProviderConfig,
   req: ExpressRequest,
-  state: OAuthStateWithCodeFor<OT>
+  state: OAuthStateWithCodeFor<OAuthType>
 ): void {
   if (typeof state.code !== 'string') {
     throw new Error('Invalid code');

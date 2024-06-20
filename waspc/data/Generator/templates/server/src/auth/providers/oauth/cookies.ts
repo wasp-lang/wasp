@@ -13,7 +13,7 @@ export function setOAuthCookieValue(
   res: ExpressResponse,
   fieldName: OAuthStateFieldName,
   value: string,
-) {
+): void {
   const cookieName = `${provider.id}_${fieldName}`;
   res.cookie(cookieName, value, {
     httpOnly: true,
@@ -28,7 +28,7 @@ export function getOAuthCookieValue(
   provider: ProviderConfig,
   req: ExpressRequest,
   fieldName: OAuthStateFieldName,
-) {
+): string {
   const cookieName = `${provider.id}_${fieldName}`;
   const cookies = parseCookies(req.headers.cookie ?? "");
   return cookies.get(cookieName);
