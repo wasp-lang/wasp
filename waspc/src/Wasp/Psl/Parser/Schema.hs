@@ -35,5 +35,8 @@ schema = do
           Psl.Schema.EnumBlock <$> enum,
           Psl.Schema.ConfigBlock <$> configBlock
         ]
+  -- We want to throw and if there is any source code left after parsing the schema.
+  -- If we don't do this, the parser sometimes returns an empty schema when there
+  -- are some syntax errors in the schema.
   eof
   return $ Psl.Schema.Schema elements

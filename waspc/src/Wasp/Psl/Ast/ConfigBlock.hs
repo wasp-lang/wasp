@@ -2,6 +2,7 @@ module Wasp.Psl.Ast.ConfigBlock
   ( ConfigBlock (..),
     ConfigBlockType (..),
     KeyValuePair (..),
+    Identifier,
     overrideKeyValuePairs,
   )
 where
