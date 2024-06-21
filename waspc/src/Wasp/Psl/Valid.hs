@@ -69,9 +69,9 @@ validateDbProvider = validate . getDbSystemFromPrismaSchema
     validate
       (Left (UnsupportedDbSystem unsupportedDbSystem)) =
         [ GenericValidationError $
-            "Wasp doesn't support the database provider \""
+            "Wasp doesn't support the database provider "
               ++ unsupportedDbSystem
-              ++ "\" specified in the schema.prisma file."
+              ++ " specified in the schema.prisma file."
         ]
 
 validateDbUrl :: Psl.Schema.Schema -> [ValidationError]
