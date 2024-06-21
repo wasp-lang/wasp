@@ -1,11 +1,23 @@
 # Changelog
 
-## 0.14.0 (2024-04-22)
+## 0.14.0 (TBD)
 
 ### 🎉 New Features
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
 - Improved API for calling Operations (Queries and Actions) directly.
+- Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
+
+  ```wasp
+  app myApp {
+    ...
+    auth: {
+      onBeforeSignup: import { onBeforeSignup } from "...",
+      onAfterSignup: import { onAfterSignup } from "...",
+      onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "...",
+    },
+  }
+  ```
 
 ### ⚠️ Breaking Changes & Migration Guide
 

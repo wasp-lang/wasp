@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { createTheme } from '@stitches/react';
 import { UseFormReturn, RegisterOptions } from 'react-hook-form';
 import type { LoginSignupFormFields } from './internal/common/LoginSignupForm';
