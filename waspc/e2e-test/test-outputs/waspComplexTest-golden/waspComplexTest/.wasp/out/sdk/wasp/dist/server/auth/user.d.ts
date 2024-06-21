@@ -5,18 +5,6 @@ import { Expand } from '../../universal/types.js';
 export type AuthUser = AuthUserData & {
     getFirstProviderUserId: () => string | null;
 };
-/**
- * Ideally, we'd do something like this:
- * ```
- * export type AuthUserData = ReturnType<typeof createAuthUserData>
- * ```
- * to get the benefits of the createAuthUser and the AuthUserData type being in sync.
- *
- * But since we are not using strict mode, the inferred return type of createAuthUser
- * is not correct. So we have to define the AuthUserData type manually.
- *
- * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
- */
 export type AuthUserData = Omit<UserEntityWithAuth, 'auth'> & {
     identities: {
         google: Expand<UserFacingProviderData<'google'>> | null;

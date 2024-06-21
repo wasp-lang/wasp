@@ -10,20 +10,7 @@ generator client {
 
 model User {
   id Int @id @default(autoincrement())
-  username String @unique
-  password String
-  externalAuthAssociations SocialLogin[]
   auth Auth?
-
-}
-model SocialLogin {
-  id Int @id @default(autoincrement())
-  provider String
-  providerId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
-  createdAt DateTime @default(now())
-  @@unique([provider, providerId, userId])
 
 }
 model Task {

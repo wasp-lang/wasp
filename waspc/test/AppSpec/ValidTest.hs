@@ -119,7 +119,10 @@ spec_AppSpecValid = do
                       AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
-                AS.Auth.onAuthSucceededRedirectTo = Nothing
+                AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                AS.Auth.onBeforeSignup = Nothing,
+                AS.Auth.onAfterSignup = Nothing,
+                AS.Auth.onBeforeOAuthRedirect = Nothing
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -162,7 +165,10 @@ spec_AppSpecValid = do
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                                    AS.Auth.onBeforeSignup = Nothing,
+                                    AS.Auth.onAfterSignup = Nothing,
+                                    AS.Auth.onBeforeOAuthRedirect = Nothing
                                   },
                             AS.App.emailSender =
                               Just
@@ -299,7 +305,10 @@ spec_AppSpecValid = do
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                                    AS.Auth.onBeforeSignup = Nothing,
+                                    AS.Auth.onAfterSignup = Nothing,
+                                    AS.Auth.onBeforeOAuthRedirect = Nothing
                                   },
                             AS.App.emailSender = emailSender
                           },
