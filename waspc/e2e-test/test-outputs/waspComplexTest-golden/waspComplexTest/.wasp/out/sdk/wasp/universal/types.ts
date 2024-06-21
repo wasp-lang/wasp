@@ -31,5 +31,5 @@ export type _ReturnType<T extends (...args: never[]) => unknown> =
   T extends (...args: never[]) => infer R ? R : never
 
 
-// Returns array without first element
+// Returns elements of an array except the first one.
 export type Tail<T extends unknown[]> = T extends [unknown, ...infer R] ? R : never;
