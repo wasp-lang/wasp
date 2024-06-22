@@ -37,7 +37,10 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   const action = (args) => internalAction(args, [])
   action.internal = internalAction
 
-  return action as ActionFor<BackendAction>
+  // todo(filip): why is unkonwn necessary here?
+  // Maybe something to do with
+  // https://www.typescriptlang.org/play/?#code/MYewdgzgLgBCBGArGBeGBvGBDAXDA5AGYgj4wC+AUAogHTyoHxYBO+llA9JzIQK5hgUAJbhsAG3EgA7hGxgYAUwBuIccuFgA5jCgBPAA6KY8PrBqKhMACYhFcsCCiVQkWPwVoAFAEpUAPgJiUkoPekZ8ZjYgA
+  return action as unknown as ActionFor<BackendAction>
 }
 
 // PRIVATE API
