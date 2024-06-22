@@ -20,7 +20,7 @@ import {
 {=# operations =}
 
 // PRIVATE API
-export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =} 
+export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =}
 
 // PUBLIC API
 {=# usesAuth =}
