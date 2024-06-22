@@ -9,7 +9,7 @@ import {
 import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar'
 
 // PRIVATE API
-export type MySpecialQuery_ext = typeof foo_ext 
+export type MySpecialQuery_ext = typeof foo_ext
 
 // PUBLIC API
 export const mySpecialQuery: AuthenticatedOperationFor<MySpecialQuery_ext> =

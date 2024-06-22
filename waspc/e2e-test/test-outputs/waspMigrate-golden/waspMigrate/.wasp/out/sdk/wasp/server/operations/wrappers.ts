@@ -13,7 +13,7 @@ import {
 // - `Parameters<OperationDefinition> extends []` - Same reason as described here:
 // https://github.com/wasp-lang/wasp/pull/1992/files#r1583040080
 /**
- * Constructs the unauthenticated operation's server-side API type from its 
+ * Constructs the unauthenticated operation's server-side API type from its
  * definition.
  *
  * @template OperationDefinition The type of the unauthenticated operation's

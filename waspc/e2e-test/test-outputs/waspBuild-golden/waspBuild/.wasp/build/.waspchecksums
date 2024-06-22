@@ -32,7 +32,7 @@
             "file",
             "../out/sdk/wasp/client/operations/actions/core.ts"
         ],
-        "a3afb5e9b1d99d2584922a768ad8656e492caf513be2a6a2d14e6a671e383f31"
+        "ff3597c5f07015adf4dcf5cf6043d054989e76522fd59eb94bdaa34e9c9ea95f"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "5e6738f956ab9934ef304d76969aae02503ae0ba84c3e47afdddc0252f893276"
+        "d1a8fccfb8207476b90708e8285d1455b33ff4e446749b33c3eb1a54dcfe2d41"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "../out/sdk/wasp/server/operations/wrappers.ts"
         ],
-        "063bdf731c2223d008fc9a3f8b45359d5618ac70525b426d90c3de1953b3b158"
+        "4f3ffd00d845664a0122a24d2a12279c0febd744214c7167e7d9dea41330e107"
     ],
     [
         [

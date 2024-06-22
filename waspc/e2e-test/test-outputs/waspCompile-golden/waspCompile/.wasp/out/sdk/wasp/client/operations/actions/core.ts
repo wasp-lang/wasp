@@ -37,8 +37,9 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   const action = (args) => internalAction(args, [])
   action.internal = internalAction
 
-  // todo(filip): why is unkonwn necessary here?
-  // Maybe something to do with
+  // NOTE: I'm not sure why unknown is necessary here,
+  // it might have something to do with functions allowing evolving types,
+  // // while objects to not:
   // https://www.typescriptlang.org/play/?#code/MYewdgzgLgBCBGArGBeGBvGBDAXDA5AGYgj4wC+AUAogHTyoHxYBO+llA9JzIQK5hgUAJbhsAG3EgA7hGxgYAUwBuIccuFgA5jCgBPAA6KY8PrBqKhMACYhFcsCCiVQkWPwVoAFAEpUAPgJiUkoPekZ8ZjYgA
   return action as unknown as ActionFor<BackendAction>
 }
