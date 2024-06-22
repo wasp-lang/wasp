@@ -5,6 +5,7 @@
 ### 🎉 New Features
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
+- Improved the API for calling Operations (Queries and Actions) directly on both the client and the server.
 - Improved API for calling Operations (Queries and Actions) directly.
 - Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
 

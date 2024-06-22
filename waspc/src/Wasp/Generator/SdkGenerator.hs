@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (fromMaybe, isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe)
 import StrongPath
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -59,7 +59,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util (toLowerFirst, (<++>))
+import Wasp.Util ((<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec = genSdkReal spec
@@ -155,12 +155,9 @@ genEntitiesAndServerTypesDirs spec =
         ( Just $
             object
               [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
-                "userFieldName" .= toLowerFirst userEntityName
+                "isAuthEnabled" .= isJust maybeUserEntityName
               ]
         )
-    userEntityName = fromMaybe "" maybeUserEntityName
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 

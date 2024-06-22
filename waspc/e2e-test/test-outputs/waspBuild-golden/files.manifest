@@ -144,6 +144,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/server/operations/queries/index.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/server/operations/queries/types.js
 waspBuild/.wasp/build/sdk/wasp/dist/server/operations/queries/types.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/server/operations/wrappers.js
+waspBuild/.wasp/build/sdk/wasp/dist/server/operations/wrappers.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/types/index.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/server/types/index.js
 waspBuild/.wasp/build/sdk/wasp/dist/server/types/index.js.map
@@ -179,6 +182,7 @@ waspBuild/.wasp/build/sdk/wasp/server/operations/actions/types.ts
 waspBuild/.wasp/build/sdk/wasp/server/operations/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/operations/queries/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/operations/queries/types.ts
+waspBuild/.wasp/build/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/build/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/utils.ts
 waspBuild/.wasp/build/sdk/wasp/tsconfig.json
@@ -366,6 +370,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/server/operations/queries/index.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 waspBuild/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
+waspBuild/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/server/types/index.js
 waspBuild/.wasp/out/sdk/wasp/dist/server/types/index.js.map
@@ -401,6 +408,7 @@ waspBuild/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 waspBuild/.wasp/out/sdk/wasp/server/operations/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/operations/queries/types.ts
+waspBuild/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/out/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/utils.ts
 waspBuild/.wasp/out/sdk/wasp/tsconfig.json

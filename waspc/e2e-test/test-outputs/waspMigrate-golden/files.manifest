@@ -147,6 +147,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
+waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.js.map
@@ -182,6 +185,7 @@ waspMigrate/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 waspMigrate/.wasp/out/sdk/wasp/server/operations/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/operations/queries/types.ts
+waspMigrate/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspMigrate/.wasp/out/sdk/wasp/server/types/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/utils.ts
 waspMigrate/.wasp/out/sdk/wasp/tsconfig.json

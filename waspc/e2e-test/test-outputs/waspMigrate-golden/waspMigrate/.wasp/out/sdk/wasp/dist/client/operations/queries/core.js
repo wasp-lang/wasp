@@ -12,14 +12,17 @@ export function makeQueryCacheKey(query, payload) {
 export function createQuery(relativeQueryPath, entitiesUsed) {
     const queryRoute = makeOperationRoute(relativeQueryPath);
     const queryCacheKey = [relativeQueryPath];
-    const queryFn = async (queryArgs) => {
+    const queryFn = (async (queryArgs) => {
         const serverResult = await callOperation(queryRoute, queryArgs);
         // todo: The full queryCacheKey is constructed in two places, both here and
         // inside the useQuery hook. See
         // https://github.com/wasp-lang/wasp/issues/2017
         const queryCacheKey = makeQueryCacheKey(queryFn, queryArgs);
         return getActiveOptimisticUpdates(queryCacheKey).reduce((result, update) => update(result), serverResult);
-    };
+        // This assertion is necessary because, when the Input is void, we want to
+        // present the function as not accepting a payload (which isn't consistent
+        // with how it's defined).
+    });
     return buildAndRegisterQuery(queryFn, { queryCacheKey, queryRoute, entitiesUsed });
 }
 // PRIVATE API (used in SDK)
