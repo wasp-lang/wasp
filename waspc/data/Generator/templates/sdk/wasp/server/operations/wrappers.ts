@@ -163,10 +163,16 @@ type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefin
 /**
  * Constructs the type for an authenticated operation's server-side API.
  *
- * @template Input The type of the payload the operation expects (must be `void` if the operation doesn't expect a payload).
+ * @template Input The type of the payload the operation expects (must be
+ * `void` if the operation doesn't expect a payload).
  * @template Output The type of the operation's return value.
  */
-type AuthenticatedOperation<Input, Output> = Operation<Input, Output, true>
+type AuthenticatedOperation<Input, Output> =
+  [Input] extends [never]
+  ? (args: unknown, context: { user: AuthUser }) => Promise<Output>
+  : [Input] extends [void]
+  ? (context: { user: AuthUser }) => Promise<Output>
+  : (args: Input, context: { user: AuthUser }) => Promise<Output>
 
 /**
  * The principal type for an authenticated operation's definition (i.e., all
@@ -184,10 +190,17 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
 /**
  * Constructs the type for an unauthenticated operation's server-side API.
  *
- * @template Input The type of the payload the operation expects (must be `void` if the operation doesn't expect a payload).
+ * @template Input The type of the payload the operation expects (must be
+ * `void` if the operation doesn't expect a payload).
  * @template Output The type of the operation's return value.
  */
-type UnauthenticatedOperation<Input, Output> = Operation<Input, Output, false>
+type UnauthenticatedOperation<Input, Output> =
+  [Input] extends [never]
+  ? (args: unknown) => Promise<Output>
+  : [Input] extends [void]
+  ? () => Promise<Output>
+  : (args: Input) => Promise<Output>
+
 
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all
@@ -206,51 +219,5 @@ type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinit
  *
  * @template OperationDefinition The type of the operation's definition.
  */
-type EntityMapFor<OperationDefinition extends GenericAuthenticatedOperationDefinition> = 
+type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> =
   Parameters<OperationDefinition>[1]["entities"]
-
-/**
- * Constructs the type for an operation's server-side API.
- *
- * @template Input The type of the payload the operation expects (must be
- * `void` if the operation doesn't expect a payload).
- * @template Output The type of the operation's return value.
- * @template IsAuthenticated true if the operation is authenticated, false otherwise
- */
-type Operation<Input, Output, IsAuthenticated extends boolean> = [
-  Input
-] extends [never]
-  ? OperationWithPayload<unknown, Output, IsAuthenticated>
-  : [Input] extends [void]
-  ? OperationWithoutPayload<Output, IsAuthenticated>
-  : OperationWithPayload<Input, Output, IsAuthenticated>
-
-/**
- * Constructs the type of the server-side API for an operation that
- * expects a payload.
- *
- * @template Input The type of the payload the operation expects.
- * @template Output The type of the operation's return value.
- * @template IsAuthenticated true if the operation is authenticated, false otherwise
- */
-type OperationWithPayload<
-  Input,
-  Output,
-  IsAuthenticated extends boolean
-> = IsAuthenticated extends true
-  ? (args: Input, context: { user: AuthUser }) => Promise<Output>
-  : (args: Input) => Promise<Output>
-
-/**
- * Constructs the type of the server-side API for an operation that
- * doesn't expect a payload.
- *
- * @template Output The type of the operation's return value.
- * @template IsAuthenticated true if the operation is authenticated, false otherwise
- */
-type OperationWithoutPayload<
-  Output,
-  IsAuthenticated extends boolean
-> = IsAuthenticated extends true
-  ? (context: { user: AuthUser }) => Promise<Output>
-  : () => Promise<Output>

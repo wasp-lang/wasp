@@ -70,7 +70,8 @@ genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
-        [ "operations" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+        [ "isAuthEnabled" .= isAuthEnabledGlobally,
+          "operations" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
