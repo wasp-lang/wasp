@@ -27,7 +27,12 @@ export const getAllTasks = (async (args, context) => {
         include: {
           auth: {
             include: {
-              identities: true,
+              identities: {
+                select: {
+                  providerName: true,
+                  providerUserId: true,
+                }
+              },
             },
           },
         },

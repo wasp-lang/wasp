@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (fromMaybe, isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe)
 import StrongPath
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -59,7 +59,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util (toLowerFirst, (<++>))
+import Wasp.Util ((<++>))
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec = genSdkReal spec
@@ -119,21 +119,6 @@ genSdkReal spec =
   where
     genFileCopy = return . C.mkTmplFd
 
--- genSdkHardcoded :: Generator [FileDraft]
--- genSdkHardcoded =
---   return []
---   where
---     copyFile = C.mkTmplFd
---     copyFolder :: Path' (Rel SdkTemplatesDir) (Dir d) -> FileDraft
---     copyFolder modul =
---       createCopyDirFileDraft
---         RemoveExistingDstDir
---         (dstFolder </> castRel modul)
---         (srcFolder </> modul)
---     dstFolder = C.sdkRootDirInProjectRootDir
---     srcFolder = absSdkTemplatesDir
---     absSdkTemplatesDir = unsafePerformIO getTemplatesDirAbsPath </> C.sdkTemplatesDirInTemplatesDir
-
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
   return
@@ -170,16 +155,9 @@ genEntitiesAndServerTypesDirs spec =
         ( Just $
             object
               [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName,
-                "userEntityName" .= userEntityName,
-                "authEntityName" .= DbAuth.authEntityName,
-                "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
-                "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
-                "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-                "userFieldName" .= toLowerFirst userEntityName
+                "isAuthEnabled" .= isJust maybeUserEntityName
               ]
         )
-    userEntityName = fromMaybe "" maybeUserEntityName
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
@@ -287,6 +265,8 @@ genTsConfigJson = do
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
+  -- NOTE: If Stitches start being used outside of auth,
+  -- we should include this dependency in the SDK deps.
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]

@@ -14,13 +14,19 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, clientTemplatesDirInSdkTemplatesDir, makeSdkImportPath, relDirToRelFileP)
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkTemplatesDir,
+    clientTemplatesDirInSdkTemplatesDir,
+    getOperationTypeName,
+    makeSdkImportPath,
+    relDirToRelFileP,
+  )
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
-import Wasp.Util (toUpperFirst, (<++>))
+import Wasp.Util ((<++>))
 
 data ClientOpsTemplatesDir
 
@@ -38,7 +44,8 @@ genOperations spec =
       genClientOpsFileCopy [relfile|internal/index.ts|],
       -- Not migrated to TS yet
       genClientOpsFileCopy [relfile|internal/updateHandlersMap.js|],
-      genClientOpsFileCopy [relfile|core.ts|],
+      genClientOpsFileCopy [relfile|rpc.ts|],
+      genClientOpsFileCopy [relfile|hooks.ts|],
       genClientOpsFileCopy [relfile|index.ts|],
       genClientOpsFileCopy [relfile|queryClient.ts|]
     ]
@@ -47,19 +54,17 @@ genOperations spec =
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
-  (:) <$> genQueriesIndex spec
-    <*> sequence
-      [ genClientOpsFileCopy [relfile|queries/core.js|],
-        genClientOpsFileCopy [relfile|queries/core.d.ts|]
-      ]
+  sequence
+    [ genClientOpsFileCopy [relfile|queries/core.ts|],
+      genQueriesIndex spec
+    ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
-  (:) <$> genActionsIndex spec
-    <*> sequence
-      [ genClientOpsFileCopy [relfile|actions/core.js|],
-        genClientOpsFileCopy [relfile|actions/core.d.ts|]
-      ]
+  sequence
+    [ genClientOpsFileCopy [relfile|actions/core.ts|],
+      genActionsIndex spec
+    ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ C.mkTmplFdWithData relPath tmplData
@@ -127,7 +132,7 @@ getOperationTypeData operation = tmplData
 
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ toUpperFirst operationName)
+        makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
     serverOpsImportPath =
       makeSdkImportPath $
         relDirToRelFileP $

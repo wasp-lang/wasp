@@ -3,7 +3,7 @@ import { prisma } from 'wasp/server'
 import { handleRejection } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 import auth from 'wasp/core/auth'
-import { type AuthUser } from 'wasp/auth'
+import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 
 import { fooBarNamespaceMiddlewareFn as _waspfooBarNamespacenamespaceMiddlewareConfigFn } from '../../../../../../src/server/apiNamespaces.js'
 
@@ -25,11 +25,11 @@ router.get(
   [auth, ...fooBarMiddleware],
   handleRejection(
     (
-      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUser },
+      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUserData | null },
       res: Parameters<typeof _waspfooBarfn>[1],
     ) => {
       const context = {
-        user: req.user,
+        user: makeAuthUserIfPossible(req.user),
         entities: {
         },
       }

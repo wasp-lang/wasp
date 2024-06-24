@@ -6,10 +6,10 @@ import {
  } from 'superjson'
 
 // PRIVATE API
-export type OperationRoute = { method: HttpMethod, path: string }
+export type OperationRoute = { method: HttpMethod.Post, path: string }
 
 // PRIVATE API
-export async function callOperation(operationRoute: OperationRoute & { method: HttpMethod.Post }, args: any) {
+export async function callOperation(operationRoute: OperationRoute, args: any) {
   try {
     const superjsonArgs = superjsonSerialize(args)
     const response = await api.post(operationRoute.path, superjsonArgs)

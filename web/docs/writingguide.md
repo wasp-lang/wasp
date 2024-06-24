@@ -151,6 +151,20 @@ This might seem redundant, but it makes our examples future-proof and helps reas
   - **Kindly communicate rules/boundaries.** If someone behaves in a way that's abusive/inappropriate, respond only with kindness and maturity, but also make it clear that this behavior is not acceptable and what will happen (according to the code of conduct) if they continue behaving poorly.
 - **All docs must go through the review cycle, preferably with more than a single reviewer.** Different people focus on different things. Some of us are great at coming up with examples, others easily come up with analogies and explain complex topics, some have a clear and concise writing style, etc. Therefore, try to get at least two or three people to review your document.
 
+## Linking to pages in the docs
+
+Always use relative links (e.g. `../../overview.md`) to link to other pages, unless you are writing a reusable snippet.
+
+Never use absolute links starting with `/docs` because they break our versioned docs, instead use links "absolute to the file root".
+
+Writing a link "absolute to the file root":
+1. Write an absolute link, start from the file root (e.g. `/` represents the `docs` folder)
+2. Include the extension (e.g. `.md`)
+
+For example, `/docs/introduction` should be written as `/introduction/introduction.md` because this file is located at `./docs/introduction/introduction.md`.
+
+Or another example `/docs/auth/entities#accessing-the-auth-fields` becomes `/auth/entities/entities.md#accessing-the-auth-fields`. This file is located at `./docs/auth/entities/entities.md`.
+
 ## Possible improvements
 
 - Some parts of our docs don't follow all the guidelines outlined in this document. There's no need to start fixing all the issues right away. We can slowly improve the docs as we edit them.

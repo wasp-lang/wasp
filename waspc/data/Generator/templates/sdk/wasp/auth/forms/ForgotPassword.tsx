@@ -6,7 +6,7 @@ export function ForgotPasswordForm({
   appearance,
   logo,
   socialLayout,
-}: CustomizationOptions) {
+}: CustomizationOptions): React.JSX.Element {
   return (
     <Auth
       appearance={appearance}

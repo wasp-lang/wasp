@@ -1,4 +1,4 @@
-import { ReactElement } from 'react'
+import { ReactElement, ReactNode } from 'react'
 import { serialize as superjsonSerialize } from 'superjson'
 import { rest, type ResponseResolver, type RestContext } from 'msw'
 import { setupServer, type SetupServer } from 'msw/node'
@@ -6,7 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
-import { Query } from 'wasp/client/operations/core'
+import { Query } from 'wasp/client/operations/rpc'
 import { config } from 'wasp/client'
 import { HttpMethod, Route } from 'wasp/client'
 
@@ -31,7 +31,7 @@ export function renderInContext(ui: ReactElement): RenderResult {
   )
   return {
     ...result,
-    rerender: (rerenderUi: ReactElement) =>
+    rerender: (rerenderUi: ReactNode) =>
       rerender(
         <QueryClientProvider client={client}>
           <Router>{rerenderUi}</Router>

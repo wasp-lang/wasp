@@ -1,10 +1,12 @@
-import { useSocket } from "wasp/client/webSocket";
-import { Link } from "wasp/client/router";
-import { logout, useAuth } from "wasp/client/auth";
-import { useQuery, getDate } from "wasp/client/operations";
+import { useSocket } from 'wasp/client/webSocket'
+import { Link } from 'wasp/client/router'
+import { logout, useAuth } from 'wasp/client/auth'
+import { useQuery, getDate } from 'wasp/client/operations'
 
 import './Main.css'
 import { getName } from './user'
+// Necessary to trigger type tests.
+import './testTypes/operations/client'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()
@@ -13,11 +15,15 @@ export function App({ children }: any) {
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
+  const appName = import.meta.env.REACT_APP_NAME
+    ? import.meta.env.REACT_APP_NAME
+    : 'TODO App'
+
   return (
     <div className="app border-spacing-2 p-4">
       <header className="flex justify-between">
         <h1 className="font-bold text-3xl mb-5">
-          <Link to="/">ToDo App</Link>
+          <Link to="/">{appName}</Link>
         </h1>
         <h2>
           Your site was loaded at: {date?.toLocaleString()} {connectionIcon}

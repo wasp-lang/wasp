@@ -1,3 +1,5 @@
-import type { AuthUser } from './types';
-export declare const getMe: () => Promise<AuthUser | null>;
-export default function useAuth(queryFnArgs?: unknown, config?: any): import("@tanstack/react-query").UseQueryResult<AuthUser, Error>;
+import type { Query } from 'wasp/client/operations/rpc';
+import type { AuthUser } from '../server/auth/user.js';
+import { UseQueryResult } from '@tanstack/react-query';
+export declare const getMe: Query<void, AuthUser | null>;
+export default function useAuth(): UseQueryResult<AuthUser | null>;

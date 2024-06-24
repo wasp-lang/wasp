@@ -7,4 +7,4 @@ There are two mechanisms used for overriding the default behavior:
 
 Let's explore them in more detail.
 
-<!-- This snippet is used in google.md and github.md -->
+<!-- This snippet is used in {google,github,keycloak}.md -->

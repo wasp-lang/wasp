@@ -85,9 +85,12 @@ In the root of your Wasp project you can create two distinct files:
     REACT_APP_SOME_VAR_NAME=somevalue
     ```
 
-These files should not be committed to version control, and they are already ignored by default in the `.gitignore` file that comes with Wasp.
+`.env.server` should not be committed to version control as it can contain secrets, while `.env.client` can be versioned as it must not contain any secrets.
+By default, in the `.gitignore` file that comes with a new Wasp app, we ignore all dotenv files.
 
-<!-- `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [README of the lib we use for them](https://github.com/stackbuilders/dotenv-hs). -->
+:::info Dotenv files
+  `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [dotenv npm package](https://www.npmjs.com/package/dotenv).
+:::
 
 ### 2. Using Shell
 If you set environment variables in the shell where you run your Wasp commands (e.g., `wasp start`), Wasp will recognize them.
@@ -104,18 +107,19 @@ Defining environment variables in this way can be cumbersome even for a single p
 
 ## Defining Env Vars in Production
 
-While in development, we had the option of using `.env` files which made it easy to define and manage env vars. However, in production, we need to provide env vars differently.
-
 ![Env vars usage in development and production](/img/env/prod_dev_fade_2.svg)
+
+While in development, we had the option of using `.env.client` and `.env.server` files which made it easy to define and manage env vars.
+However, for production, `.env.client` and `.env.server` files will be ignored, and we need to provide env vars differently.
 
 ### Client Env Vars
 
-Client env vars are embedded into the client code during the build and shipping process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
-
-You should provide them to the build command, for example:
+To set client env vars for production, you need to ensure they are set for the terminal session in which you are running the build command, for example:
 ```shell
 REACT_APP_SOME_VAR_NAME=somevalue npm run build
 ```
+
+These client env vars are then embedded into the client code during the build and shipping process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 
 :::info How it works
 What happens behind the scenes is that Wasp will replace all occurrences of `import.meta.env.REACT_APP_SOME_VAR_NAME` with the value you provided. This is done during the build process, so the value is embedded into the client code.

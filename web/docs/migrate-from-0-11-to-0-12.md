@@ -71,7 +71,7 @@ The main differences are:
   no longer start with `@server` or `@client`.
 - Your project now features a top-level `public` dir. Wasp will publicly serve
   all the files it finds in this directory. Read more about it
-  [here](https://wasp-lang.dev/docs/project/static-assets).
+  [here](/project/static-assets.md).
 
 Our [Overview docs](./tutorial/02-project-structure.md) explain the new
 structure in detail, while this page provides a [quick guide](#migrating-your-project-to-the-new-structure) for migrating existing
@@ -160,7 +160,7 @@ Auth field customization is no longer possible using the `_waspCustomValidations
 
 :::
 
-You can read more about the new auth system in the [Auth Entities](./auth/entities) section.
+You can read more about the new auth system in the [Accessing User Data](./auth/entities) section.
 
 ## How to Migrate?
 
@@ -642,7 +642,8 @@ You should see the new `Auth`, `AuthIdentity` and `Session` tables in your datab
   
  Instead, you can now use `getUsername(user)` to get the username obtained from Username & Password auth method, or `getEmail(user)` to get the email obtained from Email auth method.
  
- Read more about the helpers in the [Auth Entities - Accessing the Auth Fields](auth/entities#accessing-the-auth-fields) section.
+ Read more about the helpers in the [Accessing User Data](auth/entities#accessing-the-auth-fields) section.
+ 
 1. Finally, **check that your app now fully works as it worked before**. If all the above steps were done correctly, everything should be working now.
 
     :::info Migrating a deployed app

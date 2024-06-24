@@ -8,6 +8,7 @@ import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
+import qualified System.Environment as Env
 import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
@@ -19,6 +20,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
@@ -79,6 +81,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
       exitFailure
     NodeVersion.VersionCheckSuccess -> pure ()
 
+  setDefaultCliEnvVars
+
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.NewAi newAiArgs -> case newAiArgs of
@@ -128,6 +132,23 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+-- | Sets env variables that are visible to the commands run by the CLI.
+-- For example, we can use this to hide update messages by tools like Prisma.
+-- The env variables are visible to our CLI and any child processes spawned by it.
+-- The env variables won't be set in the terminal session after the CLI exits.
+setDefaultCliEnvVars :: IO ()
+setDefaultCliEnvVars = do
+  mapM_ (uncurry Env.setEnv) cliEnvVars
+  where
+    cliEnvVars :: [(String, String)]
+    cliEnvVars =
+      [ ("PRISMA_HIDE_UPDATE_MESSAGE", "true"),
+        -- NOTE: We were getting errors from Prisma v4 related to their Checkpoint system
+        -- (which checks for updates that we don't want anyway), so now by default
+        -- we turn it off. Once we switch to Prisma v5, try removing this.
+        ("CHECKPOINT_DISABLE", "1")
+      ]
 
 {- ORMOLU_DISABLE -}
 printUsage :: IO ()
@@ -197,6 +218,7 @@ printVersion = do
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  ["reset"] -> runCommand Command.Db.Reset.reset
   ["start"] -> runCommand Command.Start.Db.start
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing

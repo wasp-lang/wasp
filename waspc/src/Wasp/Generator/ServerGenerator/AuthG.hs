@@ -7,8 +7,11 @@ where
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     reldirP,
     relfile,
@@ -37,6 +40,7 @@ import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (extImportToAliasedImportJson)
 import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
@@ -46,9 +50,10 @@ genAuth spec = case maybeAuth of
   Just auth ->
     sequence
       [ genAuthRoutesIndex auth,
-        genFileCopy [relfile|routes/auth/me.js|],
+        genFileCopy [relfile|routes/auth/me.ts|],
         genFileCopy [relfile|routes/auth/logout.ts|],
-        genProvidersIndex auth
+        genProvidersIndex auth,
+        genAuthHooks auth
       ]
       <++> genLocalAuth auth
       <++> genOAuthAuth auth
@@ -95,6 +100,22 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
               JI._name = JI.JsImportModule providerId,
               JI._importAlias = Nothing
             }
+
+genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
+genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "onBeforeSignupHook" .= onBeforeSignupHook,
+          "onAfterSignupHook" .= onAfterSignupHook,
+          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook
+        ]
+    onBeforeSignupHook = extImportToAliasedImportJson "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
+    onAfterSignupHook = extImportToAliasedImportJson "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
+    onBeforeOAuthRedirectHook = extImportToAliasedImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|../|]
 
 depsRequiredByAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth

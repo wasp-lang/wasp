@@ -1,32 +1,19 @@
-import { getEmail, findUserIdentity, type AuthUser as User } from "wasp/auth";
+import { type AuthUser } from 'wasp/auth'
 
-export function getName(user?: User) {
+export function getName(user?: AuthUser) {
   if (!user) {
     return null
   }
 
   // We use multiple auth methods, so we need to check which one is available.
-  const emailIdentity = findUserIdentity(user, 'email')
-  if (emailIdentity) {
-    return getEmail(user)
+  if (user.identities.email !== null) {
+    return user.identities.email.id
   }
 
-  const googleIdentity = findUserIdentity(user, 'google')
-  if (googleIdentity) {
-    return `Google user ${googleIdentity.providerUserId}`
+  if (user.identities.google !== null) {
+    return `Google user ${user.identities.google.id}`
   }
 
   // If we don't know how to get the name, return null.
   return null
-}
-
-export function getProviderData(user?: User) {
-  if (!user) {
-    return null
-  }
-
-  const emailIdentity = findUserIdentity(user, 'email')
-  return emailIdentity && 'isEmailVerified' in emailIdentity.providerData
-    ? emailIdentity.providerData
-    : null
 }

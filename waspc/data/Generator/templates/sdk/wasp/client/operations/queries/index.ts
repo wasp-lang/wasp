@@ -1,16 +1,16 @@
 {{={= =}=}}
-import { createQuery } from './core'
+import { type QueryFor, createQuery } from './core'
 {=# queries =}
 {=& operationTypeImportStmt =}
 {=/ queries =}
 {=# queries =}
 
 // PUBLIC API
-export const {= operationName =} = createQuery<{= operationTypeName =}>(
+export const {= operationName =}: QueryFor<{= operationTypeName =}> = createQuery<{= operationTypeName =}>(
   '{= queryRoute =}',
   {=& entitiesArray =},
 )
 {=/ queries =}
 
-// PRIVATE API
-export { addMetadataToQuery } from './core'
+// PRIVATE API (used in SDK)
+export { buildAndRegisterQuery } from './core'

@@ -16,5 +16,3 @@ export default async function (args, context) {
     },
   })
 }
-
-export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =} 

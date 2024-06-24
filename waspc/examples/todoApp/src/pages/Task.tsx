@@ -1,5 +1,5 @@
-import { Link } from "wasp/client/router";
-import { type Task } from "wasp/entities";
+import { Link } from 'wasp/client/router'
+import { type Task } from 'wasp/entities'
 
 import {
   useAction,
@@ -8,7 +8,7 @@ import {
   useQuery,
   getTask,
   getTasks,
-} from "wasp/client/operations";
+} from 'wasp/client/operations'
 
 import React from 'react'
 
@@ -17,13 +17,19 @@ type TaskPayload = Pick<Task, 'id' | 'isDone'>
 const Todo = (props: any) => {
   const taskId = parseInt(props.match.params.id)
 
-  const { data: task, isFetching, error, isError } = useQuery(getTask, { id: taskId })
+  const {
+    data: task,
+    isFetching,
+    error,
+    isError,
+  } = useQuery(getTask, { id: taskId })
 
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
         getQuerySpecifier: () => [getTask, { id: taskId }],
-        // This query's cache should should never be emtpy
+        // Since we're on a page that uses this Query, its query's cache should
+        // should never be empty.
         updateQuery: ({ isDone }, oldTask) => ({ ...oldTask!, isDone }),
       } as OptimisticUpdateDefinition<TaskPayload, Task>,
       {
@@ -37,8 +43,8 @@ const Todo = (props: any) => {
     ],
   })
 
-  if (!task) return <div> Task with id {taskId} does not exist. </div>;
-  if (isError) return <div> Error occurred! {error.message} </div>;
+  if (!task) return <div> Task with id {taskId} does not exist. </div>
+  if (isError) return <div> Error occurred! {error.message} </div>
 
   async function toggleIsDone({ id, isDone }: Task) {
     try {

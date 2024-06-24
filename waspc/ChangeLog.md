@@ -1,5 +1,101 @@
 # Changelog
 
+## 0.14.0 (TBD)
+
+### 🎉 New Features
+
+- Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
+- Improved the API for calling Operations (Queries and Actions) directly on both the client and the server.
+- Improved API for calling Operations (Queries and Actions) directly.
+- Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
+
+  ```wasp
+  app myApp {
+    ...
+    auth: {
+      onBeforeSignup: import { onBeforeSignup } from "...",
+      onAfterSignup: import { onAfterSignup } from "...",
+      onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "...",
+    },
+  }
+  ```
+
+### ⚠️ Breaking Changes & Migration Guide
+
+#### Strict options when building the `wasp` package
+
+The `wasp` package is now built with `strictBindCallApply`, `alwaysStrict`, `noImplicitThis`, and `strictFunctionTypes`.
+This is a breaking change only if you have manually set your `tsconfig.json`'s `strict` field to `false` and are relying on it being more permissive.
+To fix the errors, enable the options listed above and make sure your code type checks.
+
+This quirk is only temporary. You'll soon be able to use any `tsconfig.json` options you want.
+Track this issue for progress: https://github.com/wasp-lang/wasp/issues/1827
+
+#### Directly calling Queries on the client
+
+You can now call Queries directly from the client without dealing with
+`queryCacheKey`s. Wasp takes care of it under the hood:
+
+Now:
+
+```typescript
+const doneTasks = await getTasks({ isDone: true });
+```
+
+Before:
+
+```typescript
+const doneTasks = await getTasks(getTasks.queryCacheKey, { isDone: true });
+```
+
+#### Accessing `AuthUser` data
+
+We had to make a couple of breaking changes to reach the new simpler Auth API:
+
+1. You don't need to use `getUsername` to access the username:
+
+   - Before: Used `getUsername` to access the username.
+   - After: Directly use `user.identities.username?.id`.
+
+2. You don't need to use `getEmail` to access the email:
+
+   - Before: Used `getEmail` to access the email.
+   - After: Directly use `user.identities.email?.id`.
+
+3. Better API for accessing `providerData`:
+
+   - Before: Required complex logic to access typed provider data.
+   - After: Directly use `user.identities.<provider>.<value>` for typed access.
+
+4. Better API for accessing `getFirstProviderUserId`:
+
+   - Before: Used `getFirstProviderUserId(user)` to get the ID.
+   - After: Use `user.getFirstProviderUserId()` directly on the user object.
+
+5. You don't need to use `findUserIdentity` any more:
+
+   - Before: Relied on `findUserIdentity` to check which user identity exists.
+   - After: Directly check `user.identities.<provider>` existence.
+
+These changes improve code readability and lower the complexity of accessing user's auth fields. Follow the [detailed migration steps to update your project to 0.14.0](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14).
+
+### Note on Auth Helper Functions (`getUsername`, `getEmail` etc.)
+
+These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp-lang.dev/docs/auth/entities#including-the-user-with-other-entities).
+
+### 🐞 Bug fixes
+
+- Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
+- Fix the `netlify.toml` to include the correct build path for the client app.
+- Fix the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
+
+### 🔧 Small improvements
+
+- Improved the default loading spinner while waiting for the user to be fetched.
+- Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
+- When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
+- Improved default gitignore to more tightly target dotenv files and to allow for example dotenv files and .env.client.
+
 ## 0.13.2 (2024-04-11)
 
 ### 🐞 Bug fixes
@@ -27,7 +123,6 @@
     // ...
   }
   ```
-
 
 ## 0.13.0 (2024-03-18)
 

@@ -1,4 +1,5 @@
 import { initEmailSender } from "./core/index.js";
+import { EmailSender } from "./core/types.js";
 
 const emailProvider = {
   type: "sendgrid",
@@ -6,7 +7,7 @@ const emailProvider = {
 } as const;
 
 // PUBLIC API
-export const emailSender = initEmailSender(emailProvider);
+export const emailSender: EmailSender = initEmailSender(emailProvider);
 
 // PUBLIC API
-export type { Email, EmailFromField } from "./core/types.js";
+export type { Email, EmailFromField, EmailSender, SentMessageInfo } from "./core/types.js";

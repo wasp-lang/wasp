@@ -1,4 +1,4 @@
-import { type AuthUser as User } from 'wasp/auth'
+import { type AuthUser } from 'wasp/auth'
 import { mockServer, renderInContext } from 'wasp/client/test'
 import { getTasks, getDate } from 'wasp/client/operations'
 import { test, expect } from 'vitest'
@@ -36,21 +36,12 @@ test('handles mock data', async () => {
 })
 
 const mockUser = {
-  id: 12,
-  auth: {
-    id: '123',
-    userId: 12,
-    identities: [
-      {
-        authId: '123',
-        providerName: 'email',
-        providerUserId: 'elon@tesla.com',
-        providerData: '',
-      },
-    ],
+  identities: {
+    email: {
+      id: 'elon@tesla.com',
+    },
   },
-  address: null,
-} satisfies User
+} as AuthUser
 
 test('handles multiple mock data sources', async () => {
   mockQuery(getMe, mockUser)

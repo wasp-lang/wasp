@@ -41,6 +41,10 @@ makeDeclType ''App
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
 -- These are injected this way instead of hardcoding them into the Analyzer in order to make it
 -- easier to modify and maintain the Wasp compiler/language.
+
+-- *** MAKE SURE TO UPDATE: The `validateUniqueDeclarationNames` function in the `Wasp.AppSpec.Valid` module
+--                          when you add a new declaration type here, we need to check for duplicate declaration names
+--                          for the new declaration type.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addDeclType @App $

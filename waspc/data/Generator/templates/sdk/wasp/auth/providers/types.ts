@@ -5,7 +5,7 @@ import type { Expand } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
 // PUBLIC API
-export function defineUserSignupFields(fields: UserSignupFields) {
+export function defineUserSignupFields(fields: UserSignupFields): UserSignupFields {
   return fields
 }
 

@@ -1,2 +1,3 @@
-export declare const emailSender: import("./core/types.js").EmailSender;
-export type { Email, EmailFromField } from "./core/types.js";
+import { EmailSender } from "./core/types.js";
+export declare const emailSender: EmailSender;
+export type { Email, EmailFromField, EmailSender, SentMessageInfo } from "./core/types.js";

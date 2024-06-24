@@ -1,6 +1,11 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.Server.OperationsGenerator where
+module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
+  ( extImportToJsImport,
+    serverOperationsDirInSdkRootDir,
+    genOperations,
+  )
+where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
@@ -16,11 +21,11 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (makeJsonWithEntityData)
+import Wasp.Generator.Common (dropExtensionFromImportPath, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, getOperationTypeName, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
 import qualified Wasp.JsImport as JI
@@ -31,9 +36,6 @@ data ServerOpsTemplatesDir
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerOpsTemplatesDir)
 serverOpsDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
 
-genServerOpsFileCopy :: Path' (Rel ServerOpsTemplatesDir) File' -> Generator FileDraft
-genServerOpsFileCopy path = return $ C.mkTmplFd $ serverOpsDirInSdkTemplatesDir </> path
-
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
@@ -41,18 +43,26 @@ genOperations spec =
       genActionTypesFile spec,
       genQueriesIndex spec,
       genActionsIndex spec,
-      genServerTs spec
+      genWrappers spec,
+      genIndexTs spec
     ]
 
-genServerTs :: AppSpec -> Generator FileDraft
-genServerTs spec = return $ mkTmplFdWithData relPath tmplData
+genIndexTs :: AppSpec -> Generator FileDraft
+genIndexTs spec = return $ mkTmplFdWithData relPath tmplData
   where
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
-        [ "actions" .= map getActionData (AS.getActions spec),
-          "queries" .= map getQueryData (AS.getQueries spec)
+        [ "actions" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec),
+          "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
+    isAuthEnabledGlobally = isAuthEnabled spec
+
+genWrappers :: AppSpec -> Generator FileDraft
+genWrappers spec = return $ mkTmplFdWithData relPath tmplData
+  where
+    relPath = serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]
+    tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
@@ -60,8 +70,10 @@ genQueriesIndex spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
-        [ "operations" .= map getQueryData (AS.getQueries spec)
+        [ "isAuthEnabled" .= isAuthEnabledGlobally,
+          "operations" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
+    isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
@@ -69,8 +81,10 @@ genActionsIndex spec = return $ mkTmplFdWithData relPath tmplData
     relPath = serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
-        [ "operations" .= map getActionData (AS.getActions spec)
+        [ "isAuthEnabled" .= isAuthEnabledGlobally,
+          "operations" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec)
         ]
+    isAuthEnabledGlobally = isAuthEnabled spec
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec = genOperationTypesFile relPath operations isAuthEnabledGlobally
@@ -89,13 +103,13 @@ genActionTypesFile spec = genOperationTypesFile relPath operations isAuthEnabled
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: (String, AS.Query.Query) -> Aeson.Value
-getQueryData (queryName, query) = getOperationTmplData operation
+getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
+getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData isAuthEnabledGlobally operation
   where
     operation = AS.Operation.QueryOp queryName query
 
-getActionData :: (String, AS.Action.Action) -> Aeson.Value
-getActionData (actionName, action) = getOperationTmplData operation
+getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
+getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData isAuthEnabledGlobally operation
   where
     operation = AS.Operation.ActionOp actionName action
 
@@ -129,14 +143,15 @@ serverOperationsDirInSdkRootDir =
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
-getOperationTmplData :: AS.Operation.Operation -> Aeson.Value
-getOperationTmplData operation =
+getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
+getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= getName operation,
-      "operationTypeName" .= toUpperFirst (getName operation),
+      "operationTypeName" .= getOperationTypeName operation,
       "entities"
-        .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation)
+        .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
+      "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 
 extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
@@ -158,6 +173,6 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
       _importAlias = Just $ EI.importIdentifier extImport ++ "_ext"
     }
   where
-    importPath = C.makeSdkImportPath $ extCodeDirP </> SP.castRel extImportPath
+    importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> SP.castRel extImportPath
     extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName

@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react'
-import { type AuthUser as User } from "wasp/auth";
-import { Link } from "wasp/client/router";
-import { api } from "wasp/client/api";
-import { getName, getProviderData } from '../user'
+import { type AuthUser as User } from 'wasp/auth'
+import { Link } from 'wasp/client/router'
+import { api } from 'wasp/client/api'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -14,20 +13,19 @@ export const ProfilePage = ({ user }: { user: User }) => {
     fetchCustomRoute()
   }, [])
 
-  const name = getName(user)
-  const providerData = getProviderData(user)
-
   return (
     <>
       <h2>Profile page</h2>
       <div>
-        Hello <strong>{name}</strong>! Your status is{' '}
+        Hello <strong>{user.getFirstProviderUserId()}</strong>! Your status is{' '}
         <strong>
-          {providerData && providerData.isEmailVerified
-            ? 'verfied'
-            : 'unverified'}
+          {user.identities.email?.isEmailVerified ? 'verfied' : 'unverified'}
         </strong>
         .
+      </div>
+      <div>
+        Value of <code>user.isOnAfterSignupHookCalled</code> is{' '}
+        <strong>{user.isOnAfterSignupHookCalled ? 'true' : 'false'}</strong>.
       </div>
       <br />
       <Link to="/">Go to dashboard</Link>

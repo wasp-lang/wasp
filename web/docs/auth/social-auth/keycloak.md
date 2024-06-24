@@ -11,6 +11,8 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import KeycloakData from '../entities/_keycloak-data.md';
+import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 
 Wasp supports Keycloak Authentication out of the box.
 
@@ -453,6 +455,12 @@ export function getConfig() {
 ## Using Auth
 
 <UsingAuthNote />
+
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), you'll be able to access the user's Keycloak ID like this:
+
+<KeycloakData />
+
+<AccessingUserDataNote />
 
 ## API Reference
 

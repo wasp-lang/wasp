@@ -1,15 +1,17 @@
 app waspComplexTest {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.13.2"
+    version: "^0.14.0"
   },
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
       google: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: "/login",
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
+    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks.js",
   },
 
   server: {
@@ -38,19 +40,6 @@ page MainPage {
 }
 entity User {=psl
   id                        Int           @id @default(autoincrement())
-  username                  String        @unique
-  password                  String
-  externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
 psl=}
 
 job mySpecialJob {

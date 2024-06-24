@@ -61,7 +61,6 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
-      genFileCopy [relfile|src/test/vitest/setup.ts|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
@@ -195,6 +194,10 @@ genSrcDir spec =
     [ genFileCopy [relfile|logo.png|],
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|vite-env.d.ts|],
+      genFileCopy [relfile|test/vitest/setup.ts|],
+      genFileCopy [relfile|components/Message.tsx|],
+      genFileCopy [relfile|components/Loader.tsx|],
+      genFileCopy [relfile|components/FullPageWrapper.tsx|],
       getIndexTs spec
     ]
     <++> genAuth spec
