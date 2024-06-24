@@ -46,19 +46,6 @@ export function UsernameAndPasswordPill() {
   )
 }
 
-export function DiscordPill() {
-  return (
-    <Pill
-      style={{
-        backgroundColor: 'var(--auth-pills-discord)',
-      }}
-      linkToPage="/docs/auth/social-auth/discord"
-    >
-      Discord
-    </Pill>
-  )
-}
-
 export function GithubPill() {
   return (
     <Pill

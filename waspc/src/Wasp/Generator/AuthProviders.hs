@@ -52,7 +52,7 @@ discordAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "discord",
       OA._displayName = "Discord",
-      OA._requiredScope = ["identify", "email"]
+      OA._requiredScope = ["identify"]
     }
 
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value

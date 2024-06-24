@@ -2,7 +2,7 @@
 title: Auth Hooks
 ---
 
-import { EmailPill, UsernameAndPasswordPill, DiscordPill, GithubPill, GooglePill, KeycloakPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, DiscordPill } from "./Pills";
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 Auth hooks allow you to "hook into" the auth process at various stages and run your custom code. For example, if you want to forbid certain emails from signing up, or if you wish to send a welcome email to the user after they sign up, auth hooks are the way to go.

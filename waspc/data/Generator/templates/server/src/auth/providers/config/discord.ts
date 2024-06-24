@@ -65,7 +65,7 @@ const _waspConfig: ProviderConfig = {
               providerProfile.avatar = `https://cdn.discordapp.com/avatars/${providerProfile.id}/${providerProfile.avatar}.png`;
             }
             
-            return { providerProfile, providerUserId: `${providerProfile.id}` };
+            return { providerProfile, providerUserId: providerProfile.id };
         }
 
         return createOAuthProviderRouter({

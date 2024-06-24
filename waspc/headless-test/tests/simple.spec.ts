@@ -21,10 +21,6 @@ test.describe('signup and login', () => {
     await page.waitForSelector('text=Create a new account')
 
     await expect(
-      page.locator("a[href='http://localhost:3001/auth/discord/login']"),
-    ).toBeVisible()
-
-    await expect(
       page.locator("a[href='http://localhost:3001/auth/google/login']"),
     ).toBeVisible()
   })

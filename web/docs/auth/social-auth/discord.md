@@ -40,7 +40,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -65,7 +65,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -260,7 +260,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 Yay, we've successfully set up Discord Auth! 🎉
 
-![Discord Auth](/img/auth/github.png) <!-- TODO: Grab screenshot of discord auth -->
+![Discord Auth](/img/auth/discord.png)
 
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
@@ -276,7 +276,7 @@ Add `discord: {}` to the `auth.methods` dictionary to use it with default settin
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -296,7 +296,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -361,7 +361,7 @@ For an up to date info about the data received from Discord, please refer to the
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -406,7 +406,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -466,7 +466,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -490,7 +490,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {

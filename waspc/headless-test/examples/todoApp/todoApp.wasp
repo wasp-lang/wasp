@@ -20,7 +20,6 @@ app todoApp {
           clientRoute: PasswordResetRoute
         }
       },
-      discord: {},
       google: {}
     },
     onAuthFailedRedirectTo: "/login",
