@@ -6,7 +6,7 @@ It is also a part of a tutorial, [How to build a real-time voting app with WebSo
 
 [![wasp websockets app](image.png)](https://www.youtube.com/watch?v=Twy-2P0Co6M)
 
-You can try out a deployed version of the app here: https://websockets-client-production.up.railway.app/
+You can try out a deployed version of the app here: https://websockets-voting-client.fly.dev/
 
 This app also includes Wasp's integrated auth and a voting system (again, neat!).
 
