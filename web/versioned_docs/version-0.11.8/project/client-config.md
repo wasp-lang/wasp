@@ -263,7 +263,7 @@ export default async function mySetupFunction(): Promise<void> {
 
 Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
-[react-query's docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
+[react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
 Read more about the setup function in the [API Reference](#setupfn-clientimport).
 
