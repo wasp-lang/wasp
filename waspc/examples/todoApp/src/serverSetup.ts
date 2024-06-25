@@ -1,8 +1,13 @@
-import { type Application } from "express";
-import { mySpecialJob } from "wasp/server/jobs";
-import { config, type MiddlewareConfigFn, type ServerSetupFn } from "wasp/server";
+import { type Application } from 'express'
+import { mySpecialJob } from 'wasp/server/jobs'
+import {
+  config,
+  type MiddlewareConfigFn,
+  type ServerSetupFn,
+} from 'wasp/server'
 import { sayHi } from './util.js'
 import cors from 'cors'
+import './testTypes/operations/server.js'
 
 let someResource: string | undefined = undefined
 

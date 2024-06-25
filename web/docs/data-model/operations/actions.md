@@ -216,7 +216,12 @@ For a detailed explanation of the Action definition API (i.e., arguments and ret
 
 ### Using Actions
 
-To use an Action on the client, you can import it from `wasp/client/operations` and call it directly.
+#### Using Actions on the client
+
+To call an Action on the client, you can import it from `wasp/client/operations` and call it directly.
+
+The usage doesn't depend on whether the Action is authenticated or not.
+Wasp authenticates the logged-in user in the background.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -321,6 +326,50 @@ export const TaskPage = ({ id }: { id: number }) => {
 </Tabs>
 
 Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
+
+
+#### Using Actions on the server
+
+Calling an Action on the server is similar to calling it on the client.
+
+Here's what you have to do differently:
+ - Import Actions from `wasp/server/operations` instead of `wasp/client/operations`.
+ - Make sure you pass in a context object with the user to authenticated Actions.
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js
+import { createTask, markTasAsDone } from 'wasp/server/operations'
+
+const user = // Get an AuthUser object, e.g., from context.user
+
+const newTask = await createTask(
+  { description: 'Learn TypeScript' },
+  { user },
+)
+await markTasAsDone({ id: 1 }, { user })
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts
+import { createTask, markTasAsDone } from 'wasp/server/operations'
+
+const user = // Get an AuthUser object, e.g., from context.user
+
+// TypeScript automatically infers the return values and type-checks
+// the payloads.
+const newTask = await createTask(
+  { description: 'Keep learning TypeScript' },
+  { user },
+)
+await markTasAsDone({ id: 1 }, { user })
+```
+
+</TabItem>
+</Tabs>
 
 ### Error Handling
 
@@ -527,7 +576,11 @@ query createFoo {
 Enables you to import and use it anywhere in your code (on the server or the client):
 
 ```js
+// Use it on the client
 import { createFoo } from 'wasp/client/operations'
+
+// Use it on the server
+import { createFoo } from 'wasp/server/operations'
 ```
 
 </TabItem>
@@ -807,7 +860,7 @@ export default TaskPage;
 
 The `useAction` hook currently only supports specifying optimistic updates. You can expect more features in future versions of Wasp.
 
-Wasp's optimistic update API is deliberately small and focuses exclusively on updating Query caches (as that's the most common use case). You might need an API that offers more options or a higher level of control. If that's the case, instead of using Wasp's `useAction` hook, you can use _react-query_'s `useMutation` hook and directly work with [their low-level API](https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates).
+Wasp's optimistic update API is deliberately small and focuses exclusively on updating Query caches (as that's the most common use case). You might need an API that offers more options or a higher level of control. If that's the case, instead of using Wasp's `useAction` hook, you can use _react-query_'s `useMutation` hook and directly work with [their low-level API](https://tanstack.com/query/v4/docs/framework/react/guides/optimistic-updates).
 
 If you decide to use _react-query_'s API directly, you will need access to Query cache key. Wasp internally uses this key but abstracts it from the programmer. Still, you can easily obtain it by accessing the `queryCacheKey` property on any Query:
 

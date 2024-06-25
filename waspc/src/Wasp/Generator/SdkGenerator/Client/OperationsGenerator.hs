@@ -14,13 +14,19 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, clientTemplatesDirInSdkTemplatesDir, makeSdkImportPath, relDirToRelFileP)
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkTemplatesDir,
+    clientTemplatesDirInSdkTemplatesDir,
+    getOperationTypeName,
+    makeSdkImportPath,
+    relDirToRelFileP,
+  )
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
-import Wasp.Util (toUpperFirst, (<++>))
+import Wasp.Util ((<++>))
 
 data ClientOpsTemplatesDir
 
@@ -126,7 +132,7 @@ getOperationTypeData operation = tmplData
 
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ toUpperFirst operationName)
+        makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
     serverOpsImportPath =
       makeSdkImportPath $
         relDirToRelFileP $

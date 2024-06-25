@@ -38,7 +38,7 @@ You can read all it in this <a href="https://wasp-lang.dev/blog/2023/04/11/wasp-
     source="/img/hackathon2/lw2-short.png"
 />
 
-Even better, we've got a new starter templates feature that lets you create a new project with a pre-built template, so you can get started even faster! Like this sweet <a href="https://github.com/wasp-lang/SaaS-Templaate-GPT">SaaS template</a> with GPT, Stripe, SendGrid, and Tailwind UI already integrated:
+Even better, we've got a new starter templates feature that lets you create a new project with a pre-built template, so you can get started even faster! Like this sweet <a href="https://github.com/wasp-lang/open-saas">SaaS template</a> with GPT, Stripe, SendGrid, and Tailwind UI already integrated:
 
 <ImgWithCaption
   source="/img/lw2/wasp-saas-template.png"
@@ -49,7 +49,7 @@ Just run `wasp new my-project -t saas` and you're good to go.
 
 The prizes for the hackathon include <b>an awesome Wasp-themed mechanical keyboard, tons of Wasp swag, and more cool stuff</b> (e.g., virtual hugs from the team)!
 
-The only rule is to use Wasp, and you can build whatever you want (but both you and I know it's going to be a GPT-powered app, so make sure to use <a href="https://github.com/wasp-lang/SaaS-Templaate-GPT">our template</a>).
+The only rule is to use Wasp, and you can build whatever you want (but both you and I know it's going to be a GPT-powered app, so make sure to use <a href="https://github.com/wasp-lang/open-saas">our template</a>).
 
 The applications are open, and the hackathon starts on April 28th and ends May 7th. You can apply (solo or with a team) here:
 

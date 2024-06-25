@@ -352,6 +352,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/queries/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/types/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/types/index.js.map
@@ -416,6 +419,7 @@ waspComplexTest/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/operations/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/operations/queries/types.ts
+waspComplexTest/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/types/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/utils.ts
 waspComplexTest/.wasp/out/sdk/wasp/tsconfig.json
