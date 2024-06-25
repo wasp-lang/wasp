@@ -29,7 +29,7 @@ export type AuthUser = AuthUserData & {
  * 
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
-export type AuthUserData = Omit<UserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
+export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
   identities: {
     {=# enabledProviders.isEmailAuthEnabled =}
     email: Expand<UserFacingProviderData<'email'>> | null
@@ -54,17 +54,36 @@ type UserFacingProviderData<PN extends ProviderName> = {
 } & Omit<PossibleProviderData[PN], 'hashedPassword'>
 
 // PRIVATE API
-export type UserEntityWithAuth = {= userEntityName =} & {
-  {= authFieldOnUserEntityName =}: AuthEntityWithIdentities | null
+export type CompleteUserEntityWithAuth =
+  MakeUserEntityWithAuth<CompleteAuthEntityWithIdentities>
+
+// PRIVATE API
+export type CompleteAuthEntityWithIdentities =
+  MakeAuthEntityWithIdentities<{= authIdentityEntityName =}>
+
+// PRIVATE API
+/**
+ * User entity with all of the auth related data that's needed for the user facing
+ * helper functions like `getUsername` and `getEmail`.
+ */
+export type UserEntityWithAuth = MakeUserEntityWithAuth<
+  MakeAuthEntityWithIdentities<
+    // It's constructed like the Complete* types, but only with the fields needed
+    // for the user facing functions.
+    Pick<{= authIdentityEntityName =}, 'providerName' | 'providerUserId'>
+  >
+>
+
+type MakeUserEntityWithAuth<AuthType> = {= userEntityName =} & {
+  {= authFieldOnUserEntityName =}: AuthType | null
+}
+
+type MakeAuthEntityWithIdentities<IdentityType> = {= authEntityName =} & {
+  {= identitiesFieldOnAuthEntityName =}: IdentityType[]
 }
 
 // PRIVATE API
-export type AuthEntityWithIdentities = {= authEntityName =} & {
-  {= identitiesFieldOnAuthEntityName =}: {= authIdentityEntityName =}[]
-}
-
-// PRIVATE API
-export function createAuthUserData(user: UserEntityWithAuth): AuthUserData {
+export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
   if (!{= authFieldOnUserEntityName =}) {
     throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -94,7 +113,7 @@ This should never happen, but it did which means there is a bug in the code.`)
 }
 
 function getProviderInfo<PN extends ProviderName>(
-  auth: AuthEntityWithIdentities,
+  auth: CompleteAuthEntityWithIdentities,
   providerName: PN
 ):
   | UserFacingProviderData<PN>
@@ -112,7 +131,7 @@ function getProviderInfo<PN extends ProviderName>(
 }
 
 function getIdentity(
-  auth: AuthEntityWithIdentities,
+  auth: CompleteAuthEntityWithIdentities,
   providerName: ProviderName
 ): {= authIdentityEntityName =} | null {
   return auth.{= identitiesFieldOnAuthEntityName =}.find((i) => i.providerName === providerName) ?? null
