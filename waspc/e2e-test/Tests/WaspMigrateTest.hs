@@ -11,7 +11,7 @@ import ShellCommands
 
 waspMigrate :: GoldenTest
 waspMigrate = do
-  let entityModel =
+  let taskModel =
         unlines
           [ "model Task {",
             "  id          Int     @id @default(autoincrement())",
@@ -25,6 +25,6 @@ waspMigrate = do
       [ waspCliNew,
         cdIntoCurrentProject,
         waspCliCompile,
-        appendToPrismaFile entityModel,
+        appendToPrismaFile taskModel,
         waspCliMigrate "foo"
       ]
