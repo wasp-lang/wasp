@@ -4,6 +4,7 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    appendToPrismaFile,
     appendToWaspFile,
     cdIntoCurrentProject,
     createFile,
@@ -171,7 +172,7 @@ addAuth :: ShellCommandBuilder [ShellCommand]
 addAuth = do
   sequence
     [ insertCodeIntoWaspFileAfterVersion authField,
-      appendToWaspFile userEntity,
+      appendToPrismaFile userModel,
       createFile hooksFile "./src/auth" "hooks.ts"
     ]
   where
@@ -189,13 +190,12 @@ addAuth = do
           "  },"
         ]
 
-    userEntity =
+    userModel =
       unlines
-        [ "entity User {=psl",
-          "  id                        Int           @id @default(autoincrement())",
-          "psl=}"
+        [ "model User {",
+          "  id          Int     @id @default(autoincrement())",
+          "}"
         ]
-
     hooksFile =
       unlines
         [ "import type {",
@@ -360,18 +360,19 @@ addEmailSender = do
 addCrud :: ShellCommandBuilder [ShellCommand]
 addCrud = do
   sequence
-    [ appendToWaspFile taskEntityDecl,
+    [ appendToPrismaFile taskModel,
       appendToWaspFile crudDecl
     ]
   where
-    taskEntityDecl =
+    taskModel =
       unlines
-        [ "entity Task {=psl",
+        [ "model Task {",
           "  id          Int     @id @default(autoincrement())",
           "  description String",
           "  isDone      Boolean @default(false)",
-          "psl=}"
+          "}"
         ]
+
     crudDecl =
       unlines
         [ "crud tasks {",
