@@ -451,7 +451,7 @@ Railway will now locate the Dockerfile and deploy your server 👍
 
 5. Set the `PORT` environment variable to `8043` under the `Variables` tab.
 
-6. Once set, Deploy the client and select `client` when prompted with `Select Service`:
+6. Once set, deploy the client and select `client` when prompted with `Select Service`:
 
 ```shell
 railway up
