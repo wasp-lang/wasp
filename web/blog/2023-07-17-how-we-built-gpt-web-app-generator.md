@@ -309,7 +309,7 @@ After producing the Plan, Generator goes step by step through the Plan and asks 
 
 In our case, we do it for all the Operations in the Plan (Actions and Queries: NodeJs code), and also for all the Pages in the Plan (React code), with one prompt for each. So if we have 2 queries, 3 actions, and 2 pages, that will be 2+3+2 = 7 GPT prompts/requests. Prompts are designed as explained previously.
 
-Code on Github: [generating an Operation](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/Operation.hs), [generating a Page](https://www.notion.so/Postavi-da-mijenjamo-verziju-cabala-stalno-https-github-com-wasp-lang-wasp-issues-892-fb4f0edb0a024951ad236f82030008a5?pvs=21).
+Code on Github: [generating an Operation](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/Operation.hs), [generating a Page](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/Page.hs).
 
 When generating Operations, we provide GPT with the info about the previously generated Entities, while when generating Pages, we provide GPT with the info about previously generated Entities and Operations.
 

@@ -33,7 +33,7 @@ It is completely free for you - it uses our OpenAI API keys and we take on the c
 
 Once you provide an app title, app description, and choose some basic settings, your new Wasp app will be created for you in a matter of minutes and you will be able to download it to your machine and keep working on it!
 
-If you want to know more, check this [blog post](/blog/2023/07/10/gpt-web-app-generator) for more details on how Mage works, or this [blog post](blog/2023/07/17/how-we-built-gpt-web-app-generator) for a high-level overview of how we implemented it.
+If you want to know more, check this [blog post](/blog/2023/07/10/gpt-web-app-generator) for more details on how Mage works, or this [blog post](/blog/2023/07/17/how-we-built-gpt-web-app-generator) for a high-level overview of how we implemented it.
 
 ## Wasp Cli
 

@@ -39,7 +39,10 @@ export function useAction(actionFn, actionOptions) {
     // clearly separate our opinionated API from React Query's lower-level
     // advanced API (which users can also use)
     const mutation = useMutation(mutationFn, options);
-    return (args) => mutation.mutateAsync(args);
+    // This assertion is necessary because, when the Input is void, we want to
+    // present the function as not accepting a payload (which isn't consistent
+    // with how it's defined).
+    return ((args) => mutation.mutateAsync(args));
 }
 /**
  * Translates/Desugars a public optimistic update definition object into a
@@ -76,10 +79,13 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
  * @returns An decorated action which performs optimistic updates.
  */
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
-    return function performActionWithOptimisticUpdates(item) {
+    return (function performActionWithOptimisticUpdates(item) {
         const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map((generalDefinition) => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item));
         return actionFn.internal(item, specificOptimisticUpdateDefinitions);
-    };
+        // This assertion is necessary because, when the Input is void, we want to
+        // present the function as not accepting a payload (which isn't consistent
+        // with how it's defined).
+    });
 }
 /**
  * Given a ReactQuery query client and our internal definition of optimistic

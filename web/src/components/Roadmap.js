@@ -89,17 +89,16 @@ const Roadmap = () => (
           `}
       >
         <div className="mb-6 text-center font-bold text-neutral-700">
-          Near-term improvements and features
+          Right behind the corner
         </div>
         <Section
           features={[
-            ['Improve Wasp project structure', 734],
-            ['Allow custom steps in the build pipeline', 906],
+            ['Improve Prisma support (more features, IDE)', 641],
+            ['Add TS eDSL, next to Wasp DSL', 551],
+            ['Make Wasp Auth usable in external services', 1973],
+            ['Add more social providers to Wasp Auth', 2016],
             ['Support for SSR / SSG', 911],
-            ['Automatic generation of API for Operations', 863],
-            ['Better Prisma support (more features, IDE)', 641],
-            ['Support for backend testing', 110],
-            ['Better way to define JS dependencies', 243],
+            ['Full-Stack Modules (aka FSMs: think RoR Engines)'],
           ]}
         />
       </div>
@@ -112,17 +111,16 @@ const Roadmap = () => (
           `}
       >
         <div className="mb-6 text-center font-bold text-neutral-700">
-          Advanced Features
+          Further down the road
         </div>
         <Section
           features={[
-            ['Top-level data schema', 642],
-            ['Automatic generation of CRUD UI', 489],
             ['Multiple targets (e.g. mobile)', 1088],
-            ['Multiple servers, serverless'],
-            ['Polyglot'],
-            ['Multiple frontend libraries'],
-            ['Full-stack modules'],
+            ['Automatic generation of API for Operations', 863],
+            ['Top-level data schema', 642],
+            ['Complex arch (multiple servers, clients, serverless)'],
+            ['Polyglot (Python, Rust, Go, ...)', 1940],
+            ['Multiple frontend libraries (Vue, Svelte, ...)'],
           ]}
         />
       </div>

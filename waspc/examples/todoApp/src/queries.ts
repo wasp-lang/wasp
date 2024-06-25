@@ -1,13 +1,6 @@
 import { type Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
-import type {
-  GetNumTasks,
-  GetTask,
-  GetTasks,
-  GetDate,
-  GetAnything,
-  GetTrueVoid,
-} from 'wasp/server/operations'
+import type { GetNumTasks, GetTask, GetTasks } from 'wasp/server/operations'
 
 export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
   if (!context.user) {
@@ -54,15 +47,3 @@ export const getTask: GetTask<Pick<Task, 'id'>, Task> = async (
 
   return task
 }
-
-export const getDate: GetDate<void, Date> = async () => {
-  return new Date()
-}
-
-export const getAnything: GetAnything = async () => {
-  return 'anything'
-}
-
-export const getTrueVoid = (async () => {
-  return 'anything'
-}) satisfies GetTrueVoid

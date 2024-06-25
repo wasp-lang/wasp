@@ -330,8 +330,8 @@ Let's deploy our server first:
    Open the `Settings` and go to the `Variables` tab:
 
    - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
-   - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`)
+   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
+   - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
    - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
@@ -584,3 +584,9 @@ If you wish to deploy an app leveraging [Jobs](../../advanced/jobs) that use `pg
 
 Read more: https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 :::
+
+## Koyeb (server, client and database)
+
+Check out the tutorial made by the team at Koyeb for detailed instructions on how to deploy a whole Wasp app on Koyeb: [Using Wasp to Build Full-Stack Web Applications on Koyeb](https://www.koyeb.com/tutorials/using-wasp-to-build-full-stack-web-applications-on-koyeb).
+
+The tutorial was written for Wasp v0.13.

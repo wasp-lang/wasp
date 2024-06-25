@@ -235,21 +235,21 @@
             "file",
             "../out/sdk/wasp/client/operations/actions/core.ts"
         ],
-        "d19dba04947e4015af69d90dd160ec5f4ed020bfa905bc37bcd5d980517097ae"
+        "ff3597c5f07015adf4dcf5cf6043d054989e76522fd59eb94bdaa34e9c9ea95f"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/operations/actions/index.ts"
         ],
-        "614384a79d3c4f27fefadf4c7accb0f795554f57fa42f3fb643b948203e35790"
+        "f830b21416e19ae6ff047d7ad8259ef7781d500727118f32b5c17d642a49a03f"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "18b73aae68fbe6774d4a9929e48b3d9fbd8acae9b811b31a076547f463e6e620"
+        "d1a8fccfb8207476b90708e8285d1455b33ff4e446749b33c3eb1a54dcfe2d41"
     ],
     [
         [
@@ -284,14 +284,14 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/core.ts"
         ],
-        "2229320d3541802817d12f2dc1226a0e683bf058ab27150ae4ba661c6891d257"
+        "7f842b7add5a2949a49981dac64dd5951457eb5b9d3c555f25f6e4f11c04f3b4"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/operations/queries/index.ts"
         ],
-        "f086e3b7f43d3b4fdd7b8a4e32907d245b4cddf837c7f777b07fc1d3577c067c"
+        "b01c3ca84af658eaae0db643912f6eebcf6cca34c6bb3d163b804f386b11c2a2"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "../out/sdk/wasp/client/operations/rpc.ts"
         ],
-        "a396d0014651837eae36f83d5c36e730e6d389ee7ff41e72206cc6936419d576"
+        "63fb0670b2ccff4ad005bbb76597572a60e01f31b739d7bc764bb59c4f3c53d4"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "../out/sdk/wasp/server/_types/index.ts"
         ],
-        "f436c855b151a95179fd59193b8fe426ae0138265be3cef450e430302c3aeafb"
+        "0bd32f0d0ab8f76d5d73898757e08a582a6ab54e1585d6fb06ef8200a7df3f39"
     ],
     [
         [
@@ -564,7 +564,7 @@
             "file",
             "../out/sdk/wasp/server/crud/tasks.ts"
         ],
-        "828dca19bb70fe4e7859d9763d242bead6861e27a4d044ae0a53bb2885a0f329"
+        "2cba96b41fe246ae5f9813a155cfb2dd6a0d9012fc9e3732ddbc9d4a3f625f42"
     ],
     [
         [
@@ -690,14 +690,14 @@
             "file",
             "../out/sdk/wasp/server/operations/actions/index.ts"
         ],
-        "fde699b5ff9854279e08a203443cbb2617bf0b9287be1de197642d005e00487a"
+        "236e3b4a8c6c8c516cb7b4349a844b658877f4be3eb941516b806e005b36e7e9"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/operations/actions/types.ts"
         ],
-        "d8ca5d71475fc4e4548cb3d3249dba3ae36142252f8efa1852a77edb86779198"
+        "168d20cd6e0ba3e5f9bff378904b8f5ae4f69a1bf5aa060840042892a9677fe6"
     ],
     [
         [
@@ -711,14 +711,21 @@
             "file",
             "../out/sdk/wasp/server/operations/queries/index.ts"
         ],
-        "6e46c51751c22f1de5c9c6a347f00cd07b0eda1a24bc7e2fbfb7cd421e023cfc"
+        "051ce9dae557b1e3014eb639b40f3ec8bdd042466ba1758f28a62a3942ecbd25"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/operations/queries/types.ts"
         ],
-        "26d0b0bad652d9a51af568f95e361e45860181ad2816a8f1d3113fdf2fdd3c6e"
+        "fc3e799d4d01077eaf56205cba97e13814192eef863abd605b9fed05fcb53669"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/operations/wrappers.ts"
+        ],
+        "d2ae69bd910aa1238c6f87a6d4f6ca88e187935059820a8bd3860cbc9f5e1d3b"
     ],
     [
         [
@@ -851,7 +858,7 @@
             "file",
             "server/src/actions/mySpecialAction.ts"
         ],
-        "d306e32442616e08a6a2bbf4fce881a983d5db12b6de648313a83e362dcc552a"
+        "4be6c9b5a013b7dca6a6897303a3f63667f30ee58234d2edcec0761eb7f83d91"
     ],
     [
         [
@@ -1005,7 +1012,7 @@
             "file",
             "server/src/queries/mySpecialQuery.ts"
         ],
-        "4f907aed444b1778b919bb2021a44a53f2282d238e65e843670d2e786a623a71"
+        "c595702e1fc397f0682477048c13c73755345ba6eee224e6e4137c6629b78aaf"
     ],
     [
         [
