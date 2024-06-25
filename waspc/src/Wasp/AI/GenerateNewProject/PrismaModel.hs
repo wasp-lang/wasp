@@ -1,4 +1,4 @@
-module Wasp.AI.GenerateNewProject.Model
+module Wasp.AI.GenerateNewProject.PrismaModel
   ( writeModelsToPrismaFile,
     modelPlanToPrismaModelText,
   )
@@ -26,4 +26,4 @@ modelPlanToPrismaModelText plan =
         }
       |]
 
--- TODO: Add data Entity that contains waspDeclaration + entity plan.
+-- TODO: Add data PrismaModel that contains waspDeclaration + entity plan.

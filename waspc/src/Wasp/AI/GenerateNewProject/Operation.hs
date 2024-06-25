@@ -33,9 +33,9 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Model (modelPlanToPrismaModelText)
 import Wasp.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
+import Wasp.AI.GenerateNewProject.PrismaModel (modelPlanToPrismaModelText)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Analyzer.Parser as P
 import qualified Wasp.Util.Aeson as Util.Aeson

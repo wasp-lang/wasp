@@ -39,12 +39,12 @@ genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
   let skeletonFiles = first SP.fromRelFile <$> waspProjectSkeletonFiles
   mapM_ writeNewFile skeletonFiles
 
-  let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails
+  let (waspFile@(waspFilePath, _), waspFilePlanRules) = generateBaseWaspFile newProjectDetails
   writeNewFile waspFile
 
   writeNewFile $ generatePackageJson newProjectDetails
 
-  let prismaFile@(prismaFilePath, _) = generateBasePrismaFile
+  let (prismaFile@(prismaFilePath, _), prismaFilePlanRules) = generateBasePrismaFile
 
   writeNewFile prismaFile
 
@@ -61,7 +61,7 @@ genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
   writeNewFile $ generateLayoutComponent newProjectDetails
   writeNewFile generateMainCssFile
 
-  return $ InitialFilesGenResult waspFilePath prismaFilePath planRules
+  return $ InitialFilesGenResult waspFilePath prismaFilePath (waspFilePlanRules ++ prismaFilePlanRules)
 
 generateBaseWaspFile :: NewProjectDetails -> (File, [PlanRule])
 generateBaseWaspFile newProjectDetails = ((path, content), planRules)
@@ -112,10 +112,10 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
         }
       |]
 
-generateBasePrismaFile :: File
+generateBasePrismaFile :: (File, [PlanRule])
 generateBasePrismaFile =
-  ( "schema.prisma",
-    [trimming|
+  ( ( "schema.prisma",
+      [trimming|
       // Wasp uses the datasource you specify but overwrites the `url` field.
       datasource db {
         provider = "sqlite"
@@ -129,6 +129,14 @@ generateBasePrismaFile =
 
       // Define your Prisma schema below
     |]
+    ),
+    [ T.unpack
+        [trimming|
+        Prisma schema MUST have a 'User' model, with following field(s) required:
+          - `id Int @id @default(autoincrement())`
+        It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
+        |]
+    ]
   )
 
 -- TODO: We have duplication here, since package.json is already defined

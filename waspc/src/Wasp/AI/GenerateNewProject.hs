@@ -19,7 +19,6 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import qualified Wasp.AI.GenerateNewProject.InitialFiles as IF
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
-import Wasp.AI.GenerateNewProject.Model (writeModelsToPrismaFile)
 import Wasp.AI.GenerateNewProject.Operation
   ( OperationType (..),
     generateAndWriteOperation,
@@ -31,6 +30,7 @@ import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.PrismaFile (fixPrismaFile)
+import Wasp.AI.GenerateNewProject.PrismaModel (writeModelsToPrismaFile)
 import Wasp.AI.GenerateNewProject.WaspFile (fixWaspFile)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 import Wasp.Project (WaspProjectDir)
