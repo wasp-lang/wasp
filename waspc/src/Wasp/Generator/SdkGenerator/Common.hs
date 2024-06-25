@@ -4,11 +4,13 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
+import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
+import Wasp.Util (toUpperFirst)
 
 data SdkRootDir
 
@@ -79,3 +81,6 @@ clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
+
+getOperationTypeName :: AS.Operation.Operation -> String
+getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"

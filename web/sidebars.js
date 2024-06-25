@@ -74,6 +74,7 @@ module.exports = {
           ],
         },
         'auth/entities/entities',
+        'auth/auth-hooks'
       ],
     },
     {

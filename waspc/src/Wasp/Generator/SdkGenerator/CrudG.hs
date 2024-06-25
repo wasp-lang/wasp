@@ -54,10 +54,10 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
         maybeAuth = AS.App.auth $ snd $ getApp spec
 
         queryTsType :: String
-        queryTsType = if isAuthEnabled spec then "AuthenticatedQuery" else "Query"
+        queryTsType = if isAuthEnabled spec then "AuthenticatedQueryDefinition" else "UnauthenticatedQueryDefinition"
 
         actionTsType :: String
-        actionTsType = if isAuthEnabled spec then "AuthenticatedAction" else "Action"
+        actionTsType = if isAuthEnabled spec then "AuthenticatedActionDefinition" else "UnauthenticatedActionDefinition"
 
         overrides :: [Aeson.Types.Pair]
         overrides = map operationToOverrideImport crudOperations

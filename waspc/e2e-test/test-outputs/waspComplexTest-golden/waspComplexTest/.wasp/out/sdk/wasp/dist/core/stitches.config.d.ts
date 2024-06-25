@@ -1,5 +1,4 @@
-/// <reference types="react" />
-export declare const styled: <Type extends import("@stitches/react/types/util").Function | keyof JSX.IntrinsicElements | import("react").ComponentType<any>, Composers extends (string | import("@stitches/react/types/util").Function | import("react").ComponentType<any> | {
+export declare const styled: <Type extends keyof JSX.IntrinsicElements | React.ComponentType<any> | import("@stitches/react/types/util").Function, Composers extends (string | React.ComponentType<any> | import("@stitches/react/types/util").Function | {
     [name: string]: unknown;
 })[], CSS = import("@stitches/react/types/css-util").CSS<{}, {
     colors: {
@@ -58,7 +57,7 @@ export declare const styled: <Type extends import("@stitches/react/types/util").
     fontSizes: {
         sm: string;
     };
-}, import("@stitches/react/types/config").DefaultThemeMap, {}>>, css: <Composers extends (string | import("@stitches/react/types/util").Function | import("react").ExoticComponent<any> | import("react").JSXElementConstructor<any> | {
+}, import("@stitches/react/types/config").DefaultThemeMap, {}>>, css: <Composers extends (string | React.ExoticComponent<any> | React.JSXElementConstructor<any> | import("@stitches/react/types/util").Function | {
     [name: string]: unknown;
 })[], CSS = import("@stitches/react/types/css-util").CSS<{}, {
     colors: {

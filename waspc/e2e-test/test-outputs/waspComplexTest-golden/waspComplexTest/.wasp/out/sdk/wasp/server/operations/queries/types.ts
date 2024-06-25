@@ -1,13 +1,13 @@
 
 import {
   type _User,
-  type AuthenticatedQuery,
+  type AuthenticatedQueryDefinition,
   type Payload,
 } from 'wasp/server/_types'
 
 // PUBLIC API
 export type MySpecialQuery<Input extends Payload = never, Output extends Payload = Payload> = 
-  AuthenticatedQuery<
+  AuthenticatedQueryDefinition<
     [
       _User,
     ],
