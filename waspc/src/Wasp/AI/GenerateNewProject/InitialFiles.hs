@@ -44,7 +44,7 @@ genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
 
   writeNewFile $ generatePackageJson newProjectDetails
 
-  let (prismaFile@(prismaFilePath, _), prismaFilePlanRules) = generateBasePrismaFile
+  let (prismaFile@(prismaFilePath, _), prismaFilePlanRules) = generateBasePrismaFile newProjectDetails
 
   writeNewFile prismaFile
 
@@ -112,9 +112,10 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
         }
       |]
 
-generateBasePrismaFile :: (File, [PlanRule])
-generateBasePrismaFile =
-  ( ( "schema.prisma",
+generateBasePrismaFile :: NewProjectDetails -> (File, [PlanRule])
+generateBasePrismaFile newProjectDetails = (("schema.prisma", content), planRules)
+  where
+    content =
       [trimming|
       // Wasp uses the datasource you specify but overwrites the `url` field.
       datasource db {
@@ -129,15 +130,15 @@ generateBasePrismaFile =
 
       // Define your Prisma schema below
     |]
-    ),
-    [ T.unpack
-        [trimming|
-        Prisma schema MUST have a 'User' model, with following field(s) required:
-          - `id Int @id @default(autoincrement())`
-        It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
-        |]
-    ]
-  )
+    planRules = case getProjectAuth newProjectDetails of
+      UsernameAndPassword ->
+        [ T.unpack
+            [trimming|
+                Prisma schema MUST have a 'User' model, with following field(s) required:
+                  - `id Int @id @default(autoincrement())`
+                It is also likely to have a field that refers to some other model that user owns, e.g. `tasks Task[]`.
+                |]
+        ]
 
 -- TODO: We have duplication here, since package.json is already defined
 --   in `basic` templates file. We should find a way to reuse that, so we don't
