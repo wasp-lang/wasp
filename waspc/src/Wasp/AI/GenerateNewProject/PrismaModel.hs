@@ -26,4 +26,4 @@ modelPlanToPrismaModelText plan =
         }
       |]
 
--- TODO: Add data PrismaModel that contains waspDeclaration + entity plan.
+-- TODO: Add data PrismaModel that contains waspDeclaration + model plan.
