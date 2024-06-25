@@ -37,6 +37,9 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
     {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
     username: Expand<UserFacingProviderData<'username'>> | null
     {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isDiscordAuthEnabled =}
+    discord: Expand<UserFacingProviderData<'discord'>> | null
+    {=/ enabledProviders.isDiscordAuthEnabled =}
     {=# enabledProviders.isGoogleAuthEnabled =}
     google: Expand<UserFacingProviderData<'google'>> | null
     {=/ enabledProviders.isGoogleAuthEnabled =}
@@ -96,6 +99,9 @@ This should never happen, but it did which means there is a bug in the code.`)
     {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
     username: getProviderInfo<'username'>({= authFieldOnUserEntityName =}, 'username'),
     {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isDiscordAuthEnabled =}
+    discord: getProviderInfo<'discord'>({= authFieldOnUserEntityName =}, 'discord'),
+    {=/ enabledProviders.isDiscordAuthEnabled =}
     {=# enabledProviders.isGoogleAuthEnabled =}
     google: getProviderInfo<'google'>({= authFieldOnUserEntityName =}, 'google'),
     {=/ enabledProviders.isGoogleAuthEnabled =}

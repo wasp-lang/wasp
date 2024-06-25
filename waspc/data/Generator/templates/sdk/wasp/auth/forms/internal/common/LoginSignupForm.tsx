@@ -105,6 +105,9 @@ const SocialAuthButtons = styled('div', {
     }
 })
 {=/ isSocialAuthEnabled =}
+{=# enabledProviders.isDiscordAuthEnabled =}
+const discordSignInUrl = `${config.apiUrl}{= discordSignInPath =}`
+{=/ enabledProviders.isDiscordAuthEnabled =}
 {=# enabledProviders.isGoogleAuthEnabled =}
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 {=/ enabledProviders.isGoogleAuthEnabled =}
@@ -191,6 +194,9 @@ export const LoginSignupForm = ({
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+            {=# enabledProviders.isDiscordAuthEnabled =}
+              <SocialButton href={discordSignInUrl}><SocialIcons.Discord/></SocialButton>
+            {=/ enabledProviders.isDiscordAuthEnabled =}
             {=# enabledProviders.isGoogleAuthEnabled =}
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
             {=/ enabledProviders.isGoogleAuthEnabled =}

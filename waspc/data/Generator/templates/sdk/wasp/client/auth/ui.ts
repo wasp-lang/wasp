@@ -8,6 +8,9 @@ export { VerifyEmailForm } from '../../auth/forms/VerifyEmail'
 export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
 {=/ isEmailAuthEnabled =}
 export type { CustomizationOptions } from '../../auth/forms/types'
+{=# isDiscordAuthEnabled =}
+export { SignInButton as DiscordSignInButton } from '../../auth/helpers/Discord'
+{=/ isDiscordAuthEnabled =}
 {=# isGoogleAuthEnabled =}
 export { SignInButton as GoogleSignInButton } from '../../auth/helpers/Google'
 {=/ isGoogleAuthEnabled =}
