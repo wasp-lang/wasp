@@ -7,7 +7,6 @@
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
 - Improved API for calling Operations (Queries and Actions) directly.
 - Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
-- Discord Auth: you can now integrate Discord as a social auth provider.
 
   ```wasp
   app myApp {
@@ -19,6 +18,7 @@
     },
   }
   ```
+- Auth: you can now use Discord as a social auth provider (by @wardbox)
 
 ### ⚠️ Breaking Changes & Migration Guide
 
