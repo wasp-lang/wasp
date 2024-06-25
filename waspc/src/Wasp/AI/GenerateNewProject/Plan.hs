@@ -144,8 +144,8 @@ generatePlan newProjectDetails planRules = do
     -- no further fixing, or False if we are not sure and it might need further fixing.
     fixPlan :: Plan -> CodeAgent (Bool, Plan)
     fixPlan initialPlan = do
-      (maybePrismaFormatErrorsMsg, formattedEntities) <- liftIO $ prismaFormat $ models initialPlan
-      let plan' = initialPlan {models = formattedEntities}
+      (maybePrismaFormatErrorsMsg, formattedModels) <- liftIO $ prismaFormat $ models initialPlan
+      let plan' = initialPlan {models = formattedModels}
       let issues =
             checkPlanForModelIssues plan'
               <> checkPlanForOperationIssues Query plan'
@@ -231,15 +231,15 @@ checkPlanForModelIssues plan =
 -- that captures all schema errors that prisma returns, if any.
 -- Prisma format does not only do formatting, but also fixes some small mistakes and reports errors.
 prismaFormat :: [Model] -> IO (Maybe Text, [Model])
-prismaFormat unformattedEntities = do
-  let pslModels = getPslModelTextForModel <$> unformattedEntities
+prismaFormat unformattedModels = do
+  let pslModels = getPslModelTextForModel <$> unformattedModels
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
-  let formattedEntities =
+  let formattedModels =
         zipWith
           (\e m -> e {modelBody = T.unpack $ getPslModelBodyFromPslModelText m})
-          unformattedEntities
+          unformattedModels
           formattedPslModels
-  return (maybeErrorsMsg, formattedEntities)
+  return (maybeErrorsMsg, formattedModels)
   where
     getPslModelTextForModel :: Model -> Text
     getPslModelTextForModel model =
