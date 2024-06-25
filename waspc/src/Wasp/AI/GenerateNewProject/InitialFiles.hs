@@ -117,9 +117,9 @@ generateBasePrismaFile newProjectDetails = (("schema.prisma", content), planRule
   where
     content =
       [trimming|
-      // Wasp uses the datasource you specify but overwrites the `url` field.
       datasource db {
         provider = "sqlite"
+        // Wasp requires that the url is set to the DATABASE_URL environment variable.
         url      = env("DATABASE_URL")
       }
 
