@@ -6,7 +6,7 @@ import { useQuery, getDate } from 'wasp/client/operations'
 import './Main.css'
 import { getName } from './user'
 // Necessary to trigger type tests.
-import './testTypes'
+import './testTypes/operations/client'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()
@@ -15,7 +15,9 @@ export function App({ children }: any) {
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-  const appName = import.meta.env.REACT_APP_NAME ? import.meta.env.REACT_APP_NAME : 'TODO App'
+  const appName = import.meta.env.REACT_APP_NAME
+    ? import.meta.env.REACT_APP_NAME
+    : 'TODO App'
 
   return (
     <div className="app border-spacing-2 p-4">

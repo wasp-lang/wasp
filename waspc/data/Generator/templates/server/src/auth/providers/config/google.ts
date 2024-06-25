@@ -66,13 +66,11 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            stateTypes: ['state', 'codeVerifier'],
+            oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state, codeVerifier }) => google.createAuthorizationURL(state, codeVerifier, config),
-            getProviderInfo: async ({ code, codeVerifier }) => {
-                const { accessToken } = await google.validateAuthorizationCode(code, codeVerifier);
-                return getGoogleProfile(accessToken);
-            },
+            getProviderTokens: ({ code, codeVerifier }) => google.validateAuthorizationCode(code, codeVerifier),
+            getProviderInfo: ({ accessToken }) => getGoogleProfile(accessToken),
         });
     },
 }

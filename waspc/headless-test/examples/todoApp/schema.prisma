@@ -10,8 +10,8 @@ generator client {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  // Business logic
+  id                        Int     @id @default(autoincrement())
+  isOnAfterSignupHookCalled Boolean @default(false)
   tasks Task[]
 }
 

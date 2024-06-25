@@ -52,8 +52,7 @@ getDbSystemFromPrismaSchema prismaSchema =
   case getDbProviderFromPrismaSchema prismaSchema of
     Just (Psl.Argument.StringExpr "postgresql") -> Right AS.App.Db.PostgreSQL
     Just (Psl.Argument.StringExpr "sqlite") -> Right AS.App.Db.SQLite
-    Just (Psl.Argument.StringExpr provider) -> Left $ UnsupportedDbSystem provider
-    Just anyOtherArgument -> Left $ UnsupportedDbSystem $ show anyOtherArgument
+    Just anyOtherExpression -> Left $ UnsupportedDbSystem $ generateExpression anyOtherExpression
     Nothing -> Left MissingDbSystem
 
 isDbUrlInPrismaSchemaValid :: Psl.Schema.Schema -> Bool

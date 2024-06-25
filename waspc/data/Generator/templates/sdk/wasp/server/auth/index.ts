@@ -23,6 +23,13 @@ export {
   ensureTokenIsPresent,
 } from '../../auth/validation.js'
 
+export type {
+  OnBeforeSignupHook,
+  OnAfterSignupHook,
+  OnBeforeOAuthRedirectHook,
+  InternalAuthHookParams,
+} from './hooks.js'
+
 {=# isEmailAuthEnabled =}
 export * from './email/index.js'
 {=/ isEmailAuthEnabled =}

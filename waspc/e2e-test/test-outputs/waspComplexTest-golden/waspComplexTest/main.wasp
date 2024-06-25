@@ -7,7 +7,10 @@ app waspComplexTest {
     methods: {
       google: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: "/login",
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
+    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks.js",
   },
 
   server: {

@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Use <$>" #-}
 module Wasp.Psl.Parser.ConfigBlock
   ( configBlock,
   )
@@ -6,8 +9,6 @@ where
 import Text.Parsec
   ( choice,
     many,
-    newline,
-    optional,
     try,
   )
 import Text.Parsec.String (Parser)
@@ -17,7 +18,6 @@ import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
     reserved,
-    whiteSpace,
   )
 
 -- | Parses a config block.
@@ -29,31 +29,24 @@ import Wasp.Psl.Parser.Common
 -- }
 configBlock :: Parser Psl.ConfigBlock.ConfigBlock
 configBlock = do
-  whiteSpace
   configBlockType <-
     choice
       [ try (reserved "datasource" >> return Psl.ConfigBlock.Datasource),
         try (reserved "generator" >> return Psl.ConfigBlock.Generator)
       ]
   name <- identifier
-  content <- configBlockBody
-  optional newline
-  return $ Psl.ConfigBlock.ConfigBlock configBlockType name content
+  Psl.ConfigBlock.ConfigBlock configBlockType name <$> configBlockBody
 
 configBlockBody :: Parser [Psl.ConfigBlock.KeyValuePair]
-configBlockBody = braces (many keyValue)
+configBlockBody = braces (many keyValuePair)
 
 -- | Parses a key-value pair.
 -- Example of PSL key-value pair:
 -- provider = "postgresql"
 -- It works for both datasources and generators.
-keyValue :: Parser Psl.ConfigBlock.KeyValuePair
-keyValue = do
-  whiteSpace
+keyValuePair :: Parser Psl.ConfigBlock.KeyValuePair
+keyValuePair = do
   key <- identifier
-  whiteSpace
   reserved "="
-  whiteSpace
   value <- expression
-  optional whiteSpace
   return $ Psl.ConfigBlock.KeyValuePair key value

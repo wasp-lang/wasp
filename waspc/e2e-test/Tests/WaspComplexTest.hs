@@ -28,7 +28,7 @@ waspComplexTest = do
       <++> addEmailSender
       <++> addClientSetup
       <++> addServerSetup
-      <++> addGoogleAuth
+      <++> addAuth
       <++> sequence
         [ -- Prerequisite for jobs
           setDbToPSQL
@@ -167,11 +167,13 @@ addServerEnvFile = do
           "SENDGRID_API_KEY=sendgrid_api_key"
         ]
 
-addGoogleAuth :: ShellCommandBuilder [ShellCommand]
-addGoogleAuth = do
+-- Adds Google Auth with auth hooks
+addAuth :: ShellCommandBuilder [ShellCommand]
+addAuth = do
   sequence
     [ insertCodeIntoWaspFileAfterVersion authField,
-      appendToPrismaFile userModel
+      appendToPrismaFile userModel,
+      createFile hooksFile "./src/auth" "hooks.ts"
     ]
   where
     authField =
@@ -181,7 +183,10 @@ addGoogleAuth = do
           "    methods: {",
           "      google: {}",
           "    },",
-          "    onAuthFailedRedirectTo: \"/login\"",
+          "    onAuthFailedRedirectTo: \"/login\",",
+          "    onBeforeSignup: import { onBeforeSignup } from \"@src/auth/hooks.js\",",
+          "    onAfterSignup: import { onAfterSignup } from \"@src/auth/hooks.js\",",
+          "    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from \"@src/auth/hooks.js\",",
           "  },"
         ]
 
@@ -189,6 +194,33 @@ addGoogleAuth = do
       unlines
         [ "model User {",
           "  id          Int     @id @default(autoincrement())",
+          "}"
+        ]
+    hooksFile =
+      unlines
+        [ "import type {",
+          "  OnAfterSignupHook,",
+          "  OnBeforeOAuthRedirectHook,",
+          "  OnBeforeSignupHook,",
+          "} from 'wasp/server/auth'",
+          "",
+          "export const onBeforeSignup: OnBeforeSignupHook = async (args) => {",
+          "  const count = await args.prisma.user.count()",
+          "  console.log('before', count)",
+          "  console.log(args.providerId)",
+          "}",
+          "",
+          "export const onAfterSignup: OnAfterSignupHook = async (args) => {",
+          "  const count = await args.prisma.user.count()",
+          "  console.log('after', count)",
+          "  console.log('user', args.user)",
+          "}",
+          "",
+          "export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (",
+          "  args,",
+          ") => {",
+          "  console.log('redirect to', args.url.toString())",
+          "  return { url: args.url }",
           "}"
         ]
 

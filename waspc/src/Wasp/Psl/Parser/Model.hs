@@ -1,7 +1,6 @@
 module Wasp.Psl.Parser.Model
   ( parseBody,
     model,
-    body,
   )
 where
 
@@ -11,7 +10,6 @@ import Text.Parsec
     many,
     many1,
     optionMaybe,
-    optional,
     try,
   )
 import qualified Text.Parsec as Parsec
@@ -19,7 +17,8 @@ import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
-  ( braces,
+  ( SourceCode,
+    braces,
     identifier,
     parens,
     reserved,
@@ -28,10 +27,12 @@ import Wasp.Psl.Parser.Common
     whiteSpace,
   )
 
-type SourceCode = String
-
+-- | This is used to parse the body of the PSL tags in the Wasp file.
+-- NOTE: We need to consume the leading whitespace specifically here, because we use the `body`
+-- parser directly (meaning not as part of parsing the whole schema) which means that the
+-- leading whitespace is not consumed by the `schema` parser.
 parseBody :: SourceCode -> Either Parsec.ParseError Psl.Model.Body
-parseBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
+parseBody = Parsec.parse (whiteSpace >> body) ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:
@@ -42,7 +43,6 @@ parseBody = Parsec.parse Wasp.Psl.Parser.Model.body ""
 --   }
 model :: Parser Psl.Model.Model
 model = do
-  whiteSpace
   reserved "model"
   modelName <- identifier
   Psl.Model.Model modelName <$> braces body
@@ -51,9 +51,7 @@ model = do
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
 body :: Parser Psl.Model.Body
-body = do
-  whiteSpace
-  Psl.Model.Body <$> many1 element
+body = Psl.Model.Body <$> many1 element
 
 element :: Parser Psl.Model.Element
 element =
@@ -68,7 +66,6 @@ field = do
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
   attrs <- many (try attribute)
-  optional whiteSpace
   return $
     Psl.Model.Field
       { Psl.Model._name = name,

@@ -1,11 +1,14 @@
-import { type AuthIdentity } from '../entities/index.js'
 import { type ProviderName } from '../server/_types/index.js'
-import type { AuthUserData, AuthUser } from '../server/auth/user.js'
+import type {
+  AuthUserData,
+  AuthUser,
+  UserEntityWithAuth,
+} from '../server/auth/user.js'
+
 /**
  * We split the user.ts code into two files to avoid some server-only
  * code (Oslo's hashing functions) being imported on the client.
  */
-import { type UserEntityWithAuth } from '../server/auth/user.js'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
@@ -48,7 +51,7 @@ function makeAuthUser(data: AuthUserData): AuthUser {
   };
 }
 
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): AuthIdentity | null {
+function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): UserEntityWithAuth['auth']['identities'][number] | null {
   if (!user.auth) {
     return null;
   }
