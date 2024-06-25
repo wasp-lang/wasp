@@ -1,6 +1,6 @@
 module Wasp.AI.GenerateNewProject.InitialFiles
   ( genAndWriteInitialFiles,
-    IniitalFilesGenResult (..),
+    InitialFilesGenResult (..),
   )
 where
 
@@ -25,7 +25,7 @@ import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
 
-data IniitalFilesGenResult = IniitalFilesGenResult
+data InitialFilesGenResult = InitialFilesGenResult
   { _waspFilePath :: FilePath,
     _prismaFilePath :: FilePath,
     _planRules :: [PlanRule]
@@ -34,7 +34,7 @@ data IniitalFilesGenResult = IniitalFilesGenResult
 genAndWriteInitialFiles ::
   NewProjectDetails ->
   [(Path System (Rel WaspProjectDir) File', Text)] ->
-  CodeAgent IniitalFilesGenResult
+  CodeAgent InitialFilesGenResult
 genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
   let skeletonFiles = first SP.fromRelFile <$> waspProjectSkeletonFiles
   mapM_ writeNewFile skeletonFiles
@@ -61,7 +61,7 @@ genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
   writeNewFile $ generateLayoutComponent newProjectDetails
   writeNewFile generateMainCssFile
 
-  return $ IniitalFilesGenResult waspFilePath prismaFilePath planRules
+  return $ InitialFilesGenResult waspFilePath prismaFilePath planRules
 
 generateBaseWaspFile :: NewProjectDetails -> (File, [PlanRule])
 generateBaseWaspFile newProjectDetails = ((path, content), planRules)

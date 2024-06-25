@@ -58,13 +58,13 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
           <> " for coding."
 
   writeToLogGenerating "project's initial files..."
-  IF.IniitalFilesGenResult
+  IF.InitialFilesGenResult
     { IF._waspFilePath = waspFilePath,
       IF._prismaFilePath = prismaFilePath,
       IF._planRules = planRules
     } <-
     IF.genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles
-  writeToLog "Generated project skeleton."
+  writeToLog "Generated initial project files."
 
   plan <- generatePlan newProjectDetails planRules
   writeModelsToPrismaFile prismaFilePath (Plan.models plan)
