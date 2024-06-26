@@ -143,6 +143,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/server/operations/queries/index.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 waspCompile/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
+waspCompile/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/server/types/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/server/types/index.js.map
@@ -178,6 +181,7 @@ waspCompile/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 waspCompile/.wasp/out/sdk/wasp/server/operations/index.ts
 waspCompile/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 waspCompile/.wasp/out/sdk/wasp/server/operations/queries/types.ts
+waspCompile/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspCompile/.wasp/out/sdk/wasp/server/types/index.ts
 waspCompile/.wasp/out/sdk/wasp/server/utils.ts
 waspCompile/.wasp/out/sdk/wasp/tsconfig.json
@@ -228,6 +232,7 @@ waspCompile/.wasproot
 waspCompile/main.wasp
 waspCompile/package.json
 waspCompile/public/.gitkeep
+waspCompile/schema.prisma
 waspCompile/src/Main.css
 waspCompile/src/MainPage.jsx
 waspCompile/src/vite-env.d.ts

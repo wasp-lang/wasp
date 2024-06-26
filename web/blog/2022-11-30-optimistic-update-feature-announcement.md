@@ -182,6 +182,6 @@ Optimistically updating a query involves plenty of meddling with the client-side
 
 Notice how Wasp users don't need to know about any of these issues when using our optimistic updates API. They only need to tell Wasp which query they wish to update and how, and Wasp takes care of the rest.
 
-Wasp internally uses [React Query](https://tanstack.com/query/v4/docs/adapters/react-query), an excellent asynchronous state management library we'll gladly recommend to anyone. While React Query does solve some of these problems and helps with some of the rest, we still had to implement quite a complex mechanism to fully cover all edge cases.
+Wasp internally uses [React Query](https://tanstack.com/query/v4), an excellent asynchronous state management library we'll gladly recommend to anyone. While React Query does solve some of these problems and helps with some of the rest, we still had to implement quite a complex mechanism to fully cover all edge cases.
 
 Describing this mechanism, although technically interesting, is beyond the scope of a feature announcement. But stay tuned because in a future blog post, we'll be taking a deep dive into the infrastructure Wasp uses to ensure optimistic updates are performed correctly and consistently.

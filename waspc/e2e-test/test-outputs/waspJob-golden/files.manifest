@@ -168,6 +168,9 @@ waspJob/.wasp/out/sdk/wasp/dist/server/operations/queries/index.js.map
 waspJob/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 waspJob/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
+waspJob/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
+waspJob/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
 waspJob/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/server/types/index.js
 waspJob/.wasp/out/sdk/wasp/dist/server/types/index.js.map
@@ -211,6 +214,7 @@ waspJob/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 waspJob/.wasp/out/sdk/wasp/server/operations/index.ts
 waspJob/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 waspJob/.wasp/out/sdk/wasp/server/operations/queries/types.ts
+waspJob/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspJob/.wasp/out/sdk/wasp/server/types/index.ts
 waspJob/.wasp/out/sdk/wasp/server/utils.ts
 waspJob/.wasp/out/sdk/wasp/tsconfig.json
@@ -263,6 +267,7 @@ waspJob/.wasproot
 waspJob/main.wasp
 waspJob/package.json
 waspJob/public/.gitkeep
+waspJob/schema.prisma
 waspJob/src/Main.css
 waspJob/src/MainPage.jsx
 waspJob/src/server/jobs/bar.js

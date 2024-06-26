@@ -1,5 +1,4 @@
 import { Link } from 'wasp/client/router'
-import { type Task } from 'wasp/entities'
 
 import {
   useAction,
@@ -13,12 +12,15 @@ import {
 } from 'wasp/client/operations'
 
 import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
+import { getEmail } from 'wasp/auth'
 
 type NonEmptyArray<T> = [T, ...T[]]
 
+type TaskWithUser = Awaited<ReturnType<typeof getTasks>>[number]
+
 export function areThereAnyTasks(
-  tasks: Task[] | undefined
-): tasks is NonEmptyArray<Task> {
+  tasks: TaskWithUser[] | undefined
+): tasks is NonEmptyArray<TaskWithUser> {
   return !!(tasks && tasks.length > 0)
 }
 
@@ -55,7 +57,7 @@ const Todo = () => {
   )
 }
 
-const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
+const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   const numCompletedTasks = tasks.filter((t) => t.isDone).length
   const numUncompletedTasks = tasks.filter((t) => !t.isDone).length
 
@@ -83,7 +85,7 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
   )
 }
 
-const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
+const Tasks = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   return (
     <div>
       <table className="border-separate border-spacing-2">
@@ -97,9 +99,9 @@ const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
   )
 }
 
-type UpdateTaskIsDonePayload = Pick<Task, 'id' | 'isDone'>
+type UpdateTaskIsDonePayload = Pick<TaskWithUser, 'id' | 'isDone'>
 
-const TaskView = ({ task }: { task: Task }) => {
+const TaskView = ({ task }: { task: TaskWithUser }) => {
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
@@ -114,7 +116,7 @@ const TaskView = ({ task }: { task: Task }) => {
             )
           }
         },
-      } as OptimisticUpdateDefinition<UpdateTaskIsDonePayload, Task[]>,
+      } as OptimisticUpdateDefinition<UpdateTaskIsDonePayload, TaskWithUser[]>,
     ],
   })
   const handleTaskIsDoneChange: ChangeEventHandler<HTMLInputElement> = async (
@@ -130,6 +132,8 @@ const TaskView = ({ task }: { task: Task }) => {
     }
   }
 
+  const email = getEmail(task.user)
+
   return (
     <tr>
       <td>
@@ -143,7 +147,7 @@ const TaskView = ({ task }: { task: Task }) => {
       </td>
       <td>
         <Link to="/task/:id" params={{ id: task.id }}>
-          {task.description}
+          {task.description} {email && `by ${email}`}
         </Link>
       </td>
     </tr>
@@ -158,21 +162,26 @@ const NewTaskForm = () => {
       {
         getQuerySpecifier: () => [getTasks],
         updateQuery: (newTask, oldTasks) => {
+          const newTaskWithUser = {
+            ...newTask,
+            user: {},
+          } as TaskWithUser
+
           if (oldTasks === undefined) {
             // cache is empty
-            return [newTask as Task]
+            return [newTaskWithUser]
           } else {
-            return [...oldTasks, newTask as Task]
+            return [...oldTasks, newTaskWithUser]
           }
         },
       } as OptimisticUpdateDefinition<
-        Pick<Task, 'isDone' | 'description'>,
-        Task[]
+        Pick<TaskWithUser, 'isDone' | 'description'>,
+        TaskWithUser[]
       >,
     ],
   })
 
-  const createNewTask = async (description: Task['description']) => {
+  const createNewTask = async (description: TaskWithUser['description']) => {
     const task = { isDone: false, description }
     await createTaskFn(task)
   }

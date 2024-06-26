@@ -72,7 +72,11 @@ export function useAction<Input = unknown, Output = unknown>(
   // clearly separate our opinionated API from React Query's lower-level
   // advanced API (which users can also use)
   const mutation = useMutation(mutationFn, options);
-  return (args) => mutation.mutateAsync(args);
+
+  // This assertion is necessary because, when the Input is void, we want to
+  // present the function as not accepting a payload (which isn't consistent
+  // with how it's defined).
+  return ((args: Input) => mutation.mutateAsync(args)) as typeof actionFn;
 }
 
 // PUBLIC API
@@ -200,7 +204,7 @@ function makeOptimisticUpdateMutationFn<Input, Output, CachedData>(
     CachedData
   >[]
 ): typeof actionFn {
-  return function performActionWithOptimisticUpdates(item) {
+  return (function performActionWithOptimisticUpdates(item?: Input) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       (generalDefinition) =>
         getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
@@ -209,7 +213,10 @@ function makeOptimisticUpdateMutationFn<Input, Output, CachedData>(
       item,
       specificOptimisticUpdateDefinitions
     );
-  };
+    // This assertion is necessary because, when the Input is void, we want to
+    // present the function as not accepting a payload (which isn't consistent
+    // with how it's defined).
+  }) as typeof actionFn;
 }
 
 /**

@@ -13,18 +13,20 @@ import Text.Parsec
 import qualified Text.Parsec as Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Parser.Common (whiteSpace)
+import Wasp.Psl.Parser.Common (SourceCode, whiteSpace)
 import Wasp.Psl.Parser.ConfigBlock (configBlock)
 import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
-
-type SourceCode = String
 
 parsePrismaSchema :: SourceCode -> Either Parsec.ParseError Psl.Schema.Schema
 parsePrismaSchema = Parsec.parse schema ""
 
 schema :: Parser Psl.Schema.Schema
 schema = do
+  -- We need to ONLY consume the leading whitespace here, because we use
+  -- Parsec's lexeme parsers in the sub-parsers (model, enum, configBlock) which consume
+  -- the (trailing) whitespace themselves. It's a bit of an implict behaviour
+  -- that we need to be aware of.
   whiteSpace
   elements <-
     many $
@@ -33,5 +35,8 @@ schema = do
           Psl.Schema.EnumBlock <$> enum,
           Psl.Schema.ConfigBlock <$> configBlock
         ]
+  -- We want to throw and if there is any source code left after parsing the schema.
+  -- If we don't do this, the parser sometimes returns an empty schema when there
+  -- are some syntax errors in the schema.
   eof
   return $ Psl.Schema.Schema elements

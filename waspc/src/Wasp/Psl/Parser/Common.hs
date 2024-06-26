@@ -12,6 +12,7 @@ module Wasp.Psl.Parser.Common
     colon,
     float,
     integer,
+    SourceCode,
   )
 where
 
@@ -24,6 +25,8 @@ import Text.Parsec
 import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as T
+
+type SourceCode = String
 
 whiteSpace :: Parser ()
 whiteSpace = T.whiteSpace lexer

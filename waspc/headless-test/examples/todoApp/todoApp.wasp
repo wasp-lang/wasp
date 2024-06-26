@@ -23,7 +23,9 @@ app todoApp {
       google: {}
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/profile"
+    onAuthSucceededRedirectTo: "/profile",
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
   },
   server: {
     setupFn: import setup from "@src/server/serverSetup.js",

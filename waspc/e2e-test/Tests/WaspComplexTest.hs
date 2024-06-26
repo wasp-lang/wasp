@@ -4,6 +4,7 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    appendToPrismaFile,
     appendToWaspFile,
     cdIntoCurrentProject,
     createFile,
@@ -27,7 +28,7 @@ waspComplexTest = do
       <++> addEmailSender
       <++> addClientSetup
       <++> addServerSetup
-      <++> addGoogleAuth
+      <++> addAuth
       <++> sequence
         [ -- Prerequisite for jobs
           setDbToPSQL
@@ -166,47 +167,61 @@ addServerEnvFile = do
           "SENDGRID_API_KEY=sendgrid_api_key"
         ]
 
-addGoogleAuth :: ShellCommandBuilder [ShellCommand]
-addGoogleAuth = do
+-- Adds Google Auth with auth hooks
+addAuth :: ShellCommandBuilder [ShellCommand]
+addAuth = do
   sequence
     [ insertCodeIntoWaspFileAfterVersion authField,
-      appendToWaspFile userEntity,
-      appendToWaspFile socialLoginEntity
+      appendToPrismaFile userModel,
+      createFile hooksFile "./src/auth" "hooks.ts"
     ]
   where
     authField =
       unlines
         [ "  auth: {",
           "    userEntity: User,",
-          "    externalAuthEntity: SocialLogin,",
           "    methods: {",
           "      google: {}",
           "    },",
-          "    onAuthFailedRedirectTo: \"/login\"",
+          "    onAuthFailedRedirectTo: \"/login\",",
+          "    onBeforeSignup: import { onBeforeSignup } from \"@src/auth/hooks.js\",",
+          "    onAfterSignup: import { onAfterSignup } from \"@src/auth/hooks.js\",",
+          "    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from \"@src/auth/hooks.js\",",
           "  },"
         ]
 
-    userEntity =
+    userModel =
       unlines
-        [ "entity User {=psl",
-          "  id                        Int           @id @default(autoincrement())",
-          "  username                  String        @unique",
-          "  password                  String",
-          "  externalAuthAssociations  SocialLogin[]",
-          "psl=}"
+        [ "model User {",
+          "  id          Int     @id @default(autoincrement())",
+          "}"
         ]
-
-    socialLoginEntity =
+    hooksFile =
       unlines
-        [ "entity SocialLogin {=psl",
-          "  id          Int       @id @default(autoincrement())",
-          "  provider    String",
-          "  providerId  String",
-          "  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)",
-          "  userId      Int",
-          "  createdAt   DateTime  @default(now())",
-          "  @@unique([provider, providerId, userId])",
-          "psl=}"
+        [ "import type {",
+          "  OnAfterSignupHook,",
+          "  OnBeforeOAuthRedirectHook,",
+          "  OnBeforeSignupHook,",
+          "} from 'wasp/server/auth'",
+          "",
+          "export const onBeforeSignup: OnBeforeSignupHook = async (args) => {",
+          "  const count = await args.prisma.user.count()",
+          "  console.log('before', count)",
+          "  console.log(args.providerId)",
+          "}",
+          "",
+          "export const onAfterSignup: OnAfterSignupHook = async (args) => {",
+          "  const count = await args.prisma.user.count()",
+          "  console.log('after', count)",
+          "  console.log('user', args.user)",
+          "}",
+          "",
+          "export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (",
+          "  args,",
+          ") => {",
+          "  console.log('redirect to', args.url.toString())",
+          "  return { url: args.url }",
+          "}"
         ]
 
 addAction :: ShellCommandBuilder [ShellCommand]
@@ -345,18 +360,19 @@ addEmailSender = do
 addCrud :: ShellCommandBuilder [ShellCommand]
 addCrud = do
   sequence
-    [ appendToWaspFile taskEntityDecl,
+    [ appendToPrismaFile taskModel,
       appendToWaspFile crudDecl
     ]
   where
-    taskEntityDecl =
+    taskModel =
       unlines
-        [ "entity Task {=psl",
+        [ "model Task {",
           "  id          Int     @id @default(autoincrement())",
           "  description String",
           "  isDone      Boolean @default(false)",
-          "psl=}"
+          "}"
         ]
+
     crudDecl =
       unlines
         [ "crud tasks {",

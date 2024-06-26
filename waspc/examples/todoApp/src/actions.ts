@@ -1,10 +1,10 @@
 import { type Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
-import {
-  type CreateTask,
-  type DeleteCompletedTasks,
-  type ToggleAllTasks,
-  type UpdateTaskIsDone,
+import type {
+  CreateTask,
+  DeleteCompletedTasks,
+  ToggleAllTasks,
+  UpdateTaskIsDone,
 } from 'wasp/server/operations'
 import { getSomeResource } from './serverSetup.js'
 

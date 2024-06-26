@@ -9,7 +9,7 @@ import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import Wasp.Psl.Parser.Model (body, model)
+import Wasp.Psl.Parser.Model (model, parseBody)
 
 spec_parsePslModel :: Spec
 spec_parsePslModel = do
@@ -22,14 +22,14 @@ spec_parsePslModel = do
         |]
 
     it "Body parser correctly parses" $ do
-      Parsec.parse body "" (T.unpack sampleBodySchema) `shouldBe` Right sampleBodyAst
+      parseBody (T.unpack sampleBodySchema) `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
       Parsec.parse model "" (T.unpack pslModel) `shouldBe` Right (Psl.Model.Model "User" sampleBodyAst)
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do
-      let runTest psl = it psl $ isLeft (Parsec.parse body "" psl) `shouldBe` True
+      let runTest psl = it psl $ isLeft (parseBody psl) `shouldBe` True
       mapM_
         runTest
         [ "  noType",

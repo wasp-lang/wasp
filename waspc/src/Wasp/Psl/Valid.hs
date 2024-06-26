@@ -1,4 +1,8 @@
-module Wasp.Psl.Valid where
+module Wasp.Psl.Valid
+  ( validatePrismaSchema,
+    getValidDbSystemFromPrismaSchema,
+  )
+where
 
 import qualified Wasp.AppSpec.App.Db as AS
 import Wasp.Project.Db
@@ -14,11 +18,27 @@ import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Valid as Valid
 
+-- Wasp expects the Prisma schema to be written in certain way:
+
+-- * The DB providers that Wasp supports are PostgreSQL and SQLite.
+
+-- * The DB url must be provided via the DATABASE_URL environment variable.
+
+-- Also, there are Prisma specific requirements:
+
+-- * The Prisma schema must have exactly one datasource block.
+
+-- And some more Wasp specific requirements:
+
+-- * The Prisma schema must have at least one generator block with the provider set to "prisma-client-js" (Wasp limitation).
+
+-- The `validatePrismaSchema` makes sure that Prisma schema meets these requirements.
+-- If it doesn't, it returns a list of validation errors.
+
 validatePrismaSchema :: Psl.Schema.Schema -> [Valid.ValidationError]
 validatePrismaSchema schema =
   concat
-    [ validateGenerators schema,
-      -- Validating the DB related fields only if there are no other datasource validation errors,
+    [ -- Validating the DB related fields only if there are no other datasource validation errors,
       -- to avoid showing DB related errors if there are other more important errors.
       if null datasourceValidationErrors
         then
@@ -26,7 +46,8 @@ validatePrismaSchema schema =
             [ validateDbProvider schema,
               validateDbUrl schema
             ]
-        else datasourceValidationErrors
+        else datasourceValidationErrors,
+      validateGenerators schema
     ]
   where
     datasourceValidationErrors = validateDatasources schema
@@ -69,9 +90,9 @@ validateDbProvider = validate . getDbSystemFromPrismaSchema
     validate
       (Left (UnsupportedDbSystem unsupportedDbSystem)) =
         [ GenericValidationError $
-            "Wasp doesn't support the database provider \""
+            "Wasp doesn't support the database provider "
               ++ unsupportedDbSystem
-              ++ "\" specified in the schema.prisma file."
+              ++ " specified in the schema.prisma file."
         ]
 
 validateDbUrl :: Psl.Schema.Schema -> [ValidationError]
@@ -81,7 +102,8 @@ validateDbUrl schema =
     else [GenericValidationError $ "The \"url\" field in the \"datasource\" block in your Prisma schema must be set to " ++ validDbUrlInPrismaSchema ++ "."]
 
 -- | Returns the database system specified in the Prisma schema file.
---  Using this function assumes that the Prisma schema file has been validated.
+-- Using this function assumes that the Prisma schema file has
+-- been validated with the `validatePrismaSchema` function.
 getValidDbSystemFromPrismaSchema :: Psl.Schema.Schema -> AS.DbSystem
 getValidDbSystemFromPrismaSchema schema =
   case getDbSystemFromPrismaSchema schema of

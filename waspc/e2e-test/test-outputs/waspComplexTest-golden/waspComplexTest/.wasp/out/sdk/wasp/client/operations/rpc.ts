@@ -77,4 +77,6 @@ export type GenericOperationRpc = (args: never) => Promise<unknown>
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type ClientOperation<Input, Output> = [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
-  : (args: Input) => Promise<Output>;
+  : [Input] extends [void]
+  ? () => Promise<Output>
+  : (args: Input) => Promise<Output>

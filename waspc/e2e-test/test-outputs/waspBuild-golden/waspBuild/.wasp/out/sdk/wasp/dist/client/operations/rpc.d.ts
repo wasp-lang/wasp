@@ -34,5 +34,5 @@ export type GenericBackendOperation = (args: never, context: any) => unknown;
  * A supertype of all possible frontend RPC function types.
  */
 export type GenericOperationRpc = (args: never) => Promise<unknown>;
-type ClientOperation<Input, Output> = [Input] extends [never] ? (args?: unknown) => Promise<Output> : (args: Input) => Promise<Output>;
+type ClientOperation<Input, Output> = [Input] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
 export {};

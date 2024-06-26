@@ -21,22 +21,36 @@ spec_parsePslSchema = do
             [trimming|
           // We parse the `datastore` declaration, but only use the `extensions` field
           datasource db {
+
             provider = "postgresql"
             url      = env("DATABASE_URL") // some inline comment
-            extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+
+            extensions = [ hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+
           }
 
           // We parse the `generator` declaration, but only use the `previewFeatures` field
           generator client {
+            // Testing comments
+
             provider = "prisma-client-js" // some inline comment
+
+            // Some more comments
+
             previewFeatures = ["postgresqlExtensions"]
+
           }
 
           model User {
+
             id      Int        @id @default(autoincrement())
             tasks   Task[]
+
+            // Some more comments
+
             address String? // Testing comments
             votes   TaskVote[]
+
           }
 
           model Task {
@@ -50,8 +64,8 @@ spec_parsePslSchema = do
           }
 
           model TaskVote {
-            user   User   @relation(fields: [userId], references: [id])
-            userId Int
+          user   User   @relation(fields: [userId], references: [id])
+          userId Int
             task   Task   @relation(fields: [taskId], references: [id])
             taskId Int
 
@@ -59,9 +73,18 @@ spec_parsePslSchema = do
           }
 
           enum Role {
-            USER // inline comment
+
+            // Testing comments
+
+          USER // inline comment
+
+          // Some more comments
+
             ADMIN
+
           }
+
+          // Some comments at the end
         |]
         expectedAst =
           Psl.Schema.Schema

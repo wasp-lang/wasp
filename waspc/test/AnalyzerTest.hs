@@ -148,7 +148,10 @@ spec_Analyzer = do
                                   Auth.email = Nothing
                                 },
                             Auth.onAuthFailedRedirectTo = "/",
-                            Auth.onAuthSucceededRedirectTo = Nothing
+                            Auth.onAuthSucceededRedirectTo = Nothing,
+                            Auth.onBeforeSignup = Nothing,
+                            Auth.onAfterSignup = Nothing,
+                            Auth.onBeforeOAuthRedirect = Nothing
                           },
                     App.server =
                       Just
