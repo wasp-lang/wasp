@@ -21,7 +21,7 @@ To add users to your app, you must:
 
 Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for you in the background. Nothing to do here!
 
-You must only add the `User` Entity to keep track of who owns which tasks.
+You must only add the `User` Entity to keep track of who owns which tasks:
 
 ```prisma title="schema.prisma"
 // ...
@@ -308,8 +308,6 @@ model Task {
   // highlight-next-line
   userId      Int?
 }
-
-// ...
 ```
 
 As always, you must migrate the database after changing the Entities:
