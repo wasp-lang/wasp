@@ -53,13 +53,13 @@ model Task {
 }
 ```
 
-Wasp reads this `schema.prisma` file and extracts the info about your database models and database config:
-
-<ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file"/>
+Wasp reads this `schema.prisma` file and extracts the info about your database models and database config.
 
 The `datasource` block defines which database you want to use (PostgreSQL in this case) and some other options.
 
 The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
+
+<ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file"/>
 
 Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp` file:
 
@@ -103,6 +103,8 @@ In the implementation of the `getTasks` query, `Task` is a Wasp Entity that corr
 
 The same goes for the `myJob` job and `fooBar` API, where `Task` is used as an Entity.
 
+To read more about the relationship between Wasp Entities and Prisma models, check out the [Entities](./entities.md) page.
+
 ## Wasp-specific Prisma configuration
 
 Wasp mostly lets you use the Prisma schema file as you would in any other JS/TS project. However, there are some Wasp-specific rules you need to follow.
@@ -116,7 +118,7 @@ datasource db {
 }
 ```
 
-Wasp will take the `datasource` you write and use it as-is.
+Wasp takes the `datasource` you write and use it as-is.
 
 There are some rules you need to follow:
 - You can only use `"postgresql"` or `"sqlite"` as the `provider` because Wasp only supports PostgreSQL and SQLite databases for now.
@@ -132,7 +134,7 @@ generator client {
 
 Wasp requires that there is a `generator` block with `provider = "prisma-client-js"` in the `schema.prisma` file.
 
-You can add additional generators if you want to use them in your project.
+You can add additional generators if you need them in your project.
 
 ### The `model` blocks
 
@@ -179,7 +181,4 @@ generator client {
 // ...
 ```
 
-<small>
-
 Read more about preview features in the Prisma docs [here](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about using PostgreSQL extensions [here](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
-</small>
