@@ -57,11 +57,11 @@ Wasp reads this `schema.prisma` file and extracts the info about your database m
 
 <ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file"/>
 
-Wasp uses the `datasource` block to know which database you want to use (PostgreSQL in this case) and some other options.
+The `datasource` block defines which database you want to use (PostgreSQL in this case) and some other options.
 
-Wasp uses the `generator` block to generate the Prisma Client code that you can use in your application to interact with the database.
+The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
 
-Finally, Prisma models represent Wasp Entities which can be then used in the `main.wasp` file:
+Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp` file:
 
 ```wasp title="main.wasp"
 app myApp {
@@ -119,7 +119,7 @@ datasource db {
 Wasp will take the `datasource` you write and use it as-is.
 
 There are some rules you need to follow:
-- You can only use `"postgresql"` or `"sqlite"` as the `provider` because Wasp only supports PostgreSQL and SQLite databases. 
+- You can only use `"postgresql"` or `"sqlite"` as the `provider` because Wasp only supports PostgreSQL and SQLite databases for now.
 - You must set the `url` field to `env("DATABASE_URL")` so that Wasp can work properly with your database.
 
 ### The `generator` blocks
@@ -155,40 +155,25 @@ You can define your models in any way you like, if it's valid Prisma schema code
 
 Some minor caveats to keep in mind:
 
-- Wasp doesn't support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.
-- Wasp doesn't support MongoDB-specific [composite types](https://www.prisma.io/docs/orm/reference/prisma-schema-reference#type) in the `schema.prisma` file.
+- Wasp doesn't yet fully support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.
+- Wasp doesn't yet support MongoDB-specific [composite types](https://www.prisma.io/docs/orm/reference/prisma-schema-reference#type) in the `schema.prisma` file.
 
 ## Prisma preview features
 
-Prisma is still in active development and some of its features are not yet stable. To use them, you have to enable them in the client `generator` block:
+Prisma is still in active development and some of its features are not yet stable. To enable various preview features in Prisma, you need to add the `previewFeatures` field to the `generator` block in the `schema.prisma` file.
 
-```prisma title="schema.prisma"
-// ...
-
-generator client {
-  provider        = "prisma-client-js"
-  // highlight-next-line
-  previewFeatures = ["postgresqlExtensions"]
-}
-```
-
-<small>
-
-Read more about Prisma preview features in the [Prisma docs](https://www.prisma.io/docs/concepts/components/preview-features/client-preview-features).
-</small>
-
-### PostgreSQL Extensions
-
-PostgreSQL supports [extensions](https://www.postgresql.org/docs/current/contrib.html) that add additional functionality to the database. For example, the [hstore](https://www.postgresql.org/docs/13/hstore.html) extension adds support for storing key-value pairs in a single column.
-
-To use PostgreSQL extensions with Prisma, you have to enable them in the `datasource` block:
+For example, one useful Prisma preview feature is PostgreSQL extensions support, which allows you to use PostgreSQL extensions like `pg_vector` or `pg_trgm` in your database schema:
 
 ```prisma title="schema.prisma"
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  // highlight-next-line
-  extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+  extensions = [pgvector(map: "vector")]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 // ...
@@ -196,5 +181,5 @@ datasource db {
 
 <small>
 
-Read more about PostgreSQL configuration in Wasp in the [API Reference](#the-appdb-field).
+Read more about preview features in the Prisma docs [here](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about using PostgreSQL extensions [here](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
 </small>
