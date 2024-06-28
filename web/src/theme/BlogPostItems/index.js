@@ -122,6 +122,7 @@ export default function BlogPostItems({
               >
                 {/* Image */}
                 <img
+                  loading="lazy"
                   src={coverImgSrc}
                   className={`
                       mb-6
