@@ -6,9 +6,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Entities are one of the most important concepts in Wasp and are how you define what gets stored in the database.
 
-Wasp uses Prisma to talk to the database, and you define entities by defining Prisma models in the `schema.prisma` file.
+Wasp uses Prisma to talk to the database, and you define Entities by defining Prisma models in the `schema.prisma` file.
 
-Since our Todo app is all about tasks, we will add a Task model in the `schema.prisma` file:
+Since our Todo app is all about tasks, we'll define a Task entity by adding a Task model in the `schema.prisma` file:
 
 ```prisma title="schema.prisma"
 // ...
