@@ -6,7 +6,7 @@ Entities are the foundation of your app's data model. In short, an Entity define
 
 Wasp uses the excellent [Prisma ORM](https://www.prisma.io/) to implement all database functionality and occasionally enhances it with a thin abstraction layer. This means that you use the `schema.prisma` file to define your database models and relationships. Wasp understands the Prisma schema file and picks up all the models you define there.
 
-In your project you'll find a `schema.prisma` file in the root directory:
+In your project, you'll find a `schema.prisma` file in the root directory:
 
 ```
 .
@@ -27,6 +27,15 @@ The language is declarative and very intuitive. We'll also go through an example
 ## Defining an Entity
 
 A Prisma `model` declaration in the `schema.prisma` file represents a Wasp Entity.
+
+<details>
+<summary>
+Entity vs Model
+</summary>
+
+You might wonder why we distinguish between a **Wasp Entity** and a **Prisma model** if they're essentially the same thing right now. While defining a Prisma model is currently the only way to create an Entity in Wasp, the Entity concept is a higher-level abstraction. We plan to expand on Entities in the future, both in terms of how you can define them and what you can do with them. So, think of an Entity as a Wasp concept and a model as a Prisma concept. For now, all Prisma models are Entities and vice versa, but this relationship might evolve as Wasp grows.
+
+</details>
 
 Here's how you could define an Entity that represents a Task:
 
