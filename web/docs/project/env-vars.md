@@ -113,7 +113,8 @@ However, for production, `.env.client` and `.env.server` files will be ignored, 
 
 Client env vars are embedded into the client code during the build process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 
-You should provide them to the build command that turns client code into static files:
+When building for production `.env.client` will be ignored, since it is meant to be used only during development.
+Instead, you should provide the production client env vars directly to the build command that turns client code into static files:
 ```shell
 REACT_APP_SOME_VAR_NAME=somevalue REACT_APP_SOME_OTHER_VAR_NAME=someothervalue npm run build
 ```
@@ -130,7 +131,9 @@ Read more about it in Vite's [docs](https://vitejs.dev/guide/env-and-mode.html#p
 
 ### Server Env Vars
 
-You can provide env vars to your server code in production by defining them and making them available on the server where your server code is running.
+When building for production `.env.server` will be ignored, since it is meant to be used only during development.
+
+You can provide production env vars to your server code in production by defining them and making them available on the server where your server code is running.
 
 Setting this up will highly depend on where you are deploying your Wasp project, but in general it comes down to defining the env vars via mechanisms that your hosting provider provides.
 
