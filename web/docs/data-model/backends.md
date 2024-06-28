@@ -72,12 +72,12 @@ If you are using SQLite, you don't need to do anything special to connect to the
 
 ### PostgreSQL
 
-If you are using PostgreSQL, Wasp supports two ways of connecting your app to a database:
+If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 
-1. Using a ready-made dev database that requires minimal setup and is great for quick prototyping.
-2. Using a "real" database Wasp can connect to and use in production.
+1. For managed experience, let Wasp spin up a ready-to-go development database for you.
+2. For more control, you can specify a database URL and connect to an existing database that you provisioned yourself.
 
-#### Using the Dev Database Provided by Wasp
+#### Using the Dev Database provided by Wasp
 
 The command `wasp start db` will start a default PostgreSQL dev database for you.
 
