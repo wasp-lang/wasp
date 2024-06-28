@@ -2,7 +2,7 @@
 
 module Wasp.AI.GenerateNewProject.Plan
   ( Plan (..),
-    Model (..),
+    Entity (..),
     Operation (..),
     Page (..),
     generatePlan,
@@ -78,18 +78,18 @@ generatePlan newProjectDetails planRules = do
         Plan is represented as JSON with the following schema:
 
         {
-          "models": [{ "modelName": string, "modelBody": string }],
+          "entities": [{ "entityName": string, "entityPslBody": string }],
           "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
           "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
           "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
         }
 
-      Here is an example of a plan (a bit simplified, as we didn't list all of the models/actions/queries/pages):
+      Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
 
         {
-          "models": [{
-            "modelName": "User",
-            "modelBody": "  id Int @id @default(autoincrement())\n  tasks Task[]"
+          "entities": [{
+            "entityName": "User",
+            "entityPslBody": "  id Int @id @default(autoincrement())\n  tasks Task[]"
           }],
           "actions": [{
             "opName": "createTask",
@@ -112,16 +112,16 @@ generatePlan newProjectDetails planRules = do
 
         We will later use this plan to write main.wasp file and all the other parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
-        Also, mention in the descriptions of actions/queries which models they work with,
+        Also, mention in the descriptions of actions/queries which entities they work with,
         and in descriptions of pages mention which actions/queries they use.
 
         Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
-        least two models. It will very likely have more than one of each, though.
+        least two entities. It will very likely have more than one of each, though.
 
         DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
 
         Note that we are using SQLite as a database for Prisma, so don't use scalar arrays in PSL, like `String[]`,
-        as those are not supported in SQLite. You can of course normally use arrays of other models, like `Task[]`.
+        as those are not supported in SQLite. You can of course normally use arrays of other entities, like `Task[]`.
 
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
@@ -144,10 +144,10 @@ generatePlan newProjectDetails planRules = do
     -- no further fixing, or False if we are not sure and it might need further fixing.
     fixPlan :: Plan -> CodeAgent (Bool, Plan)
     fixPlan initialPlan = do
-      (maybePrismaFormatErrorsMsg, formattedModels) <- liftIO $ prismaFormat $ models initialPlan
-      let plan' = initialPlan {models = formattedModels}
+      (maybePrismaFormatErrorsMsg, formattedEntities) <- liftIO $ prismaFormat $ entities initialPlan
+      let plan' = initialPlan {entities = formattedEntities}
       let issues =
-            checkPlanForModelIssues plan'
+            checkPlanForEntityIssues plan'
               <> checkPlanForOperationIssues Query plan'
               <> checkPlanForOperationIssues Action plan'
               <> checkPlanForLogoutAndLoginActions plan'
@@ -198,53 +198,53 @@ generatePlan newProjectDetails planRules = do
                    ]
           return (False, fixedPlan)
 
-checkPlanForModelIssues :: Plan -> [String]
-checkPlanForModelIssues plan =
-  checkNumModels
-    <> checkUserModel
-    <> concatMap checkIfModelBodyParses (models plan)
+checkPlanForEntityIssues :: Plan -> [String]
+checkPlanForEntityIssues plan =
+  checkNumEntities
+    <> checkUserEntity
+    <> concatMap checkIfEntityBodyParses (entities plan)
   where
-    checkNumModels =
-      let numModels = length (models plan)
+    checkNumEntities =
+      let numEntities = length (entities plan)
           expectedNumEntities = 2
-       in if numModels < expectedNumEntities
+       in if numEntities < expectedNumEntities
             then
-              [ "There is only " <> show numModels <> " models in the plan,"
+              [ "There is only " <> show numEntities <> " entities in the plan,"
                   <> (" I would expect at least " <> show expectedNumEntities <> " or more.")
               ]
             else []
 
-    checkUserModel =
-      case find ((== "User") . modelName) (models plan) of
+    checkUserEntity =
+      case find ((== "User") . entityName) (entities plan) of
         Just _userModel -> [] -- TODO: I could check here if it contains correct fields.
-        Nothing -> ["'User' model is missing."]
+        Nothing -> ["'User' entity is missing."]
 
-    checkIfModelBodyParses model =
-      case Psl.Parser.Model.parseBody (modelBody model) of
+    checkIfEntityBodyParses entity =
+      case Psl.Parser.Model.parseBody (entityPslBody entity) of
         Left parseError ->
-          [ "Failed to parse PSL body of model '" <> modelName model <> "': "
+          [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
               <> show parseError
           ]
         Right _ -> []
 
--- | Calls "prisma format" on given models, and returns formatted/fixed models + error message
+-- | Calls "prisma format" on given entities, and returns formatted/fixed entities + error message
 -- that captures all schema errors that prisma returns, if any.
 -- Prisma format does not only do formatting, but also fixes some small mistakes and reports errors.
-prismaFormat :: [Model] -> IO (Maybe Text, [Model])
-prismaFormat unformattedModels = do
-  let pslModels = getPslModelTextForModel <$> unformattedModels
+prismaFormat :: [Entity] -> IO (Maybe Text, [Entity])
+prismaFormat unformattedEntities = do
+  let pslModels = getPslModelTextForModel <$> unformattedEntities
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
-  let formattedModels =
+  let formattedEntities =
         zipWith
-          (\e m -> e {modelBody = T.unpack $ getPslModelBodyFromPslModelText m})
-          unformattedModels
+          (\e m -> e {entityPslBody = T.unpack $ getPslModelBodyFromPslModelText m})
+          unformattedEntities
           formattedPslModels
-  return (maybeErrorsMsg, formattedModels)
+  return (maybeErrorsMsg, formattedEntities)
   where
-    getPslModelTextForModel :: Model -> Text
-    getPslModelTextForModel model =
-      let pslModelName = T.pack $ modelName model
-          pslModelBody = T.pack $ modelBody model
+    getPslModelTextForModel :: Entity -> Text
+    getPslModelTextForModel entity =
+      let pslModelName = T.pack $ entityName entity
+          pslModelBody = T.pack $ entityPslBody entity
        in [trimming|model ${pslModelName} {
                       ${pslModelBody}
                     }|]
@@ -319,15 +319,15 @@ summarizePlan plan =
   let numQueries = showT $ length $ queries plan
       numActions = showT $ length $ actions plan
       numPages = showT $ length $ pages plan
-      numModels = showT $ length $ models plan
+      numEntities = showT $ length $ entities plan
       queryNames = showT $ opName <$> queries plan
       actionNames = showT $ opName <$> actions plan
       pageNames = showT $ pageName <$> pages plan
-      modelNames = showT $ modelName <$> models plan
+      entityNames = showT $ entityName <$> entities plan
    in [trimming|
         - ${numQueries} queries: ${queryNames}
         - ${numActions} actions: ${actionNames}
-        - ${numModels} models: ${modelNames}
+        - ${numEntities} entities: ${entityNames}
         - ${numPages} pages: ${pageNames}
       |]
   where
@@ -368,7 +368,7 @@ summarizePlan plan =
 --   they also do it in their UI.
 
 data Plan = Plan
-  { models :: [Model],
+  { entities :: [Entity],
     queries :: [Operation],
     actions :: [Operation],
     pages :: [Page]
@@ -379,15 +379,15 @@ instance FromJSON Plan
 
 instance ToJSON Plan
 
-data Model = Model
-  { modelName :: String,
-    modelBody :: String
+data Entity = Entity
+  { entityName :: String,
+    entityPslBody :: String
   }
   deriving (Generic, Show)
 
-instance FromJSON Model
+instance FromJSON Entity
 
-instance ToJSON Model
+instance ToJSON Entity
 
 data OperationType = Action | Query
 

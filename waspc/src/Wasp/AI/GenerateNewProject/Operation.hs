@@ -33,23 +33,23 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
+import Wasp.AI.GenerateNewProject.Entity (entityPlanToPrismaModelText)
 import Wasp.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
-import Wasp.AI.GenerateNewProject.PrismaModel (modelPlanToPrismaModelText)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Analyzer.Parser as P
 import qualified Wasp.Util.Aeson as Util.Aeson
 
 generateAndWriteOperation :: OperationType -> NewProjectDetails -> FilePath -> Plan -> Plan.Operation -> CodeAgent Operation
 generateAndWriteOperation operationType newProjectDetails waspFilePath plan operationPlan = do
-  operation <- generateOperation operationType newProjectDetails (Plan.models plan) operationPlan
+  operation <- generateOperation operationType newProjectDetails (Plan.entities plan) operationPlan
   writeOperationToJsFile operation
   writeOperationToWaspFile waspFilePath operation
   writeToLog $ "Generated " <> fromString (show operationType) <> ": " <> fromString (Plan.opName operationPlan)
   return operation
 
-generateOperation :: OperationType -> NewProjectDetails -> [Plan.Model] -> Plan.Operation -> CodeAgent Operation
-generateOperation operationType newProjectDetails modelPlans operationPlan = do
+generateOperation :: OperationType -> NewProjectDetails -> [Plan.Entity] -> Plan.Operation -> CodeAgent Operation
+generateOperation operationType newProjectDetails entityPlans operationPlan = do
   impl <-
     queryChatGPTForJSON (codingChatGPTParams newProjectDetails) chatMessages
       >>= fixOperationImplIfNeeded
@@ -66,7 +66,7 @@ generateOperation operationType newProjectDetails modelPlans operationPlan = do
     operationFnPath = T.pack $ Plan.opFnPath operationPlan
     operationDesc = T.pack $ Plan.opDesc operationPlan
     operationTypeText = T.pack $ show operationType
-    modelDecls = T.intercalate "\n\n" $ modelPlanToPrismaModelText <$> modelPlans
+    modelDecls = T.intercalate "\n\n" $ entityPlanToPrismaModelText <$> entityPlans
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
@@ -79,7 +79,7 @@ generateOperation operationType newProjectDetails modelPlans operationPlan = do
 
         We are implementing a Wasp app (check bottom for description).
 
-        This app has the following models:
+        This app has the following entities (models):
           ${modelDecls}
 
 
@@ -103,7 +103,7 @@ generateOperation operationType newProjectDetails modelPlans operationPlan = do
         There should be no other text in the response, just valid JSON.
 
         Additional strong guidelines for you to follow:
-         - There should typically be at least one model listed under `entities` field in the wasp declaration.
+         - There should typically be at least one entity listed under `entities` field in the wasp declaration.
          - Don't ever put "..." or "//TODO" comments in the wasp declaration (`opWaspDecl`) or js implementation (`opJsImpl`).
            Instead, always write real implementation!
          - Don't import prisma client in the JS imports, it is not needed.

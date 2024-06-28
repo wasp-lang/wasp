@@ -17,6 +17,7 @@ import Wasp.AI.GenerateNewProject.Common
     codingChatGPTParams,
     planningChatGPTParams,
   )
+import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToPrismaFile)
 import qualified Wasp.AI.GenerateNewProject.InitialFiles as IF
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.GenerateNewProject.Operation
@@ -30,7 +31,6 @@ import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.GenerateNewProject.PrismaFile (fixPrismaFile)
-import Wasp.AI.GenerateNewProject.PrismaModel (writeModelsToPrismaFile)
 import Wasp.AI.GenerateNewProject.WaspFile (fixWaspFile)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 import Wasp.Project (WaspProjectDir)
@@ -67,8 +67,8 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLog "Generated initial project files."
 
   plan <- generatePlan newProjectDetails planRules
-  writeModelsToPrismaFile prismaFilePath (Plan.models plan)
-  writeToLog "Updated the Prisma file with models."
+  writeEntitiesToPrismaFile prismaFilePath (Plan.entities plan)
+  writeToLog "Updated the Prisma file with entities."
 
   writeToLogGenerating "actions..."
   actions <-
@@ -83,7 +83,7 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLogGenerating "pages..."
   pages <-
     forM (Plan.pages plan) $
-      generateAndWritePage newProjectDetails waspFilePath (Plan.models plan) queries actions
+      generateAndWritePage newProjectDetails waspFilePath (Plan.entities plan) queries actions
 
   -- TODO: Pass plan rules into fixWaspFile, as extra guidance what to keep an eye on? We can't just
   --   do it blindly though, some of them are relevant only to plan (e.g. not generating login /
