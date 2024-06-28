@@ -79,6 +79,7 @@ export default function BlogPostItems({
 
             {/* Image - right col */}
             <img
+              loading="lazy"
               src={coverImgSrc}
               className={`
                   mb-6
