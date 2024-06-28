@@ -78,7 +78,7 @@ generatePlan newProjectDetails planRules = do
         Plan is represented as JSON with the following schema:
 
         {
-          "entities": [{ "entityName": string, "entityPslBody": string }],
+          "entities": [{ "entityName": string, "entityBodyPsl": string }],
           "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
           "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
           "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
@@ -89,7 +89,7 @@ generatePlan newProjectDetails planRules = do
         {
           "entities": [{
             "entityName": "User",
-            "entityPslBody": "  id Int @id @default(autoincrement())\n  tasks Task[]"
+            "entityBodyPsl": "  id Int @id @default(autoincrement())\n  tasks Task[]"
           }],
           "actions": [{
             "opName": "createTask",
@@ -220,7 +220,7 @@ checkPlanForEntityIssues plan =
         Nothing -> ["'User' entity is missing."]
 
     checkIfEntityBodyParses entity =
-      case Psl.Parser.Model.parseBody (entityPslBody entity) of
+      case Psl.Parser.Model.parseBody (entityBodyPsl entity) of
         Left parseError ->
           [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
               <> show parseError
@@ -232,19 +232,19 @@ checkPlanForEntityIssues plan =
 -- Prisma format does not only do formatting, but also fixes some small mistakes and reports errors.
 prismaFormat :: [Entity] -> IO (Maybe Text, [Entity])
 prismaFormat unformattedEntities = do
-  let pslModels = getPslModelTextForModel <$> unformattedEntities
+  let pslModels = getPslModelTextForEntity <$> unformattedEntities
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
   let formattedEntities =
         zipWith
-          (\e m -> e {entityPslBody = T.unpack $ getPslModelBodyFromPslModelText m})
+          (\e m -> e {entityBodyPsl = T.unpack $ getPslModelBodyFromPslModelText m})
           unformattedEntities
           formattedPslModels
   return (maybeErrorsMsg, formattedEntities)
   where
-    getPslModelTextForModel :: Entity -> Text
-    getPslModelTextForModel entity =
+    getPslModelTextForEntity :: Entity -> Text
+    getPslModelTextForEntity entity =
       let pslModelName = T.pack $ entityName entity
-          pslModelBody = T.pack $ entityPslBody entity
+          pslModelBody = T.pack $ entityBodyPsl entity
        in [trimming|model ${pslModelName} {
                       ${pslModelBody}
                     }|]
@@ -381,7 +381,7 @@ instance ToJSON Plan
 
 data Entity = Entity
   { entityName :: String,
-    entityPslBody :: String
+    entityBodyPsl :: String
   }
   deriving (Generic, Show)
 

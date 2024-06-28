@@ -19,7 +19,7 @@ writeEntitiesToPrismaFile prismaFilePath entityPlans = do
 entityPlanToPrismaModelText :: Plan.Entity -> Text
 entityPlanToPrismaModelText plan =
   let name = T.pack $ Plan.entityName plan
-      pslBody = T.pack $ Plan.entityPslBody plan
+      pslBody = T.pack $ Plan.entityBodyPsl plan
    in [trimming|
         model ${name} {
           ${pslBody}
