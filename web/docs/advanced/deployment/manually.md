@@ -96,6 +96,8 @@ While these are the general instructions on deploying the server anywhere, we al
 
 The command above will build the web client and put it in the `build/` directory in the `.wasp/build/web-app/`.
 
+This is also the moment to provide any additional env vars for the client code, next to `REACT_APP_API_URL`. Check the [env vars docs](../../project/env-vars#client-env-vars-1) for more details.
+
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/build/web-app/build/`.
 
 ### 4. Deploying the Database
@@ -178,7 +180,7 @@ Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
 cp fly.toml ../../
 ```
 
-Next, let's add a few more environment variables:
+Next, add a few more environment variables for the server code.
 
 ```bash
 flyctl secrets set PORT=8080
