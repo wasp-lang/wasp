@@ -26,6 +26,7 @@ genNewClientAuth spec =
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
+        <++> genAuthDiscord auth
         <++> genAuthGoogle auth
         <++> genAuthKeycloak auth
         <++> genAuthGitHub auth
@@ -60,6 +61,12 @@ genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
     then sequence [genFileCopy [relfile|client/auth/username.ts|]]
+    else return []
+
+genAuthDiscord :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthDiscord auth =
+  if AS.Auth.isDiscordAuthEnabled auth
+    then sequence [genFileCopy [relfile|client/auth/discord.ts|]]
     else return []
 
 genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]

@@ -27,7 +27,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders
-  ( gitHubAuthProvider,
+  ( discordAuthProvider,
+    gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
   )
@@ -52,6 +53,7 @@ genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
       genOAuthHelpers auth
+        <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
