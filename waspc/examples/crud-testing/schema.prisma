@@ -9,7 +9,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Define your Prisma schema below
 model User {
   id      Int     @id @default(autoincrement())
   address String?

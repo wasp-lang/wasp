@@ -8,5 +8,3 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
-
-// Define your Prisma schema below

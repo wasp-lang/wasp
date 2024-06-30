@@ -19,6 +19,7 @@
     },
   }
   ```
+- Auth: you can now use Discord as a social auth provider (by @wardbox)
 
 ### ⚠️ Breaking Changes & Migration Guide
 
