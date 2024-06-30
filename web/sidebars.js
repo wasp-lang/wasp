@@ -72,6 +72,7 @@ module.exports = {
             'auth/social-auth/github',
             'auth/social-auth/google',
             'auth/social-auth/keycloak',
+            'auth/social-auth/discord',
           ],
         },
         'auth/entities/entities',

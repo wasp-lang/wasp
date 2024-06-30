@@ -48,6 +48,7 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
+  Cli/templates/basic/schema.prisma
   Cli/templates/basic/main.wasp
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
@@ -160,8 +161,9 @@ library
     Wasp.AI.GenerateNewProject.Page
     Wasp.AI.GenerateNewProject.PageComponentFile
     Wasp.AI.GenerateNewProject.Plan
-    Wasp.AI.GenerateNewProject.Skeleton
+    Wasp.AI.GenerateNewProject.InitialFiles
     Wasp.AI.GenerateNewProject.WaspFile
+    Wasp.AI.GenerateNewProject.PrismaFile
     Wasp.AI.OpenAI
     Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer

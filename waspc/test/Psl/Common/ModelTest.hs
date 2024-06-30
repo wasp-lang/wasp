@@ -14,6 +14,7 @@ sampleBodySchema =
       username String? @db.VarChar(200) // inline comments
     posts Post[] @relation("UserPosts", references: [id]) @customattr
     weirdType Unsupported("weird")
+    anotherId String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
     @@someattr([id, username], [posts])
   |]
@@ -82,6 +83,35 @@ sampleBodyAst =
               Psl.Model._type = Psl.Model.Unsupported "weird",
               Psl.Model._typeModifiers = [],
               Psl.Model._attrs = []
+            }
+        ),
+      Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "anotherId",
+              Psl.Model._type = Psl.Model.String,
+              Psl.Model._typeModifiers = [],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "id",
+                      Psl.Attribute._attrArgs = []
+                    },
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "default",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Argument.ArgUnnamed
+                            ( Psl.Argument.FuncExpr
+                                "dbgenerated"
+                                [ Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "gen_random_uuid()"
+                                ]
+                            )
+                        ]
+                    },
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "db.Uuid",
+                      Psl.Attribute._attrArgs =
+                        []
+                    }
+                ]
             }
         ),
       Psl.Model.ElementBlockAttribute
