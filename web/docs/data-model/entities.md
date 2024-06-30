@@ -4,27 +4,51 @@ title: Entities
 
 Entities are the foundation of your app's data model. In short, an Entity defines a model in your database.
 
-Wasp uses the excellent [Prisma ORM](https://www.prisma.io/) to implement all database functionality and occasionally enhances it with a thin abstraction layer.
-Wasp Entities directly correspond to [Prisma's data model](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model). Still, you don't need to be familiar with Prisma to effectively use Wasp, as it comes with a simple API wrapper for working with Prisma's core features.
+Wasp uses the excellent [Prisma ORM](https://www.prisma.io/) to implement all database functionality and occasionally enhances it with a thin abstraction layer. This means that you use the `schema.prisma` file to define your database models and relationships. Wasp understands the Prisma schema file and picks up all the models you define there.
 
-The only requirement for defining Wasp Entities is familiarity with the **_Prisma Schema Language (PSL)_**, a simple definition language explicitly created for defining models in Prisma.
+In your project, you'll find a `schema.prisma` file in the root directory:
+
+```
+.
+├── main.wasp
+...
+├── schema.prisma
+├── src
+├── tsconfig.json
+└── vite.config.ts
+```
+
+Prisma uses the **_Prisma Schema Language (PSL)_**, a simple definition language explicitly created for defining models.
 The language is declarative and very intuitive. We'll also go through an example later in the text, so there's no need to go and thoroughly learn it right away. Still, if you're curious, look no further than Prisma's official documentation:
 
-- [Basic intro and examples](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema)
-- [A more exhaustive language specification](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference)
+- [Basic intro and examples](https://www.prisma.io/docs/orm/prisma-schema/overview)
+- [A more exhaustive language specification](https://www.prisma.io/docs/orm/reference/prisma-schema-reference)
 
 ## Defining an Entity
 
-As mentioned, an `entity` declaration represents a database model.
+A Prisma `model` declaration in the `schema.prisma` file represents a Wasp Entity.
 
-Each `Entity` declaration corresponds 1-to-1 to [Prisma's data model](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model). Here's how you could define an Entity that represents a Task:
+<details>
+<summary>
+Entity vs Model
+</summary>
+
+You might wonder why we distinguish between a **Wasp Entity** and a **Prisma model** if they're essentially the same thing right now. 
+
+While defining a Prisma model is currently the only way to create an Entity in Wasp, the Entity concept is a higher-level abstraction. We plan to expand on Entities in the future, both in terms of how you can define them and what you can do with them.
+
+So, think of an Entity as a Wasp concept and a model as a Prisma concept. For now, all Prisma models are Entities and vice versa, but this relationship might evolve as Wasp grows.
+
+</details>
+
+Here's how you could define an Entity that represents a Task:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```prisma
+```prisma title="schema.prisma"
 model Task {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(uuid())
   description String
   isDone      Boolean @default(false)
 }
@@ -33,9 +57,9 @@ model Task {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```prisma
+```prisma title="schema.prisma"
 model Task {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(uuid())
   description String
   isDone      Boolean @default(false)
 }
@@ -44,14 +68,9 @@ model Task {
 </TabItem>
 </Tabs>
 
-Let's go through this declaration in detail:
+The above Prisma `model` definition tells Wasp to create a table for storing Tasks where each task has three fields (i.e., the `tasks` table has three columns):
 
-- `entity Task` - This tells Wasp that we wish to define an Entity (i.e., database model) called `Task`. Wasp automatically creates a table called `tasks`.
-- `{=psl ... psl=}` - Wasp treats everything that comes between the two `psl` tags as [PSL (Prisma Schema Language)](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema).
-
-The above PSL definition tells Wasp to create a table for storing Tasks where each task has three fields (i.e., the `tasks` table has three columns):
-
-- `id` - An integer value serving as a primary key. The database automatically generates it by incrementing the previously generated `id`.
+- `id` - A string value serving as a primary key. The database automatically generates it by generating a random unique ID.
 - `description` - A string value for storing the task's description.
 - `isDone` - A boolean value indicating the task's completion status. If you don't set it when creating a new task, the database sets it to `false` by default.
 
@@ -59,8 +78,8 @@ The above PSL definition tells Wasp to create a table for storing Tasks where ea
 
 Let's see how you can define and work with Wasp Entities:
 
-1. Create/update some Entities in your `.wasp` file.
-2. Run `wasp db migrate-dev`. This command syncs the database model with the Entity definitions in your `.wasp` file. It does this by creating migration scripts.
+1. Create/update some Entities in the `schema.prisma` file.
+2. Run `wasp db migrate-dev`. This command syncs the database model with the Entity definitions the `schema.prisma` file. It does this by creating migration scripts.
 3. Migration scripts are automatically placed in the `migrations/` folder. Make sure to commit this folder into version control.
 4. Use Wasp's JavasScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](../data-model/operations/overview)).
 

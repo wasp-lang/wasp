@@ -41,6 +41,18 @@ spec_parseAttributePslPart = do
             ),
             ( "@db.ObjectId",
               Psl.Attribute.Attribute "db.ObjectId" []
+            ),
+            -- Based on https://github.com/wasp-lang/wasp/issues/2137
+            ( "@default(dbgenerated(\"gen_random_uuid()\"))",
+              Psl.Attribute.Attribute
+                "default"
+                [ Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.FuncExpr
+                        "dbgenerated"
+                        [ Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "gen_random_uuid()"
+                        ]
+                    )
+                ]
             )
           ]
     runTestsFor attribute tests

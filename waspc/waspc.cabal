@@ -161,8 +161,9 @@ library
     Wasp.AI.GenerateNewProject.Page
     Wasp.AI.GenerateNewProject.PageComponentFile
     Wasp.AI.GenerateNewProject.Plan
-    Wasp.AI.GenerateNewProject.Skeleton
+    Wasp.AI.GenerateNewProject.InitialFiles
     Wasp.AI.GenerateNewProject.WaspFile
+    Wasp.AI.GenerateNewProject.PrismaFile
     Wasp.AI.OpenAI
     Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer

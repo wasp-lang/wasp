@@ -61,12 +61,15 @@ generatePlan newProjectDetails planRules = do
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
+    prismaFileExamplePrompt = Prompts.prismaFileExample
     rulesText = T.pack . unlines $ "Instructions you must follow while generating plan:" : map (" - " ++) planRules
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
 
         ${waspFileExamplePrompt}
+
+        ${prismaFileExamplePrompt}
 
         We are looking for a plan to build a new Wasp app (description at the end of prompt).
 
@@ -118,7 +121,7 @@ generatePlan newProjectDetails planRules = do
         DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
 
         Note that we are using SQLite as a database for Prisma, so don't use scalar arrays in PSL, like `String[]`,
-        as those are not supported in SQLite. You can of course normally use arrays of other models, like `Task[]`.
+        as those are not supported in SQLite. You can of course normally use arrays of other entities, like `Task[]`.
 
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
@@ -199,7 +202,7 @@ checkPlanForEntityIssues :: Plan -> [String]
 checkPlanForEntityIssues plan =
   checkNumEntities
     <> checkUserEntity
-    <> concatMap checkIfEntityPSLCompiles (entities plan)
+    <> concatMap checkIfEntityBodyParses (entities plan)
   where
     checkNumEntities =
       let numEntities = length (entities plan)
@@ -216,7 +219,7 @@ checkPlanForEntityIssues plan =
         Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
         Nothing -> ["'User' entity is missing."]
 
-    checkIfEntityPSLCompiles entity =
+    checkIfEntityBodyParses entity =
       case Psl.Parser.Model.parseBody (entityBodyPsl entity) of
         Left parseError ->
           [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
@@ -240,10 +243,10 @@ prismaFormat unformattedEntities = do
   where
     getPslModelTextForEntity :: Entity -> Text
     getPslModelTextForEntity entity =
-      let modelName = T.pack $ entityName entity
-          modelBody = T.pack $ entityBodyPsl entity
-       in [trimming|model ${modelName} {
-                      ${modelBody}
+      let pslModelName = T.pack $ entityName entity
+          pslModelBody = T.pack $ entityBodyPsl entity
+       in [trimming|model ${pslModelName} {
+                      ${pslModelBody}
                     }|]
 
     -- Example: @getPslModelBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.

@@ -1,6 +1,6 @@
 module Wasp.AI.GenerateNewProject.Entity
-  ( writeEntitiesToWaspFile,
-    entityPlanToWaspDecl,
+  ( writeEntitiesToPrismaFile,
+    entityPlanToPrismaModelText,
   )
 where
 
@@ -10,20 +10,20 @@ import NeatInterpolation (trimming)
 import Wasp.AI.GenerateNewProject.Common (CodeAgent, writeToWaspFileEnd)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 
-writeEntitiesToWaspFile :: FilePath -> [Plan.Entity] -> CodeAgent ()
-writeEntitiesToWaspFile waspFilePath entityPlans = do
-  writeToWaspFileEnd waspFilePath $ "\n" <> entitiesCode
+writeEntitiesToPrismaFile :: FilePath -> [Plan.Entity] -> CodeAgent ()
+writeEntitiesToPrismaFile prismaFilePath entityPlans = do
+  writeToWaspFileEnd prismaFilePath $ "\n" <> modelsCode
   where
-    entitiesCode = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
+    modelsCode = T.intercalate "\n\n" $ entityPlanToPrismaModelText <$> entityPlans
 
-entityPlanToWaspDecl :: Plan.Entity -> Text
-entityPlanToWaspDecl plan =
+entityPlanToPrismaModelText :: Plan.Entity -> Text
+entityPlanToPrismaModelText plan =
   let name = T.pack $ Plan.entityName plan
       pslBody = T.pack $ Plan.entityBodyPsl plan
    in [trimming|
-        entity ${name} {=psl
+        model ${name} {
           ${pslBody}
-        psl=}
+        }
       |]
 
 -- TODO: Add data Entity that contains waspDeclaration + entity plan.
