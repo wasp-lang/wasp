@@ -127,8 +127,6 @@ generateBasePrismaFile newProjectDetails = (("schema.prisma", content), planRule
       generator client {
         provider = "prisma-client-js"
       }
-
-      // Define your Prisma schema below
     |]
     planRules = case getProjectAuth newProjectDetails of
       UsernameAndPassword ->
