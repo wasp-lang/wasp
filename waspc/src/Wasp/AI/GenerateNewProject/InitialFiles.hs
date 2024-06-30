@@ -1,5 +1,6 @@
-module Wasp.AI.GenerateNewProject.Skeleton
-  ( generateAndWriteProjectSkeletonAndPresetFiles,
+module Wasp.AI.GenerateNewProject.InitialFiles
+  ( genAndWriteInitialFiles,
+    InitialFilesGenResult (..),
   )
 where
 
@@ -24,18 +25,28 @@ import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
 
-generateAndWriteProjectSkeletonAndPresetFiles ::
+data InitialFilesGenResult = InitialFilesGenResult
+  { _waspFilePath :: FilePath,
+    _prismaFilePath :: FilePath,
+    _planRules :: [PlanRule]
+  }
+
+genAndWriteInitialFiles ::
   NewProjectDetails ->
   [(Path System (Rel WaspProjectDir) File', Text)] ->
-  CodeAgent (FilePath, [PlanRule])
-generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles = do
+  CodeAgent InitialFilesGenResult
+genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
   let skeletonFiles = first SP.fromRelFile <$> waspProjectSkeletonFiles
   mapM_ writeNewFile skeletonFiles
 
-  let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails
+  let (waspFile@(waspFilePath, _), waspFilePlanRules) = generateBaseWaspFile newProjectDetails
   writeNewFile waspFile
 
   writeNewFile $ generatePackageJson newProjectDetails
+
+  let (prismaFile@(prismaFilePath, _), prismaFilePlanRules) = generateBasePrismaFile newProjectDetails
+
+  writeNewFile prismaFile
 
   case getProjectAuth newProjectDetails of
     UsernameAndPassword -> do
@@ -50,7 +61,7 @@ generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkele
   writeNewFile $ generateLayoutComponent newProjectDetails
   writeNewFile generateMainCssFile
 
-  return (waspFilePath, planRules)
+  return $ InitialFilesGenResult waspFilePath prismaFilePath (waspFilePlanRules ++ prismaFilePlanRules)
 
 generateBaseWaspFile :: NewProjectDetails -> (File, [PlanRule])
 generateBaseWaspFile newProjectDetails = ((path, content), planRules)
@@ -72,12 +83,6 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
             },
         |],
           [ "App uses username and password authentication.",
-            T.unpack
-              [trimming|
-              App MUST have a 'User' entity, with following field(s) required:
-                - `id Int @id @default(autoincrement())`
-              It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
-              |],
             "One of the pages in the app must have a route path \"/\"."
           ]
         )
@@ -94,11 +99,6 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           client: {
             rootComponent: import { Layout } from "@src/Layout.jsx",
           },
-          db: {
-            prisma: {
-              clientPreviewFeatures: ["extendedWhereUnique"]
-            }
-          },
           ${appAuth}
         }
 
@@ -111,6 +111,34 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           component: import Signup from "@src/pages/auth/Signup.jsx"
         }
       |]
+
+generateBasePrismaFile :: NewProjectDetails -> (File, [PlanRule])
+generateBasePrismaFile newProjectDetails = (("schema.prisma", content), planRules)
+  where
+    content =
+      [trimming|
+      datasource db {
+        provider = "sqlite"
+        // Wasp requires that the url is set to the DATABASE_URL environment variable.
+        url      = env("DATABASE_URL")
+      }
+
+      // Wasp requires the `prisma-client-js` generator to be present.
+      generator client {
+        provider = "prisma-client-js"
+      }
+
+      // Define your Prisma schema below
+    |]
+    planRules = case getProjectAuth newProjectDetails of
+      UsernameAndPassword ->
+        [ T.unpack
+            [trimming|
+                Prisma schema MUST have a 'User' model, with following field(s) required:
+                  - `id Int @id @default(autoincrement())`
+                It is also likely to have a field that refers to some other model that user owns, e.g. `tasks Task[]`.
+                |]
+        ]
 
 -- TODO: We have duplication here, since package.json is already defined
 --   in `basic` templates file. We should find a way to reuse that, so we don't
@@ -143,7 +171,7 @@ generateLoginJsPage =
   ( "src/pages/auth/Login.jsx",
     [trimming|
       import React from "react";
-      import { Link } from "react-router-dom";
+      import { Link } from "wasp/client/router";
       import { LoginForm } from "wasp/client/auth";
 
       export default function Login() {
@@ -182,7 +210,7 @@ generateSignupJsPage =
   ( "src/pages/auth/Signup.jsx",
     [trimming|
       import React from "react";
-      import { Link } from "react-router-dom";
+      import { Link } from "wasp/client/router";
       import { SignupForm } from "wasp/client/auth";
 
       export default function Signup() {
@@ -245,7 +273,7 @@ generateLayoutComponent :: NewProjectDetails -> File
 generateLayoutComponent newProjectDetails =
   ( "src/Layout.jsx",
     [trimming|
-      import { Link } from "react-router-dom";
+      import { Link } from "wasp/client/router";
       import { useAuth, logout } from "wasp/client/auth";
       import "./Main.css";
 

@@ -1,6 +1,6 @@
 module Wasp.Psl.Format
   ( prismaFormat,
-    PrismaFormatResult,
+    PrismaFormatResult (..),
     PslModelText,
     PslErrorsMsg,
     prismaFormatModels,
