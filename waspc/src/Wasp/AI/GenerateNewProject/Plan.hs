@@ -216,7 +216,7 @@ checkPlanForEntityIssues plan =
 
     checkUserEntity =
       case find ((== "User") . entityName) (entities plan) of
-        Just _userModel -> [] -- TODO: I could check here if it contains correct fields.
+        Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
         Nothing -> ["'User' entity is missing."]
 
     checkIfEntityBodyParses entity =
