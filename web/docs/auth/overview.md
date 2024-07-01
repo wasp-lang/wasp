@@ -614,7 +614,7 @@ export const userSignupFields = defineUserSignupFields({
 Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
 </small>
 
-Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity.
+Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
 
 The field function will receive the data sent from the client and it needs to return the value that will be saved into the database. If the field is invalid, the function should throw an error.
 
