@@ -9,7 +9,7 @@ where
 import Data.Aeson (object, (.=))
 import Data.List (find)
 import Data.Maybe (maybeToList)
-import Data.Text (Text, pack)
+import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
@@ -214,14 +214,13 @@ warnProjectDiffersFromDb projectRootDir = do
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 generatePrismaClient spec projectRootDir = do
-  first <- wasCurrentSchemaAlreadyGenerated
-  second <- isNodeModulesSchemaSameAsProjectSchema
-  if not first || not second
+  isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
+  if not isGeneratedPrismaClientValid
     then generatePrismaClientIfEntitiesExist
     else return Nothing
   where
-    wasCurrentSchemaAlreadyGenerated :: IO Bool
-    wasCurrentSchemaAlreadyGenerated =
+    isCurrentSchemaUpToDate :: IO Bool
+    isCurrentSchemaUpToDate =
       checksumFileExistsAndMatchesSchema
         projectRootDir
         Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir
@@ -257,12 +256,15 @@ checksumFileExistsAndMatchesSchema projectRootDir schemaFileInProjectDir =
     checksumFileAbs = projectRootDir </> Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
 checksumFileMatchesSchema :: Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f => Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
-checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs = do
-  -- Read file strictly as the checksum may be later overwritten.
-  dbChecksumFileContents <- IOUtil.readFileStrict dbSchemaChecksumFileAbs
-  schemaFileHasChecksum dbSchemaFileAbs dbChecksumFileContents
+checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs =
+  ifM
+    (IOUtil.doesFileExist dbSchemaFileAbs)
+    (schemaFileHasChecksum dbSchemaFileAbs)
+    (return False)
   where
-    schemaFileHasChecksum :: Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Text -> IO Bool
-    schemaFileHasChecksum schemaFile checksum = do
-      dbSchemaFileChecksum <- pack . hexToString <$> checksumFromFilePath schemaFile
-      return $ dbSchemaFileChecksum == checksum
+    schemaFileHasChecksum :: Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> IO Bool
+    schemaFileHasChecksum schemaFile = do
+      -- Read file strictly as the checksum may be later overwritten.
+      dbChecksumFileContents <- IOUtil.readFileStrict dbSchemaChecksumFileAbs
+      dbSchemaFileChecksum <- T.pack . hexToString <$> checksumFromFilePath schemaFile
+      return $ dbSchemaFileChecksum == dbChecksumFileContents
