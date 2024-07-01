@@ -49,7 +49,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
         <$> sequence
           [ -- Users might by accident delete node_modules dir, so we check if it exists
             -- before assuming that we don't need to install npm deps.
-            not <$> doesNodeModulesDirExistInWaspProjectDir waspProjectDirPath,
+            not <$> doesNodeModulesDirExist waspProjectDirPath,
             areThereNpmDepsToInstall allNpmDeps dstDir
           ]
 
@@ -179,7 +179,7 @@ areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ installedNpmDeps /= Just allNpmDeps
 
-doesNodeModulesDirExistInWaspProjectDir :: Path' Abs (Dir WaspProjectDir) -> IO Bool
-doesNodeModulesDirExistInWaspProjectDir waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
+doesNodeModulesDirExist :: Path' Abs (Dir WaspProjectDir) -> IO Bool
+doesNodeModulesDirExist waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
   where
     nodeModulesDirInWaspProjectDirAbs = waspProjectDirPath SP.</> nodeModulesDirInWaspProjectDir
