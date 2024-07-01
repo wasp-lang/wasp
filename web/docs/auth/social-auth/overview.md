@@ -87,12 +87,6 @@ model User {
 </TabItem>
 </Tabs>
 
-<small>
-
-To learn more about what the fields on these entities represent, look at the [API Reference](#api-reference).
-
-</small>
-
 ## Default Behavior
 
 <DefaultBehaviour />
