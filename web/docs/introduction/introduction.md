@@ -49,7 +49,7 @@ You don't need to write any code for these features, Wasp will take care of it f
 
 Let's say you want to build a web app that allows users to **create and share their favorite recipes**.
 
-Let's start with the main.wasp file: it is the central file of your app, where you describe the app from the high level.
+Let's start with the `main.wasp` file: it is the central file of your app, where you describe the app from the high level.
 
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 ```wasp title="main.wasp"
@@ -64,7 +64,7 @@ app RecipeApp {
 }
 ```
 
-Let's then add the data models for your recipes. We will want to have Users and Users can own Recipes:
+Let's then add the data models for your recipes. Wasp understands and uses the models from the `schema.prisma` file. We will want to have Users and Users can own Recipes:
 
 ```prisma title="schema.prisma"
 ...
@@ -86,20 +86,20 @@ model Recipe {
 
 Next, let's define how to do something with these data models!
 
-We do that by defining Operations, in this case a Query `getRecipes` and Action `addRecipe`,
-which are in their essence a Node.js functions that execute on server and can, thanks to Wasp, very easily be called from the client.
+We do that by defining Operations, in this case, a Query `getRecipes` and Action `addRecipe`,
+which are in their essence Node.js functions that execute on the server and can, thanks to Wasp, very easily be called from the client.
 
-First, we define these Operations in our main.wasp file, so Wasp knows about them and can "beef them up":
+First, we define these Operations in our `main.wasp` file, so Wasp knows about them and can "beef them up":
 ```wasp title="main.wasp"
 // Queries have automatic cache invalidation and are type-safe.
 query getRecipes {
-  fn: import { getRecipes } from "@src/recipe/operations.ts",
+  fn: import { getRecipes } from "@src/recipe/operations",
   entities: [Recipe],
 }
 
 // Actions are type-safe and can be used to perform side-effects.
 action addRecipe {
-  fn: import { addRecipe } from "@src/recipe/operations.ts",
+  fn: import { addRecipe } from "@src/recipe/operations",
   entities: [Recipe],
 }
 ```
@@ -124,7 +124,7 @@ Now we can very easily use these in our React components!
 
 For the end, let's create a home page of our app.
 
-First we define it in main.wasp:
+First, we define it in `main.wasp`:
 ```wasp title="main.wasp"
 ...
 
@@ -174,12 +174,12 @@ Above we skipped defining `/login` and `/signup` pages to keep the example a bit
 :::
 
 ## When to use Wasp
-Wasp is addressing the same core problems that typical web app frameworks are addressing, and it in big part [looks, swims and quacks](https://en.wikipedia.org/wiki/Duck_test) like a web app framework.
+Wasp addresses the same core problems that typical web app frameworks are addressing, and it in big part [looks, swims and quacks](https://en.wikipedia.org/wiki/Duck_test) like a web app framework.
 
 ### Best used for
 - building full-stack web apps (like e.g. Airbnb or Asana)
 - quickly starting a web app with industry best practices
-- to be used alongside modern web dev stack (currently supported React and Node)
+- to be used alongside modern web dev stack (React and Node.js are currently supported)
 
 ### Avoid using Wasp for
 - building static/presentational websites
