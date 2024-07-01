@@ -138,7 +138,7 @@ width="400px"
   - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/discord/callback`.
 
 4. Hit **Save Changes**.
-5. Hit **Reset Secret**
+5. Hit **Reset Secret**.
 6. Copy your Client ID and Client secret as you'll need them in the next step.
 
 ### 4. Adding Environment Variables
@@ -162,7 +162,6 @@ Add the following code to your `main.wasp` file:
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.jsx"
@@ -175,7 +174,6 @@ page LoginPage {
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.tsx"

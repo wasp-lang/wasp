@@ -165,7 +165,6 @@ Add the following code to your `main.wasp` file:
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.jsx"
@@ -178,7 +177,6 @@ page LoginPage {
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.tsx"
