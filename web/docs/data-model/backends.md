@@ -75,10 +75,7 @@ Also, make sure that:
 
 ### Accessing the Dev Database
 
-To connect to the dev database through the CLI or using tools like [pgAdmin](https://www.pgadmin.org/), use the following credentials:
-
-- User: `postgresWaspDevUser`
-- Password: `postgresWaspDevPass`
+In case you might want to connect to the dev database through the CLI or using external tools like [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`.
 
 ### Connecting to an existing database
 
