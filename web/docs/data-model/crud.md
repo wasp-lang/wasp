@@ -18,7 +18,7 @@ This feature is currently in early preview and we are actively working on it. Re
 
 ## Overview
 
-Imagine we have a `Task` entity and we want to enable CRUD operations for it.
+Imagine we have a `Task` entity and we want to enable CRUD operations for it:
 
 ```prisma title="schema.prisma"
 model Task {
