@@ -73,9 +73,9 @@ Also, make sure that:
 - You have [Docker installed](https://www.docker.com/get-started/) and in `PATH`.
 - The port `5432` isn't taken.
 
-### Accessing the Dev Database
-
-In case you might want to connect to the dev database through the CLI or using external tools like [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`.
+:::tip
+In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
+:::
 
 ### Connecting to an existing database
 
