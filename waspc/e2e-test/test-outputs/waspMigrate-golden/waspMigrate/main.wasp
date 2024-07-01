@@ -14,4 +14,3 @@ entity Task {=psl
   description String 
   isDone      Boolean @default(false) 
  psl=} 
-
