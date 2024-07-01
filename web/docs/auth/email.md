@@ -33,9 +33,6 @@ app myApp {
   auth: { ... }
 }
 
-// Defining User entity
-entity User { ... }
-
 // Defining routes and pages
 route SignupRoute { ... }
 page SignupPage { ... }
