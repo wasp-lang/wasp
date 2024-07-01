@@ -6,7 +6,7 @@ import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 
 Wasp uses [Prisma](https://www.prisma.io/) to interact with the database. Prisma is a "Next-generation Node.js and TypeScript ORM" that provides a type-safe API for working with your database.
 
-With Prisma, you define your application's data model in a `schema.prisma` file. 
+With Prisma, you define your application's data model in a `schema.prisma` file. Read more about how are Wasp Entities and Prisma models related on the [Entities](./entities.md)](./entities.md) page.
 
 In Wasp, the `schema.prisma` file is located in your project's root directory:
 
@@ -21,7 +21,7 @@ In Wasp, the `schema.prisma` file is located in your project's root directory:
 └── vite.config.ts
 ```
 
- Wasp uses the `schema.prisma` file to understand your app's data model and generate the necessary code to interact with the database.
+Wasp uses the `schema.prisma` file to understand your app's data model and generate the necessary code to interact with the database.
 
 ## Wasp file and Prisma schema file
 
@@ -103,7 +103,7 @@ In the implementation of the `getTasks` query, `Task` is a Wasp Entity that corr
 
 The same goes for the `myJob` job and `fooBar` API, where `Task` is used as an Entity.
 
-To read more about the relationship between Wasp Entities and Prisma models, check out the [Entities](./entities.md) page.
+To learn more about the relationship between Wasp Entities and Prisma models, check out the [Entities](./entities.md) page.
 
 ## Wasp-specific Prisma configuration
 
