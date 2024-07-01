@@ -73,6 +73,13 @@ Also, make sure that:
 - You have [Docker installed](https://www.docker.com/get-started/) and in `PATH`.
 - The port `5432` isn't taken.
 
+### Accessing the Dev Database
+
+To connect to the dev database through the CLI or using tools like [pgAdmin](https://www.pgadmin.org/), use the following credentials:
+
+- User: `postgresWaspDevUser`
+- Password: `postgresWaspDevPass`
+
 ### Connecting to an existing database
 
 If you want to spin up your own dev database (or connect to an external one), you can tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string.
