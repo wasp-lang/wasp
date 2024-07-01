@@ -4,7 +4,7 @@ title: Entities
 
 Entities are the foundation of your app's data model. In short, an Entity defines a model in your database.
 
-Wasp uses the excellent [Prisma ORM](https://www.prisma.io/) to implement all database functionality and occasionally enhances it with a thin abstraction layer. This means that you use the `schema.prisma` file to define your database models and relationships. Wasp understands the Prisma schema file and picks up all the models you define there.
+Wasp uses the excellent [Prisma ORM](https://www.prisma.io/) to implement all database functionality and occasionally enhances it with a thin abstraction layer. This means that you use the `schema.prisma` file to define your database models and relationships. Wasp understands the Prisma schema file and picks up all the models you define there. You can read more about this in the [Prisma Schema File](./prisma-file.md) section of the docs.
 
 In your project, you'll find a `schema.prisma` file in the root directory:
 
@@ -18,7 +18,7 @@ In your project, you'll find a `schema.prisma` file in the root directory:
 └── vite.config.ts
 ```
 
-Prisma uses the **_Prisma Schema Language (PSL)_**, a simple definition language explicitly created for defining models.
+Prisma uses the _Prisma Schema Language_, a simple definition language explicitly created for defining models.
 The language is declarative and very intuitive. We'll also go through an example later in the text, so there's no need to go and thoroughly learn it right away. Still, if you're curious, look no further than Prisma's official documentation:
 
 - [Basic intro and examples](https://www.prisma.io/docs/orm/prisma-schema/overview)
