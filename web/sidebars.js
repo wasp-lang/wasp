@@ -50,6 +50,7 @@ module.exports = {
         },
         'data-model/crud',
         'data-model/backends',
+        'data-model/prisma-file'
       ],
     },
     {

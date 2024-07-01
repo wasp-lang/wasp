@@ -60,8 +60,6 @@ While fundamental types are here to be basic building blocks of a language and a
       - The path has to start with "@src". The rest is relative to the `src` directory.
       - Import has to be a default import `import Foo` or a single named import `import { Foo }`.
     - **json** (`{=json { a: 5, b: ["hi"] } json=}`)
-    - **psl** (Prisma Schema Language) (`{=psl <psl data model syntax> psl=}`)
-      - Check [Prisma docs](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) for the syntax of psl data model.
   - Composite types
     - **dict** (dictionary) (`{ a: 5, b: "foo" }`)
     - **list** (`[1, 2, 3]`)
@@ -73,7 +71,6 @@ While fundamental types are here to be basic building blocks of a language and a
     - **api**
     - **apiNamespace**
     - **app**
-    - **entity**
     - **job**
     - **page**
     - **query**
@@ -84,5 +81,7 @@ While fundamental types are here to be basic building blocks of a language and a
     - **HttpMethod**
     - **JobExecutor**
     - **EmailProvider**
+  - Models from the `schema.prisma` file
+    - You can reference models defined in the `schema.prisma` file in your Wasp file by using the model name e.g. `Task`.
 
 You can find more details about each of the domain types, both regarding their body types and what they mean, in the corresponding doc pages covering their features.

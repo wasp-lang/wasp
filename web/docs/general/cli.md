@@ -145,6 +145,13 @@ Wasp provides a suite of commands for managing the database. These commands all 
 
  - `wasp db studio` opens the GUI for inspecting your database.
 
+:::caution using `prisma` CLI directly
+
+Although Wasp uses the `schema.prisma` file to define the database schema, you must not use the `prisma` command directly. Instead, use the `wasp db` commands.
+
+Wasp adds some additional functionality on top of Prisma, and using `prisma` commands directly can lead to unexpected behavior e.g. missing auth models, incorrect database setup, etc.
+
+:::
 
 ### Bash Completion
 
@@ -157,7 +164,7 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
     ```
     $ wasp version
 
-    0.12.0
+    0.14.0
 
     If you wish to install/switch to the latest version of Wasp, do:
     curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s
