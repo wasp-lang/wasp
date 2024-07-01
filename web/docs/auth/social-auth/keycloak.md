@@ -89,7 +89,7 @@ The `userEntity` is explained in [the social auth overview](../../auth/social-au
 
 ### 2. Adding the User Entity
 
-Let's now define the `app.auth.userEntity` entity:
+Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">

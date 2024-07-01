@@ -89,7 +89,7 @@ app myApp {
 
 ### 2. Add the User Entity
 
-Let's now define the `app.auth.userEntity` entity:
+Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
