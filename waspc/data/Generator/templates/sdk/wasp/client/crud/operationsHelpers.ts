@@ -1,5 +1,5 @@
 import { useAction, useQuery } from "../operations"
-import { Query, Action } from "../operations/rpc"
+import type { Query, Action } from "../operations/rpc"
 import type { Tail } from "../../universal/types"
 
 // PRIVATE API
