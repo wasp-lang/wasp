@@ -490,9 +490,11 @@ model User {
 }
 ```
 
-The `User` entity is a "business logic user" which represents a user of your app. You can use this entity to store any information about the user that you want to store. 
+The `User` entity is a "business logic user" which represents a user of your app. 
 
-For example, you might want to store the user's name or address. You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
+You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. 
+
+You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
 
