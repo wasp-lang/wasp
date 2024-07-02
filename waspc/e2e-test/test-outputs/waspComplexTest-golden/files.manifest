@@ -502,6 +502,7 @@ waspComplexTest/.wasproot
 waspComplexTest/main.wasp
 waspComplexTest/package.json
 waspComplexTest/public/.gitkeep
+waspComplexTest/schema.prisma
 waspComplexTest/src/Main.css
 waspComplexTest/src/MainPage.jsx
 waspComplexTest/src/auth/hooks.ts

@@ -1,65 +1,41 @@
 module Wasp.Psl.Generator.Model
-  ( generateModel,
+  ( generateModelBody,
   )
 where
 
-import Data.List (intercalate)
-import qualified Wasp.Psl.Ast.Model as Ast
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import Wasp.Psl.Generator.Attribute (generateAttribute)
+import Wasp.Psl.Generator.Common (PslSource)
 
-generateModel :: Ast.Model -> String
-generateModel (Ast.Model name body) = "model " ++ name ++ " {\n" ++ generateBody body ++ "\n}"
+generateModelBody :: Psl.Model.Body -> PslSource
+generateModelBody (Psl.Model.Body elements) = unlines $ map (("  " ++) . generateModelElement) elements
 
-generateBody :: Ast.Body -> String
-generateBody (Ast.Body elements) = unlines $ map (("  " ++) . generateElement) elements
-
-generateElement :: Ast.Element -> String
-generateElement (Ast.ElementField field) =
-  Ast._name field ++ " "
-    ++ generateFieldType (Ast._type field)
-    ++ concatMap generateFieldTypeModifier (Ast._typeModifiers field)
-    ++ concatMap ((" " ++) . generateAttribute) (Ast._attrs field)
-generateElement (Ast.ElementBlockAttribute attribute) =
+generateModelElement :: Psl.Model.Element -> PslSource
+generateModelElement (Psl.Model.ElementField field) =
+  Psl.Model._name field ++ " "
+    ++ generateModelFieldType (Psl.Model._type field)
+    ++ concatMap generateModelFieldTypeModifier (Psl.Model._typeModifiers field)
+    ++ concatMap ((" " ++) . generateAttribute) (Psl.Model._attrs field)
+generateModelElement (Psl.Model.ElementBlockAttribute attribute) =
   "@" ++ generateAttribute attribute
 
-generateFieldType :: Ast.FieldType -> String
-generateFieldType fieldType = case fieldType of
-  Ast.String -> "String"
-  Ast.Boolean -> "Boolean"
-  Ast.Int -> "Int"
-  Ast.BigInt -> "BigInt"
-  Ast.Float -> "Float"
-  Ast.Decimal -> "Decimal"
-  Ast.DateTime -> "DateTime"
-  Ast.Json -> "Json"
-  Ast.Bytes -> "Bytes"
-  Ast.UserType label -> label
-  Ast.Unsupported typeName -> "Unsupported(" ++ show typeName ++ ")"
+generateModelFieldType :: Psl.Model.FieldType -> PslSource
+generateModelFieldType fieldType = case fieldType of
+  Psl.Model.String -> "String"
+  Psl.Model.Boolean -> "Boolean"
+  Psl.Model.Int -> "Int"
+  Psl.Model.BigInt -> "BigInt"
+  Psl.Model.Float -> "Float"
+  Psl.Model.Decimal -> "Decimal"
+  Psl.Model.DateTime -> "DateTime"
+  Psl.Model.Json -> "Json"
+  Psl.Model.Bytes -> "Bytes"
+  Psl.Model.UserType label -> label
+  Psl.Model.Unsupported typeName -> "Unsupported(" ++ show typeName ++ ")"
 
-generateFieldTypeModifier :: Ast.FieldTypeModifier -> String
-generateFieldTypeModifier typeModifier = case typeModifier of
-  Ast.List -> "[]"
-  Ast.Optional -> "?"
-
-generateAttribute :: Ast.Attribute -> String
-generateAttribute attribute =
-  "@" ++ Ast._attrName attribute
-    ++ if null (Ast._attrArgs attribute)
-      then ""
-      else "(" ++ intercalate ", " (map generateAttributeArg (Ast._attrArgs attribute)) ++ ")"
-
-generateAttributeArg :: Ast.AttributeArg -> String
-generateAttributeArg (Ast.AttrArgNamed name value) = name ++ ": " ++ generateAttrArgValue value
-generateAttributeArg (Ast.AttrArgUnnamed value) = generateAttrArgValue value
-
-generateAttrArgValue :: Ast.AttrArgValue -> String
-generateAttrArgValue value = case value of
-  Ast.AttrArgString strValue -> show strValue
-  Ast.AttrArgIdentifier identifier -> identifier
-  Ast.AttrArgFunc funcName -> funcName ++ "()"
-  Ast.AttrArgFieldRefList refs -> "[" ++ intercalate ", " refs ++ "]"
-  Ast.AttrArgNumber numberStr -> numberStr
-  Ast.AttrArgUnknown unknownStr -> unknownStr
-
--- TODO: I should make sure to skip attributes that are not known in prisma.
---   Or maybe it would be better if that was done in previous step, where
---   we basically edit the AST by kicking out those attributes.
+generateModelFieldTypeModifier :: Psl.Model.FieldTypeModifier -> PslSource
+generateModelFieldTypeModifier typeModifier = case typeModifier of
+  -- We validate the unsupported optional list in the AppSpec validator so it's okay if we decide to handle it here.
+  -- It helps us with writing unit tests for the generator.
+  Psl.Model.List -> "[]"
+  Psl.Model.Optional -> "?"

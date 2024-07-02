@@ -6,16 +6,17 @@ module Wasp.Analyzer
     --
     -- Analyzer parses the Wasp source into "Wasp" AST, which is then passed on to the "Generator".
     --
-    -- It consists of three stages:
+    -- It consists of four stages:
     --
     --  1. "Analyzer.Parser", which transforms source text into "Analyzer.Parser.AST",
     --     which captures basic structure like literals, lists, dictionaries, declarations, ...,
     --     without getting too much into details of them (it doesn't care about types, or exact declaration types, ...).
-    --  2. "Analyzer.TypeChecker", which transforms "Analyzer.Parser.AST" into "Analyzer.TypeChecker.AST",
+    --  2. "Analyzer.Prisma", which injects entities from Prisma schema into "Analyzer.Parser.AST" as Entity declarations.
+    --  3. "Analyzer.TypeChecker", which transforms "Analyzer.Parser.AST" into "Analyzer.TypeChecker.AST",
     --     which is almost the same as parser AST but is enriched with type information (what is of which type).
     --     While enriching AST with type information, type checker also checks that actual types match expected types.
     --     Wasp is strongly statically typed language.
-    --  3. "Analyzer.Evaluator", which transforms "Analyzer.TypeChecker.AST" into "Wasp" AST.
+    --  4. "Analyzer.Evaluator", which transforms "Analyzer.TypeChecker.AST" into "Wasp" AST.
     --     Wasp AST is output of "Analyzer" and input into "Generator", and is central AST in Wasp compiler.
 
     -- ** Wasp's type system
@@ -126,13 +127,17 @@ import Wasp.Analyzer.AnalyzeError
   )
 import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
 import Wasp.Analyzer.Parser (parseStatements)
+import Wasp.Analyzer.Prisma (injectEntitiesFromPrismaSchema)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
--- | Takes a Wasp source file and produces a list of declarations or a
---   description of an error in the source file.
-analyze :: String -> Either [AnalyzeError] [Decl]
-analyze =
+-- | Takes a Prisma Schema AST and a Wasp source file and
+--   produces a list of declarations or a description of
+--   an error in the source file.
+analyze :: Psl.Schema.Schema -> String -> Either [AnalyzeError] [Decl]
+analyze prismaSchemaAst =
   (left (map ParseError) . parseStatements)
+    >=> injectEntitiesFromPrismaSchema prismaSchemaAst
     >=> (left ((: []) . TypeError) . typeCheck stdTypes)
     >=> (left ((: []) . EvaluationError) . evaluate stdTypes)

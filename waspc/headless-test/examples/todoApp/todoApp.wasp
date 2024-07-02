@@ -36,7 +36,6 @@ app todoApp {
     setupFn: import setup from "@src/client/clientSetup.js"
   },
   db: {
-    system: PostgreSQL,
     seeds: [
       import { devSeedSimple } from "@src/server/dbSeeds.js",
       import { prodSeed } from "@src/server/dbSeeds.js"
@@ -49,21 +48,6 @@ app todoApp {
     },
   },
 }
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    isOnAfterSignupHookCalled Boolean       @default(false)
-    // Business logic
-    tasks                     Task[]
-psl=}
-
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    user        User    @relation(fields: [userId], references: [id])
-    userId      Int
-psl=}
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {

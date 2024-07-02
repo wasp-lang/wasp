@@ -73,7 +73,8 @@ fixOperationsJsFile newProjectDetails waspFilePath opJsFilePath = do
             - Duplicate imports. If there are any, make sure to remove them.
             - js imports of local modules (`from "./`, `from "../`).
               If there are any, remove them and instead add the needed implementation directly into the file we are fixing right now.
-            - Redundant imports of prisma client or of prisma entities. Those imports are not needed -> remove them!
+            - Redundant imports of prisma client or of prisma models. Those imports are not needed -> remove them!
+            - Using `task.someModel.id` without including the someModel relation: `include: { someModel: true }` in the Prisma query.
 
               We are not using PrismaClient directly, we are using it through the context. For example: `context.entities.Task.findMany({})`
 

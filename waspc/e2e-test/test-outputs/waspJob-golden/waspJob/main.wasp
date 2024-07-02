@@ -1,5 +1,4 @@
 app waspJob {
-  db: { system: PostgreSQL },
   wasp: {
     version: "^0.14.0"
   },

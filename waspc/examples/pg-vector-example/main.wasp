@@ -1,21 +1,11 @@
 app pgVectorExample {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "PG Vector Example",
   client: {
     rootComponent: import { Layout } from "@src/Layout.tsx",
   },
-  db: {
-    system: PostgreSQL,
-    prisma: {
-      clientPreviewFeatures: ["postgresqlExtensions"],
-      dbExtensions: [{
-        name: "pgvector",
-        map: "vector"
-      }]
-    }
-  }
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -52,13 +42,3 @@ action deleteDocument {
   fn: import { deleteDocument } from "@src/documents.js",
   entities: [Document]
 }
-
-entity Document {=psl
-  id String @id @default(uuid())
-  title String
-  url String @unique
-  content String
-  embedding Unsupported("vector(1536)")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-psl=}

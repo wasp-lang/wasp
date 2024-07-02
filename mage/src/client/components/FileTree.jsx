@@ -4,6 +4,7 @@ import "./FileTree.css";
 import TreeView, { flattenTree } from "react-accessible-treeview";
 import { DiCss3, DiJavascript, DiNpm, DiReact } from "react-icons/di";
 import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
+import { SiPrisma } from "react-icons/si";
 import { WaspIcon } from "./WaspIcon";
 
 export function FileTree({
@@ -125,6 +126,8 @@ const FileIcon = ({ filename }) => {
       return <DiNpm color="red" className="icon" />;
     case "wasp":
       return <WaspIcon className="icon" />;
+    case "prisma":
+      return <SiPrisma color="turquoise" className="icon" />;
     default:
       return null;
   }

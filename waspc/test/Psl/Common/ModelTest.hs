@@ -1,92 +1,134 @@
 module Psl.Common.ModelTest where
 
-import qualified Wasp.Psl.Ast.Model as AST
+import qualified Data.Text as T
+import NeatInterpolation (trimming)
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 
 -- | Corresponds to sampleBodyAst below.
-sampleBodySchema :: String
+sampleBodySchema :: T.Text
 sampleBodySchema =
-  unlines
-    [ "  id Int @id @default(value: autoincrement())",
-      "  username String? @db.VarChar(200)",
-      "  posts Post[] @relation(\"UserPosts\", references: [id]) @customattr",
-      "  weirdType Unsupported(\"weird\")",
-      "",
-      "  @@someattr([id, username], 2 + 4, [posts])"
-    ]
+  [trimming|
+    id Int @id @default(value: autoincrement())
+      username String? @db.VarChar(200) // inline comments
+    posts Post[] @relation("UserPosts", references: [id]) @customattr
+    weirdType Unsupported("weird")
+    anotherId String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+    @@someattr([id, username], [posts])
+  |]
 
 -- | Corresponds to sampleBodySchema above.
-sampleBodyAst :: AST.Body
+sampleBodyAst :: Psl.Model.Body
 sampleBodyAst =
-  AST.Body
-    [ AST.ElementField
-        ( AST.Field
-            { AST._name = "id",
-              AST._type = AST.Int,
-              AST._typeModifiers = [],
-              AST._attrs =
-                [ AST.Attribute
-                    { AST._attrName = "id",
-                      AST._attrArgs = []
+  Psl.Model.Body
+    [ Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "id",
+              Psl.Model._type = Psl.Model.Int,
+              Psl.Model._typeModifiers = [],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "id",
+                      Psl.Attribute._attrArgs = []
                     },
-                  AST.Attribute
-                    { AST._attrName = "default",
-                      AST._attrArgs =
-                        [ AST.AttrArgNamed "value" (AST.AttrArgFunc "autoincrement")
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "default",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
                         ]
                     }
                 ]
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "username",
-              AST._type = AST.String,
-              AST._typeModifiers = [AST.Optional],
-              AST._attrs =
-                [ AST.Attribute
-                    { AST._attrName = "db.VarChar",
-                      AST._attrArgs =
-                        [ AST.AttrArgUnnamed (AST.AttrArgNumber "200")
+      Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "username",
+              Psl.Model._type = Psl.Model.String,
+              Psl.Model._typeModifiers = [Psl.Model.Optional],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "db.VarChar",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
                         ]
                     }
                 ]
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "posts",
-              AST._type = AST.UserType "Post",
-              AST._typeModifiers = [AST.List],
-              AST._attrs =
-                [ AST.Attribute
-                    { AST._attrName = "relation",
-                      AST._attrArgs =
-                        [ AST.AttrArgUnnamed (AST.AttrArgString "UserPosts"),
-                          AST.AttrArgNamed "references" (AST.AttrArgFieldRefList ["id"])
+      Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "posts",
+              Psl.Model._type = Psl.Model.UserType "Post",
+              Psl.Model._typeModifiers = [Psl.Model.List],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "relation",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Argument.ArgUnnamed (Psl.Argument.StringExpr "UserPosts"),
+                          Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"])
                         ]
                     },
-                  AST.Attribute
-                    { AST._attrName = "customattr",
-                      AST._attrArgs = []
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "customattr",
+                      Psl.Attribute._attrArgs = []
                     }
                 ]
             }
         ),
-      AST.ElementField
-        ( AST.Field
-            { AST._name = "weirdType",
-              AST._type = AST.Unsupported "weird",
-              AST._typeModifiers = [],
-              AST._attrs = []
+      Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "weirdType",
+              Psl.Model._type = Psl.Model.Unsupported "weird",
+              Psl.Model._typeModifiers = [],
+              Psl.Model._attrs = []
             }
         ),
-      AST.ElementBlockAttribute
-        ( AST.Attribute
-            { AST._attrName = "someattr",
-              AST._attrArgs =
-                [ AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["id", "username"]),
-                  AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 4"),
-                  AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["posts"])
+      Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "anotherId",
+              Psl.Model._type = Psl.Model.String,
+              Psl.Model._typeModifiers = [],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "id",
+                      Psl.Attribute._attrArgs = []
+                    },
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "default",
+                      Psl.Attribute._attrArgs =
+                        [ Psl.Argument.ArgUnnamed
+                            ( Psl.Argument.FuncExpr
+                                "dbgenerated"
+                                [ Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "gen_random_uuid()"
+                                ]
+                            )
+                        ]
+                    },
+                  Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "db.Uuid",
+                      Psl.Attribute._attrArgs =
+                        []
+                    }
+                ]
+            }
+        ),
+      Psl.Model.ElementBlockAttribute
+        ( Psl.Attribute.Attribute
+            { Psl.Attribute._attrName = "someattr",
+              Psl.Attribute._attrArgs =
+                [ Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "id",
+                          Psl.Argument.IdentifierExpr "username"
+                        ]
+                    ),
+                  Psl.Argument.ArgUnnamed
+                    ( Psl.Argument.ArrayExpr
+                        [ Psl.Argument.IdentifierExpr "posts"
+                        ]
+                    )
                 ]
             }
         )

@@ -17,6 +17,7 @@ module Wasp.Project.Common
     srcDirInWaspProjectDir,
     extPublicDirInWaspProjectDir,
     tsconfigInWaspProjectDir,
+    prismaSchemaFileInWaspProjectDir,
   )
 where
 
@@ -70,6 +71,9 @@ packageJsonInWaspProjectDir = [relfile|package.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
+
+prismaSchemaFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
 
 srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 srcDirInWaspProjectDir = [reldir|src|]

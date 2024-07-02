@@ -17,7 +17,21 @@ import Text.Printf (printf)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as Lexer
 import Wasp.LSP.Completion (getCompletionsAtPosition)
-import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource, _debouncer, _latestDiagnostics, _reactorIn, _regTokens, _tsExports, _waspFileUri))
+import Wasp.LSP.ServerState
+  ( ServerState
+      ( ServerState,
+        _cst,
+        _currentWaspSource,
+        _debouncer,
+        _latestDiagnostics,
+        _prismaSchemaAst,
+        _reactorIn,
+        _regTokens,
+        _tsExports,
+        _waspFileUri
+      ),
+  )
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
 -- | A string containing the input to a completion test. It represents wasp
 -- source code with a cursor position.
@@ -101,6 +115,7 @@ runCompletionTest testInput =
         ServerState
           { _waspFileUri = Nothing,
             _currentWaspSource = waspSource,
+            _prismaSchemaAst = Psl.Schema.Schema [],
             _latestDiagnostics = [],
             _cst = Just parsedCST,
             _tsExports = error "_tsExports not available in completion tests",

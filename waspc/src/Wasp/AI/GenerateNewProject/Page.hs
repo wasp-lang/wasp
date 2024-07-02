@@ -26,7 +26,7 @@ import Wasp.AI.GenerateNewProject.Common
     writeToWaspFileEnd,
   )
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
+import Wasp.AI.GenerateNewProject.Entity (entityPlanToPrismaModelText)
 import Wasp.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
@@ -59,7 +59,7 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
     routePath = T.pack $ Plan.routePath pPlan
     pageDesc = T.pack $ Plan.pageDesc pPlan
 
-    entityDecls = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
+    modelDecls = T.intercalate "\n\n" $ entityPlanToPrismaModelText <$> entityPlans
     queriesInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> queries
     actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
     pageDocPrompt = makePageDocPrompt
@@ -76,8 +76,8 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
 
         We are implementing a Wasp app (check bottom for description).
 
-        Entities in our app:
-        ${entityDecls}
+        Entities (models) in our app:
+        ${modelDecls}
 
         Actions in our app:
         ${actionsInfo}
@@ -220,7 +220,7 @@ makePageDocPrompt =
 
         ```jsx
         import React from 'react';
-        import { Link } from 'react-router-dom';
+        import { Link } from 'wasp/client/router';
         import { useQuery, useAction, getUsers, deleteUser } from 'wasp/client/operations';
 
         const DashboardPage = () => {

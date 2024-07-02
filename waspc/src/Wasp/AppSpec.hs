@@ -50,6 +50,7 @@ import Wasp.Env (EnvVar)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.SemanticVersion as SV
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
@@ -59,6 +60,8 @@ import qualified Wasp.SemanticVersion as SV
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
+    -- | Parsed Prisma schema file.
+    prismaSchema :: Psl.Schema.Schema,
     -- | The contents of the package.json file found in the root directory of the wasp project.
     packageJson :: PackageJson,
     -- | Absolute path to the directory containing the wasp project.
@@ -92,6 +95,9 @@ data AppSpec = AppSpec
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
+getEntities :: AppSpec -> [(String, Entity)]
+getEntities = getDecls
+
 getQueries :: AppSpec -> [(String, Query)]
 getQueries = getDecls
 
@@ -111,9 +117,6 @@ getApiNamespaces = getDecls
 
 getCruds :: AppSpec -> [(String, Crud)]
 getCruds = getDecls
-
-getEntities :: AppSpec -> [(String, Entity)]
-getEntities = getDecls
 
 getPages :: AppSpec -> [(String, Page)]
 getPages = getDecls

@@ -232,6 +232,7 @@ waspCompile/.wasproot
 waspCompile/main.wasp
 waspCompile/package.json
 waspCompile/public/.gitkeep
+waspCompile/schema.prisma
 waspCompile/src/Main.css
 waspCompile/src/MainPage.jsx
 waspCompile/src/vite-env.d.ts

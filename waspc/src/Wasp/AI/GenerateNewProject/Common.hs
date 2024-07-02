@@ -1,7 +1,10 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Wasp.AI.GenerateNewProject.Common
   ( NewProjectDetails (..),
     NewProjectConfig (..),
     AuthProvider (..),
+    FileContent (..),
     File,
     getProjectAuth,
     getProjectPrimaryColor,
@@ -15,12 +18,13 @@ module Wasp.AI.GenerateNewProject.Common
   )
 where
 
-import Data.Aeson (FromJSON, withObject, withText, (.:?))
+import Data.Aeson (FromJSON, ToJSON, withObject, withText, (.:?))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe)
 import Data.String (fromString)
 import Data.Text (Text)
 import qualified Data.Text as T
+import GHC.Generics (Generic)
 import qualified Wasp.AI.CodeAgent as CA
 import Wasp.AI.GenerateNewProject.LogMsg (LogMsg)
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
@@ -171,3 +175,12 @@ writeToWaspFileEnd :: FilePath -> Text -> CodeAgent ()
 writeToWaspFileEnd waspFilePath text = do
   CA.writeToFile waspFilePath $
     (<> "\n" <> text) . fromMaybe (error "wasp file shouldn't be empty")
+
+data FileContent = FileContent
+  { fileContent :: Text
+  }
+  deriving (Generic, Show)
+
+instance FromJSON FileContent
+
+instance ToJSON FileContent

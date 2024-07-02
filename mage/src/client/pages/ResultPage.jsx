@@ -205,7 +205,7 @@ export const ResultPage = () => {
         appAuthMethod: project.authMethod,
         appCreativityLevel: project.creativityLevel,
       });
-      alert("Now I will go to " + appId);
+      alert("Okay, redirecting to the new attempt");
       history.push(`/result/${appId}`);
     } catch (e) {
       alert(e.message);

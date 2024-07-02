@@ -1,5 +1,4 @@
 app waspComplexTest {
-  db: { system: PostgreSQL },
   wasp: {
     version: "^0.14.0"
   },
@@ -38,10 +37,6 @@ route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import { MainPage } from "@src/MainPage"
 }
-entity User {=psl
-  id                        Int           @id @default(autoincrement())
-psl=}
-
 job mySpecialJob {
   executor: PgBoss,
   perform: {
@@ -82,12 +77,6 @@ apiNamespace fooBarNamespace {
   middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/server/apiNamespaces.js",
   path: "/bar"
 }
-
-entity Task {=psl
-  id          Int     @id @default(autoincrement())
-  description String
-  isDone      Boolean @default(false)
-psl=}
 
 crud tasks {
   entity: Task,

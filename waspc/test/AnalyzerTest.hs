@@ -7,8 +7,10 @@ import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import qualified Util.Prisma as Util
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC
@@ -22,7 +24,6 @@ import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
-import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import qualified Wasp.AppSpec.JSON as JSON
 import qualified Wasp.AppSpec.Job as Job
@@ -30,12 +31,19 @@ import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
-import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.Version as WV
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
   describe "Analyzer" $ do
+    let prismaSchema =
+          Util.getPrismaSchema
+            [trimming|
+              model User {
+                description String
+              }
+            |]
+
     it "Analyzes a well-typed example" $ do
       let source =
             unlines
@@ -63,12 +71,7 @@ spec_Analyzer = do
                 "    baseDir: \"/\"",
                 "  },",
                 "  db: {",
-                "    system: PostgreSQL,",
                 "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds.js\" ],",
-                "    prisma: {",
-                "      clientPreviewFeatures: [\"extendedWhereUnique\"],",
-                "      dbExtensions: [{ name: \"pg_trgm\", version: \"1.0.0\" }]",
-                "    }",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -78,10 +81,6 @@ spec_Analyzer = do
                 "    }",
                 "  }",
                 "}",
-                "",
-                "entity User {=psl",
-                "  description String",
-                "psl=}",
                 "",
                 "page HomePage {",
                 "  component: import Home from \"@src/pages/Main\"",
@@ -123,7 +122,7 @@ spec_Analyzer = do
                 "}"
               ]
 
-      let decls = analyze source
+      let decls = analyze prismaSchema source
 
       let expectedApps =
             [ ( "Todo",
@@ -179,19 +178,12 @@ spec_Analyzer = do
                     App.db =
                       Just
                         Db.Db
-                          { Db.system = Just Db.PostgreSQL,
-                            Db.seeds =
+                          { Db.seeds =
                               Just
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")
                                     (fromJust $ SP.parseRelFileP "dbSeeds.js")
-                                ],
-                            Db.prisma =
-                              Just
-                                Db.PrismaOptions
-                                  { clientPreviewFeatures = Just ["extendedWhereUnique"],
-                                    dbExtensions = Just [Db.PrismaDbExtension {Db.name = "pg_trgm", Db.version = Just "1.0.0", Db.map = Nothing, Db.schema = Nothing}]
-                                  }
+                                ]
                           },
                     App.emailSender =
                       Just
@@ -231,22 +223,6 @@ spec_Analyzer = do
               )
             ]
       takeDecls <$> decls `shouldBe` Right expectedPages
-
-      let expectedEntities =
-            [ ( "User",
-                Entity.makeEntity $
-                  PslModel.Body
-                    [ PslModel.ElementField $
-                        PslModel.Field
-                          { PslModel._name = "description",
-                            PslModel._type = PslModel.String,
-                            PslModel._typeModifiers = [],
-                            PslModel._attrs = []
-                          }
-                    ]
-              )
-            ]
-      takeDecls <$> decls `shouldBe` Right expectedEntities
 
       let expectedRoutes =
             [ ( "HomeRoute",
@@ -322,7 +298,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
               ]
-      takeDecls @Route <$> analyze source
+      takeDecls @Route <$> analyze prismaSchema source
         `shouldBe` Left [TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage"]
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
@@ -330,7 +306,7 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomeRoute }"
               ]
-      analyze source
+      analyze prismaSchema source
         `errorMessageShouldBe` ( ctx (1, 35) (1, 43),
                                  intercalate
                                    "\n"
@@ -348,7 +324,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
                 "page HomePage { component: import Home from \"@src/HomePage.js\" }"
               ]
-      isRight (analyze source) `shouldBe` True
+      isRight (analyze prismaSchema source) `shouldBe` True
 
     describe "Returns correct error message" $ do
       it "For nested unexpected type error" $ do
@@ -361,7 +337,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze source
+        analyze prismaSchema source
           `errorMessageShouldBe` ( ctx (4, 14) (4, 27),
                                    intercalate
                                      "\n"
@@ -385,7 +361,7 @@ spec_Analyzer = do
                   "  }",
                   "}"
                 ]
-        analyze source
+        analyze prismaSchema source
           `errorMessageShouldBe` ( ctx (4, 18) (4, 22),
                                    intercalate
                                      "\n"
@@ -403,7 +379,7 @@ spec_Analyzer = do
                   "  ttle: \"My app\",",
                   "}"
                 ]
-        analyze source
+        analyze prismaSchema source
           `errorMessageShouldBe` ( ctx (1, 11) (3, 1),
                                    intercalate
                                      "\n"

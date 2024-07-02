@@ -2,14 +2,12 @@
 
 module Wasp.AppSpec.Valid
   ( validateAppSpec,
-    ValidationError (..),
     getApp,
     isAuthEnabled,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
-    isValidationError,
-    isValidationWarning,
     getLowestNodeVersionUserAllows,
+    getValidDbSystem,
   )
 where
 
@@ -40,26 +38,13 @@ import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Model as Psl.Model
+import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, isCapitalized)
+import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
-
-data ValidationError = GenericValidationError !String | GenericValidationWarning !String
-  deriving (Eq)
-
-instance Show ValidationError where
-  show (GenericValidationError e) = e
-  show (GenericValidationWarning e) = e
-
-isValidationError :: ValidationError -> Bool
-isValidationError (GenericValidationError _) = True
-isValidationError (GenericValidationWarning _) = False
-
-isValidationWarning :: ValidationError -> Bool
-isValidationWarning (GenericValidationError _) = False
-isValidationWarning (GenericValidationWarning _) = True
 
 validateAppSpec :: AppSpec -> [ValidationError]
 validateAppSpec spec =
@@ -80,7 +65,6 @@ validateAppSpec spec =
           validateCrudOperations spec,
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
-          validatePrismaOptions spec,
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec
         ]
@@ -175,7 +159,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
-      "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
+      "The database provider in the schema.prisma file must be \"postgres\" since there are jobs with executor set to PgBoss."
     | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
@@ -342,45 +326,6 @@ validateDeclarationNames spec =
                     ++ "."
               ]
 
-validatePrismaOptions :: AppSpec -> [ValidationError]
-validatePrismaOptions spec =
-  concat
-    [ checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem,
-      checkIfDbExtensionsAreUsedWithoutPostgresDbSystem,
-      checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag
-    ]
-  where
-    checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem :: [ValidationError]
-    checkIfPostgresExtensionsAreUsedWithoutPostgresDbSystem = maybe [] check prismaClientPreviewFeatures
-      where
-        check :: [String] -> [ValidationError]
-        check previewFeatures =
-          if not isPostgresDbUsed && "postgresqlExtensions" `elem` previewFeatures
-            then [GenericValidationError "You enabled \"postgresqlExtensions\" in app.db.prisma.clientPreviewFeatures but your db system is not PostgreSQL."]
-            else []
-
-    checkIfDbExtensionsAreUsedWithoutPostgresDbSystem :: [ValidationError]
-    checkIfDbExtensionsAreUsedWithoutPostgresDbSystem = maybe [] check prismaDbExtensions
-      where
-        check :: [AS.Db.PrismaDbExtension] -> [ValidationError]
-        check value =
-          if not isPostgresDbUsed && not (null value)
-            then [GenericValidationError "If you are using app.db.prisma.dbExtensions you must use PostgreSQL as your db system."]
-            else []
-
-    checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag :: [ValidationError]
-    checkIfDbExtensionsAreUsedWithoutPostgresPreviewFlag = case (prismaDbExtensions, prismaClientPreviewFeatures) of
-      (Nothing, _) -> []
-      (Just _extensions, Just features) | "postgresqlExtensions" `elem` features -> []
-      (Just _extensions, _) -> [GenericValidationError extensionsNotEnabledMessage]
-      where
-        extensionsNotEnabledMessage = "You are using app.db.prisma.dbExtensions but you didn't enable \"postgresqlExtensions\" in app.db.prisma.clientPreviewFeatures."
-
-    isPostgresDbUsed = isPostgresUsed spec
-    prismaOptions = AS.Db.prisma =<< AS.App.db (snd $ getApp spec)
-    prismaClientPreviewFeatures = AS.Db.clientPreviewFeatures =<< prismaOptions
-    prismaDbExtensions = AS.Db.dbExtensions =<< prismaOptions
-
 validateWebAppBaseDir :: AppSpec -> [ValidationError]
 validateWebAppBaseDir spec = case maybeBaseDir of
   Just baseDir
@@ -447,13 +392,12 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
--- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
-getDbSystem :: AppSpec -> Maybe AS.Db.DbSystem
-getDbSystem spec = AS.Db.system =<< AS.App.db (snd $ getApp spec)
+getValidDbSystem :: AppSpec -> AS.Db.DbSystem
+getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
+isPostgresUsed = (AS.Db.PostgreSQL ==) . getValidDbSystem
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- If there is no user entity, it returns Nothing.
@@ -469,7 +413,7 @@ findFieldByName name = find ((== name) . Entity.Field.fieldName)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
-getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
+getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Model.Field
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

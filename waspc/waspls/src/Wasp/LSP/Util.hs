@@ -5,12 +5,17 @@ module Wasp.LSP.Util
     waspSourceRegionToLspRange,
     waspPositionToLspPosition,
     getPathRelativeToProjectDir,
+    lspUriToPath,
+    getWaspDirFromWaspFileUri,
   )
 where
 
 import Control.Lens ((+~))
+import Control.Monad ((<=<))
 import Control.Monad.Trans.Maybe (MaybeT (MaybeT))
 import Data.Function ((&))
+import Data.List (stripPrefix)
+import qualified Data.Text as T
 import qualified Language.LSP.Types as LSP hiding (line)
 import qualified Language.LSP.Types.Lens as LSP
 import qualified StrongPath as SP
@@ -54,3 +59,9 @@ getPathRelativeToProjectDir file = do
   case maybeProjectRootDir of
     Nothing -> pure Nothing
     Just projectRootDir -> pure $ stripProperPrefix projectRootDir file
+
+getWaspDirFromWaspFileUri :: LSP.Uri -> Maybe (SP.Path' SP.Abs (SP.Dir WaspProjectDir))
+getWaspDirFromWaspFileUri uri = lspUriToPath uri >>= Just . SP.parent
+
+lspUriToPath :: LSP.Uri -> Maybe (SP.Path' SP.Abs (SP.File ()))
+lspUriToPath = SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri

@@ -421,6 +421,7 @@ waspBuild/.wasproot
 waspBuild/main.wasp
 waspBuild/package.json
 waspBuild/public/.gitkeep
+waspBuild/schema.prisma
 waspBuild/src/Main.css
 waspBuild/src/MainPage.jsx
 waspBuild/src/vite-env.d.ts

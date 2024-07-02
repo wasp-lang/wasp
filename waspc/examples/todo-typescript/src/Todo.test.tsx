@@ -41,8 +41,8 @@ const { mockQuery } = mockServer()
 
 const mockUser = {
   identities: {
-    username: { 
-      id: 'Elon' 
+    username: {
+      id: 'Elon',
     },
   },
 } as AuthUser

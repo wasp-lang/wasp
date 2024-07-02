@@ -64,7 +64,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
           Strong guidelines for fixing:
             - Make sure to use only queries and actions that are defined in the Wasp file (listed below)!
             - Use Tailwind CSS to style the page if you didn't.
-            - Use <Link /> component from "react-router-dom" to link to other pages where needed.
+            - Use <Link /> component from "wasp/client/router" to link to other pages where needed.
             - "TODO" comments or "..." that should be replaced with actual implementation.
               Fix these by replacing them with actual implementation.
             - If there are any duplicate imports, make sure to remove them.
@@ -76,6 +76,7 @@ fixPageComponent newProjectDetails waspFilePath pageComponentPath = do
               e.g. if you have `import { useQuery } from 'wasp/client/operations';` and
               `import { useAction } from 'wasp/client/operations';`, you can merge those into
               `import { useQuery, useAction } from 'wasp/client/operations';`.
+            - Don't merge imports from different paths.
             - Make sure that the component is exported as a default export.
 
           With this in mind, generate a new, fixed React component (${pageComponentPathText}).
