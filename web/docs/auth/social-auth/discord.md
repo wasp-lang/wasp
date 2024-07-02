@@ -11,6 +11,9 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import DiscordData from '../entities/_discord-data.md';
+import AccessingUserDataNote from '../\_accessing-user-data-note.md';
+
 
 Wasp supports Discord Authentication out of the box.
 
@@ -321,7 +324,7 @@ app myApp {
 
 We are using Discord's API and its `/users/@me` endpoint to get the user data.
 
-The data we receive from Discord on the `/users/@me` endpoint looks something this:
+The data we receive from Discord on the `/users/@me` endpoint looks something like this:
 
 ```json
 {
@@ -457,6 +460,12 @@ export function getConfig() {
 ## Using Auth
 
 <UsingAuthNote />
+
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), you'll be able to access the user's Discord ID like this:
+
+<DiscordData />
+
+<AccessingUserDataNote />
 
 ## API Reference
 
