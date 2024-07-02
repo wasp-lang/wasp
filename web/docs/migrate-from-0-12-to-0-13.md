@@ -6,6 +6,8 @@ title: Migration from 0.12.X to 0.13.X
 
 This guide only covers the migration from **0.12.X to 0.13.X**. If you are migrating from 0.11.X or earlier, please read the [migration guide from 0.11.X to 0.12.X](./migrate-from-0-11-to-0-12.md) first.
 
+Make sure to read the [migration guide from 0.13.X to 0.14.X](./migrate-from-0-13-to-0-14.md) after you finish this one.
+
 :::
 
 ## What's new in 0.13.0?
