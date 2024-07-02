@@ -5,7 +5,7 @@ where
 
 import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (MonadError (throwError), runExceptT)
+import Control.Monad.Except (MonadError (throwError), runExceptT, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -25,7 +25,8 @@ import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog,
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
+import qualified Wasp.Util.IO as IOUitl
 
 -- Runs `npm install` for:
 --   1. User's Wasp project (based on their package.json): user deps.
@@ -42,25 +43,33 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
   allNpmDeps <- getAllNpmDeps spec & onLeftThrowError
 
-  liftIO (areThereNpmDepsToInstall allNpmDeps dstDir) >>= \case
-    False -> pure ()
-    True -> do
-      -- In case anything fails during installation that would leave node modules in
-      -- a broken state, we remove the log of installed npm deps before we start npm install.
-      liftIO $ forgetInstalledNpmDepsLog dstDir
+  shouldInstallNpmDeps <-
+    liftIO $
+      or
+        <$> sequence
+          [ -- Users might by accident delete node_modules dir, so we check if it exists
+            -- before assuming that we don't need to install npm deps.
+            not <$> doesNodeModulesDirExist waspProjectDirPath,
+            areThereNpmDepsToInstall allNpmDeps dstDir
+          ]
 
-      liftIO (installProjectNpmDependencies messagesChan (waspProjectDir spec))
-        >>= onLeftThrowError
+  when shouldInstallNpmDeps $ do
+    -- In case anything fails during installation that would leave node modules in
+    -- a broken state, we remove the log of installed npm deps before we start npm install.
+    liftIO $ forgetInstalledNpmDepsLog dstDir
 
-      liftIO (installWebAppAndServerNpmDependencies messagesChan dstDir)
-        >>= onLeftThrowError
+    liftIO (installProjectNpmDependencies messagesChan waspProjectDirPath)
+      >>= onLeftThrowError
 
-      liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
+    liftIO (installWebAppAndServerNpmDependencies messagesChan dstDir)
+      >>= onLeftThrowError
 
-      pure ()
+    liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
   where
     onLeftThrowError =
       either (\e -> throwError $ GenericGeneratorError $ "npm install failed: " ++ e) pure
+
+    waspProjectDirPath = waspProjectDir spec
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
@@ -169,3 +178,8 @@ areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir ProjectRootDir) -> IO B
 areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ installedNpmDeps /= Just allNpmDeps
+
+doesNodeModulesDirExist :: Path' Abs (Dir WaspProjectDir) -> IO Bool
+doesNodeModulesDirExist waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
+  where
+    nodeModulesDirInWaspProjectDirAbs = waspProjectDirPath SP.</> nodeModulesDirInWaspProjectDir
