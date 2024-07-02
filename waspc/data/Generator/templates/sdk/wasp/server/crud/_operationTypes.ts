@@ -5,8 +5,8 @@ import type {
   AuthenticatedQueryDefinition,
   {=/ isAuthEnabled =}
   {=^ isAuthEnabled =}
-  ActionDefinition,
-  QueryDefinition,
+  UnauthenticatedActionDefinition,
+  UnauthenticatedQueryDefinition,
   {=/ isAuthEnabled =}
   _{= crud.entityUpper =},
 } from "wasp/server/_types";
