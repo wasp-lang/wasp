@@ -40,6 +40,7 @@ import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
   )
+import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -244,6 +245,7 @@ genRoutesIndex spec =
     tmplData =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)

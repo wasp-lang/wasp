@@ -9,15 +9,15 @@ import {
 
 function createCrud() {
     const crudGetQuery = createQuery<GetQueryResolved>(
-        'tasks/get',
+        'crud/tasks/get',
         ['Task']
     )
     const crudGetAllQuery = createQuery<GetAllQueryResolved>(
-        'tasks/get-all',
+        'crud/tasks/get-all',
         ['Task']
     )
     const crudCreateAction = createAction<CreateActionResolved>(
-        'tasks/create',
+        'crud/tasks/create',
         ['Task']
     )
     return {
