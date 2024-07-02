@@ -35,6 +35,7 @@ waspComplexTest/.wasp/out/sdk/wasp/client/auth/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/auth/ui.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/config.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/index.ts
+waspComplexTest/.wasp/out/sdk/wasp/client/crud/operationsHelpers.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/tasks.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/operations/actions/core.ts
@@ -148,6 +149,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/index.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.js.map

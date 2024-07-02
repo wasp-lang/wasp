@@ -1,6 +1,6 @@
-import { useAction, useQuery } from "wasp/client/operations";
 import { createAction } from "../operations/actions/core.js";
 import { createQuery } from "../operations/queries/core.js";
+import { makeUseActionFor, makeUseQueryFor } from "./operationsHelpers.js";
 function createCrud() {
     const crudGetQuery = createQuery('tasks/get', ['Task']);
     const crudGetAllQuery = createQuery('tasks/get-all', ['Task']);
@@ -8,21 +8,15 @@ function createCrud() {
     return {
         get: {
             query: crudGetQuery,
-            useQuery(args) {
-                return useQuery(crudGetQuery, args);
-            }
+            useQuery: makeUseQueryFor(crudGetQuery)
         },
         getAll: {
             query: crudGetAllQuery,
-            useQuery() {
-                return useQuery(crudGetAllQuery);
-            }
+            useQuery: makeUseQueryFor(crudGetAllQuery)
         },
         create: {
             action: crudCreateAction,
-            useAction() {
-                return useAction(crudCreateAction);
-            }
+            useAction: makeUseActionFor(crudCreateAction)
         },
     };
 }
