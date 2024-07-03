@@ -10,6 +10,7 @@ import EmailData from './\_email-data.md';
 import GoogleData from './\_google-data.md';
 import GithubData from './\_github-data.md';
 import KeycloakData from './\_keycloak-data.md';
+import DiscordData from './\_discord-data.md';
 
 First, we'll check out the most practical info: **how to access the user's data in your app**.
 
@@ -19,7 +20,7 @@ We'll also show you how you can use these entities to create a custom signup act
 
 ## Accessing the Auth Fields
 
-When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), it will contain all the user fields you defined in the `User` entity in your Wasp file. In addition to that, it will also contain all the auth-related fields that Wasp stores. This includes things like the `username` or the email verification status. In Wasp, this data is called the `AuthUser` object.
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), it will contain all the user fields you defined in the `User` entity in the `schema.prisma` file. In addition to that, it will also contain all the auth-related fields that Wasp stores. This includes things like the `username` or the email verification status. In Wasp, this data is called the `AuthUser` object.
 
 ### `AuthUser` Object Fields
 
@@ -113,6 +114,10 @@ Let's look at the data for each of the available auth methods:
 - [Keycloak](../social-auth/keycloak.md) data
 
   <KeycloakData />
+
+- [Discord](../social-auth/discord.md) data
+
+  <DiscordData />
 
 If you support multiple auth methods, you'll need to find which identity exists for the user and then access its data:
 
@@ -452,20 +457,44 @@ function MainPage() {
 
 ## Entities Explained
 
-To store user information, Wasp creates a few entities behind the scenes. In this section, we will explain what entities are created and how they are connected.
+To store user's auth information, Wasp does a few things behind the scenes. Wasp takes your `schema.prisma` file and combines it with additional entities to create the final `schema.prisma` file that is used in your app.
+
+In this section, we will explain which entities are created and how they are connected.
 
 ### User Entity
 
-When you want to add authentication to your app, you need to specify the user entity e.g. `User` in your Wasp file. This entity is a "business logic user" which represents a user of your app.
+When you want to add authentication to your app, you need to specify the `userEntity` field.
 
-You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
+For example, you might set it to `User`:
 
-```wasp
-entity User {=psl
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "^0.14.0"
+  },
+  title: "My App",
+  auth: {
+    // highlight-next-line
+    userEntity: User,
+    // ...
+  },
+}
+```
+
+And define the `User` in the `schema.prisma` file:
+
+```prisma title="schema.prisma"
+model User {
   id Int @id @default(autoincrement())
   // Any other fields you want to store about the user
-psl=}
+}
 ```
+
+The `User` entity is a "business logic user" which represents a user of your app. 
+
+You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. 
+
+You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
 
@@ -502,15 +531,15 @@ If we take a look at an example user in the database, we can see:
 
 Wasp's internal `Auth` entity is used to connect the business logic user, `User` with the user's login credentials.
 
-```wasp
-entity Auth {=psl
+```prisma
+model Auth {
   id         String         @id @default(uuid())
   userId     Int?           @unique
   // Wasp injects this relation on the User entity as well
   user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   identities AuthIdentity[]
   sessions   Session[]
-psl=}
+}
 ```
 
 The `Auth` fields:
@@ -527,8 +556,8 @@ The `Auth` fields:
 
 The `AuthIdentity` entity is used to store the user's login credentials for various authentication methods.
 
-```wasp
-entity AuthIdentity {=psl
+```prisma
+model AuthIdentity {
   providerName   String
   providerUserId String
   providerData   String @default("{}")
@@ -536,7 +565,7 @@ entity AuthIdentity {=psl
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
-psl=}
+}
 ```
 
 The `AuthIdentity` fields:
@@ -556,15 +585,15 @@ The `AuthIdentity` fields:
 
 The `Session` entity is used to store the user's session information. It is used to keep the user logged in between page refreshes.
 
-```wasp
-entity Session {=psl
+```prisma
+model Session {
   id        String   @id @unique
   expiresAt DateTime
   userId    String
   auth      Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@index([userId])
-psl=}
+}
 ```
 
 The `Session` fields:

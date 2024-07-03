@@ -15,6 +15,7 @@ Currently, Wasp only supports integration with VSCode. Install the [Wasp languag
 
 The extension enables:
 - syntax highlighting for `.wasp` files
+- the Prisma extension for `.prisma` files
 - scaffolding of new project files
 - code completion
 - diagnostics (errors and warnings)

@@ -33,9 +33,6 @@ app myApp {
   auth: { ... }
 }
 
-// Defining User entity
-entity User { ... }
-
 // Defining routes and pages
 route SignupRoute { ... }
 page SignupPage { ... }
@@ -126,26 +123,26 @@ The `User` entity can be as simple as including only the `id` field:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // 5. Define the user entity
-entity User {=psl
-    // highlight-next-line
-    id                        Int           @id @default(autoincrement())
-    // Add your own fields below
-    // ...
-psl=}
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // 5. Define the user entity
-entity User {=psl
-    // highlight-next-line
-    id                        Int           @id @default(autoincrement())
-    // Add your own fields below
-    // ...
-psl=}
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 </TabItem>
 </Tabs>
@@ -165,7 +162,6 @@ Add the following to the `main.wasp` file:
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.jsx"
@@ -197,7 +193,6 @@ page EmailVerificationPage {
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.tsx"
@@ -846,11 +841,12 @@ app myApp {
   },
   // ...
 }
+```
 
-entity User {=psl
-    // highlight-next-line
-    id                        Int           @id @default(autoincrement())
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 </TabItem>
@@ -872,11 +868,12 @@ app myApp {
   },
   // ...
 }
+```
 
-entity User {=psl
-    // highlight-next-line
-    id                        Int           @id @default(autoincrement())
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 </TabItem>
 </Tabs>

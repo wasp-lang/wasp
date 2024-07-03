@@ -48,12 +48,13 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
+```prisma title="schema.prisma"
 // highlight-next-line
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-psl=}
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 </TabItem>
@@ -74,22 +75,17 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
+```prisma title="schema.prisma"
 // highlight-next-line
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-psl=}
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 </TabItem>
 </Tabs>
-
-<small>
-
-To learn more about what the fields on these entities represent, look at the [API Reference](#api-reference).
-
-</small>
 
 ## Default Behavior
 
@@ -118,25 +114,25 @@ Let's go through both steps in more detail.
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title=main.wasp
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    username                  String?       @unique
-    // highlight-next-line
-    isSignupComplete          Boolean       @default(false)
-psl=}
+```prisma title=schema.prisma
+model User {
+  id               Int     @id @default(autoincrement())
+  username         String? @unique
+  // highlight-next-line
+  isSignupComplete Boolean @default(false)
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title=main.wasp
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    username                  String?       @unique
-    // highlight-next-line
-    isSignupComplete          Boolean       @default(false)
-psl=}
+```prisma title=schema.prisma
+model User {
+  id               Int     @id @default(autoincrement())
+  username         String? @unique
+  // highlight-next-line
+  isSignupComplete Boolean @default(false)
+}
 ```
 
 </TabItem>

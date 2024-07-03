@@ -6,9 +6,6 @@ app myApp {
   auth: { ... }
 }
 
-// Defining entities
-entity User { ... }
-
 // Defining routes and pages
 route LoginRoute { ... }
 page LoginPage { ... }
