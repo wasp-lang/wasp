@@ -39,9 +39,9 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          [ "Get" .= mkOperationJson "get" "tasks/get" NotPublic,
-            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
-            "Create" .= mkOperationJson "create" "tasks/create" NotPublic
+          [ "Get" .= mkOperationJson "get" "crud/tasks/get" NotPublic,
+            "GetAll" .= mkOperationJson "get-all" "crud/tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "crud/tasks/create" NotPublic
           ]
 
     it "returns proper JSON for public operations" $ do
@@ -60,9 +60,9 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          [ "Get" .= mkOperationJson "get" "tasks/get" Public,
-            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
-            "Create" .= mkOperationJson "create" "tasks/create" Public
+          [ "Get" .= mkOperationJson "get" "crud/tasks/get" Public,
+            "GetAll" .= mkOperationJson "get-all" "crud/tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "crud/tasks/create" Public
           ]
 
     it "allows overrides of operations" $ do
@@ -91,9 +91,9 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          [ "Get" .= mkOperationJson "get" "tasks/get" Public,
-            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
-            "Create" .= mkOperationJson "create" "tasks/create" Public
+          [ "Get" .= mkOperationJson "get" "crud/tasks/get" Public,
+            "GetAll" .= mkOperationJson "get-all" "crud/tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "crud/tasks/create" Public
           ]
   where
     crudOperationsName = "tasks"
