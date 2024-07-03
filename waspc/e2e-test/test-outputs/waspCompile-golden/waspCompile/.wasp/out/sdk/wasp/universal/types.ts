@@ -29,3 +29,7 @@ export type _Awaited<T> = T extends Promise<infer V>
 // consideration.
 export type _ReturnType<T extends (...args: never[]) => unknown> = 
   T extends (...args: never[]) => infer R ? R : never
+
+
+// Returns elements of an array except the first one.
+export type Tail<T extends [unknown, ...unknown[]]> = T extends [unknown, ...infer R] ? R : never;

@@ -123,7 +123,7 @@ module.exports = {
       type: 'category',
       label: 'Deployment',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'advanced/deployment/overview',
         'advanced/deployment/cli',

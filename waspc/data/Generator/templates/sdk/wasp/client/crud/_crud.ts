@@ -1,7 +1,7 @@
 {{={= =}=}}
-import { useAction, useQuery } from "wasp/client/operations";
 import { createAction } from "../operations/actions/core.js";
 import { createQuery } from "../operations/queries/core.js";
+import { makeUseActionFor, makeUseQueryFor } from "./operationsHelpers.js";
 import { 
     {=# operations.Get =}
     GetQueryResolved,
@@ -55,41 +55,31 @@ function createCrud() {
         {=# operations.Get =}
         get: {
             query: crudGetQuery,
-            useQuery(args: Parameters<GetQueryResolved>[0]) {
-                return useQuery(crudGetQuery, args);
-            }
+            useQuery: makeUseQueryFor(crudGetQuery)
         },
         {=/ operations.Get =}
         {=# operations.GetAll =}
         getAll: {
             query: crudGetAllQuery,
-            useQuery() {
-                return useQuery(crudGetAllQuery);
-            }
+            useQuery: makeUseQueryFor(crudGetAllQuery)
         },
         {=/ operations.GetAll =}
         {=# operations.Create =}
         create: {
             action: crudCreateAction,
-            useAction() {
-                return useAction(crudCreateAction);
-            }
+            useAction: makeUseActionFor(crudCreateAction)
         },
         {=/ operations.Create =}
         {=# operations.Update =}
         update: {
             action: crudUpdateAction,
-            useAction() {
-                return useAction(crudUpdateAction);
-            }
+            useAction: makeUseActionFor(crudUpdateAction)
         },
         {=/ operations.Update =}
         {=# operations.Delete =}
         delete: {
             action: crudDeleteAction,
-            useAction() {
-                return useAction(crudDeleteAction);
-            }
+            useAction: makeUseActionFor(crudDeleteAction)
         },
         {=/ operations.Delete =}
     }
