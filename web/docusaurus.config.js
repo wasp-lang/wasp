@@ -164,7 +164,7 @@ module.exports = {
           // ------ Configuration for multiple docs versions ------ //
 
           // "current" docs (under /docs) are in-progress docs, so we show them only in development.
-          includeCurrentVersion: includeCurrentVersion,
+          includeCurrentVersion,
           // In development, we want "current" docs to be the default docs (served at /docs),
           // to make it easier for us a bit. Otherwise, by default, the latest versioned docs
           // will be served under /docs.
