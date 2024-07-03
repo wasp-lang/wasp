@@ -18,7 +18,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Job as AS.Job
 import Wasp.AppSpec.Operation (Operation (..))
 import qualified Wasp.AppSpec.Operation as Operation
@@ -117,7 +116,7 @@ studio = do
               .= object
                 [ "name" .= (appName :: String),
                   "auth" .= getAuthInfo appSpec app,
-                  "db" .= getDbInfo app
+                  "db" .= getDbInfo appSpec
                 ]
                 -- TODO: Add CRUDs.
           ]
@@ -155,12 +154,10 @@ studio = do
     resolveEntities spec entityRefs =
       AS.resolveRef spec <$> fromMaybe [] entityRefs
 
-    getDbInfo app = do
-      db <- AS.App.db app
-      return $
-        object
-          [ "system" .= (show <$> AS.App.Db.system db)
-          ]
+    getDbInfo spec =
+      object
+        [ "system" .= show (ASV.getValidDbSystem spec)
+        ]
 
     getAuthInfo spec app = do
       auth <- AS.App.auth app

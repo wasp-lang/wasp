@@ -11,6 +11,9 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import DiscordData from '../entities/_discord-data.md';
+import AccessingUserDataNote from '../\_accessing-user-data-note.md';
+
 
 Wasp supports Discord Authentication out of the box.
 
@@ -89,32 +92,32 @@ app myApp {
 
 ### 2. Add the User Entity
 
-Let's now define the `app.auth.userEntity` entity:
+Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    // ...
-psl=}
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    // ...
-psl=}
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 </TabItem>
@@ -138,7 +141,7 @@ width="400px"
   - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/discord/callback`.
 
 4. Hit **Save Changes**.
-5. Hit **Reset Secret**
+5. Hit **Reset Secret**.
 6. Copy your Client ID and Client secret as you'll need them in the next step.
 
 ### 4. Adding Environment Variables
@@ -162,7 +165,6 @@ Add the following code to your `main.wasp` file:
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.jsx"
@@ -175,7 +177,6 @@ page LoginPage {
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.tsx"
@@ -323,7 +324,7 @@ app myApp {
 
 We are using Discord's API and its `/users/@me` endpoint to get the user data.
 
-The data we receive from Discord on the `/users/@me` endpoint looks something this:
+The data we receive from Discord on the `/users/@me` endpoint looks something like this:
 
 ```json
 {
@@ -377,12 +378,14 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    avatarUrl                 String
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
 // ...
 ```
@@ -422,12 +425,14 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    avatarUrl                 String
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
 // ...
 ```
@@ -455,6 +460,12 @@ export function getConfig() {
 ## Using Auth
 
 <UsingAuthNote />
+
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), you'll be able to access the user's Discord ID like this:
+
+<DiscordData />
+
+<AccessingUserDataNote />
 
 ## API Reference
 

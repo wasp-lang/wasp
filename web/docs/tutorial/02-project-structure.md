@@ -11,8 +11,8 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 .
 ├── .gitignore
 ├── main.wasp          # Your Wasp code goes here.
+├── schema.prisma      # Your Prisma schema goes here.
 ├── package.json       # Your dependencies and project info go here.
-├── package-lock.json
 ├── public             # Your static files (e.g., images, favicon) go here.
 ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
 │   ├── Main.css
@@ -40,7 +40,7 @@ Many other files (e.g., `tsconfig.json`, `vite-env.d.ts`, `.wasproot`, etc.) hel
 The `vite.config.ts` file is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
 We won't be configuring Vite in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
 
-There's no need to spend more time discussing all the helper files. They'll silently do their job in the background and let you focus on building your app.
+The `schema.prisma` file is where you define your database schema using [Prisma](https://www.prisma.io/). We'll cover this a bit later in the tutorial.
 
 :::note TypeScript Support
 Wasp supports TypeScript out of the box, but you are free to choose between or mix JavaScript and TypeScript as you see fit.
@@ -67,7 +67,7 @@ The default `main.wasp` file generated with `wasp new` on the previous page look
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.13.0" // Pins the version of Wasp to use.
+    version: "^0.14.0" // Pins the version of Wasp to use.
   },
   title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }
@@ -87,7 +87,7 @@ page MainPage {
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.13.0" // Pins the version of Wasp to use.
+    version: "^0.14.0" // Pins the version of Wasp to use.
   },
   title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
 }

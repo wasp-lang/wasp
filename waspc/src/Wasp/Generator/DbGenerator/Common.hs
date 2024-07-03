@@ -17,6 +17,7 @@ module Wasp.Generator.DbGenerator.Common
     webAppRootDirFromDbRootDir,
     dbSchemaFileInProjectRootDir,
     DbSchemaChecksumFile,
+    dbSchemaFileInNodeModulesDir,
   )
 where
 
@@ -72,6 +73,9 @@ dbSchemaFileFromAppComponentDir = dbRootDirFromAppComponentDir </> dbSchemaFileI
 
 dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
 dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
+
+dbSchemaFileInNodeModulesDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
+dbSchemaFileInNodeModulesDir = [relfile|../../node_modules/.prisma/client/schema.prisma|]
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]

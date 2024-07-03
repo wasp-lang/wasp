@@ -32,8 +32,7 @@ chooseType =
       NumberType,
       BoolType,
       ExtImportType,
-      QuoterType "json",
-      QuoterType "psl"
+      QuoterType "json"
     ]
 
 inferExprType' :: Bindings -> P.WithCtx P.Expr -> Either TypeError (WithCtx TypedExpr)
@@ -177,7 +176,6 @@ spec_Internal = do
         ExtImportType
 
       testSuccess "Types quoted json as JSONType" (wctx1 $ P.Quoter "json" "\"key\": \"value\"") (QuoterType "json")
-      testSuccess "Types quoted psl as PSLType" (wctx1 $ P.Quoter "psl" "id Int @id") (QuoterType "psl")
       testFail
         "Fails to type check quoters with tag besides json or psl"
         (wctx1 $ P.Quoter "toml" "key = \"value\"")

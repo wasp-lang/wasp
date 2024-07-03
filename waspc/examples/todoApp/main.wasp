@@ -58,7 +58,6 @@ app todoApp {
     setupFn: import setup from "@src/clientSetup"
   },
   db: {
-    system: PostgreSQL,
     seeds: [
       import { devSeedSimple } from "@src/dbSeeds",
       import { prodSeed } from "@src/dbSeeds"
@@ -71,21 +70,6 @@ app todoApp {
     },
   },
 }
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    // Business logic
-    tasks                     Task[]
-    address                   String?
-psl=}
-
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    user        User    @relation(fields: [userId], references: [id])
-    userId      Int
-psl=}
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {

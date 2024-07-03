@@ -8,6 +8,7 @@ module ShellCommands
     combineShellCommands,
     cdIntoCurrentProject,
     appendToWaspFile,
+    appendToPrismaFile,
     createFile,
     setDbToPSQL,
     waspCliNew,
@@ -55,10 +56,16 @@ cdIntoCurrentProject = do
   context <- ask
   return $ "cd " ++ _ctxtCurrentProjectName context
 
-appendToWaspFile :: String -> ShellCommandBuilder ShellCommand
-appendToWaspFile content =
+appendToWaspFile :: FilePath -> ShellCommandBuilder ShellCommand
+appendToWaspFile = appendToFile "main.wasp"
+
+appendToPrismaFile :: FilePath -> ShellCommandBuilder ShellCommand
+appendToPrismaFile = appendToFile "schema.prisma"
+
+appendToFile :: FilePath -> String -> ShellCommandBuilder ShellCommand
+appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
-  return $ "printf " ++ show (content ++ "\n") ++ " >> main.wasp"
+  return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
 
 -- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
 createFile :: String -> FilePath -> String -> ShellCommandBuilder ShellCommand
@@ -69,17 +76,23 @@ createFile content relDirFp filename = return $ combineShellCommands [createPare
     contents = show (content ++ "\n")
     writeContentsToFile = unwords ["printf", contents, ">", destinationFile]
 
--- NOTE: This is fragile and will likely break in future. Assumes `app` decl is first line and by default
---       we do not have a `db` field. Consider better alternatives.
 setDbToPSQL :: ShellCommandBuilder ShellCommand
 -- Change DB to postgres by adding string at specific line so it still parses.
-setDbToPSQL = insertCodeIntoFileAtLineNumber "main.wasp" 2 "  db: { system: PostgreSQL },"
+setDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
 insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
 insertCodeIntoFileAtLineNumber fileName atLineNumber line =
   return $
     combineShellCommands
       [ "awk 'NR==" ++ show atLineNumber ++ "{print " ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
+        "mv " ++ fileName ++ ".tmp " ++ fileName
+      ]
+
+replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
+replaceLineInFile fileName lineNumber line =
+  return $
+    combineShellCommands
+      [ "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
