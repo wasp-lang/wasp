@@ -129,7 +129,7 @@ These changes only apply to getting auth fields from the `user` object you recei
 - Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
 - When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
 - Improved default gitignore to more tightly target dotenv files and to allow for example dotenv files and .env.client.
-- Improves the type signature of client auth helpers to make it easier to use them in your code.
+- Improves the type signature of client auth helpers (e.g. `getEmail`) to make them accept the minimal required user object.
 
 ## 0.13.2 (2024-04-11)
 
