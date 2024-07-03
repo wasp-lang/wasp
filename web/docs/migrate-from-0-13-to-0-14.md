@@ -142,38 +142,51 @@ To use the new `schema.prisma` file, you need to move your entities from the `.w
 
 4. **Move your entities** to the `schema.prisma` file
 
-   Move the entities from the `.wasp` file to the `schema.prisma` file:
+  Move the entities from the `.wasp` file to the `schema.prisma` file:
 
-   ```prisma title="schema.prisma"
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
+  ```prisma title="schema.prisma"
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-   generator client {
-     provider = "prisma-client-js"
-   }
+  generator client {
+    provider = "prisma-client-js"
+  }
 
-   // There are some example entities, you should move your entities here
-   // highlight-start
-   model User {
-     id       Int @id @default(autoincrement())
-     tasks    Task[]
-   }
+  // There are some example entities, you should move your entities here
+  // highlight-start
+  model User {
+    id       Int @id @default(autoincrement())
+    tasks    Task[]
+  }
 
-   model Task {
-     id          Int @id @default(autoincrement())
-     description String
-     isDone      Boolean
-     userId      Int
-     user        User @relation(fields: [userId], references: [id])
-   }
-   // highlight-end
-   ```
+  model Task {
+    id          Int @id @default(autoincrement())
+    description String
+    isDone      Boolean
+    userId      Int
+    user        User @relation(fields: [userId], references: [id])
+  }
+  // highlight-end
+  ```
 
-   When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
+  When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
 
-   One trick you could use to make the migration faster is to copy the entities from the `.wasp/out/db/schema.prisma` file to the new `schema.prisma` file. But, be careful not to copy over the internal Wasp entities like `Auth`, `AuthIdentity` and `Session`. You should only copy the entities you defined.
+  If you had the following in the `.wasp` file:
+  ```wasp title="main.wasp"
+  entity Task {=psl
+    // Stays the same
+  psl=}
+  ```
+
+  ... it would look like this in the `schema.prisma` file:
+  ```prisma title="schema.prisma"
+  model Task {
+    // Stays the same
+  }
+  ```
+
 
 5. **Run the Wasp CLI** to generate the Prisma client
 
