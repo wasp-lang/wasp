@@ -4,7 +4,7 @@ title: Migration from 0.11.X to 0.12.X
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "./auth/Pills";
 
-:::note The latest version is a few versions away
+:::note Migrating to the latest version
 
 To fully migrate from 0.11.X to the latest version of Wasp, you should first migrate to **0.12.X** and then continue going through the migration guides.
 
