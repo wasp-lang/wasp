@@ -127,6 +127,7 @@ import Wasp.Analyzer.AnalyzeError
   )
 import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
 import Wasp.Analyzer.Parser (parseStatements)
+import Wasp.Analyzer.Parser.Valid (validateAst)
 import Wasp.Analyzer.Prisma (injectEntitiesFromPrismaSchema)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
@@ -138,6 +139,7 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 analyze :: Psl.Schema.Schema -> String -> Either [AnalyzeError] [Decl]
 analyze prismaSchemaAst =
   (left (map ParseError) . parseStatements)
+    >=> (left ((: []) . ValidationError) . validateAst)
     >=> injectEntitiesFromPrismaSchema prismaSchemaAst
     >=> (left ((: []) . TypeError) . typeCheck stdTypes)
     >=> (left ((: []) . EvaluationError) . evaluate stdTypes)
