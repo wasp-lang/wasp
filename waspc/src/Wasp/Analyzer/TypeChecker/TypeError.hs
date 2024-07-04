@@ -33,7 +33,6 @@ data TypeError'
   -- safely coerced to T2, no problem, but if not, we get this error.
   | CoercionError          TypeCoercionError
   | NoDeclarationType      TypeName
-  | UsingEntityDeclaration TypeName
   | UndefinedIdentifier    Identifier
   | QuoterUnknownTag       QuoterTag
   | DictDuplicateField     DictFieldName
@@ -52,7 +51,6 @@ mkTypeError ctx e = TypeError $ WithCtx ctx e
 getErrorMessageAndCtx :: TypeError -> (String, Ctx)
 getErrorMessageAndCtx (TypeError (WithCtx ctx typeError)) = case typeError of
   (NoDeclarationType typeName) -> ("Unknown declaration type: " ++ typeName, ctx)
-  (UsingEntityDeclaration typeName) -> ("Using entity declarations: " ++ typeName, ctx)
   (UndefinedIdentifier identifier) -> ("Undefined identifier: " ++ identifier, ctx)
   (QuoterUnknownTag quoterTag) -> ("Unknown quoter tag: " ++ quoterTag, ctx)
   (DictDuplicateField dictFieldName) -> ("Duplicate dictionary field: " ++ dictFieldName, ctx)
