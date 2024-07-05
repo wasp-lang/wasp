@@ -273,7 +273,7 @@ Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in 
 
 We will show how to deploy the client, the server, and provision a database on Railway.
 
-Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app: database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/plans) for more info.
+Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app: database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/pricing/plans) for more info.
 
 ### Prerequisites
 
@@ -453,7 +453,7 @@ Railway will now locate the Dockerfile and deploy your server 👍
 
 5. Set the `PORT` environment variable to `8043` under the `Variables` tab.
 
-6. Deploy the client and select `client` when prompted with `Select Service`:
+6. Once set, deploy the client and select `client` when prompted with `Select Service`:
 
 ```shell
 railway up
