@@ -1,4 +1,4 @@
-:::caution
+:::caution LSP Problems
 
 If you are using TypeScript, your editor may sometimes report type and import errors even while `wasp start` is running.
 

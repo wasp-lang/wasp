@@ -48,7 +48,7 @@ style={{ border: "1px solid black" }}
 <br />
 <br />
 
-Wasp has generated for you the full front-end and back-end code the app! Next, we'll take a closer look at how the project is structured.
+Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
 
 ## A note on supported languages
 
@@ -82,4 +82,3 @@ You'll have a chance to change the language on every code snippet - both the sni
 
 </TabItem>
 </Tabs>
-

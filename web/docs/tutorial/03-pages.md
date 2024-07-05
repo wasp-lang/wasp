@@ -3,7 +3,7 @@ title: 3. Pages & Routes
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'
 import TypescriptServerNote from '../_TypescriptServerNote.md'
 
@@ -80,7 +80,6 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 <ShowForTs>
 <TypescriptServerNote />
 </ShowForTs>
-
 
 ## Adding a Second Page
 
@@ -225,7 +224,6 @@ page MainPage {
 
 </TabItem>
 </Tabs>
-
 
 Excellent work!
 

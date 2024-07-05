@@ -148,5 +148,4 @@ When you want to migrate a file, follow the procedure outlined above:
  2. Fix the type errors.
  3. Read the Wasp docs and decide which TypeScript features you want to use.
 
-
 <TypescriptServerNote />
