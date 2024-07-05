@@ -109,8 +109,7 @@ query getTasks {
   entities: [Task] // Automatic cache invalidation.
 }`
 
-const prismaFileSourceCode = `// Your Prisma data model
-model Task { ... }`
+const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`
 
   return (
     <SectionContainer className="pb-5 pt-24">
