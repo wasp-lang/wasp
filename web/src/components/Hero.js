@@ -252,9 +252,6 @@ function FileViewer({ fileName, fileExplanation, link, children }) {
       {/* EOF code block wrapper */}
     </div>
   )
-  {
-    /* EOF wrapper of header + code */
-  }
 }
 
 export default Hero
