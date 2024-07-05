@@ -3,7 +3,9 @@ title: 3. Pages & Routes
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import WaspStartNote from '../_WaspStartNote.md'
+import TypescriptServerNote from '../_TypescriptServerNote.md'
 
 In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
@@ -73,9 +75,12 @@ This is a regular functional React component. It also uses the CSS file and a lo
 
 That is all the code you need! Wasp takes care of everything else necessary to define, build, and run the web app.
 
-:::tip
-`wasp start` automatically picks up the changes you make and restarts the app, so keep it running in the background.
-:::
+<WaspStartNote />
+
+<ShowForTs>
+<TypescriptServerNote />
+</ShowForTs>
+
 
 ## Adding a Second Page
 
