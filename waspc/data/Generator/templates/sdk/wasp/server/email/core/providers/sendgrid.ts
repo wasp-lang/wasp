@@ -4,7 +4,7 @@ import type { SendGridProvider, EmailSender } from "../types";
 
 // PRIVATE API
 export function initSendGridEmailSender(
-  provider: SendGridProvider
+    provider: SendGridProvider
 ): EmailSender {
   SendGrid.setApiKey(provider.apiKey);
 
@@ -18,6 +18,7 @@ export function initSendGridEmailSender(
           email: fromField.email,
           name: fromField.name,
         },
+        replyTo: email.replyTo,
         to: email.to,
         subject: email.subject,
         text: email.text,
