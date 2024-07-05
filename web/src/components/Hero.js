@@ -90,7 +90,7 @@ const PHBadge = () => (
 )
 
 const Hero = () => {
-  const codeString = `app todoApp {
+  const waspFileSourceCode = `app todoApp {
   title: "ToDo App",  // visible in the browser tab
   auth: { // full-stack auth out-of-the-box
     userEntity: User, 
@@ -107,10 +107,10 @@ page MainPage {
 query getTasks {
   fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
   entities: [Task] // Automatic cache invalidation.
-}
+}`
 
-entity Task {=psl ... psl=} // Your Prisma data model.
-`
+const prismaFileSourceCode = `// Your Prisma data model
+model Task { ... }`
 
   return (
     <SectionContainer className="pb-5 pt-24">
@@ -166,37 +166,22 @@ entity Task {=psl ... psl=} // Your Prisma data model.
             </span>
           </div>
         </div>
-        <div className="mt-16 lg:col-span-6 lg:mt-0">
-          <div className="relative flex flex-col items-center justify-center">
-            {/* Editor header bar */}
-            <div className="flex h-6 w-full items-center justify-between rounded-t-md bg-yellow-500/10 px-2">
-              <Link to="https://github.com/wasp-lang/wasp/blob/main/examples/todo-typescript/main.wasp">
-                <span
-                  className={`
-                    flex items-center space-x-1 text-sm text-neutral-500 transition
-                    duration-200 ease-out hover:text-neutral-400
-                  `}
-                >
-                  <span>todoApp.wasp</span>
-                  <ArrowUpRight size={14} />
-                  <span className="text-neutral-400">· Wasp config file</span>
-                </span>
-              </Link>
-              <div className="flex space-x-2">
-                <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                <div className="h-2 w-2 rounded-full bg-yellow-500" />
-              </div>
-            </div>
-            {/* Editor body */}
-            <div className="w-full rounded-b-md text-sm shadow-2xl">
-              <CodeHighlight language="wasp" source={codeString} />
-            </div>{' '}
-            {/* EOF code block wrapper */}
-          </div>{' '}
-          {/* EOF wrapper of header + code */}
-        </div>{' '}
-        {/* EOF col-span-6 */}
+        <div className="mt-16 lg:col-span-6 lg:mt-0 flex flex-col gap-4">
+          <FileViewer
+            fileName="todoApp.wasp"
+            fileExplanation="Wasp config file"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/main.wasp"
+          >
+            <CodeHighlight language="wasp" source={waspFileSourceCode} />
+          </FileViewer>
+          <FileViewer
+            fileName="schema.prisma"
+            fileExplanation="Wasp entities schema"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/schema.prisma"
+          >
+            <CodeHighlight language="prisma" source={prismaFileSourceCode} />
+          </FileViewer>
+        </div>
       </div>
 
       {/* 1-min video */}
@@ -238,6 +223,39 @@ entity Task {=psl ... psl=} // Your Prisma data model.
       */}
     </SectionContainer>
   )
+}
+
+function FileViewer({ fileName, fileExplanation, link, children }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center">
+      {/* Editor header bar */}
+      <div className="flex h-6 w-full items-center justify-between rounded-t-md bg-[#F3EDE0] px-2">
+        <Link to={link}>
+          <span
+            className={`
+          flex items-center space-x-1 text-sm text-neutral-500 transition
+          duration-200 ease-out hover:text-neutral-400
+        `}
+          >
+            <span>{fileName}</span>
+            <ArrowUpRight size={14} />
+            <span className="text-neutral-400">· {fileExplanation}</span>
+          </span>
+        </Link>
+        <div className="flex space-x-2">
+          <div className="h-2 w-2 rounded-full bg-yellow-500" />
+          <div className="h-2 w-2 rounded-full bg-yellow-500" />
+          <div className="h-2 w-2 rounded-full bg-yellow-500" />
+        </div>
+      </div>
+      {/* Editor body */}
+      <div className="w-full rounded-b-md text-sm shadow-2xl">{children}</div>
+      {/* EOF code block wrapper */}
+    </div>
+  )
+  {
+    /* EOF wrapper of header + code */
+  }
 }
 
 export default Hero
