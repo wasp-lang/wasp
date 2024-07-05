@@ -31,7 +31,7 @@ const examples = [
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'websockets-realtime-voting',
     repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting',
-    demoUrl: 'https://websockets-client-production.up.railway.app/login',
+    demoUrl: 'https://websockets-voting-client.fly.dev/login',
   },
 ]
 
