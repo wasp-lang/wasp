@@ -6,7 +6,7 @@ export function getName(user: AuthUser): string {
   }
 
   if (user.identities.google !== null) {
-    return `Google user: ${user.identities.google.id}`;
+    return `Google user ${user.identities.google.id}`;
   }
 
   return "Unknown user";
