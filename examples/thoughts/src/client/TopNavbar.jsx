@@ -5,7 +5,7 @@ import React from "react";
 import "./TopNavbar.css";
 
 const TopNavbar = ({ user }) => {
-  const username = user.getFirstProviderUserId()
+  const username = user.getFirstProviderUserId();
 
   return (
     <div className="top-navbar">
