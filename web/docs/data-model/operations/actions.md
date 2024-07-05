@@ -79,7 +79,11 @@ If you want to know about all supported options for the `action` declaration, ta
 
 The names of Wasp Actions and their implementations don't necessarily have to match. However, to avoid confusion, we'll keep them the same.
 
-<SuperjsonNote />
+:::info
+You might have noticed that we told Wasp to import Action implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `actions.{js,ts}` in the next section.
+
+It's a good idea to start with the high-level concept (i.e., the Action declaration in the Wasp file) and only then deal with the implementation details (i.e., the Action's implementation in JavaScript).
+:::
 
 After declaring a Wasp Action, two important things happen:
 
@@ -182,27 +186,62 @@ export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = (
 }
 ```
 
+<SuperjsonNote />
+
+#### Type support for Actions
+
 Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
 
 - `CreateTask` is a generic type that Wasp automatically generated based on the Action declaration for `createTask`.
 - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.
 
-You can use these types to specify the Action's input and output types.
+Use these types to type the Action's implementation.
+Annotating Actions is optional but very helpful.
+Doing so properly types the Action's context.
 
-The Action `createTask` expects to get an object of type `{ description: string }` and returns the newly created task (an object of type `Task`).
+In this case, TypeScript will know the `context.entities` object must include the `Task` entity.
+TypeScript also knows whether the `context` object includes user information (it depends on whether your Action uses auth).
 
-The Action `markTaskAsDone`, expects an object of type `{ id: number }` and doesn't return anything (i.e., its return type is `void`).
+The generated types are generic and accept two optional type arguments: `Input` and `Output`.
 
-We've derived most of the payload types from the type `Task`.
+1. `Input` - The argument (i.e., payload) received by the Action function.
+2. `Output` - The Action function's return type.
 
-Annotating the Actions is optional, but highly recommended. Doing so enables **full-stack type safety**. We'll see what this means when calling the Action from the client.
+Use these type arguments to type the Action's inputs and outputs.
 
-:::tip
-Wasp uses [superjson](https://github.com/blitz-js/superjson) under the hood. In other words, you don't need to limit yourself to only sending and receiving JSON payloads.
+For example, the above code says that the Action `createTask` expects an object with the new task's description (its input type is `Pick<Task, 'description'>`) and returns the new task (its output type is `Task`).
+On the other hand, the Action `markTaskAsDone` expects an object of type `Pick<Task, 'id'>`. This type is derived from the `Task` entity type.
 
-Send and receive any superjson-compatible payload (e.g., Dates, Sets, Lists, circular references, etc.) and let Wasp take care of the (de)serialization.
+Suppose you don't care about typing the Action's inputs and outputs. In that case, you can omit both type arguments, and TypeScript will infer the most general types (i.e., `never` for the input, `unknown` for the output.).
 
-As long as you're annotating your Actions with correct automatically generated types, TypeScript ensures your payloads are valid (i.e., that Wasp knows how to serialize and deserialize them).
+Even though specifying `Input` or `Output` is completely optional, we highly recommend you specify them. Doing so gives you:
+  - Type support for the arguments and the return value inside the implementation.
+  - **Full-stack type safety**. We'll explore what this means when we discuss calling the Action from the client.
+
+Read more about type support for implementing Actions in the [API Reference](#implementing-actions).
+
+:::tip Inferring the return type
+
+If don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+```typescript
+const createFoo = (async (_args, context) => {
+  const foo = await context.entities.Foo.create()
+  return {
+    newFoo: foo,
+    message: "Here's your foo!",
+    returnedAt: new Date(),
+  }
+}) satisfies GetFoo
+```
+From the snippet above, TypeScript knows:
+1. The correct type for `context`. 
+2. The Action's return type is `{ newFoo: Foo, message: string, returnedAt: Date }`.
+
+If you don't need the context, you can skip specifying the Action's type (and arguments):
+```typescript
+const createFoo = () => {{ name: 'Foo', date: new Date() }}
+```
+
 :::
 
 </TabItem>
@@ -246,6 +285,9 @@ import { createTask, markTasAsDone } from 'wasp/client/operations'
 const newTask = await createTask({ description: 'Keep learning TypeScript' })
 await markTasAsDone({ id: 1 })
 ```
+
+Wasp supports automatic full-stack type safety à la tRPC.
+You only need to define the Action's type on the backend, and the frontend will automatically know how to call it.
 
 </TabItem>
 </Tabs>
@@ -815,6 +857,7 @@ type TaskPayload = Pick<Task, "id">;
 
 const TaskPage = ({ id }: { id: number }) => {
   const { data: task } = useQuery(getTask, { id });
+  // Typescript automatically type-checks the payload type.
   // highlight-start
   const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
     optimisticUpdates: [
