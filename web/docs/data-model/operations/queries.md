@@ -82,7 +82,7 @@ The names of Wasp Queries and their implementations don't need to match, but we'
 :::info
 You might have noticed that we told Wasp to import Query implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `queries.{js,ts}` in the next section.
 
-It's a good idea to start with the high-level concept (i.e., the Query declaration in the Wasp file) and only then deal with the implementation details (i.e., the Query's implementation in JavaScript).
+It's a good idea to start with the high-level concept (the Query declaration in the Wasp file) and only then deal with the implementation details (the Query's implementation in JavaScript).
 :::
 
 After declaring a Wasp Query, two important things happen:
@@ -179,7 +179,7 @@ TypeScript also knows whether the `context` object includes user information (it
 
 The generated types are generic and accept two optional type arguments: `Input` and `Output`.
 
-1. `Input` - The argument (i.e., payload) received by the Query function.
+1. `Input` - The argument (the payload) received by the Query function.
 2. `Output` - The Query function's return type.
 
 Use these type arguments to type the Query's inputs and outputs.
@@ -187,7 +187,7 @@ Use these type arguments to type the Query's inputs and outputs.
 For example, the above code says that the Query `getTasks` doesn't expect any arguments (its input type is `void`), but it does return a list of tasks (its output type is `Task[]`).
 On the other hand, the Query `getFilteredTasks` expects an object of type `{ isDone: boolean }`. This type is derived from the `Task` entity type.
 
-Suppose you don't care about typing the Query's inputs and outputs. In that case, you can omit both type arguments, and TypeScript will infer the most general types (i.e., `never` for the input, `unknown` for the output.).
+Suppose you don't care about typing the Query's inputs and outputs. In that case, you can omit both type arguments, and TypeScript will infer the most general types (`never` for the input, `unknown` for the output.).
 
 Even though specifying `Input` or `Output` is completely optional, we highly recommend you spcify them. Doing so gives you:
   - Type support for the arguments and the return value inside the implementation.
@@ -225,7 +225,7 @@ const getFoo = () => {{ name: 'Foo', date: new Date() }}
 
 <small>
 
-For a detailed explanation of the Query definition API (i.e., arguments and return values), check the [API Reference](#api-reference).
+For a detailed explanation of the Query definition API (more precisely, its arguments and return values), check the [API Reference](#api-reference).
 
 </small>
 
@@ -656,11 +656,11 @@ It expects two (optional) type arguments:
 
 1.  `Input`
 
-    The type of the `args` object (i.e., the Query's input payload). The default value is `never`.
+    The type of the `args` object (the Query's input payload). The default value is `never`.
 
 2.  `Output`
 
-    The type of the Query's return value (i.e., the Query's output payload). The default value is `unknown`.
+    The type of the Query's return value (the Query's output payload). The default value is `unknown`.
 
 The defaults were chosen to make the type signature as permissive as possible. If don't want your Query to take/return anything, use `void` as a type argument.
 
