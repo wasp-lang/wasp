@@ -32,8 +32,3 @@ model TaskVote {
   task   Task   @relation(fields: [taskId], references: [id])
   taskId Int
 }
-
-enum Role {
-  USER
-  ADMIN
-}
