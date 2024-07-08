@@ -211,7 +211,7 @@ Use these type arguments to type the Action's inputs and outputs.
 For example, the above code says that the Action `createTask` expects an object with the new task's description (its input type is `Pick<Task, 'description'>`) and returns the new task (its output type is `Task`).
 On the other hand, the Action `markTaskAsDone` expects an object of type `Pick<Task, 'id'>`. This type is derived from the `Task` entity type.
 
-Suppose you don't care about typing the Action's inputs and outputs. In that case, you can omit both type arguments, and TypeScript will infer the most general types (`never` for the input, `unknown` for the output.).
+If you don't care about typing the Action's inputs and outputs, you can omit both type arguments. TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
 
 Even though specifying `Input` or `Output` is completely optional, we highly recommend you specify them. Doing so gives you:
   - Type support for the arguments and the return value inside the implementation.
