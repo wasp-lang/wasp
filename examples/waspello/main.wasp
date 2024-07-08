@@ -1,13 +1,9 @@
 app waspello {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
 
   title: "Waspello",
-
-  db: {
-    system: PostgreSQL
-  },
 
   auth: {
     userEntity: User,
@@ -34,41 +30,6 @@ route LoginRoute { path: "/login", to: Login }
 page Login {
     component: import Login from "@src/auth/LoginPage.jsx"
 }
-
-// Entities
-
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-
-    lists       List[]
-    cards       Card[]
-psl=}
-
-entity List {=psl
-    id          Int     @id @default(autoincrement())
-    name        String
-    pos         Float
-
-    // List has a single author.
-    user        User    @relation(fields: [userId], references: [id])
-    userId      Int
-
-    cards       Card[]
-psl=}
-
-entity Card {=psl
-    id          Int     @id @default(autoincrement())
-    title       String
-    pos         Float
-
-    // Card belongs to a single list.
-    list        List    @relation(fields: [listId], references: [id])
-    listId      Int
-
-    // Card has a single author.
-    author      User    @relation(fields: [authorId], references: [id])
-    authorId    Int
-psl=}
 
 // ------------------- Queries and actions
 
