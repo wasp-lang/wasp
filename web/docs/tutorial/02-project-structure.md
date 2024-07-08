@@ -38,7 +38,7 @@ No updates to the `main.wasp` file are necessary - it stays the same regardless 
 
 After creating a new Wasp project and renaming the `src/MainPage.jsx` file, your project should look like this:
 
-```
+```css
 .
 ├── .gitignore
 ├── main.wasp          # Your Wasp code goes here.
@@ -47,7 +47,8 @@ After creating a new Wasp project and renaming the `src/MainPage.jsx` file, your
 ├── public             # Your static files (e.g., images, favicon) go here.
 ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
 │   ├── Main.css
-│   ├── MainPage.tsx
+// highlight-next-line
+│   ├── MainPage.tsx   # Renamed from MainPage.jsx
 │   ├── vite-env.d.ts
 │   └── waspLogo.png
 ├── tsconfig.json
