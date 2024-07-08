@@ -70,9 +70,8 @@ export const getTaskInfo = async ({ id }, context) => {
 ```
 
 To migrate this file to TypeScript, all you have to do is:
-
-1.  Change the filename from `queries.js` to `queries.ts`.
-2.  Write some types (and optionally use some of Wasp's TypeScript features).
+  1. Change the filename from `queries.js` to `queries.ts`.
+  2. Write some types (and optionally use some of Wasp's TypeScript features).
 
 <Tabs>
 <TabItem value="before" label="Before">
