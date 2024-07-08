@@ -150,7 +150,7 @@ We also overrode the `create` operation with a custom implementation. This means
 ### Our Custom `create` Operation
 
 We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
-Automatic CRUD doesn't support this by default (yet!).
+Automatic CRUD doesn't yet support this by default.
 Read more about the default implementations [here](#declaring-a-crud-with-default-options).
 
 Here's the `src/tasks.{js,ts}` file:
