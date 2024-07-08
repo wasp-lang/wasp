@@ -224,7 +224,7 @@ export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
 }
 ```
 
-Wasp automatically generates the type `Tasks.CreateAction` type namespace based on the CRUD declaration in your Wasp file.
+Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
 Use it to type the CRUD action's implementation.
 
 The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
