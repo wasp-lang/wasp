@@ -6,21 +6,22 @@ import TypescriptServerNote from '../_TypescriptServerNote.md'
 
 # TypeScript support
 
-TypeScript is a programming language that brings static type analysis to JavaScript. It is a superset of JavaScript (i.e., all valid JavaScript programs are valid TypeScript programs) and compiles to JavaScript before running.
+TypeScript is a programming language that adds static type analysis to JavaScript.
+It is a superset of JavaScript, which means all JavaScript code is valid TypeScript code.
+It also compiles to JavaScript before running.
 
-TypeScript's type system detects common errors at build time (reducing the chance of runtime errors in production) and enables type-based auto-completion in IDEs.
+TypeScript's type system helps catch errors at build time (this reduces runtime errors), and provides type-based auto-completion in IDEs.
 
-Each Wasp feature comes with accompanying TypeScript documentation.
+Each Wasp feature includes TypeScript documentation.
 
 If you're starting a new project and want to use TypeScript, you don't need to do anything special.
 Just follow the feature docs you are interested in, and they will tell you everything you need to know.
 We recommend you start by going through [the tutorial](../tutorial/01-create.md).
 
-If you already have a Wasp project written in JavaScript and you wish to
-migrate it to TypeScript, then this guide is meant for you.
-
+To migrate an existing Wasp project from JavaScript to TypeScript, follow this guide.
 
 ## Migrating your project to TypeScript
+
 Wasp supports TypeScript out of the box.
 
 Our scaffolding already includes TypeScript, so migrating your project to TypeScript is as simple as changing file extensions and using the language. This approach allows you to gradually migrate your project on a file-by-file basis.
@@ -40,6 +41,7 @@ model Task {
   isDone      Boolean
 }
 ```
+
 And your `main.wasp` file defines the `getTaskInfo` query:
 
 ```wasp title=main.wasp
@@ -52,10 +54,10 @@ query getTaskInfo {
 We will show you how to migrate the following `queries.js` file:
 
 ```javascript title="src/queriesjs"
-import HttpError from "wasp/server"
+import HttpError from 'wasp/server'
 
 function getInfoMessage(task) {
-  const isDoneText = task.isDone ? "is done" : "is not done"
+  const isDoneText = task.isDone ? 'is done' : 'is not done'
   return `Task '${task.description}' is ${isDoneText}.`
 }
 
@@ -70,17 +72,18 @@ export const getTaskInfo = async ({ id }, context) => {
 ```
 
 To migrate this file to TypeScript, all you have to do is:
-  1. Change the filename from `queries.js` to `queries.ts`.
-  2. Write some types (and optionally use some of Wasp's TypeScript features).
+
+1. Change the filename from `queries.js` to `queries.ts`.
+2. Write some types (and optionally use some of Wasp's TypeScript features).
 
 <Tabs>
 <TabItem value="before" label="Before">
 
 ```javascript title="src/queries.ts"
-import HttpError from "@wasp/core/HttpError.js"
+import HttpError from '@wasp/core/HttpError.js'
 
 function getInfoMessage(task) {
-  const isDoneText = task.isDone ? "is done" : "is not done"
+  const isDoneText = task.isDone ? 'is done' : 'is not done'
   return `Task '${task.description}' is ${isDoneText}.`
 }
 
@@ -98,20 +101,23 @@ export const getTaskInfo = async ({ id }, context) => {
 <TabItem value="after" label="After">
 
 ```typescript title=src/server/queries.ts
-import HttpError from "wasp/server"
+import HttpError from 'wasp/server'
 // highlight-next-line
-import { type Task } from "@wasp/entities"
+import { type Task } from '@wasp/entities'
 // highlight-next-line
-import { type GetTaskInfo } from "@wasp/server/operations"
+import { type GetTaskInfo } from '@wasp/server/operations'
 
 // highlight-next-line
-function getInfoMessage(task: Pick<Task, "isDone" | "description">): string {
-  const isDoneText = task.isDone ? "is done" : "is not done"
+function getInfoMessage(task: Pick<Task, 'isDone' | 'description'>): string {
+  const isDoneText = task.isDone ? 'is done' : 'is not done'
   return `Task '${task.description}' is ${isDoneText}.`
 }
 
 // highlight-next-line
-export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = async ({ id }, context) => {
+export const getTaskInfo: GetTaskInfo<Pick<Task, 'id'>, string> = async (
+  { id },
+  context
+) => {
   const Task = context.entities.Task
 
   const task = await Task.findUnique({ where: { id } })
@@ -127,14 +133,16 @@ export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = async ({ id },
 </Tabs>
 
 Your code is now processed by TypeScript and uses several of Wasp's TypeScript-specific features:
- - `Task` - A type that represents the `Task` entity. Using this type connects your data to the model definitions in the `schema.prisma` file. Read more about this feature [here](../data-model/entities).
- - `GetTaskInfo<...>` - A generic type Wasp automatically generates to give you type
-   support when implementing the Query. Thanks to this type, the compiler knows:
-   - The type of the `context` object.
-   - The type of `args`.
-   - The Query's return type.
 
-   And gives you Intellisense and type-checking. Read more about this feature [here](../data-model/operations/queries#implementing-queries).
+- `Task` - A type that represents the `Task` entity. Using this type connects your data to the model definitions in the `schema.prisma` file. Read more about this feature [here](../data-model/entities).
+- `GetTaskInfo<...>` - A generic type Wasp automatically generates to give you type
+  support when implementing the Query. Thanks to this type, the compiler knows:
+
+  - The type of the `context` object.
+  - The type of `args`.
+  - The Query's return type.
+
+  And gives you Intellisense and type-checking. Read more about this feature [here](../data-model/operations/queries#implementing-queries).
 
 You don't need to change anything inside the `.wasp` file.
 
@@ -143,8 +151,9 @@ You don't need to change anything inside the `.wasp` file.
 You can migrate your project gradually - on a file-by-file basis.
 
 When you want to migrate a file, follow the procedure outlined above:
- 1. Change the file's extension.
- 2. Fix the type errors.
- 3. Read the Wasp docs and decide which TypeScript features you want to use.
+
+1.  Change the file's extension.
+2.  Fix the type errors.
+3.  Read the Wasp docs and decide which TypeScript features you want to use.
 
 <TypescriptServerNote />
