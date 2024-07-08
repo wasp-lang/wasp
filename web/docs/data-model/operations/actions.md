@@ -285,8 +285,8 @@ const newTask = await createTask({ description: 'Keep learning TypeScript' })
 await markTasAsDone({ id: 1 })
 ```
 
-Wasp supports automatic full-stack type safety à la tRPC.
-You only need to define the Action's type on the backend, and the frontend will automatically know how to call it.
+Wasp supports **automatic full-stack type safety**.
+You only need to specify the Action's type in its server-side definition, and the client code will automatically know its API payload types.
 
 </TabItem>
 </Tabs>
