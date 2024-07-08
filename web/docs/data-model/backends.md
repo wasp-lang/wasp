@@ -149,7 +149,7 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 Seeding is most commonly used for:
 
-1.  Setting the development database into a state convenient for working and testing.
+1.  Getting the development database into a state convenient for working and testing.
 2.  Initializing any database (`dev`, `staging`, or `prod`) with essential data it requires to operate.
     For example, populating the Currency table with default currencies, or the Country table with all available countries.
 
