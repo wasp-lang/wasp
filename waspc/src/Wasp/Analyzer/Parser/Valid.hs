@@ -5,22 +5,21 @@ where
 
 import Data.List (find)
 import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.StdTypeDefinitions.Entity (entityDeclTypeName)
 
 validateAst :: P.AST -> Either (String, P.Ctx) P.AST
 validateAst = validateNoEntityDeclInWaspFile
 
 validateNoEntityDeclInWaspFile :: P.AST -> Either (String, P.Ctx) P.AST
-validateNoEntityDeclInWaspFile ast@(P.AST stmts) = case findEntityDecl stmts of
+validateNoEntityDeclInWaspFile ast@(P.AST stmts) = case findEntityStmt stmts of
   Just (P.WithCtx ctx _) -> Left (entitiesNoLongerSupportedError, ctx)
   Nothing -> Right ast
   where
-    findEntityDecl :: [P.WithCtx P.Stmt] -> Maybe (P.WithCtx P.Stmt)
-    findEntityDecl = find isEntityDecl
-
-    isEntityDecl :: P.WithCtx P.Stmt -> Bool
-    isEntityDecl = \case
-      P.WithCtx _ (P.Decl "entity" _ _) -> True
-      _ -> False
+    findEntityStmt :: [P.WithCtx P.Stmt] -> Maybe (P.WithCtx P.Stmt)
+    findEntityStmt =
+      find
+        ( \(P.WithCtx _ (P.Decl declTypeName _ _)) -> declTypeName == entityDeclTypeName
+        )
 
     entitiesNoLongerSupportedError :: String
     entitiesNoLongerSupportedError =
