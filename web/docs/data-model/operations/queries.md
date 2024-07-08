@@ -184,14 +184,21 @@ The generated types are generic and accept two optional type arguments: `Input` 
 
 Use these type arguments to type the Query's inputs and outputs.
 
-For example, the above code says that the Query `getTasks` doesn't expect any arguments (its input type is `void`), but it does return a list of tasks (its output type is `Task[]`).
+
+<details>
+<summary>Explanation for the example above</summary>
+
+The above code says that the Query `getTasks` doesn't expect any arguments (its input type is `void`), but it does return a list of tasks (its output type is `Task[]`).
+
 On the other hand, the Query `getFilteredTasks` expects an object of type `{ isDone: boolean }`. This type is derived from the `Task` entity type.
 
-If you don't care about typing the Query's inputs and outputs, you can omit both type arguments. TypeScript will then infer the most general types (`never` for the input and `unknown` for the output.).
+If you don't care about typing the Query's inputs and outputs, you can omit both type arguments. TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
 
-Even though specifying `Input` or `Output` is completely optional, we highly recommend you spcify them. Doing so gives you:
+Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
   - Type support for the arguments and the return value inside the implementation.
   - **Full-stack type safety**. We'll explore what this means when we discuss calling the Query from the client.
+
+</details>
 
 Read more about type support for implementing Queries in the [API Reference](#implementing-queries).
 
