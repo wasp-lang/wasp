@@ -18,7 +18,11 @@ export function getName(user?: AuthUser) {
     return `GitHub user ${user.identities.github.id}`
   }
 
-  // if (user.identities.keycloak !== undefined) {
+  if (user.identities.discord !== null) {
+    return `Discord user ${user.identities.discord.id}`
+  }
+
+  // if (user.identities.keycloak !== null) {
   //   return `Keycloak user ${user.identities.keycloak.id}`
   // }
 
