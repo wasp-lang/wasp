@@ -149,7 +149,7 @@ analyze prismaSchemaAst =
       to allow users to define entities in the Prisma schema file. We are parsing
       the `schema.prisma` file and injecting the models into the Wasp AST as entity
       statements.
-      
+
       We validate the AST to prevent users from defining entities in the Wasp source
       file since we don't want to allow defining entities in two places.
 
