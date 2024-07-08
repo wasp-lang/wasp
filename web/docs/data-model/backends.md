@@ -288,7 +288,13 @@ async function createUser(
 ```
 
 Wasp exports a type called `DbSeedFn` which you can use to easily type your seeding function.
-Annotating the function `devSeedSimple` with `DbSeedFn` tells TypeScript:
+Wasp defines `DbSeedFn` like this:
+
+```typescript
+type DbSeedFn = (prisma: PrismaClient) => Promise<void>
+```
+
+Annotating the function `devSeedSimple` with this type tells TypeScript:
  - The seeding function's argument (`prisma`) is of type `PrismaClient`.
  - The seeding function's return value is `Promise<void>`.
 
