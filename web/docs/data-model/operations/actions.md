@@ -196,8 +196,7 @@ Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based o
 - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.
 
 Use these types to type the Action's implementation.
-Annotating Actions is optional but very helpful.
-Doing so properly types the Action's context.
+It's optional but very helpful since doing so properly types the Action's context.
 
 In this case, TypeScript will know the `context.entities` object must include the `Task` entity.
 TypeScript also knows whether the `context` object includes user information (it depends on whether your Action uses auth).
