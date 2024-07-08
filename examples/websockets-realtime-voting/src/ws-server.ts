@@ -54,7 +54,7 @@ export const webSocketFn: WebSocketDefinition<
       return;
     }
 
-    const connectionUsername = getUsername(socket.data.user);
+    const connectionUsername = socket.data.user.getFirstProviderUserId();
 
     console.log("Socket connected: ", connectionUsername);
     socket.on("askForStateUpdate", () => {
