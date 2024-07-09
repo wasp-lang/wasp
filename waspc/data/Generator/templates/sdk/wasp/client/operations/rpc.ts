@@ -1,6 +1,6 @@
 import { type Route } from "wasp/client";
 import type {
-   IfAny,
+  IfAny,
   _Awaited,
   _ReturnType,
 } from "wasp/universal/types"
@@ -75,7 +75,7 @@ export type GenericBackendOperation = (args: never, context: any) => unknown
  */
 export type GenericOperationRpc = (args: never) => Promise<unknown>
 
-// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/2170#issue-2398830273
 type ClientOperation<Input, Output> =
   IfAny<
     Input,
@@ -83,6 +83,7 @@ type ClientOperation<Input, Output> =
     ClientOperationWithNonAnyInput<Input, Output>
   >
 
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type ClientOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
   ? (args?: unknown) => Promise<Output>

@@ -194,6 +194,7 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
 >
 
 {=/ isAuthEnabled =}
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/2170#issue-2398830273
 /**
  * Constructs the type for an unauthenticated operation's server-side API.
  *
@@ -208,6 +209,7 @@ type UnauthenticatedOperation<Input, Output> =
     UnauthenticatedOperationWithNonAnyInput<Input, Output>
   >
 
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type UnauthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
   ? (args: unknown) => Promise<Output>
