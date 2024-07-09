@@ -14,6 +14,7 @@ import {
   getAnyNoAuth,
   type TestingAction,
   getAnyAuth,
+  getAnyToNumberSpecified,
 } from 'wasp/server/operations'
 
 import {
@@ -26,7 +27,7 @@ import { AuthUser } from 'wasp/auth'
 import { Task } from 'wasp/entities'
 import { Payload } from 'wasp/server/_types'
 
-export const testingAction: TestingAction = async (args, context) => {
+export const testingAction: TestingAction = async (_args, context) => {
   // TODO: (Filip) When sorting out the tests, we should also test whether the
   // outputs are correct. See:
   // - https://github.com/wasp-lang/wasp/issues/2024
@@ -106,4 +107,5 @@ type TestCases = [
   Expect<Equal<typeof getTrueVoid, (ctx: { user: AuthUser }) => Promise<string>>>,
   Expect<Equal<typeof getAnyNoAuth, (args: any) => Promise<any>>>,
   Expect<Equal<typeof getAnyAuth, (args: any, ctx: { user: AuthUser }) => Promise<any>>>,
+  Expect<Equal<typeof getAnyToNumberSpecified, (args: any, ctx: { user: AuthUser }) => Promise<number>>>,
 ]

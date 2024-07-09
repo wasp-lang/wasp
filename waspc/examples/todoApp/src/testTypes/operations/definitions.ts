@@ -9,6 +9,7 @@ import type {
   GetDate,
   GetAnything,
   GetTrueVoid,
+  GetAnyToNumberSpecified,
 } from 'wasp/server/operations'
 
 export const taskToTaskUnspecified = async (args: Task) => args
@@ -47,7 +48,7 @@ export const voidToStringNoAuth: VoidToStringNoAuth<void, string> = async (
   return 'void'
 }
 
-export const unspecifiedToNumber = (async (args) => {
+export const unspecifiedToNumber = (async (_args) => {
   return 10
 }) satisfies UnspecifiedToNumber
 
@@ -109,11 +110,14 @@ export const getTrueVoid = (async () => {
   return 'anything'
 }) satisfies GetTrueVoid
 
-export const getAnyNoAuth = (args: any, context: any): any => {
+export const getAnyNoAuth = (_args: any, _context: any): any => {
   return 'anything'
 }
 
-
-export const getAnyAuth = (args: any, context: any): any => {
+export const getAnyAuth = (_args: any, _context: any): any => {
   return 'anything'
+}
+
+export const getAnyToNumberSpecified: GetAnyToNumberSpecified<any, number> = (_args, _context) => {
+  return 10
 }
