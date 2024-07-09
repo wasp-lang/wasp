@@ -92,113 +92,237 @@ Wasp introduced a much simpler API for accessing user auth fields like `username
 ### Migrate to the new `schema.prisma` file
 To use the new `schema.prisma` file, you need to move your entities from the `.wasp` file to the `schema.prisma` file.
 
-1. **Create a new `schema.prisma` file**
+1\. **Create a new `schema.prisma` file**
 
-   Create a new file named `schema.prisma` in the root of your project:
+Create a new file named `schema.prisma` in the root of your project:
 
-   ```c
-    .
-    ├── main.wasp
-    ...
+```c
+.
+├── main.wasp
+...
+// highlight-next-line
+├── schema.prisma
+├── src
+├── tsconfig.json
+└── vite.config.ts
+```
+2\. **Add the `datasource` block** to the `schema.prisma` file
+
+This block specifies the database type and connection URL:
+
+<Tabs groupId="db">
+<TabItem value="sqlite" label="Sqlite">
+
+```prisma title="schema.prisma"
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+```
+</TabItem>
+<TabItem value="postgresql" label="PostgreSQL">
+
+
+```prisma title="schema.prisma"
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+```
+</TabItem>
+</Tabs>
+
+- The `provider` should be either `"postgresql"` or `"sqlite"`. 
+
+- The `url` must be set to `env("DATABASE_URL")` so that Wasp can inject the database URL from the environment variables.
+
+3\. **Add the `generator` block** to the `schema.prisma` file
+
+This block specifies the Prisma Client generator Wasp uses:
+
+<Tabs groupId="db">
+<TabItem value="sqlite" label="Sqlite">
+
+```prisma title="schema.prisma"
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// highlight-start
+generator client {
+  provider = "prisma-client-js"
+}
+// highlight-end
+```
+</TabItem>
+<TabItem value="postgresql" label="PostgreSQL">
+
+
+```prisma title="schema.prisma"
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// highlight-start
+generator client {
+  provider = "prisma-client-js"
+}
+// highlight-end
+```
+</TabItem>
+</Tabs>
+
+- The `provider` should be set to `"prisma-client-js"`.
+
+4\. **Move your entities** to the `schema.prisma` file
+
+Move the entities from the `.wasp` file to the `schema.prisma` file:
+
+<Tabs groupId="db">
+<TabItem value="sqlite" label="Sqlite">
+
+```prisma title="schema.prisma"
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// There are some example entities, you should move your entities here
+// highlight-start
+model User {
+  id       Int @id @default(autoincrement())
+  tasks    Task[]
+}
+
+model Task {
+  id          Int @id @default(autoincrement())
+  description String
+  isDone      Boolean
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
+}
+// highlight-end
+```
+</TabItem>
+<TabItem value="postgresql" label="PostgreSQL">
+
+
+```prisma title="schema.prisma"
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// There are some example entities, you should move your entities here
+// highlight-start
+model User {
+  id       Int @id @default(autoincrement())
+  tasks    Task[]
+}
+
+model Task {
+  id          Int @id @default(autoincrement())
+  description String
+  isDone      Boolean
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
+}
+// highlight-end
+```
+</TabItem>
+</Tabs>
+
+
+When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
+
+If you had the following in the `.wasp` file:
+```wasp title="main.wasp"
+entity Task {=psl
+  // Stays the same
+psl=}
+```
+
+... it would look like this in the `schema.prisma` file:
+```prisma title="schema.prisma"
+model Task {
+  // Stays the same
+}
+```
+
+5\. **Remove `app.db.system`** field from the Wasp file
+
+We now configure the DB system in the `schema.prisma` file, so there is no need for that field in the Wasp file.
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  db: {
     // highlight-next-line
-    ├── schema.prisma
-    ├── src
-    ├── tsconfig.json
-    └── vite.config.ts
-   ```
-2. **Add the `datasource` block** to the `schema.prisma` file
+    system: PostgreSQL,
+  }
+}
+```
 
-   This block specifies the database type and connection URL:
+6\. **Migrate Prisma preview features config** to the `schema.prisma` file
 
-   ```prisma title="schema.prisma"
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   ```
+If you didn't use any Prisma preview features, you can skip this step.
 
-   - The `provider` should be either `"postgresql"` or `"sqlite"`. 
-   
-   - The `url` must be set to `env("DATABASE_URL")` so that Wasp can inject the database URL from the environment variables.
+If you had the following in the `.wasp` file:
 
-3. **Add the `generator` block** to the `schema.prisma` file
-
-   This block specifies the Prisma Client generator Wasp uses:
-
-   ```prisma title="schema.prisma"
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-
-   // highlight-start
-   generator client {
-     provider = "prisma-client-js"
-   }
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  db: {
+    // highlight-start
+    prisma: {
+      clientPreviewFeatures: ["postgresqlExtensions"]
+      dbExtensions: [
+        { name: "hstore", schema: "myHstoreSchema" },
+        { name: "pg_trgm" },
+        { name: "postgis", version: "2.1" },
+      ]
+    }
     // highlight-end
-   ```
-
-   - The `provider` should be set to `"prisma-client-js"`.
-
-4. **Move your entities** to the `schema.prisma` file
-
-  Move the entities from the `.wasp` file to the `schema.prisma` file:
-
-  ```prisma title="schema.prisma"
-  datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
   }
+}
+```
 
-  generator client {
-    provider = "prisma-client-js"
-  }
+... it will become this:
 
-  // There are some example entities, you should move your entities here
-  // highlight-start
-  model User {
-    id       Int @id @default(autoincrement())
-    tasks    Task[]
-  }
+```prisma title="schema.prisma"
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // highlight-next-line
+  extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+}
 
-  model Task {
-    id          Int @id @default(autoincrement())
-    description String
-    isDone      Boolean
-    userId      Int
-    user        User @relation(fields: [userId], references: [id])
-  }
-  // highlight-end
-  ```
+generator client {
+  provider = "prisma-client-js"
+  // highlight-next-line
+  previewFeatures = ["postgresqlExtensions"]
+}
+```
 
-  When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
+7\. **Run the Wasp CLI** to generate the Prisma client
 
-  If you had the following in the `.wasp` file:
-  ```wasp title="main.wasp"
-  entity Task {=psl
-    // Stays the same
-  psl=}
-  ```
+Regenerate the Prisma client by running the following command:
 
-  ... it would look like this in the `schema.prisma` file:
-  ```prisma title="schema.prisma"
-  model Task {
-    // Stays the same
-  }
-  ```
+```bash
+wasp db migrate-dev
+```
 
-
-5. **Run the Wasp CLI** to generate the Prisma client
-
-   Regenerate the Prisma client by running the following command:
-
-   ```bash
-   wasp db migrate-dev
-   ```
-
-   This command generates the Prisma client based on the `schema.prisma` file.
-
-Now you are using the new `schema.prisma` file!
+This command generates the Prisma client based on the `schema.prisma` file.
 
 Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
 
