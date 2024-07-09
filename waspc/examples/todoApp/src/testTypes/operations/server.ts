@@ -9,7 +9,11 @@ import {
   taskToTaskUnspecified,
   taskToTaskSatisfies,
   taskToTaskSpecified,
+  getAnything,
+  getTrueVoid,
+  getAnyNoAuth,
   type TestingAction,
+  getAnyAuth,
 } from 'wasp/server/operations'
 
 import {
@@ -20,9 +24,10 @@ import {
 import { Equal, Expect } from '../helpers'
 import { AuthUser } from 'wasp/auth'
 import { Task } from 'wasp/entities'
+import { Payload } from 'wasp/server/_types'
 
 export const testingAction: TestingAction = async (args, context) => {
-  // todo(filip): When sorting out the tests, we should also test whether the
+  // TODO: (Filip) When sorting out the tests, we should also test whether the
   // outputs are correct. See:
   // - https://github.com/wasp-lang/wasp/issues/2024
   // - https://github.com/wasp-lang/wasp/issues/2011
@@ -42,7 +47,7 @@ export const testingAction: TestingAction = async (args, context) => {
 }
 
 type TestCases = [
-  // todo(filip): Prisma errors casuing this test to fail, try to add Except
+  // TODO: (FILIP) Prisma errors casuing this test to fail, try to add Except
   // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
   Equal<
     typeof taskToTaskUnspecified,
@@ -51,7 +56,7 @@ type TestCases = [
       ctx: { user: AuthUser }
     ) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
   >,
-  // todo(filip): Prisma errors casuing this test to fail, try to add Except
+  // TODO: (FILIP) Prisma errors casuing this test to fail, try to add Except
   // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
   Equal<
     typeof taskToTaskSatisfies,
@@ -91,5 +96,14 @@ type TestCases = [
       typeof boolToVoidAuth,
       (payload: boolean, ctx: { user: AuthUser }) => Promise<void>
     >
-  >
+  >,
+  Expect<
+    Equal<
+      typeof getAnything,
+      (args: unknown, ctx: { user: AuthUser }) => Promise<Payload>
+    >
+  >,
+  Expect<Equal<typeof getTrueVoid, (ctx: { user: AuthUser }) => Promise<string>>>,
+  Expect<Equal<typeof getAnyNoAuth, (args: any) => Promise<any>>>,
+  Expect<Equal<typeof getAnyAuth, (args: any, ctx: { user: AuthUser }) => Promise<any>>>,
 ]

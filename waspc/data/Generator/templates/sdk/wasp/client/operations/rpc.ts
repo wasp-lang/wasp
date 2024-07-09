@@ -1,5 +1,6 @@
 import { type Route } from "wasp/client";
 import type {
+   IfAny,
   _Awaited,
   _ReturnType,
 } from "wasp/universal/types"
@@ -55,11 +56,11 @@ export type QueryMetadata = {
  */
 export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
   Parameters<BackendOperation> extends []
-    ? ClientOperation<void, _Awaited<_ReturnType<BackendOperation>>>
-    : ClientOperation<
-        Parameters<BackendOperation>[0],
-        _Awaited<_ReturnType<BackendOperation>>
-      >
+  ? ClientOperation<void, _Awaited<_ReturnType<BackendOperation>>>
+  : ClientOperation<
+    Parameters<BackendOperation>[0],
+    _Awaited<_ReturnType<BackendOperation>>
+  >
 
 // PRIVATE API (needed in SDK)
 /**
@@ -75,7 +76,15 @@ export type GenericBackendOperation = (args: never, context: any) => unknown
 export type GenericOperationRpc = (args: never) => Promise<unknown>
 
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
-type ClientOperation<Input, Output> = [Input] extends [never]
+type ClientOperation<Input, Output> =
+  IfAny<
+    Input,
+    (args: any) => Promise<Output>,
+    ClientOperationWithNonAnyInput<Input, Output>
+  >
+
+type ClientOperationWithNonAnyInput<Input, Output> =
+  [Input] extends [never]
   ? (args?: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>

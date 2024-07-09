@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { _Awaited, _ReturnType } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType } from '../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
@@ -168,6 +168,13 @@ type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefin
  * @template Output The type of the operation's return value.
  */
 type AuthenticatedOperation<Input, Output> =
+  IfAny<
+    Input,
+    (args: any, context: { user: AuthUser }) => Promise<Output>,
+    AuthenticatedOperationWithNonAnyInput<Input, Output>
+  >
+
+type AuthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
   ? (args: unknown, context: { user: AuthUser }) => Promise<Output>
   : [Input] extends [void]
@@ -195,12 +202,18 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
  * @template Output The type of the operation's return value.
  */
 type UnauthenticatedOperation<Input, Output> =
+  IfAny<
+    Input,
+    (args: any) => Promise<Output>,
+    UnauthenticatedOperationWithNonAnyInput<Input, Output>
+  >
+
+type UnauthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
   ? (args: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>
   : (args: Input) => Promise<Output>
-
 
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all

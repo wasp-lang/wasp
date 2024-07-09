@@ -14,6 +14,8 @@ import {
   taskToTaskUnspecified,
   taskToTaskSatisfies,
   taskToTaskSpecified,
+  getAnyAuth,
+  getAnyNoAuth,
 } from 'wasp/client/operations'
 
 import {
@@ -59,5 +61,7 @@ type TestCases = [
     >
   >,
   Expect<Equal<typeof getTrueVoid, QueryMetadata & (() => Promise<string>)>>,
+  Expect<Equal<typeof getAnyNoAuth, QueryMetadata & ((args: any) => Promise<any>)>>,
+  Expect<Equal<typeof getAnyAuth, QueryMetadata & ((args: any) => Promise<any>)>>,
   Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>
 ]

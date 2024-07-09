@@ -27,9 +27,13 @@ export type _Awaited<T> = T extends Promise<infer V>
 // TODO: investigate how to properly specify the 'extends' constraint for function
 // type (i.e., any vs never and unknown) and stick with that. Take DX into
 // consideration.
-export type _ReturnType<T extends (...args: never[]) => unknown> = 
+export type _ReturnType<T extends (...args: never[]) => unknown> =
   T extends (...args: never[]) => infer R ? R : never
 
 
 // Returns elements of an array except the first one.
 export type Tail<T extends [unknown, ...unknown[]]> = T extends [unknown, ...infer R] ? R : never;
+
+
+// Source: https://stackoverflow.com/a/55541672
+export type IfAny<T, Y, N> = 0 extends (1 & T) ? Y : N;

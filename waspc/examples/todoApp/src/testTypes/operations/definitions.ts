@@ -108,3 +108,12 @@ export const getAnything: GetAnything = async () => {
 export const getTrueVoid = (async () => {
   return 'anything'
 }) satisfies GetTrueVoid
+
+export const getAnyNoAuth = (args: any, context: any): any => {
+  return 'anything'
+}
+
+
+export const getAnyAuth = (args: any, context: any): any => {
+  return 'anything'
+}
