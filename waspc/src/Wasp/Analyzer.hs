@@ -127,6 +127,7 @@ import Wasp.Analyzer.AnalyzeError
   )
 import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
 import Wasp.Analyzer.Parser (parseStatements)
+import Wasp.Analyzer.Parser.Valid (validateAst)
 import Wasp.Analyzer.Prisma (injectEntitiesFromPrismaSchema)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
@@ -138,6 +139,25 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 analyze :: Psl.Schema.Schema -> String -> Either [AnalyzeError] [Decl]
 analyze prismaSchemaAst =
   (left (map ParseError) . parseStatements)
+    {--
+      Why introduce AST validation and not just throw a ParseError from the parser?
+
+      We want to support the `entity` declaration in the AST but not in the Wasp source
+      file.
+
+      This was the fastest and cleanest (e.g. not having to hack the type checker) way
+      to allow users to define entities in the Prisma schema file. We are parsing
+      the `schema.prisma` file and injecting the models into the Wasp AST as entity
+      statements.
+
+      We validate the AST to prevent users from defining entities in the Wasp source
+      file since we don't want to allow defining entities in two places.
+
+      Wasp file -(parse)-> AST -(validate)-> AST -(injectEntities)-> AST  (...)
+          ^ disallow entities here
+                                                        ^ inject entities here
+    --}
+    >=> (left ((: []) . ValidationError) . validateAst)
     >=> injectEntitiesFromPrismaSchema prismaSchemaAst
     >=> (left ((: []) . TypeError) . typeCheck stdTypes)
     >=> (left ((: []) . EvaluationError) . evaluate stdTypes)

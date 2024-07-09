@@ -201,6 +201,7 @@ library
     Wasp.Analyzer.Parser.SourceSpan
     Wasp.Analyzer.Parser.Token
     Wasp.Analyzer.Parser.TokenSet
+    Wasp.Analyzer.Parser.Valid
     Wasp.Analyzer.StdTypeDefinitions
     Wasp.Analyzer.StdTypeDefinitions.App.Dependency
     Wasp.Analyzer.StdTypeDefinitions.Entity
@@ -612,6 +613,7 @@ test-suite waspc-test
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
     Analyzer.TypeCheckerTest
+    Analyzer.ValidTest
     AnalyzerTest
     AppSpec.ValidTest
     AppSpec.EntityTest
