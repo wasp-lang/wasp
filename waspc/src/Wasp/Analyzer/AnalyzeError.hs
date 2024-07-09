@@ -16,10 +16,12 @@ data AnalyzeError
   = ParseError PE.ParseError
   | TypeError TE.TypeError
   | EvaluationError EE.EvaluationError
+  | ValidationError (String, Ctx)
   deriving (Show, Eq)
 
 getErrorMessageAndCtx :: AnalyzeError -> (String, Ctx)
 getErrorMessageAndCtx = \case
   ParseError e -> first (("Parse error:\n" ++) . indent 2) $ PE.getErrorMessageAndCtx e
+  ValidationError (msg, ctx) -> ("Validation error:\n" ++ indent 2 msg, ctx)
   TypeError e -> first (("Type error:\n" ++) . indent 2) $ TE.getErrorMessageAndCtx e
   EvaluationError e -> first (("Evaluation error:\n" ++) . indent 2) $ EE.getErrorMessageAndCtx e

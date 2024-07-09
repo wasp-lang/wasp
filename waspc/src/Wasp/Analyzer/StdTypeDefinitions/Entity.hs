@@ -1,7 +1,10 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Wasp.Analyzer.StdTypeDefinitions.Entity () where
+module Wasp.Analyzer.StdTypeDefinitions.Entity
+  ( entityDeclTypeName,
+  )
+where
 
 import Control.Arrow (left)
 import Wasp.Analyzer.Evaluator.EvaluationError (mkEvaluationError)
@@ -16,7 +19,7 @@ import qualified Wasp.Psl.Parser.Model
 instance IsDeclType Entity where
   declType =
     DeclType
-      { dtName = "entity",
+      { dtName = entityDeclTypeName,
         dtBodyType = Type.QuoterType "psl",
         dtEvaluate = \typeDefinitions bindings declName expr ->
           Decl.makeDecl @Entity declName <$> declEvaluate typeDefinitions bindings expr
@@ -27,3 +30,6 @@ instance IsDeclType Entity where
       left (ER.mkEvaluationError ctx . ER.ParseError . ER.EvaluationParseErrorParsec) $
         makeEntity <$> Wasp.Psl.Parser.Model.parseBody pslString
     _ -> Left $ mkEvaluationError ctx $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)
+
+entityDeclTypeName :: String
+entityDeclTypeName = "entity"

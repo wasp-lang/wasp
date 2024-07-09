@@ -1,0 +1,24 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Use Prisma Schema file to define your entities: https://www.prisma.io/docs/concepts/components/prisma-schema
+// Run `wasp db migrate-dev` in the CLI to create the database tables
+// Then run `wasp db studio` to open Prisma Studio and view your db models
+model User {
+  id    Int    @id @default(autoincrement())
+  tasks Task[]
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
+}

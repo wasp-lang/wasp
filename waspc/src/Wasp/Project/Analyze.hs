@@ -134,7 +134,7 @@ analyzePackageJsonContent waspProjectDir =
     Just packageJsonFile -> readPackageJsonFile packageJsonFile
     Nothing -> return $ Left [fileNotFoundMessage]
   where
-    fileNotFoundMessage = "couldn't find package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
+    fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
 
 findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
@@ -152,11 +152,16 @@ analyzePrismaSchema waspProjectDir = do
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
         Left err ->
-          return (Left [waspCouldntParsePrismaSchemaMessage ++ "\n\n" ++ show err], [])
+          return (Left [couldntParsePrismaSchemaMessage ++ "\n\n" ++ show err], [])
         Right parsedPrismaSchema -> return $ runValidation PslV.validatePrismaSchema parsedPrismaSchema
-    Nothing -> return (Left ["Couldn't find the Prisma schema file in the " ++ toFilePath waspProjectDir ++ " directory"], [])
+    Nothing -> return (Left [couldntFindPrismaSchemaMessage], [])
   where
-    waspCouldntParsePrismaSchemaMessage = "Wasp couldn't parse your Prisma schema file, please check if you have any errors in it."
+    couldntParsePrismaSchemaMessage = "Wasp couldn't parse your schema.prisma file, please check if you have any errors in it."
+
+    -- NOTE: linking here to migration docs because I think it's the most common reason why schema.prisma file is missing.
+    -- After people mostly start using 0.14.0+ they will have schema.prisma file, so this message will be less relevant.
+    -- If we see that this message is still relevant, we can change it to be more general.
+    couldntFindPrismaSchemaMessage = "Couldn't find the schema.prisma file in the " ++ toFilePath waspProjectDir ++ " directory. \nRead more: https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
 
 runValidation :: (result -> [ValidationError]) -> result -> (Either [CompileError] result, [CompileWarning])
 runValidation getErrorsAndWarnings result =

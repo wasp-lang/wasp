@@ -1,6 +1,6 @@
 app waspleau {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
 
   title: "Waspleau",
@@ -8,8 +8,6 @@ app waspleau {
   server: {
     setupFn: import serverSetup from "@src/serverSetup"
   },
-
-  db: { system: PostgreSQL }
 }
 
 job github {
@@ -37,13 +35,6 @@ job loadTime {
   },
   entities: [Datum]
 }
-
-entity Datum {=psl
-    id          Int       @id @default(autoincrement())
-    name        String    @unique
-    value       String
-    updatedAt   DateTime  @updatedAt
-psl=}
 
 route RootsRoute { path: "/", to: MainPage }
 page MainPage {
