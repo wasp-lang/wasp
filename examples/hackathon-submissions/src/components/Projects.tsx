@@ -15,7 +15,7 @@ const Projects = () => {
             </h2>
             <div className='mt-12 gap-6 lg:grid lg:grid-cols-3'>
               {status === 'success' && projects.length ? (
-                projects.map((project) => (
+                projects.map((project: any) => (
                   <div key={project.name} className='group relative'>
                     <div className='relative h-80 w-full overflow-hidden rounded-lg bg-white group-hover:opacity-75 sm:aspect-w-2 sm:aspect-h-1 sm:h-64 lg:aspect-w-1 lg:aspect-h-1'>
                       <img
@@ -25,7 +25,7 @@ const Projects = () => {
                       />
                     </div>
                     <h3 className='mt-6 text-base font-semibold text-neutral-700'>
-                      <a href={!!project.website ? '//' + project.website : null} target='_blank' rel='noreferrer'>
+                      <a href={!!project.website ? '//' + project.website : undefined} target='_blank' rel='noreferrer'>
                         <span className='absolute inset-0' />
                         {project.name}
                       </a>
