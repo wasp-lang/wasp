@@ -252,6 +252,13 @@ query getAnyAuth {
   entities: []
 }
 
+query getAnyToNumberSpecified {
+  fn: import { getAnyToNumberSpecified } from "@src/testTypes/operations/definitions",
+  auth: true,
+  entities: []
+}
+
+
 action taskToTaskUnspecified {
   fn: import { taskToTaskUnspecified } from "@src/testTypes/operations/definitions",
   entities: [Task]
