@@ -38,7 +38,7 @@ Simple Wasp config file in which you describe the high-level details of your web
 
 app todoApp {
   title: "ToDo App",  // visible in the browser tab
-  wasp: { version: "^0.13.0" },
+  wasp: { version: "^0.14.0" },
   auth: { // full-stack auth out-of-the-box
     userEntity: User, methods: { email: {...} }
   }
@@ -55,11 +55,13 @@ query getTasks {
   entities: [Task] // Automatic cache invalidation.
 }
 
-entity Task {=psl  // Your Prisma data model.
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-psl=}
+// file: schema.prisma
+
+model Task { // Your Prisma data model.
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+}
 ```
 
 The rest of the code you write in React / Node.js / Prisma and just reference it from the .wasp file.
