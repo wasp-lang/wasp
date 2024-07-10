@@ -62,8 +62,8 @@ type TestCases = [
     >
   >,
   Expect<Equal<typeof getTrueVoid, QueryMetadata & (() => Promise<string>)>>,
-  Expect<Equal<typeof getAnyNoAuth, QueryMetadata & ((args: any) => Promise<any>)>>,
-  Expect<Equal<typeof getAnyAuth, QueryMetadata & ((args: any) => Promise<any>)>>,
-  Expect<Equal<typeof getAnyToNumberSpecified, QueryMetadata & ((args: any) => Promise<number>)>>,
+  Expect<Equal<typeof getAnyNoAuth, QueryMetadata & ((args?: any) => Promise<any>)>>,
+  Expect<Equal<typeof getAnyAuth, QueryMetadata & ((args?: any) => Promise<any>)>>,
+  Expect<Equal<typeof getAnyToNumberSpecified, QueryMetadata & ((args?: any) => Promise<number>)>>,
   Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>,
 ]

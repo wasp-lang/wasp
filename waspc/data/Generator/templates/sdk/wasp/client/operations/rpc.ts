@@ -79,7 +79,7 @@ export type GenericOperationRpc = (args: never) => Promise<unknown>
 type ClientOperation<Input, Output> =
   IfAny<
     Input,
-    (args: any) => Promise<Output>,
+    (args?: any) => Promise<Output>,
     ClientOperationWithNonAnyInput<Input, Output>
   >
 
