@@ -1,6 +1,6 @@
 app askTheDocuments {
   wasp: {
-    version: "^0.12.0"
+    version: "^0.14.0"
   },
   title: "PG Vector Example",
   auth: {
@@ -16,32 +16,7 @@ app askTheDocuments {
   client: {
     rootComponent: import { Layout } from "@src/Layout.tsx",
   },
-  db: {
-    system: PostgreSQL,
-    prisma: {
-      clientPreviewFeatures: ["postgresqlExtensions"],
-      dbExtensions: [{
-        name: "pgvector",
-        map: "vector"
-      }]
-    }
-  }
 }
-
-entity User {=psl
-  id                        Int           @id @default(autoincrement())
-  email                     String?
-psl=}
-
-entity Document {=psl
-  id String @id @default(uuid())
-  title String
-  url String @unique
-  content String
-  embedding Unsupported("vector(1536)")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
