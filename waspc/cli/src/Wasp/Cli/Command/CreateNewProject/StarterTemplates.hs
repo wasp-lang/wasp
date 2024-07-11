@@ -103,7 +103,7 @@ basicStarterTemplate =
 openSaasStarterTemplate :: StarterTemplate
 openSaasStarterTemplate =
   simpleGhRepoTemplate
-    ("open-saas", [reldir|.|])
+    ("open-saas", [reldir|template|])
     ( "saas",
       "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
         <> " Check out https://opensaas.sh/ for more details."
