@@ -36,4 +36,4 @@ export type Tail<T extends [unknown, ...unknown[]]> = T extends [unknown, ...inf
 
 
 // Source: https://stackoverflow.com/a/55541672
-export type IfAny<T, Y, N> = 0 extends (1 & T) ? Y : N;
+export type IfAny<Value, Then, Else> = 0 extends (1 & Value) ? Then : Else;
