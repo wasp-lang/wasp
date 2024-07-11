@@ -230,8 +230,16 @@ query getDate {
   fn: import { getDate } from "@src/testTypes/operations/definitions"
 }
 
-query getAnything {
-  fn: import { getAnything } from "@src/testTypes/operations/definitions",
+
+query getAnythingNoAuth {
+  fn: import { getAnythingNoAuth } from "@src/testTypes/operations/definitions",
+  auth: false,
+  entities: []
+}
+
+query getAnythingAuth {
+  fn: import { getAnythingAuth } from "@src/testTypes/operations/definitions",
+  auth: true,
   entities: []
 }
 

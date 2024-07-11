@@ -7,7 +7,8 @@ import type {
   TaskToTaskSatisfies,
   TaskToTaskSpecified,
   GetDate,
-  GetAnything,
+  GetAnythingAuth,
+  GetAnythingNoAuth,
   GetTrueVoid,
   GetAnyToNumberSpecified,
 } from 'wasp/server/operations'
@@ -102,9 +103,14 @@ export const getDate: GetDate<void, Date> = async () => {
   return new Date()
 }
 
-export const getAnything: GetAnything = async () => {
+export const getAnythingAuth: GetAnythingAuth = async () => {
   return 'anything'
 }
+
+export const getAnythingNoAuth: GetAnythingNoAuth = async () => {
+  return 'anything'
+}
+
 
 export const getTrueVoid = (async () => {
   return 'anything'

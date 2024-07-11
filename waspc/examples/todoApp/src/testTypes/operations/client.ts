@@ -2,7 +2,7 @@ import { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
 import {
   getDate,
-  getAnything,
+  getAnythingAuth,
   getTrueVoid,
   voidToStringAuth,
   voidToStringNoAuth,
@@ -17,6 +17,7 @@ import {
   getAnyAuth,
   getAnyNoAuth,
   getAnyToNumberSpecified,
+  getAnythingNoAuth,
 } from 'wasp/client/operations'
 
 import {
@@ -57,7 +58,13 @@ type TestCases = [
   Expect<Equal<typeof getDate, QueryMetadata & (() => Promise<Date>)>>,
   Expect<
     Equal<
-      typeof getAnything,
+      typeof getAnythingAuth,
+      QueryMetadata & ((args?: unknown) => Promise<Payload>)
+    >
+  >,
+  Expect<
+    Equal<
+      typeof getAnythingNoAuth,
       QueryMetadata & ((args?: unknown) => Promise<Payload>)
     >
   >,

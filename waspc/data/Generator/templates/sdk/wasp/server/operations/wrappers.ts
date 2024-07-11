@@ -205,14 +205,14 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
 type UnauthenticatedOperation<Input, Output> =
   IfAny<
     Input,
-    (args: any) => Promise<Output>,
+    (args?: any) => Promise<Output>,
     UnauthenticatedOperationWithNonAnyInput<Input, Output>
   >
 
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type UnauthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
-  ? (args: unknown) => Promise<Output>
+  ? (args?: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>
   : (args: Input) => Promise<Output>

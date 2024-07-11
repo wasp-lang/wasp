@@ -9,7 +9,8 @@ import {
   taskToTaskUnspecified,
   taskToTaskSatisfies,
   taskToTaskSpecified,
-  getAnything,
+  getAnythingAuth,
+  getAnythingNoAuth,
   getTrueVoid,
   getAnyNoAuth,
   type TestingAction,
@@ -100,12 +101,18 @@ type TestCases = [
   >,
   Expect<
     Equal<
-      typeof getAnything,
+      typeof getAnythingAuth,
       (args: unknown, ctx: { user: AuthUser }) => Promise<Payload>
     >
   >,
+  Expect<
+    Equal<
+      typeof getAnythingNoAuth,
+      (args?: unknown) => Promise<Payload>
+    >
+  >,
   Expect<Equal<typeof getTrueVoid, (ctx: { user: AuthUser }) => Promise<string>>>,
-  Expect<Equal<typeof getAnyNoAuth, (args: any) => Promise<any>>>,
+  Expect<Equal<typeof getAnyNoAuth, (args?: any) => Promise<any>>>,
   Expect<Equal<typeof getAnyAuth, (args: any, ctx: { user: AuthUser }) => Promise<any>>>,
   Expect<Equal<typeof getAnyToNumberSpecified, (args: any, ctx: { user: AuthUser }) => Promise<number>>>,
 ]
