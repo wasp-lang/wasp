@@ -75,6 +75,10 @@ export type GenericBackendOperation = (args: never, context: any) => unknown
  */
 export type GenericOperationRpc = (args: never) => Promise<unknown>
 
+// NOTE: There's some duplication in the below types.
+// Read the discussion here to understand why before trying to remove it:
+// https://github.com/wasp-lang/wasp/pull/2170#discussion_r1671285049
+//
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/2170#issue-2398830273
 type ClientOperation<Input, Output> =
   IfAny<

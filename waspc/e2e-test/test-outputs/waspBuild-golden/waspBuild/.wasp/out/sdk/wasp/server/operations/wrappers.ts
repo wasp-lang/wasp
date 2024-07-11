@@ -1,4 +1,4 @@
-import { _Awaited, _ReturnType } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType } from '../../universal/types'
 
 import {
   _Entity,
@@ -54,6 +54,7 @@ export function createUnauthenticatedOperation<
   return operation as UnauthenticatedOperationFor<OperationDefinition>
 }
 
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/2170#issue-2398830273
 /**
  * Constructs the type for an unauthenticated operation's server-side API.
  *
@@ -62,12 +63,19 @@ export function createUnauthenticatedOperation<
  * @template Output The type of the operation's return value.
  */
 type UnauthenticatedOperation<Input, Output> =
+  IfAny<
+    Input,
+    (args?: any) => Promise<Output>,
+    UnauthenticatedOperationWithNonAnyInput<Input, Output>
+  >
+
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
+type UnauthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
-  ? (args: unknown) => Promise<Output>
+  ? (args?: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>
   : (args: Input) => Promise<Output>
-
 
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all

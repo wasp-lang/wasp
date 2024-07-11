@@ -160,6 +160,9 @@ function includesPayload<Input>(
 type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefinition> =
   Parameters<AuthenticatedOperationFor<Op>>
 
+// NOTE: There's some duplication in the below types.
+// Read the discussion here to understand why before attempting to remove it:
+// https://github.com/wasp-lang/wasp/pull/2170#discussion_r1671285049
 /**
  * Constructs the type for an authenticated operation's server-side API.
  *
@@ -174,6 +177,7 @@ type AuthenticatedOperation<Input, Output> =
     AuthenticatedOperationWithNonAnyInput<Input, Output>
   >
 
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type AuthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
   ? (args: unknown, context: { user: AuthUser }) => Promise<Output>
