@@ -1,13 +1,26 @@
-// This is a helper type used exclusively for DX purposes. It's a No-op for the
-// compiler, but expands the type's representatoin in IDEs (i.e., inlines all
-// type constructors) to make it more readable for the user.
-//
-// It expands this SO answer to functions: https://stackoverflow.com/a/57683652
+/**
+ * This is a helper type used exclusively for DX purposes. It's a No-op for the
+ * compiler, but expands the type's representatoin in IDEs (i.e., inlines all
+ * type constructors) to make it more readable for the user.
+ *
+ * It expands this SO answer to functions: https://stackoverflow.com/a/57683652
+ * Caveat: when used on functions that also have properties, the resulting type
+ * will lose those properties.
+ */
 export type Expand<T> = T extends (...args: infer A) => infer R
   ? (...args: A) => R
   : T extends infer O
   ? { [K in keyof O]: O[K] }
   : never
+
+export type ExpandCallSignature<T> = ExpandIfFunction<T> & ExpandIfObject<T>
+
+type ExpandIfObject<O> = O extends object ? { [K in keyof O]: O[K] } : O;
+
+type ExpandIfFunction<F> =
+  F extends (...args: infer Args) => infer Ret
+  ? (...args: Args) => Ret
+  : F
 
 // TypeScript's native Awaited type exhibits strange behavior in VS Code (see
 // https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159687537 for

@@ -1,5 +1,10 @@
 {{={= =}=}}
-import { IfAny, _Awaited, _ReturnType } from '../../universal/types'
+import { 
+  IfAny,
+  _Awaited,
+  _ReturnType,
+  Expand 
+} from '../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
@@ -168,18 +173,21 @@ type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefin
  * @template Output The type of the operation's return value.
  */
 type AuthenticatedOperation<Input, Output> =
-  IfAny<
+  Expand<IfAny<
     Input,
-    (args: any, context: { user: AuthUser }) => Promise<Output>,
+    AuthenticatedOperationWithArgs<any, Output>,
     AuthenticatedOperationWithNonAnyInput<Input, Output>
-  >
+  >>
 
 type AuthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
-  ? (args: unknown, context: { user: AuthUser }) => Promise<Output>
+  ? AuthenticatedOperationWithArgs<unknown, Output>
   : [Input] extends [void]
   ? (context: { user: AuthUser }) => Promise<Output>
-  : (args: Input, context: { user: AuthUser }) => Promise<Output>
+  : AuthenticatedOperationWithArgs<Input, Output> 
+
+type AuthenticatedOperationWithArgs<Input, Output> = 
+  (args: Input, context: { user: AuthUser }) => Promise<Output>
 
 /**
  * The principal type for an authenticated operation's definition (i.e., all
@@ -203,19 +211,25 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
  * @template Output The type of the operation's return value.
  */
 type UnauthenticatedOperation<Input, Output> =
-  IfAny<
+  Expand<IfAny<
     Input,
-    (args: any) => Promise<Output>,
+    UnauthenticatedOperationWithOptionalArgs<any, Output>,
     UnauthenticatedOperationWithNonAnyInput<Input, Output>
-  >
+  >>
 
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type UnauthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
-  ? (args: unknown) => Promise<Output>
+  ? UnauthenticatedOperationWithOptionalArgs<unknown, Output>
   : [Input] extends [void]
   ? () => Promise<Output>
-  : (args: Input) => Promise<Output>
+  : UnauthenticatedOperationWithMandatoryArgs<Input, Output>
+
+type UnauthenticatedOperationWithMandatoryArgs<Input, Output> = 
+  (args: Input) => Promise<Output>
+
+type UnauthenticatedOperationWithOptionalArgs<Input, Output> = 
+  (args?: Input) => Promise<Output>
 
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all

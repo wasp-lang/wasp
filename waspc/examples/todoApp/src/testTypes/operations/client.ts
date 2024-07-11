@@ -17,6 +17,7 @@ import {
   getAnyAuth,
   getAnyNoAuth,
   getAnyToNumberSpecified,
+  getTask,
 } from 'wasp/client/operations'
 
 import {
@@ -66,4 +67,5 @@ type TestCases = [
   Expect<Equal<typeof getAnyAuth, QueryMetadata & ((args?: any) => Promise<any>)>>,
   Expect<Equal<typeof getAnyToNumberSpecified, QueryMetadata & ((args?: any) => Promise<number>)>>,
   Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>,
+  Expect<Equal<typeof getTask, QueryMetadata & ((args: Pick<Task, 'id'>) => Promise<Task>)>>,
 ]

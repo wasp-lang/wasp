@@ -98,14 +98,27 @@ type TestCases = [
       (payload: boolean, ctx: { user: AuthUser }) => Promise<void>
     >
   >,
+  // I need a test for this but without auth
   Expect<
     Equal<
       typeof getAnything,
       (args: unknown, ctx: { user: AuthUser }) => Promise<Payload>
     >
   >,
-  Expect<Equal<typeof getTrueVoid, (ctx: { user: AuthUser }) => Promise<string>>>,
-  Expect<Equal<typeof getAnyNoAuth, (args: any) => Promise<any>>>,
-  Expect<Equal<typeof getAnyAuth, (args: any, ctx: { user: AuthUser }) => Promise<any>>>,
-  Expect<Equal<typeof getAnyToNumberSpecified, (args: any, ctx: { user: AuthUser }) => Promise<number>>>,
+  Expect<
+    Equal<typeof getTrueVoid, (ctx: { user: AuthUser }) => Promise<string>>
+  >,
+  Expect<Equal<typeof getAnyNoAuth, (args?: any) => Promise<any>>>,
+  Expect<
+    Equal<
+      typeof getAnyAuth,
+      (args: any, ctx: { user: AuthUser }) => Promise<any>
+    >
+  >,
+  Expect<
+    Equal<
+      typeof getAnyToNumberSpecified,
+      (args: any, ctx: { user: AuthUser }) => Promise<number>
+    >
+  >
 ]
