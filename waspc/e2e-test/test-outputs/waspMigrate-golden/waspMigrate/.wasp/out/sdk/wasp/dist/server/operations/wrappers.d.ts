@@ -1,4 +1,4 @@
-import { _Awaited, _ReturnType } from '../../universal/types';
+import { IfAny, _Awaited, _ReturnType } from '../../universal/types';
 import { _Entity, UnauthenticatedOperationDefinition, Payload } from '../_types';
 /**
  * Constructs the unauthenticated operation's server-side API type from its
@@ -24,9 +24,10 @@ export declare function createUnauthenticatedOperation<OperationDefinition exten
  * `void` if the operation doesn't expect a payload).
  * @template Output The type of the operation's return value.
  */
-type UnauthenticatedOperation<Input, Output> = [
+type UnauthenticatedOperation<Input, Output> = IfAny<Input, (args?: any) => Promise<Output>, UnauthenticatedOperationWithNonAnyInput<Input, Output>>;
+type UnauthenticatedOperationWithNonAnyInput<Input, Output> = [
     Input
-] extends [never] ? (args: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
+] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all
  * unauthenticated operation definition types are a subtype of this type).
