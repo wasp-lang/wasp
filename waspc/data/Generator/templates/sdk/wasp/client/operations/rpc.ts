@@ -4,7 +4,6 @@ import type {
   _Awaited,
   _ReturnType,
 } from "wasp/universal/types"
-import { Expand } from "../../universal/types";
 
 // PRIVATE API (for SDK, should maybe be public, users define values of this
 // type).
@@ -78,23 +77,16 @@ export type GenericOperationRpc = (args: never) => Promise<unknown>
 
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/2170#issue-2398830273
 type ClientOperation<Input, Output> =
-  Expand<IfAny<
+  IfAny<
     Input,
-    ClientOperationWithOptionalArgs<any, Output>,
+    (args?: any) => Promise<Output>,
     ClientOperationWithNonAnyInput<Input, Output>
-  >>
+  >
 
 // Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
 type ClientOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
-  ? ClientOperationWithOptionalArgs<unknown, Output>
+  ? (args?: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>
-  : ClientOperationWithMandatoryArgs<Input, Output>
-
-type ClientOperationWithMandatoryArgs<Input, Output> =
-  (args: Input) => Promise<Output>
-
-type ClientOperationWithOptionalArgs<Input, Output> =
-  (args?: Input) => Promise<Output>
-
+  : (args: Input) => Promise<Output>
