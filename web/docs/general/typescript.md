@@ -22,9 +22,8 @@ To migrate an existing Wasp project from JavaScript to TypeScript, follow this g
 
 ## Migrating your project to TypeScript
 
-Wasp supports TypeScript out of the box.
-
-Our scaffolding already includes TypeScript, so migrating your project to TypeScript is as simple as changing file extensions and using the language. This approach allows you to gradually migrate your project on a file-by-file basis.
+Since Wasp ships with out-of-the-box TypeScript support, migrating your project is as simple as changing file extensions and using the language.
+This approach allows you to gradually migrate your project on a file-by-file basis.
 
 We will first show you how to migrate a single file and then help you generalize the procedure to the rest of your project.
 
@@ -53,7 +52,7 @@ query getTaskInfo {
 
 We will show you how to migrate the following `queries.js` file:
 
-```javascript title="src/queriesjs"
+```javascript title="src/queries.js"
 import HttpError from 'wasp/server'
 
 function getInfoMessage(task) {
@@ -79,7 +78,7 @@ To migrate this file to TypeScript, all you have to do is:
 <Tabs>
 <TabItem value="before" label="Before">
 
-```javascript title="src/queries.ts"
+```javascript title="src/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 function getInfoMessage(task) {
@@ -100,7 +99,7 @@ export const getTaskInfo = async ({ id }, context) => {
 </TabItem>
 <TabItem value="after" label="After">
 
-```typescript title=src/server/queries.ts
+```typescript title=src/queries.ts
 import HttpError from 'wasp/server'
 // highlight-next-line
 import { type Task } from '@wasp/entities'
