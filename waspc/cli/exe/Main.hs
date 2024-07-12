@@ -67,7 +67,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         ("test" : testArgs) -> Command.Call.Test testArgs
-        _ -> Command.Call.Unknown args
+        _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
@@ -98,12 +98,14 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectName
             appDescription
             projectConfigJson
-      _ -> printWaspNewAiUsage
+      _unknownCommand -> printWaspNewAiUsage
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
     Command.Call.Compile -> runCommand compile
-    Command.Call.Db dbArgs -> dbCli dbArgs
+    Command.Call.Db dbArgs -> case dbArgs of
+      ["start"] -> runCommand Command.Start.Db.start
+      _dbCommand -> dbCli dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
@@ -215,16 +217,19 @@ printVersion = do
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
 
--- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
+-- TODO: maybe extract to a separate module, e.g. DbCli.hs?
+
+-- | Execute a command that acts on the database.
 dbCli :: [String] -> IO ()
-dbCli args = case args of
-  ["reset"] -> runCommand Command.Db.Reset.reset
-  ["start"] -> runCommand Command.Start.Db.start
-  "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runDbCommand Command.Db.Studio.studio
-  _ -> printDbUsage
+dbCli args = maybe printDbUsage runDbCommand parsedCommand
+  where
+    parsedCommand = case args of
+      ["reset"] -> Just Command.Db.Reset.reset
+      "migrate-dev" : optionalMigrateArgs -> Just $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+      ["seed"] -> Just $ Command.Db.Seed.seed Nothing
+      ["seed", seedName] -> Just $ Command.Db.Seed.seed $ Just seedName
+      ["studio"] -> Just Command.Db.Studio.studio
+      _unknownCommand -> Nothing
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()
