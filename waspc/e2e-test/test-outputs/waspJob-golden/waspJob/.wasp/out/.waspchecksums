@@ -653,9 +653,16 @@
     [
         [
             "file",
+            "web-app/src/components/Loader.module.css"
+        ],
+        "a6e938f872c66e409fe9a5e38c376354b7ace72662ebfc298b577ebc6e2b42c6"
+    ],
+    [
+        [
+            "file",
             "web-app/src/components/Loader.tsx"
         ],
-        "72eb2e7ef83a0b9415a14741b99f9c251c294e71bb9aa7aaea5ae9d83025fe0e"
+        "7077fcbe0b169514a03e1c1562bb5f9bc7fc1e7d97426105815cd4ba97078a9c"
     ],
     [
         [

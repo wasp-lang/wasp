@@ -197,6 +197,7 @@ genSrcDir spec =
       genFileCopy [relfile|test/vitest/setup.ts|],
       genFileCopy [relfile|components/Message.tsx|],
       genFileCopy [relfile|components/Loader.tsx|],
+      genFileCopy [relfile|components/Loader.module.css|],
       genFileCopy [relfile|components/FullPageWrapper.tsx|],
       getIndexTs spec
     ]

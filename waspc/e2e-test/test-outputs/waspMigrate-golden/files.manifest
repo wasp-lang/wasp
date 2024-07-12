@@ -220,6 +220,7 @@ waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/manifest.json
 waspMigrate/.wasp/out/web-app/scripts/validate-env.mjs
 waspMigrate/.wasp/out/web-app/src/components/FullPageWrapper.tsx
+waspMigrate/.wasp/out/web-app/src/components/Loader.module.css
 waspMigrate/.wasp/out/web-app/src/components/Loader.tsx
 waspMigrate/.wasp/out/web-app/src/components/Message.tsx
 waspMigrate/.wasp/out/web-app/src/index.tsx
