@@ -184,19 +184,19 @@ The generated types are generic and accept two optional type arguments: `Input` 
 
 Use these type arguments to type the Query's inputs and outputs.
 
-
 <details>
 <summary>Explanation for the example above</summary>
 
-The above code says that the Query `getallTasks` doesn't expect any arguments (its input type is `void`), but it does return a list of tasks (its output type is `Task[]`).
+The above code says that the Query `getAllTasks` doesn't expect any arguments (its input type is `void`), but it does return a list of tasks (its output type is `Task[]`).
 
 On the other hand, the Query `getFilteredTasks` expects an object of type `{ isDone: boolean }`. This type is derived from the `Task` entity type.
 
 If you don't care about typing the Query's inputs and outputs, you can omit both type arguments. TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
 
 Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
-  - Type support for the arguments and the return value inside the implementation.
-  - **Full-stack type safety**. We'll explore what this means when we discuss calling the Query from the client.
+
+- Type support for the arguments and the return value inside the implementation.
+- **Full-stack type safety**. We'll explore what this means when we discuss calling the Query from the client.
 
 </details>
 
@@ -205,27 +205,30 @@ Read more about type support for implementing Queries in the [API Reference](#im
 :::tip Inferring the return type
 
 If don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+
 ```typescript
 const getFoo = (async (_args, context) => {
   const foos = await context.entities.Foo.findMany()
   return {
     foos,
-    message: "Here are some foos!",
+    message: 'Here are some foos!',
     queriedAt: new Date(),
   }
 }) satisfies GetFoo
 ```
+
 From the snippet above, TypeScript knows:
-1. The correct type for `context`. 
+
+1. The correct type for `context`.
 2. The Query's return type is `{ foos: Foo[], message: string, queriedAt: Date }`.
 
 If you don't need the context, you can skip specifying the Query's type (and arguments):
+
 ```typescript
 const getFoo = () => {{ name: 'Foo', date: new Date() }}
 ```
 
 :::
-
 
 </TabItem>
 </Tabs>
@@ -239,6 +242,7 @@ For a detailed explanation of the Query definition API (more precisely, its argu
 ### Using Queries
 
 #### Using Queries on the client
+
 To call a Query on the client, you can import it from `wasp/client/operations` and call it directly.
 
 The usage doesn't change depending on whether the Query is authenticated or not.
@@ -275,11 +279,13 @@ You only need to specify the Query's type in its server-side definition, and the
 </Tabs>
 
 #### Using Queries on the server
+
 Calling a Query on the server is similar to calling it on the client.
 
 Here's what you have to do differently:
- - Import Queries from `wasp/server/operations` instead of `wasp/client/operations`.
- - Make sure you pass in a context object with the user to authenticated Queries.
+
+- Import Queries from `wasp/server/operations` instead of `wasp/client/operations`.
+- Make sure you pass in a context object with the user to authenticated Queries.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -312,8 +318,6 @@ const doneTasks = await getFilteredTasks({ isDone: true }, { user })
 
 </TabItem>
 </Tabs>
-
-
 
 #### The `useQuery` hook
 
@@ -603,7 +607,7 @@ import { getFoo } from 'wasp/client/operations'
 import { getFoo } from 'wasp/server/operations'
 ```
 
-On the the client, the Query expects  
+On the the client, the Query expects
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
