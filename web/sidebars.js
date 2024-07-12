@@ -135,7 +135,7 @@ module.exports = {
       label: 'General',
       collapsed: false,
       collapsible: true,
-      items: ['general/language', 'general/cli'],
+      items: ['general/language', 'general/cli', 'general/typescript'],
     },
     {
       type: 'category',

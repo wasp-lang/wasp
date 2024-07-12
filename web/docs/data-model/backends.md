@@ -147,10 +147,10 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 **Database seeding** is a term used for populating the database with some initial data.
 
-Seeding is most commonly used for two following scenarios:
+Seeding is most commonly used for:
 
-1.  To put the development database into a state convenient for working and testing.
-2.  To initialize any database (`dev`, `staging`, or `prod`) with essential data it requires to operate.
+1.  Getting the development database into a state convenient for working and testing.
+2.  Initializing any database (`dev`, `staging`, or `prod`) with essential data it requires to operate.
     For example, populating the Currency table with default currencies, or the Country table with all available countries.
 
 ### Writing a Seed Function
@@ -244,11 +244,12 @@ async function createUser(prisma, data) {
 
 ```ts
 import { createTask } from './actions.js'
+import { type DbSeedFn } from 'wasp/server'
 import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 import { type AuthUser } from 'wasp/auth'
 import { PrismaClient } from '@prisma/client'
 
-export const devSeedSimple = async (prisma: PrismaClient) => {
+export const devSeedSimple: DbSeedFn = async (prisma) => {
   const user = await createUser(prisma, {
     username: 'RiuTheDog',
     password: 'bark1234',
@@ -285,6 +286,17 @@ async function createUser(
   return newUser
 }
 ```
+
+Wasp exports a type called `DbSeedFn` which you can use to easily type your seeding function.
+Wasp defines `DbSeedFn` like this:
+
+```typescript
+type DbSeedFn = (prisma: PrismaClient) => Promise<void>
+```
+
+Annotating the function `devSeedSimple` with this type tells TypeScript:
+ - The seeding function's argument (`prisma`) is of type `PrismaClient`.
+ - The seeding function's return value is `Promise<void>`.
 
 </TabItem>
 </Tabs>

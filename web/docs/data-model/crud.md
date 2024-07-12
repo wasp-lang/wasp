@@ -58,7 +58,7 @@ Here's what it looks like when visualized:
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
-Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API Reference](#api-reference)
+Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API Reference](#api-reference).
 
 ## Example: A Simple TODO App
 
@@ -149,6 +149,10 @@ We also overrode the `create` operation with a custom implementation. This means
 
 ### Our Custom `create` Operation
 
+We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
+Automatic CRUD doesn't yet support this by default.
+Read more about the default implementations [here](#declaring-a-crud-with-default-options).
+
 Here's the `src/tasks.{js,ts}` file:
 
 <Tabs groupId="js-ts">
@@ -220,12 +224,16 @@ export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
 }
 ```
 
+Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
+Use it to type the CRUD action's implementation.
+
+The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
+In other words, annotating the action with `Tasks.CreateAction` tells TypeScript about the type of the Action's `context` object, while the two type arguments allow you to specify the Action's inputs and outputs.
+
+Read more about type support for CRUD overrides in the [API reference](#defining-the-overrides).
+
 </TabItem>
 </Tabs>
-
-We made a custom `create` operation because we want to make sure that the task is connected to the user that is creating it.
-Automatic CRUD doesn't support this by default (yet!).
-Read more about the default implementations [here](#declaring-a-crud-with-default-options).
 
 ### Using the Generated CRUD Operations on the Client
 

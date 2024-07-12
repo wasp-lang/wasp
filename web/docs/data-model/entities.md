@@ -2,6 +2,8 @@
 title: Entities
 ---
 
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
+
 Entities are the foundation of your app's data model. In short, an Entity defines a model in your database.
 
 Wasp uses the excellent [Prisma ORM](https://www.prisma.io/) to implement all database functionality and occasionally enhances it with a thin abstraction layer. This means that you use the `schema.prisma` file to define your database models and relationships. Wasp understands the Prisma schema file and picks up all the models you define there. You can read more about this in the [Prisma Schema File](./prisma-file.md) section of the docs.
@@ -73,6 +75,46 @@ The above Prisma `model` definition tells Wasp to create a table for storing Tas
 - `id` - A string value serving as a primary key. The database automatically generates it by generating a random unique ID.
 - `description` - A string value for storing the task's description.
 - `isDone` - A boolean value indicating the task's completion status. If you don't set it when creating a new task, the database sets it to `false` by default.
+
+<ShowForTs>
+
+Wasp also exposes a type for working with the created Entity. You can import and use it like this:
+```ts
+import { Task } from 'wasp/entities'
+
+const task: Task = { ... }
+
+// You can also define functions for working with entities
+function getInfoMessage(task: Task): string {
+  const isDoneText = task.isDone ? "is done" : "is not done"
+  return `Task '${task.description}' is ${isDoneText}.`
+}
+```
+
+Using the `Task` type in `getInfoMessageInfo`'s definition connects the argument's type with the `Task` entity.
+
+This coupling removes duplication and ensures the function keeps the correct signature even if you change the entity. Of course, the function might throw type errors depending on how you change it, but that's precisely what you want!
+
+Entity types are available everywhere, including the client code:
+```ts
+import { Task } from "wasp/entities"
+
+export function ExamplePage() {}
+  const task: Task = {
+    id: 123,
+    description: "Some random task",
+    isDone: false,
+  }
+  return <div>{task.description}</div>
+}
+```
+
+The mentioned type safety mechanisms also apply here: changing the task entity in our `schema.prisma` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
+
+You'll learn even more about Entity types when you start using [them with operations](#using-entities-in-operations).
+
+</ShowForTs>
+
 
 ### Working with Entities
 

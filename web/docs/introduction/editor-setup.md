@@ -2,6 +2,7 @@
 title: Editor Setup
 slug: /editor-setup
 ---
+import TypescriptServerNote from '../_TypescriptServerNote.md'
 
 :::note
 This page assumes you have already installed Wasp. If you do not have Wasp installed yet, check out the [Quick Start](./quick-start.md) guide.
@@ -22,3 +23,5 @@ The extension enables:
 - go to definition
 
 and more!
+
+<TypescriptServerNote />
