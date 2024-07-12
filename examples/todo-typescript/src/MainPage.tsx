@@ -18,9 +18,9 @@ export const MainPage = ({ user }: { user: User }) => {
   return (
     <main>
       <img src={waspLogo} alt="wasp logo" />
-      {user && (
+      {user && user.identities.username && (
         <h1>
-          {getUsername(user)}
+          {user.identities.username.id}
           {`'s tasks :)`}
         </h1>
       )}

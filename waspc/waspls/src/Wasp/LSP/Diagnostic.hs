@@ -108,6 +108,7 @@ waspErrorAsPrettyEditorMessage = Text.pack . fst . W.getErrorMessageAndCtx
 
 waspErrorSource :: W.AnalyzeError -> Text
 waspErrorSource (W.ParseError _) = "parse"
+waspErrorSource (W.ValidationError _) = "validate"
 waspErrorSource (W.TypeError _) = "typecheck"
 waspErrorSource (W.EvaluationError _) = "evaluate"
 

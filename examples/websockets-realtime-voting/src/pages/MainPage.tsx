@@ -2,7 +2,6 @@ import { type ServerToClientPayload, useSocket, useSocketListener } from "wasp/c
 import { useAuth } from "wasp/client/auth";
 import { useState, useMemo, useEffect } from "react";
 import { Button, Card } from "flowbite-react";
-import { getUsername } from 'wasp/auth'
 
 const MainPage = () => {
   const { data: user } = useAuth();
@@ -17,7 +16,7 @@ const MainPage = () => {
 
   const { socket } = useSocket();
 
-  const username = user ? getUsername(user) : null;
+  const username = user?.getFirstProviderUserId();
 
   useSocketListener("updateState", (newState) => {
     setPoll(newState);

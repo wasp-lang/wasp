@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { _Awaited, _ReturnType } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType } from '../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
@@ -160,6 +160,9 @@ function includesPayload<Input>(
 type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefinition> =
   Parameters<AuthenticatedOperationFor<Op>>
 
+// NOTE: There's some duplication in the below types.
+// Read the discussion here to understand why before attempting to remove it:
+// https://github.com/wasp-lang/wasp/pull/2170#discussion_r1671285049
 /**
  * Constructs the type for an authenticated operation's server-side API.
  *
@@ -168,6 +171,14 @@ type AuthenticatedOperationArgsFor<Op extends GenericAuthenticatedOperationDefin
  * @template Output The type of the operation's return value.
  */
 type AuthenticatedOperation<Input, Output> =
+  IfAny<
+    Input,
+    (args: any, context: { user: AuthUser }) => Promise<Output>,
+    AuthenticatedOperationWithNonAnyInput<Input, Output>
+  >
+
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
+type AuthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
   ? (args: unknown, context: { user: AuthUser }) => Promise<Output>
   : [Input] extends [void]
@@ -187,6 +198,7 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
 >
 
 {=/ isAuthEnabled =}
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/2170#issue-2398830273
 /**
  * Constructs the type for an unauthenticated operation's server-side API.
  *
@@ -195,12 +207,19 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
  * @template Output The type of the operation's return value.
  */
 type UnauthenticatedOperation<Input, Output> =
+  IfAny<
+    Input,
+    (args?: any) => Promise<Output>,
+    UnauthenticatedOperationWithNonAnyInput<Input, Output>
+  >
+
+// Read this to understand the type: https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159732471
+type UnauthenticatedOperationWithNonAnyInput<Input, Output> =
   [Input] extends [never]
-  ? (args: unknown) => Promise<Output>
+  ? (args?: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>
   : (args: Input) => Promise<Output>
-
 
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all

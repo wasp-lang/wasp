@@ -220,6 +220,7 @@ job mySpecialScheduledJob {
 }
 
 // --------- Testing --------- //
+
 action testingAction {
   fn: import { testingAction } from "@src/testTypes/operations/server",
   entities: []
@@ -229,8 +230,16 @@ query getDate {
   fn: import { getDate } from "@src/testTypes/operations/definitions"
 }
 
-query getAnything {
-  fn: import { getAnything } from "@src/testTypes/operations/definitions",
+
+query getAnythingNoAuth {
+  fn: import { getAnythingNoAuth } from "@src/testTypes/operations/definitions",
+  auth: false,
+  entities: []
+}
+
+query getAnythingAuth {
+  fn: import { getAnythingAuth } from "@src/testTypes/operations/definitions",
+  auth: true,
   entities: []
 }
 
@@ -238,6 +247,25 @@ query getTrueVoid {
   fn: import { getTrueVoid } from "@src/testTypes/operations/definitions",
   entities: []
 }
+
+query getAnyNoAuth {
+  fn: import { getAnyNoAuth } from "@src/testTypes/operations/definitions",
+  auth: false,
+  entities: []
+}
+
+query getAnyAuth {
+  fn: import { getAnyAuth } from "@src/testTypes/operations/definitions",
+  auth: true,
+  entities: []
+}
+
+query getAnyToNumberSpecified {
+  fn: import { getAnyToNumberSpecified } from "@src/testTypes/operations/definitions",
+  auth: true,
+  entities: []
+}
+
 
 action taskToTaskUnspecified {
   fn: import { taskToTaskUnspecified } from "@src/testTypes/operations/definitions",

@@ -29,13 +29,16 @@ Why not? Well, serverless services turn on and off depending on if a request is 
 
 Luckily, we’re going to talk about two great ways you can implement them:
 
-1. Implementing and configuring it yourself with React, NodeJS, and Socket.IO
-2. By using [Wasp](https://wasp-lang.dev), a full-stack React-NodeJS framework, to configure and integrate Socket.IO into your app for you.
+1. **Advanced**: Implementing and configuring it yourself with React, NodeJS, and Socket.IO
+2. **Easy**: By using [Wasp](https://wasp-lang.dev), a full-stack React-NodeJS framework, to configure and integrate Socket.IO into your app for you.
 
-These methods allow you to build fun stuff, like this instantly updating “voting with friends” app we built here (check out the [GitHub repo for it](https://github.com/vincanger/websockets-wasp)):
+These methods allow you to build fun stuff, like this instantly updating “voting with friends” app we built here:
 
 <!-- [https://www.youtube.com/watch?v=Twy-2P0Co6M](https://www.youtube.com/watch?v=Twy-2P0Co6M) -->
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Twy-2P0Co6M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+You can try out the [live demo app here](https://websockets-voting-client.fly.dev/).  
+And if you just want the app code, it's [available here on GitHub](https://github.com/vincanger/websockets-wasp).
 
 ## Why WebSockets?
 
@@ -106,6 +109,8 @@ That’s why you need a “serverful” architecture if you want to build real-t
 ### Using ExpressJS with Socket.IO  — Complex/Customizable Method
 
 Okay, let's start with the first, more traditional approach: creating a dedicated server for your client to establish a two-way communication channel with.
+
+This method is more advanced and involves a bit more complexity, but allows for more fine-tuned customization. **If you're looking for a straightforward, easier way to bring WebSockets to your React/NodeJS app, we'll get to that in the [section below](#implementing-websockets-with-wasp--easierless-config-method)**
 
 :::note
 👨‍💻 If you want to code along you can follow the instructions below. Alternatively, if you just want to see the finished React-NodeJS full-stack app, check out the [github repo here](https://github.com/vincanger/websockets-react)
@@ -499,13 +504,11 @@ Luckily, our next solution, Wasp, has integrated Authentication and Database Man
 
 So let’s go ahead and give that a go! 
 
-### Implementing WebSockets with Wasp — Fast/Zero Config Method
+### Implementing WebSockets with Wasp — Easier/Less Config Method
 
 Because Wasp is an innovative full-stack framework, it makes building React-NodeJS apps quick and developer-friendly. 
 
 Wasp has lots of time-saving features, including WebSocket support via [Socket.IO](http://socket.io/), Authentication, Database Management, and Full-stack type-safety out-of-the box.
-
-<!-- [https://twitter.com/WaspLang/status/1673742264873500673?s=20](https://twitter.com/WaspLang/status/1673742264873500673?s=20) -->
 
 Wasp can take care of all this heavy lifting for you because of its use of a config file, which you can think of like a set of instructions that the Wasp compiler uses to help glue your app together.
 
@@ -518,7 +521,7 @@ If you just want to see finished app’s code, you can check out the [GitHub rep
 1. Install Wasp globally by running the following command in your terminal:
 
 ```bash
-curl -sSL [https://get.wasp-lang.dev/installer.sh](https://get.wasp-lang.dev/installer.sh) | sh 
+curl -sSL https://get.wasp-lang.dev/installer.sh | sh 
 ```
 
 If you want to code along, first clone the `start` branch of the example app:
@@ -538,13 +541,13 @@ Let’s start out by taking a quick look at our `main.wasp` file.
 ```jsx
 app whereDoWeEat {
   wasp: {
-    version: "^0.11.0"
+    version: "^0.13.2"
   },
   title: "where-do-we-eat",
   client: {
-    rootComponent: import { Layout } from "@client/Layout.jsx",
+    rootComponent: import { Layout } from "@src/client/Layout",
   },
-	// 🔐 this is how we get auth in our app.
+  // 🔐 This is how we get Auth in our app. Easy!
   auth: {
     userEntity: User,
     onAuthFailedRedirectTo: "/login",
@@ -552,17 +555,11 @@ app whereDoWeEat {
       usernameAndPassword: {}
     }
   },
-  dependencies: [
-    ("flowbite", "1.6.6"),
-    ("flowbite-react", "0.4.9")
-  ]
 }
 
 // 👱 this is the data model for our registered users in our database
 entity User {=psl
   id       Int     @id @default(autoincrement())
-  username String  @unique
-  password String
 psl=}
 
 // ...
@@ -576,7 +573,7 @@ Let’s tell it we want WebSockets, as well. Add the `webSocket` definition to t
 app whereDoWeEat {
 	// ... 
   webSocket: {
-    fn: import { webSocketFn } from "@server/ws-server.js",
+    fn: import { webSocketFn } from "@src/server/ws-server",
   },
 	// ...
 }
@@ -585,11 +582,9 @@ app whereDoWeEat {
 Now we have to define the `webSocketFn`. In the `./src/server` directory create a new file, `ws-server.ts` and copy the following code:
 
 ```tsx
-import { WebSocketDefinition } from '@wasp/webSocket';
-import { User } from '@wasp/entities';
+import { getUsername } from 'wasp/auth';
+import { type WebSocketDefinition } from 'wasp/server/webSocket';
 
-// define the types. this time we will get the entire User object
-// in SocketData from the Auth that Wasp automatically sets up for us 🎉
 type PollState = {
   question: string;
   options: {
@@ -599,6 +594,7 @@ type PollState = {
     votes: string[];
   }[];
 };
+
 interface ServerToClientEvents {
   updateState: (state: PollState) => void;
 }
@@ -607,18 +603,11 @@ interface ClientToServerEvents {
   askForStateUpdate: () => void;
 }
 interface InterServerEvents {}
-interface SocketData {
-  user: User; 
-}
 
-// pass the generic types to the websocketDefinition just like 
-// in the previous example
-export const webSocketFn: WebSocketDefinition<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
-> = (io, _context) => {
+export const webSocketFn: WebSocketDefinition<ClientToServerEvents, ServerToClientEvents, InterServerEvents> = (
+  io,
+  _context
+) => {
   const poll: PollState = {
     question: "What are eating for lunch ✨ Let's order",
     options: [
@@ -648,27 +637,32 @@ export const webSocketFn: WebSocketDefinition<
       return;
     }
 
-    console.log('Socket connected: ', socket.data.user?.username);
+    const connectionUsername = getUsername(socket.data.user);
+
+    console.log('Socket connected: ', connectionUsername);
     socket.on('askForStateUpdate', () => {
       socket.emit('updateState', poll);
     });
 
     socket.on('vote', (optionId) => {
+      if (!connectionUsername) {
+        return;
+      }
       // If user has already voted, remove their vote.
       poll.options.forEach((option) => {
-        option.votes = option.votes.filter((username) => username !== socket.data.user.username);
+        option.votes = option.votes.filter((username) => username !== connectionUsername);
       });
       // And then add their vote to the new option.
       const option = poll.options.find((o) => o.id === optionId);
       if (!option) {
         return;
       }
-      option.votes.push(socket.data.user.username);
+      option.votes.push(connectionUsername);
       io.emit('updateState', poll);
     });
 
     socket.on('disconnect', () => {
-      console.log('Socket disconnected: ', socket.data.user?.username);
+      console.log('Socket disconnected: ', connectionUsername);
     });
   });
 };
@@ -717,63 +711,53 @@ Let’s take a look at how that works now.
 In `.src/client/MainPage.tsx`, replace the contents with the following code:
 
 ```tsx
-import { useState, useMemo, useEffect } from "react";
-import { Button, Card } from "flowbite-react";
 // Wasp provides us with pre-configured hooks and types based on
 // our server code. No need to set it up ourselves!
-import {
-  useSocketListener,
-  useSocket,
-  ServerToClientPayload,
-} from "@wasp/webSocket";
-import useAuth from "@wasp/auth/useAuth";
+import { type ServerToClientPayload, useSocket, useSocketListener } from 'wasp/client/webSocket';
+import { useAuth } from 'wasp/client/auth';
+import { useState, useMemo, useEffect } from 'react';
+import { Button, Card } from 'flowbite-react';
+import { getUsername } from 'wasp/auth';
 
 const MainPage = () => {
-	// we can easily access the logged in user with this hook
-	// that wasp provides for us
+  // Wasp provides a bunch of pre-built hooks for us :)
   const { data: user } = useAuth();
-  const [poll, setPoll] = useState<ServerToClientPayload<"updateState"> | null>(
-    null
-  );
+  const [poll, setPoll] = useState<ServerToClientPayload<'updateState'> | null>(null);
   const totalVotes = useMemo(() => {
-    return (
-      poll?.options.reduce((acc, option) => acc + option.votes.length, 0) ?? 0
-    );
+    return poll?.options.reduce((acc, option) => acc + option.votes.length, 0) ?? 0;
   }, [poll]);
-	
-	// pre-built hooks, configured for us by Wasp
-  const { socket } = useSocket(); 
-  useSocketListener("updateState", (newState) => {
+
+  const { socket } = useSocket();
+
+  const username = user ? getUsername(user) : null;
+
+  useSocketListener('updateState', (newState) => {
     setPoll(newState);
   });
 
   useEffect(() => {
-    socket.emit("askForStateUpdate");
+    socket.emit('askForStateUpdate');
   }, []);
 
   function handleVote(optionId: number) {
-    socket.emit("vote", optionId);
+    socket.emit('vote', optionId);
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold">{poll?.question ?? "Loading..."}</h1>
+    <div className='w-full max-w-2xl mx-auto p-8'>
+      <h1 className='text-2xl font-bold'>{poll?.question ?? 'Loading...'}</h1>
+      {poll && <p className='leading-relaxed text-gray-500'>Cast your vote for one of the options.</p>}
       {poll && (
-        <p className="leading-relaxed text-gray-500">
-          Cast your vote for one of the options.
-        </p>
-      )}
-      {poll && (
-        <div className="mt-4 flex flex-col gap-4">
+        <div className='mt-4 flex flex-col gap-4'>
           {poll.options.map((option) => (
-            <Card key={option.id} className="relative transition-all duration-300 min-h-[130px]">
-              <div className="z-10">
-                <div className="mb-2">
-                  <h2 className="text-xl font-semibold">{option.text}</h2>
-                  <p className="text-gray-700">{option.description}</p>
+            <Card key={option.id} className='relative transition-all duration-300 min-h-[130px]'>
+              <div className='z-10'>
+                <div className='mb-2'>
+                  <h2 className='text-xl font-semibold'>{option.text}</h2>
+                  <p className='text-gray-700'>{option.description}</p>
                 </div>
-                <div className="absolute bottom-5 right-5">
-                  {user && !option.votes.includes(user.username) ? (
+                <div className='absolute bottom-5 right-5'>
+                  {username && !option.votes.includes(username) ? (
                     <Button onClick={() => handleVote(option.id)}>Vote</Button>
                   ) : (
                     <Button disabled>Voted</Button>
@@ -781,30 +765,28 @@ const MainPage = () => {
                   {!user}
                 </div>
                 {option.votes.length > 0 && (
-                  <div className="mt-2 flex gap-2 flex-wrap max-w-[75%]">
-                    {option.votes.map((vote) => (
-                      <div
-                        key={vote}
-                        className="py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm"
-                      >
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                        <div className="text-gray-700">{vote}</div>
-                      </div>
-                    ))}
+                  <div className='mt-2 flex gap-2 flex-wrap max-w-[75%]'>
+                    {option.votes.map((username, idx) => {
+                      return (
+                        <div
+                          key={username}
+                          className='py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm'
+                        >
+                          <div className='w-2 h-2 bg-green-500 rounded-full mr-2'></div>
+                          <div className='text-gray-700'>{username}</div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
-              <div className="absolute top-5 right-5 p-2 text-sm font-semibold bg-gray-100 rounded-lg z-10">
+              <div className='absolute top-5 right-5 p-2 text-sm font-semibold bg-gray-100 rounded-lg z-10'>
                 {option.votes.length} / {totalVotes}
               </div>
               <div
-                className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 rounded-lg transition-all duration-300"
+                className='absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 rounded-lg transition-all duration-300'
                 style={{
-                  width: `${
-                    totalVotes > 0
-                      ? (option.votes.length / totalVotes) * 100
-                      : 0
-                  }%`,
+                  width: `${totalVotes > 0 ? (option.votes.length / totalVotes) * 100 : 0}%`,
                 }}
               ></div>
             </Card>

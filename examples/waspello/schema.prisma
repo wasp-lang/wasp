@@ -1,0 +1,43 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Entities
+
+model User {
+  id Int @id @default(autoincrement())
+
+  lists List[]
+  cards Card[]
+}
+
+model List {
+  id   Int    @id @default(autoincrement())
+  name String
+  pos  Float
+
+  // List has a single author.
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  cards Card[]
+}
+
+model Card {
+  id    Int    @id @default(autoincrement())
+  title String
+  pos   Float
+
+  // Card belongs to a single list.
+  list   List @relation(fields: [listId], references: [id])
+  listId Int
+
+  // Card has a single author.
+  author   User @relation(fields: [authorId], references: [id])
+  authorId Int
+}

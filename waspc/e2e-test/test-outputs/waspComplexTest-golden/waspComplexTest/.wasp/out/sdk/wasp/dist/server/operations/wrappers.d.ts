@@ -1,4 +1,4 @@
-import { _Awaited, _ReturnType } from '../../universal/types';
+import { IfAny, _Awaited, _ReturnType } from '../../universal/types';
 import { type AuthUser } from 'wasp/auth';
 import { _Entity, AuthenticatedOperationDefinition, UnauthenticatedOperationDefinition, Payload } from '../_types';
 /**
@@ -49,7 +49,10 @@ export declare function createAuthenticatedOperation<OperationDefinition extends
  * `void` if the operation doesn't expect a payload).
  * @template Output The type of the operation's return value.
  */
-type AuthenticatedOperation<Input, Output> = [
+type AuthenticatedOperation<Input, Output> = IfAny<Input, (args: any, context: {
+    user: AuthUser;
+}) => Promise<Output>, AuthenticatedOperationWithNonAnyInput<Input, Output>>;
+type AuthenticatedOperationWithNonAnyInput<Input, Output> = [
     Input
 ] extends [never] ? (args: unknown, context: {
     user: AuthUser;
@@ -71,9 +74,10 @@ type GenericAuthenticatedOperationDefinition = AuthenticatedOperationDefinition<
  * `void` if the operation doesn't expect a payload).
  * @template Output The type of the operation's return value.
  */
-type UnauthenticatedOperation<Input, Output> = [
+type UnauthenticatedOperation<Input, Output> = IfAny<Input, (args?: any) => Promise<Output>, UnauthenticatedOperationWithNonAnyInput<Input, Output>>;
+type UnauthenticatedOperationWithNonAnyInput<Input, Output> = [
     Input
-] extends [never] ? (args: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
+] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
 /**
  * The principal type for an unauthenticated operation's definition (i.e., all
  * unauthenticated operation definition types are a subtype of this type).
