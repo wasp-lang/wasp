@@ -2,8 +2,8 @@ import React, { useState, useRef, useContext, useEffect } from 'react'
 import { Plus, X, MoreHorizontal } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-
+import { DragDropContext, Draggable } from 'react-beautiful-dnd'
+import { Droppable } from './Drappable'
 import UserPageLayout from './UserPageLayout'
 
 import './Main.css'
@@ -109,7 +109,7 @@ const MainPage = ({ user }) => {
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <StrictModeDroppable droppableId="board" direction="horizontal" type="BOARD" >
+        <Droppable droppableId="board" direction="horizontal" type="BOARD" >
           {(provided, snapshot) => (
             <PositionProvider items={listsSortedByPos}>
               <div id='board' className='u-fancy-scrollbar'
@@ -127,28 +127,12 @@ const MainPage = ({ user }) => {
               </div>
             </PositionProvider>
           )}
-        </StrictModeDroppable>
+        </Droppable>
       </DragDropContext>
 
     </UserPageLayout>
   )
 }
-
-export const StrictModeDroppable = ({ children, ...props }) => {
-  const [enabled, setEnabled] = useState(false);
-  useEffect(() => {
-    const animation = requestAnimationFrame(() => setEnabled(true));
-    return () => {
-      cancelAnimationFrame(animation);
-      setEnabled(false);
-    };
-  }, []);
-  if (!enabled) {
-    return null;
-  }
-  return <Droppable {...props}>{children}</Droppable>;
-};
-
 
 const Lists = ({ lists, listIdToCardsMap }) => {
     // TODO(matija): what if some of the props is empty? Although we make sure not to add it
@@ -163,176 +147,8 @@ const Lists = ({ lists, listIdToCardsMap }) => {
     })
 }
 
-// const List = ({ list, index, cards }) => {
-//   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-//   const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
-//   const [isInEditMode, setIsInEditMode] = useState(false);
-//   const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext);
-
-//   const textAreaRef = useRef(null);
-
-//   const handleListNameUpdated = async (listId, newName) => {
-//     try {
-//       await updateList({ listId, data: { name: newName } })
-//     } catch (err) {
-//       window.alert('Error while updating list name: ' + err.message)
-//     } finally {
-//       setIsHeaderTargetShown(true)
-//     }
-//   }
-
-//   const handleAddCard = async () => {
-//     setIsInEditMode(true);
-//     setIsPopoverOpen(false);
-//   }
-
-//   const handleCopyList = async (listId, idx) => {
-//     try {
-//       await createListCopy({ listId, pos: getPosOfItemInsertedInAnotherListAfter(idx) });
-//     } catch (err) {
-//       window.alert('Error while copying list: ' + err.message)
-//     }
-
-//     setIsPopoverOpen(false);
-//   }
-
-//   const handleDeleteList = async (listId) => {
-//     try {
-//       await deleteList({ listId })
-//     } catch (err) {
-//       window.alert('Error while deleting list: ' + err.message)
-//     }
-//     setIsPopoverOpen(false)
-//   }
-
-//   const handleHeadingClicked = (e) => {
-//     setIsHeaderTargetShown(false);
-//     textAreaRef?.current?.focus();
-//   };
-
-//   const ListMenu = () => {
-//     return (
-//       <div className='popover-menu'>
-//         <div className='popover-header'>
-//           <div className='popover-header-item'>
-//             <button className='popover-header-close-btn dark-hover fake-invisible-item'>
-//               <X size={16}/>
-//             </button>
-//           </div>
-//           <span className='popover-header-title popover-header-item'>List&nbsp;actions</span>
-//           <div className='popover-header-item'>
-//             <button
-//               className='popover-header-close-btn dark-hover'
-//               onClick={() => setIsPopoverOpen(false)}
-//             >
-//               <X size={16}/>
-//             </button>
-//           </div>
-//         </div>
-//         <div className='popover-content'>
-//           <ul className='popover-content-list'>
-//             <li>
-//               <button onClick={() => handleAddCard()}>
-//                 Add card...
-//               </button>
-//             </li>
-//             <li>
-//               <button onClick={() => handleCopyList(list.id, index)}>
-//                 Copy list...
-//               </button>
-//             </li>
-//             <li>
-//               <button onClick={() => handleDeleteList(list.id)}>
-//                 Delete this list
-//               </button>
-//             </li>
-//           </ul>
-//         </div>
-//       </div>
-//     )
-//   }
-
-//   return (
-//     <Draggable
-//       key={list.id}
-//       draggableId={`listDraggable-${list.id}`}
-//       index={index}
-//     >
-//       {(provided, snapshot) => (
-//         <div className='list-wrapper'
-//           ref={provided.innerRef}
-//           {...provided.draggableProps}
-//           {...provided.dragHandleProps}
-//         >
-//           <div className='list'>
-//             <div className='list-header'>
-//             {isHeaderTargetShown ? (
-//                 <div
-//                   className="list-header-target"
-//                   onClick={(e) => handleHeadingClicked(e)}
-//                 ></div>
-//               ) : (
-//                 <></>
-//               )}
-//               <textarea
-//                 className='list-header-name mod-list-name'
-//                 onBlur={(e) => handleListNameUpdated(list.id, e.target.value)}
-//                 defaultValue={ list.name }
-//                 ref={textAreaRef}
-//               />
-//               <div className='list-header-extras'>
-//                 <Popover
-//                   isOpen={isPopoverOpen}
-//                   onClickOutside={() => setIsPopoverOpen(false)}
-//                   positions={['bottom', 'right', 'left']}
-//                   align='start'
-//                   padding={6}
-//                   content={<ListMenu/>}
-//                 >
-//                   <div
-//                     className='list-header-extras-menu dark-hover'
-//                     onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-//                   >
-//                     <MoreHorizontal size={16}/>
-//                   </div>
-//                 </Popover>
-//               </div>
-//             </div> {/* eof list-header */}
-
-//             <StrictModeDroppable
-//               droppableId={`${list.id}`}
-//               direction="vertical"
-//               type="CARD"
-//             >
-//               {(provided, snapshot) => (
-//                 <div className='cards'
-//                   ref={provided.innerRef}
-//                   {...provided.droppableProps}
-//                 >
-//                   { cards && <Cards cards={cards} /> }
-//                   {provided.placeholder}
-//                 </div>
-//               )}
-//             </StrictModeDroppable>
-
-//             <div className='card-composer-container'>
-//               <PositionProvider items={cards}>
-//                 <AddCard
-//                   listId={list.id}
-//                   isInEditMode={isInEditMode}
-//                   setIsInEditMode={setIsInEditMode}
-//                 />
-//               </PositionProvider>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </Draggable>
-//   )
-// }
-
 const List = ({ list, index, cards }) => {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
   const [isInEditMode, setIsInEditMode] = useState(false);
   const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext);
@@ -360,6 +176,7 @@ const List = ({ list, index, cards }) => {
     } catch (err) {
       window.alert('Error while copying list: ' + err.message)
     }
+
     setIsPopoverOpen(false);
   }
 
@@ -374,16 +191,8 @@ const List = ({ list, index, cards }) => {
 
   const handleHeadingClicked = (e) => {
     setIsHeaderTargetShown(false);
-    textAreaRef.current.focus();
+    textAreaRef?.current?.focus();
   };
-
-  const getListStyle = (isDragging, draggableStyle) => ({
-    background: isDragging ? "red" : "white",
-    boxShadow: isDragging ? "0px 0px 10px rgba(0,0,0,0.2)" : "none",
-    transform: isDragging ? "rotate(3deg)" : "none",
-    transition: "transform 0.2s ease",
-    ...draggableStyle
-  });
 
   const ListMenu = () => {
     return (
@@ -428,31 +237,34 @@ const List = ({ list, index, cards }) => {
   }
 
   return (
-    <Draggable key={list.id} draggableId={`listDraggable-${list.id}`} index={index}>
+    <Draggable
+      key={list.id}
+      draggableId={`listDraggable-${list.id}`}
+      index={index}
+    >
       {(provided, snapshot) => (
-        <div className='list-wrapper'
+        <div
+          className={`list-wrapper`}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          style={getListStyle(snapshot.isDragging, provided.draggableProps.style)}
         >
           <div className='list'>
             <div className='list-header'>
-              {isHeaderTargetShown ? (
-                  <div
-                    className="list-header-target"
-                    onClick={handleHeadingClicked}
-                  ></div>
-                ) : (
-                  <>
-                    <textarea
-                      className='list-header-name mod-list-name'
-                      onBlur={(e) => handleListNameUpdated(list.id, e.target.value)}
-                      defaultValue={list.name}
-                      ref={textAreaRef}
-                    />
-                  </>
-                )}
+            {isHeaderTargetShown ? (
+                <div
+                  className="list-header-target"
+                  onClick={(e) => handleHeadingClicked(e)}
+                ></div>
+              ) : (
+                <></>
+              )}
+              <textarea
+                className='list-header-name mod-list-name'
+                onBlur={(e) => handleListNameUpdated(list.id, e.target.value)}
+                defaultValue={ list.name }
+                ref={textAreaRef}
+              />
               <div className='list-header-extras'>
                 <Popover
                   isOpen={isPopoverOpen}
@@ -472,7 +284,7 @@ const List = ({ list, index, cards }) => {
               </div>
             </div> {/* eof list-header */}
 
-            <StrictModeDroppable
+            <Droppable
               droppableId={`${list.id}`}
               direction="vertical"
               type="CARD"
@@ -482,17 +294,28 @@ const List = ({ list, index, cards }) => {
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  {cards && <Cards cards={cards} />}
+                  { cards && <Cards cards={cards} /> }
                   {provided.placeholder}
                 </div>
               )}
-            </StrictModeDroppable>
+            </Droppable>
+
+            <div className='card-composer-container'>
+              <PositionProvider items={cards}>
+                <AddCard
+                  listId={list.id}
+                  isInEditMode={isInEditMode}
+                  setIsInEditMode={setIsInEditMode}
+                />
+              </PositionProvider>
+            </div>
           </div>
         </div>
       )}
     </Draggable>
   )
 }
+
 const Cards = ({ cards }) => {
   return (
     <div className='list-cards'>
