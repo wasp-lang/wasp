@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, useEffect } from 'react'
+import React, { useState, useRef, useContext } from 'react'
 import { Plus, X, MoreHorizontal } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
@@ -243,8 +243,7 @@ const List = ({ list, index, cards }) => {
       index={index}
     >
       {(provided, snapshot) => (
-        <div
-          className={`list-wrapper`}
+        <div className={`list-wrapper`}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
