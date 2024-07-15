@@ -18,7 +18,7 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.Db (runDbCommand)
+import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -67,7 +67,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         ("test" : testArgs) -> Command.Call.Test testArgs
-        _ -> Command.Call.Unknown args
+        _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
@@ -98,7 +98,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectName
             appDescription
             projectConfigJson
-      _ -> printWaspNewAiUsage
+      _unknownCommand -> printWaspNewAiUsage
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -215,16 +215,18 @@ printVersion = do
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
 
--- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
+-- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  ["reset"] -> runCommand Command.Db.Reset.reset
+  -- These commands don't require an existing and running database.
   ["start"] -> runCommand Command.Start.Db.start
-  "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runDbCommand Command.Db.Studio.studio
-  _ -> printDbUsage
+  -- These commands require an existing and running database.
+  ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
+  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
+  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  _unknownDbCommand -> printDbUsage
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()
