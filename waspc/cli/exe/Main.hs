@@ -18,7 +18,7 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.Db (runDbCommand)
+import qualified Wasp.Cli.Command.Db as Command.Db
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -105,7 +105,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> case dbArgs of
       ["start"] -> runCommand Command.Start.Db.start
-      _dbCommand -> dbCli dbArgs
+      _commandOnDb -> runCommandOnRunningDb dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
@@ -219,9 +219,10 @@ printVersion = do
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 
--- | Execute a command that acts on the database.
-dbCli :: [String] -> IO ()
-dbCli args = maybe printDbUsage runDbCommand parsedCommand
+-- | Execute a command that acts on a running database.
+runCommandOnRunningDb :: [String] -> IO ()
+runCommandOnRunningDb args =
+  maybe printDbUsage Command.Db.runCommandOnRunningDb parsedCommand
   where
     parsedCommand = case args of
       ["reset"] -> Just Command.Db.Reset.reset
