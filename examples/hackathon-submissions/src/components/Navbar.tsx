@@ -21,7 +21,7 @@ const Navbar = () => {
   function scrollToTargetAdjusted() {
     var element = document.getElementById('submission');
     var headerOffset = 75;
-    var elementPosition = element.getBoundingClientRect().top;
+    var elementPosition = element!.getBoundingClientRect().top;
     var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
     window.scrollTo({
@@ -42,7 +42,7 @@ const Navbar = () => {
     </div>
   );
 
-  const SocialIcon = ({ Icon, url }) => (
+  const SocialIcon = ({ Icon, url }: any) => (
     <a
       href={url}
       target='_blank'

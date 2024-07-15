@@ -6,7 +6,7 @@ export const submitProject = async (project, context) => {
   return newProject;
 };
 
-export const getProjects = async (args, context) => {
+export const getProjects = async (_args, context) => {
   return context.entities.Submission.findMany({
     where: {
       approved: true,
