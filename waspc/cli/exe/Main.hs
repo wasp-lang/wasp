@@ -218,14 +218,14 @@ printVersion = do
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  -- These commands don't require an existing and running database.
+  ["start"] -> runCommand Command.Start.Db.start
   -- These commands require an existing and running database.
   ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
   ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
-  -- These commands don't require an existing and running database.
-  ["start"] -> runCommand Command.Start.Db.start
   _unknownDbCommand -> printDbUsage
 
 {- ORMOLU_DISABLE -}
