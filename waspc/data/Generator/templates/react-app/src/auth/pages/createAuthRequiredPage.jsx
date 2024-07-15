@@ -21,13 +21,13 @@ const createAuthRequiredPage = (Page) => {
         }
       case 'loading':
         return (
-          <FullPageWrapper className="auth-required-loader-wrapper">
+          <FullPageWrapper className="wasp-auth-required-loader-wrapper">
             <Loader />
           </FullPageWrapper>
         )
       case 'error':
         return (
-          <FullPageWrapper className="auth-required-error-wrapper">
+          <FullPageWrapper className="wasp-auth-required-error-wrapper">
             <MessageError subtitle={<small>Details: {error.message}</small>}>
               Failed to load user data. Try refreshing the page.
             </MessageError>
