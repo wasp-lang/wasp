@@ -89,7 +89,68 @@ Wasp introduced a much simpler API for accessing user auth fields like `username
 
 ## How to migrate?
 
+To migrate your app to Wasp 0.14.x, you must:
+
+1.  Update your `tsconfig.json`.
+2.  Migrate your entities into the new `schema.prisma` file.
+3.  Update code that accesses user fields.
+
+### Update your `tsconfig.json`
+
+To ensure your project works correctly with Wasp 0.14.0, you must update your
+`tsconfig.json` file.
+
+If you haven't changed anything in your project's `tsconfig.json` file (this is
+the case for most users), just replace its contents with the new version shown
+below.
+
+If you have made changes to your `tsconfig.json` file, we recommend taking the
+new version of the file and reapplying them.
+
+Here's the new version of the `tsconfig.json` file:
+
+```json title=tsconfig.json
+// =============================== IMPORTANT =================================
+//
+// This file is only used for Wasp IDE support. You can change it to configure
+// your IDE checks, but none of these options will affect the TypeScript
+// compiler. Proper TS compiler configuration in Wasp is coming soon :)
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    // We're bundling all code in the end so this is the most appropriate option,
+    // it's also important for autocomplete to work properly.
+    "moduleResolution": "bundler",
+    // JSX support
+    "jsx": "preserve",
+    "strict": true,
+    // Allow default imports.
+    "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "typeRoots": [
+      // This is needed to properly support Vitest testing with jest-dom matchers.
+      // Types for jest-dom are not recognized automatically and Typescript complains
+      // about missing types e.g. when using `toBeInTheDocument` and other matchers.
+      "node_modules/@testing-library",
+      // Specifying type roots overrides the default behavior of looking at the
+      // node_modules/@types folder so we had to list it explicitly.
+      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots
+      // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
+      "node_modules/@types"
+    ],
+    // Since this TS config is used only for IDE support and not for
+    // compilation, the following directory doesn't exist. We need to specify
+    // it to prevent this error:
+    // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
+    "outDir": ".wasp/phantom"
+  }
+}
+```
+
 ### Migrate to the new `schema.prisma` file
+
 To use the new `schema.prisma` file, you need to move your entities from the `.wasp` file to the `schema.prisma` file.
 
 1\. **Create a new `schema.prisma` file**
@@ -106,6 +167,7 @@ Create a new file named `schema.prisma` in the root of your project:
 ├── tsconfig.json
 └── vite.config.ts
 ```
+
 2\. **Add the `datasource` block** to the `schema.prisma` file
 
 This block specifies the database type and connection URL:
@@ -119,9 +181,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 ```
+
 </TabItem>
 <TabItem value="postgresql" label="PostgreSQL">
-
 
 ```prisma title="schema.prisma"
 datasource db {
@@ -129,10 +191,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 ```
+
 </TabItem>
 </Tabs>
 
-- The `provider` should be either `"postgresql"` or `"sqlite"`. 
+- The `provider` should be either `"postgresql"` or `"sqlite"`.
 
 - The `url` must be set to `env("DATABASE_URL")` so that Wasp can inject the database URL from the environment variables.
 
@@ -155,9 +218,9 @@ generator client {
 }
 // highlight-end
 ```
+
 </TabItem>
 <TabItem value="postgresql" label="PostgreSQL">
-
 
 ```prisma title="schema.prisma"
 datasource db {
@@ -171,6 +234,7 @@ generator client {
 }
 // highlight-end
 ```
+
 </TabItem>
 </Tabs>
 
@@ -209,9 +273,9 @@ model Task {
 }
 // highlight-end
 ```
+
 </TabItem>
 <TabItem value="postgresql" label="PostgreSQL">
-
 
 ```prisma title="schema.prisma"
 datasource db {
@@ -239,13 +303,14 @@ model Task {
 }
 // highlight-end
 ```
+
 </TabItem>
 </Tabs>
-
 
 When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
 
 If you had the following in the `.wasp` file:
+
 ```wasp title="main.wasp"
 entity Task {=psl
   // Stays the same
@@ -253,6 +318,7 @@ psl=}
 ```
 
 ... it would look like this in the `schema.prisma` file:
+
 ```prisma title="schema.prisma"
 model Task {
   // Stays the same
@@ -325,7 +391,6 @@ wasp db migrate-dev
 This command generates the Prisma client based on the `schema.prisma` file.
 
 Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
-
 
 ### Migrate how you access user auth fields
 
