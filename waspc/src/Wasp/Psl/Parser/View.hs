@@ -19,11 +19,11 @@ import Wasp.Psl.Parser.Model (body)
 --     name String
 --   }
 --
--- From the Prisma docs:
--- > Database views allow you to name and store queries.
--- > In relational databases, views are stored SQL queries (...)
--- > In MongoDB, views are (...) defined by an aggregation
--- > pipeline on other collections.
+-- PSL view blocks have the same syntax as
+-- Prisma model blocks, but they are prefixed with
+-- `view` keyword. That's why we are reusing the
+-- `body` parser from `Model` to parse the body
+-- of the type block.
 view :: Parser Psl.View.View
 view = do
   reserved "view"
