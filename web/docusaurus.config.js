@@ -22,15 +22,15 @@ module.exports = {
     'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
   ],
   themeConfig: {
-    /*
+    
     announcementBar: {
-      id: 'Beta_is_here',
-      content: 'Wasp Hackathon #1 is underway! 🚀 <a href="https://betathon.wasp-lang.dev/">Join now</a>',
+      id: 'LW6',
+      content: '<b>Launch Week #6</b>: July 17 - 22 🐝 <a href="/blog/2024/07/15/wasp-launch-week-six">See what\'s new</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
     },
-    */
+    
     imageZoom: {
       // CSS selector to apply the plugin to, defaults to '.markdown img'
       //selector: '.markdown img',
