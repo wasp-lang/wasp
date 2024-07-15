@@ -17,6 +17,8 @@ import Wasp.Psl.Parser.Common (SourceCode, whiteSpace)
 import Wasp.Psl.Parser.ConfigBlock (configBlock)
 import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
+import Wasp.Psl.Parser.Type (typeBlock)
+import Wasp.Psl.Parser.View (view)
 
 parsePrismaSchema :: SourceCode -> Either Parsec.ParseError Psl.Schema.Schema
 parsePrismaSchema = Parsec.parse schema ""
@@ -32,6 +34,8 @@ schema = do
     many $
       choice
         [ Psl.Schema.ModelBlock <$> model,
+          Psl.Schema.ViewBlock <$> view,
+          Psl.Schema.TypeBlock <$> typeBlock,
           Psl.Schema.EnumBlock <$> enum,
           Psl.Schema.ConfigBlock <$> configBlock
         ]

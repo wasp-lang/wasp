@@ -1,6 +1,7 @@
 module Wasp.Psl.Parser.Model
   ( parseBody,
     model,
+    body,
   )
 where
 

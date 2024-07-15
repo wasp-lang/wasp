@@ -11,6 +11,8 @@ import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.Type as Psl.Type
+import qualified Wasp.Psl.Ast.View as Psl.View
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 
 spec_parsePslSchema :: Spec
@@ -82,6 +84,21 @@ spec_parsePslSchema = do
 
             ADMIN
 
+          }
+
+          view UserInfo {
+            id    Int?
+            email String?
+            name  String?
+            bio   String?
+
+            @@ignore
+          }
+
+          type Photo {
+            height Int    @default(200)
+            width  Int    @default(100)
+            url    String
           }
 
           // Some comments at the end
@@ -291,7 +308,70 @@ spec_parsePslSchema = do
                   "Role"
                   [ Psl.Enum.ElementValue "USER" [],
                     Psl.Enum.ElementValue "ADMIN" []
-                  ]
+                  ],
+              Psl.Schema.ViewBlock $
+                Psl.View.View
+                  "UserInfo"
+                  ( Psl.Model.Body
+                      [ Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "id"
+                            Psl.Model.Int
+                            [Psl.Model.Optional]
+                            [],
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "email"
+                            Psl.Model.String
+                            [Psl.Model.Optional]
+                            [],
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "name"
+                            Psl.Model.String
+                            [Psl.Model.Optional]
+                            [],
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "bio"
+                            Psl.Model.String
+                            [Psl.Model.Optional]
+                            [],
+                        Psl.Model.ElementBlockAttribute $
+                          Psl.Attribute.Attribute "ignore" []
+                      ]
+                  ),
+              Psl.Schema.TypeBlock $
+                Psl.Type.Type
+                  "Photo"
+                  ( Psl.Model.Body
+                      [ Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "height"
+                            Psl.Model.Int
+                            []
+                            [ Psl.Attribute.Attribute
+                                "default"
+                                [ Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "200"
+                                ]
+                            ],
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "width"
+                            Psl.Model.Int
+                            []
+                            [ Psl.Attribute.Attribute
+                                "default"
+                                [Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "100"]
+                            ],
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "url"
+                            Psl.Model.String
+                            []
+                            []
+                      ]
+                  )
             ]
 
     it "Prisma file is correctly parsed" $ do

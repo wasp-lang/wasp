@@ -372,6 +372,8 @@ library
     Wasp.Psl.Ast.Model
     Wasp.Psl.Ast.Enum
     Wasp.Psl.Ast.ConfigBlock
+    Wasp.Psl.Ast.Type
+    Wasp.Psl.Ast.View
     Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
@@ -387,6 +389,8 @@ library
     Wasp.Psl.Parser.Enum
     Wasp.Psl.Parser.Model
     Wasp.Psl.Parser.Schema
+    Wasp.Psl.Parser.Type
+    Wasp.Psl.Parser.View
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
@@ -638,6 +642,8 @@ test-suite waspc-test
     Psl.Parser.ConfigBlockTest
     Psl.Parser.EnumTest
     Psl.Parser.ModelTest
+    Psl.Parser.TypeTest
+    Psl.Parser.ViewTest
     Psl.Parser.SchemaTest
     Psl.ValidTest
     Test.Util
