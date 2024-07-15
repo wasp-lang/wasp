@@ -18,6 +18,12 @@ import Wasp.Psl.Parser.Model (body)
 --     id Int @id
 --     name String
 --   }
+--
+-- From the Prisma docs:
+-- > Database views allow you to name and store queries.
+-- > In relational databases, views are stored SQL queries (...)
+-- > In MongoDB, views are (...) defined by an aggregation
+-- > pipeline on other collections.
 view :: Parser Psl.View.View
 view = do
   reserved "view"

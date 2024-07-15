@@ -19,6 +19,14 @@ import Wasp.Psl.Parser.Model (body)
 --     width  Int    @default(100)
 --     url    String
 --   }
+--
+-- From the Prisma docs:
+-- > Composite types are only available with MongoDB.
+-- > Composite types, known as embedded documents in MongoDB,
+-- > allow you to embed records within other records.
+--
+-- Even though Wasp doesn't yet support MongoDB, we wanted to
+-- cover all the features of Prisma in the PSL.
 typeBlock :: Parser Psl.Type.Type
 typeBlock = do
   reserved "type"
