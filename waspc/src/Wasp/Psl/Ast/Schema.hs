@@ -2,6 +2,8 @@ module Wasp.Psl.Ast.Schema
   ( Schema (..),
     Block (..),
     getModels,
+    getViews,
+    getTypes,
     getEnums,
     getDatasources,
     getGenerators,
@@ -12,6 +14,8 @@ import Wasp.Psl.Ast.ConfigBlock (ConfigBlock)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Enum (Enum)
 import Wasp.Psl.Ast.Model (Model)
+import Wasp.Psl.Ast.Type (Type)
+import Wasp.Psl.Ast.View (View)
 import Prelude hiding (Enum)
 
 data Schema = Schema [Block]
@@ -19,12 +23,20 @@ data Schema = Schema [Block]
 
 data Block
   = ModelBlock Model
+  | ViewBlock View
+  | TypeBlock Type
   | EnumBlock Enum
   | ConfigBlock ConfigBlock
   deriving (Show, Eq)
 
 getModels :: Schema -> [Model]
 getModels (Schema blocks) = [model | ModelBlock model <- blocks]
+
+getViews :: Schema -> [View]
+getViews (Schema blocks) = [view | ViewBlock view <- blocks]
+
+getTypes :: Schema -> [Type]
+getTypes (Schema blocks) = [typeBlock | TypeBlock typeBlock <- blocks]
 
 getEnums :: Schema -> [Enum]
 getEnums (Schema blocks) = [enum | EnumBlock enum <- blocks]

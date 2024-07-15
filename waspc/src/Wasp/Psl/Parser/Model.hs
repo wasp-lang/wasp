@@ -1,6 +1,8 @@
 module Wasp.Psl.Parser.Model
   ( parseBody,
     model,
+    -- Used by the `view` and `type` parsers.
+    body,
   )
 where
 

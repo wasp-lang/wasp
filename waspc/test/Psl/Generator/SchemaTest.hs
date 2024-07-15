@@ -12,6 +12,8 @@ import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.Type as Psl.Type
+import qualified Wasp.Psl.Ast.View as Psl.View
 import Wasp.Psl.Generator.Schema (generateSchemaBlock)
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser.Schema
 
@@ -24,6 +26,8 @@ instance Arbitrary Psl.Schema.Block where
   arbitrary =
     oneof
       [ Psl.Schema.ModelBlock <$> arbitrary,
+        Psl.Schema.ViewBlock <$> arbitrary,
+        Psl.Schema.TypeBlock <$> arbitrary,
         Psl.Schema.EnumBlock <$> arbitrary,
         Psl.Schema.ConfigBlock <$> arbitrary
       ]
@@ -33,6 +37,12 @@ instance Arbitrary Psl.Schema.Schema where
 
 instance Arbitrary Psl.Model.Model where
   arbitrary = Psl.Model.Model <$> arbitraryIdentifier <*> arbitrary
+
+instance Arbitrary Psl.View.View where
+  arbitrary = Psl.View.View <$> arbitraryIdentifier <*> arbitrary
+
+instance Arbitrary Psl.Type.Type where
+  arbitrary = Psl.Type.Type <$> arbitraryIdentifier <*> arbitrary
 
 instance Arbitrary Psl.Model.Body where
   arbitrary = do

@@ -74,6 +74,8 @@ genPrismaSchema spec = do
         object
           [ "modelSchemas" .= (entityToPslModelSchema <$> entities),
             "enumSchemas" .= enumSchemas,
+            "viewSchemas" .= viewSchemas,
+            "typeSchemas" .= typeSchemas,
             "datasourceSchema" .= generateConfigBlockSchema (getDatasource datasourceProvider),
             "generatorSchemas" .= (generateConfigBlockSchema <$> generators)
           ]
@@ -84,6 +86,10 @@ genPrismaSchema spec = do
     dbSystem = ASV.getValidDbSystem spec
 
     enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
+
+    viewSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ViewBlock <$> Psl.Schema.getViews prismaSchemaAst
+
+    typeSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.TypeBlock <$> Psl.Schema.getTypes prismaSchemaAst
 
     generateConfigBlockSchema = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ConfigBlock
 
