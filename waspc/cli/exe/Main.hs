@@ -18,7 +18,7 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import qualified Wasp.Cli.Command.Db as Command.Db
+import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -103,9 +103,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
     Command.Call.Compile -> runCommand compile
-    Command.Call.Db dbArgs -> case dbArgs of
-      ["start"] -> runCommand Command.Start.Db.start
-      _commandOnDb -> runCommandOnRunningDb dbArgs
+    Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
@@ -218,19 +216,17 @@ printVersion = do
       ]
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
-
--- | Execute a command that acts on a running database.
-runCommandOnRunningDb :: [String] -> IO ()
-runCommandOnRunningDb args =
-  maybe printDbUsage Command.Db.runCommandOnRunningDb parsedCommand
-  where
-    parsedCommand = case args of
-      ["reset"] -> Just Command.Db.Reset.reset
-      "migrate-dev" : optionalMigrateArgs -> Just $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-      ["seed"] -> Just $ Command.Db.Seed.seed Nothing
-      ["seed", seedName] -> Just $ Command.Db.Seed.seed $ Just seedName
-      ["studio"] -> Just Command.Db.Studio.studio
-      _unknownCommand -> Nothing
+dbCli :: [String] -> IO ()
+dbCli args = case args of
+  -- These commands require an existing and running database.
+  ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
+  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
+  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  -- These commands don't require an existing and running database.
+  ["start"] -> runCommand Command.Start.Db.start
+  _unknownDbCommand -> printDbUsage
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()
