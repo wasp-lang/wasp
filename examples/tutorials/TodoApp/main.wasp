@@ -19,7 +19,7 @@ route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
   // We specify that the React implementation of the page is exported from
-  // `src/MainPage.tsx`. This statement uses standard JS import syntax.
+  // `src/MainPage.jsx`. This statement uses standard JS import syntax.
   // Use `@src` to reference files inside the `src` folder.
   component: import { MainPage } from "@src/MainPage"
 }
