@@ -278,11 +278,11 @@ style={{ border: "1px solid black" }}
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
-However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
+However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
 <small>
 
-You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
 
 </small>
 
