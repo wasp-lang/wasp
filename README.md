@@ -38,7 +38,7 @@ Simple Wasp config file in which you describe the high-level details of your web
 
 app todoApp {
   title: "ToDo App",  // visible in the browser tab
-  wasp: { version: "^0.13.0" },
+  wasp: { version: "^0.14.0" },
   auth: { // full-stack auth out-of-the-box
     userEntity: User, methods: { email: {...} }
   }
@@ -55,11 +55,13 @@ query getTasks {
   entities: [Task] // Automatic cache invalidation.
 }
 
-entity Task {=psl  // Your Prisma data model.
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-psl=}
+// file: schema.prisma
+
+model Task { // Your Prisma data model.
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+}
 ```
 
 The rest of the code you write in React / Node.js / Prisma and just reference it from the .wasp file.
@@ -126,19 +128,20 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 
 <a href="https://github.com/shayneczyzewski"><img src="https://github.com/shayneczyzewski.png" width="50px" alt="shayneczyzewski" /></a> - Thanks Shayne, for all the contributions you did so far and for your continuous support!
 
-<a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a> - Big thanks Mariano for being one of our first sponsors and believing in us ❤️!
-
 <a href="https://github.com/velocity-one"><img src="https://github.com/velocity-one.png" width="50px" alt="VelocityOne" /></a> - Thanks VelocityOne for the generous donation!
 
 <a href="https://github.com/ricdex"><img src="https://github.com/ricdex.png" width="50px" alt="ricdex" /></a> - We are thankful for your support Ricardo in this early stage of Wasp :)!
 
-<a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a> - Thanks Arukaito for learning web dev with Wasp while supporting us on the way!
-
 <a href="https://github.com/ThomasJonesUK"><img src="https://github.com/ThomasJonesUK.png" width="50px" alt="ThomasJonesUK" /></a> - Thanks Thomas for supporting Wasp :)!
+
+<a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a> - Our awesome sponsor again and again!
+
+<a href="https://github.com/Case-E"><img src="https://github.com/Case-E.png" width="50px" alt="Case-E" /></a> - Big thanks for supporting us both via sponsorship and great suggestions!
 
 ## Past sponsors
 
 <a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a>
 <a href="https://github.com/Tech4Money"><img src="https://github.com/Tech4Money.png" width="50px" alt="Tech4Money" /></a>
 <a href="https://github.com/haseeb-heaven"><img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" /></a>
+
 

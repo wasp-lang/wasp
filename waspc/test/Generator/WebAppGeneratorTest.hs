@@ -19,6 +19,7 @@ import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.Monad (runGenerator)
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Version as WV
 
 -- TODO(martin): We could maybe define Arbitrary instance for AppSpec, define properties
@@ -46,6 +47,7 @@ spec_WebAppGenerator = do
                       AS.App.webSocket = Nothing
                     }
               ],
+            AS.prismaSchema = Psl.Schema.Schema [],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
             AS.externalCodeFiles = [],
             AS.externalPublicFiles = [],

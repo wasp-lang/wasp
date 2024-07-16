@@ -175,7 +175,7 @@ const NewTaskForm = () => {
 </TabItem>
 </Tabs>
 
-Unlike Queries, you can call Actions directly (i.e., without wrapping it with a hook) because we don't need reactivity. The rest is just regular React code.
+Unlike Queries, you can call Actions directly (without wrapping them in a hook) because they don't need reactivity. The rest is just regular React code.
 
 <ShowForTs>
 
@@ -265,7 +265,7 @@ style={{ border: "1px solid black" }}
 <br />
 
 :::note Automatic Query Invalidation
-When you create a new task, the list of tasks is automatically updated to display the new task, even though we have not written any code that would do that! Wasp handles these automatic updates under the hood.
+When you create a new task, the list of tasks is automatically updated to display the new task, even though you haven't written any code that does that! Wasp handles these automatic updates under the hood.
 
 When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed and automatically updates it in the background. This means that **out of the box, Wasp keeps all your queries in sync with any changes made through Actions**.
 

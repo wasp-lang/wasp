@@ -15,10 +15,10 @@ After going through the general steps that apply to all deployments, you can
 follow step-by-step guides for deploying your Wasp app to the most popular
 providers:
 
-- [Fly.io](#flyio)
-- [Netlify](#netlify)
-- [Railway](#railway)
-- [Heroku](#heroku)
+- [Fly.io](#flyio-server-and-database)
+- [Netlify](#netlify-client)
+- [Railway](#railway-server-client-and-database)
+- [Heroku](#heroku-server-and-database)
 
 No worries, you can still deploy your app if your desired provider isn't on the
 list - it just means we don't yet have a step-by-step guide for you to follow.
@@ -94,9 +94,11 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `build/` directory in the `web-app` directory.
+The command above will build the web client and put it in the `build/` directory in the `.wasp/build/web-app/`.
 
-Since the app's frontend is just a bunch of static files, you can deploy it to any static hosting provider.
+This is also the moment to provide any additional env vars for the client code, next to `REACT_APP_API_URL`. Check the [env vars docs](../../project/env-vars#client-env-vars-1) for more details.
+
+Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/build/web-app/build/`.
 
 ### 4. Deploying the Database
 
@@ -178,7 +180,7 @@ Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
 cp fly.toml ../../
 ```
 
-Next, let's add a few more environment variables:
+Next, add a few more environment variables for the server code.
 
 ```bash
 flyctl secrets set PORT=8080
@@ -258,7 +260,7 @@ Carefully follow the instructions i.e. do you want to create a new app or use an
 The final step is to run:
 
 ```shell
-netlify deploy --prod`
+netlify deploy --prod
 ```
 
 That is it! Your client should be live at `https://<app-name>.netlify.app` ✨

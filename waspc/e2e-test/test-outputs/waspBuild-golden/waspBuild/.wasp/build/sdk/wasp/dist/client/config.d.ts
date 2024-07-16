@@ -1,4 +1,4 @@
-declare const config: {
+export type ClientConfig = {
     apiUrl: string;
 };
-export default config;
+export declare const config: ClientConfig;

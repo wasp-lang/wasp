@@ -1,16 +1,22 @@
-import { prisma } from 'wasp/server'
 
-import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar.js'
+import { prisma } from 'wasp/server'
+import {
+  type UnauthenticatedOperationFor,
+  createUnauthenticatedOperation,
+  type AuthenticatedOperationFor,
+  createAuthenticatedOperation,
+} from '../wrappers.js'
+import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar'
 
 // PRIVATE API
-export type MySpecialQuery = typeof foo_ext 
+export type MySpecialQuery_ext = typeof foo_ext
 
 // PUBLIC API
-export const mySpecialQuery = async (args, context) => {
-  return (foo_ext as any)(args, {
-    ...context,
-    entities: {
+export const mySpecialQuery: AuthenticatedOperationFor<MySpecialQuery_ext> =
+  createAuthenticatedOperation(
+    foo_ext,
+    {
       User: prisma.user,
     },
-  })
-}
+  )
+

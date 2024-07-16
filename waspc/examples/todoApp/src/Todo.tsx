@@ -1,5 +1,5 @@
-import { Link } from "wasp/client/router";
-import { type Task } from "wasp/entities";
+import { Link } from 'wasp/client/router'
+import { type Task } from 'wasp/entities'
 
 import {
   useAction,
@@ -10,7 +10,10 @@ import {
   toggleAllTasks,
   useQuery,
   getTasks,
-} from "wasp/client/operations";
+  getTask,
+  getDate,
+  getAnythingAuth,
+} from 'wasp/client/operations'
 
 import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
 
@@ -23,6 +26,7 @@ export function areThereAnyTasks(
 }
 
 const Todo = () => {
+  // logAll()
   const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
 
   const TasksError = () => {
@@ -115,6 +119,23 @@ const TaskView = ({ task }: { task: Task }) => {
           }
         },
       } as OptimisticUpdateDefinition<UpdateTaskIsDonePayload, Task[]>,
+      {
+        getQuerySpecifier: () => [getTask, { id: task.id }],
+        // This query's cache should should never be emtpy
+        updateQuery: ({ isDone }, oldTask) => {
+          if (oldTask === undefined) {
+            // Cache is empty (e.g., the user has not yet opened the task's
+            // dedicated page.
+            // Passes the type checker because of the assertion Returning
+            // undefined should be properly supported and not a hack, see
+            // https://github.com/wasp-lang/wasp/issues/2017
+            return undefined
+          } else {
+            const result = { ...oldTask!, isDone }
+            return result
+          }
+        },
+      } as OptimisticUpdateDefinition<UpdateTaskIsDonePayload, Task>,
     ],
   })
   const handleTaskIsDoneChange: ChangeEventHandler<HTMLInputElement> = async (
@@ -220,6 +241,26 @@ const ToggleAllTasksButton = ({ disabled }: { disabled: boolean }) => {
       ✓
     </button>
   )
+}
+
+// Use this function to test calling actions directly
+async function logAll() {
+  const tasks = await getTasks()
+  console.info('Got tasks:', tasks)
+
+  const someId = tasks.map((task) => task.id).find((id) => id)
+  if (!someId) {
+    console.info('No tasks found')
+  } else {
+    const task = await getTask({ id: someId })
+    console.info(`Got task with id ${someId}`, task)
+  }
+
+  const date = await getDate()
+  console.info('Got date:', date)
+
+  const anything = await getAnythingAuth()
+  console.info('Got anything:', anything)
 }
 
 export default Todo

@@ -29,7 +29,9 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       -- shared stuff
-      sequence [genFileCopy [relfile|auth/user.ts|]]
+      sequence
+        [ genFileCopy [relfile|auth/user.ts|]
+        ]
         -- client stuff
         <++> sequence
           [ genFileCopy [relfile|auth/helpers/user.ts|],

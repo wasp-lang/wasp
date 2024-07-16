@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { type AuthUser } from 'wasp/auth';
+import { type AuthUserData } from './auth/user.js';
 type RequestWithExtraFields = Request & {
-    user?: AuthUser;
-    sessionId?: string;
+    user: AuthUserData | null;
+    sessionId: string | null;
 };
 /**
  * Decorator for async express middleware that handles promise rejections.

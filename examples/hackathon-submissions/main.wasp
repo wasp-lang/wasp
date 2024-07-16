@@ -1,25 +1,9 @@
 app hackathonBetaSubmissions {
   wasp: {
-    version: "^0.13.0"
-  },
-  db: {
-    system: PostgreSQL
+    version: "^0.14.0"
   },
   title: "Hackathon Submissions"
 }
-
-entity Submission {=psl
-  name        String  @id @unique
-  email       String  @unique
-  github      String
-  description String
-  twitter     String?
-  country     String?
-  website     String?
-  image       String?
-  approved    Boolean @default(false)
-  createdAt   DateTime @default(now())
-psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {

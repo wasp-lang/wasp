@@ -4,7 +4,7 @@ module.exports = {
       type: 'category',
       label: 'Getting Started',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'introduction/introduction',
         'introduction/quick-start',
@@ -15,7 +15,7 @@ module.exports = {
       type: 'category',
       label: 'Tutorial',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'tutorial/create',
         'tutorial/project-structure',
@@ -27,10 +27,15 @@ module.exports = {
       ],
     },
     {
+      type: 'link',
+      label: 'Examples',
+      href: 'https://github.com/wasp-lang/wasp/tree/release/examples'
+    },
+    {
       type: 'category',
       label: 'Data Model',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'data-model/entities',
         {
@@ -45,13 +50,14 @@ module.exports = {
         },
         'data-model/crud',
         'data-model/backends',
+        'data-model/prisma-file'
       ],
     },
     {
       type: 'category',
       label: 'Authentication',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'auth/overview',
         'auth/ui',
@@ -66,16 +72,18 @@ module.exports = {
             'auth/social-auth/github',
             'auth/social-auth/google',
             'auth/social-auth/keycloak',
+            'auth/social-auth/discord',
           ],
         },
         'auth/entities/entities',
+        'auth/auth-hooks'
       ],
     },
     {
       type: 'category',
       label: 'Project Setup',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'project/starter-templates',
         'project/customizing-app',
@@ -93,25 +101,15 @@ module.exports = {
       type: 'category',
       label: 'Wasp AI',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: ['wasp-ai/creating-new-app', 'wasp-ai/developing-existing-app'],
     },
     {
       type: 'category',
       label: 'Advanced Features',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
-        {
-          type: 'category',
-          label: 'Deployment',
-          collapsed: true,
-          items: [
-            'advanced/deployment/overview',
-            'advanced/deployment/cli',
-            'advanced/deployment/manually',
-          ],
-        },
         'advanced/email/email',
         'advanced/jobs',
         'advanced/web-sockets',
@@ -123,16 +121,27 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'Deployment',
+      collapsed: false,
+      collapsible: true,
+      items: [
+        'advanced/deployment/overview',
+        'advanced/deployment/cli',
+        'advanced/deployment/manually',
+      ],
+    },
+    {
+      type: 'category',
       label: 'General',
       collapsed: false,
-      collapsible: false,
-      items: ['general/language', 'general/cli'],
+      collapsible: true,
+      items: ['general/language', 'general/cli', 'general/typescript'],
     },
     {
       type: 'category',
       label: 'Miscellaneous',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'contributing',
         'telemetry',
@@ -140,6 +149,7 @@ module.exports = {
         'contact',
         'migrate-from-0-11-to-0-12',
         'migrate-from-0-12-to-0-13',
+        'migrate-from-0-13-to-0-14'
       ],
     },
   ],

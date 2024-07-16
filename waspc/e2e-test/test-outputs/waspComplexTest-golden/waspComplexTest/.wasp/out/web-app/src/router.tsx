@@ -18,6 +18,14 @@ const router = (
   <Router basename="/">
     <App>
     <Switch>
+      {/* 
+        Wasp specific routes *must* go first to prevent user
+        defined routes from overriding them.
+        Details in https://github.com/wasp-lang/wasp/issues/2029
+      */}
+      <Route exact path="/oauth/callback">
+        <OAuthCallbackPage />
+      </Route>
       {Object.entries(routes).map(([routeKey, route]) => (
         <Route
           exact
@@ -26,9 +34,6 @@ const router = (
           component={routeNameToRouteComponent[routeKey]}
         />
       ))}
-      <Route exact path="/oauth/callback">
-        <OAuthCallbackPage />
-      </Route>
     </Switch>
     </App>
   </Router>

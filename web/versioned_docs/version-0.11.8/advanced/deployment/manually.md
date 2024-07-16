@@ -231,7 +231,7 @@ Carefully follow the instructions i.e. do you want to create a new app or use an
 The final step is to run:
 
 ```shell
-netlify deploy --prod`
+netlify deploy --prod
 ```
 
 That is it! Your client should be live at `https://<app-name>.netlify.app` ✨

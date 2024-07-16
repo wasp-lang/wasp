@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "ToDo App",
   auth: {
@@ -23,7 +23,9 @@ app todoApp {
       google: {}
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/profile"
+    onAuthSucceededRedirectTo: "/profile",
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
   },
   server: {
     setupFn: import setup from "@src/server/serverSetup.js",
@@ -34,7 +36,6 @@ app todoApp {
     setupFn: import setup from "@src/client/clientSetup.js"
   },
   db: {
-    system: PostgreSQL,
     seeds: [
       import { devSeedSimple } from "@src/server/dbSeeds.js",
       import { prodSeed } from "@src/server/dbSeeds.js"
@@ -47,20 +48,6 @@ app todoApp {
     },
   },
 }
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    // Business logic
-    tasks                     Task[]
-psl=}
-
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    user        User    @relation(fields: [userId], references: [id])
-    userId      Int
-psl=}
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
@@ -110,6 +97,17 @@ route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage {
   authRequired: true,
   component: import Task from "@src/client/pages/Task.tsx"
+}
+
+route CrudRoute { path: "/crud", to: Crud }
+page Crud {
+  component: import { CrudTestPage } from "@src/client/pages/CrudTest.tsx",
+  authRequired: true
+}
+
+route CatchAllRoute { path: "*", to: CatchAllPage }
+page CatchAllPage {
+  component: import { CatchAllPage } from "@src/client/pages/CatchAll"
 }
 
 // --------- Queries --------- //
@@ -205,5 +203,15 @@ job mySpecialScheduledJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 2 } json=}
     }
+  }
+}
+
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      overrideFn: import { getAllFilteredTasks } from "@src/server/crud"
+    },
+    create: {}
   }
 }

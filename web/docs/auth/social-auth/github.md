@@ -11,6 +11,8 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import GithubData from '../entities/_github-data.md';
+import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 
 Wasp supports Github Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.
@@ -90,32 +92,32 @@ app myApp {
 
 ### 2. Add the User Entity
 
-Let's now define the `app.auth.userEntity` entity:
+Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    // ...
-psl=}
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    // ...
-psl=}
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 </TabItem>
@@ -163,7 +165,6 @@ Add the following code to your `main.wasp` file:
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.jsx"
@@ -176,7 +177,6 @@ page LoginPage {
 ```wasp title="main.wasp"
 // ...
 
-// 6. Define the routes
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { Login } from "@src/pages/auth.tsx"
@@ -390,12 +390,14 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    displayName               String
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
 // ...
 ```
@@ -435,12 +437,14 @@ app myApp {
     onAuthFailedRedirectTo: "/login"
   },
 }
+```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    displayName               String
-psl=}
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
 // ...
 ```
@@ -468,6 +472,12 @@ export function getConfig() {
 ## Using Auth
 
 <UsingAuthNote />
+
+When you receive the `user` object [on the client or the server](../overview.md#accessing-the-logged-in-user), you'll be able to access the user's GitHub ID like this:
+
+<GithubData />
+
+<AccessingUserDataNote />
 
 ## API Reference
 

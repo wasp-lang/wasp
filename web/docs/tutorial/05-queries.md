@@ -101,8 +101,8 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 
 Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
 
-- `Task` is a type corresponding to the `Task` entity we've defined in `main.wasp`.
-- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query we've defined in `main.wasp`.
+- `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp`.
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
@@ -230,7 +230,7 @@ Most of this code is regular React, the only exception being the <ShowForJs>two<
 
 - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` declaration in `main.wasp`.
 - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
-- `Task` - The type for the Task entity defined in `main.wasp`.
+- `Task` - The type for the Task entity defined in `schema.prisma`.
 
 Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
 

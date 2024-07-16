@@ -153,26 +153,22 @@ const LogoutButton = () => {
 
 You can get access to the `user` object both on the server and on the client. The `user` object contains the logged-in user's data.
 
-The `user` object has all the fields that you defined in your `User` entity, plus the `auth` field which contains the auth identities connected to the user. For example, if the user signed up with their email, the `user` object might look something like this:
+The `user` object has all the fields that you defined in your `User` entity. In addition to that, it will also contain all the auth-related fields that Wasp stores. This includes things like the `username` or the email verification status. For example, if you have a user that signed up using an email and password, the `user` object might look like this:
 
-```js
+```ts
 const user = {
-  id: "19c7d164-b5cb-4dde-a0cc-0daea77cf854",
+  // User data
+  id: "cluqsex9500017cn7i2hwsg17",
+  address: "Some address",
 
-  // Your entity's fields.
-  address: "My address",
-  // ...
-
-  // Auth identities connected to the user.
-  auth: {
-    id: "26ab6f96-ed76-4ee5-9ac3-2fd0bf19711f",
-    identities: [
-      {
-        providerName: "email",
-        providerUserId: "some@email.com",
-        providerData: { ... },
-      },
-    ]
+  // Auth methods specific data
+  identities: {
+    email: {
+      id: "user@app.com",
+      isEmailVerified: true,
+      emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
+      passwordResetSentAt: null,
+    },
   },
 }
 ```
@@ -538,11 +534,13 @@ app crudTesting {
     onAuthFailedRedirectTo: "/login",
   },
 }
+```
 
-entity User {=psl
-  id Int @id @default(autoincrement())
+```prisma title="schema.prisma"
+model User {
+  id      Int     @id @default(autoincrement())
   address String?
-psl=}
+}
 ```
 
 Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:
@@ -580,11 +578,13 @@ app crudTesting {
     onAuthFailedRedirectTo: "/login",
   },
 }
+```
 
-entity User {=psl
-  id Int @id @default(autoincrement())
+```prisma title="schema.prisma"
+model User {
+  id      Int     @id @default(autoincrement())
   address String?
-psl=}
+}
 ```
 
 Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:
@@ -614,7 +614,7 @@ export const userSignupFields = defineUserSignupFields({
 Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
 </small>
 
-Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity.
+Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
 
 The field function will receive the data sent from the client and it needs to return the value that will be saved into the database. If the field is invalid, the function should throw an error.
 
@@ -896,7 +896,6 @@ Read more about the render function in the [API Reference](#signupform-customiza
       gitHub: {},
     },
     onAuthFailedRedirectTo: "/someRoute",
-    signup: { ... }
   }
 }
 
@@ -919,7 +918,6 @@ app MyApp {
       gitHub: {},
     },
     onAuthFailedRedirectTo: "/someRoute",
-    signup: { ... }
   }
 }
 
@@ -946,7 +944,7 @@ A dictionary of auth methods enabled for the app.
 #### `onAuthFailedRedirectTo: String` <Required />
 
 The route to which Wasp should redirect unauthenticated user when they try to access a private page (i.e., a page that has `authRequired: true`).
-Check out these [essentials docs on auth](../tutorial/auth#adding-auth-to-the-project) to see an example of usage.
+Check out these [essential docs on auth](../tutorial/auth#adding-auth-to-the-project) to see an example of usage.
 
 #### `onAuthSucceededRedirectTo: String`
 
@@ -956,10 +954,6 @@ The default value is `"/"`.
 :::note
 Automatic redirect on successful login only works when using the Wasp-provided [Auth UI](../auth/ui).
 :::
-
-#### `signup: SignupOptions`
-
-Read more about the signup process customization API in the [Signup Fields Customization](#signup-fields-customization) section.
 
 ### Signup Fields Customization
 
@@ -1180,7 +1174,7 @@ The extra fields can be either **objects** or **render functions** (you can comb
    The render function has the following signature:
 
    ```ts
-   ;(form: UseFormReturn, state: FormState) => React.ReactNode
+   (form: UseFormReturn, state: FormState) => React.ReactNode
    ```
 
    - `form` <Required />

@@ -13,7 +13,7 @@ export function Link(
     hash?: string;
   }
   & Routes
-) {
+): React.JSX.Element {
   const toPropWithParams = useMemo(() => {
     return interpolatePath(to, params, search, hash)
   }, [to, params])

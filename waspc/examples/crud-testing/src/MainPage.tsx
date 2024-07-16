@@ -1,6 +1,6 @@
-import { Link, routes } from "wasp/client/router";
-import { logout } from "wasp/client/auth";
-import { getUsername } from "wasp/auth";
+import { Link, routes } from 'wasp/client/router'
+import { logout } from 'wasp/client/auth'
+import { getUsername } from 'wasp/auth'
 
 import './Main.css'
 

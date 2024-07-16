@@ -146,7 +146,7 @@ All the hooks we use are typed with the events and payloads you defined on the s
 :::
 </ShowForTs>
 
-### `useSocket` Hook
+### The `useSocket` Hook
 
 Client access to WebSockets is provided by the `useSocket` hook. It returns:
 - `socket: Socket` for sending and receiving events.
@@ -156,7 +156,7 @@ Client access to WebSockets is provided by the `useSocket` hook. It returns:
 
 All components using `useSocket` share the same underlying `socket`.
 
-### `useSocketListener` Hook
+### The `useSocketListener` Hook
 
 Additionally, there is a `useSocketListener: (event, callback) => void` hook which is used for registering event handlers. It takes care of unregistering the handler on unmount.
 
@@ -222,7 +222,7 @@ export const ChatPage = () => {
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-Wasp's **full-stack type safety** kicks in here: all the event types and payloads are automatically inferred from the server and are available on the client 🔥
+Wasp's **full-stack type safety** kicks in here: all the event types and payloads are automatically inferred from the server and are available on the client.
 
 You can additionally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
 

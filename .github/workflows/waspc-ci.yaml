@@ -158,9 +158,9 @@ jobs:
       - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
 
-      - name: Ensure todoApp builds
+      - name: Ensure examples/todoApp compiles and builds
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-        run: ./tools/ensure_todoapp_builds.sh
+        run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
       - name: Headless - Cache Node Modules
         id: headless-cache-node-modules

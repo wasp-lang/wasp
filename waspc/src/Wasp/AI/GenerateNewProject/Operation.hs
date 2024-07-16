@@ -33,7 +33,7 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import Wasp.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
 import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
+import Wasp.AI.GenerateNewProject.Entity (entityPlanToPrismaModelText)
 import Wasp.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
@@ -66,7 +66,7 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
     operationFnPath = T.pack $ Plan.opFnPath operationPlan
     operationDesc = T.pack $ Plan.opDesc operationPlan
     operationTypeText = T.pack $ show operationType
-    entityDecls = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
+    modelDecls = T.intercalate "\n\n" $ entityPlanToPrismaModelText <$> entityPlans
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
@@ -79,8 +79,8 @@ generateOperation operationType newProjectDetails entityPlans operationPlan = do
 
         We are implementing a Wasp app (check bottom for description).
 
-        This app has the following entities:
-          ${entityDecls}
+        This app has the following entities (models):
+          ${modelDecls}
 
 
         Let's now implement the following Wasp ${operationTypeText}:

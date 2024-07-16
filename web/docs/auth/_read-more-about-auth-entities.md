@@ -1,1 +1,5 @@
-You can read more about how the `User` entity is connected to the rest of the auth system in the [Auth Entities](./entities) section of the docs.
+<small>
+
+You can read more about how the `User` is connected to the rest of the auth system and how you can access the user data in the [Accessing User Data](./entities) section of the docs.
+
+</small>

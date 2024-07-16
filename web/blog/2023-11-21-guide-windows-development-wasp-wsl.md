@@ -80,7 +80,7 @@ After hearing all about the cool features of WSL, let’s slowly get back on tra
 
 If you aren’t familiar with it, Wasp is a Rails-like framework for React, Node.js, and Prisma. It’s a fast and easy way to develop and deploy your full-stack web apps. For our tutorial, Wasp is a perfect candidate, since it doesn’t support Windows development natively, but only through WSL as it requires a Unix environment.
 
-Let’s get started with installing Node.js first. At the moment, Wasp requires users to use the Node v18 (version requirement will be relaxed very soon), so we want to start with both Node.js and NVM installation.
+Let’s get started with installing Node.js first. NVM is the best tool for versioning Node.js, so we want to start with both Node.js and NVM installation.
 
 But first things first, let’s start with Node.js. In WSL, run:
 
@@ -118,12 +118,6 @@ If we don’t already have VS Code, it will automatically set up everything need
 
 ```bash
 export PATH=$PATH:/home/boris/.local/bin
-```
-
-Great! Now we just need to swap node version to v18.14.2 to ensure full compatibility with Wasp. We’ll install and switch to Node 18 in one go! To do this, simply run:
-
-```bash
-nvm install v18.14.2 && nvm use v18.14.2
 ```
 
 ### Setting up VS Code

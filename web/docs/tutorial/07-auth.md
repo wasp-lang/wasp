@@ -21,14 +21,14 @@ To add users to your app, you must:
 
 Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for you in the background. Nothing to do here!
 
-You must only add the `User` Entity to keep track of who owns which tasks.
+You must only add the `User` Entity to keep track of who owns which tasks:
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // ...
 
-entity User {=psl
-    id       Int    @id @default(autoincrement())
-psl=}
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 ## Adding Auth to the Project
@@ -278,11 +278,11 @@ style={{ border: "1px solid black" }}
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
-However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because we haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
+However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
 <small>
 
-You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for us. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
 
 </small>
 
@@ -290,26 +290,24 @@ You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Sessi
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-```wasp title="main.wasp"
+```prisma title="schema.prisma"
 // ...
 
-entity User {=psl
-    id       Int    @id @default(autoincrement())
-    // highlight-next-line
-    tasks    Task[]
-psl=}
+model User {
+  id    Int    @id @default(autoincrement())
+  // highlight-next-line
+  tasks Task[]
+}
 
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    // highlight-next-line
-    user        User?   @relation(fields: [userId], references: [id])
-    // highlight-next-line
-    userId      Int?
-psl=}
-
-// ...
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  // highlight-next-line
+  user        User?   @relation(fields: [userId], references: [id])
+  // highlight-next-line
+  userId      Int?
+}
 ```
 
 As always, you must migrate the database after changing the Entities:
@@ -535,8 +533,9 @@ You should be ready to learn about more complicated features and go more in-dept
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](../project/starter-templates)
-- Make a real-time app with [Web Sockets](../advanced/web-sockets)
+- Get a jump start on your next project with [Starter Templates](../project/starter-templates).
+- Check out our [official examples](https://github.com/wasp-lang/wasp/tree/release/examples).
+- Make a real-time app with [Web Sockets](../advanced/web-sockets).
 
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏

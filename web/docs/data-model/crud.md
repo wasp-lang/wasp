@@ -18,14 +18,14 @@ This feature is currently in early preview and we are actively working on it. Re
 
 ## Overview
 
-Imagine we have a `Task` entity and we want to enable CRUD operations for it.
+Imagine we have a `Task` entity and we want to enable CRUD operations for it:
 
-```wasp title="main.wasp"
-entity Task {=psl
-  id          Int @id @default(autoincrement())
+```prisma title="schema.prisma"
+model Task {
+  id          Int     @id @default(autoincrement())
   description String
   isDone      Boolean
-psl=}
+}
 ```
 
 We can then define a new `crud` called `Tasks`.
@@ -58,7 +58,7 @@ Here's what it looks like when visualized:
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
-Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API Reference](#api-reference)
+Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API Reference](#api-reference).
 
 ## Example: A Simple TODO App
 
@@ -87,20 +87,6 @@ app tasksCrudApp {
   },
 }
 
-entity User {=psl
-  id       Int @id @default(autoincrement())
-  tasks    Task[]
-psl=}
-
-// We defined a Task entity on which we'll enable CRUD later on
-entity Task {=psl
-  id          Int @id @default(autoincrement())
-  description String
-  isDone      Boolean
-  userId      Int
-  user        User @relation(fields: [userId], references: [id])
-psl=}
-
 // Tasks app routes
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
@@ -116,6 +102,24 @@ page LoginPage {
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
   component: import { SignupPage } from "@src/SignupPage.jsx",
+}
+```
+
+And let's define our entities in the `schema.prisma` file:
+
+```prisma title="schema.prisma"
+model User {
+  id    Int    @id @default(autoincrement())
+  tasks Task[]
+}
+
+// We defined a Task entity on which we'll enable CRUD later on
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean
+  userId      Int
+  user        User    @relation(fields: [userId], references: [id])
 }
 ```
 
@@ -141,9 +145,13 @@ crud Tasks {
 
 You'll notice that we enabled only `getAll` and `create` operations. This means that only these operations will be available.
 
-We also overrode the `create` operation with a custom implementation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `@src/tasks.js` will be used.
+We also overrode the `create` operation with a custom implementation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `@src/tasks.{js,ts}` will be used.
 
 ### Our Custom `create` Operation
+
+We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
+Automatic CRUD doesn't yet support this by default.
+Read more about the default implementations [here](#declaring-a-crud-with-default-options).
 
 Here's the `src/tasks.{js,ts}` file:
 
@@ -216,12 +224,16 @@ export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
 }
 ```
 
+Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
+Use it to type the CRUD action's implementation.
+
+The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
+In other words, annotating the action with `Tasks.CreateAction` tells TypeScript about the type of the Action's `context` object, while the two type arguments allow you to specify the Action's inputs and outputs.
+
+Read more about type support for CRUD overrides in the [API reference](#defining-the-overrides).
+
 </TabItem>
 </Tabs>
-
-We made a custom `create` operation because we want to make sure that the task is connected to the user that is creating it.
-Automatic CRUD doesn't support this by default (yet!).
-Read more about the default implementations [here](#declaring-a-crud-with-default-options).
 
 ### Using the Generated CRUD Operations on the Client
 
@@ -444,7 +456,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 ## API Reference
 
-CRUD declaration work on top of existing entity declaration. We'll fully explore the API using two examples:
+CRUD declaration works on top of an existing entity declaration. We'll fully explore the API using two examples:
 
 1. A basic CRUD declaration that relies on default options.
 2. A more involved CRUD declaration that uses extra options and overrides.

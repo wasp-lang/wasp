@@ -103,7 +103,7 @@ basicStarterTemplate =
 openSaasStarterTemplate :: StarterTemplate
 openSaasStarterTemplate =
   simpleGhRepoTemplate
-    ("open-saas", [reldir|.|])
+    ("open-saas", [reldir|template|])
     ( "saas",
       "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
         <> " Check out https://opensaas.sh/ for more details."
@@ -226,7 +226,7 @@ waspGhOrgName = "wasp-lang"
 --   By tagging templates for each version of Wasp CLI, we ensure that each release of
 --   Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.13-template"
+waspVersionTemplateGitTag = "wasp-v0.14-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates

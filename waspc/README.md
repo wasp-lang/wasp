@@ -121,20 +121,19 @@ NOTE: Reload page if blank.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
-5. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
-6. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
-   Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
-7. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR.
+4. Run `cabal test` to confirm that the project's unit and integration tests are passing (both new and old).
+5. For easily testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app. Check its README for more details (including how to run it).
+6. There is also `headless-test/examples/todoApp`, that comes equiped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
+7. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
+8. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR.
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
-8. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
-9. Work with reviewer(s) to get the PR approved.
+9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
+10. Work with reviewer(s) to get the PR approved.
    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
-10. Reviewer will merge the branch into `main`. Yay!
+11. Reviewer will merge the branch into `main`. Yay!
 
-NOTE: Why don't you use a cabal freeze file?
-In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead
-use cabal's `index-state` feature to get package version pinning from hackage. See this question for more: https://github.com/haskell/cabal/issues/8059
+NOTE: Why don't we use a cabal freeze file to lock our dependencies?
+In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead use cabal's `index-state` feature to get package version pinning from hackage. See this question for more: https://github.com/haskell/cabal/issues/8059
 
 ## Design docs (aka RFCs)
 

@@ -40,21 +40,12 @@ test('handles rendering in context', () => {
 const { mockQuery } = mockServer()
 
 const mockUser = {
-  id: 12,
-  auth: {
-    id: '123',
-    userId: 12,
-    identities: [
-      {
-        authId: '123',
-        providerName: 'email',
-        providerUserId: 'elon@tesla.com',
-        providerData: '',
-      },
-    ],
+  identities: {
+    username: {
+      id: 'Elon',
+    },
   },
-  address: '',
-} satisfies AuthUser
+} as AuthUser
 
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks)

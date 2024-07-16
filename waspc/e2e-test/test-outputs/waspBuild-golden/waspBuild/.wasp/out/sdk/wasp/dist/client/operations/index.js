@@ -6,7 +6,7 @@ export {
 // PUBLIC API
 useAction, 
 // PUBLIC API
-useQuery, } from './core';
+useQuery, } from './hooks';
 export { 
 // PUBLIC API
 configureQueryClient, 

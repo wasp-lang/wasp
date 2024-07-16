@@ -1,16 +1,20 @@
-import { type AuthUser as User } from "wasp/auth";
-import { type ServerToClientPayload, useSocket, useSocketListener } from "wasp/client/webSocket";
-import { Link, routes } from "wasp/client/router";
-import { api } from "wasp/client/api";
+import { type AuthUser } from 'wasp/auth'
+import {
+  type ServerToClientPayload,
+  useSocket,
+  useSocketListener,
+} from 'wasp/client/webSocket'
+import { Link, routes } from 'wasp/client/router'
+import { api } from 'wasp/client/api'
 import React, { useEffect, useRef, useState } from 'react'
-import { getName, getProviderData } from '../user'
+import { getName } from '../user'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
   console.log(res.data)
 }
 
-export const ProfilePage = ({ user }: { user: User }) => {
+export const ProfilePage = ({ user }: { user: AuthUser }) => {
   const [messages, setMessages] = useState<
     ServerToClientPayload<'chatMessage'>[]
   >([])
@@ -22,7 +26,7 @@ export const ProfilePage = ({ user }: { user: User }) => {
   }, [])
 
   useSocketListener('chatMessage', (msg) =>
-    setMessages((priorMessages) => [msg, ...priorMessages])
+    setMessages((priorMessages) => [msg, ...priorMessages]),
   )
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -41,21 +45,20 @@ export const ProfilePage = ({ user }: { user: User }) => {
   ))
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-  const providerData = getProviderData(user)
-
   return (
     <>
-      <h2>Profile page</h2>
+      <h2 className="mt-4 mb-2 font-bold text-xl">User Auth Fields Demo</h2>
       <div>
         Hello <strong>{getName(user)}</strong>! Your status is{' '}
         <strong>
-          {providerData && providerData.isEmailVerified
-            ? 'verfied'
-            : 'unverified'}
+          {user.identities.email?.isEmailVerified ? 'verfied' : 'unverified'}
         </strong>
         .
       </div>
-      <br />
+      <div>
+        First provider ID: <strong>{user.getFirstProviderUserId()}</strong>
+      </div>
+      <h2 className="mt-4 mb-2 font-bold text-xl">Links Demo</h2>
       <Link to="/task/:id" params={{ id: 3 }}>
         Task 3
       </Link>
@@ -68,6 +71,7 @@ export const ProfilePage = ({ user }: { user: User }) => {
         })}
       </p>
       <div>
+        <h2 className="mt-4 mb-2 font-bold text-xl">WebSockets Demo</h2>
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-4 place-items-center">
             <div>{connectionIcon}</div>

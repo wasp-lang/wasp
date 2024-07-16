@@ -8,7 +8,8 @@ import StrongPath (File', Path', Rel', reldir, relfile)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
-  ( gitHubAuthProvider,
+  ( discordAuthProvider,
+    gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
   )
@@ -28,11 +29,13 @@ genHelpers :: AS.Auth.Auth -> Generator [FileDraft]
 genHelpers auth =
   return $
     concat
-      [ [gitHubHelpers | AS.Auth.isGitHubAuthEnabled auth],
+      [ [discordHelpers | AS.Auth.isDiscordAuthEnabled auth],
+        [gitHubHelpers | AS.Auth.isGitHubAuthEnabled auth],
         [googleHelpers | AS.Auth.isGoogleAuthEnabled auth],
         [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
       ]
   where
+    discordHelpers = mkHelpersFd discordAuthProvider [relfile|Discord.tsx|]
     gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
     googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.tsx|]
     keycloakHelpers = mkHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
@@ -40,7 +43,7 @@ genHelpers auth =
     mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     mkHelpersFd provider helpersFp =
       mkTmplFdWithDstAndData
-        [relfile|auth/helpers/Generic.tsx|]
+        [relfile|auth/helpers/_Provider.tsx|]
         (SP.castRel $ [reldir|auth/helpers|] SP.</> helpersFp)
         (Just tmplData)
       where

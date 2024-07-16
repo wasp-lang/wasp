@@ -149,3 +149,14 @@ spec_checksum :: Spec
 spec_checksum = do
   it "Correctly calculates checksum of string" $ do
     checksumFromString "test" `shouldBe` hexFromString "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+
+spec_findDuplicateElems :: Spec
+spec_findDuplicateElems = do
+  it "Finds duplicate elements in a list" $ do
+    findDuplicateElems ([1, 2, 3, 4, 5, 1, 2, 3, 4, 5] :: [Int]) `shouldBe` [1, 2, 3, 4, 5]
+
+  it "Returns empty list if there are no duplicates" $ do
+    findDuplicateElems ([1, 2, 3, 4, 5] :: [Int]) `shouldBe` []
+
+  it "Returns empty list for empty list" $ do
+    findDuplicateElems ([] :: [Int]) `shouldBe` []

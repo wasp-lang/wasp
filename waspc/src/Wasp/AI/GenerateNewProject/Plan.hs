@@ -21,7 +21,6 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Numeric.Natural (Natural)
-import qualified Text.Parsec as Parsec
 import Wasp.AI.CodeAgent (writeToLog)
 import Wasp.AI.GenerateNewProject.Common
   ( CodeAgent,
@@ -35,7 +34,7 @@ import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import qualified Wasp.Psl.Format as Prisma
-import qualified Wasp.Psl.Parser.Model as Psl.Parser
+import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 import qualified Wasp.Util.Aeson as Util.Aeson
 import qualified Wasp.Util.Terminal as Term
 
@@ -62,12 +61,15 @@ generatePlan newProjectDetails planRules = do
     appDescriptionBlockText = appDescriptionBlock newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
+    prismaFileExamplePrompt = Prompts.prismaFileExample
     rulesText = T.pack . unlines $ "Instructions you must follow while generating plan:" : map (" - " ++) planRules
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
 
         ${waspFileExamplePrompt}
+
+        ${prismaFileExamplePrompt}
 
         We are looking for a plan to build a new Wasp app (description at the end of prompt).
 
@@ -119,7 +121,7 @@ generatePlan newProjectDetails planRules = do
         DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
 
         Note that we are using SQLite as a database for Prisma, so don't use scalar arrays in PSL, like `String[]`,
-        as those are not supported in SQLite. You can of course normally use arrays of other models, like `Task[]`.
+        as those are not supported in SQLite. You can of course normally use arrays of other entities, like `Task[]`.
 
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
@@ -200,7 +202,7 @@ checkPlanForEntityIssues :: Plan -> [String]
 checkPlanForEntityIssues plan =
   checkNumEntities
     <> checkUserEntity
-    <> concatMap checkIfEntityPSLCompiles (entities plan)
+    <> concatMap checkIfEntityBodyParses (entities plan)
   where
     checkNumEntities =
       let numEntities = length (entities plan)
@@ -217,15 +219,13 @@ checkPlanForEntityIssues plan =
         Just _userEntity -> [] -- TODO: I could check here if it contains correct fields.
         Nothing -> ["'User' entity is missing."]
 
-    checkIfEntityPSLCompiles entity =
-      case parsePslBody (entityBodyPsl entity) of
+    checkIfEntityBodyParses entity =
+      case Psl.Parser.Model.parseBody (entityBodyPsl entity) of
         Left parseError ->
           [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
               <> show parseError
           ]
         Right _ -> []
-
-    parsePslBody = Parsec.parse Psl.Parser.body ""
 
 -- | Calls "prisma format" on given entities, and returns formatted/fixed entities + error message
 -- that captures all schema errors that prisma returns, if any.
@@ -236,21 +236,21 @@ prismaFormat unformattedEntities = do
   (maybeErrorsMsg, formattedPslModels) <- Prisma.prismaFormatModels pslModels
   let formattedEntities =
         zipWith
-          (\e m -> e {entityBodyPsl = T.unpack $ getPslBodyFromPslModelText m})
+          (\e m -> e {entityBodyPsl = T.unpack $ getPslModelBodyFromPslModelText m})
           unformattedEntities
           formattedPslModels
   return (maybeErrorsMsg, formattedEntities)
   where
     getPslModelTextForEntity :: Entity -> Text
     getPslModelTextForEntity entity =
-      let modelName = T.pack $ entityName entity
-          modelBody = T.pack $ entityBodyPsl entity
-       in [trimming|model ${modelName} {
-                      ${modelBody}
+      let pslModelName = T.pack $ entityName entity
+          pslModelBody = T.pack $ entityBodyPsl entity
+       in [trimming|model ${pslModelName} {
+                      ${pslModelBody}
                     }|]
 
-    -- Example: @getPslBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.
-    getPslBodyFromPslModelText = removeEnd . removeStart . T.strip
+    -- Example: @getPslModelBodyFromPslModelText "model Task {\n  id Int\n  desc String\n}" == "  id Int\n  desc String"@.
+    getPslModelBodyFromPslModelText = removeEnd . removeStart . T.strip
       where
         removeStart = T.dropWhile (== '\n') . T.drop 1 . T.dropWhile (/= '{')
         removeEnd = T.dropWhileEnd isSpace . T.dropEnd 1 . T.dropWhileEnd (/= '}')

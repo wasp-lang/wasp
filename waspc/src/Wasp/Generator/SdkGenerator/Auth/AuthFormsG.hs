@@ -7,10 +7,12 @@ import Data.Aeson (object, (.=))
 import StrongPath (reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
-  ( gitHubAuthProvider,
+  ( discordAuthProvider,
+    gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
   )
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -24,7 +26,10 @@ genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       genTypes auth,
-      -- todo (move this to somewhere more meaningful)
+      -- TODO: Move Stitches to somewhere more meaningful.
+      -- Currently, they are used only when auth is used,
+      -- but that might change. Also, it feels wrong to
+      -- generate general styling config in auth generator.
       genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|auth/forms/Login.tsx|],
       genFileCopy [relfile|auth/forms/Signup.tsx|]
@@ -115,19 +120,11 @@ genLoginSignupForm auth =
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          -- Google
-          "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          -- Keycloak
-          "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          -- GitHub
-          "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
           "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          -- Username and password
-          "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-          -- Email
-          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth

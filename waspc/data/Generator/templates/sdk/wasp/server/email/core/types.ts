@@ -29,12 +29,12 @@ export type DummyEmailProvider = {
   type: "dummy";
 }
 
-// PRIVATE API
+// PUBLIC API
 export type EmailSender = {
   send: (email: Email) => Promise<SentMessageInfo>;
 };
 
-// PRIVATE API
+// PUBLIC API
 export type SentMessageInfo = any;
 
 // PUBLIC API

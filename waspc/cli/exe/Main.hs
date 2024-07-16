@@ -8,6 +8,7 @@ import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
+import qualified System.Environment as Env
 import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
@@ -17,8 +18,9 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.Db (runDbCommand)
+import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
@@ -65,7 +67,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         ("test" : testArgs) -> Command.Call.Test testArgs
-        _ -> Command.Call.Unknown args
+        _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
@@ -78,6 +80,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
       cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
       exitFailure
     NodeVersion.VersionCheckSuccess -> pure ()
+
+  setDefaultCliEnvVars
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
@@ -94,7 +98,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectName
             appDescription
             projectConfigJson
-      _ -> printWaspNewAiUsage
+      _unknownCommand -> printWaspNewAiUsage
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -128,6 +132,23 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+-- | Sets env variables that are visible to the commands run by the CLI.
+-- For example, we can use this to hide update messages by tools like Prisma.
+-- The env variables are visible to our CLI and any child processes spawned by it.
+-- The env variables won't be set in the terminal session after the CLI exits.
+setDefaultCliEnvVars :: IO ()
+setDefaultCliEnvVars = do
+  mapM_ (uncurry Env.setEnv) cliEnvVars
+  where
+    cliEnvVars :: [(String, String)]
+    cliEnvVars =
+      [ ("PRISMA_HIDE_UPDATE_MESSAGE", "true"),
+        -- NOTE: We were getting errors from Prisma v4 related to their Checkpoint system
+        -- (which checks for updates that we don't want anyway), so now by default
+        -- we turn it off. Once we switch to Prisma v5, try removing this.
+        ("CHECKPOINT_DISABLE", "1")
+      ]
 
 {- ORMOLU_DISABLE -}
 printUsage :: IO ()
@@ -194,15 +215,18 @@ printVersion = do
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
 
--- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
+-- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  -- These commands don't require an existing and running database.
   ["start"] -> runCommand Command.Start.Db.start
-  "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runDbCommand Command.Db.Studio.studio
-  _ -> printDbUsage
+  -- These commands require an existing and running database.
+  ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
+  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
+  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  _unknownDbCommand -> printDbUsage
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()

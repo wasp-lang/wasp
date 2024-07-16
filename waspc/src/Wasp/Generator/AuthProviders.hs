@@ -1,6 +1,9 @@
 module Wasp.Generator.AuthProviders where
 
+import Data.Aeson (KeyValue ((.=)), object)
+import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders.Common (makeProviderId)
 import qualified Wasp.Generator.AuthProviders.Email as E
 import qualified Wasp.Generator.AuthProviders.Local as L
@@ -43,3 +46,22 @@ emailAuthProvider =
     { E._providerId = fromJust $ makeProviderId "email",
       E._displayName = "Email and password"
     }
+
+discordAuthProvider :: OA.OAuthAuthProvider
+discordAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "discord",
+      OA._displayName = "Discord",
+      OA._requiredScope = ["identify"]
+    }
+
+getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
+getEnabledAuthProvidersJson auth =
+  object
+    [ "isDiscordAuthEnabled" .= AS.Auth.isDiscordAuthEnabled auth,
+      "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+      "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
+      "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
+      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+    ]
