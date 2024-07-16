@@ -32,7 +32,7 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 <TabItem value="ts" label="TypeScript">
 
 The default project uses JavaScript. To use TypeScript, you must manually rename the file
-`src/MainPage.jsx` to `src/MainPage.tsx`.
+`src/MainPage.jsx` to `src/MainPage.tsx`. Restart `wasp start` after you do this.
 
 No updates to the `main.wasp` file are necessary - it stays the same regardless of the language you use.
 
