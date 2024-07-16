@@ -1,4 +1,4 @@
-import { getUsername } from "wasp/auth";
+import { ReactNode } from "react";
 import { logout, useAuth } from "wasp/client/auth";
 // @ts-check
 import "./Main.css";
@@ -14,7 +14,7 @@ const customTheme = {
   },
 };
 
-export const Layout = ({ children }) => {
+export const Layout = ({ children }: { children: ReactNode }) => {
   const { data: user } = useAuth();
 
   return (
@@ -34,15 +34,13 @@ export const Layout = ({ children }) => {
                 label={
                   <Avatar
                     alt="User settings"
-                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${getUsername(
-                      user
-                    )}`}
+                    img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${user.getFirstProviderUserId()}`}
                     rounded
                   />
                 }
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">{getUsername(user)}</span>
+                  <span className="block text-sm">{user.getFirstProviderUserId()}</span>
                 </Dropdown.Header>
                 <Dropdown.Item>Dashboard</Dropdown.Item>
                 <Dropdown.Item>Settings</Dropdown.Item>
