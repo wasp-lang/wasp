@@ -99,7 +99,7 @@ api fooBar {
 
 ```
 
-In the implementation of the `getTasks` query, `Task` is a Wasp Entity that corresponds to the `Task` model defined in the `schema.prisma` file. 
+In the implementation of the `getTasks` query, `Task` is a Wasp Entity that corresponds to the `Task` model defined in the `schema.prisma` file.
 
 The same goes for the `myJob` job and `fooBar` API, where `Task` is used as an Entity.
 
@@ -121,6 +121,7 @@ datasource db {
 Wasp takes the `datasource` you write and use it as-is.
 
 There are some rules you need to follow:
+
 - You can only use `"postgresql"` or `"sqlite"` as the `provider` because Wasp only supports PostgreSQL and SQLite databases for now.
 - You must set the `url` field to `env("DATABASE_URL")` so that Wasp can work properly with your database.
 
@@ -155,10 +156,10 @@ model Task {
 
 You can define your models in any way you like, if it's valid Prisma schema code, it will work with Wasp.
 
-Some minor caveats to keep in mind:
+:::note Triple slash comments
+Wasp doesn't yet fully support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.
 
-- Wasp doesn't yet fully support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.
-- Wasp doesn't yet support MongoDB-specific [composite types](https://www.prisma.io/docs/orm/reference/prisma-schema-reference#type) in the `schema.prisma` file.
+:::
 
 ## Prisma preview features
 
