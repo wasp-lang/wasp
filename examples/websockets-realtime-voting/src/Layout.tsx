@@ -14,7 +14,7 @@ const customTheme = {
   },
 };
 
-export const Layout = ({ children }: { children: ReactNode[] }) => {
+export const Layout = ({ children }: { children: ReactNode }) => {
   const { data: user } = useAuth();
 
   return (
