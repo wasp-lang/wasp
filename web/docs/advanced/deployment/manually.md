@@ -15,10 +15,10 @@ After going through the general steps that apply to all deployments, you can
 follow step-by-step guides for deploying your Wasp app to the most popular
 providers:
 
-- [Fly.io](#flyio)
-- [Netlify](#netlify)
-- [Railway](#railway)
-- [Heroku](#heroku)
+- [Fly.io](#flyio-server-and-database)
+- [Netlify](#netlify-client)
+- [Railway](#railway-server-client-and-database)
+- [Heroku](#heroku-server-and-database)
 
 No worries, you can still deploy your app if your desired provider isn't on the
 list - it just means we don't yet have a step-by-step guide for you to follow.
