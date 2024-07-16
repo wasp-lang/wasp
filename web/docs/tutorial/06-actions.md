@@ -6,9 +6,10 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import Collapse from '@site/src/components/Collapse';
 
-In the previous section, we learned about using Queries to fetch data and only briefly mentioned that Actions can be used to update the database. Let's learn more about Actions so we can add and update tasks in the database.
+In the previous section, you learned about using Queries to fetch data.
+Let's now learn about Actions so you can add and update tasks in the database.
 
-We have to create:
+In this section, you will create:
 
 1. A Wasp Action that creates a new task.
 2. A React form that calls that Action when the user creates a task.
