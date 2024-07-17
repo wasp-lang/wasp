@@ -40,8 +40,8 @@ app TodoApp {
   wasp: {
     version: "^0.13.0"
   },
-  title: "TodoApp",
   // highlight-start
+  title: "TodoApp",
   auth: {
     // Tells Wasp which entity to use for storing users.
     userEntity: User,
