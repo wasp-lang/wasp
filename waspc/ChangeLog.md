@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.14.0 (TBD)
+## 0.14.0 (2024-07-17)
 
 ### 🎉 New Features
 
