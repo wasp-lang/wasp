@@ -91,13 +91,24 @@ Wasp introduced a much simpler API for accessing user auth fields like `username
 
 To migrate your app to Wasp 0.14.x, you must:
 
-1.  Update your `tsconfig.json`.
+1.  Bump the version in `main.wasp` and update your `tsconfig.json`.
 2.  Migrate your entities into the new `schema.prisma` file.
 3.  Update code that accesses user fields.
 
-### Update your `tsconfig.json`
+### Bump the version and update `tsconfig.json`
 
-To ensure your project works correctly with Wasp 0.14.0, you must update your
+Let's start with something simple. Update the version field in your Wasp file to `^0.14.0`:
+
+```wasp title="main.wasp"
+app MyApp {
+  wasp: {
+    // highlight-next-line
+    version: "^0.14.0"
+  },
+}
+```
+
+To ensure your project works correctly with Wasp 0.14.0, you must also update your
 `tsconfig.json` file.
 
 If you haven't changed anything in your project's `tsconfig.json` file (this is
@@ -380,15 +391,10 @@ generator client {
 }
 ```
 
-7\. **Run the Wasp CLI** to generate the Prisma client
+All that's left to do is migrate the database.
 
-Regenerate the Prisma client by running the following command:
-
-```bash
-wasp db migrate-dev
-```
-
-This command generates the Prisma client based on the `schema.prisma` file.
+To avoid type errors, it's best to take care of database migrations after you've migrated the rest of the code.
+So, just keep reading, and we will remind you to migrate the database as [the last step of the migration guide](#migrate-the-database).
 
 Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
 
@@ -642,6 +648,18 @@ Follow the steps below to migrate:
 
    </TabItem>
    </Tabs>
+
+### Migrate the database
+
+Finally, you can **Run the Wasp CLI** to regenerate the new Prisma client:
+
+```bash
+wasp db migrate-dev
+```
+
+This command generates the Prisma client based on the `schema.prisma` file.
+
+Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
 
 That's it!
 
