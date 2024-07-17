@@ -22,8 +22,14 @@
 
 - Auth: you can now use Discord as a social auth provider (by @wardbox)
 - Using the Prisma Schema file directly: define your database schema in the `schema.prisma` file and Wasp will use it to generate the database schema and Prisma client code.
+- Added the `wasp db reset` command for resetting the database.
 
 ### ⚠️ Breaking Changes & Migration Guide
+
+#### New `tsconfig.json` file
+
+Wasp 0.14.0 requires some changes to your `tsconfig.json` file.
+Visit the [migration guide](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#bump-the-version-and-update-tsconfigjson) for details.
 
 #### Strict options when building the `wasp` package
 
@@ -118,18 +124,20 @@ These changes only apply to getting auth fields from the `user` object you recei
 
 ### 🐞 Bug fixes
 
-- Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
-- Fix the `netlify.toml` to include the correct build path for the client app.
-- Fix the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
-- Fixes CRUD client helpers to accept the same params as the `useQuery` and `useAction` hooks.
+- Updated the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
+- Fixed `netlify.toml` to include the correct build path for the client app.
+- Fixed the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
+- Fixed the CRUD client helpers to accept the same params as the `useQuery` and `useAction` hooks.
 
 ### 🔧 Small improvements
 
 - Improved the default loading spinner while waiting for the user to be fetched.
-- Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
+- Hided Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
 - When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
 - Improved default gitignore to more tightly target dotenv files and to allow for example dotenv files and .env.client.
-- Improves the type signature of client auth helpers (e.g. `getEmail`) to make them accept the minimal required user object.
+- Improved the type signature of client auth helpers (e.g. `getEmail`) to make them accept the minimal required user object.
+- Improved the documentation and added extra TypeScript content.
+- Improved RPC type inference.
 
 ## 0.13.2 (2024-04-11)
 
