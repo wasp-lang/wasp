@@ -393,7 +393,7 @@ generator client {
 
 All that's left to do is migrate the database.
 
-To avoid type errors, it's best to take care of migrations after you've migrated the rest of the code.
+To avoid type errors, it's best to take care of database migrations after you've migrated the rest of the code.
 So, just keep reading, and we will remind you to migrate the database as [the last step of the migration guide](#migrate-the-database).
 
 Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
