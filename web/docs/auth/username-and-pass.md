@@ -522,7 +522,7 @@ export const signup = async (args, _context) => {
 // ...
 
 action customSignup {
-  fn: import { signup } from "@src/auth/signup.js",
+  fn: import { signup } from "@src/auth/signup.ts",
 }
 ```
 
