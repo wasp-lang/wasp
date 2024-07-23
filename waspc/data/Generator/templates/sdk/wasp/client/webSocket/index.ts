@@ -6,6 +6,9 @@ import type {
 } from 'wasp/server/webSocket'
 
 // PUBLIC API
+export type { WebSocketClientConfigFn } from './WebSocketProvider'
+
+// PUBLIC API
 export type ServerToClientPayload<Event extends keyof ServerToClientEvents> =
   Parameters<ServerToClientEvents[Event]>[0]
 // PUBLIC API

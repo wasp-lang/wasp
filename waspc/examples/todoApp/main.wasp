@@ -5,7 +5,8 @@ app todoApp {
   title: "ToDo App",
   // head: [],
   webSocket: {
-    fn: import { webSocketFn } from "@src/webSocket",
+    fn: import { webSocketFn } from "@src/webSocket/index.js",
+    clientConfigFn: import { getConfig } from "@src/webSocket/clientConfigFn.js",
     // autoConnect: false
   },
   auth: {

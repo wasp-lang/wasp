@@ -11,6 +11,7 @@ module Wasp.Generator.Common
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
+    makeJsBoolFromHaskellBool,
   )
 where
 
@@ -76,6 +77,10 @@ makeJsArrayFromHaskellList :: [String] -> String
 makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
   where
     listOfJsStrings = map (\s -> "'" ++ s ++ "'") list
+
+makeJsBoolFromHaskellBool :: Bool -> String
+makeJsBoolFromHaskellBool True = "true"
+makeJsBoolFromHaskellBool False = "false"
 
 dropExtensionFromImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
 dropExtensionFromImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP

@@ -5,7 +5,6 @@ module Wasp.Generator.SdkGenerator.WebSocketGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Char (toLower)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -13,7 +12,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (makeJsonWithEntityData)
+import Wasp.Generator.Common (makeJsBoolFromHaskellBool, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
@@ -50,7 +49,12 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocke
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    maybeClientConfigFn = extImportToJsImport <$> (maybeWebSocket >>= AS.App.WS.clientConfigFn)
+    tmplData =
+      object
+        [ "autoConnect" .= makeJsBoolFromHaskellBool shouldAutoConnect,
+          "configFn" .= GJI.jsImportToImportJson maybeClientConfigFn
+        ]
 
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByWebSockets spec

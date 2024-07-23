@@ -8,15 +8,27 @@ import { config } from 'wasp/client'
 
 import type { ClientToServerEvents, ServerToClientEvents } from 'wasp/server/webSocket';
 
-export type WebSocketContextValue = {
-  socket: typeof socket
-  isConnected: boolean
-}
+{=# configFn.isDefined =}
+{=& configFn.importStatement =}
+{=/ configFn.isDefined =}
+
+// PUBLIC API
+export type WebSocketClientConfigFn = () => IoConfig
+
+type IoConfig = Parameters<typeof io>[1]
+
+{=# configFn.isDefined =}
+const ioConfig = {= configFn.importIdentifier =}()
+{=/ configFn.isDefined =}
+{=^ configFn.isDefined =}
+const ioConfig = {
+  autoConnect: {= autoConnect =},
+  transports: ['websocket'],
+} satisfies IoConfig;
+{=/ configFn.isDefined =}
 
 // PRIVATE API
-// TODO: In the future, it would be nice if users could pass more
-// options to `io`, likely via some `configFn`.
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(config.apiUrl, { autoConnect: {= autoConnect =} })
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(config.apiUrl, ioConfig)
 
 function refreshAuthToken() {
   // NOTE: When we figure out how `auth: true` works for Operations, we should
@@ -34,6 +46,12 @@ function refreshAuthToken() {
 refreshAuthToken()
 apiEventsEmitter.on('sessionId.set', refreshAuthToken)
 apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
+
+// PRIVATE API
+export type WebSocketContextValue = {
+  socket: typeof socket
+  isConnected: boolean
+}
 
 // PRIVATE API
 export const WebSocketContext: Context<WebSocketContextValue> = createContext<WebSocketContextValue>({
