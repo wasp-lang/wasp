@@ -12,7 +12,9 @@ const ThoughtsPage = (props) => {
   const tag = queryParams.get('tag')
 
   // TODO: Handle possible errors and fetching.
-  const { data: thoughts } = useQuery(getThoughts, { tagName: tag })
+  const { error, status, data: thoughts } = useQuery(getThoughts, { tagName: tag })
+
+  console.log('Error: ' + JSON.stringify(error));
 
   return (
     <Layout
@@ -20,6 +22,7 @@ const ThoughtsPage = (props) => {
       activeTag={tag || '_all'}
     >
       <div className="center-container">
+        Status: {status}
         <ThoughtsList thoughts={thoughts} />
       </div>
     </Layout>

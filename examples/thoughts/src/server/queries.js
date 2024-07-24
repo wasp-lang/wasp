@@ -1,6 +1,7 @@
 import { HttpError } from "wasp/server";
 
 export const getThoughts = async (args, context) => {
+  throw new HttpError(404);
   if (!context.user) { throw new HttpError(403) }
 
   return context.entities.Thought.findMany({
