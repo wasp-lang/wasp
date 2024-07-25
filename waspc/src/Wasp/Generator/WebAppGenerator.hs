@@ -196,6 +196,11 @@ genSrcDir spec =
       genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|test/vitest/setup.ts|],
       genFileCopy [relfile|components/Message.tsx|],
+      -- WaspDevTools.tsx is generated in the Wasp.Generator to have
+      -- access to the errors and warnings that are outputed during the
+      -- generation process.
+      -- genFileCopy [relfile|components/WaspDevTools.tsx|],
+      genFileCopy [relfile|components/WaspDevTools.module.css|],
       genFileCopy [relfile|components/Loader.tsx|],
       genFileCopy [relfile|components/Loader.module.css|],
       genFileCopy [relfile|components/FullPageWrapper.tsx|],

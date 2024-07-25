@@ -6,6 +6,7 @@ module Wasp.Generator
   )
 where
 
+import Data.Aeson (KeyValue ((.=)), object)
 import Data.List.NonEmpty (toList)
 import qualified Data.Text
 import qualified Data.Text.IO
@@ -27,6 +28,7 @@ import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
 import Wasp.Generator.WebAppGenerator (genWebApp)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -49,7 +51,17 @@ writeWebAppCode spec dstDir sendMessage = do
       synchronizeFileDraftsWithDisk dstDir fileDrafts
       writeDotWaspInfo dstDir
       (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
-      return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
+
+      let prismaStatus = if null setupGeneratorErrors then "ok" else "needsMigration"
+
+      let (devToolsWarnings, devToolsResult) = runGenerator $ genWaspDevTools prismaStatus
+
+      case devToolsResult of
+        Left devToolsErrors -> return (devToolsWarnings, toList devToolsErrors)
+        Right devToolsFileDrafts -> do
+          synchronizeFileDraftsWithDisk dstDir (fileDrafts ++ devToolsFileDrafts)
+
+          return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
@@ -59,6 +71,15 @@ genApp spec =
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genConfigFiles spec
+
+genWaspDevTools :: String -> Generator [FileDraft]
+genWaspDevTools prismaStatus =
+  return $
+    [ WebApp.mkTmplFdWithDstAndData
+        [relfile|src/components/WaspDevTools.tsx|]
+        [relfile|src/components/WaspDevTools.tsx|]
+        (Just $ object ["prismaStatus" .= prismaStatus])
+    ]
 
 -- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
 writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()

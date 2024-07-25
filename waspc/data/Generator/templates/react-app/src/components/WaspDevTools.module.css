@@ -1,0 +1,27 @@
+.container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 2rem;
+  padding-bottom: 1rem;
+}
+
+.container:hover .devTools {
+  /* transform: translateY(0); */
+}
+
+.devTools {
+  background-color: white;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  font-family: sans-serif;
+  /* transform: translateY(100%);
+  transition: transform 0.3s; */
+}
+
+.prismaStatusText {
+  display: inline-flex;
+  align-items: center;
+}

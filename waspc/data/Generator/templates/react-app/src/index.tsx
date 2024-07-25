@@ -9,6 +9,8 @@ import {
   queryClientInitialized,
 } from 'wasp/client/operations'
 
+import { WaspDevTools } from './components/WaspDevTools'
+
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
@@ -42,6 +44,7 @@ async function render() {
         {router}
         {=/ areWebSocketsUsed =}
       </QueryClientProvider>
+      <WaspDevTools />
     </React.StrictMode>
   )
 }
