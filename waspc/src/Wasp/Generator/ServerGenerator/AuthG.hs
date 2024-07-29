@@ -127,5 +127,7 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
       AS.Dependency.fromList
         [ ("lucia", "^3.0.1"),
           ("@lucia-auth/adapter-prisma", "^4.0.0"),
-          ("oslo", "^1.1.2")
+          ("oslo", "^1.1.2"),
+          -- Argon2 is used for hashing passwords.
+          ("@node-rs/argon2", "^1.8.3")
         ]
