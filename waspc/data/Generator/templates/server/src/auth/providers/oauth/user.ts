@@ -12,7 +12,12 @@ import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { getRedirectUriForOneTimeCode } from './redirect'
 import { tokenStore } from './oneTimeCode'
-import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
+import {
+  onBeforeSignupHook,
+  onAfterSignupHook,
+  onBeforeLoginHook,
+  onAfterLoginHook,
+} from '../../hooks.js'
 
 export async function finishOAuthFlowAndGetRedirectUri({
   provider,
@@ -42,9 +47,9 @@ export async function finishOAuthFlowAndGetRedirectUri({
     oAuthState,
   });
 
-  const oneTimeCode = await tokenStore.createToken(authId);
+  const oneTimeCode = await tokenStore.createToken(authId)
 
-  return getRedirectUriForOneTimeCode(oneTimeCode);
+  return getRedirectUriForOneTimeCode(oneTimeCode)
 }
 
 // We need a user id to create the auth token, so we either find an existing user
@@ -78,12 +83,25 @@ async function getAuthIdFromProviderDetails({
   })
 
   if (existingAuthIdentity) {
+    // TODO: it feels weird calling one hook before the other, but we need to call onBeforeLoginHook before onAfterLoginHook
+    await onBeforeLoginHook({ req, providerId })
+
+    // TODO: update params, add refresh token
+    await onAfterLoginHook({
+      req,
+      providerId,
+      oauth: {
+        accessToken,
+        uniqueRequestId: oAuthState.state,
+      },
+    })
+
     return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
   } else {
     const userFields = await validateAndGetUserFields(
       { profile: providerProfile },
       userSignupFields,
-    );
+    )
 
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})

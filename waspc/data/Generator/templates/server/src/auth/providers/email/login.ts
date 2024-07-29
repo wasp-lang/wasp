@@ -9,6 +9,7 @@ import {
 } from 'wasp/auth/utils'
 import { createSession } from 'wasp/auth/session'
 import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
+import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 
 export function getLoginRoute() {
     return async function login(
@@ -18,9 +19,8 @@ export function getLoginRoute() {
         const fields = req.body ?? {}
         ensureValidArgs(fields)
 
-        const authIdentity = await findAuthIdentity(
-            createProviderId("email", fields.email)
-        )
+        const providerId = createProviderId("email", fields.email)
+        const authIdentity = await findAuthIdentity(providerId)
         if (!authIdentity) {
             throwInvalidCredentialsError()
         }
@@ -35,7 +35,13 @@ export function getLoginRoute() {
         }
     
         const auth = await findAuthWithUserBy({ id: authIdentity.authId })
+        
+        await onBeforeLoginHook({ req, providerId })
+        
         const session = await createSession(auth.id)
+
+        // TODO: update params
+        await onAfterLoginHook({ req, providerId })
       
         return res.json({
             sessionId: session.id,

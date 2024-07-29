@@ -21,6 +21,16 @@ export type OnBeforeOAuthRedirectHook = (
   params: Expand<OnBeforeOAuthRedirectHookParams>,
 ) => { url: URL } | Promise<{ url: URL }>
 
+// PUBLIC API
+export type OnBeforeLoginHook = (
+  params: Expand<OnBeforeLoginHookParams>,
+) => void | Promise<void>
+
+// PUBLIC API
+export type OnAfterLoginHook = (
+  params: Expand<OnAfterLoginHookParams>,
+) => void | Promise<void>
+
 // PRIVATE API (used in the SDK and the server)
 export type InternalAuthHookParams = {
   /**
@@ -80,6 +90,38 @@ type OnBeforeOAuthRedirectHookParams = {
    * Unique request ID that was generated during the OAuth flow.
    */
   uniqueRequestId: string
+  /**
+   * Request object that can be used to access the incoming request.
+   */
+  req: ExpressRequest
+} & InternalAuthHookParams
+
+type OnBeforeLoginHookParams = {
+  /**
+   * Provider ID object that contains the provider name and the provide user ID.
+   */
+  providerId: ProviderId
+  /**
+   * Request object that can be used to access the incoming request.
+   */
+  req: ExpressRequest
+} & InternalAuthHookParams
+
+type OnAfterLoginHookParams = {
+  /**
+   * Provider ID object that contains the provider name and the provide user ID.
+   */
+  providerId: ProviderId
+  oauth?: {
+    /**
+     * Access token that was received during the OAuth flow.
+     */
+    accessToken: string
+    /**
+     * Unique request ID that was generated during the OAuth flow.
+     */
+    uniqueRequestId: string
+  },
   /**
    * Request object that can be used to access the incoming request.
    */

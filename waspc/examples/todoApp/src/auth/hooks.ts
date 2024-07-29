@@ -1,8 +1,11 @@
 import { Request } from 'express'
+import { HttpError } from 'wasp/server'
 import type {
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
 } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHook = async (args) => {
@@ -45,6 +48,24 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
   oAuthQueryStore.set(id, args.req.query)
 
   return { url: args.url }
+}
+
+export const onBeforeLogin: OnBeforeLoginHook = async (args) => {
+  const log = createLoggerForHook('onBeforeLogin')
+  log('providerId object', args.providerId)
+
+  const now = new Date()
+  if (now.getHours() < 14) {
+    throw new HttpError(403, 'Login is only possible after 2 PM')
+  }
+}
+
+export const onAfterLogin: OnAfterLoginHook = async (args) => {
+  const log = createLoggerForHook('onAfterLogin')
+  log('providerId object', args.providerId)
+  if (args.oauth) {
+    log('accessToken', args.oauth.accessToken)
+  }
 }
 
 function createLoggerForHook(hookName: string) {
