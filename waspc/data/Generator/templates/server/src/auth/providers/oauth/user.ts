@@ -6,6 +6,7 @@ import {
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
   createProviderId,
+  findAuthWithUserBy,
 } from 'wasp/auth/utils'
 import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
@@ -83,10 +84,20 @@ async function getAuthIdFromProviderDetails({
   })
 
   if (existingAuthIdentity) {
-    // TODO: it feels weird calling one hook before the other, but we need to call onBeforeLoginHook before onAfterLoginHook
+    const authId = existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+
+    // NOTE: We are calling login hooks here even though we didn't log in the user yet.
+    // We are doing it here because we have access to the OAuth tokens and we can pass them to the hooks.
+    // This isn't a big deal because the next step of the OAuth flow happens immediately after this function
+    // and the user is redirected to the client with the one-time code which is then used to create the session.
+    // The downside of this approach is that we can't provide the session to the login hooks, but this is
+    // an okay trade-off for now.
     await onBeforeLoginHook({ req, providerId })
 
-    // TODO: update params, add refresh token
+    // NOTE: Fetching the user to pass it to the onAfterLoginHook - it's a bit wasteful
+    // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
+    const auth = await findAuthWithUserBy({ id: authId })
+
     await onAfterLoginHook({
       req,
       providerId,
@@ -94,9 +105,10 @@ async function getAuthIdFromProviderDetails({
         accessToken,
         uniqueRequestId: oAuthState.state,
       },
+      user: auth.user,
     })
 
-    return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+    return authId
   } else {
     const userFields = await validateAndGetUserFields(
       { profile: providerProfile },

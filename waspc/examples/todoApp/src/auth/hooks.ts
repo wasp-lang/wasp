@@ -63,6 +63,7 @@ export const onBeforeLogin: OnBeforeLoginHook = async (args) => {
 export const onAfterLogin: OnAfterLoginHook = async (args) => {
   const log = createLoggerForHook('onAfterLogin')
   log('providerId object', args.providerId)
+  log('user object', args.user)
   if (args.oauth) {
     log('accessToken', args.oauth.accessToken)
   }

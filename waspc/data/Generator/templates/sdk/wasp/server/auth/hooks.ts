@@ -1,5 +1,5 @@
 import type { Request as ExpressRequest } from 'express'
-import type { ProviderId, createUser } from '../../auth/utils.js'
+import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js'
 import { prisma } from '../index.js'
 import { Expand } from '../../universal/types.js'
 
@@ -122,6 +122,7 @@ type OnAfterLoginHookParams = {
      */
     uniqueRequestId: string
   },
+  user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
   /**
    * Request object that can be used to access the incoming request.
    */
