@@ -122,6 +122,9 @@ type OnAfterLoginHookParams = {
      */
     uniqueRequestId: string
   },
+  /**
+   * User that is logged in.
+   */
   user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
   /**
    * Request object that can be used to access the incoming request.

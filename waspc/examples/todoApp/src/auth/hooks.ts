@@ -54,10 +54,10 @@ export const onBeforeLogin: OnBeforeLoginHook = async (args) => {
   const log = createLoggerForHook('onBeforeLogin')
   log('providerId object', args.providerId)
 
-  const now = new Date()
-  if (now.getHours() < 14) {
-    throw new HttpError(403, 'Login is only possible after 2 PM')
-  }
+  // const now = new Date()
+  // if (now.getHours() < 14) {
+  //   throw new HttpError(403, 'Login is only possible after 2 PM')
+  // }
 }
 
 export const onAfterLogin: OnAfterLoginHook = async (args) => {
