@@ -10,7 +10,7 @@ const examples = [
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'todo-typescript',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
+    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/todo-app-in-typescript',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
