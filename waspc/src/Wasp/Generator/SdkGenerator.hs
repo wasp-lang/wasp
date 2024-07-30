@@ -48,6 +48,7 @@ import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
 import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genNewJobsApi)
+import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -195,6 +196,7 @@ npmDepsForSdk spec =
             ("@types/react-router-dom", "^5.3.3")
           ]
           ++ depsRequiredForAuth spec
+          ++ depsRequiredByOAuth spec
           -- This must be installed in the SDK because it lists prisma/client as a dependency.
           -- Installing it inside .wasp/out/server/node_modules would also
           -- install prisma/client in the same folder, which would cause our
@@ -264,7 +266,7 @@ genTsConfigJson = do
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
-  -- NOTE: If Stitches start being used outside of auth,
+  -- NTE: If Stitches start being used outside of auth,
   -- we should include this dependency in the SDK deps.
   [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
   where

@@ -30,6 +30,7 @@ export type {
   OnBeforeLoginHook,
   OnAfterLoginHook,
   InternalAuthHookParams,
+  OAuthParams,
 } from './hooks.js'
 
 {=# isEmailAuthEnabled =}

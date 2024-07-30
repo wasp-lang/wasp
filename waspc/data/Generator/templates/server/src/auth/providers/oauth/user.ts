@@ -6,10 +6,12 @@ import {
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
   createProviderId,
+  findAuthWithUserBy,
 } from 'wasp/auth/utils'
 import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
+import { type OAuthParams } from 'wasp/server/auth'
 import { getRedirectUriForOneTimeCode } from './redirect'
 import { tokenStore } from './oneTimeCode'
 import {
@@ -25,16 +27,14 @@ export async function finishOAuthFlowAndGetRedirectUri({
   providerUserId,
   userSignupFields,
   req,
-  accessToken,
-  oAuthState,
+  oauth
 }: {
   provider: ProviderConfig;
   providerProfile: unknown;
   providerUserId: string;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  accessToken: string;
-  oAuthState: { state: string };
+  oauth: OAuthParams;
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -43,8 +43,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
     providerProfile,
     userSignupFields,
     req,
-    accessToken,
-    oAuthState,
+    oauth,
   });
 
   const oneTimeCode = await tokenStore.createToken(authId)
@@ -59,15 +58,13 @@ async function getAuthIdFromProviderDetails({
   providerProfile,
   userSignupFields,
   req,
-  accessToken,
-  oAuthState,
+  oauth,
 }: {
   providerId: ProviderId;
   providerProfile: any;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  accessToken: string;
-  oAuthState: { state: string };
+  oauth: OAuthParams;
 }): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {
@@ -86,17 +83,20 @@ async function getAuthIdFromProviderDetails({
     // TODO: it feels weird calling one hook before the other, but we need to call onBeforeLoginHook before onAfterLoginHook
     await onBeforeLoginHook({ req, providerId })
 
+    const authId = existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+
+    // Calling findAuthWithUserBy here just to have a user object to pass to the hooks
+    const auth = await findAuthWithUserBy({ id: authId })
+    
     // TODO: update params, add refresh token
     await onAfterLoginHook({
       req,
       providerId,
-      oauth: {
-        accessToken,
-        uniqueRequestId: oAuthState.state,
-      },
+      oauth,
+      user: auth.user,
     })
 
-    return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+    return authId
   } else {
     const userFields = await validateAndGetUserFields(
       { profile: providerProfile },
@@ -118,10 +118,7 @@ async function getAuthIdFromProviderDetails({
       req,
       providerId,
       user,
-      oauth: {
-        accessToken,
-        uniqueRequestId: oAuthState.state,
-      },
+      oauth,
     })
 
     return user.auth.id

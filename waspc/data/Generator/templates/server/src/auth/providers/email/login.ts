@@ -36,12 +36,20 @@ export function getLoginRoute() {
     
         const auth = await findAuthWithUserBy({ id: authIdentity.authId })
         
-        await onBeforeLoginHook({ req, providerId })
+        await onBeforeLoginHook({
+            req,
+            providerId,
+            user: auth.user,
+        })
         
         const session = await createSession(auth.id)
 
         // TODO: update params
-        await onAfterLoginHook({ req, providerId })
+        await onAfterLoginHook({
+            req,
+            providerId,
+            user: auth.user,
+        })
       
         return res.json({
             sessionId: session.id,

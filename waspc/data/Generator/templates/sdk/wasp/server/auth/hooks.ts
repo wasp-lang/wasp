@@ -1,7 +1,15 @@
+{{={= =}=}}
 import type { Request as ExpressRequest } from 'express'
-import type { ProviderId, createUser } from '../../auth/utils.js'
+import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js'
 import { prisma } from '../index.js'
 import { Expand } from '../../universal/types.js'
+import type {
+  GoogleTokens,
+  DiscordTokens,
+  GitHubTokens,
+  KeycloakTokens,
+} from 'arctic';
+import { ProviderName } from '../_types/index.js';
 
 // PUBLIC API
 export type OnBeforeSignupHook = (
@@ -65,16 +73,7 @@ type OnAfterSignupHookParams = {
    * User object that was created during the signup process.
    */
   user: Awaited<ReturnType<typeof createUser>>
-  oauth?: {
-    /**
-     * Access token that was received during the OAuth flow.
-     */
-    accessToken: string
-    /**
-     * Unique request ID that was generated during the OAuth flow.
-     */
-    uniqueRequestId: string
-  },
+  oauth?: OAuthParams
   /**
    * Request object that can be used to access the incoming request.
    */
@@ -89,7 +88,7 @@ type OnBeforeOAuthRedirectHookParams = {
   /**
    * Unique request ID that was generated during the OAuth flow.
    */
-  uniqueRequestId: string
+  uniqueRequestId: OAuthParams['uniqueRequestId']
   /**
    * Request object that can be used to access the incoming request.
    */
@@ -112,18 +111,38 @@ type OnAfterLoginHookParams = {
    * Provider ID object that contains the provider name and the provide user ID.
    */
   providerId: ProviderId
-  oauth?: {
-    /**
-     * Access token that was received during the OAuth flow.
-     */
-    accessToken: string
-    /**
-     * Unique request ID that was generated during the OAuth flow.
-     */
-    uniqueRequestId: string
-  },
   /**
    * Request object that can be used to access the incoming request.
-   */
-  req: ExpressRequest
+  */
+ req: ExpressRequest
+ user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
+ oauth?: OAuthParams
 } & InternalAuthHookParams
+
+// PRIVATE API
+export type OAuthParams = {
+  /**
+   * Unique request ID that was generated during the OAuth flow.
+   */
+  uniqueRequestId: string
+} & (
+  {=# enabledProviders.isGoogleAuthEnabled =}
+  | OAuthProviderTokens<'google', GoogleTokens>
+  {=/ enabledProviders.isGoogleAuthEnabled =}
+  {=# enabledProviders.isDiscordAuthEnabled =}
+  | OAuthProviderTokens<'discord', DiscordTokens>
+  {=/ enabledProviders.isDiscordAuthEnabled =}
+  {=# enabledProviders.isGitHubAuthEnabled =}
+  | OAuthProviderTokens<'github', GitHubTokens>
+  {=/ enabledProviders.isGitHubAuthEnabled =}
+  {=# enabledProviders.isKeycloakAuthEnabled =}
+  | OAuthProviderTokens<'keycloak', KeycloakTokens>
+  {=/ enabledProviders.isKeycloakAuthEnabled =}
+  | never
+)
+
+
+type OAuthProviderTokens<Name extends ProviderName, Tokens> = {
+  provider: Name
+  tokens: Tokens
+}
