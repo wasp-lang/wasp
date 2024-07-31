@@ -112,11 +112,14 @@ type OnAfterLoginHookParams = {
    */
   providerId: ProviderId
   /**
+   * User that is logged in.
+   */
+  user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
+  /**
    * Request object that can be used to access the incoming request.
   */
- req: ExpressRequest
- user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
- oauth?: OAuthParams
+  req: ExpressRequest
+  oauth?: OAuthParams
 } & InternalAuthHookParams
 
 // PRIVATE API

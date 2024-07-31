@@ -1,5 +1,4 @@
 import { Request } from 'express'
-import { HttpError } from 'wasp/server'
 import type {
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
@@ -26,7 +25,7 @@ export const onAfterSignup: OnAfterSignupHook = async (args) => {
 
   // If this is a OAuth signup, we have access token and uniqueRequestId
   if (args.oauth) {
-    log('accessToken', args.oauth.accessToken)
+    log('accessToken', args.oauth.tokens.accessToken)
     log('uniqueRequestId', args.oauth.uniqueRequestId)
     const id = args.oauth.uniqueRequestId
     const query = oAuthQueryStore.get(id)
@@ -54,17 +53,18 @@ export const onBeforeLogin: OnBeforeLoginHook = async (args) => {
   const log = createLoggerForHook('onBeforeLogin')
   log('providerId object', args.providerId)
 
-  const now = new Date()
-  if (now.getHours() < 14) {
-    throw new HttpError(403, 'Login is only possible after 2 PM')
-  }
+  // const now = new Date()
+  // if (now.getHours() < 14) {
+  //   throw new HttpError(403, 'Login is only possible after 2 PM')
+  // }
 }
 
 export const onAfterLogin: OnAfterLoginHook = async (args) => {
   const log = createLoggerForHook('onAfterLogin')
   log('providerId object', args.providerId)
+  log('user object', args.user)
   if (args.oauth) {
-    log('accessToken', args.oauth.accessToken)
+    log('accessToken', args.oauth.tokens.accessToken)
   }
 }
 

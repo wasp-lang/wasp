@@ -44,7 +44,6 @@ export function getLoginRoute() {
         
         const session = await createSession(auth.id)
 
-        // TODO: update params
         await onAfterLoginHook({
             req,
             providerId,

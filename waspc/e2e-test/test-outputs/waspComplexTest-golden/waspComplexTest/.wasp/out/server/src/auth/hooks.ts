@@ -3,6 +3,8 @@ import type {
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
   InternalAuthHookParams,
 } from 'wasp/server/auth'
 import { onBeforeSignup as onBeforeSignupHook_ext } from '../../../../../src/auth/hooks.js'
@@ -35,6 +37,17 @@ export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRed
     prisma,
     ...params,
   })
+
+
+/**
+ * This is a no-op function since the user didn't define the onBeforeLogin hook.
+ */
+export const onBeforeLoginHook: InternalFunctionForHook<OnBeforeLoginHook> = async (_params) => {}
+
+/**
+ * This is a no-op function since the user didn't define the onAfterLogin hook.
+ */
+export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = async (_params) => {}
 
 /*
   We pass extra params to the user defined hook functions, but we don't want to

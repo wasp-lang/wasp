@@ -43,7 +43,6 @@ export default handleRejection(async (req, res) => {
 
   const session = await createSession(auth.id)
 
-  // TODO: update params
   await onAfterLoginHook({
     req,
     providerId,
