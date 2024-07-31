@@ -27,8 +27,9 @@ test.describe('auth hooks', () => {
 
   /*
     We set up the "after signup hook" to set a value in the user object.
+    We also set up the "after login hook" to set a value in the user object.
   */
-  test('after signup hook works', async ({ page }) => {
+  test('after signup and after loogin hooks work', async ({ page }) => {
     const { email, password } = generateRandomCredentials()
 
     await performSignup(page, {
@@ -45,6 +46,32 @@ test.describe('auth hooks', () => {
 
     await expect(page.locator('body')).toContainText(
       'Value of user.isOnAfterSignupHookCalled is true.',
+    )
+
+    await expect(page.locator('body')).toContainText(
+      'Value of user.isOnAfterLoginHookCalled is true.',
+    )
+  })
+
+  /*
+    We set up the "before login hook" to throw an error for a specific email address.
+  */
+  test('before login hook works', async ({ page }) => {
+    const emailThatThrowsError = 'cantlogin@email.com'
+    const password = '12345678'
+
+    await performSignup(page, {
+      email: emailThatThrowsError,
+      password,
+    })
+
+    await performLogin(page, {
+      email: emailThatThrowsError,
+      password,
+    })
+
+    await expect(page.locator('body')).toContainText(
+      'On Before Login Hook disallows this email.',
     )
   })
 })
