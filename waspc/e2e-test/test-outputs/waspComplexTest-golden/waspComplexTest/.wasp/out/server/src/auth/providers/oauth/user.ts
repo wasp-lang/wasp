@@ -10,8 +10,8 @@ import {
 import { type Auth } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
-import { getRedirectUriForOneTimeCode } from './redirect'
-import { tokenStore } from './oneTimeCode'
+import { type OAuthParams } from 'wasp/server/auth'
+import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/oauth'
 import {
   onBeforeSignupHook,
   onAfterSignupHook,
@@ -25,16 +25,14 @@ export async function finishOAuthFlowAndGetRedirectUri({
   providerUserId,
   userSignupFields,
   req,
-  accessToken,
-  oAuthState,
+  oauth
 }: {
   provider: ProviderConfig;
   providerProfile: unknown;
   providerUserId: string;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  accessToken: string;
-  oAuthState: { state: string };
+  oauth: OAuthParams;
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -43,8 +41,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
     providerProfile,
     userSignupFields,
     req,
-    accessToken,
-    oAuthState,
+    oauth,
   });
 
   const oneTimeCode = await tokenStore.createToken(authId)
@@ -59,15 +56,13 @@ async function getAuthIdFromProviderDetails({
   providerProfile,
   userSignupFields,
   req,
-  accessToken,
-  oAuthState,
+  oauth,
 }: {
   providerId: ProviderId;
   providerProfile: any;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  accessToken: string;
-  oAuthState: { state: string };
+  oauth: OAuthParams;
 }): Promise<Auth['id']> {
   const existingAuthIdentity = await prisma.authIdentity.findUnique({
     where: {
@@ -100,10 +95,7 @@ async function getAuthIdFromProviderDetails({
     await onAfterLoginHook({
       req,
       providerId,
-      oauth: {
-        accessToken,
-        uniqueRequestId: oAuthState.state,
-      },
+      oauth,
       user: auth.user,
     })
 
@@ -129,10 +121,7 @@ async function getAuthIdFromProviderDetails({
       req,
       providerId,
       user,
-      oauth: {
-        accessToken,
-        uniqueRequestId: oAuthState.state,
-      },
+      oauth,
     })
 
     return user.auth.id

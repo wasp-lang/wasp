@@ -2,6 +2,8 @@ import type { Request as ExpressRequest } from 'express';
 import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js';
 import { prisma } from '../index.js';
 import { Expand } from '../../universal/types.js';
+import type { GoogleTokens } from 'arctic';
+import { ProviderName } from '../_types/index.js';
 export type OnBeforeSignupHook = (params: Expand<OnBeforeSignupHookParams>) => void | Promise<void>;
 export type OnAfterSignupHook = (params: Expand<OnAfterSignupHookParams>) => void | Promise<void>;
 /**
@@ -39,16 +41,7 @@ type OnAfterSignupHookParams = {
      * User object that was created during the signup process.
      */
     user: Awaited<ReturnType<typeof createUser>>;
-    oauth?: {
-        /**
-         * Access token that was received during the OAuth flow.
-         */
-        accessToken: string;
-        /**
-         * Unique request ID that was generated during the OAuth flow.
-         */
-        uniqueRequestId: string;
-    };
+    oauth?: OAuthParams;
     /**
      * Request object that can be used to access the incoming request.
      */
@@ -62,7 +55,7 @@ type OnBeforeOAuthRedirectHookParams = {
     /**
      * Unique request ID that was generated during the OAuth flow.
      */
-    uniqueRequestId: string;
+    uniqueRequestId: OAuthParams['uniqueRequestId'];
     /**
      * Request object that can be used to access the incoming request.
      */
@@ -83,23 +76,24 @@ type OnAfterLoginHookParams = {
      * Provider ID object that contains the provider name and the provide user ID.
      */
     providerId: ProviderId;
-    oauth?: {
-        /**
-         * Access token that was received during the OAuth flow.
-         */
-        accessToken: string;
-        /**
-         * Unique request ID that was generated during the OAuth flow.
-         */
-        uniqueRequestId: string;
-    };
     /**
      * User that is logged in.
      */
     user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user'];
     /**
      * Request object that can be used to access the incoming request.
-     */
+    */
     req: ExpressRequest;
+    oauth?: OAuthParams;
 } & InternalAuthHookParams;
+export type OAuthParams = {
+    /**
+     * Unique request ID that was generated during the OAuth flow.
+     */
+    uniqueRequestId: string;
+} & (OAuthProviderTokens<'google', GoogleTokens> | never);
+type OAuthProviderTokens<Name extends ProviderName, Tokens> = {
+    provider: Name;
+    tokens: Tokens;
+};
 export {};
