@@ -19,7 +19,7 @@ import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
 import {
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
-} from './redirect.js'
+} from 'wasp/server/oauth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
 export function createOAuthProviderRouter<OT extends OAuthType>({

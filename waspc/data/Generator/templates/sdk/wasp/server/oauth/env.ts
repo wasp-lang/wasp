@@ -1,4 +1,4 @@
-// PRIVATE API
+// PRIVATE API (SDK)
 export function ensureEnvVarsForProvider<EnvVarName extends string>(
   envVarNames: EnvVarName[],
   providerName: string,

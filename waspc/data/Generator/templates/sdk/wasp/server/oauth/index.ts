@@ -17,4 +17,15 @@ export * as keycloak from './providers/keycloak.js';
 {=/ enabledProviders.isKeycloakAuthEnabled =}
 
 // PRIVATE API
-export { callbackPath } from './redirect.js'
+export {
+  loginPath,
+  callbackPath,
+  exchangeCodeForTokenPath,
+  handleOAuthErrorAndGetRedirectUri,
+  getRedirectUriForOneTimeCode,
+} from './redirect.js'
+
+// PRIVATE API
+export {
+  tokenStore,
+} from './oneTimeCode.js'

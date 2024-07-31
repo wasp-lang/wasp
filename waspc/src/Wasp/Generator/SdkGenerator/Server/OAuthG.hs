@@ -15,7 +15,13 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider)
-import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider, serverOAuthCallbackHandlerPath)
+import Wasp.Generator.AuthProviders.OAuth
+  ( OAuthAuthProvider,
+    clientOAuthCallbackPath,
+    serverExchangeCodeForTokenHandlerPath,
+    serverOAuthCallbackHandlerPath,
+    serverOAuthLoginHandlerPath,
+  )
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -28,7 +34,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genFileCopy [relfile|server/oauth/env.ts|]
+          genFileCopy [relfile|server/oauth/env.ts|],
+          genFileCopy [relfile|server/oauth/oneTimeCode.ts|]
         ]
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
@@ -52,7 +59,10 @@ genRedirectHelper = return $ C.mkTmplFdWithData [relfile|server/oauth/redirect.t
   where
     tmplData =
       object
-        [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath
+        [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
+          "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
+          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
+          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
         ]
 
 genOAuthProvider ::

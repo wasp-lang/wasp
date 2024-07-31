@@ -26,12 +26,7 @@ import Wasp.Generator.AuthProviders
     googleAuthProvider,
     keycloakAuthProvider,
   )
-import Wasp.Generator.AuthProviders.OAuth
-  ( OAuthAuthProvider,
-    clientOAuthCallbackPath,
-    serverExchangeCodeForTokenHandlerPath,
-    serverOAuthLoginHandlerPath,
-  )
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -57,7 +52,6 @@ genOAuthHelpers auth =
   sequence
     [ genTypes auth,
       genUser,
-      genRedirectHelpers,
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/handler.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/state.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/cookies.ts|],
@@ -75,17 +69,6 @@ genUser = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnAuthIdentityEntityName" .= (DbAuth.authFieldOnAuthIdentityEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
-        ]
-
-genRedirectHelpers :: Generator FileDraft
-genRedirectHelpers = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/redirect.ts|]
-    tmplData =
-      object
-        [ "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
-          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
-          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
         ]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
