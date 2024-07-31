@@ -29,7 +29,7 @@ test.describe('auth hooks', () => {
     We set up the "after signup hook" to set a value in the user object.
     We also set up the "after login hook" to set a value in the user object.
   */
-  test('after signup and after loogin hooks work', async ({ page }) => {
+  test('after signup and after login hooks work', async ({ page }) => {
     const { email, password } = generateRandomCredentials()
 
     await performSignup(page, {
