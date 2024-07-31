@@ -4,11 +4,14 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
+import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.JsImport (JsImport)
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
 import Wasp.Util (toUpperFirst)
 
@@ -19,6 +22,8 @@ data SdkTemplatesDir
 data ClientTemplatesDir
 
 data ServerTemplatesDir
+
+instance GeneratedSrcDir SdkRootDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
 asTmplFile = SP.castRel
@@ -65,6 +70,14 @@ sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|ext-src|]
 
+extImportToJsImport ::
+  Path Posix (Rel importLocation) (Dir SdkRootDir) ->
+  EI.ExtImport ->
+  JsImport
+extImportToJsImport = GJI.extImportToJsImport extSrcDirP
+  where
+    extSrcDirP = fromJust $ SP.relDirToPosix extSrcDirInSdkRootDir
+
 relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
 relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.fromRelDirP path
   where
@@ -72,9 +85,6 @@ relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.f
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = [reldirP|wasp|] </> path
-
-extCodeDirInSdkRootDir :: Path' (Rel SdkRootDir) Dir'
-extCodeDirInSdkRootDir = [reldir|ext-src|]
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]

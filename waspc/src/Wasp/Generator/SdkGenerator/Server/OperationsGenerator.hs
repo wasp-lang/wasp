@@ -1,8 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( extImportToJsImport,
-    serverOperationsDirInSdkRootDir,
+  ( serverOperationsDirInSdkRootDir,
     genOperations,
   )
 where
@@ -21,20 +20,26 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (dropExtensionFromImportPath, makeJsonWithEntityData)
+import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, getOperationTypeName, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
+import Wasp.Generator.SdkGenerator.Common (SdkRootDir, SdkTemplatesDir, extImportToJsImport, getOperationTypeName, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport (JsImport (..), JsImportPath (..))
+import Wasp.JsImport (JsImport (..))
 import qualified Wasp.JsImport as JI
 import Wasp.Util (toUpperFirst)
+import qualified Wasp.Util.StrongPath as SP
 
 data ServerOpsTemplatesDir
 
+data ServerOpsSrcDir
+
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerOpsTemplatesDir)
 serverOpsDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
+
+serverOpsDirInSdkRootDir :: Path' (Rel C.SdkRootDir) (Dir ServerOpsSrcDir)
+serverOpsDirInSdkRootDir = SP.castRel $ SP.castDir serverOpsDirInSdkTemplatesDir
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -139,40 +144,34 @@ genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
 
 serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel C.SdkRootDir) Dir'
 serverOperationsDirInSdkRootDir =
-  SP.castRel . (serverOpsDirInSdkTemplatesDir </>) . \case
+  (serverOpsDirInSdkRootDir </>) . \case
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
+    [ "jsFn" .= importJson,
       "operationName" .= getName operation,
       "operationTypeName" .= getOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
+  where
+    importJson = extOperationImportToImportJson operationDir operationFn
+    operationDir = serverOperationsDirInSdkRootDir operation
+    operationFn = AS.Operation.getFn operation
 
-extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
-extOperationImportToImportJson =
+extOperationImportToImportJson :: Path' (Rel SdkRootDir) (Dir d) -> EI.ExtImport -> Aeson.Value
+extOperationImportToImportJson importLocationDir =
   GJI.jsImportToImportJson
     . Just
     . applyExtImportAlias
-    . extImportToJsImport
+    . extImportToJsImport (SP.reversePosixPath sdkRotoDirFromImportLocationDir)
+  where
+    sdkRotoDirFromImportLocationDir = fromJust $ SP.relDirToPosix importLocationDir
 
 applyExtImportAlias :: JsImport -> JsImport
 applyExtImportAlias jsImport =
   jsImport {_importAlias = Just $ JI.getImportIdentifier jsImport ++ "_ext"}
-
-extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
-  JsImport
-    { _path = ModuleImportPath importPath,
-      _name = importName,
-      _importAlias = Just $ EI.importIdentifier extImport ++ "_ext"
-    }
-  where
-    importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> SP.castRel extImportPath
-    extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
-    importName = GJI.extImportNameToJsImportName extImportName

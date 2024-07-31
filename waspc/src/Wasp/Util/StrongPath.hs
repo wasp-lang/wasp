@@ -4,11 +4,14 @@ module Wasp.Util.StrongPath
     stripProperPrefix,
     splitAbsExtension,
     splitRelExtension,
+    reversePosixPath,
   )
 where
 
 import Control.Arrow (first)
 import Control.Monad.Catch (MonadThrow)
+import Data.Maybe (fromJust)
+import qualified FilePath.Extra as FP.Extra
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
@@ -33,3 +36,6 @@ splitAbsExtension path =
 splitRelExtension :: MonadThrow m => SP.Path' (SP.Rel b) (SP.File a) -> m (SP.Path' (SP.Rel b) (SP.File c), String)
 splitRelExtension path =
   first SP.fromPathRelFile <$> P.splitExtension (SP.toPathRelFile path)
+
+reversePosixPath :: SP.Path SP.Posix (SP.Rel d1) (SP.Dir d2) -> SP.Path SP.Posix (SP.Rel d2) (SP.Dir d1)
+reversePosixPath = fromJust . SP.parseRelDirP . FP.Extra.reversePosixPath . SP.fromRelDirP
