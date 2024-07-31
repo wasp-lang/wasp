@@ -2,8 +2,6 @@ import type { Request as ExpressRequest } from 'express';
 import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js';
 import { prisma } from '../index.js';
 import { Expand } from '../../universal/types.js';
-import type { GoogleTokens } from 'arctic';
-import { ProviderName } from '../_types/index.js';
 export type OnBeforeSignupHook = (params: Expand<OnBeforeSignupHookParams>) => void | Promise<void>;
 export type OnAfterSignupHook = (params: Expand<OnAfterSignupHookParams>) => void | Promise<void>;
 /**
@@ -91,9 +89,8 @@ export type OAuthParams = {
      * Unique request ID that was generated during the OAuth flow.
      */
     uniqueRequestId: string;
-} & (OAuthProviderTokens<'google', GoogleTokens> | never);
-type OAuthProviderTokens<Name extends ProviderName, Tokens> = {
-    provider: Name;
-    tokens: Tokens;
-};
+} & ({
+    provider: 'google';
+    tokens: import('arctic').GoogleTokens;
+} | never);
 export {};

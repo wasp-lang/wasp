@@ -2,12 +2,6 @@ import type { Request as ExpressRequest } from 'express'
 import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js'
 import { prisma } from '../index.js'
 import { Expand } from '../../universal/types.js'
-import type {
-  GoogleTokens,
-  DiscordTokens,
-  GitHubTokens,
-  KeycloakTokens,
-} from 'arctic';
 import { ProviderName } from '../_types/index.js';
 
 // PUBLIC API
@@ -128,12 +122,6 @@ export type OAuthParams = {
    */
   uniqueRequestId: string
 } & (
-  | OAuthProviderTokens<'google', GoogleTokens>
+  | { provider: 'google'; tokens: import('arctic').GoogleTokens } 
   | never
 )
-
-
-type OAuthProviderTokens<Name extends ProviderName, Tokens> = {
-  provider: Name
-  tokens: Tokens
-}

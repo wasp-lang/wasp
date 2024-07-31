@@ -3,12 +3,6 @@ import type { Request as ExpressRequest } from 'express'
 import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js'
 import { prisma } from '../index.js'
 import { Expand } from '../../universal/types.js'
-import type {
-  GoogleTokens,
-  DiscordTokens,
-  GitHubTokens,
-  KeycloakTokens,
-} from 'arctic';
 import { ProviderName } from '../_types/index.js';
 
 // PUBLIC API
@@ -130,22 +124,16 @@ export type OAuthParams = {
   uniqueRequestId: string
 } & (
   {=# enabledProviders.isGoogleAuthEnabled =}
-  | OAuthProviderTokens<'google', GoogleTokens>
+  | { provider: 'google'; tokens: import('arctic').GoogleTokens } 
   {=/ enabledProviders.isGoogleAuthEnabled =}
   {=# enabledProviders.isDiscordAuthEnabled =}
-  | OAuthProviderTokens<'discord', DiscordTokens>
+  | { provider: 'discord'; tokens: import('arctic').DiscordTokens }
   {=/ enabledProviders.isDiscordAuthEnabled =}
   {=# enabledProviders.isGitHubAuthEnabled =}
-  | OAuthProviderTokens<'github', GitHubTokens>
+  | { provider: 'github'; tokens: import('arctic').GitHubTokens }
   {=/ enabledProviders.isGitHubAuthEnabled =}
   {=# enabledProviders.isKeycloakAuthEnabled =}
-  | OAuthProviderTokens<'keycloak', KeycloakTokens>
-  {=/ enabledProviders.isKeycloakAuthEnabled =}
+  | { provider: 'keycloak'; tokens: import('arctic').KeycloakTokens }
+    {=/ enabledProviders.isKeycloakAuthEnabled =}
   | never
 )
-
-
-type OAuthProviderTokens<Name extends ProviderName, Tokens> = {
-  provider: Name
-  tokens: Tokens
-}
