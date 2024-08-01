@@ -156,7 +156,7 @@ reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
         "The installation is taking a while, but we'll get there!",
         "Yup, still not done installing.",
         "We're getting closer and closer, everything will be installed soon!",
-        "Still waiting for the installation to finish? You should! We gone too far to give up now!",
+        "Still waiting for the installation to finish? You should! We got too far to give up now!",
         "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
       ]
 
