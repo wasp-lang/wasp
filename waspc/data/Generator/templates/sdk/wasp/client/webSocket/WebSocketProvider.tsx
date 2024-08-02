@@ -22,7 +22,7 @@ const ioConfig = {= configFn.importIdentifier =}()
 {=/ configFn.isDefined =}
 {=^ configFn.isDefined =}
 const ioConfig = {
-  autoConnect: {= autoConnect =},
+  autoConnect: {=# autoConnect =}true{=/ autoConnect =}{=^ autoConnect =}false{=/ autoConnect =},
   transports: ['websocket'],
 } satisfies IoConfig;
 {=/ configFn.isDefined =}
