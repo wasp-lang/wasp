@@ -151,14 +151,14 @@ reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
     secToMicroSec = (* 1000000)
     allPossibleMessages =
       cycle $
-      [ "Still installing npm dependencies!",
-        "Installation going great - we'll get there soon!",
-        "The installation is taking a while, but we'll get there!",
-        "Yup, still not done installing.",
-        "We're getting closer and closer, everything will be installed soon!",
-        "Still waiting for the installation to finish? You should! We got too far to give up now!",
-        "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
-      ]
+        [ "Still installing npm dependencies!",
+          "Installation going great - we'll get there soon!",
+          "The installation is taking a while, but we'll get there!",
+          "Yup, still not done installing.",
+          "We're getting closer and closer, everything will be installed soon!",
+          "Still waiting for the installation to finish? You should! We got too far to give up now!",
+          "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
+        ]
 
 -- | Figure out if installation of npm deps is needed, be it for user npm deps (top level
 -- package.json), for wasp framework npm deps (web app, server), or for wasp sdk npm deps.
