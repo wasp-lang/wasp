@@ -265,12 +265,17 @@ genTsConfigJson = do
       )
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredForAuth spec =
-  -- NTE: If Stitches start being used outside of auth,
-  -- we should include this dependency in the SDK deps.
-  [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
+depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
   where
-    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
+    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
+    authDeps =
+      AS.Dependency.fromList
+        [ -- NOTE: If Stitches start being used outside of auth,
+          -- we should include this dependency in the SDK deps.
+          ("@stitches/react", "^1.2.8"),
+          -- Argon2 is used for hashing passwords.
+          ("@node-rs/argon2", "^1.8.3")
+        ]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
