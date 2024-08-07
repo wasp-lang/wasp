@@ -37,7 +37,7 @@ export type OnAfterLoginHook = (
 export type InternalAuthHookParams = {
   /**
    * Prisma instance that can be used to interact with the database.
-   */
+  */
   prisma: typeof prisma
 }
 
@@ -50,90 +50,98 @@ export type InternalAuthHookParams = {
 type OnBeforeSignupHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterSignupHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
    * User object that was created during the signup process.
-   */
+  */
   user: Awaited<ReturnType<typeof createUser>>
+  /**
+   * OAuth flow data that was generated during the OAuth flow. This is only
+   * available if the user signed up using OAuth.
+  */
   oauth?: OAuthParams
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnBeforeOAuthRedirectHookParams = {
   /**
    * URL that the OAuth flow should redirect to.
-   */
+  */
   url: URL
   /**
    * Unique request ID that was generated during the OAuth flow.
-   */
+  */
   uniqueRequestId: OAuthParams['uniqueRequestId']
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnBeforeLoginHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterLoginHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
    * User that is logged in.
-   */
+  */
   user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
+  /**
+   * OAuth flow data that was generated during the OAuth flow. This is only
+   * available if the user logged in using OAuth.
+  */
+  oauth?: OAuthParams
   /**
    * Request object that can be used to access the incoming request.
   */
   req: ExpressRequest
-  oauth?: OAuthParams
 } & InternalAuthHookParams
 
 // PRIVATE API
 export type OAuthParams = {
   /**
    * Unique request ID that was generated during the OAuth flow.
-   */
+  */
   uniqueRequestId: string
 } & (
   {=# enabledProviders.isGoogleAuthEnabled =}
-  | { provider: 'google'; tokens: import('arctic').GoogleTokens } 
+  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
   {=/ enabledProviders.isGoogleAuthEnabled =}
   {=# enabledProviders.isDiscordAuthEnabled =}
-  | { provider: 'discord'; tokens: import('arctic').DiscordTokens }
+  | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
   {=/ enabledProviders.isDiscordAuthEnabled =}
   {=# enabledProviders.isGitHubAuthEnabled =}
-  | { provider: 'github'; tokens: import('arctic').GitHubTokens }
+  | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
   {=/ enabledProviders.isGitHubAuthEnabled =}
   {=# enabledProviders.isKeycloakAuthEnabled =}
-  | { provider: 'keycloak'; tokens: import('arctic').KeycloakTokens }
-    {=/ enabledProviders.isKeycloakAuthEnabled =}
+  | { providerName: 'keycloak'; tokens: import('arctic').KeycloakTokens }
+  {=/ enabledProviders.isKeycloakAuthEnabled =}
   | never
 )

@@ -58,7 +58,7 @@ export const onAfterLogin: OnAfterLoginHook = async (args) => {
   const log = createLoggerForHook('onAfterLogin')
   log('providerId object', args.providerId)
   log('user object', args.user)
-  if (args.oauth) {
+  if (args.oauth && args.oauth.providerName === 'google') {
     log('accessToken', args.oauth.tokens.accessToken)
   }
 }
