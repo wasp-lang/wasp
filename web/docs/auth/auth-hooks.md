@@ -37,7 +37,6 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
 
-
 If you are using OAuth, the flow includes extra steps before the auth flow:
 
 <ImgWithCaption
@@ -552,6 +551,7 @@ export const onAfterLogin = async ({ oauth }) => {
   }
 }
 ```
+
 </TabItem>
 
 <TabItem value="ts" label="TypeScript">
@@ -569,6 +569,7 @@ export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
