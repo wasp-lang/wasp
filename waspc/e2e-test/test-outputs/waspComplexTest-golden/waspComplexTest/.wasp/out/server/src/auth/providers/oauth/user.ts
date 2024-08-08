@@ -92,6 +92,7 @@ async function getAuthIdFromProviderDetails({
     // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
     const auth = await findAuthWithUserBy({ id: authId })
 
+    // NOTE: check the comment above onBeforeLoginHook for the explanation why we call onAfterLoginHook here.
     await onAfterLoginHook({
       req,
       providerId,
