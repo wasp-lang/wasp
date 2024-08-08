@@ -61,8 +61,7 @@ migrateDev projectRootDir migrateArgs =
         "--skip-generate",
         -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
         --   in some situations is too aggressive / confusing.
-        "--skip-seed",
-        disablePrismaPromotionsFlag
+        "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
 
@@ -91,8 +90,7 @@ migrateDiff projectRootDir =
       SP.fromAbsFile schema,
       "--to-schema-datasource",
       SP.fromAbsFile schema,
-      "--exit-code",
-      disablePrismaPromotionsFlag
+      "--exit-code"
     ]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
@@ -109,8 +107,7 @@ migrateStatus projectRootDir =
     [ "migrate",
       "status",
       "--schema",
-      SP.fromAbsFile schema,
-      disablePrismaPromotionsFlag
+      SP.fromAbsFile schema
     ]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
@@ -128,8 +125,7 @@ reset projectRootDir =
       "--schema",
       SP.fromAbsFile schema,
       "--skip-generate",
-      "--skip-seed",
-      disablePrismaPromotionsFlag
+      "--skip-seed"
     ]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
@@ -147,8 +143,7 @@ seed projectRootDir seedName =
     [(dbSeedNameEnvVarName, seedName)]
     projectRootDir
     [ "db",
-      "seed",
-      disablePrismaPromotionsFlag
+      "seed"
     ]
   where
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
@@ -168,15 +163,26 @@ dbExecuteTest projectRootDir =
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
 runStudio projectRootDir =
-  runPrismaCommandAsJobFromWaspServerDir projectRootDir ["studio", "--schema", SP.fromAbsFile schema, disablePrismaPromotionsFlag]
+  runPrismaCommandAsJobFromWaspServerDir projectRootDir ["studio", "--schema", SP.fromAbsFile schema]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectRootDir =
-  runPrismaCommandAsJobFromWaspServerDir projectRootDir ["generate", "--schema", SP.fromAbsFile schema, disablePrismaPromotionsFlag]
+  runPrismaCommandAsJobFromWaspServerDir
+    projectRootDir
+    [ "generate",
+      "--schema",
+      SP.fromAbsFile schema,
+      disablePrismaPromotionsFlag
+    ]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
+
+    -- Prisma CLI will output various promotions to the user, such as "hints" about new features.
+    -- We want to disable these promotions because our users can't act on many of them (e.g. "Try out Prisma 6.0!").
+    disablePrismaPromotionsFlag :: String
+    disablePrismaPromotionsFlag = "--no-hints"
 
 runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
 runPrismaCommandAsJobFromWaspServerDir projectRootDir cmdArgs =
@@ -207,11 +213,3 @@ absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
     prismaExecutableAbs :: Path' Abs File'
     prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]
-
--- Prisma CLI will output various promotions to the user, such as "hints" about new features.
--- We want to disable these promotions in our CLI commands because our users can't act on many
--- of them (e.g. "Try out Prisma 6.0!").
--- NOTE: we are not passing this flag to every Prisma command automatically because it breaks
--- some commands (e.g. `prisma db exectute`).
-disablePrismaPromotionsFlag :: String
-disablePrismaPromotionsFlag = "--no-hints"
