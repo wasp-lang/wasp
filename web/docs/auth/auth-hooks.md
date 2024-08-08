@@ -24,24 +24,25 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
   caption="Signup Flow with Hooks"
 />
 
-If you are using OAuth, the flow includes extra steps before the signup flow:
-
-<ImgWithCaption
-  source="/img/auth-hooks/oauth_flow_with_hooks.png"
-  alt="OAuth Flow with Hooks"
-  caption="OAuth Flow with Hooks"
-/>
-
 <ImgWithCaption
   source="/img/auth-hooks/login_flow_with_hooks.png"
   alt="Login Flow with Hooks"
-  caption="Login Flow with Hooks"
+  caption="Login Flow with Hooks *"
 />
 
 <small>
 
 \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
+
+
+If you are using OAuth, the flow includes extra steps before the auth flow:
+
+<ImgWithCaption
+  source="/img/auth-hooks/oauth_flow_with_hooks.png"
+  alt="OAuth Flow with Hooks"
+  caption="OAuth Flow with Hooks"
+/>
 
 ## Using hooks
 
@@ -809,7 +810,7 @@ Wasp ignores this hook's **return value**.
 
 ### ProviderId fields
 
-The `providerId` object is passed to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks. It represents the user for the current authentication method.
+The `providerId` object represents the user for the current authentication method. Wasp passes it to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
 
 It has the following fields:
 
@@ -823,16 +824,16 @@ It has the following fields:
 
 ### OAuth fields
 
-The `oauth` object is passed to the `onAfterSignup` and `onAfterLogin` hooks only when the user is authenticated with [Social Auth](./social-auth/overview.md).
+Wasp passes the `oauth` object to the `onAfterSignup` and `onAfterLogin` hooks only when the user is authenticated with [Social Auth](./social-auth/overview.md).
 
 It has the following fields:
 
 - `accessToken: string`
 
-  The OAuth access token can be used to make requests to the provider's API on the user's behalf.
+  You can use the OAuth access token to make requests to the provider's API on the user's behalf.
 
 - `uniqueRequestId: string`
 
   The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
-  You can use the unique request ID to get the data saved in the `onBeforeOAuthRedirect` hook.
+  You can use the unique request ID to get the data that was saved in the `onBeforeOAuthRedirect` hook.
