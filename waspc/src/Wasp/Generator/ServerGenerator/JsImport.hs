@@ -1,4 +1,9 @@
-module Wasp.Generator.ServerGenerator.JsImport where
+module Wasp.Generator.ServerGenerator.JsImport
+  ( extImportToImportJson,
+    extImportToAliasedImportJson,
+    getAliasedJsImportStmtAndIdentifier,
+  )
+where
 
 import qualified Data.Aeson as Aeson
 import StrongPath (Dir, Path, Posix, Rel)
@@ -32,19 +37,13 @@ extImportToAliasedImportJson importAlias pathFromImportLocationToSrcDir maybeExt
     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
     aliasedJsImport = JI.applyJsImportAlias (Just importAlias) <$> jsImport
 
-getJsImportStmtAndIdentifier ::
-  Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
-  EI.ExtImport ->
-  (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
-
 getAliasedJsImportStmtAndIdentifier ::
   JsImportAlias ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
-getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToExtCodeDir =
-  JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToExtCodeDir
+getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToSrcDir =
+  JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToSrcDir
 
 extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
