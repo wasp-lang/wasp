@@ -1,2 +1,2 @@
-export declare const hashPassword: (password: string) => Promise<string>;
-export declare const verifyPassword: (hashedPassword: string, password: string) => Promise<void>;
+export declare function hashPassword(password: string): Promise<string>;
+export declare function verifyPassword(hashedPassword: string, password: string): Promise<void>;

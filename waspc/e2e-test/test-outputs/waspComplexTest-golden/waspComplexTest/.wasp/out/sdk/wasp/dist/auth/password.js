@@ -1,14 +1,26 @@
-import { Argon2id } from 'oslo/password';
-const argon2id = new Argon2id();
-// PRIVATE API
-export const hashPassword = async (password) => {
-    return argon2id.hash(password);
+import { hash, verify } from "@node-rs/argon2";
+// The options are the same as the ones used in the oslo/password library
+const hashingOptions = {
+    memoryCost: 19456,
+    timeCost: 2,
+    outputLen: 32,
+    parallelism: 1,
+    version: 1 /* Version.V0x13 */,
 };
 // PRIVATE API
-export const verifyPassword = async (hashedPassword, password) => {
-    const isValidPassword = await argon2id.verify(hashedPassword, password);
-    if (!isValidPassword) {
-        throw new Error('Invalid password.');
+export async function hashPassword(password) {
+    return hash(normalizePassword(password), hashingOptions);
+}
+// PRIVATE API
+export async function verifyPassword(hashedPassword, password) {
+    const validPassword = await verify(hashedPassword, normalizePassword(password), hashingOptions);
+    if (!validPassword) {
+        throw new Error("Invalid password");
     }
-};
+}
+// We are normalising the password to ensure that the password is always hashed in the same way
+// We have the same normalising process as oslo/password did in the past
+function normalizePassword(password) {
+    return password.normalize("NFKC");
+}
 //# sourceMappingURL=password.js.map
