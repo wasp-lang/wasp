@@ -888,7 +888,7 @@ Wasp passes the `oauth` object to the `onAfterSignup` and `onAfterLogin` hooks o
 
 It has the following fields:
 
-- `providerName: OAuthProviderName`
+- `providerName: string`
 
   The OAuth provider name (e.g. `'google'`, `'github'`) that the user authenticated with.
 
