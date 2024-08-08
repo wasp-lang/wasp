@@ -234,6 +234,9 @@ generatePrismaClient spec projectRootDir = do
     -- If the generated client's schema doesn't match the current Wasp schema.prisma,
     -- we should regenerate the client.
     -- This can happen if the user runs `npx prisma generate` manually.
+    -- TODO: This check is worthless now because Prisma 5 formats the schema in node_modules
+    -- while Wasp does it in the .wasp/out/db directory. We should probably format the schema
+    -- in the same way as Prisma does.
     isNodeModulesSchemaSameAsProjectSchema :: IO Bool
     isNodeModulesSchemaSameAsProjectSchema =
       checksumFileExistsAndMatchesSchema
