@@ -27,6 +27,8 @@ export type {
   OnBeforeSignupHook,
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
   InternalAuthHookParams,
 } from './hooks.js'
 

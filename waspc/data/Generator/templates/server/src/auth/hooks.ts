@@ -4,6 +4,8 @@ import type {
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
   InternalAuthHookParams,
 } from 'wasp/server/auth'
 {=# onBeforeSignupHook.isDefined =}
@@ -15,6 +17,12 @@ import type {
 {=# onBeforeOAuthRedirectHook.isDefined =}
 {=& onBeforeOAuthRedirectHook.importStatement =}
 {=/ onBeforeOAuthRedirectHook.isDefined =}
+{=# onBeforeLoginHook.isDefined =}
+{=& onBeforeLoginHook.importStatement =}
+{=/ onBeforeLoginHook.isDefined =}
+{=# onAfterLoginHook.isDefined =}
+{=& onAfterLoginHook.importStatement =}
+{=/ onAfterLoginHook.isDefined =}
 
 /*
   These are "internal hook functions" based on the user defined hook functions.
@@ -66,6 +74,35 @@ export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRed
  */
 export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = async (params) => params
 {=/ onBeforeOAuthRedirectHook.isDefined =}
+
+
+{=# onBeforeLoginHook.isDefined =}
+export const onBeforeLoginHook: InternalFunctionForHook<OnBeforeLoginHook> = (params) =>
+  {= onBeforeLoginHook.importIdentifier =}({
+    prisma,
+    ...params,
+  })
+{=/ onBeforeLoginHook.isDefined =}
+{=^ onBeforeLoginHook.isDefined =}
+/**
+ * This is a no-op function since the user didn't define the onBeforeLogin hook.
+ */
+export const onBeforeLoginHook: InternalFunctionForHook<OnBeforeLoginHook> = async (_params) => {}
+{=/ onBeforeLoginHook.isDefined =}
+
+{=# onAfterLoginHook.isDefined =}
+export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = (params) =>
+  {= onAfterLoginHook.importIdentifier =}({
+    prisma,
+    ...params,
+  })
+{=/ onAfterLoginHook.isDefined =}
+{=^ onAfterLoginHook.isDefined =}
+/**
+ * This is a no-op function since the user didn't define the onAfterLogin hook.
+ */
+export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = async (_params) => {}
+{=/ onAfterLoginHook.isDefined =}
 
 /*
   We pass extra params to the user defined hook functions, but we don't want to

@@ -13,8 +13,10 @@ The following auth hooks are available in Wasp:
 - [`onBeforeSignup`](#executing-code-before-the-user-signs-up)
 - [`onAfterSignup`](#executing-code-after-the-user-signs-up)
 - [`onBeforeOAuthRedirect`](#executing-code-before-the-oauth-redirect)
+- [`onBeforeLogin`](#executing-code-before-the-user-logs-in)
+- [`onAfterLogin`](#executing-code-after-the-user-logs-in)
 
-We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the signup flow:
+We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the auth flows:
 
 <ImgWithCaption
   source="/img/auth-hooks/signup_flow_with_hooks.png"
@@ -22,7 +24,19 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
   caption="Signup Flow with Hooks"
 />
 
-If you are using OAuth, the flow includes extra steps before the signup flow:
+<ImgWithCaption
+  source="/img/auth-hooks/login_flow_with_hooks.png"
+  alt="Login Flow with Hooks"
+  caption="Login Flow with Hooks *"
+/>
+
+<small>
+
+\* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
+</small>
+
+
+If you are using OAuth, the flow includes extra steps before the auth flow:
 
 <ImgWithCaption
   source="/img/auth-hooks/oauth_flow_with_hooks.png"
@@ -50,6 +64,8 @@ app myApp {
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
     onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
   },
 }
 ```
@@ -69,6 +85,8 @@ app myApp {
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
     onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
   },
 }
 ```
@@ -268,7 +286,7 @@ Read more about the data the `onAfterSignup` hook receives in the [API Reference
 
 Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is generated but before redirecting the user. This hook can access the request object sent from the client at the start of the OAuth process.
 
-The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that can be used later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` hook.
+The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that you can use later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` or `onAfterLogin` hooks.
 
 Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -294,7 +312,7 @@ export const onBeforeOAuthRedirect = async ({
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
-  // Saving query params for later use in the onAfterSignup hook
+  // Saving query params for later use in onAfterSignup or onAfterLogin hooks
   const id = uniqueRequestId
   someKindOfStore.set(id, req.query)
 
@@ -326,7 +344,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
-  // Saving query params for later use in the onAfterSignup hook
+  // Saving query params for later use in onAfterSignup or onAfterLogin hooks
   const id = uniqueRequestId
   someKindOfStore.set(id, req.query)
 
@@ -340,6 +358,167 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
 
 Read more about the data the `onBeforeOAuthRedirect` hook receives in the [API Reference](#the-onbeforeoauthredirect-hook).
+
+### Executing code before the user logs in
+
+Wasp calls the `onBeforeLogin` hook before the user is logged in.
+
+The `onBeforeLogin` hook can be useful if you want to reject a user based on some criteria before they log in.
+
+Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+  },
+}
+```
+
+```js title="src/auth/hooks.js"
+import { HttpError } from 'wasp/server'
+
+export const onBeforeLogin = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+    throw new HttpError(403, 'You cannot log in with this email')
+  }
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+  },
+}
+```
+
+```ts title="src/auth/hooks.ts"
+import { HttpError } from 'wasp/server'
+import type { OnBeforeLoginHook } from 'wasp/server/auth'
+
+export const onBeforeLogin: OnBeforeLoginHook = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+    throw new HttpError(403, 'You cannot log in with this email')
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+Read more about the data the `onBeforeLogin` hook receives in the [API Reference](#the-onbeforelogin-hook).
+
+### Executing code after the user logs in
+
+Wasp calls the `onAfterLogin` hook after the user logs in.
+
+The `onAfterLogin` hook can be useful if you want to perform some action after the user logs in, like syncing the user with a third-party service.
+
+Since the `onAfterLogin` hook receives the OAuth access token, it can also be used to update the OAuth access token for the user in your database.
+
+Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
+  },
+}
+```
+
+```js title="src/auth/hooks.js"
+export const onAfterLogin = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  console.log('user object', user)
+
+  // If this is an OAuth signup, we have the access token and uniqueRequestId
+  if (oauth) {
+    console.log('accessToken', oauth.accessToken)
+    console.log('uniqueRequestId', oauth.uniqueRequestId)
+
+    const id = oauth.uniqueRequestId
+    const data = someKindOfStore.get(id)
+    if (data) {
+      console.log('saved data for the ID', data)
+    }
+    someKindOfStore.delete(id)
+  }
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
+  },
+}
+```
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterLoginHook } from 'wasp/server/auth'
+
+export const onAfterLogin: OnAfterLoginHook = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  console.log('user object', user)
+
+  // If this is an OAuth signup, we have the access token and uniqueRequestId
+  if (oauth) {
+    console.log('accessToken', oauth.accessToken)
+    console.log('uniqueRequestId', oauth.uniqueRequestId)
+
+    const id = oauth.uniqueRequestId
+    const data = someKindOfStore.get(id)
+    if (data) {
+      console.log('saved data for the ID', data)
+    }
+    someKindOfStore.delete(id)
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+Read more about the data the `onAfterLogin` hook receives in the [API Reference](#the-onafterlogin-hook).
 
 ## API Reference
 
@@ -359,6 +538,8 @@ app myApp {
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
     onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
   },
 }
 ```
@@ -378,11 +559,25 @@ app myApp {
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
     onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
   },
 }
 ```
 </TabItem>
 </Tabs>
+
+### Common hook input
+
+The following properties are available in all auth hooks:
+
+- `prisma: PrismaClient`
+
+  The Prisma client instance which you can use to query your database.
+
+- `req: Request`
+
+  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
 
 ### The `onBeforeSignup` hook
 
@@ -390,14 +585,12 @@ app myApp {
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/auth/hooks.js"
-import { HttpError } from 'wasp/server'
-
 export const onBeforeSignup = async ({
   providerId,
   prisma,
   req,
 }) => {
-  // Hook code here
+  // Hook code goes here
 }
 ```
 
@@ -405,7 +598,6 @@ export const onBeforeSignup = async ({
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from 'wasp/server'
 import type { OnBeforeSignupHook } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -413,7 +605,7 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
   prisma,
   req,
 }) => {
-  // Hook code here
+  // Hook code goes here
 }
 ```
 
@@ -422,21 +614,9 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
 
 The hook receives an object as **input** with the following properties:
 
-- `providerId: ProviderId`
+- [`providerId: ProviderId`](#providerid-fields)
 
-  The user's provider ID is an object with two properties:
-  - `providerName: string`
-
-    The provider's name (e.g. `'email'`, `'google'`, `'github'`)
-  - `providerUserId: string`
-    
-    The user's unique ID in the provider's system (e.g. email, Google ID, GitHub ID)
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -453,7 +633,7 @@ export const onAfterSignup = async ({
   prisma,
   req,
 }) => {
-  // Hook code here
+  // Hook code goes here
 }
 ```
 
@@ -470,7 +650,7 @@ export const onAfterSignup: OnAfterSignupHook = async ({
   prisma,
   req,
 }) => {
-  // Hook code here
+  // Hook code goes here
 }
 ```
 
@@ -478,36 +658,14 @@ export const onAfterSignup: OnAfterSignupHook = async ({
 </Tabs>
 
 The hook receives an object as **input** with the following properties:
-- `providerId: ProviderId`
-
-  The user's provider ID is an object with two properties:
-  - `providerName: string`
+- [`providerId: ProviderId`](#providerid-fields)
   
-    The provider's name (e.g. `'email'`, `'google'`, `'github'`)
-  - `providerUserId: string`
-  
-  The user's unique ID in the provider's system (e.g. email, Google ID, GitHub ID)
 - `user: User`
   
   The user object that was created.
-- `oauth?: OAuthFields`
+- [`oauth?: OAuthFields`](#oauth-fields)
 
-  This object is present only when the user is created using [Social Auth](./social-auth/overview.md).
-  It contains the following fields:
-  - `accessToken: string`
-
-    You can use the OAuth access token to use the provider's API on user's behalf.
-  - `uniqueRequestId: string`
-  
-      The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
-      
-      You can use the unique request ID to get the data saved in the `onBeforeOAuthRedirect` hook.
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-- `req: Request`
-  
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -523,7 +681,7 @@ export const onBeforeOAuthRedirect = async ({
   prisma,
   req,
 }) => {
-  // Hook code here
+  // Hook code goes here
 
   return { url }
 }
@@ -541,7 +699,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   prisma,
   req,
 }) => {
-  // Hook code here
+  // Hook code goes here
 
   return { url }
 }
@@ -558,12 +716,124 @@ The hook receives an object as **input** with the following properties:
 
     The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
-    You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` hook.
-- `prisma: PrismaClient`
-    
-    The Prisma client instance which you can use to query your database.
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+    You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
+- Plus the [common hook input](#common-hook-input)
 
 This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
+
+### The `onBeforeLogin` hook
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/auth/hooks.js"
+export const onBeforeLogin = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/auth/hooks.ts"
+import type { OnBeforeLoginHook } from 'wasp/server/auth' 
+
+export const onBeforeLogin: OnBeforeLoginHook = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
+```
+</TabItem>
+</Tabs>
+
+The hook receives an object as **input** with the following properties:
+- [`providerId: ProviderId`](#providerid-fields)
+
+- Plus the [common hook input](#common-hook-input)
+
+Wasp ignores this hook's **return value**.
+
+### The `onAfterLogin` hook
+
+<Tabs groupId="js-ts">
+
+<TabItem value="js" label="JavaScript">
+
+```js title="src/auth/hooks.js"
+export const onAfterLogin = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterLoginHook } from 'wasp/server/auth'
+
+export const onAfterLogin: OnAfterLoginHook = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
+```
+</TabItem>
+</Tabs>
+
+The hook receives an object as **input** with the following properties:
+- [`providerId: ProviderId`](#providerid-fields)
+
+- `user: User`
+
+  The logged-in user's object.
+
+- [`oauth?: OAuthFields`](#oauth-fields)
+
+- Plus the [common hook input](#common-hook-input)
+
+Wasp ignores this hook's **return value**.
+
+### ProviderId fields
+
+The `providerId` object represents the user for the current authentication method. Wasp passes it to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
+
+It has the following fields:
+
+- `providerName: string`
+
+  The provider's name (e.g. `'email'`, `'google'`, `'github`)
+
+- `providerUserId: string`
+
+  The user's unique ID in the provider's system (e.g. email, Google ID, GitHub ID)
+
+### OAuth fields
+
+Wasp passes the `oauth` object to the `onAfterSignup` and `onAfterLogin` hooks only when the user is authenticated with [Social Auth](./social-auth/overview.md).
+
+It has the following fields:
+
+- `accessToken: string`
+
+  You can use the OAuth access token to make requests to the provider's API on the user's behalf.
+
+- `uniqueRequestId: string`
+
+  The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
+
+  You can use the unique request ID to get the data that was saved in the `onBeforeOAuthRedirect` hook.

@@ -37,7 +37,9 @@ data Auth = Auth
     onAuthSucceededRedirectTo :: Maybe String,
     onBeforeSignup :: Maybe ExtImport,
     onAfterSignup :: Maybe ExtImport,
-    onBeforeOAuthRedirect :: Maybe ExtImport
+    onBeforeOAuthRedirect :: Maybe ExtImport,
+    onBeforeLogin :: Maybe ExtImport,
+    onAfterLogin :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 

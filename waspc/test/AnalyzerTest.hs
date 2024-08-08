@@ -152,7 +152,9 @@ spec_Analyzer = do
                             Auth.onAuthSucceededRedirectTo = Nothing,
                             Auth.onBeforeSignup = Nothing,
                             Auth.onAfterSignup = Nothing,
-                            Auth.onBeforeOAuthRedirect = Nothing
+                            Auth.onBeforeOAuthRedirect = Nothing,
+                            Auth.onBeforeLogin = Nothing,
+                            Auth.onAfterLogin = Nothing
                           },
                     App.server =
                       Just
