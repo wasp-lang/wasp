@@ -566,6 +566,18 @@ app myApp {
 </TabItem>
 </Tabs>
 
+### Common hook input
+
+The following properties are available in all auth hooks:
+
+- `prisma: PrismaClient`
+
+  The Prisma client instance which you can use to query your database.
+
+- `req: Request`
+
+  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+
 ### The `onBeforeSignup` hook
 
 <Tabs groupId="js-ts">
@@ -603,12 +615,7 @@ The hook receives an object as **input** with the following properties:
 
 - [`providerId: ProviderId`](#providerid-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -657,12 +664,7 @@ The hook receives an object as **input** with the following properties:
   The user object that was created.
 - [`oauth?: OAuthFields`](#oauth-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-- `req: Request`
-  
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -714,12 +716,7 @@ The hook receives an object as **input** with the following properties:
     The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
     You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
-- `prisma: PrismaClient`
-    
-    The Prisma client instance which you can use to query your database.
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
 
@@ -757,13 +754,7 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({
 The hook receives an object as **input** with the following properties:
 - [`providerId: ProviderId`](#providerid-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -808,23 +799,17 @@ The hook receives an object as **input** with the following properties:
 
 - `user: User`
 
-  The user object of the user who logged in.
+  The logged-in user's object.
 
 - [`oauth?: OAuthFields`](#oauth-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
 ### ProviderId fields
 
-The `providerId` object is passed to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
+The `providerId` object is passed to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks. It represents the user for the current authentication method.
 
 It has the following fields:
 
@@ -844,7 +829,7 @@ It has the following fields:
 
 - `accessToken: string`
 
-  The OAuth access token that can be used to make requests to the provider's API on the user's behalf.
+  The OAuth access token can be used to make requests to the provider's API on the user's behalf.
 
 - `uniqueRequestId: string`
 
