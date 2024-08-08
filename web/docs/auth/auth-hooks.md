@@ -26,24 +26,25 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
   caption="Signup Flow with Hooks"
 />
 
-If you are using OAuth, the flow includes extra steps before the signup flow:
-
-<ImgWithCaption
-  source="/img/auth-hooks/oauth_flow_with_hooks.png"
-  alt="OAuth Flow with Hooks"
-  caption="OAuth Flow with Hooks"
-/>
-
 <ImgWithCaption
   source="/img/auth-hooks/login_flow_with_hooks.png"
   alt="Login Flow with Hooks"
-  caption="Login Flow with Hooks"
+  caption="Login Flow with Hooks *"
 />
 
 <small>
 
 \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
+
+
+If you are using OAuth, the flow includes extra steps before the auth flow:
+
+<ImgWithCaption
+  source="/img/auth-hooks/oauth_flow_with_hooks.png"
+  alt="OAuth Flow with Hooks"
+  caption="OAuth Flow with Hooks"
+/>
 
 ## Using hooks
 
@@ -291,7 +292,7 @@ Read more about the data the `onAfterSignup` hook receives in the [API Reference
 
 Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is generated but before redirecting the user. This hook can access the request object sent from the client at the start of the OAuth process.
 
-The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that can be used later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` or `onAfterLogin` hooks.
+The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that you can use later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` or `onAfterLogin` hooks.
 
 Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -624,6 +625,18 @@ app myApp {
 </TabItem>
 </Tabs>
 
+### Common hook input
+
+The following properties are available in all auth hooks:
+
+- `prisma: PrismaClient`
+
+  The Prisma client instance which you can use to query your database.
+
+- `req: Request`
+
+  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+
 ### The `onBeforeSignup` hook
 
 <Tabs groupId="js-ts">
@@ -657,13 +670,7 @@ The hook receives an object as **input** with the following properties:
 
 - [`providerId: ProviderId`](#providerid-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -713,13 +720,7 @@ The hook receives an object as **input** with the following properties:
 
 - [`oauth?: OAuthFields`](#oauth-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -774,11 +775,7 @@ The hook receives an object as **input** with the following properties:
 
   You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
 
-- `prisma: PrismaClient`
-  The Prisma client instance which you can use to query your database.
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
 
@@ -815,13 +812,7 @@ The hook receives an object as **input** with the following properties:
 
 - [`providerId: ProviderId`](#providerid-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
@@ -869,23 +860,17 @@ The hook receives an object as **input** with the following properties:
 
 - `user: User`
 
-  The user object of the user who logged in.
+  The logged-in user's object.
 
 - [`oauth?: OAuthFields`](#oauth-fields)
 
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
+- Plus the [common hook input](#common-hook-input)
 
 Wasp ignores this hook's **return value**.
 
 ### ProviderId fields
 
-The `providerId` object is passed to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
+The `providerId` object represents the user for the current authentication method. Wasp passes it to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
 
 It has the following fields:
 
@@ -899,7 +884,7 @@ It has the following fields:
 
 ### OAuth fields
 
-The `oauth` object is passed to the `onAfterSignup` and `onAfterLogin` hooks only when the user is authenticated with [Social Auth](./social-auth/overview.md).
+Wasp passes the `oauth` object to the `onAfterSignup` and `onAfterLogin` hooks only when the user is authenticated with [Social Auth](./social-auth/overview.md).
 
 It has the following fields:
 
@@ -908,6 +893,8 @@ It has the following fields:
   The OAuth provider name (e.g. `'google'`, `'github'`) that the user authenticated with.
 
 - `tokens: Tokens`
+
+  You can use the OAuth tokens to make requests to the provider's API on the user's behalf.
 
   Depending on the OAuth provider, the `tokens` object might have different fields. For example, for Google, it has the `accessToken`, `refreshToken`, `idToken`, and `accessTokenExpiresAt` fields.
 
@@ -931,4 +918,4 @@ It has the following fields:
 
   The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
-  You can use the unique request ID to get the data saved in the `onBeforeOAuthRedirect` hook.
+  You can use the unique request ID to get the data that was saved in the `onBeforeOAuthRedirect` hook.
