@@ -25,7 +25,7 @@ export const onAfterSignup: OnAfterSignupHook = async (args) => {
 
   // If this is a OAuth signup, we have access token and uniqueRequestId
   if (args.oauth) {
-    log('accessToken', args.oauth.accessToken)
+    log('accessToken', args.oauth.tokens.accessToken)
     log('uniqueRequestId', args.oauth.uniqueRequestId)
     const id = args.oauth.uniqueRequestId
     const query = oAuthQueryStore.get(id)
@@ -58,8 +58,8 @@ export const onAfterLogin: OnAfterLoginHook = async (args) => {
   const log = createLoggerForHook('onAfterLogin')
   log('providerId object', args.providerId)
   log('user object', args.user)
-  if (args.oauth) {
-    log('accessToken', args.oauth.accessToken)
+  if (args.oauth && args.oauth.providerName === 'google') {
+    log('accessToken', args.oauth.tokens.accessToken)
   }
 }
 

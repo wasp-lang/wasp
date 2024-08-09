@@ -1,6 +1,5 @@
 module Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
   ( genOAuthAuth,
-    depsRequiredByOAuth,
   )
 where
 
@@ -19,26 +18,15 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
-import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import qualified Wasp.AppSpec.App.Dependency as App.Dependency
-import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
   )
-import Wasp.Generator.AuthProviders.OAuth
-  ( OAuthAuthProvider,
-    clientOAuthCallbackPath,
-    serverExchangeCodeForTokenHandlerPath,
-    serverOAuthCallbackHandlerPath,
-    serverOAuthLoginHandlerPath,
-  )
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -64,11 +52,9 @@ genOAuthHelpers auth =
   sequence
     [ genTypes auth,
       genUser,
-      genRedirectHelpers,
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/handler.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/state.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/cookies.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/env.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/config.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/oneTimeCode.ts|]
     ]
@@ -83,18 +69,6 @@ genUser = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnAuthIdentityEntityName" .= (DbAuth.authFieldOnAuthIdentityEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
-        ]
-
-genRedirectHelpers :: Generator FileDraft
-genRedirectHelpers = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/redirect.ts|]
-    tmplData =
-      object
-        [ "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
-          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
-          "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
-          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
         ]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
@@ -144,9 +118,3 @@ genOAuthConfig provider maybeUserConfig pathToConfigTmpl = return $ C.mkTmplFdWi
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
-
-depsRequiredByOAuth :: AppSpec -> [App.Dependency.Dependency]
-depsRequiredByOAuth spec =
-  [App.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
-  where
-    maybeAuth = AS.App.auth $ snd $ getApp spec

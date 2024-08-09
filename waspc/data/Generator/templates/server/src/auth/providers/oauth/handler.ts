@@ -6,6 +6,7 @@ import {
   type UserSignupFields,
   type ProviderConfig,
 } from 'wasp/auth/providers/types'
+import { callbackPath } from 'wasp/server/oauth'
 
 import {
   type OAuthType,
@@ -16,10 +17,9 @@ import {
 } from '../oauth/state.js'
 import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
 import {
-  callbackPath,
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
-} from './redirect.js'
+} from 'wasp/server/oauth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
 export function createOAuthProviderRouter<OT extends OAuthType>({
@@ -92,10 +92,10 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
           provider,
           req,
         })
-        const { accessToken } = await getProviderTokens(oAuthState)
+        const tokens = await getProviderTokens(oAuthState)
   
         const { providerProfile, providerUserId } = await getProviderInfo({
-          accessToken,
+          accessToken: tokens.accessToken,
         })
         try {
           const redirectUri = await finishOAuthFlowAndGetRedirectUri({
@@ -104,8 +104,7 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
             providerUserId,
             userSignupFields,
             req,
-            accessToken,
-            oAuthState,
+            oauth: { uniqueRequestId: oAuthState.state, tokens, provider: provider.id },
           })
           // Redirect to the client with the one time code
           return redirect(res, redirectUri.toString())
