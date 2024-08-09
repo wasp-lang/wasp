@@ -196,7 +196,7 @@ Wasp calls the `onAfterSignup` hook after the user is created.
 
 The `onAfterSignup` hook can be useful if you want to send the user a welcome email or perform some other action after the user signs up like syncing the user with a third-party service.
 
-Since the `onAfterSignup` hook receives the OAuth tokens, it can also be used to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
+Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -225,7 +225,7 @@ export const onAfterSignup = async ({
   console.log('number of users after', count)
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the OAuth tokens and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
     console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
@@ -267,7 +267,7 @@ export const onAfterSignup: OnAfterSignupHook = async ({
   console.log('number of users after', count)
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the OAuth tokens and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
     console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
@@ -440,7 +440,7 @@ Wasp calls the `onAfterLogin` hook after the user logs in.
 
 The `onAfterLogin` hook can be useful if you want to perform some action after the user logs in, like syncing the user with a third-party service.
 
-Since the `onAfterLogin` hook receives the OAuth tokens, it can also be used to update the OAuth access token for the user in your database. It can also be used to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
+Since the `onAfterLogin` hook receives the OAuth tokens, you can also use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -467,7 +467,7 @@ export const onAfterLogin = async ({
 }) => {
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the OAuth tokens and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
     console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
@@ -507,7 +507,7 @@ export const onAfterLogin: OnAfterLoginHook = async ({
 }) => {
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the OAuth tokens and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
     console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
@@ -529,11 +529,13 @@ Read more about the data the `onAfterLogin` hook receives in the [API Reference]
 
 ### Refreshing the OAuth access token
 
-If you are using OAuth, you can use the `onAfterSignup` or `onAfterLogin` hooks to refresh the OAuth access token if the provider supports it.
+Some OAuth providers support refreshing the access token when it expires. To refresh the access token, you need the OAuth **refresh token**.
 
-You'll need to import the OAuth client from the `wasp/server/oauth` module for the provider you are using. The OAuth client has a `refreshAccessToken` method that you can use to refresh the access token.
+Wasp exposes the OAuth refresh token in the `onAfterSignup` and `onAfterLogin` hooks. You can store the refresh token in your database and use it to refresh the access token when it expires.
 
-Here is an example of how you can refresh the Google OAuth access token:
+Import the provider object with the OAuth client from the `wasp/server/oauth` module. For example, to refresh the Google OAuth access token, import the `google` object from the `wasp/server/oauth` module. You use the `refreshAccessToken` method of the OAuth client to refresh the access token.
+
+Here's an example of how you can refresh the access token for Google OAuth:
 
 <Tabs groupId="js-ts">
 
@@ -573,9 +575,9 @@ export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
 </TabItem>
 </Tabs>
 
-Google provides you with the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when the access token expires and refresh it before it expires.
+Google exposes the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when will the access token expire.
 
-You can of course perform the token refresh in an [Wasp Job](../advanced/jobs.md) if you want to refresh the token periodically.
+If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs.md).
 
 ## API Reference
 
@@ -891,17 +893,17 @@ It has the following fields:
 
 - `providerName: string`
 
-  The OAuth provider name (e.g. `'google'`, `'github'`) that the user authenticated with.
+  The name of the OAuth provider the user authenticated with (e.g. `'google'`, `'github'`).
 
 - `tokens: Tokens`
 
   You can use the OAuth tokens to make requests to the provider's API on the user's behalf.
 
-  Depending on the OAuth provider, the `tokens` object might have different fields. For example, for Google, it has the `accessToken`, `refreshToken`, `idToken`, and `accessTokenExpiresAt` fields.
+  Depending on the OAuth provider, the `tokens` object might have different fields. For example, Google has the fields `accessToken`, `refreshToken`, `idToken`, and `accessTokenExpiresAt`.
 
   <ShowForTs>
 
-  You can narrow down the `oauth.tokens` object type to the specific OAuth provider type to access the provider-specific fields:
+  To access the provider-specific fields, you must first narrow down the `oauth.tokens` object type to the specific OAuth provider type.
 
   ```ts
   if (oauth && oauth.providerName === 'google') {
