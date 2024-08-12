@@ -48,6 +48,7 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Format as Psl.Format
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
@@ -132,6 +133,8 @@ genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir gen
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
+  formatPrismaSchemaFileOnDisk dstDir
+
   dbGeneratorWarnings <-
     -- It makes sense to check if db needs migration only if the db is known at this moment, for
     -- example if we are in development (`wasp start`).
@@ -142,6 +145,18 @@ postWriteDbGeneratorActions spec dstDir = do
       else pure []
   dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir
   pure (dbGeneratorWarnings, dbGeneratorErrors)
+
+-- | One of the checks we perform is to compare the Wasp generated schema.prisma file
+-- and the schema.prisma file in the node_modules. Prisma formats the schema in node_modules
+-- automatically, so we have to do the same to be able to compare them.
+formatPrismaSchemaFileOnDisk :: Path' Abs (Dir ProjectRootDir) -> IO ()
+formatPrismaSchemaFileOnDisk dstDir = do
+  let generatedPrismaFilePath = dstDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir
+  prismaFileContents <- IOUtil.readFileStrict generatedPrismaFilePath
+
+  -- Ignoring Prisma schema errors here because we generated the schema ourselves and we know it is valid.
+  formattedPrismaFileContents <- Psl.Format._formattedSchemaPsl <$> Psl.Format.prismaFormat prismaFileContents
+  IOUtil.writeFile generatedPrismaFilePath $ T.unpack formattedPrismaFileContents
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.
