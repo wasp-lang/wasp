@@ -141,3 +141,10 @@ export async function silence(
 	$.verbose = verboseSetting;
 	return proc;
 }
+
+export function stripTrailingSlash(url: string): string {
+	if (url.endsWith('/')) {
+		return url.slice(0, -1);
+	}
+	return url;
+}
