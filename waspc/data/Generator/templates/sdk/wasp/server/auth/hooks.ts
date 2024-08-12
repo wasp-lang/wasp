@@ -124,7 +124,7 @@ type OnAfterLoginHookParams = {
   req: ExpressRequest
 } & InternalAuthHookParams
 
-// PRIVATE API
+// PRIVATE API (server)
 export type OAuthParams = {
   /**
    * Unique request ID that was generated during the OAuth flow.
