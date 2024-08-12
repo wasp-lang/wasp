@@ -3,6 +3,8 @@ import type {
   OnAfterSignupHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
 } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHook = async (args) => {
@@ -45,6 +47,20 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
   oAuthQueryStore.set(id, args.req.query)
 
   return { url: args.url }
+}
+
+export const onBeforeLogin: OnBeforeLoginHook = async (args) => {
+  const log = createLoggerForHook('onBeforeLogin')
+  log('providerId object', args.providerId)
+}
+
+export const onAfterLogin: OnAfterLoginHook = async (args) => {
+  const log = createLoggerForHook('onAfterLogin')
+  log('providerId object', args.providerId)
+  log('user object', args.user)
+  if (args.oauth) {
+    log('accessToken', args.oauth.accessToken)
+  }
 }
 
 function createLoggerForHook(hookName: string) {

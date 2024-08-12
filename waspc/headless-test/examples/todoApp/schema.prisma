@@ -12,7 +12,8 @@ generator client {
 model User {
   id                        Int     @id @default(autoincrement())
   isOnAfterSignupHookCalled Boolean @default(false)
-  tasks Task[]
+  isOnAfterLoginHookCalled  Boolean @default(false)
+  tasks                     Task[]
 }
 
 model Task {

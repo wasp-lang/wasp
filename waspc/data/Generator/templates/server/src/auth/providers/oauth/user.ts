@@ -6,13 +6,19 @@ import {
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
   createProviderId,
+  findAuthWithUserBy,
 } from 'wasp/auth/utils'
 import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { getRedirectUriForOneTimeCode } from './redirect'
 import { tokenStore } from './oneTimeCode'
-import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
+import {
+  onBeforeSignupHook,
+  onAfterSignupHook,
+  onBeforeLoginHook,
+  onAfterLoginHook,
+} from '../../hooks.js'
 
 export async function finishOAuthFlowAndGetRedirectUri({
   provider,
@@ -42,9 +48,9 @@ export async function finishOAuthFlowAndGetRedirectUri({
     oAuthState,
   });
 
-  const oneTimeCode = await tokenStore.createToken(authId);
+  const oneTimeCode = await tokenStore.createToken(authId)
 
-  return getRedirectUriForOneTimeCode(oneTimeCode);
+  return getRedirectUriForOneTimeCode(oneTimeCode)
 }
 
 // We need a user id to create the auth token, so we either find an existing user
@@ -78,12 +84,37 @@ async function getAuthIdFromProviderDetails({
   })
 
   if (existingAuthIdentity) {
-    return existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+    const authId = existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+
+    // NOTE: We are calling login hooks here even though we didn't log in the user yet.
+    // It's because we have access to the OAuth tokens here and we want to pass them to the hooks.
+    // We could have stored the tokens temporarily and called the hooks after the session is created,
+    // but this keeps the implementation simpler.
+    // The downside of this approach is that we can't provide the session to the login hooks, but this is
+    // an okay trade-off because OAuth tokens are more valuable to users than the session ID.
+    await onBeforeLoginHook({ req, providerId })
+
+    // NOTE: Fetching the user to pass it to the onAfterLoginHook - it's a bit wasteful
+    // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
+    const auth = await findAuthWithUserBy({ id: authId })
+
+    // NOTE: check the comment above onBeforeLoginHook for the explanation why we call onAfterLoginHook here.
+    await onAfterLoginHook({
+      req,
+      providerId,
+      oauth: {
+        accessToken,
+        uniqueRequestId: oAuthState.state,
+      },
+      user: auth.user,
+    })
+
+    return authId
   } else {
     const userFields = await validateAndGetUserFields(
       { profile: providerProfile },
       userSignupFields,
-    );
+    )
 
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})

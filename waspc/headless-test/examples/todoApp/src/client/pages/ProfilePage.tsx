@@ -27,6 +27,10 @@ export const ProfilePage = ({ user }: { user: User }) => {
         Value of <code>user.isOnAfterSignupHookCalled</code> is{' '}
         <strong>{user.isOnAfterSignupHookCalled ? 'true' : 'false'}</strong>.
       </div>
+      <div>
+        Value of <code>user.isOnAfterLoginHookCalled</code> is{' '}
+        <strong>{user.isOnAfterLoginHookCalled ? 'true' : 'false'}</strong>.
+      </div>
       <br />
       <Link to="/">Go to dashboard</Link>
     </>
