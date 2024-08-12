@@ -6,8 +6,6 @@ import {
   type UserSignupFields,
   type ProviderConfig,
 } from 'wasp/auth/providers/types'
-import { callbackPath } from 'wasp/server/oauth'
-
 import {
   type OAuthType,
   type OAuthStateFor,
@@ -17,12 +15,14 @@ import {
 } from '../oauth/state.js'
 import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
 import {
+  callbackPath,
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
 } from 'wasp/server/oauth'
+import { OAuthParams } from 'wasp/server/auth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<OT extends OAuthType>({
+export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthParams['tokens'] = never>({
   provider,
   oAuthType,
   userSignupFields,
@@ -51,14 +51,12 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
   */
   getProviderTokens: (
     oAuthState: OAuthStateWithCodeFor<OT>,
-  ) => Promise<{
-    accessToken: string
-  }>
+  ) => Promise<Tokens>
   /*
     The function that returns the user's profile and ID using the access
     token.
   */
-  getProviderInfo: ({ accessToken }: { accessToken: string }) => Promise<{
+  getProviderInfo: (tokens: Tokens) => Promise<{
     providerUserId: string
     providerProfile: unknown
   }>
@@ -94,9 +92,7 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
         })
         const tokens = await getProviderTokens(oAuthState)
   
-        const { providerProfile, providerUserId } = await getProviderInfo({
-          accessToken: tokens.accessToken,
-        })
+        const { providerProfile, providerUserId } = await getProviderInfo(tokens)
         try {
           const redirectUri = await finishOAuthFlowAndGetRedirectUri({
             provider,
@@ -104,7 +100,17 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
             providerUserId,
             userSignupFields,
             req,
-            oauth: { uniqueRequestId: oAuthState.state, tokens, provider: provider.id },
+            oauth: {
+              uniqueRequestId: oAuthState.state,
+              // OAuth params are built as a discriminated union
+              // of provider names and their respective tokens.
+              // We are using a generic ProviderConfig and tokens type
+              // is inferred from the getProviderTokens function.
+              // Instead of building complex TS machinery to ensure that
+              // the providerName and tokens match, we are using any here.
+              providerName: provider.id as any,
+              tokens,
+            },
           })
           // Redirect to the client with the one time code
           return redirect(res, redirectUri.toString())
