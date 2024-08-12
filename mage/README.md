@@ -1,6 +1,6 @@
 # Mage
 
-This directory contains the source code of Mage (aka "GPT Web App Generator" aka "Wasp AI"): a Wasp app (so a full-stack web app) that allows you to create a new Wasp app (inception :)!) from just a short description. It uses ChatGPT in a smart way to accomplish this (so it would be clasified as an AI code agent).
+This directory contains the source code of Mage (aka "GPT Web App Generator" aka "Wasp AI"): a Wasp app (so a full-stack web app) that allows you to create a new Wasp app (inception :)!) from just a short description. It uses ChatGPT in a smart way to accomplish this (so it would be classified as an AI code agent).
 
 Mage is hosted at https://usemage.ai and you can use it there for free.
 
