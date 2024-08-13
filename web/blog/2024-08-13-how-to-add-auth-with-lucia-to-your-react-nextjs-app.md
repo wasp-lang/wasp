@@ -36,7 +36,7 @@ It was then and there that we decided to implement robust authentication: a tech
 
 To showcase some of that, we’re going to see how to implement auth with Lucia in a Next.js application, and, in the end, I'll show you how [Wasp](https://wasp-lang.dev/), a batteries-included full-stack React/Node.js/Prisma framework, can drastically simplify this entire process and make Auth basically pain-free.
 
-IMAGE
+![auth with Wasp](/img/lua-auth/comparison.png)
 
 ## Existing Auth Solutions
 
