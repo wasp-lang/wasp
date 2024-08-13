@@ -636,4 +636,4 @@ By reducing boilerplate and abstracting repetitive tasks, Wasp allows developers
 
 Of course, generally when we talk abstractions, it always comes with the downside of losing the finesse of a more personal implementation. In this case, Wasp provides a bunch of stuff for you to implement around and uses Lucia on the background, so the scenario where there’s a mismatch of content implementation is highly unlikable to happen.
 
-In summary, while implementing your own authentication with Next.js and Lucia provides complete control and customization, it can be complex and time-consuming. On the other hand, using a solution like Wasp simplifies the process, reduces code length, and speeds up development.
+In summary, while implementing your own authentication with Next.js and Lucia provides complete control and customization, it can be complex and time-consuming. On the other hand, using a solution like Wasp simplifies the process, reduces code length, and speeds up development. 
