@@ -1,7 +1,7 @@
 ---
 title: 'How to Add Auth with Lucia to Your React/Next.js App - A Step by Step Guide'
 authors: [lucaslima]
-image: /img/lw6/lw6-banner.png
+image: /img/lua-auth/lucia-auth-banner.png
 tags: [webdev, tech, react, nextjs, tutorial]
 ---
 
@@ -13,8 +13,8 @@ import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
 <ImgWithCaption
-    alt="Launch Week 6 is here"
-    source="img/lw6/lw6-banner.png"
+    alt="How to Add Auth to Your App"
+    source="/img/lua-auth/lucia-auth-banner.png"
 />
 
 In this post, I will share my personal experience with adding auth to a React/Next.js app after already building up a user base. I hope this post helps you add auth to your apps as this task, my friends, is not an easy one.
@@ -76,22 +76,22 @@ import { BetterSqlite3Adapter } from "@lucia-auth/adapter-sqlite";
 const adapter = new BetterSQLite3Adapter(db); // your adapter
 
 export const lucia = new Lucia(adapter, {
-	sessionCookie: {
-		// this sets cookies with super long expiration
-		// since Next.js doesn't allow Lucia to extend cookie expiration when rendering pages
-		expires: false,
-		attributes: {
-			// set to `true` when using HTTPS
-			secure: process.env.NODE_ENV === "production"
-		}
-	}
+  sessionCookie: {
+    // this sets cookies with super long expiration
+    // since Next.js doesn't allow Lucia to extend cookie expiration when rendering pages
+    expires: false,
+    attributes: {
+      // set to `true` when using HTTPS
+      secure: process.env.NODE_ENV === "production"
+    }
+  }
 });
 
 // To get some good Typescript support, add this!
 declare module "lucia" {
-	interface Register {
-		Lucia: typeof lucia;
-	}
+  interface Register {
+    Lucia: typeof lucia;
+  }
 }
 ```
 
@@ -119,9 +119,9 @@ db.exec(`CREATE TABLE IF NOT EXISTS session (
 )`);
 
 export interface DatabaseUser {
-	id: string;
-	username: string;
-	github_id: number;
+  id: string;
+  username: string;
+  github_id: number;
 }
 ```
 
@@ -143,16 +143,16 @@ import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-	const { user } = await validateRequest();
-	if (user) {
-		return redirect("/");
-	}
-	return (
-		<>
-			<h1>Sign in</h1>
-			<a href="/login/github">Sign in with GitHub</a>
-		</>
-	);
+  const { user } = await validateRequest();
+  if (user) {
+    return redirect("/");
+  }
+  return (
+    <>
+      <h1>Sign in</h1>
+      <a href="/login/github">Sign in with GitHub</a>
+    </>
+  );
 }
 ```
 
@@ -165,18 +165,18 @@ import { github } from "../../../lib/auth";
 import { cookies } from "next/headers";
 
 export async function GET(): Promise<Response> {
-	const state = generateState();
-	const url = await github.createAuthorizationURL(state);
+  const state = generateState();
+  const url = await github.createAuthorizationURL(state);
 
-	cookies().set("github_oauth_state", state, {
-		path: "/",
-		secure: process.env.NODE_ENV === "production",
-		httpOnly: true,
-		maxAge: 60 * 10,
-		sameSite: "lax"
-	});
+  cookies().set("github_oauth_state", state, {
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 60 * 10,
+    sameSite: "lax"
+  });
 
-	return Response.redirect(url);
+  return Response.redirect(url);
 }
 ```
 
@@ -193,71 +193,71 @@ import { generateId } from "lucia";
 import type { DatabaseUser } from "@/lib/db";
 
 export async function GET(request: Request): Promise<Response> {
-	const url = new URL(request.url);
-	const code = url.searchParams.get("code");
-	const state = url.searchParams.get("state");
-	const storedState = cookies().get("github_oauth_state")?.value ?? null;
-	if (!code || !state || !storedState || state !== storedState) {
-		return new Response(null, {
-			status: 400
-		});
-	}
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const storedState = cookies().get("github_oauth_state")?.value ?? null;
+  if (!code || !state || !storedState || state !== storedState) {
+    return new Response(null, {
+      status: 400
+    });
+  }
 
-	try {
-		const tokens = await github.validateAuthorizationCode(code);
-		const githubUserResponse = await fetch("https://api.github.com/user", {
-			headers: {
-				Authorization: `Bearer ${tokens.accessToken}`
-			}
-		});
-		const githubUser: GitHubUser = await githubUserResponse.json();
-		const existingUser = db.prepare("SELECT * FROM user WHERE github_id = ?").get(githubUser.id) as
-			| DatabaseUser
-			| undefined;
+  try {
+    const tokens = await github.validateAuthorizationCode(code);
+    const githubUserResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`
+      }
+    });
+    const githubUser: GitHubUser = await githubUserResponse.json();
+    const existingUser = db.prepare("SELECT * FROM user WHERE github_id = ?").get(githubUser.id) as
+      | DatabaseUser
+      | undefined;
 
-		if (existingUser) {
-			const session = await lucia.createSession(existingUser.id, {});
-			const sessionCookie = lucia.createSessionCookie(session.id);
-			cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-			return new Response(null, {
-				status: 302,
-				headers: {
-					Location: "/"
-				}
-			});
-		}
+    if (existingUser) {
+      const session = await lucia.createSession(existingUser.id, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: "/"
+        }
+      });
+    }
 
-		const userId = generateId(15);
-		db.prepare("INSERT INTO user (id, github_id, username) VALUES (?, ?, ?)").run(
-			userId,
-			githubUser.id,
-			githubUser.login
-		);
-		const session = await lucia.createSession(userId, {});
-		const sessionCookie = lucia.createSessionCookie(session.id);
-		cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-		return new Response(null, {
-			status: 302,
-			headers: {
-				Location: "/"
-			}
-		});
-	} catch (e) {
-		if (e instanceof OAuth2RequestError && e.message === "bad_verification_code") {
-			// invalid code
-			return new Response(null, {
-				status: 400
-			});
-		}
-		return new Response(null, {
-			status: 500
-		});
-	}
+    const userId = generateId(15);
+    db.prepare("INSERT INTO user (id, github_id, username) VALUES (?, ?, ?)").run(
+      userId,
+      githubUser.id,
+      githubUser.login
+    );
+    const session = await lucia.createSession(userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: "/"
+      }
+    });
+  } catch (e) {
+    if (e instanceof OAuth2RequestError && e.message === "bad_verification_code") {
+      // invalid code
+      return new Response(null, {
+        status: 400
+      });
+    }
+    return new Response(null, {
+      status: 500
+    });
+  }
 }
 
 interface GitHubUser {
-	id: string;
-	login: string;
+  id: string;
+  login: string;
 }
 ```
 
@@ -282,55 +282,55 @@ import type { DatabaseUser } from "./db";
 // globalThis.crypto = webcrypto as Crypto;
 
 const adapter = new BetterSqlite3Adapter(db, {
-	user: "user",
-	session: "session"
+  user: "user",
+  session: "session"
 });
 
 export const lucia = new Lucia(adapter, {
-	sessionCookie: {
-		attributes: {
-			secure: process.env.NODE_ENV === "production"
-		}
-	},
-	getUserAttributes: (attributes) => {
-		return {
-			githubId: attributes.github_id,
-			username: attributes.username
-		};
-	}
+  sessionCookie: {
+    attributes: {
+      secure: process.env.NODE_ENV === "production"
+    }
+  },
+  getUserAttributes: (attributes) => {
+    return {
+      githubId: attributes.github_id,
+      username: attributes.username
+    };
+  }
 });
 
 declare module "lucia" {
-	interface Register {
-		Lucia: typeof lucia;
-		DatabaseUserAttributes: Omit<DatabaseUser, "id">;
-	}
+  interface Register {
+    Lucia: typeof lucia;
+    DatabaseUserAttributes: Omit<DatabaseUser, "id">;
+  }
 }
 
 export const validateRequest = cache(
-	async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
-		const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-		if (!sessionId) {
-			return {
-				user: null,
-				session: null
-			};
-		}
+  async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
+    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+    if (!sessionId) {
+      return {
+        user: null,
+        session: null
+      };
+    }
 
-		const result = await lucia.validateSession(sessionId);
-		// next.js throws when you attempt to set cookie when rendering page
-		try {
-			if (result.session && result.session.fresh) {
-				const sessionCookie = lucia.createSessionCookie(result.session.id);
-				cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-			}
-			if (!result.session) {
-				const sessionCookie = lucia.createBlankSessionCookie();
-				cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-			}
-		} catch {}
-		return result;
-	}
+    const result = await lucia.validateSession(sessionId);
+    // next.js throws when you attempt to set cookie when rendering page
+    try {
+      if (result.session && result.session.fresh) {
+        const sessionCookie = lucia.createSessionCookie(result.session.id);
+        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+      }
+      if (!result.session) {
+        const sessionCookie = lucia.createBlankSessionCookie();
+        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+      }
+    } catch {}
+    return result;
+  }
 );
 
 export const github = new GitHub(process.env.GITHUB_CLIENT_ID!, process.env.GITHUB_CLIENT_SECRET!);
@@ -346,39 +346,39 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
 export default async function Page() {
-	const { user } = await validateRequest();
-	if (!user) {
-		return redirect("/login");
-	}
-	return (
-		<>
-			<h1>Hi, {user.username}!</h1>
-			<p>Your user ID is {user.id}.</p>
-			<form action={logout}>
-				<button>Sign out</button>
-			</form>
-		</>
-	);
+  const { user } = await validateRequest();
+  if (!user) {
+    return redirect("/login");
+  }
+  return (
+    <>
+      <h1>Hi, {user.username}!</h1>
+      <p>Your user ID is {user.id}.</p>
+      <form action={logout}>
+        <button>Sign out</button>
+      </form>
+    </>
+  );
 }
 
 async function logout(): Promise<ActionResult> {
-	"use server";
-	const { session } = await validateRequest();
-	if (!session) {
-		return {
-			error: "Unauthorized"
-		};
-	}
+  "use server";
+  const { session } = await validateRequest();
+  if (!session) {
+    return {
+      error: "Unauthorized"
+    };
+  }
 
-	await lucia.invalidateSession(session.id);
+  await lucia.invalidateSession(session.id);
 
-	const sessionCookie = lucia.createBlankSessionCookie();
-	cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-	return redirect("/login");
+  const sessionCookie = lucia.createBlankSessionCookie();
+  cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+  return redirect("/login");
 }
 
 interface ActionResult {
-	error: string | null;
+  error: string | null;
 }
 ```
 
@@ -601,8 +601,8 @@ app myApp {
         // Add an emailSender -- Dummy just logs to console for dev purposes
         // but there are a ton of supported providers :D
         emailSender: {
-				  provider: Dummy,
-				},
+          provider: Dummy,
+        },
       },
     },
     onAuthFailedRedirectTo: "/login"
