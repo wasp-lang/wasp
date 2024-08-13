@@ -614,17 +614,12 @@ Implementing this in Next.js with Lucia would take a lot more work, involving a 
 
 The whole point here is the difference in time and developer experience in order to implement the same scenarios. For the Next.js project with Lucia, you will spend at least a few hours implementing everything if you’re going all by yourself. That same experience translates to no more than 1 hour with Wasp. What to do with the rest of the time? **Implement the important stuff your particular business requires!**
 
----
 
-## Looking for more?
+## Can you show us your support?
 
 ![https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
-Interested in more content like this? Follow our journey at [Wasp - DEV Community](https://dev.to/wasp) and give us a star on github!
-
-{% cta [https://www.github.com/wasp-lang/wasp](https://www.github.com/wasp-lang/wasp) %} ⭐️ Star Wasp on GitHub 🙏  {% endcta %}
-
----
+Are you interested in more content like this? Sign up for [our newsletter](https://wasp-lang.dev/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
 
 ### Conclusion
 
