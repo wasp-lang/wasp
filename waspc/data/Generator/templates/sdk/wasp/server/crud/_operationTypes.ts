@@ -91,7 +91,10 @@ export type GetQueryResolved = typeof _waspGetQuery
 
 {=# crud.operations.Create =}
 {=^ overrides.Create.isDefined =}
-type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
+type CreateInput = Prisma.XOR<
+  Prisma.{= crud.entityUpper =}CreateInput,
+  Prisma.{= crud.entityUpper =}UncheckedCreateInput
+>
 type CreateOutput = _WaspEntity
 export type CreateActionResolved = {= crud.name =}.CreateAction<CreateInput, CreateOutput>
 {=/ overrides.Create.isDefined =}
