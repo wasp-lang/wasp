@@ -17,34 +17,23 @@ import ImgWithCaption from './components/ImgWithCaption'
     source="/img/lua-auth/lucia-auth-banner.png"
 />
 
-In this post, I will share my personal experience with adding auth to a React/Next.js app after already building up a user base. I hope this post helps you add auth to your apps as this task, my friends, is not an easy one.
+Although authentication is one of the most common web app features, there are so many different ways to go about it, which makes it a very non-trivial task. In this post, I will share my personal experience using Lucia - a modern, framework-agnostic authentication library that has been getting, deservedly so, a lot of love from the community in recent months.
 
-I will also showcase how to do this in [Wasp](https://wasp-lang.dev/), and how this framework can save you a lot time from doing things manually. 
+First, I will demonstrate how you can implement it within your Next.js application through a step-by-step guide you can follow. It will require a fair amount of code and configuration, but the process itself is quite straightforward.
 
-## How it started
-
-I was working on a project where most of the user journey was a login-free experience. It honestly felt refreshing and modern, as most of the tools out there require login straight away.
-
-Although the users seemed to enjoy this login-free experience, as things scaled, the problems started to pile up: 
-- Users couldn’t switch between devices easily (they don’t have an account, so, proving who was whom and on which device was difficult),
-- Affiliates started to change cookie data, corrupting info that we used to login users correctly. 
-This soon became a mess.
-
-![https://media0.giphy.com/media/nrXif9YExO9EI/giphy.gif?cid=7941fdc6e43swwaud8ujw3stkjcf85vad6puanu2mtnmomq4&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media0.giphy.com/media/nrXif9YExO9EI/giphy.gif?cid=7941fdc6e43swwaud8ujw3stkjcf85vad6puanu2mtnmomq4&ep=v1_gifs_search&rid=giphy.gif&ct=g)
-
-It was then and there that we decided to implement robust authentication: a technical challenge that if not all, most of us, developers, are going to have to face some day. And, let me tell you, although there are a bunch of libraries and resources that can facilitate that path for you — from securely handling login, token refreshing, to making it in a easier and scalable manner — implementing authentication **IS HARD**. 
-
-To showcase some of that, we’re going to see how to implement auth with Lucia in a Next.js application, and, in the end, I'll show you how [Wasp](https://wasp-lang.dev/), a batteries-included full-stack React/Node.js/Prisma framework, can drastically simplify this entire process and make Auth basically pain-free.
+Secondly, we’ll see how to achieve the same with [Wasp](https://wasp-lang.dev/) in just a few lines of code. Wasp is a batteries-included, full-stack framework for React & Node.js that uses Lucia under the hood to implement authentication. It runs fully on your infrastructure and is 100% open-source and free.
 
 ![auth with Wasp](/img/lua-auth/comparison.png)
 
-## Existing Auth Solutions
+## Why Lucia?
 
 When it comes to adding authentication to your applications, there are several popular solutions available. For instance, [Clerk](https://clerk.com/) offers a paid service, while [NextAuth.js](https://next-auth.js.org/) is an open-source solution alongside [Lucia](https://lucia-auth.com/), which has become quite popular recently. 
 
-These tools provide robust features, but committing to third-party services — which not only adds another layer of complexity but also have paid tiers you have to keep an eye on — might be an overkill for a small project. In the other solutions, we keeps things centralized, but, we have to implement those things ourselves. In my case, the team decided to pick Lucia for our project.
+These tools provide robust features, but committing to third-party services — which not only adds another layer of complexity but also have paid tiers you have to keep an eye on — might be an overkill for a small project. In-house solutions keep things centralized but leave it to a developer to implement some of the mentioned features.
 
-Now, let’s dive into a step-by-step guide on how to implement your own authentication with Next.js and Lucia and see how it actually goes.
+In our case, Lucia has proved to be a perfect middle ground - it’s not a third-party service and does not require a dedicated infrastructure, but it also provides a very solid foundation that’s easy to build upon.
+
+Now, let’s dive into a step-by-step guide on how to implement your own authentication with Next.js and Lucia.
 
 ### Step 1: Setting up Next.js
 
