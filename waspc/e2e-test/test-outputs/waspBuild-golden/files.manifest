@@ -168,6 +168,7 @@ waspBuild/.wasp/build/sdk/wasp/ext-src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/ext-src/vite-env.d.ts
 waspBuild/.wasp/build/sdk/wasp/ext-src/waspLogo.png
 waspBuild/.wasp/build/sdk/wasp/package.json
+waspBuild/.wasp/build/sdk/wasp/prisma-runtime-library.d.ts
 waspBuild/.wasp/build/sdk/wasp/server/HttpError.ts
 waspBuild/.wasp/build/sdk/wasp/server/_types/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/_types/serialization.ts
@@ -395,6 +396,7 @@ waspBuild/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
 waspBuild/.wasp/out/sdk/wasp/ext-src/waspLogo.png
 waspBuild/.wasp/out/sdk/wasp/package.json
+waspBuild/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspBuild/.wasp/out/sdk/wasp/server/HttpError.ts
 waspBuild/.wasp/out/sdk/wasp/server/_types/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/_types/serialization.ts

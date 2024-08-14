@@ -1,14 +1,14 @@
 import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization';
 import { type JobFn } from 'wasp/server/jobs/core/pgBoss';
 declare const entities: {
-    User: import(".prisma/client").Prisma.UserDelegate<import(".prisma/client").Prisma.RejectOnNotFound | import(".prisma/client").Prisma.RejectPerOperation, import("@prisma/client/runtime").DefaultArgs>;
+    User: import(".prisma/client").Prisma.UserDelegate<import("@prisma/client/runtime/library.js").DefaultArgs>;
 };
 export type ReturnHelloJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
 export declare const returnHelloJob: {
     readonly defaultJobOptions: Parameters<import("pg-boss")["send"]>[2];
     readonly startAfter: number | string | Date;
     readonly entities: {
-        User: import(".prisma/client").Prisma.UserDelegate<import(".prisma/client").Prisma.RejectOnNotFound | import(".prisma/client").Prisma.RejectPerOperation, import("@prisma/client/runtime").DefaultArgs>;
+        User: import(".prisma/client").Prisma.UserDelegate<import("@prisma/client/runtime/library.js").DefaultArgs>;
     };
     readonly jobSchedule: {
         cron: Parameters<import("pg-boss")["schedule"]>[1];

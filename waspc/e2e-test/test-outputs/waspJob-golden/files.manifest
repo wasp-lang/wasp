@@ -193,6 +193,7 @@ waspJob/.wasp/out/sdk/wasp/ext-src/server/jobs/bar.js
 waspJob/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
 waspJob/.wasp/out/sdk/wasp/ext-src/waspLogo.png
 waspJob/.wasp/out/sdk/wasp/package.json
+waspJob/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspJob/.wasp/out/sdk/wasp/server/HttpError.ts
 waspJob/.wasp/out/sdk/wasp/server/_types/index.ts
 waspJob/.wasp/out/sdk/wasp/server/_types/serialization.ts

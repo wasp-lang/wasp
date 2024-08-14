@@ -200,7 +200,14 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "995eabb6d01fa0da18e4b83c6686003fc6fcc1b69acc6a6e989281b1b678621a"
+        "529cb0efdb649a8bd61c7ab20b35b67366d66c8ed69a15b44be1bbeb7aac7842"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/prisma-runtime-library.d.ts"
+        ],
+        "bc799a9bc3d16398433c97639a02c138b69682d64c627b0b04104ab430714148"
     ],
     [
         [

@@ -1,21 +1,18 @@
-import { prisma } from 'wasp/server';
+import { prisma } from 'wasp/server'
 
-import type { Prisma } from "@prisma/client";
-import type {
-  Task,
-} from "wasp/entities";
 import { throwInvalidCredentialsError } from 'wasp/auth/utils'
-import type { tasks } from "wasp/server/crud";
+import type {
+  GetAllQueryResolved,
+  GetQueryResolved,
+  CreateActionResolved,
+} from 'wasp/server/crud/tasks'
 
-type _WaspEntity = Task
 const entities = {
   Task: prisma.task,
 }
 
 // Get All query
-type GetAllInput = {}
-type GetAllOutput = _WaspEntity[]
-const _waspGetAllQuery: tasks.GetAllQuery<GetAllInput, GetAllOutput> = ((args, context) => {
+const _waspGetAllQuery: GetAllQueryResolved = ((args, context) => {
   throwIfNotAuthenticated(context)
   return context.entities.Task.findMany();
 });
@@ -28,9 +25,7 @@ export async function getAllFn(args, context) {
 }
 
 // Get query
-type GetInput = Prisma.TaskWhereUniqueInput
-type GetOutput = _WaspEntity | null
-const _waspGetQuery: tasks.GetQuery<GetInput, GetOutput> = ((args, context) => {
+const _waspGetQuery: GetQueryResolved = ((args, context) => {
   throwIfNotAuthenticated(context)
   return context.entities.Task.findUnique({ where: { id: args.id } });
 });
@@ -43,9 +38,7 @@ export async function getFn(args, context) {
 }
 
 // Create action
-type CreateInput = Prisma.TaskCreateInput
-type CreateOutput = _WaspEntity
-const _waspCreateAction: tasks.CreateAction<CreateInput, CreateOutput> = ((args, context) => {
+const _waspCreateAction: CreateActionResolved = ((args, context) => {
   throwIfNotAuthenticated(context)
   return context.entities.Task.create({ data: args });
 });
