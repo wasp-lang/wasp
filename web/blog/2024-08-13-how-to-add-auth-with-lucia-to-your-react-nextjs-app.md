@@ -88,8 +88,7 @@ declare module "lucia" {
 
 Let’s add a database file to contain our schemas for now:
 
-```tsx
-// lib/db.ts
+```tsx title="lib/db.ts"
 import sqlite from "better-sqlite3";
 
 export const db = sqlite("main.db");
@@ -118,16 +117,14 @@ export interface DatabaseUser {
 
 To make this happen, we firstly have to create a GitHub OAuth app. This is relatively simple, you create it, add the necessary ENVs and callback URLs into your application and you’re good to go. You can [follow GitHub docs](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app) to check how to do that.
 
-```tsx
-//.env.local
+```tsx title=".env.local"
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
 After that, it’s a matter of adding login and signup functionalities to your pages, so, let’s do that real quick: 
 
-```tsx
-// login/page.tsx
+```tsx title="login/page.tsx"
 import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -147,8 +144,7 @@ export default async function Page() {
 
 After adding the page, we also have to add the login redirect to GitHub and the callback that’s going to be called. Let’s first add the login redirect with the authorization URL:
 
-```tsx
-// login/github/route.ts
+```tsx title="login/github/route.ts"
 import { generateState } from "arctic";
 import { github } from "../../../lib/auth";
 import { cookies } from "next/headers";
@@ -171,8 +167,7 @@ export async function GET(): Promise<Response> {
 
  And finally, the callback (which is what we actually add in GitHub OAuth):
 
-```tsx
-// login/github/callback/route.ts
+```tsx title="login/github/callback/route.ts"
 import { github, lucia } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
@@ -252,8 +247,7 @@ interface GitHubUser {
 
 Other important thing here is that, now, we’re going with GitHub OAuth, but, generally, these libraries contain a bunch of different login providers (including simple username and password), so it’s usually just a pick and choose if you want to add other providers. 
 
-```tsx
-// lib/auth.ts
+```tsx title="lib/auth.ts"
 import { Lucia } from "lucia";
 import { BetterSqlite3Adapter } from "@lucia-auth/adapter-sqlite";
 import { db } from "./db";
@@ -329,7 +323,7 @@ export const github = new GitHub(process.env.GITHUB_CLIENT_ID!, process.env.GITH
 
 After adding all that stuff to make the login properly work, we just have to ensure that routes are protected by checking authentication status — in this case, this is a simple page that shows username, id and a button in case signed in, and redirects to /login, where the user will complete the login above through a form.
 
-```tsx
+```tsx title="profile/page.tsx"
 import { lucia, validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -414,7 +408,7 @@ cd my-wasp-app
 
 As simple as defining the `app.auth.userEntity` entity in the `schema.prisma` file and running some migrations:
 
-```tsx
+```prisma
 model User {
   id Int @id @default(autoincrement())
   email   String   @unique
@@ -428,8 +422,7 @@ model User {
 
 In your main Wasp configuration, add the authentication provider you want for your app
 
-```tsx
-//main.wasp
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.14.0"
@@ -461,8 +454,7 @@ This part is similar for both frameworks, you can follow the documentation GitHu
 
 After that, get your secrets and add it to the env file:
 
-```tsx
-//.env.server
+```tsx title=".env.server"
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
@@ -471,9 +463,7 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 
 Now, let’s simply add some routing and the page necessary for login — the process is way easier since Wasp has pre-built Login and Signup Forms, we can simply add those directly:
 
-```tsx
-// main.wasp
-
+```wasp title="main.wasp"
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
   component: import { SignupPage } from "@src/SignupPage"
@@ -485,8 +475,7 @@ page LoginPage {
 }
 ```
 
-```tsx
-// src/LoginPage.jsx
+```tsx title="src/LoginPage.jsx"
 import { Link } from 'react-router-dom'
 import { LoginForm } from 'wasp/client/auth'
 
@@ -503,8 +492,7 @@ export const LoginPage = () => {
 }
 ```
 
-```tsx
-// src/SignupPage.jsx
+```tsx title="src/SignupPage.jsx"
 import { Link } from 'react-router-dom'
 import { SignupForm } from 'wasp/client/auth'
 
@@ -523,8 +511,7 @@ export const SignupPage = () => {
 
 And finally, for protecting routes, is as simple as changing it in `main.wasp` adding **`authRequired: true`** , so, we can simply add it like this:
 
-```tsx
-// main.wasp
+```wasp title="main.wasp"
 page MainPage {
   component: import Main from "@src/pages/Main",
   authRequired: true
@@ -561,8 +548,7 @@ With Wasp, all we have to do is add a few lines to your main.wasp file, so, simp
 
 Wasp will handle the rest, also updating UI components and ensuring a smooth and secure authentication flow.
 
-```tsx
-//main.wasp
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.14.0"
