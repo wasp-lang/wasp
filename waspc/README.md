@@ -11,15 +11,15 @@ If you would like to make your first contribution, here is a handy checklist we 
 - [ ] Read [Quick overview](#quick-overview).
 - [ ] Compile the project successfully and get todoApp example running (follow [Basics](#basics)).
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
-- [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediatelly propose a plan of action and ask questions.
+- [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediately propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find smth for you together.
 - [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) and [Branching and merging strategy](#branching-and-merging-strategy) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
 
 ## Quick overview
 
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
+Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles its own code into them.
 
-You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
+You don't have to be an expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
 
 Main result of building the project is `wasp` executable (also reffered to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
 
