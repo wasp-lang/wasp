@@ -80,6 +80,7 @@ genSdkReal :: AppSpec -> Generator [FileDraft]
 genSdkReal spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
+      genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],

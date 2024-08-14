@@ -1,14 +1,26 @@
 {{={= =}=}}
-import { prisma } from 'wasp/server';
+import { prisma } from 'wasp/server'
 
-import type { Prisma } from "@prisma/client";
-import type {
-  {= crud.entityUpper =},
-} from "wasp/entities";
 {=# isAuthEnabled =}
 import { throwInvalidCredentialsError } from 'wasp/auth/utils'
 {=/ isAuthEnabled =}
-import type { {= crud.name =} } from "wasp/server/crud";
+import type {
+  {=# crud.operations.GetAll =}
+  GetAllQueryResolved,
+  {=/ crud.operations.GetAll =}
+  {=# crud.operations.Get =}
+  GetQueryResolved,
+  {=/ crud.operations.Get =}
+  {=# crud.operations.Create =}
+  CreateActionResolved,
+  {=/ crud.operations.Create =}
+  {=# crud.operations.Update =}
+  UpdateActionResolved,
+  {=/ crud.operations.Update =}
+  {=# crud.operations.Delete =}
+  DeleteActionResolved,
+  {=/ crud.operations.Delete =}
+} from 'wasp/server/crud/{= crud.name =}'
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}
 {=/ overrides.GetAll.isDefined =}
@@ -25,7 +37,6 @@ import type { {= crud.name =} } from "wasp/server/crud";
 {=& overrides.Delete.importStatement =}
 {=/ overrides.Delete.isDefined =}
 
-type _WaspEntity = {= crud.entityUpper =}
 const entities = {
   {= crud.entityUpper =}: prisma.{= crud.entityLower =},
 }
@@ -39,9 +50,7 @@ const entities = {
 // 1. We either use the default implementation of the operation...
 =}
 {=^ overrides.GetAll.isDefined =}
-type GetAllInput = {}
-type GetAllOutput = _WaspEntity[]
-const _waspGetAllQuery: {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput> = ((args, context) => {
+const _waspGetAllQuery: GetAllQueryResolved = ((args, context) => {
   {=^ crud.operations.GetAll.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.GetAll.isPublic =}
@@ -73,9 +82,7 @@ export async function getAllFn(args, context) {
 {=# crud.operations.Get =}
 // Get query
 {=^ overrides.Get.isDefined =}
-type GetInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
-type GetOutput = _WaspEntity | null
-const _waspGetQuery: {= crud.name =}.GetQuery<GetInput, GetOutput> = ((args, context) => {
+const _waspGetQuery: GetQueryResolved = ((args, context) => {
   {=^ crud.operations.Get.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Get.isPublic =}
@@ -97,9 +104,7 @@ export async function getFn(args, context) {
 {=# crud.operations.Create =}
 // Create action
 {=^ overrides.Create.isDefined =}
-type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
-type CreateOutput = _WaspEntity
-const _waspCreateAction: {= crud.name =}.CreateAction<CreateInput, CreateOutput> = ((args, context) => {
+const _waspCreateAction: CreateActionResolved = ((args, context) => {
   {=^ crud.operations.Create.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Create.isPublic =}
@@ -121,9 +126,7 @@ export async function createFn(args, context) {
 {=# crud.operations.Update =}
 // Update action
 {=^ overrides.Update.isDefined =}
-type UpdateInput = Prisma.{= crud.entityUpper =}UpdateInput & Prisma.{= crud.entityUpper =}WhereUniqueInput
-type UpdateOutput = _WaspEntity
-const _waspUpdateAction: {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput> = ((args, context) => {
+const _waspUpdateAction: UpdateActionResolved = ((args, context) => {
   {=^ crud.operations.Update.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Update.isPublic =}
@@ -149,9 +152,7 @@ export async function updateFn(args, context) {
 {=# crud.operations.Delete =}
 // Delete action
 {=^ overrides.Delete.isDefined =}
-type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
-type DeleteOutput = _WaspEntity
-const _waspDeleteAction: {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput> = ((args, context) => {
+const _waspDeleteAction: DeleteActionResolved = ((args, context) => {
   {=^ crud.operations.Delete.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Delete.isPublic =}
