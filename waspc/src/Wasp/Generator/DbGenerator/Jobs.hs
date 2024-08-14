@@ -104,11 +104,7 @@ migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateStatus projectRootDir =
   runPrismaCommandAsJobFromWaspServerDir
     projectRootDir
-    [ "migrate",
-      "status",
-      "--schema",
-      SP.fromAbsFile schema
-    ]
+    ["migrate", "status", "--schema", SP.fromAbsFile schema]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
@@ -120,13 +116,7 @@ reset projectRootDir =
     projectRootDir
     -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically on
     --   reset is too aggressive / confusing.
-    [ "migrate",
-      "reset",
-      "--schema",
-      SP.fromAbsFile schema,
-      "--skip-generate",
-      "--skip-seed"
-    ]
+    ["migrate", "reset", "--schema", SP.fromAbsFile schema, "--skip-generate", "--skip-seed"]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
@@ -142,9 +132,7 @@ seed projectRootDir seedName =
     serverDir
     [(dbSeedNameEnvVarName, seedName)]
     projectRootDir
-    [ "db",
-      "seed"
-    ]
+    ["db", "seed"]
   where
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
 
