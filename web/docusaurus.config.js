@@ -3,6 +3,8 @@ const lightCodeTheme = require('prism-react-renderer/themes/github')
 const autoImportTabs = require('./src/remark/auto-import-tabs')
 const fileExtSwitcher = require('./src/remark/file-ext-switcher')
 
+const includeCurrentVersion = process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Wasp',
@@ -22,15 +24,15 @@ module.exports = {
     'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
   ],
   themeConfig: {
-    /*
+    
     announcementBar: {
-      id: 'Beta_is_here',
-      content: 'Wasp Hackathon #1 is underway! 🚀 <a href="https://betathon.wasp-lang.dev/">Join now</a>',
+      id: 'LW6',
+      content: '<b>Launch Week #6</b>: July 17 - 22 🐝 <a href="/blog/2024/07/15/wasp-launch-week-six">See what\'s new</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
     },
-    */
+    
     imageZoom: {
       // CSS selector to apply the plugin to, defaults to '.markdown img'
       //selector: '.markdown img',
@@ -162,16 +164,16 @@ module.exports = {
           // ------ Configuration for multiple docs versions ------ //
 
           // "current" docs (under /docs) are in-progress docs, so we show them only in development.
-          includeCurrentVersion: process.env.NODE_ENV === 'development',
+          includeCurrentVersion,
           // In development, we want "current" docs to be the default docs (served at /docs),
           // to make it easier for us a bit. Otherwise, by default, the latest versioned docs
           // will be served under /docs.
           lastVersion:
-            process.env.NODE_ENV === 'development' ? 'current' : undefined,
+            includeCurrentVersion ? 'current' : undefined,
 
           // Uncomment line below to build and show only current docs, for faster build times
           // during development, if/when needed.
-          // onlyIncludeVersions: process.env.NODE_ENV === 'development' ? ["current"] : undefined,
+          // onlyIncludeVersions: includeCurrentVersion ? ["current"] : undefined,
 
           // "versions" option here enables us to customize each version of docs individually,
           // and there are also other options if we ever need to customize versioned docs further.
@@ -179,7 +181,7 @@ module.exports = {
             // We provide config for `current` only during development because otherwise
             // we don't even build them (due to includeCurrentVersion above), so this config
             // would cause error in that case.
-            ...(process.env.NODE_ENV === 'development'
+            ...(includeCurrentVersion
               ? {
                   current: {
                     label: 'Next', // Label shown in the documentation to address this version of docs.

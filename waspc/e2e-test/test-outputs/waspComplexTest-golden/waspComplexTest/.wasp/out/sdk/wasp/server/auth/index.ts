@@ -22,4 +22,13 @@ export {
   ensureTokenIsPresent,
 } from '../../auth/validation.js'
 
+export type {
+  OnBeforeSignupHook,
+  OnAfterSignupHook,
+  OnBeforeOAuthRedirectHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
+  InternalAuthHookParams,
+} from './hooks.js'
+
 

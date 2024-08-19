@@ -1,17 +1,12 @@
-import { getUsername, findUserIdentity, type AuthUser as User } from "wasp/auth";
+import { type AuthUser } from "wasp/auth";
 
-export function getName(user: User): string {
-  // We have two ways of authenticating users, so
-  // we have to check which one is used.
-  const googleIdentity = findUserIdentity(user, "google");
-  const usernameIdentity = findUserIdentity(user, "username");
-
-  if (usernameIdentity) {
-    return getUsername(user)!;
+export function getName(user: AuthUser): string {
+  if (user.identities.username !== null) {
+    return user.identities.username.id;
   }
 
-  if (googleIdentity) {
-    return `Google user ${googleIdentity.providerUserId}`;
+  if (user.identities.google !== null) {
+    return `Google user ${user.identities.google.id}`;
   }
 
   return "Unknown user";

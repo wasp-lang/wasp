@@ -17,7 +17,8 @@ import Wasp.AI.GenerateNewProject.Common
     codingChatGPTParams,
     planningChatGPTParams,
   )
-import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
+import Wasp.AI.GenerateNewProject.Entity (writeEntitiesToPrismaFile)
+import qualified Wasp.AI.GenerateNewProject.InitialFiles as IF
 import qualified Wasp.AI.GenerateNewProject.LogMsg as L
 import Wasp.AI.GenerateNewProject.Operation
   ( OperationType (..),
@@ -29,7 +30,7 @@ import Wasp.AI.GenerateNewProject.Page (generateAndWritePage, getPageComponentPa
 import Wasp.AI.GenerateNewProject.PageComponentFile (fixPageComponent)
 import Wasp.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.AI.GenerateNewProject.Plan as Plan
-import Wasp.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeletonAndPresetFiles)
+import Wasp.AI.GenerateNewProject.PrismaFile (fixPrismaFile)
 import Wasp.AI.GenerateNewProject.WaspFile (fixWaspFile)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 import Wasp.Project (WaspProjectDir)
@@ -56,14 +57,18 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
           <> showParams (codingChatGPTParams newProjectDetails)
           <> " for coding."
 
-  writeToLogGenerating "project skeleton..."
-  (waspFilePath, planRules) <-
-    generateAndWriteProjectSkeletonAndPresetFiles newProjectDetails waspProjectSkeletonFiles
-  writeToLog "Generated project skeleton."
+  writeToLogGenerating "project's initial files..."
+  IF.InitialFilesGenResult
+    { IF._waspFilePath = waspFilePath,
+      IF._prismaFilePath = prismaFilePath,
+      IF._planRules = planRules
+    } <-
+    IF.genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles
+  writeToLog "Generated initial project files."
 
   plan <- generatePlan newProjectDetails planRules
-  writeEntitiesToWaspFile waspFilePath (Plan.entities plan)
-  writeToLog "Updated the Wasp file with entities."
+  writeEntitiesToPrismaFile prismaFilePath (Plan.entities plan)
+  writeToLog "Updated the Prisma file with entities."
 
   writeToLogGenerating "actions..."
   actions <-
@@ -86,6 +91,10 @@ generateNewProject newProjectDetails waspProjectSkeletonFiles = do
   writeToLogFixing "mistakes in the Wasp file..."
   fixWaspFile newProjectDetails waspFilePath plan
   writeToLog "Wasp file fixed."
+
+  writeToLogFixing "mistakes in the Prisma file..."
+  fixPrismaFile newProjectDetails prismaFilePath plan
+  writeToLog "Prisma file fixed."
 
   writeToLogFixing "mistakes in NodeJS operation files..."
   forM_ (nub $ getOperationJsFilePath <$> (queries <> actions)) $ \opFp -> do

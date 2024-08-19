@@ -1,13 +1,35 @@
 # Changelog
 
-## 0.14.0 (2024-04-22)
+## 0.14.0 (2024-07-17)
 
 ### 🎉 New Features
 
 - Simplified Auth User API: Introduced a simpler API for accessing user auth fields (for example `username`, `email`, `isEmailVerified`) directly on the `user` object, eliminating the need for helper functions.
+- Improved the API for calling Operations (Queries and Actions) directly on both the client and the server.
 - Improved API for calling Operations (Queries and Actions) directly.
+- Auth Hooks: you can now hook into the auth process with `onBeforeSignup`, `onAfterSignup` hooks. You can also modify the OAuth redirect URL with `onBeforeOAuthRedirect` hook.
+
+  ```wasp
+  app myApp {
+    ...
+    auth: {
+      onBeforeSignup: import { onBeforeSignup } from "...",
+      onAfterSignup: import { onAfterSignup } from "...",
+      onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "...",
+    },
+  }
+  ```
+
+- Auth: you can now use Discord as a social auth provider (by @wardbox)
+- Using the Prisma Schema file directly: define your database schema in the `schema.prisma` file and Wasp will use it to generate the database schema and Prisma client code.
+- Added the `wasp db reset` command for resetting the database.
 
 ### ⚠️ Breaking Changes & Migration Guide
+
+#### New `tsconfig.json` file
+
+Wasp 0.14.0 requires some changes to your `tsconfig.json` file.
+Visit the [migration guide](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#bump-the-version-and-update-tsconfigjson) for details.
 
 #### Strict options when building the `wasp` package
 
@@ -66,22 +88,56 @@ We had to make a couple of breaking changes to reach the new simpler Auth API:
 
 These changes improve code readability and lower the complexity of accessing user's auth fields. Follow the [detailed migration steps to update your project to 0.14.0](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14).
 
+#### Using the Prisma Schema file
+
+Wasp now uses the `schema.prisma` file to generate the database schema and Prisma client code. This means that you should move your database schema from the `main.wasp` file to the `schema.prisma` file.
+
+This means that this entity in `main.wasp`:
+
+```wasp
+entity Task {=psl
+  id          Int @id @default(autoincrement())
+  description String
+  isDone      Boolean
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
+psl=}
+```
+
+will move to the `schema.prisma` file:
+
+```prisma
+model Task {
+  id          Int @id @default(autoincrement())
+  description String
+  isDone      Boolean
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
+}
+```
+
+Read more about the migration steps in the [migration guide](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file).
+
 ### Note on Auth Helper Functions (`getUsername`, `getEmail` etc.)
 
 These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp-lang.dev/docs/auth/entities#including-the-user-with-other-entities).
 
 ### 🐞 Bug fixes
 
-- Update the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
-- Fix the `netlify.toml` to include the correct build path for the client app.
-- Fix the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
+- Updated the `tsconfig.json` to make sure IDEs don't underline `import.meta.env` when users use client env vars.
+- Fixed `netlify.toml` to include the correct build path for the client app.
+- Fixed the client router to ensure that user defined routes don't override Wasp defined routes by moving the user defined routes to the end of the route list.
+- Fixed the CRUD client helpers to accept the same params as the `useQuery` and `useAction` hooks.
 
 ### 🔧 Small improvements
 
 - Improved the default loading spinner while waiting for the user to be fetched.
-- Hides Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
+- Hided Prisma update message to avoid confusion since users shouldn't update Prisma by themselves.
 - When an unknown OAuth error happens, Wasp now logs the error on the server to help with debugging.
 - Improved default gitignore to more tightly target dotenv files and to allow for example dotenv files and .env.client.
+- Improved the type signature of client auth helpers (e.g. `getEmail`) to make them accept the minimal required user object.
+- Improved the documentation and added extra TypeScript content.
+- Improved RPC type inference.
 
 ## 0.13.2 (2024-04-11)
 

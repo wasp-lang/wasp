@@ -50,6 +50,7 @@ module.exports = {
         },
         'data-model/crud',
         'data-model/backends',
+        'data-model/prisma-file'
       ],
     },
     {
@@ -71,9 +72,11 @@ module.exports = {
             'auth/social-auth/github',
             'auth/social-auth/google',
             'auth/social-auth/keycloak',
+            'auth/social-auth/discord',
           ],
         },
         'auth/entities/entities',
+        'auth/auth-hooks'
       ],
     },
     {
@@ -120,7 +123,7 @@ module.exports = {
       type: 'category',
       label: 'Deployment',
       collapsed: false,
-      collapsible: false,
+      collapsible: true,
       items: [
         'advanced/deployment/overview',
         'advanced/deployment/cli',
@@ -132,7 +135,7 @@ module.exports = {
       label: 'General',
       collapsed: false,
       collapsible: true,
-      items: ['general/language', 'general/cli'],
+      items: ['general/language', 'general/cli', 'general/typescript'],
     },
     {
       type: 'category',

@@ -16,7 +16,13 @@ export type WebSocketContextValue = {
 // PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(config.apiUrl, { autoConnect: {= autoConnect =} })
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+  config.apiUrl,
+  {
+    transports: ['websocket'],
+    autoConnect: {= autoConnect =},
+  }
+)
 
 function refreshAuthToken() {
   // NOTE: When we figure out how `auth: true` works for Operations, we should

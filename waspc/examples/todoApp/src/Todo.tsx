@@ -12,7 +12,7 @@ import {
   getTasks,
   getTask,
   getDate,
-  getAnything,
+  getAnythingAuth,
 } from 'wasp/client/operations'
 
 import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
@@ -259,7 +259,7 @@ async function logAll() {
   const date = await getDate()
   console.info('Got date:', date)
 
-  const anything = await getAnything()
+  const anything = await getAnythingAuth()
   console.info('Got anything:', anything)
 }
 

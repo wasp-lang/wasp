@@ -33,13 +33,13 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
   )
+import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -132,7 +132,7 @@ genPackageJson spec waspDependencies = do
             ]
       )
   where
-    hasEntities = not . null $ AS.getDecls @AS.Entity.Entity spec
+    hasEntities = not . null $ AS.getEntities spec
 
 getPackageJsonPrismaField :: AppSpec -> Aeson.Value
 getPackageJsonPrismaField spec = object $ [] <> seedEntry
@@ -244,6 +244,7 @@ genRoutesIndex spec =
     tmplData =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)

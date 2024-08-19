@@ -11,8 +11,8 @@ import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import Wasp.Generator.Crud (getCrudOperationJson)
-import Wasp.Psl.Ast.Model (Field (_typeModifiers))
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 
 spec_GeneratorCrudTest :: Spec
 spec_GeneratorCrudTest = do
@@ -39,9 +39,9 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          [ "Get" .= mkOperationJson "get" "tasks/get" NotPublic,
-            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
-            "Create" .= mkOperationJson "create" "tasks/create" NotPublic
+          [ "Get" .= mkOperationJson "get" "crud/tasks/get" NotPublic,
+            "GetAll" .= mkOperationJson "get-all" "crud/tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "crud/tasks/create" NotPublic
           ]
 
     it "returns proper JSON for public operations" $ do
@@ -60,9 +60,9 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          [ "Get" .= mkOperationJson "get" "tasks/get" Public,
-            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
-            "Create" .= mkOperationJson "create" "tasks/create" Public
+          [ "Get" .= mkOperationJson "get" "crud/tasks/get" Public,
+            "GetAll" .= mkOperationJson "get-all" "crud/tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "crud/tasks/create" Public
           ]
 
     it "allows overrides of operations" $ do
@@ -91,24 +91,24 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          [ "Get" .= mkOperationJson "get" "tasks/get" Public,
-            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
-            "Create" .= mkOperationJson "create" "tasks/create" Public
+          [ "Get" .= mkOperationJson "get" "crud/tasks/get" Public,
+            "GetAll" .= mkOperationJson "get-all" "crud/tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "crud/tasks/create" Public
           ]
   where
     crudOperationsName = "tasks"
     crudOperationEntityName = "Task"
     primaryEntityField =
-      PslModel.Field
-        { PslModel._name = "id",
-          PslModel._type = PslModel.Int,
-          PslModel._attrs =
-            [ PslModel.Attribute
-                { PslModel._attrName = "id",
-                  PslModel._attrArgs = []
+      Psl.Model.Field
+        { Psl.Model._name = "id",
+          Psl.Model._type = Psl.Model.Int,
+          Psl.Model._attrs =
+            [ Psl.Attribute.Attribute
+                { Psl.Attribute._attrName = "id",
+                  Psl.Attribute._attrArgs = []
                 }
             ],
-          PslModel._typeModifiers = []
+          Psl.Model._typeModifiers = []
         }
     crudWithoutOperations =
       AS.Crud.Crud

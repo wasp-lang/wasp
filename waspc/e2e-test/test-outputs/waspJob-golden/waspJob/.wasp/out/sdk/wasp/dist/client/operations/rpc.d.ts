@@ -1,5 +1,5 @@
 import { type Route } from "wasp/client";
-import type { _Awaited, _ReturnType } from "wasp/universal/types";
+import type { IfAny, _Awaited, _ReturnType } from "wasp/universal/types";
 /**
  * The client Query object type. It's a callable Query function with some extra
  * properties (metadata).
@@ -34,5 +34,8 @@ export type GenericBackendOperation = (args: never, context: any) => unknown;
  * A supertype of all possible frontend RPC function types.
  */
 export type GenericOperationRpc = (args: never) => Promise<unknown>;
-type ClientOperation<Input, Output> = [Input] extends [never] ? (args?: unknown) => Promise<Output> : (args: Input) => Promise<Output>;
+type ClientOperation<Input, Output> = IfAny<Input, (args?: any) => Promise<Output>, ClientOperationWithNonAnyInput<Input, Output>>;
+type ClientOperationWithNonAnyInput<Input, Output> = [
+    Input
+] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
 export {};

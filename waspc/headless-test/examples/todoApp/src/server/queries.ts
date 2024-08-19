@@ -1,8 +1,13 @@
-import { type Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
-import { type GetNumTasks, type GetTask, type GetTasks, type GetDate } from "wasp/server/operations";
+import { type Task } from 'wasp/entities'
+import { HttpError } from 'wasp/server'
+import {
+  type GetNumTasks,
+  type GetTask,
+  type GetTasks,
+  type GetDate,
+} from 'wasp/server/operations'
 
-export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
+export const getTasks = (async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -10,20 +15,40 @@ export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
   console.log('TEST_ENV_VAR', process.env.TEST_ENV_VAR)
 
   const Task = context.entities.Task
-  const tasks = await Task.findMany(
-    {
-      where: { user: { id: context.user.id } },
-      orderBy: { id: 'asc' },
-    }
-  )
+  const tasks = await Task.findMany({
+    where: { user: { id: context.user.id } },
+    orderBy: { id: 'asc' },
+    include: {
+      user: {
+        include: {
+          auth: {
+            include: {
+              identities: {
+                select: {
+                  providerName: true,
+                  providerUserId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
   return tasks
-}
+}) satisfies GetTasks<void>
 
-export const getNumTasks: GetNumTasks<void, number> = async (_args, context) => {
+export const getNumTasks: GetNumTasks<void, number> = async (
+  _args,
+  context
+) => {
   return context.entities.Task.count()
 }
 
-export const getTask: GetTask<Pick<Task, 'id'>, Task> = async (where, context) => {
+export const getTask: GetTask<Pick<Task, 'id'>, Task> = async (
+  where,
+  context
+) => {
   if (!context.user) {
     throw new HttpError(401)
   }

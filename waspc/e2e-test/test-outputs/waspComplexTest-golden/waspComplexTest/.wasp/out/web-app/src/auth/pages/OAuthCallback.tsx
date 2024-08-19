@@ -7,7 +7,7 @@ import { initSession } from 'wasp/auth/helpers/user'
 import { MessageLoading, MessageError } from "../../components/Message";
 import { FullPageWrapper } from "../../components/FullPageWrapper";
 
-const oAuthCallbackWrapperClassName = "oauth-callback-wrapper";
+const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
 export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();

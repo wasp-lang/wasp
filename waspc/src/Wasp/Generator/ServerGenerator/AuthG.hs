@@ -7,8 +7,11 @@ where
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     reldirP,
     relfile,
@@ -21,7 +24,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders
-  ( emailAuthProvider,
+  ( discordAuthProvider,
+    emailAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
@@ -37,6 +41,7 @@ import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (extImportToAliasedImportJson)
 import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
@@ -48,7 +53,8 @@ genAuth spec = case maybeAuth of
       [ genAuthRoutesIndex auth,
         genFileCopy [relfile|routes/auth/me.ts|],
         genFileCopy [relfile|routes/auth/logout.ts|],
-        genProvidersIndex auth
+        genProvidersIndex auth,
+        genAuthHooks auth
       ]
       <++> genLocalAuth auth
       <++> genOAuthAuth auth
@@ -80,7 +86,8 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     providers =
       makeConfigImportJson
         <$> concat
-          [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+          [ [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
+            [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
             [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
             [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
@@ -96,6 +103,26 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
               JI._importAlias = Nothing
             }
 
+genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
+genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "onBeforeSignupHook" .= onBeforeSignupHook,
+          "onAfterSignupHook" .= onAfterSignupHook,
+          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook,
+          "onBeforeLoginHook" .= onBeforeLoginHook,
+          "onAfterLoginHook" .= onAfterLoginHook
+        ]
+    onBeforeSignupHook = extImportToAliasedImportJson "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
+    onAfterSignupHook = extImportToAliasedImportJson "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
+    onBeforeOAuthRedirectHook = extImportToAliasedImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
+    onBeforeLoginHook = extImportToAliasedImportJson "onBeforeLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeLogin auth
+    onAfterLoginHook = extImportToAliasedImportJson "onAfterLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterLogin auth
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|../|]
+
 depsRequiredByAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
   where
@@ -103,6 +130,6 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
     authDeps =
       AS.Dependency.fromList
         [ ("lucia", "^3.0.1"),
-          ("@lucia-auth/adapter-prisma", "^4.0.0"),
-          ("oslo", "^1.1.2")
+          ("oslo", "^1.1.2"),
+          ("@lucia-auth/adapter-prisma", "^4.0.0")
         ]

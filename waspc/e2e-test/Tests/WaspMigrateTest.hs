@@ -2,7 +2,7 @@ module Tests.WaspMigrateTest (waspMigrate) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( appendToWaspFile,
+  ( appendToPrismaFile,
     cdIntoCurrentProject,
     waspCliCompile,
     waspCliMigrate,
@@ -11,18 +11,20 @@ import ShellCommands
 
 waspMigrate :: GoldenTest
 waspMigrate = do
-  let entityDecl =
-        "entity Task {=psl \n\
-        \  id          Int     @id @default(autoincrement()) \n\
-        \  description String \n\
-        \  isDone      Boolean @default(false) \n\
-        \ psl=} \n"
+  let taskModel =
+        unlines
+          [ "model Task {",
+            "  id          Int     @id @default(autoincrement())",
+            "  description String",
+            "  isDone      Boolean @default(false)",
+            "}"
+          ]
 
   makeGoldenTest "waspMigrate" $
     sequence
       [ waspCliNew,
         cdIntoCurrentProject,
         waspCliCompile,
-        appendToWaspFile entityDecl,
+        appendToPrismaFile taskModel,
         waspCliMigrate "foo"
       ]

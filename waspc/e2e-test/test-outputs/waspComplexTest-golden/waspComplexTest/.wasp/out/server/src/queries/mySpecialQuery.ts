@@ -11,5 +11,3 @@ export default async function (args, context) {
     },
   })
 }
-
-export type MySpecialQuery = typeof foo 

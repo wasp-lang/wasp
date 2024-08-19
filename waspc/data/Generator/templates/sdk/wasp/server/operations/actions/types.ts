@@ -6,10 +6,10 @@ import {
   type {= internalTypeName =},
   {=/ allEntities =}
   {=# shouldImportNonAuthenticatedOperation =}
-  type Action,
+  type UnauthenticatedActionDefinition,
   {=/ shouldImportNonAuthenticatedOperation =}
   {=# shouldImportAuthenticatedOperation =}
-  type AuthenticatedAction,
+  type AuthenticatedActionDefinition,
   {=/ shouldImportAuthenticatedOperation =}
   type Payload,
 } from 'wasp/server/_types'
@@ -18,10 +18,10 @@ import {
 // PUBLIC API
 export type {= typeName =}<Input extends Payload = never, Output extends Payload = Payload> = 
   {=# usesAuth =}
-  AuthenticatedAction<
+  AuthenticatedActionDefinition<
   {=/ usesAuth =}
   {=^ usesAuth =}
-  Action<
+  UnauthenticatedActionDefinition<
   {=/ usesAuth =}
     [
     {=# entities =}

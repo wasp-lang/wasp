@@ -1,0 +1,25 @@
+// Wasp uses the datasource you specify but overwrites the `url` field.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Wasp requires the `prisma-client-js` generator to be present.
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                        Int     @id @default(autoincrement())
+  isOnAfterSignupHookCalled Boolean @default(false)
+  isOnAfterLoginHookCalled  Boolean @default(false)
+  tasks                     Task[]
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
+}

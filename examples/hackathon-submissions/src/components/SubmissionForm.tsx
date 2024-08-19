@@ -1,5 +1,5 @@
 import { submitProject } from "wasp/client/operations";
-import React, { useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 
 export type Submission = {
   name: string;
@@ -17,13 +17,14 @@ const SubmissionForm = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [imageLink, setImageLink] = useState('');
 
-  const onFileUpload = async (event) => {
+  const onFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     setIsUploading(true);
     const clientId = 'd4ecb4220cf055b'
     const auth = 'Client-ID ' + clientId;
 
     const formData = new FormData();
-    formData.append('image', event.target?.files[0]);
+    const files = event.target?.files![0]
+    formData.append('image', files);
 
     try {
       const imgur = await fetch('https://api.imgur.com/3/upload', {
@@ -40,7 +41,7 @@ const SubmissionForm = () => {
       if (!json.success) {
         throw new Error('Image upload failed');
       }
-      setFile(event.target.files[0].name);
+      setFile(files.name);
       setImageLink(json.data.link);
     } catch (error) {
       console.error('error uploading image');
@@ -48,17 +49,18 @@ const SubmissionForm = () => {
     setIsUploading(false);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const data = new FormData(event.target);
+    const target = event.target as HTMLFormElement
+    const data = new FormData(target);
     const value = Object.fromEntries(data.entries());
     delete value['file-upload'];
     value.image = imageLink;
 
     try {
-      await submitProject(value as Submission);
+      await submitProject(value)
       alert('Project submitted successfully! It will be visible once it is approved.');
-      event.target.reset();
+      target.reset();
     } catch (e) {
       console.error('Error while submitting project', e);
       alert('Error while submitting project');
@@ -190,9 +192,8 @@ const SubmissionForm = () => {
                     <div className='col-span-6'>
                       <label className='block text-sm font-medium text-gray-700'>Cover photo</label>
                       <div
-                        className={`${
-                          isUploading && 'pointer-events-none opacity-35'
-                        } mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6`}
+                        className={`${isUploading && 'pointer-events-none opacity-35'
+                          } mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6`}
                       >
                         <div className={`${isUploading && 'animate-pulse'} space-y-1 text-center`}>
                           <svg

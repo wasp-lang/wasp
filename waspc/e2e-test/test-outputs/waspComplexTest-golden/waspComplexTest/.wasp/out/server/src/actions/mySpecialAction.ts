@@ -11,5 +11,3 @@ export default async function (args, context) {
     },
   })
 }
-
-export type MySpecialAction = typeof foo 

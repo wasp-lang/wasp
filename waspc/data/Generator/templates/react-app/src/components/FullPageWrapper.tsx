@@ -12,7 +12,7 @@ export function FullPageWrapper({
   children: React.ReactNode;
   className?: string;
 }) {
-  const classNameWithDefaults = ['full-page-wrapper', className].filter(Boolean).join(' ');
+  const classNameWithDefaults = ['wasp-full-page-wrapper', className].filter(Boolean).join(' ');
   return (
     <div className={classNameWithDefaults} style={wrapperStyles}>
       {children}

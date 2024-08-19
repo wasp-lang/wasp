@@ -3,7 +3,8 @@ module AppSpec.EntityTest where
 import Test.Tasty.Hspec
 import Wasp.AppSpec.Entity (getIdField)
 import qualified Wasp.AppSpec.Entity as Entity
-import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
+import qualified Wasp.Psl.Ast.Model as Psl.Model
 
 spec_AppSpecEntityTest :: Spec
 spec_AppSpecEntityTest = do
@@ -31,37 +32,37 @@ spec_AppSpecEntityTest = do
   where
     entityWithIdField =
       Entity.makeEntity $
-        PslModel.Body
-          [ PslModel.ElementField idField,
-            PslModel.ElementField someOtherField
+        Psl.Model.Body
+          [ Psl.Model.ElementField idField,
+            Psl.Model.ElementField someOtherField
           ]
     entityWithoutIdField =
       Entity.makeEntity $
-        PslModel.Body
-          [ PslModel.ElementField someOtherField
+        Psl.Model.Body
+          [ Psl.Model.ElementField someOtherField
           ]
 
     idField =
-      PslModel.Field
-        { PslModel._name = "id",
-          PslModel._type = PslModel.Int,
-          PslModel._attrs =
-            [ PslModel.Attribute
-                { PslModel._attrName = "id",
-                  PslModel._attrArgs = []
+      Psl.Model.Field
+        { Psl.Model._name = "id",
+          Psl.Model._type = Psl.Model.Int,
+          Psl.Model._attrs =
+            [ Psl.Attribute.Attribute
+                { Psl.Attribute._attrName = "id",
+                  Psl.Attribute._attrArgs = []
                 },
-              PslModel.Attribute
-                { PslModel._attrName = "unique",
-                  PslModel._attrArgs = []
+              Psl.Attribute.Attribute
+                { Psl.Attribute._attrName = "unique",
+                  Psl.Attribute._attrArgs = []
                 }
             ],
-          PslModel._typeModifiers = []
+          Psl.Model._typeModifiers = []
         }
 
     someOtherField =
-      PslModel.Field
-        { PslModel._name = "description",
-          PslModel._type = PslModel.String,
-          PslModel._attrs = [],
-          PslModel._typeModifiers = []
+      Psl.Model.Field
+        { Psl.Model._name = "description",
+          Psl.Model._type = Psl.Model.String,
+          Psl.Model._attrs = [],
+          Psl.Model._typeModifiers = []
         }

@@ -14,10 +14,12 @@ export const MainPage = () => {
   return (
     <div>
       <NewTaskForm />
+
       {tasks && <TasksList tasks={tasks} />}
 
       {isLoading && 'Loading...'}
       {error && 'Error: ' + error}
+
       <button onClick={logout}>Logout</button>
     </div>
   )

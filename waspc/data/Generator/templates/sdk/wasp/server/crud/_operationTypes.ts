@@ -1,12 +1,12 @@
 {{={= =}=}}
 import type {
   {=# isAuthEnabled =}
-  AuthenticatedAction,
-  AuthenticatedQuery,
+  AuthenticatedActionDefinition,
+  AuthenticatedQueryDefinition,
   {=/ isAuthEnabled =}
   {=^ isAuthEnabled =}
-  Action,
-  Query,
+  UnauthenticatedActionDefinition,
+  UnauthenticatedQueryDefinition,
   {=/ isAuthEnabled =}
   _{= crud.entityUpper =},
 } from "wasp/server/_types";

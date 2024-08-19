@@ -1,6 +1,6 @@
 app TodoApp {
   wasp: {
-    version: "^0.13.0" // Pins the version of Wasp to use.
+    version: "^0.14.0" // Pins the version of Wasp to use.
   },
   title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
   auth: {
@@ -19,7 +19,7 @@ route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
   // We specify that the React implementation of the page is exported from
-  // `src/MainPage.tsx`. This statement uses standard JS import syntax.
+  // `src/MainPage.jsx`. This statement uses standard JS import syntax.
   // Use `@src` to reference files inside the `src` folder.
   component: import { MainPage } from "@src/MainPage"
 }
@@ -33,19 +33,6 @@ route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { LoginPage } from "@src/LoginPage"
 }
-
-entity User {=psl
-    id       Int    @id @default(autoincrement())
-    tasks    Task[]
-psl=}
-
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-    user        User?   @relation(fields: [userId], references: [id])
-    userId      Int?
-psl=}
 
 query getTasks {
   // Specifies where the implementation for the query function is.

@@ -27,15 +27,15 @@ data TypeError'
   -- We use "unify" in the TypeChecker when trying to infer the common type for
   -- typed expressions that we know should be of the same type (e.g. for
   -- elements in the list).
-  = UnificationError    TypeCoercionError
+  = UnificationError       TypeCoercionError
   -- | Type coercion error that occurs when trying to use the typed expression
   -- of type T1 where T2 is expected.  If T2 is a super type of T1 and T1 can be
   -- safely coerced to T2, no problem, but if not, we get this error.
-  | CoercionError       TypeCoercionError
-  | NoDeclarationType   TypeName
-  | UndefinedIdentifier Identifier
-  | QuoterUnknownTag    QuoterTag
-  | DictDuplicateField  DictFieldName
+  | CoercionError          TypeCoercionError
+  | NoDeclarationType      TypeName
+  | UndefinedIdentifier    Identifier
+  | QuoterUnknownTag       QuoterTag
+  | DictDuplicateField     DictFieldName
   deriving (Eq, Show)
 {- ORMOLU_ENABLE -}
 

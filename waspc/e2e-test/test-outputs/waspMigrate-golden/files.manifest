@@ -147,6 +147,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
+waspMigrate/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.js.map
@@ -182,6 +185,7 @@ waspMigrate/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 waspMigrate/.wasp/out/sdk/wasp/server/operations/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/operations/queries/types.ts
+waspMigrate/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspMigrate/.wasp/out/sdk/wasp/server/types/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/utils.ts
 waspMigrate/.wasp/out/sdk/wasp/tsconfig.json
@@ -216,6 +220,7 @@ waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/manifest.json
 waspMigrate/.wasp/out/web-app/scripts/validate-env.mjs
 waspMigrate/.wasp/out/web-app/src/components/FullPageWrapper.tsx
+waspMigrate/.wasp/out/web-app/src/components/Loader.module.css
 waspMigrate/.wasp/out/web-app/src/components/Loader.tsx
 waspMigrate/.wasp/out/web-app/src/components/Message.tsx
 waspMigrate/.wasp/out/web-app/src/index.tsx
@@ -234,6 +239,7 @@ waspMigrate/migrations/migration_lock.toml
 waspMigrate/migrations/no-date-foo/migration.sql
 waspMigrate/package.json
 waspMigrate/public/.gitkeep
+waspMigrate/schema.prisma
 waspMigrate/src/Main.css
 waspMigrate/src/MainPage.jsx
 waspMigrate/src/vite-env.d.ts

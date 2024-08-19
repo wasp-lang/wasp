@@ -1,10 +1,9 @@
 app Thoughts {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "Thoughts",
   db: {
-    system: PostgreSQL,
     seeds: [
       import { devSeedBasic } from "@src/server/seeds.js"
     ]
@@ -52,33 +51,3 @@ query getTags {
   fn: import { getTags } from "@src/server/queries.js",
   entities: [Tag]
 }
-
-entity Thought {=psl
-    id          Int       @id @default(autoincrement())
-    textMarkdown          String
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    tags        Tag[]
-
-    user        User      @relation(fields: [userId], references: [id])
-    userId      Int
-psl=}
-
-entity Tag {=psl
-    id          Int       @id @default(autoincrement())
-    name        String
-    createdAt   DateTime  @default(now())
-    thoughts    Thought[]
-
-    user        User      @relation(fields: [userId], references: [id])
-    userId      Int
-
-    @@unique([name, userId])
-psl=}
-
-entity User {=psl
-    id          Int       @id @default(autoincrement())
-
-    thoughts    Thought[]
-    tags        Tag[]
-psl=}

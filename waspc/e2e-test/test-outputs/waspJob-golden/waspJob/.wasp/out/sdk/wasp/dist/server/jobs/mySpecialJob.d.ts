@@ -3,26 +3,26 @@ import { type JobFn } from 'wasp/server/jobs/core/pgBoss';
 declare const entities: {};
 export type MySpecialJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
 export declare const mySpecialJob: {
-    readonly defaultJobOptions: import("pg-boss").SendOptions;
-    readonly startAfter: string | number | Date;
+    readonly defaultJobOptions: Parameters<import("pg-boss")["send"]>[2];
+    readonly startAfter: number | string | Date;
     readonly entities: {};
     readonly jobSchedule: {
-        cron: string;
-        args: object;
-        options: import("pg-boss").ScheduleOptions;
-    };
-    delay(startAfter: string | number | Date): any;
-    submit(jobArgs: JSONObject, jobOptions?: import("pg-boss").SendOptions): Promise<{
+        cron: Parameters<import("pg-boss")["schedule"]>[1];
+        args: Parameters<import("pg-boss")["schedule"]>[2];
+        options: Parameters<import("pg-boss")["schedule"]>[3];
+    } | null;
+    delay(startAfter: number | string | Date): any;
+    submit(jobArgs: JSONObject, jobOptions?: Parameters<import("pg-boss")["send"]>[2]): Promise<{
         readonly pgBoss: {
-            readonly cancel: () => Promise<void>;
-            readonly resume: () => Promise<void>;
+            readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;
+            readonly resume: () => ReturnType<import("pg-boss")["resume"]>;
             readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & {
                 data: JSONObject;
             } & ({
                 state: "failed";
                 output: object;
             } | {
-                state: "retry" | "created" | "active" | "expired" | "cancelled";
+                state: "created" | "retry" | "active" | "expired" | "cancelled";
                 output: null;
             } | {
                 state: "completed";
