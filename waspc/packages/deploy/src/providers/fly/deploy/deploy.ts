@@ -104,9 +104,11 @@ async function deployClient(deploymentInfo: DeploymentInfo<DeployOptions>, { bui
 	copyProjectClientTomlLocally(deploymentInfo.tomlFilePaths);
 
 	waspSays('Building web client for production...');
-	waspSays('If you configured a custom domain for the server, please run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy fly deploy');
+	waspSays('If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy fly deploy');
 
-	const serverUrl = stripTrailingSlash(process.env.REACT_APP_API_URL ?? '') || deploymentInfo.serverUrl;
+	const serverUrl = process.env.REACT_APP_API_URL
+		? stripTrailingSlash(process.env.REACT_APP_API_URL)
+		: deploymentInfo.serverUrl;
 	await $`npm install`;
 	await $`REACT_APP_API_URL=${serverUrl} npm run build`;
 
