@@ -16,7 +16,7 @@ Hey, I’m Sam, a backend engineer with a lot of experience with Django. I wante
 
 Wasp is an amazing dev tool for full stack applications. Combining things like React, Node.js and Prisma, Wasp allows for development to be expedited in ways never before seen.
 
-In this article, I am going to walk through creating a full stack application in Django versus Wasp to prove the simplicity of Wasp against a very conventional full-stack technology. I am also going to make a React frontend connected to Django. The point is to highlight the inefficiencies, difficulties, and issues that can (and will) arise with Django/React that are made vastly simpler via
+In this article, I am going to walk through creating a full stack application in Django versus Wasp to prove the simplicity of Wasp against a very conventional full-stack technology. I am also going to make a React frontend connected to Django. The point is to highlight the inefficiencies, difficulties, and issues that can (and will) arise with Django/React that are made vastly simpler when working with Wasp.
 
 This article is not intended as a how-to, but I do provide code snippets to give you a feel for their differences. Also note that in order to give a side-by-side comparison, I'll use tabs which you can switch back and forth between, like this:
 
