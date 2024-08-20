@@ -8,7 +8,9 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ImgWithCaption from './components/ImgWithCaption'
 
-## Wasp v Django: Building a full stack application just got a lot easier
+![a django dev tries wasp](/img/django-vs-wasp/wasp-django-banner.png)
+
+## Wasp vs Django: Building a full stack application just got a lot easier
 
 Hey, I’m Sam, a backend engineer with a lot of experience with Django. I wanted to make the jump and learn some frontend for a full stack app. I quickly experienced the arduous nature of a React-with-Django project and thought the pain was just part of the development process. However, I came across a very cool new full stack framework called [Wasp](https://wasp-lang.dev/). 
 
