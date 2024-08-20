@@ -1,10 +1,11 @@
 ---
-title: 'Want a Django experience for Javascript? Meet Wasp - a full-stack React & Node.js framework that is simply better'
+title: 'Wasp: The JavaScript Answer to Django for Web Development'
 authors: [sam]
-image: /img/lua-auth/lucia-auth-banner.png
+image: /img/django-vs-wasp/wasp-django-banner.png
 tags: [webdev, auth, react, django, tutorial, full-stack]
 ---
-
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import ImgWithCaption from './components/ImgWithCaption'
 
 ## Wasp v Django: Building a full stack application just got a lot easier
@@ -15,7 +16,17 @@ Wasp is an amazing dev tool for full stack applications. Combining things like R
 
 In this article, I am going to walk through creating a full stack application in Django versus Wasp to prove the simplicity of Wasp against a very conventional full-stack technology. I am also going to make a react frontend connected to Django. The point is to highlight the inefficiencies, difficulties, and issues that can (and will) arise with Django/react that are made vastly simpler via
 
-This article is not intended as a how to, but I do provide some code as to highlight the exhaustive-nature of a Django app. 
+This article is not intended as a how-to, but I do provide code snippets to give you a feel for their differences. Also note that in order to give a side-by-side comparison, I'll use tabs which you can switch back and forth between, like this:
+
+<Tabs>
+  <TabItem value="Django" label="Django 🟢" default>
+    Django info will go here...
+  </TabItem>
+  <TabItem value="Wasp" label="Wasp 🐝">
+    ...and the Wasp comparison here.
+  </TabItem>
+</Tabs>
+
 
 <ImgWithCaption
     alt="Let's get started"
@@ -28,21 +39,27 @@ This article is not intended as a how to, but I do provide some code as to highl
 
 This part is about the only part where there is significant overlap between Django and Wasp. Both starting from the terminal, let’s make a simple task app (I am assuming you have Django and [Wasp installed](https://wasp-lang.dev/docs/quick-start) and in your path).
 
-**Django** 🟢
+
+<Tabs>
+<TabItem value="Django" label="Django 🟢" default>
 
 ```sh title="terminal"
 django-admin startproject
 python manage.py starapp Todo
 ```
 
-**Wasp** 🐝
+</TabItem>
+<TabItem value="Wasp" label="Wasp 🐝">
 
 ```sh title="terminal"
 wasp new Todo
-wasp start
+wasp 
 ```
 
-Now Wasp starts hot out of the gate. Check out the menu you are given below. Wasp can either start a basic app for you, or you can select from a multitude of pre-made templates (including a fully functioning SaaS app) or even use an AI-generated app based on your description!
+</TabItem>
+</Tabs>
+
+Now Wasp starts hot out of the gate. After running `wasp new` you'll see a menu, as shown below. Wasp can either start a basic app for you, or you can select from a multitude of pre-made templates (including a [fully functioning SaaS app](https://opensaas.sh)) or even use an AI-generated app based on your description!
 
 ![wasp cli menu](/img/django-vs-wasp/wasp-cli-menu.png)
 
@@ -63,7 +80,8 @@ INSTALLED_APPS [
 
 So now we need a database, and this is another area where Wasp really shines. With Django, we need to create a model in the `models.py` file.  Wasp, meanwhile, uses Prisma as it's ORM which allows us to clearly define necessary fields and make database creation simple in an easy to understand way.
 
-**Django** 🟢
+<Tabs>
+<TabItem value="Django" label="Django 🟢" default>
 
 ```py title="models.py"
 from django.db import models
@@ -76,7 +94,8 @@ class Task(models.Model):
         return self.title
 ```
 
-**Wasp** 🐝
+</TabItem>
+<TabItem value="Wasp" label="Wasp 🐝">
 
 ```jsx title="schema.prisma"
 model Task {
@@ -86,20 +105,28 @@ model Task {
 }
 ```
 
+</TabItem>
+</Tabs>
+
 Django and Wasp do share similar ways to migrate databases:
 
-**Django** 🟢
+<Tabs>
+<TabItem value="Django" label="Django 🟢" default>
 
 ```sh
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-**Wasp** 🐝
+</TabItem>
+<TabItem value="Wasp" label="Wasp 🐝">
 
 ```sh
 wasp db migrate-dev
 ```
+
+</TabItem>
+</Tabs>
 
 But with Wasp, you can also do some pretty nifty database stuff that Django can't.
 
@@ -126,7 +153,8 @@ Routes in Django and Wasp follow a shomewhat similar pattern. However, if you're
 - Django works through the backend (`views.py`, which I will get to later in this article) which do all the CRUD operations. Those view functions are associated to a specific route within an app within a project (I know, a lot), and it can get more complicated if you start using primary keys and IDs. You need to create a `urls.py` file and direct your specific views file and functions to a route. Those app urls are then connected to the project urls. Phew.
 - Wasp’s way: define a route and direct it to a component.
 
-**Django** 🟢
+<Tabs>
+<TabItem value="Django" label="Django 🟢" default>
 
 ```py title="todo/urls.py"
 from django.urls import path
@@ -148,7 +176,8 @@ urlpatterns = [
 ]
 ```
 
-**Wasp** 🐝
+</TabItem>
+<TabItem value="Wasp" label="Wasp 🐝">
 
 ```jsx title="main.wasp"
 route TaskRoute { path: "/", to: TaskPage }
@@ -157,13 +186,18 @@ page TaskPage {
 }
 ```
 
+</TabItem>
+</Tabs>
+
+
 ### CRUD
 
 Ok, this is where the benefits of Wasp are about to become even more apparent. 
 
 Firstly, I am going to revisit the `views.py` file. This is where magic is going to happen for Django backend. Here is a simple version of what the create, update, and delete functions could look like for our Task/Todo example:
 
-**Django** 🟢
+<Tabs>
+<TabItem value="Django" label="Django 🟢" default>
 
 ```py title="todo/views.py"
 from django.shortcuts import render, redirect
@@ -211,7 +245,8 @@ class TaskForm(forms.ModelForm):
         fields = ['title', 'completed']
 ```
 
-**Wasp** 🐝
+</TabItem>
+<TabItem value="Wasp" label="Wasp 🐝">
 
 ```jsx title="main.wasp"
 query getTasks {
@@ -252,6 +287,9 @@ export const deleteTask = async ({ id }, context) => {
   })
 }
 ```
+
+</TabItem>
+</Tabs>
 
 So right now, Wasp has a fully functioning backend with middleware configured for you. At this point we can create some React components, and then import and call these operations from the client. That is not the case with Django, unfortunately there is still a lot we need to do to configure React in our app and get things working together, which we will look at below.
 
@@ -348,7 +386,8 @@ By now you should be understanding why I've made the switch to using Wasp when b
 
 Ok, so now we can actually get back to comparing Wasp and Django.
 
-**Django** 🟢
+<Tabs>
+<TabItem value="Django" label="Django 🟢" default>
 
 To start, lets create our React app in our Django project:
 
@@ -469,7 +508,8 @@ const TaskList = () => {
 export default TaskList;
 ```
 
-**Wasp** 🐝
+</TabItem>
+<TabItem value="Wasp" label="Wasp 🐝">
 
 And here's the Wasp React client for comparison. Take note how we're able to import the operations we defined earlier and call them here easily on the client with less configuration than the Django app. We also get the built-in caching power of the `useQuery` hook, as well as the ability to pass in our authenticated user as a prop (we'll get into this more below):
 
@@ -581,12 +621,15 @@ function NewTaskForm() {
 }
 ```
 
+</TabItem>
+</Tabs>
+
 <ImgWithCaption
     alt="Todo app"
     source="/img/django-vs-wasp/wasp-todo-app.gif"
 />
 
-Very nice! In the Wasp app you can see how much easier it is to call the server-side code via Wasp operations. Plus, Wasp gives you the added benefit of refreshing the client-side cache for the Entity that's referenced in the operation definition (in this case `Task`). And the cherry on top is how easy it is to pass the authenticated user to the component, something we haven't even touched on in the Django app, and which we will talk about more below.
+In the Wasp app you can see how much easier it is to call the server-side code via Wasp operations. Plus, Wasp gives you the added benefit of refreshing the client-side cache for the Entity that's referenced in the operation definition (in this case `Task`). And the cherry on top is how easy it is to pass the authenticated user to the component, something we haven't even touched on in the Django app, and which we will talk about more below.
 
 ## Part 3: Auth with Django? No way, José
 
@@ -597,9 +640,10 @@ Very nice! In the Wasp app you can see how much easier it is to call the server-
 
 So we already started to get a feel in the above code for how simple it is to pass an authenticated user around in Wasp. But how do we actually go about implementing full-stack Authentication in Wasp and Django.
 
-This is one of Wasp’s biggest advantages. It couldn't be easier or more intuitive. On the other hand, the Django implementation is so long and complicated I'm not going to even bother showing you the code and I'll just list out the stps instead;
+This is one of Wasp’s biggest advantages. It couldn't be easier or more intuitive. On the other hand, the Django implementation is so long and complicated I'm not going to even bother showing you the code and I'll just list out the stps instead. Let's also look at Wasp first this time.
 
-**Wasp** 🐝
+<Tabs>
+<TabItem value="Wasp" label="Wasp 🐝" default>
 
 ```jsx title="main.wasp"
 app TodoApp {
@@ -619,18 +663,15 @@ app TodoApp {
   //...
 ```
 
-And that's all it takes to implement full-stack [Auth with Wasp](https://wasp-lang.dev/docs/auth/overview)! But that's just one example, you can also add other auth methods easily, like `google: {}`, `gitHub: {}` and `discord: {}` social auth, after configuring the apps and adding your environment variables. 
-
-Wasp allows you to get building without worrying about so many things. I don’t need to worry about password hashing, multiple projects and apps, CORS headers, etc. I just need to add a couple lines of code. 
-
-**Wasp just makes sense.**
+That's it!
 
 <ImgWithCaption
     alt="mind blown"
     source="/img/django-vs-wasp/mindblown.gif"
 />
 
-**Django** 🟢
+</TabItem>
+<TabItem value="Django" label="Django 🟢">
 
 Let's check out what it takes to add a simple username and password auth implementation to a Django app (remember, this isn't even the code, just a checklist!):
 
@@ -664,6 +705,14 @@ Let's check out what it takes to add a simple username and password auth impleme
     source="https://c.tenor.com/dJCFZSkf3bAAAAAC/tenor.gif"
 />
 
+</TabItem>
+</Tabs>
+
+And that's all it takes to implement full-stack [Auth with Wasp](https://wasp-lang.dev/docs/auth/overview)! But that's just one example, you can also add other auth methods easily, like `google: {}`, `gitHub: {}` and `discord: {}` social auth, after configuring the apps and adding your environment variables. 
+
+Wasp allows you to get building without worrying about so many things. I don’t need to worry about password hashing, multiple projects and apps, CORS headers, etc. I just need to add a couple lines of code. 
+
+**Wasp just makes sense.**
 
 ## One Final Thing
 
@@ -688,7 +737,7 @@ Just throw a name, prompt, and select a few of your desired settings and boom, y
 ![mage](/img/django-vs-wasp/usemage.png)
 
 :::note
-💡 The Mage functionality is also achievable via the terminal ("ai-generated"), but you need to provide your own open-ai api key for it to work.
+💡 The Mage functionality is also achievable via the terminal (`wasp new -> ai-generated`), but you need to provide your own OpenAI api key for it to work.
 :::
 
 ## Can you show us your support?
