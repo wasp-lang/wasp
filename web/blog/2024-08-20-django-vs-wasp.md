@@ -16,7 +16,7 @@ Hey, I’m Sam, a backend engineer with a lot of experience with Django. I wante
 
 Wasp is an amazing dev tool for full stack applications. Combining things like React, Node.js and Prisma, Wasp allows for development to be expedited in ways never before seen.
 
-In this article, I am going to walk through creating a full stack application in Django versus Wasp to prove the simplicity of Wasp against a very conventional full-stack technology. I am also going to make a react frontend connected to Django. The point is to highlight the inefficiencies, difficulties, and issues that can (and will) arise with Django/react that are made vastly simpler via
+In this article, I am going to walk through creating a full stack application in Django versus Wasp to prove the simplicity of Wasp against a very conventional full-stack technology. I am also going to make a React frontend connected to Django. The point is to highlight the inefficiencies, difficulties, and issues that can (and will) arise with Django/React that are made vastly simpler via
 
 This article is not intended as a how-to, but I do provide code snippets to give you a feel for their differences. Also note that in order to give a side-by-side comparison, I'll use tabs which you can switch back and forth between, like this:
 
@@ -315,7 +315,7 @@ pip install djangorestframework
 pip install django-cors-headers
 ```
 
-Include Rest Framework and Cors Header as installed apps, CORS headers as middleware, and then also set a local host for the react frontend to be able to communicate with the backend (Django) server (again, there is no need to do any of this initial setup in Wasp as it's all handled for you):
+Include Rest Framework and Cors Header as installed apps, CORS headers as middleware, and then also set a local host for the React frontend to be able to communicate with the backend (Django) server (again, there is no need to do any of this initial setup in Wasp as it's all handled for you):
 
 ```py title="settings.py"
 INSTALLED_APPS = [
@@ -382,7 +382,7 @@ urlpatterns = [
 ]
 ```
 
-By now you should be understanding why I've made the switch to using Wasp when building full-stack apps. Anyways, now we are actually able to make a react component with a Django backend 🙃
+By now you should be understanding why I've made the switch to using Wasp when building full-stack apps. Anyways, now we are actually able to make a React component with a Django backend 🙃
 
 ### React time
 
