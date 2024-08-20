@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@lucia-auth/adapter-prisma": "^4.0.0",
+    "@node-rs/argon2": "^1.8.3",
     "@prisma/client": "4.16.2",
     "@sendgrid/mail": "^7.7.0",
     "@stitches/react": "^1.2.8",
