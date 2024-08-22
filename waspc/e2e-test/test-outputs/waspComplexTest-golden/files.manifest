@@ -287,6 +287,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/oneTimeCode.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/oneTimeCode.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/oneTimeCode.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/provider.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/provider.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/provider.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.js.map
@@ -415,6 +418,7 @@ waspComplexTest/.wasp/out/sdk/wasp/server/auth/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/env.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/oneTimeCode.ts
+waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/provider.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/providers/google.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/redirect.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/user.ts

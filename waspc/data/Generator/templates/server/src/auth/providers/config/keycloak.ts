@@ -32,7 +32,7 @@ const _waspConfig: ProviderConfig = {
             providerProfile: unknown;
             providerUserId: string;
         }> {
-            const userInfoEndpoint = `${env.KEYCLOAK_REALM_URL}/protocol/openid-connect/userinfo`;
+            const userInfoEndpoint = `${keycloak.env.KEYCLOAK_REALM_URL}/protocol/openid-connect/userinfo`;
             const response = await fetch(
                 userInfoEndpoint,
                 {

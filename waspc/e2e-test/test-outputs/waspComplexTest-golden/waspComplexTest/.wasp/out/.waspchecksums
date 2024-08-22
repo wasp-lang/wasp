@@ -550,7 +550,7 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "77e4bb1c1c7931885af3bc5cb765d0f906d9a1f8b1845ccf114d0e8ad6254bde"
+        "bc8cf4d3b89018a68704d30bc3183bbd58461c9db0796f603f3e13179d604630"
     ],
     [
         [
@@ -562,9 +562,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/server/auth/oauth/provider.ts"
+        ],
+        "2a2015d905a2ceddb45ff1034b283b242df153ddf2cabd05fddd4746365622df"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/server/auth/oauth/providers/google.ts"
         ],
-        "083714f7e1bc7cc444d0721e218e98200d7fcb879786d4c715c7036a579f04c0"
+        "2e4e554b1c7d93cd9604f3266bd5c2829518a9e5547ca127fb9c0688bd81ae53"
     ],
     [
         [

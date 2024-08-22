@@ -1,4 +1,7 @@
 import { Google } from "arctic";
-export declare const id = "google";
-export declare const displayName = "Google";
-export declare const oAuthClient: Google;
+export declare const google: {
+    id: string;
+    displayName: string;
+    env: Record<"GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET", string>;
+    oAuthClient: Google;
+};

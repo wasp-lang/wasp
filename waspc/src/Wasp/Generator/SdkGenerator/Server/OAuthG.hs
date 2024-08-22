@@ -36,7 +36,8 @@ genOAuth auth
         [ genIndexTs auth,
           genRedirectHelper,
           genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|env.ts|],
-          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|]
+          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|],
+          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|provider.ts|]
         ]
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
