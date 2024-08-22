@@ -72,7 +72,6 @@
     "./server/jobs/*": "./dist/server/jobs/*.js",
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     "./server/middleware": "./dist/server/middleware/index.js",
-    "./server/oauth": "./dist/server/oauth/index.js",
     "./server/operations": "./dist/server/operations/index.js",
     "./server/operations/actions": "./dist/server/operations/actions/index.js",
     "./server/operations/queries": "./dist/server/operations/queries/index.js",

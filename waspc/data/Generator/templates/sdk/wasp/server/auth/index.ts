@@ -33,10 +33,14 @@ export type {
   OAuthParams,
 } from './hooks.js'
 
-{=# isEmailAuthEnabled =}
-export * from './email/index.js'
-{=/ isEmailAuthEnabled =}
+{=# isExternalAuthEnabled =}
+export * from './oauth/index.js'
+{=/ isExternalAuthEnabled =}
 
-{=# isUsernameAndPasswordAuthEnabled =}
+{=# enabledProviders.isEmailAuthEnabled =}
+export * from './email/index.js'
+{=/ enabledProviders.isEmailAuthEnabled =}
+
+{=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 export * from './username.js'
-{=/ isUsernameAndPasswordAuthEnabled =}
+{=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}

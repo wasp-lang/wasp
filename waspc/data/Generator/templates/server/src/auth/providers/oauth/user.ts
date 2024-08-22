@@ -12,7 +12,7 @@ import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { type OAuthParams } from 'wasp/server/auth'
-import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/oauth'
+import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
 import {
   onBeforeSignupHook,
   onAfterSignupHook,

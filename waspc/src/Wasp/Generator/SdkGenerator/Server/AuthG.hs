@@ -40,7 +40,12 @@ genAuthIndex auth =
       [relfile|server/auth/index.ts|]
       tmplData
   where
-    tmplData = AuthProviders.getEnabledAuthProvidersJson auth
+    tmplData =
+      object
+        [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
+          "isExternalAuthEnabled" .= isExternalAuthEnabled
+        ]
+    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =

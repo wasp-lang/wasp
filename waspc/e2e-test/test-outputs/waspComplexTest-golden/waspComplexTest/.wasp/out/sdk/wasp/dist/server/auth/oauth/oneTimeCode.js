@@ -1,4 +1,4 @@
-import { createJWT, validateJWT, TimeSpan } from '../../auth/jwt.js';
+import { createJWT, validateJWT, TimeSpan } from '../../../auth/jwt.js';
 export const tokenStore = createTokenStore();
 function createTokenStore() {
     const usedTokens = new Map();

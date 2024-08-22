@@ -1,16 +1,15 @@
-{{={= =}=}}
-import { config, HttpError } from '../../server/index.js'
+import { config, HttpError } from '../../index.js'
 
 // PRIVATE API (server)
-export const loginPath = '{= serverOAuthLoginHandlerPath =}'
+export const loginPath = 'login'
 
 // PRIVATE API (server)
-export const exchangeCodeForTokenPath = '{= serverExchangeCodeForTokenHandlerPath =}'
+export const exchangeCodeForTokenPath = 'exchange-code'
 
 // PRIVATE API (server)
-export const callbackPath = '{= serverOAuthCallbackHandlerPath =}'
+export const callbackPath = 'callback'
 
-const clientOAuthCallbackPath = '{= clientOAuthCallbackPath =}'
+const clientOAuthCallbackPath = '/oauth/callback'
 
 // PRIVATE API (server)
 export function getRedirectUriForOneTimeCode(oneTimeCode: string): URL {

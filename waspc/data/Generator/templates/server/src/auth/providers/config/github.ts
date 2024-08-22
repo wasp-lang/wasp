@@ -1,7 +1,7 @@
 {{={= =}=}}
 
 import type { ProviderConfig } from "wasp/auth/providers/types";
-import { github } from "wasp/server/oauth";
+import { github } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 

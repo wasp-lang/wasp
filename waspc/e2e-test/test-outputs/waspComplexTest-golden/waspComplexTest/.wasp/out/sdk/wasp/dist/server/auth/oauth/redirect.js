@@ -1,4 +1,4 @@
-import { config, HttpError } from '../../server/index.js';
+import { config, HttpError } from '../../index.js';
 // PRIVATE API (server)
 export const loginPath = 'login';
 // PRIVATE API (server)

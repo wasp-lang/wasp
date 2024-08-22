@@ -32,4 +32,6 @@ export type {
   OAuthParams,
 } from './hooks.js'
 
+export * from './oauth/index.js'
+
 

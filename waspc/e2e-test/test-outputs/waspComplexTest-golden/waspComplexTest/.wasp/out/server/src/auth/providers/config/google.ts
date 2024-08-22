@@ -1,5 +1,5 @@
 import type { ProviderConfig } from "wasp/auth/providers/types";
-import { google } from "wasp/server/oauth";
+import { google } from "wasp/server/auth";
 
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";

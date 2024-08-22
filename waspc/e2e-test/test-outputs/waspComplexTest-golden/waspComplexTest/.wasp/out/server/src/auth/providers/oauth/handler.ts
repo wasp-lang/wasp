@@ -18,7 +18,7 @@ import {
   callbackPath,
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
-} from 'wasp/server/oauth'
+} from 'wasp/server/auth'
 import { OAuthParams } from 'wasp/server/auth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 

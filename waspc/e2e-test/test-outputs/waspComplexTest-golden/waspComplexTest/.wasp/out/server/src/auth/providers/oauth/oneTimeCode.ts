@@ -4,7 +4,7 @@ import { HttpError } from 'wasp/server';
 import { handleRejection } from 'wasp/server/utils'
 import { findAuthWithUserBy } from 'wasp/auth/utils'
 import { createSession } from 'wasp/auth/session'
-import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/oauth";
+import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
 
 export function setupOneTimeCodeRoute(router: Router) {
   router.post(

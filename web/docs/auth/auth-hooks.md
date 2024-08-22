@@ -440,7 +440,7 @@ Wasp calls the `onAfterLogin` hook after the user logs in.
 
 The `onAfterLogin` hook can be useful if you want to perform some action after the user logs in, like syncing the user with a third-party service.
 
-Since the `onAfterLogin` hook receives the OAuth tokens, you can also use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
+Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -575,7 +575,7 @@ export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
 </TabItem>
 </Tabs>
 
-Google exposes the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when will the access token expire.
+Google exposes the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when the access token expires.
 
 If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs.md).
 
