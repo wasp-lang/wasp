@@ -2,7 +2,6 @@ import type { Request as ExpressRequest } from 'express'
 import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js'
 import { prisma } from '../index.js'
 import { Expand } from '../../universal/types.js'
-import { ProviderName } from '../_types/index.js';
 
 // PUBLIC API
 export type OnBeforeSignupHook = (
@@ -70,7 +69,7 @@ type OnAfterSignupHookParams = {
    * OAuth flow data that was generated during the OAuth flow. This is only
    * available if the user signed up using OAuth.
   */
-  oauth?: OAuthParams
+  oauth?: OAuthData
   /**
    * Request object that can be used to access the incoming request.
   */
@@ -85,7 +84,7 @@ type OnBeforeOAuthRedirectHookParams = {
   /**
    * Unique request ID that was generated during the OAuth flow.
   */
-  uniqueRequestId: OAuthParams['uniqueRequestId']
+  oauth: Pick<OAuthData, 'uniqueRequestId'>
   /**
    * Request object that can be used to access the incoming request.
   */
@@ -116,7 +115,7 @@ type OnAfterLoginHookParams = {
    * OAuth flow data that was generated during the OAuth flow. This is only
    * available if the user logged in using OAuth.
   */
-  oauth?: OAuthParams
+  oauth?: OAuthData
   /**
    * Request object that can be used to access the incoming request.
   */
@@ -124,7 +123,7 @@ type OnAfterLoginHookParams = {
 } & InternalAuthHookParams
 
 // PRIVATE API (server)
-export type OAuthParams = {
+export type OAuthData = {
   /**
    * Unique request ID that was generated during the OAuth flow.
   */

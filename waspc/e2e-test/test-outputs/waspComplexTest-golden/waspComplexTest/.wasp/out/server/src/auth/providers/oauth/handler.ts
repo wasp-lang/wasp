@@ -19,10 +19,10 @@ import {
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
 } from 'wasp/server/auth'
-import { OAuthParams } from 'wasp/server/auth'
+import { OAuthData } from 'wasp/server/auth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthParams['tokens'] = never>({
+export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthData['tokens'] = never>({
   provider,
   oAuthType,
   userSignupFields,
@@ -75,7 +75,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
       const { url: redirectUrlAfterHook } = await onBeforeOAuthRedirectHook({
         req,
         url: redirectUrl,
-        uniqueRequestId: oAuthState.state,
+        oauth: { uniqueRequestId: oAuthState.state }
       })
       return redirect(res, redirectUrlAfterHook.toString())
     }),

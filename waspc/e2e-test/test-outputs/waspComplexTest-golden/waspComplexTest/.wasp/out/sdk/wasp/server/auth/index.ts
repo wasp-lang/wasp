@@ -29,7 +29,7 @@ export type {
   OnBeforeLoginHook,
   OnAfterLoginHook,
   InternalAuthHookParams,
-  OAuthParams,
+  OAuthData,
 } from './hooks.js'
 
 export * from './oauth/index.js'

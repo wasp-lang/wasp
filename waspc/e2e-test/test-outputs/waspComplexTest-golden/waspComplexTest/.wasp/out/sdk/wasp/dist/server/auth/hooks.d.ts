@@ -43,7 +43,7 @@ type OnAfterSignupHookParams = {
      * OAuth flow data that was generated during the OAuth flow. This is only
      * available if the user signed up using OAuth.
     */
-    oauth?: OAuthParams;
+    oauth?: OAuthData;
     /**
      * Request object that can be used to access the incoming request.
     */
@@ -57,7 +57,7 @@ type OnBeforeOAuthRedirectHookParams = {
     /**
      * Unique request ID that was generated during the OAuth flow.
     */
-    uniqueRequestId: OAuthParams['uniqueRequestId'];
+    oauth: Pick<OAuthData, 'uniqueRequestId'>;
     /**
      * Request object that can be used to access the incoming request.
     */
@@ -86,13 +86,13 @@ type OnAfterLoginHookParams = {
      * OAuth flow data that was generated during the OAuth flow. This is only
      * available if the user logged in using OAuth.
     */
-    oauth?: OAuthParams;
+    oauth?: OAuthData;
     /**
      * Request object that can be used to access the incoming request.
     */
     req: ExpressRequest;
 } & InternalAuthHookParams;
-export type OAuthParams = {
+export type OAuthData = {
     /**
      * Unique request ID that was generated during the OAuth flow.
     */

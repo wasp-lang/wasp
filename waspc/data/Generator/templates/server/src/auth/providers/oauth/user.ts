@@ -11,7 +11,7 @@ import {
 import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
-import { type OAuthParams } from 'wasp/server/auth'
+import { type OAuthData } from 'wasp/server/auth'
 import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
 import {
   onBeforeSignupHook,
@@ -33,7 +33,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
   providerUserId: string;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  oauth: OAuthParams;
+  oauth: OAuthData;
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -63,7 +63,7 @@ async function getAuthIdFromProviderDetails({
   providerProfile: any;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  oauth: OAuthParams;
+  oauth: OAuthData;
 }): Promise<{= authEntityUpper =}['id']> {
   const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
     where: {

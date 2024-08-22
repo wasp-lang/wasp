@@ -43,7 +43,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
   log('query params before oAuth redirect', args.req.query)
 
   // Saving query params for later use in onAfterSignup hook
-  const id = args.uniqueRequestId
+  const id = args.oauth.uniqueRequestId
   oAuthQueryStore.set(id, args.req.query)
 
   return { url: args.url }

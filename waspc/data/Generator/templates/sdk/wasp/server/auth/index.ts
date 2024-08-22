@@ -30,7 +30,7 @@ export type {
   OnBeforeLoginHook,
   OnAfterLoginHook,
   InternalAuthHookParams,
-  OAuthParams,
+  OAuthData,
 } from './hooks.js'
 
 {=# isExternalAuthEnabled =}
