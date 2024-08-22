@@ -311,14 +311,14 @@ app myApp {
 ```js title="src/auth/hooks.js"
 export const onBeforeOAuthRedirect = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
   // Saving query params for later use in onAfterSignup or onAfterLogin hooks
-  const id = uniqueRequestId
+  const id = oauth.uniqueRequestId
   someKindOfStore.set(id, req.query)
 
   return { url }
@@ -343,14 +343,14 @@ import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
   // Saving query params for later use in onAfterSignup or onAfterLogin hooks
-  const id = uniqueRequestId
+  const id = oauth.uniqueRequestId
   someKindOfStore.set(id, req.query)
 
   return { url }
@@ -735,7 +735,7 @@ Wasp ignores this hook's **return value**.
 ```js title="src/auth/hooks.js"
 export const onBeforeOAuthRedirect = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
@@ -753,7 +753,7 @@ import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
@@ -772,11 +772,15 @@ The hook receives an object as **input** with the following properties:
 
   Wasp uses the URL for the OAuth redirect.
 
-- `uniqueRequestId: string`
+- `oauth: { uniqueRequestId: string }`
 
-  The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
+  The `oauth` object has the following fields:
 
-  You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
+    - `uniqueRequestId: string`
+
+      The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
+
+      You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
 
 - Plus the [common hook input](#common-hook-input)
 
