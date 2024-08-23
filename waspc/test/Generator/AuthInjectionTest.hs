@@ -1,6 +1,6 @@
 module Generator.AuthInjectionTest where
 
-import Data.Either (fromRight)
+import Data.Maybe (maybeToList)
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.DbGenerator.Auth (injectAuth)
@@ -9,172 +9,123 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 
+data UserEntityIdField = UserEntityIdField
+  { _type :: Psl.Model.FieldType,
+    _nativeDbType :: Maybe Psl.Attribute.Attribute
+  }
+
 spec_GeneratorAuthInjectionTest :: Spec
 spec_GeneratorAuthInjectionTest = do
   describe "injectAuth" $ do
     it "injects auth entities and user entity relation" $ do
-      let userEntity =
-            ( "User",
-              AS.Entity.makeEntity
-                ( Psl.Model.Body
-                    [ Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "id"
-                          Psl.Model.Int
-                          []
-                          [ Psl.Attribute.Attribute "id" [],
-                            Psl.Attribute.Attribute
-                              "default"
-                              [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
-                              ]
-                          ]
-                    ]
-                )
-            )
-      let userEntityWithInjectedRelationship =
-            ( "User",
-              AS.Entity.makeEntity
-                ( Psl.Model.Body
-                    [ Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "id"
-                          Psl.Model.Int
-                          []
-                          [ Psl.Attribute.Attribute "id" [],
-                            Psl.Attribute.Attribute
-                              "default"
-                              [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
-                              ]
-                          ],
-                      Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "auth"
-                          (Psl.Model.UserType "Auth")
-                          [Psl.Model.Optional]
-                          []
-                    ]
-                )
-            )
-      let authEntity = makeAuthEntity Psl.Model.Int []
+      testAuthInjection $
+        UserEntityIdField
+          { _type = Psl.Model.Int,
+            _nativeDbType = Nothing
+          }
 
-      testAuthInjection userEntity userEntityWithInjectedRelationship authEntity
-
-    it "injects auth entities and user entity relation (user ID is a native db fields)" $ do
-      let userEntity =
-            ( "User",
-              AS.Entity.makeEntity
-                ( Psl.Model.Body
-                    [ Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "id"
-                          Psl.Model.String
-                          []
-                          [ Psl.Attribute.Attribute "id" [],
-                            Psl.Attribute.Attribute "db.Uuid" []
-                          ]
-                    ]
-                )
-            )
-      let userEntityWithInjectedRelationship =
-            ( "User",
-              AS.Entity.makeEntity
-                ( Psl.Model.Body
-                    [ Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "id"
-                          Psl.Model.String
-                          []
-                          [ Psl.Attribute.Attribute "id" [],
-                            Psl.Attribute.Attribute "db.Uuid" []
-                          ],
-                      Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "auth"
-                          (Psl.Model.UserType "Auth")
-                          [Psl.Model.Optional]
-                          []
-                    ]
-                )
-            )
-      let authEntity = makeAuthEntity Psl.Model.String [Psl.Attribute.Attribute "db.Uuid" []]
-
-      testAuthInjection userEntity userEntityWithInjectedRelationship authEntity
+    it "injects auth entities and user entity relation (user ID is a native db field)" $ do
+      testAuthInjection $
+        UserEntityIdField
+          { _type = Psl.Model.String,
+            _nativeDbType = Just $ Psl.Attribute.Attribute "db.Uuid" []
+          }
   where
-    testAuthInjection userEntity userEntityWithInjectedRelationship authEntity = do
-      let allEntities = [userEntity, someOtherEntity]
-      let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth allEntities userEntity
-       in fromRight (error "Auth injection test failed") generatorResult
-            `shouldBe` [ userEntityWithInjectedRelationship,
-                         someOtherEntity,
-                         authEntity,
-                         authIdentityEntity,
-                         sessionEntity
-                       ]
+    testAuthInjection :: UserEntityIdField -> Expectation
+    testAuthInjection
+      UserEntityIdField
+        { _type = userEntityIdFieldType,
+          _nativeDbType = maybeUserEntityIdFieldNativeDbType
+        } = do
+        let userEntityIdField =
+              Psl.Model.ElementField $
+                Psl.Model.Field
+                  "id"
+                  userEntityIdFieldType
+                  []
+                  (Psl.Attribute.Attribute "id" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
+        let userEntity =
+              ( "User",
+                AS.Entity.makeEntity $
+                  Psl.Model.Body [userEntityIdField]
+              )
+        let authEntityRelation =
+              Psl.Model.ElementField $
+                Psl.Model.Field
+                  "auth"
+                  (Psl.Model.UserType "Auth")
+                  [Psl.Model.Optional]
+                  []
+        let userEntityWithInjectedRelationship =
+              ( "User",
+                AS.Entity.makeEntity $
+                  Psl.Model.Body [userEntityIdField, authEntityRelation]
+              )
+        let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
-    someOtherEntity =
-      ( "SomeOtherEntity",
-        AS.Entity.makeEntity
-          ( Psl.Model.Body
-              [ Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "id"
-                    Psl.Model.Int
-                    []
-                    [ Psl.Attribute.Attribute "id" [],
-                      Psl.Attribute.Attribute
-                        "default"
-                        [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
-                        ]
-                    ]
-              ]
-          )
-      )
+        let allEntities = [userEntity, someOtherEntity]
+        let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth allEntities userEntity
+         in generatorResult
+              `shouldBe` Right
+                [ userEntityWithInjectedRelationship,
+                  someOtherEntity,
+                  authEntity,
+                  authIdentityEntity,
+                  sessionEntity
+                ]
 
-    makeAuthEntity userIdType extraUserIdAttributes =
-      ( "Auth",
-        AS.Entity.makeEntity
-          ( Psl.Model.Body
-              [ Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "id"
-                    Psl.Model.String
-                    []
-                    [ Psl.Attribute.Attribute "id" [],
-                      Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
-                    ],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "userId"
-                    userIdType
-                    [Psl.Model.Optional]
-                    (Psl.Attribute.Attribute "unique" [] : extraUserIdAttributes),
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "user"
-                    (Psl.Model.UserType "User")
-                    [Psl.Model.Optional]
-                    [ Psl.Attribute.Attribute
-                        "relation"
-                        [ Psl.Argument.ArgNamed "fields" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]),
-                          Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"]),
-                          Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
-                        ]
-                    ],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "identities"
-                    (Psl.Model.UserType "AuthIdentity")
-                    [Psl.Model.List]
-                    [],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "sessions"
-                    (Psl.Model.UserType "Session")
-                    [Psl.Model.List]
-                    []
-              ]
+    makeAuthEntity :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> (String, AS.Entity.Entity)
+    makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
+      let userIdField = makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
+       in ( "Auth",
+            AS.Entity.makeEntity
+              ( Psl.Model.Body
+                  [ Psl.Model.ElementField $
+                      Psl.Model.Field
+                        "id"
+                        Psl.Model.String
+                        []
+                        [ Psl.Attribute.Attribute "id" [],
+                          Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
+                        ],
+                    userIdField,
+                    Psl.Model.ElementField $
+                      Psl.Model.Field
+                        "user"
+                        (Psl.Model.UserType "User")
+                        [Psl.Model.Optional]
+                        [ Psl.Attribute.Attribute
+                            "relation"
+                            [ Psl.Argument.ArgNamed "fields" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]),
+                              Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"]),
+                              Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
+                            ]
+                        ],
+                    Psl.Model.ElementField $
+                      Psl.Model.Field
+                        "identities"
+                        (Psl.Model.UserType "AuthIdentity")
+                        [Psl.Model.List]
+                        [],
+                    Psl.Model.ElementField $
+                      Psl.Model.Field
+                        "sessions"
+                        (Psl.Model.UserType "Session")
+                        [Psl.Model.List]
+                        []
+                  ]
+              )
           )
-      )
+
+    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Psl.Model.Element
+    makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
+      let userIdFieldAttributes = (Psl.Attribute.Attribute "unique" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
+       in Psl.Model.ElementField $
+            Psl.Model.Field
+              "userId"
+              userEntityIdFieldType
+              [Psl.Model.Optional]
+              userIdFieldAttributes
 
     authIdentityEntity =
       ( "AuthIdentity",
@@ -263,6 +214,25 @@ spec_GeneratorAuthInjectionTest = do
                   Psl.Attribute.Attribute
                     "index"
                     [ Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]
+                    ]
+              ]
+          )
+      )
+
+    someOtherEntity =
+      ( "SomeOtherEntity",
+        AS.Entity.makeEntity
+          ( Psl.Model.Body
+              [ Psl.Model.ElementField $
+                  Psl.Model.Field
+                    "id"
+                    Psl.Model.Int
+                    []
+                    [ Psl.Attribute.Attribute "id" [],
+                      Psl.Attribute.Attribute
+                        "default"
+                        [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
+                        ]
                     ]
               ]
           )
