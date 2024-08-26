@@ -194,7 +194,7 @@ Your Wasp file should now look like this:
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "TodoApp"
 }
@@ -211,7 +211,7 @@ page MainPage {
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "TodoApp"
 }
