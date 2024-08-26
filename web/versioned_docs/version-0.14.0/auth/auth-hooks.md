@@ -40,7 +40,7 @@ To use auth hooks, you must first declare them in the Wasp file:
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   auth: {
     userEntity: User,
@@ -59,7 +59,7 @@ app myApp {
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   auth: {
     userEntity: User,
@@ -349,7 +349,7 @@ Read more about the data the `onBeforeOAuthRedirect` hook receives in the [API R
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   auth: {
     userEntity: User,
@@ -368,7 +368,7 @@ app myApp {
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   auth: {
     userEntity: User,
