@@ -53,6 +53,12 @@ spec_parseAttributePslPart = do
                         ]
                     )
                 ]
+            ),
+            ( "@default([])",
+              Psl.Attribute.Attribute
+                "default"
+                [ Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr []
+                ]
             )
           ]
     runTestsFor attribute tests
