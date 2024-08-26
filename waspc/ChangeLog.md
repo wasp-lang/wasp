@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.14.1 (2024-08-26)
+
+### 🎉 New Features
+
+- Wasp now supports `onBeforeLogin` and `onAfterLogin` auth hooks! You can use these hooks to run custom logic before and after a user logs in. For example, you can use the `onBeforeLogin` hook to check if the user is allowed to log in.
+- OAuth refresh tokens are here. If the OAuth provider supports refresh tokens, you'll be able to use them to refresh the access token when it expires. This is useful for using OAuth provider APIs in the background e.g. accessing user's calendar events.
+
+### ⚠️ Breaking Changes
+
+- To make the API consistent across different auth hooks, we change how the `onBeforeOAuthRedirect` hook receives the `uniqueRequestId` value to `oauth.uniqueRequestId`.
+
+### 🐞 Bug fixes
+
+- Prisma file parser which didn't allow using empty arrays as default values for fields - now it does.
+
+### 🔧 Small improvements
+
+- Replace `oslo/password` with directly using `@node-rs/argon2`
+- We now use `websocket` transport for the WebSocket client to avoid issues when deploying the server behind a load balancer.
+
+Community contributions by @rubyisrust @santolucito @sezercik!
+
 ## 0.14.0 (2024-07-17)
 
 ### 🎉 New Features
