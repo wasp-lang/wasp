@@ -18,7 +18,6 @@ import Wasp.Psl.Parser.Common
   ( brackets,
     colon,
     commaSep,
-    commaSep1,
     float,
     identifier,
     integer,
@@ -69,7 +68,7 @@ funcCallExpr =
 arrayExpr :: Parser Psl.Argument.Expression
 arrayExpr =
   Psl.Argument.ArrayExpr
-    <$> brackets (commaSep1 expression)
+    <$> brackets (commaSep expression)
 
 -- NOTE: For now we are not supporting negative numbers.
 --   I couldn't figure out from Prisma docs if there could be the case

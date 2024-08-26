@@ -36,6 +36,9 @@ spec_parseArgumentPslPart = do
                     Psl.Argument.IdentifierExpr "pg_trgm",
                     Psl.Argument.FuncExpr "postgis" [Psl.Argument.ArgNamed "version" (Psl.Argument.StringExpr "2.1")]
                   ]
+            ),
+            ( "[]",
+              Psl.Argument.ArgUnnamed (Psl.Argument.ArrayExpr [])
             )
           ]
     let runTest (psl, expected) =
