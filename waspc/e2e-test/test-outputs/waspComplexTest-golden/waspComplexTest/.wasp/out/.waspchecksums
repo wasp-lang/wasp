@@ -529,7 +529,7 @@
             "file",
             "../out/sdk/wasp/server/auth/hooks.ts"
         ],
-        "ef60380f5a4aaa61027f7836e90ea5d7f394dc450e284db59c068274ec1de2c9"
+        "1112920618b85e793ed676fd2987cf1dde59820e9a3a58bc43208f86c752b3a2"
     ],
     [
         [
@@ -571,7 +571,7 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/providers/google.ts"
         ],
-        "2e4e554b1c7d93cd9604f3266bd5c2829518a9e5547ca127fb9c0688bd81ae53"
+        "2a30b51f7be3a627d652e164669b01832345763597aa1e0badf7d321ccdc3bdb"
     ],
     [
         [

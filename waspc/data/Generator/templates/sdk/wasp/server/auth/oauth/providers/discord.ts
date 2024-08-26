@@ -25,4 +25,4 @@ export const discord = defineProvider({
   displayName,
   env,
   oAuthClient,
-})
+});

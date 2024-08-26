@@ -23,4 +23,4 @@ export const github = defineProvider({
   displayName,
   env,
   oAuthClient,
-})
+});

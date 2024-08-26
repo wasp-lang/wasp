@@ -24,4 +24,4 @@ export const google = defineProvider({
   displayName,
   env,
   oAuthClient,
-})
+});
