@@ -6,7 +6,6 @@ import {
   type UserSignupFields,
   type ProviderConfig,
 } from 'wasp/auth/providers/types'
-
 import {
   type OAuthType,
   type OAuthStateFor,
@@ -19,10 +18,11 @@ import {
   callbackPath,
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
-} from './redirect.js'
+} from 'wasp/server/auth'
+import { OAuthData } from 'wasp/server/auth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
-export function createOAuthProviderRouter<OT extends OAuthType>({
+export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthData['tokens'] = never>({
   provider,
   oAuthType,
   userSignupFields,
@@ -51,14 +51,12 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
   */
   getProviderTokens: (
     oAuthState: OAuthStateWithCodeFor<OT>,
-  ) => Promise<{
-    accessToken: string
-  }>
+  ) => Promise<Tokens>
   /*
     The function that returns the user's profile and ID using the access
     token.
   */
-  getProviderInfo: ({ accessToken }: { accessToken: string }) => Promise<{
+  getProviderInfo: (tokens: Tokens) => Promise<{
     providerUserId: string
     providerProfile: unknown
   }>
@@ -77,7 +75,7 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
       const { url: redirectUrlAfterHook } = await onBeforeOAuthRedirectHook({
         req,
         url: redirectUrl,
-        uniqueRequestId: oAuthState.state,
+        oauth: { uniqueRequestId: oAuthState.state }
       })
       return redirect(res, redirectUrlAfterHook.toString())
     }),
@@ -92,11 +90,9 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
           provider,
           req,
         })
-        const { accessToken } = await getProviderTokens(oAuthState)
+        const tokens = await getProviderTokens(oAuthState)
   
-        const { providerProfile, providerUserId } = await getProviderInfo({
-          accessToken,
-        })
+        const { providerProfile, providerUserId } = await getProviderInfo(tokens)
         try {
           const redirectUri = await finishOAuthFlowAndGetRedirectUri({
             provider,
@@ -104,8 +100,17 @@ export function createOAuthProviderRouter<OT extends OAuthType>({
             providerUserId,
             userSignupFields,
             req,
-            accessToken,
-            oAuthState,
+            oauth: {
+              uniqueRequestId: oAuthState.state,
+              // OAuth params are built as a discriminated union
+              // of provider names and their respective tokens.
+              // We are using a generic ProviderConfig and tokens type
+              // is inferred from the getProviderTokens function.
+              // Instead of building complex TS machinery to ensure that
+              // the providerName and tokens match, we are using any here.
+              providerName: provider.id as any,
+              tokens,
+            },
           })
           // Redirect to the client with the one time code
           return redirect(res, redirectUri.toString())

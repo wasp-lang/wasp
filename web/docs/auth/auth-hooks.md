@@ -4,12 +4,14 @@ title: Auth Hooks
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, DiscordPill } from "./Pills";
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
 Auth hooks allow you to "hook into" the auth process at various stages and run your custom code. For example, if you want to forbid certain emails from signing up, or if you wish to send a welcome email to the user after they sign up, auth hooks are the way to go.
 
 ## Supported hooks
 
 The following auth hooks are available in Wasp:
+
 - [`onBeforeSignup`](#executing-code-before-the-user-signs-up)
 - [`onAfterSignup`](#executing-code-after-the-user-signs-up)
 - [`onBeforeOAuthRedirect`](#executing-code-before-the-oauth-redirect)
@@ -34,7 +36,6 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 
 \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
-
 
 If you are using OAuth, the flow includes extra steps before the auth flow:
 
@@ -69,6 +70,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -90,6 +92,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -123,11 +126,7 @@ app myApp {
 ```js title="src/auth/hooks.js"
 import { HttpError } from 'wasp/server'
 
-export const onBeforeSignup = async ({
-  providerId,
-  prisma,
-  req,
-}) => {
+export const onBeforeSignup = async ({ providerId, prisma, req }) => {
   const count = await prisma.user.count()
   console.log('number of users before', count)
   console.log('provider name', providerId.providerName)
@@ -137,7 +136,10 @@ export const onBeforeSignup = async ({
     throw new HttpError(403, 'Too many users')
   }
 
-  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+  if (
+    providerId.providerName === 'email' &&
+    providerId.providerUserId === 'some@email.com'
+  ) {
     throw new HttpError(403, 'This email is not allowed')
   }
 }
@@ -174,7 +176,10 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
     throw new HttpError(403, 'Too many users')
   }
 
-  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+  if (
+    providerId.providerName === 'email' &&
+    providerId.providerUserId === 'some@email.com'
+  ) {
     throw new HttpError(403, 'This email is not allowed')
   }
 }
@@ -191,7 +196,7 @@ Wasp calls the `onAfterSignup` hook after the user is created.
 
 The `onAfterSignup` hook can be useful if you want to send the user a welcome email or perform some other action after the user signs up like syncing the user with a third-party service.
 
-Since the `onAfterSignup` hook receives the OAuth access token, it can also be used to store the OAuth access token for the user in your database.
+Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -220,9 +225,9 @@ export const onAfterSignup = async ({
   console.log('number of users after', count)
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the access token and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
-    console.log('accessToken', oauth.accessToken)
+    console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
 
     const id = oauth.uniqueRequestId
@@ -262,9 +267,9 @@ export const onAfterSignup: OnAfterSignupHook = async ({
   console.log('number of users after', count)
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the access token and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
-    console.log('accessToken', oauth.accessToken)
+    console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
 
     const id = oauth.uniqueRequestId
@@ -306,14 +311,14 @@ app myApp {
 ```js title="src/auth/hooks.js"
 export const onBeforeOAuthRedirect = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
   // Saving query params for later use in onAfterSignup or onAfterLogin hooks
-  const id = uniqueRequestId
+  const id = oauth.uniqueRequestId
   someKindOfStore.set(id, req.query)
 
   return { url }
@@ -338,14 +343,14 @@ import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
   console.log('query params before oAuth redirect', req.query)
 
   // Saving query params for later use in onAfterSignup or onAfterLogin hooks
-  const id = uniqueRequestId
+  const id = oauth.uniqueRequestId
   someKindOfStore.set(id, req.query)
 
   return { url }
@@ -383,12 +388,11 @@ app myApp {
 ```js title="src/auth/hooks.js"
 import { HttpError } from 'wasp/server'
 
-export const onBeforeLogin = async ({
-  providerId,
-  prisma,
-  req,
-}) => {
-  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+export const onBeforeLogin = async ({ providerId, prisma, req }) => {
+  if (
+    providerId.providerName === 'email' &&
+    providerId.providerUserId === 'some@email.com'
+  ) {
     throw new HttpError(403, 'You cannot log in with this email')
   }
 }
@@ -416,7 +420,10 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({
   prisma,
   req,
 }) => {
-  if (providerId.providerName === 'email' && providerId.providerUserId === 'some@email.com') {
+  if (
+    providerId.providerName === 'email' &&
+    providerId.providerUserId === 'some@email.com'
+  ) {
     throw new HttpError(403, 'You cannot log in with this email')
   }
 }
@@ -433,7 +440,7 @@ Wasp calls the `onAfterLogin` hook after the user logs in.
 
 The `onAfterLogin` hook can be useful if you want to perform some action after the user logs in, like syncing the user with a third-party service.
 
-Since the `onAfterLogin` hook receives the OAuth access token, it can also be used to update the OAuth access token for the user in your database.
+Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
@@ -460,9 +467,9 @@ export const onAfterLogin = async ({
 }) => {
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the access token and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
-    console.log('accessToken', oauth.accessToken)
+    console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
 
     const id = oauth.uniqueRequestId
@@ -500,9 +507,9 @@ export const onAfterLogin: OnAfterLoginHook = async ({
 }) => {
   console.log('user object', user)
 
-  // If this is an OAuth signup, we have the access token and uniqueRequestId
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
   if (oauth) {
-    console.log('accessToken', oauth.accessToken)
+    console.log('accessToken', oauth.tokens.accessToken)
     console.log('uniqueRequestId', oauth.uniqueRequestId)
 
     const id = oauth.uniqueRequestId
@@ -519,6 +526,58 @@ export const onAfterLogin: OnAfterLoginHook = async ({
 </Tabs>
 
 Read more about the data the `onAfterLogin` hook receives in the [API Reference](#the-onafterlogin-hook).
+
+### Refreshing the OAuth access token
+
+Some OAuth providers support refreshing the access token when it expires. To refresh the access token, you need the OAuth **refresh token**.
+
+Wasp exposes the OAuth refresh token in the `onAfterSignup` and `onAfterLogin` hooks. You can store the refresh token in your database and use it to refresh the access token when it expires.
+
+Import the provider object with the OAuth client from the `wasp/server/oauth` module. For example, to refresh the Google OAuth access token, import the `google` object from the `wasp/server/oauth` module. You use the `refreshAccessToken` method of the OAuth client to refresh the access token.
+
+Here's an example of how you can refresh the access token for Google OAuth:
+
+<Tabs groupId="js-ts">
+
+<TabItem value="js" label="JavaScript">
+
+```js title="src/auth/hooks.js"
+import { google } from 'wasp/server/oauth'
+
+export const onAfterLogin = async ({ oauth }) => {
+  if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
+    const newTokens = await google.oAuthClient.refreshAccessToken(
+      oauth.tokens.refreshToken
+    )
+    log('new tokens', newTokens)
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterLoginHook } from 'wasp/server/auth'
+import { google } from 'wasp/server/oauth'
+
+export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
+  if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
+    const newTokens = await google.oAuthClient.refreshAccessToken(
+      oauth.tokens.refreshToken
+    )
+    log('new tokens', newTokens)
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+Google exposes the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when the access token expires.
+
+If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs.md).
 
 ## API Reference
 
@@ -543,6 +602,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -564,6 +624,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -585,11 +646,7 @@ The following properties are available in all auth hooks:
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/auth/hooks.js"
-export const onBeforeSignup = async ({
-  providerId,
-  prisma,
-  req,
-}) => {
+export const onBeforeSignup = async ({ providerId, prisma, req }) => {
   // Hook code goes here
 }
 ```
@@ -658,11 +715,12 @@ export const onAfterSignup: OnAfterSignupHook = async ({
 </Tabs>
 
 The hook receives an object as **input** with the following properties:
+
 - [`providerId: ProviderId`](#providerid-fields)
-  
 - `user: User`
-  
+
   The user object that was created.
+
 - [`oauth?: OAuthFields`](#oauth-fields)
 
 - Plus the [common hook input](#common-hook-input)
@@ -677,7 +735,7 @@ Wasp ignores this hook's **return value**.
 ```js title="src/auth/hooks.js"
 export const onBeforeOAuthRedirect = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
@@ -695,7 +753,7 @@ import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
 export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
   url,
-  uniqueRequestId,
+  oauth,
   prisma,
   req,
 }) => {
@@ -709,14 +767,21 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
 </Tabs>
 
 The hook receives an object as **input** with the following properties:
+
 - `url: URL`
 
-    Wasp uses the URL for the OAuth redirect.
-- `uniqueRequestId: string`
+  Wasp uses the URL for the OAuth redirect.
 
-    The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
+- `oauth: { uniqueRequestId: string }`
 
-    You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
+  The `oauth` object has the following fields:
+
+    - `uniqueRequestId: string`
+
+      The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
+
+      You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
+
 - Plus the [common hook input](#common-hook-input)
 
 This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
@@ -727,19 +792,16 @@ This hook's return value must be an object that looks like this: `{ url: URL }`.
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/auth/hooks.js"
-export const onBeforeLogin = async ({
-  providerId,
-  prisma,
-  req,
-}) => {
+export const onBeforeLogin = async ({ providerId, prisma, req }) => {
   // Hook code goes here
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/auth/hooks.ts"
-import type { OnBeforeLoginHook } from 'wasp/server/auth' 
+import type { OnBeforeLoginHook } from 'wasp/server/auth'
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({
   providerId,
@@ -749,10 +811,12 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({
   // Hook code goes here
 }
 ```
+
 </TabItem>
 </Tabs>
 
 The hook receives an object as **input** with the following properties:
+
 - [`providerId: ProviderId`](#providerid-fields)
 
 - Plus the [common hook input](#common-hook-input)
@@ -776,6 +840,7 @@ export const onAfterLogin = async ({
   // Hook code goes here
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -792,10 +857,12 @@ export const onAfterLogin: OnAfterLoginHook = async ({
   // Hook code goes here
 }
 ```
+
 </TabItem>
 </Tabs>
 
 The hook receives an object as **input** with the following properties:
+
 - [`providerId: ProviderId`](#providerid-fields)
 
 - `user: User`
@@ -828,9 +895,31 @@ Wasp passes the `oauth` object to the `onAfterSignup` and `onAfterLogin` hooks o
 
 It has the following fields:
 
-- `accessToken: string`
+- `providerName: string`
 
-  You can use the OAuth access token to make requests to the provider's API on the user's behalf.
+  The name of the OAuth provider the user authenticated with (e.g. `'google'`, `'github'`).
+
+- `tokens: Tokens`
+
+  You can use the OAuth tokens to make requests to the provider's API on the user's behalf.
+
+  Depending on the OAuth provider, the `tokens` object might have different fields. For example, Google has the fields `accessToken`, `refreshToken`, `idToken`, and `accessTokenExpiresAt`.
+
+  <ShowForTs>
+
+  To access the provider-specific fields, you must first narrow down the `oauth.tokens` object type to the specific OAuth provider type.
+
+  ```ts
+  if (oauth && oauth.providerName === 'google') {
+    console.log(oauth.tokens.accessToken)
+    //                  ^ Google specific tokens are available here
+    console.log(oauth.tokens.refreshToken)
+    console.log(oauth.tokens.idToken)
+    console.log(oauth.tokens.accessTokenExpiresAt)
+  }
+  ```
+
+  </ShowForTs>
 
 - `uniqueRequestId: string`
 

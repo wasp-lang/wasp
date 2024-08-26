@@ -1,9 +1,7 @@
 {{={= =}=}}
-import { Google  } from "arctic";
-
 import type { ProviderConfig } from "wasp/auth/providers/types";
-import { getRedirectUriForCallback } from "../oauth/redirect.js";
-import { ensureEnvVarsForProvider } from "../oauth/env.js";
+import { google } from "wasp/server/auth";
+
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
@@ -23,20 +21,9 @@ const _waspUserDefinedConfigFn = undefined
 {=/ configFn.isDefined =}
 
 const _waspConfig: ProviderConfig = {
-    id: "{= providerId =}",
-    displayName: "{= displayName =}",
+    id: google.id,
+    displayName: google.displayName,
     createRouter(provider) {
-        const env = ensureEnvVarsForProvider(
-            ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
-            provider
-        );
-
-        const google = new Google(
-            env.GOOGLE_CLIENT_ID,
-            env.GOOGLE_CLIENT_SECRET,
-            getRedirectUriForCallback(provider.id).toString(),
-        );
-
         const config = mergeDefaultAndUserConfig({
             scopes: {=& requiredScopes =},
         }, _waspUserDefinedConfigFn);
@@ -68,8 +55,8 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => google.createAuthorizationURL(state, codeVerifier, config),
-            getProviderTokens: ({ code, codeVerifier }) => google.validateAuthorizationCode(code, codeVerifier),
+            getAuthorizationUrl: ({ state, codeVerifier }) => google.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getProviderTokens: ({ code, codeVerifier }) => google.oAuthClient.validateAuthorizationCode(code, codeVerifier),
             getProviderInfo: ({ accessToken }) => getGoogleProfile(accessToken),
         });
     },

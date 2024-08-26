@@ -1,9 +1,7 @@
 {{={= =}=}}
-import { Discord } from "arctic";
 
 import type { ProviderConfig } from "wasp/auth/providers/types";
-import { getRedirectUriForCallback } from "../oauth/redirect.js";
-import { ensureEnvVarsForProvider } from "../oauth/env.js";
+import { discord } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
@@ -23,20 +21,9 @@ const _waspUserDefinedConfigFn = undefined
 {=/ configFn.isDefined =}
 
 const _waspConfig: ProviderConfig = {
-    id: "{= providerId =}",
-    displayName: "{= displayName =}",
+    id: discord.id,
+    displayName: discord.displayName,
     createRouter(provider) {
-        const env = ensureEnvVarsForProvider(
-            ["DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET"],
-            provider
-        );
-
-        const discord = new Discord(
-            env.DISCORD_CLIENT_ID,
-            env.DISCORD_CLIENT_SECRET,
-            getRedirectUriForCallback(provider.id).toString(),
-        );
-
         const config = mergeDefaultAndUserConfig({
             scopes: {=& requiredScopes =},
         }, _waspUserDefinedConfigFn);
@@ -72,8 +59,8 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state }) => discord.createAuthorizationURL(state, config),
-            getProviderTokens: ({ code }) => discord.validateAuthorizationCode(code),
+            getAuthorizationUrl: ({ state }) => discord.oAuthClient.createAuthorizationURL(state, config),
+            getProviderTokens: ({ code }) => discord.oAuthClient.validateAuthorizationCode(code),
             getProviderInfo: ({ accessToken }) => getDiscordProfile(accessToken),
         });
     },

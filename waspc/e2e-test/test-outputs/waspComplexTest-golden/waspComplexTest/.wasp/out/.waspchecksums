@@ -487,7 +487,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "ffe30beba7b57b22ad6ca7c28fe2639b492bd3054117b36e9010a48d447b52a0"
+        "cb651813806e472b31ebc0691b88efd7361439781c6e10dc47363f15567294a3"
     ],
     [
         [
@@ -529,14 +529,56 @@
             "file",
             "../out/sdk/wasp/server/auth/hooks.ts"
         ],
-        "3105d318bcb86a6638f414a155aad29dcea3613f7f14c6c282b677b9333eac57"
+        "1112920618b85e793ed676fd2987cf1dde59820e9a3a58bc43208f86c752b3a2"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/auth/index.ts"
         ],
-        "20277db8773191867bd7938215abdf4a6814f84ba38fd55dd36ae5ebbbbe0754"
+        "9f932aba0d2ca6d1d2ff6fd826d238da3719b7676e7b42e97430af6f86fd03e2"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/auth/oauth/env.ts"
+        ],
+        "50416a8c284fdbb3952e21e1617da2270b99dba717023babc7c32f5b12a63a32"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/auth/oauth/index.ts"
+        ],
+        "bc8cf4d3b89018a68704d30bc3183bbd58461c9db0796f603f3e13179d604630"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/auth/oauth/oneTimeCode.ts"
+        ],
+        "0cee805003b69e48c01bb1e7bfefb4bc6d0fab504ada926f5c3de6f8a5505335"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/auth/oauth/provider.ts"
+        ],
+        "2a2015d905a2ceddb45ff1034b283b242df153ddf2cabd05fddd4746365622df"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/auth/oauth/providers/google.ts"
+        ],
+        "2a30b51f7be3a627d652e164669b01832345763597aa1e0badf7d321ccdc3bdb"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/auth/oauth/redirect.ts"
+        ],
+        "2fb01e01e8e5209c8b96b0f25f2fcab5fb30c0c8c3a228d65711f3ce11031942"
     ],
     [
         [
@@ -837,7 +879,7 @@
             "file",
             "server/package.json"
         ],
-        "23fbe60e2f89a7fb12a11bd11aef43e3ed713ffd49697ab40c1cbbf0b3c4c84d"
+        "204a25f8a86edd2b492f841d2314c510a8f450205620427bb52de7d3ebb1ea1c"
     ],
     [
         [
@@ -879,7 +921,7 @@
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "d53d1fb541e3ef3f2b2996731c4da7ef5db0568aed39f03f1de3f9b6d3d30471"
+        "b2ebe3b7789b4abfb66a4c206a189e8559627ab0ebcf8b9b812747a962c35cce"
     ],
     [
         [
@@ -905,30 +947,16 @@
     [
         [
             "file",
-            "server/src/auth/providers/oauth/env.ts"
-        ],
-        "65c5ce3b4ead10faad600435654d2614a862281ce5177996599bc159c39bb551"
-    ],
-    [
-        [
-            "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "7ca4820825cb4cc445c9161c391f2aaefe7c0d072e84fd9569f8d607e2bf2a28"
+        "a8ce8d2b140a59e07d767cc640b9a2b0116e2dafc3ef98ae67fa7cdab3527416"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/oneTimeCode.ts"
         ],
-        "6a23d30c2d98e14f6e293ebf3bb9392d25a3eeb7f1ec98078440a11af0aa0c78"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/redirect.ts"
-        ],
-        "099d0b7aee0eafd258f4e656f405816e3f0d26dcaa705d97d3c9044f67824146"
+        "c9bf9cb3ce635f8f53f2b176e4e9f8e39851ee1a2ba972221f3eaf1a0826fab9"
     ],
     [
         [
@@ -949,7 +977,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "4ae56549dccf3fa5d75250ef9593e1cf65012bf48219895dc92df586e5d95a45"
+        "088acfe21e47d5a4a68faefa898c0174529e1b5a76dd86d32a0fce7d2a781f44"
     ],
     [
         [

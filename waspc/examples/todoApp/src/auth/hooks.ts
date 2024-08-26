@@ -25,7 +25,7 @@ export const onAfterSignup: OnAfterSignupHook = async (args) => {
 
   // If this is a OAuth signup, we have access token and uniqueRequestId
   if (args.oauth) {
-    log('accessToken', args.oauth.accessToken)
+    log('accessToken', args.oauth.tokens.accessToken)
     log('uniqueRequestId', args.oauth.uniqueRequestId)
     const id = args.oauth.uniqueRequestId
     const query = oAuthQueryStore.get(id)
@@ -43,7 +43,7 @@ export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
   log('query params before oAuth redirect', args.req.query)
 
   // Saving query params for later use in onAfterSignup hook
-  const id = args.uniqueRequestId
+  const id = args.oauth.uniqueRequestId
   oAuthQueryStore.set(id, args.req.query)
 
   return { url: args.url }
@@ -58,8 +58,8 @@ export const onAfterLogin: OnAfterLoginHook = async (args) => {
   const log = createLoggerForHook('onAfterLogin')
   log('providerId object', args.providerId)
   log('user object', args.user)
-  if (args.oauth) {
-    log('accessToken', args.oauth.accessToken)
+  if (args.oauth && args.oauth.providerName === 'google') {
+    log('accessToken', args.oauth.tokens.accessToken)
   }
 }
 

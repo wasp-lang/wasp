@@ -311,6 +311,7 @@ library
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.Server.AuthG
+    Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
     Wasp.Generator.SdkGenerator.Server.EmailSenderG
     Wasp.Generator.SdkGenerator.Server.JobGenerator
