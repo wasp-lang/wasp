@@ -309,12 +309,7 @@ app myApp {
 ```
 
 ```js title="src/auth/hooks.js"
-export const onBeforeOAuthRedirect = async ({
-  url,
-  oauth,
-  prisma,
-  req,
-}) => {
+export const onBeforeOAuthRedirect = async ({ url, oauth, prisma, req }) => {
   console.log('query params before oAuth redirect', req.query)
 
   // Saving query params for later use in onAfterSignup or onAfterLogin hooks
@@ -388,7 +383,7 @@ app myApp {
 ```js title="src/auth/hooks.js"
 import { HttpError } from 'wasp/server'
 
-export const onBeforeLogin = async ({ providerId, prisma, req }) => {
+export const onBeforeLogin = async ({ providerId, user, prisma, req }) => {
   if (
     providerId.providerName === 'email' &&
     providerId.providerUserId === 'some@email.com'
@@ -417,6 +412,7 @@ import type { OnBeforeLoginHook } from 'wasp/server/auth'
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({
   providerId,
+  user,
   prisma,
   req,
 }) => {
@@ -733,12 +729,7 @@ Wasp ignores this hook's **return value**.
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/auth/hooks.js"
-export const onBeforeOAuthRedirect = async ({
-  url,
-  oauth,
-  prisma,
-  req,
-}) => {
+export const onBeforeOAuthRedirect = async ({ url, oauth, prisma, req }) => {
   // Hook code goes here
 
   return { url }
@@ -776,11 +767,11 @@ The hook receives an object as **input** with the following properties:
 
   The `oauth` object has the following fields:
 
-    - `uniqueRequestId: string`
+  - `uniqueRequestId: string`
 
-      The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
+    The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
 
-      You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
+    You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
 
 - Plus the [common hook input](#common-hook-input)
 
@@ -818,6 +809,10 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({
 The hook receives an object as **input** with the following properties:
 
 - [`providerId: ProviderId`](#providerid-fields)
+
+- `user: User`
+
+  The user that is trying to log in.
 
 - Plus the [common hook input](#common-hook-input)
 
