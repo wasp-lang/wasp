@@ -26,25 +26,26 @@ export const routeNameToRouteComponent = {
 } as const;
 
 export function RouterRoutes() {
-  const routerRoutes = useRoutes([
-  {=# isExternalAuthEnabled =}
-  /*
-    Wasp specific routes *must* go first to prevent user
-    defined routes from overriding them.
-    Details in https://github.com/wasp-lang/wasp/issues/2029
-  */
-  {
-    path: "{= oAuthCallbackPath =}",
-    element: <OAuthCallbackPage />
-  },
-  {=/ isExternalAuthEnabled =}
-  ...(Object.entries(routes).map(([routeKey, route]) => {
+  const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     const Component = routeNameToRouteComponent[routeKey]
     return {
       path: route.to,
       element: <Component />
     }
-  }))
+  })
+  const routerRoutes = useRoutes([
+    {=# isExternalAuthEnabled =}
+    /*
+      Wasp specific routes *must* go first to prevent user
+      defined routes from overriding them.
+      Details in https://github.com/wasp-lang/wasp/issues/2029
+    */
+    {
+      path: "{= oAuthCallbackPath =}",
+      element: <OAuthCallbackPage />
+    },
+    {=/ isExternalAuthEnabled =}
+    ...userDefinedRoutes,
   ])
 
   return routerRoutes
@@ -52,12 +53,12 @@ export function RouterRoutes() {
 
 export const router = (
   <BrowserRouter basename="{= baseDir =}">
-      {=# rootComponent.isDefined =}
-      <{= rootComponent.importIdentifier =}>
-      {=/ rootComponent.isDefined =}
-      <RouterRoutes />
-      {=# rootComponent.isDefined =}
-      </{= rootComponent.importIdentifier =}>
-      {=/ rootComponent.isDefined =}
-    </BrowserRouter>
+    {=# rootComponent.isDefined =}
+    <{= rootComponent.importIdentifier =}>
+    {=/ rootComponent.isDefined =}
+    <RouterRoutes />
+    {=# rootComponent.isDefined =}
+    </{= rootComponent.importIdentifier =}>
+    {=/ rootComponent.isDefined =}
+  </BrowserRouter>
 )

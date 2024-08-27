@@ -12,14 +12,15 @@ export const routeNameToRouteComponent = {
 } as const;
 
 export function RouterRoutes() {
-  const routerRoutes = useRoutes([
-  ...(Object.entries(routes).map(([routeKey, route]) => {
+  const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     const Component = routeNameToRouteComponent[routeKey]
     return {
       path: route.to,
       element: <Component />
     }
-  }))
+  })
+  const routerRoutes = useRoutes([
+    ...userDefinedRoutes,
   ])
 
   return routerRoutes
@@ -27,6 +28,6 @@ export function RouterRoutes() {
 
 export const router = (
   <BrowserRouter basename="/">
-      <RouterRoutes />
-    </BrowserRouter>
+    <RouterRoutes />
+  </BrowserRouter>
 )
