@@ -20,7 +20,7 @@
 - Replace `oslo/password` with directly using `@node-rs/argon2`
 - We now use `websocket` transport for the WebSocket client to avoid issues when deploying the server behind a load balancer.
 
-Community contributions by @rubyisrust @santolucito @sezercik!
+Community contributions by @rubyisrust @santolucito @sezercik @LLxD!
 
 ## 0.14.0 (2024-07-17)
 
