@@ -97,6 +97,10 @@ type OnBeforeLoginHookParams = {
   */
   providerId: ProviderId
   /**
+   * User that is trying to log in.
+  */
+    user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
+  /**
    * Request object that can be used to access the incoming request.
   */
   req: ExpressRequest

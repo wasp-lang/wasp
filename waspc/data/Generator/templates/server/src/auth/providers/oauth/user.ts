@@ -81,17 +81,21 @@ async function getAuthIdFromProviderDetails({
   if (existingAuthIdentity) {
     const authId = existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
 
+    // NOTE: Fetching the user to pass it to the login hooks - it's a bit wasteful
+    // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
+    const auth = await findAuthWithUserBy({ id: authId })
+
     // NOTE: We are calling login hooks here even though we didn't log in the user yet.
     // It's because we have access to the OAuth tokens here and we want to pass them to the hooks.
     // We could have stored the tokens temporarily and called the hooks after the session is created,
     // but this keeps the implementation simpler.
     // The downside of this approach is that we can't provide the session to the login hooks, but this is
     // an okay trade-off because OAuth tokens are more valuable to users than the session ID.
-    await onBeforeLoginHook({ req, providerId })
-
-    // NOTE: Fetching the user to pass it to the onAfterLoginHook - it's a bit wasteful
-    // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
-    const auth = await findAuthWithUserBy({ id: authId })
+    await onBeforeLoginHook({
+      req,
+      providerId,
+      user: auth.user,
+    })
 
     // NOTE: check the comment above onBeforeLoginHook for the explanation why we call onAfterLoginHook here.
     await onAfterLoginHook({
