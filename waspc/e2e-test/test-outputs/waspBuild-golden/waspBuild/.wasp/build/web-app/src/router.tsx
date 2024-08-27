@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
+import { useRoutes, BrowserRouter } from 'react-router-dom'
 
 
 import { MainPage } from '../../../../src/MainPage'
@@ -11,19 +11,22 @@ export const routeNameToRouteComponent = {
   RootRoute: MainPage,
 } as const;
 
-const router = (
-  <Router basename="/">
-    <Switch>
-      {Object.entries(routes).map(([routeKey, route]) => (
-        <Route
-          exact
-          key={routeKey}
-          path={route.to}
-          component={routeNameToRouteComponent[routeKey]}
-        />
-      ))}
-    </Switch>
-  </Router>
-)
+export function RouterRoutes() {
+  const routerRoutes = useRoutes([
+  ...(Object.entries(routes).map(([routeKey, route]) => {
+    const Component = routeNameToRouteComponent[routeKey]
+    return {
+      path: route.to,
+      element: <Component />
+    }
+  }))
+  ])
 
-export default router
+  return routerRoutes
+}
+
+export const router = (
+  <BrowserRouter basename="/">
+      <RouterRoutes />
+    </BrowserRouter>
+)

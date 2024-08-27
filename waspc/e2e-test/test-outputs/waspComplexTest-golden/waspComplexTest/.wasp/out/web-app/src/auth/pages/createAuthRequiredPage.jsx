@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
 
 import { Loader } from '../../components/Loader'
@@ -16,7 +16,7 @@ const createAuthRequiredPage = (Page) => {
         if (user) {
           return <Page {...props} user={user} />
         } else {
-          return <Redirect to="/login" />
+          return <Navigate to="/login" replace />
         }
       case 'loading':
         return (

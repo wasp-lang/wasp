@@ -487,7 +487,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "cb651813806e472b31ebc0691b88efd7361439781c6e10dc47363f15567294a3"
+        "59b474c5e5b7c201183bdf281cc3a617093f82637d726e3ddab69a41fbbed209"
     ],
     [
         [
@@ -1173,7 +1173,7 @@
             "file",
             "web-app/package.json"
         ],
-        "1b0855b401aae4ceb6eca959600a1fde84e9f7590beb8362a7d2fad40bcb6fef"
+        "9f4c02ceb58c568b2cadb5cd167cc86c04852bcfa8e1d5a07c749d125d5e29f8"
     ],
     [
         [
@@ -1208,14 +1208,14 @@
             "file",
             "web-app/src/auth/pages/OAuthCallback.tsx"
         ],
-        "f5f1214036b335cd000d49e89908d35bdffd1878887d15877b699a78154c7852"
+        "6414299e9cb46702b8daca23563991a46e70ef8e9ea985bc5d4fe48d2c646132"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/createAuthRequiredPage.jsx"
         ],
-        "011b5851a168fc4280b68a57a6ac2379fdbfb50d81f1fe0917be218ff9dba420"
+        "be2f872a6465690dec32a0d2a0c3b15d941846cc0059a9ec13d09650daccda7f"
     ],
     [
         [
@@ -1250,7 +1250,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "46b4cde819de4048b82feb249ae662fb60de2297c6a740f49da239011848458d"
+        "27e9b6e82ad360f481cc4883b4321e18871b7c6d9be5abbaa4613c0a6faebbcd"
     ],
     [
         [
@@ -1264,7 +1264,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "8dc5955b5a640cbae8836cc227e6ade562b8e7ba9eda5ce076436955807fe0fe"
+        "059c8f5095546f080724acacbc790ab09c2fa1c45e1db86b1b3257b6593682ee"
     ],
     [
         [
