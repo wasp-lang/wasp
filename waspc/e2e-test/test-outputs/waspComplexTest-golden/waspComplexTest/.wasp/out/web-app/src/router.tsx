@@ -15,6 +15,12 @@ export const routeNameToRouteComponent = {
 } as const;
 
 export function RouterRoutes() {
+  const waspDefinedRoutes = [
+    {
+      path: "/oauth/callback",
+      element: <OAuthCallbackPage />
+    },
+  ]
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     const Component = routeNameToRouteComponent[routeKey]
     return {
@@ -28,10 +34,7 @@ export function RouterRoutes() {
       defined routes from overriding them.
       Details in https://github.com/wasp-lang/wasp/issues/2029
     */
-    {
-      path: "/oauth/callback",
-      element: <OAuthCallbackPage />
-    },
+    ...waspDefinedRoutes,
     ...userDefinedRoutes,
   ])
 
