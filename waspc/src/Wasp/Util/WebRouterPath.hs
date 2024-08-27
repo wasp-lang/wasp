@@ -6,6 +6,7 @@ import Data.Maybe (mapMaybe)
 
 data Param = Optional String | Required String deriving (Show, Eq)
 
+-- TODO: upgrade to work with React Router v6: https://reactrouter.com/en/main/route/route#splats
 extractPathParams :: String -> [Param]
 extractPathParams = mapMaybe parseParam . splitOn "/"
   where

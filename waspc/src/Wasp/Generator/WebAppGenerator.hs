@@ -122,7 +122,7 @@ npmDepsForWasp _spec =
             ("react", "^18.2.0"),
             ("react-dom", "^18.2.0"),
             ("@tanstack/react-query", "^4.29.0"),
-            ("react-router-dom", "^5.3.3"),
+            ("react-router-dom", "^6.26.1"),
             ("superjson", "^1.12.2"),
             ("mitt", "3.0.0"),
             -- Used for Auth UI
@@ -135,7 +135,6 @@ npmDepsForWasp _spec =
             ("typescript", "^5.1.0"),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
-            ("@types/react-router-dom", "^5.3.3"),
             ("@vitejs/plugin-react", "^4.2.1"),
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig

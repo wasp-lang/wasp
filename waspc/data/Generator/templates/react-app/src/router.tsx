@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
+import { useRoutes, BrowserRouter } from 'react-router-dom'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
@@ -25,35 +25,39 @@ export const routeNameToRouteComponent = {
   {=/ routes =}
 } as const;
 
-const router = (
-  <Router basename="{= baseDir =}">
-    {=# rootComponent.isDefined =}
-    <{= rootComponent.importIdentifier =}>
-    {=/ rootComponent.isDefined =}
-    <Switch>
-      {=# isExternalAuthEnabled =}
-      {/* 
-        Wasp specific routes *must* go first to prevent user
-        defined routes from overriding them.
-        Details in https://github.com/wasp-lang/wasp/issues/2029
-      */}
-      <Route exact path="{= oAuthCallbackPath =}">
-        <OAuthCallbackPage />
-      </Route>
-      {=/ isExternalAuthEnabled =}
-      {Object.entries(routes).map(([routeKey, route]) => (
-        <Route
-          exact
-          key={routeKey}
-          path={route.to}
-          component={routeNameToRouteComponent[routeKey]}
-        />
-      ))}
-    </Switch>
-    {=# rootComponent.isDefined =}
-    </{= rootComponent.importIdentifier =}>
-    {=/ rootComponent.isDefined =}
-  </Router>
-)
+export function RouterRoutes() {
+  const routerRoutes = useRoutes([
+  {=# isExternalAuthEnabled =}
+  /*
+    Wasp specific routes *must* go first to prevent user
+    defined routes from overriding them.
+    Details in https://github.com/wasp-lang/wasp/issues/2029
+  */
+  {
+    path: "{= oAuthCallbackPath =}",
+    element: <OAuthCallbackPage />
+  },
+  {=/ isExternalAuthEnabled =}
+  ...(Object.entries(routes).map(([routeKey, route]) => {
+    const Component = routeNameToRouteComponent[routeKey]
+    return {
+      path: route.to,
+      element: <Component />
+    }
+  }))
+  ])
 
-export default router
+  return routerRoutes
+}
+
+export const router = (
+  <BrowserRouter basename="{= baseDir =}">
+      {=# rootComponent.isDefined =}
+      <{= rootComponent.importIdentifier =}>
+      {=/ rootComponent.isDefined =}
+      <RouterRoutes />
+      {=# rootComponent.isDefined =}
+      </{= rootComponent.importIdentifier =}>
+      {=/ rootComponent.isDefined =}
+    </BrowserRouter>
+)
