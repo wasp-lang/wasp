@@ -18,6 +18,9 @@ export * from './keycloak'
 {=# isGitHubAuthEnabled =}
 export * from './github'
 {=/ isGitHubAuthEnabled =}
+{=# isTwitterAuthEnabled =}
+export * from './twitter'
+{=/ isTwitterAuthEnabled =}
 export {
   default as useAuth,
   getMe,

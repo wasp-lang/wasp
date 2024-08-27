@@ -12,6 +12,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    twitterAuthProvider,
   )
 import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
@@ -32,13 +33,15 @@ genHelpers auth =
       [ [discordHelpers | AS.Auth.isDiscordAuthEnabled auth],
         [gitHubHelpers | AS.Auth.isGitHubAuthEnabled auth],
         [googleHelpers | AS.Auth.isGoogleAuthEnabled auth],
-        [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
+        [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth],
+        [twitterHelpers | AS.Auth.isTwitterAuthEnabled auth]
       ]
   where
     discordHelpers = mkHelpersFd discordAuthProvider [relfile|Discord.tsx|]
     gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
     googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.tsx|]
     keycloakHelpers = mkHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
+    twitterHelpers = mkHelpersFd twitterAuthProvider [relfile|Twitter.tsx|]
 
     mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     mkHelpersFd provider helpersFp =

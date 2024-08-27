@@ -55,6 +55,14 @@ discordAuthProvider =
       OA._requiredScope = ["identify"]
     }
 
+twitterAuthProvider :: OA.OAuthAuthProvider
+twitterAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "twitter",
+      OA._displayName = "Twitter",
+      OA._requiredScope = ["users.read", "tweet.read"]
+    }
+
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object
@@ -62,6 +70,7 @@ getEnabledAuthProvidersJson auth =
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
+      "isTwitterAuthEnabled" .= AS.Auth.isTwitterAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
       "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
     ]

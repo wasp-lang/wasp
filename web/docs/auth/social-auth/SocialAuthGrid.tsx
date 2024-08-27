@@ -26,6 +26,11 @@ export function SocialAuthGrid({
       description: 'Users sign in with their Discord account.',
       linkToDocs: '/docs/auth/social-auth/discord' + pagePart,
     },
+    {
+      title: 'Twitter',
+      description: 'Users sign in with their Twitter account.',
+      linkToDocs: '/docs/auth/social-auth/twitter' + pagePart,
+    },
   ]
   return (
     <>

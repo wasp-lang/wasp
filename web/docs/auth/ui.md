@@ -2,7 +2,7 @@
 title: Auth UI
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, DiscordPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, DiscordPill, TwitterPill } from "./Pills";
 
 To make using authentication in your app as easy as possible, Wasp generates the server-side code but also the client-side UI for you. It enables you to quickly get the login, signup, password reset and email verification flows in your app.
 
@@ -102,15 +102,22 @@ Let's go through all of the available components and how to use them.
 
 The following components are available for you to use in your app:
 
-- [Login form](#login-form)
-- [Signup form](#signup-form)
-- [Forgot password form](#forgot-password-form)
-- [Reset password form](#reset-password-form)
-- [Verify email form](#verify-email-form)
+- [Overview](#overview)
+- [Auth Components](#auth-components)
+  - [Login Form](#login-form)
+  - [Signup Form](#signup-form)
+  - [Forgot Password Form](#forgot-password-form)
+  - [Reset Password Form](#reset-password-form)
+  - [Verify Email Form](#verify-email-form)
+- [Customization 💅🏻](#customization-)
+  - [1. Customizing the Colors](#1-customizing-the-colors)
+  - [2. Using Your Logo](#2-using-your-logo)
+  - [3. Social Buttons Layout](#3-social-buttons-layout)
+  - [Let's Put Everything Together 🪄](#lets-put-everything-together-)
 
 ### Login Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <DiscordPill />, and <TwitterPill /> authentication.
 
 ![Login form](/img/authui/login.png)
 
@@ -165,7 +172,7 @@ It will automatically show the correct authentication providers based on your `m
 
 ### Signup Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <DiscordPill />, and <TwitterPill /> authentication.
 
 ![Signup form](/img/authui/signup.png)
 
