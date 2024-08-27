@@ -13,7 +13,7 @@
 
 ### 🐞 Bug fixes
 
-- Prisma file parser which didn't allow using empty arrays as default values for fields - now it does.
+- Prisma file parser now allows using empty arrays as default values.
 
 ### 🔧 Small improvements
 
