@@ -24,16 +24,12 @@ defaults:
     shell: bash
     working-directory: waspc
 
-jobs:
-  cancel:
-    name: Cancel redundant actions already in progress
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel actions in progress of same workflow and same branch
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
+# Cancel other action runs for the same workflow and branch if one is in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+jobs:
   build:
     name: Build Wasp
     runs-on: ${{ matrix.os }}
@@ -48,7 +44,8 @@ jobs:
           # Still looking into musl static binaries.
           # Ref: https://github.com/wasp-lang/wasp/issues/650
           - ubuntu-20.04
-          - macos-latest
+          # Not using macos-latest becuase of a bug in Haskell setup Github action: https://github.com/haskell-actions/setup/issues/77
+          - macos-13
           - windows-latest
         node-version:
           - 'latest'
