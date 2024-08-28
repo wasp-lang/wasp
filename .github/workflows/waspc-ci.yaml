@@ -16,6 +16,11 @@ on:
     # (GH deletes it after 7 days of not using it).
     - cron: '0 0 * * 0'
 
+# Cancel other action runs for the same workflow and branch if one is in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 env:
   WASP_TELEMETRY_DISABLE: 1
 
@@ -23,11 +28,6 @@ defaults:
   run:
     shell: bash
     working-directory: waspc
-
-# Cancel other action runs for the same workflow and branch if one is in progress.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
