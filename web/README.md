@@ -75,7 +75,7 @@ Since we don't want our users to read `docs/next` ("current" docs), we don't pub
 When releasing new version of Wasp, what we do is run `npm run docusaurus docs:version {version}` to create new versioned docs from the current docs. We do this on every new Wasp release.
 
 This command does everything for us, and since we use Docusaurus' default settings for versions,
-there is nothing else we need to do, it will be picked up as the lastest version by default.
+there is nothing else we need to do, it will be picked up as the latest version by default.
 
 #### Which version of docs should I be editing?
 

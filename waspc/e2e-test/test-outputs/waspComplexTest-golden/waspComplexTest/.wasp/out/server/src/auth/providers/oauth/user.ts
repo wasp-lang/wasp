@@ -10,8 +10,8 @@ import {
 import { type Auth } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
-import { getRedirectUriForOneTimeCode } from './redirect'
-import { tokenStore } from './oneTimeCode'
+import { type OAuthData } from 'wasp/server/auth'
+import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
 import {
   onBeforeSignupHook,
   onAfterSignupHook,
@@ -25,16 +25,14 @@ export async function finishOAuthFlowAndGetRedirectUri({
   providerUserId,
   userSignupFields,
   req,
-  accessToken,
-  oAuthState,
+  oauth
 }: {
   provider: ProviderConfig;
   providerProfile: unknown;
   providerUserId: string;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  accessToken: string;
-  oAuthState: { state: string };
+  oauth: OAuthData;
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
@@ -43,8 +41,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
     providerProfile,
     userSignupFields,
     req,
-    accessToken,
-    oAuthState,
+    oauth,
   });
 
   const oneTimeCode = await tokenStore.createToken(authId)
@@ -59,15 +56,13 @@ async function getAuthIdFromProviderDetails({
   providerProfile,
   userSignupFields,
   req,
-  accessToken,
-  oAuthState,
+  oauth,
 }: {
   providerId: ProviderId;
   providerProfile: any;
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
-  accessToken: string;
-  oAuthState: { state: string };
+  oauth: OAuthData;
 }): Promise<Auth['id']> {
   const existingAuthIdentity = await prisma.authIdentity.findUnique({
     where: {
@@ -85,26 +80,27 @@ async function getAuthIdFromProviderDetails({
   if (existingAuthIdentity) {
     const authId = existingAuthIdentity.auth.id
 
+    // NOTE: Fetching the user to pass it to the login hooks - it's a bit wasteful
+    // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
+    const auth = await findAuthWithUserBy({ id: authId })
+
     // NOTE: We are calling login hooks here even though we didn't log in the user yet.
     // It's because we have access to the OAuth tokens here and we want to pass them to the hooks.
     // We could have stored the tokens temporarily and called the hooks after the session is created,
     // but this keeps the implementation simpler.
     // The downside of this approach is that we can't provide the session to the login hooks, but this is
     // an okay trade-off because OAuth tokens are more valuable to users than the session ID.
-    await onBeforeLoginHook({ req, providerId })
-
-    // NOTE: Fetching the user to pass it to the onAfterLoginHook - it's a bit wasteful
-    // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
-    const auth = await findAuthWithUserBy({ id: authId })
+    await onBeforeLoginHook({
+      req,
+      providerId,
+      user: auth.user,
+    })
 
     // NOTE: check the comment above onBeforeLoginHook for the explanation why we call onAfterLoginHook here.
     await onAfterLoginHook({
       req,
       providerId,
-      oauth: {
-        accessToken,
-        uniqueRequestId: oAuthState.state,
-      },
+      oauth,
       user: auth.user,
     })
 
@@ -130,10 +126,7 @@ async function getAuthIdFromProviderDetails({
       req,
       providerId,
       user,
-      oauth: {
-        accessToken,
-        uniqueRequestId: oAuthState.state,
-      },
+      oauth,
     })
 
     return user.auth.id

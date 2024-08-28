@@ -15,6 +15,7 @@ sampleBodySchema =
     posts Post[] @relation("UserPosts", references: [id]) @customattr
     weirdType Unsupported("weird")
     anotherId String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    someField   String[] @default([])
 
     @@someattr([id, username], [posts])
   |]
@@ -110,6 +111,20 @@ sampleBodyAst =
                     { Psl.Attribute._attrName = "db.Uuid",
                       Psl.Attribute._attrArgs =
                         []
+                    }
+                ]
+            }
+        ),
+      Psl.Model.ElementField
+        ( Psl.Model.Field
+            { Psl.Model._name = "someField",
+              Psl.Model._type = Psl.Model.String,
+              Psl.Model._typeModifiers = [Psl.Model.List],
+              Psl.Model._attrs =
+                [ Psl.Attribute.Attribute
+                    { Psl.Attribute._attrName = "default",
+                      Psl.Attribute._attrArgs =
+                        [Psl.Argument.ArgUnnamed (Psl.Argument.ArrayExpr [])]
                     }
                 ]
             }

@@ -19,6 +19,7 @@ import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
@@ -54,6 +55,7 @@ genAuth spec =
             genUtils auth,
             genProvidersTypes auth
           ]
+        <++> genOAuth auth
         <++> genIndexTs auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

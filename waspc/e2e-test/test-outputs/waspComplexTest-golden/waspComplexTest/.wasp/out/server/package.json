@@ -1,7 +1,6 @@
 {
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
-    "arctic": "^1.2.1",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "16.0.2",

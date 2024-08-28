@@ -63,6 +63,7 @@ spec_parsePslSchema = do
             user        User       @relation(fields: [userId], references: [id])
             userId      Int
             votes       TaskVote[]
+            someField   String[] @default([])
           }
 
           model TaskVote {
@@ -230,7 +231,16 @@ spec_parsePslSchema = do
                             "votes"
                             (Psl.Model.UserType "TaskVote")
                             [Psl.Model.List]
-                            []
+                            [],
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            "someField"
+                            Psl.Model.String
+                            [Psl.Model.List]
+                            [ Psl.Attribute.Attribute
+                                "default"
+                                [Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr []]
+                            ]
                       ]
                   ),
               Psl.Schema.ModelBlock $
