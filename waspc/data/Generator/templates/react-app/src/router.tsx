@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import { useRoutes, BrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
@@ -25,43 +25,31 @@ export const routeNameToRouteComponent = {
   {=/ routes =}
 } as const;
 
-export function RouterRoutes() {
-  const waspDefinedRoutes = [
-    {=# isExternalAuthEnabled =}
-    {
-      path: "{= oAuthCallbackPath =}",
-      element: <OAuthCallbackPage />
-    },
-    {=/ isExternalAuthEnabled =}
-  ]
-  const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
-    const Component = routeNameToRouteComponent[routeKey]
-    return {
-      path: route.to,
-      element: <Component />
-    }
-  })
-  const routerRoutes = useRoutes([
-    /*
-      Wasp specific routes *must* go first to prevent user
-      defined routes from overriding them.
-      Details in https://github.com/wasp-lang/wasp/issues/2029
-    */
+const waspDefinedRoutes = [
+  {=# isExternalAuthEnabled =}
+  {
+    path: "{= oAuthCallbackPath =}",
+    Component: OAuthCallbackPage,
+  },
+  {=/ isExternalAuthEnabled =}
+]
+const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
+  return {
+    path: route.to,
+    Component: routeNameToRouteComponent[routeKey],
+  }
+})
+
+const browserRouter = createBrowserRouter([{
+  path: '/',
+  {=# rootComponent.isDefined =}
+  element: <{= rootComponent.importIdentifier =} />,
+  {=/ rootComponent.isDefined =}
+  children: [
     ...waspDefinedRoutes,
     ...userDefinedRoutes,
-  ])
+  ],
+}])
 
-  return routerRoutes
-}
 
-export const router = (
-  <BrowserRouter basename="{= baseDir =}">
-    {=# rootComponent.isDefined =}
-    <{= rootComponent.importIdentifier =}>
-    {=/ rootComponent.isDefined =}
-    <RouterRoutes />
-    {=# rootComponent.isDefined =}
-    </{= rootComponent.importIdentifier =}>
-    {=/ rootComponent.isDefined =}
-  </BrowserRouter>
-)
+export const router = <RouterProvider router={browserRouter} />
