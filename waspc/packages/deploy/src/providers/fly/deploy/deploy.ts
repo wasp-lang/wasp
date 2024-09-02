@@ -7,7 +7,6 @@ import {
 	makeIdempotent,
 	getCommandHelp,
 	waspSays,
-	stripTrailingSlash,
 } from '../helpers/helpers.js';
 import {
 	clientTomlExistsInProject,
@@ -107,7 +106,7 @@ async function deployClient(deploymentInfo: DeploymentInfo<DeployOptions>, { bui
 	waspSays('If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy fly deploy');
 
 	const serverUrl = process.env.REACT_APP_API_URL
-		? stripTrailingSlash(process.env.REACT_APP_API_URL)
+		? process.env.REACT_APP_API_URL
 		: deploymentInfo.serverUrl;
 	await $`npm install`;
 	await $`REACT_APP_API_URL=${serverUrl} npm run build`;
