@@ -1,20 +1,22 @@
-{{={= =}=}}
-import { config } from 'wasp/server'
-import { HttpError } from 'wasp/server'
+import { config, HttpError } from '../../index.js'
 
-export const loginPath = '{= serverOAuthLoginHandlerPath =}'
-export const callbackPath = '{= serverOAuthCallbackHandlerPath =}'
-export const exchangeCodeForTokenPath = '{= serverExchangeCodeForTokenHandlerPath =}'
-const clientOAuthCallbackPath = '{= clientOAuthCallbackPath =}'
+// PRIVATE API (server)
+export const loginPath = 'login'
 
-export function getRedirectUriForCallback(providerName: string): URL {
-  return new URL(`${config.serverUrl}/auth/${providerName}/${callbackPath}`);
-}
+// PRIVATE API (server)
+export const exchangeCodeForTokenPath = 'exchange-code'
 
+// PRIVATE API (server)
+export const callbackPath = 'callback'
+
+const clientOAuthCallbackPath = '/oauth/callback'
+
+// PRIVATE API (server)
 export function getRedirectUriForOneTimeCode(oneTimeCode: string): URL {
   return new URL(`${config.frontendUrl}${clientOAuthCallbackPath}#${oneTimeCode}`);
 }
 
+// PRIVATE API (server)
 export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
   if (error instanceof HttpError) {
     const errorMessage = isHttpErrorWithExtraMessage(error)
@@ -24,6 +26,11 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
   }
   console.error("Unknown OAuth error:", error);
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
+}
+
+// PRIVATE API (SDK)
+export function getRedirectUriForCallback(providerName: string): URL {
+  return new URL(`${config.serverUrl}/auth/${providerName}/${callbackPath}`);
 }
 
 function getRedirectUriForError(error: string): URL {

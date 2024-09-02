@@ -42,7 +42,7 @@ const faqs = [
     answer: <p>
       Due to GPT being non-deterministic, it sometimes introduces (small) mistakes, especially for more complex apps, but altogether it works better than we expected!
       The code it generates is often very reasonable, and for very simple apps, it can even produce a working app out of the box, while for a bit more complex apps
-      it currently serves more like a super-intelligent starter that needs a couple of tweeks to get it going.
+      it currently serves more like a super-intelligent starter that needs a couple of tweaks to get it going.
 
       <br/><br/>
 
@@ -76,7 +76,7 @@ const faqs = [
       <br/><br/>
 
       We use GPT4 during the planning phase, since that is the most critical step, and then use GPT3.5 for the rest of the steps.
-      Although using GPT4 exclusively does give better results, we use a mix to keep the costs, generation time, and bandwith acceptable (due to pricing and rate limits of GPT4).
+      Although using GPT4 exclusively does give better results, we use a mix to keep the costs, generation time, and bandwidth acceptable (due to pricing and rate limits of GPT4).
 
       <br/><br/>
 

@@ -99,7 +99,7 @@ Entity types are available everywhere, including the client code:
 ```ts
 import { Task } from "wasp/entities"
 
-export function ExamplePage() {}
+export function ExamplePage() {
   const task: Task = {
     id: 123,
     description: "Some random task",

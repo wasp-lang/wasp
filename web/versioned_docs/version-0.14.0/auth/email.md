@@ -49,7 +49,7 @@ Let's start with adding the following to our `main.wasp` file:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
@@ -83,7 +83,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.14.0"
   },
   title: "My App",
   auth: {
