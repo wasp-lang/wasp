@@ -26,7 +26,7 @@ genNewServerApi spec =
       sequence
         [ genAuthIndex auth,
           genAuthUser auth,
-          genFileCopy [relfile|server/auth/hooks.ts|]
+          genHooks auth
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
@@ -40,7 +40,12 @@ genAuthIndex auth =
       [relfile|server/auth/index.ts|]
       tmplData
   where
-    tmplData = AuthProviders.getEnabledAuthProvidersJson auth
+    tmplData =
+      object
+        [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
+          "isExternalAuthEnabled" .= isExternalAuthEnabled
+        ]
+    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
@@ -60,6 +65,11 @@ genAuthUser auth =
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
+
+genHooks :: AS.Auth.Auth -> Generator FileDraft
+genHooks auth = return $ C.mkTmplFdWithData [relfile|server/auth/hooks.ts|] tmplData
+  where
+    tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =

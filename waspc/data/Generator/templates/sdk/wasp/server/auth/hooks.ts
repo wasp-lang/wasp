@@ -1,3 +1,4 @@
+{{={= =}=}}
 import type { Request as ExpressRequest } from 'express'
 import { type ProviderId, createUser, findAuthWithUserBy } from '../../auth/utils.js'
 import { prisma } from '../index.js'
@@ -35,7 +36,7 @@ export type OnAfterLoginHook = (
 export type InternalAuthHookParams = {
   /**
    * Prisma instance that can be used to interact with the database.
-   */
+  */
   prisma: typeof prisma
 }
 
@@ -48,86 +49,102 @@ export type InternalAuthHookParams = {
 type OnBeforeSignupHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterSignupHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
    * User object that was created during the signup process.
-   */
+  */
   user: Awaited<ReturnType<typeof createUser>>
-  oauth?: {
-    /**
-     * Access token that was received during the OAuth flow.
-     */
-    accessToken: string
-    /**
-     * Unique request ID that was generated during the OAuth flow.
-     */
-    uniqueRequestId: string
-  },
+  /**
+   * OAuth flow data that was generated during the OAuth flow. This is only
+   * available if the user signed up using OAuth.
+  */
+  oauth?: OAuthData
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnBeforeOAuthRedirectHookParams = {
   /**
    * URL that the OAuth flow should redirect to.
-   */
+  */
   url: URL
   /**
    * Unique request ID that was generated during the OAuth flow.
-   */
-  uniqueRequestId: string
+  */
+  oauth: Pick<OAuthData, 'uniqueRequestId'>
   /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnBeforeLoginHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
   /**
+   * User that is trying to log in.
+  */
+    user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
+  /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterLoginHookParams = {
   /**
    * Provider ID object that contains the provider name and the provide user ID.
-   */
+  */
   providerId: ProviderId
-  oauth?: {
-    /**
-     * Access token that was received during the OAuth flow.
-     */
-    accessToken: string
-    /**
-     * Unique request ID that was generated during the OAuth flow.
-     */
-    uniqueRequestId: string
-  },
   /**
    * User that is logged in.
-   */
+  */
   user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user']
   /**
+   * OAuth flow data that was generated during the OAuth flow. This is only
+   * available if the user logged in using OAuth.
+  */
+  oauth?: OAuthData
+  /**
    * Request object that can be used to access the incoming request.
-   */
+  */
   req: ExpressRequest
 } & InternalAuthHookParams
+
+// PUBLIC API
+export type OAuthData = {
+  /**
+   * Unique request ID that was generated during the OAuth flow.
+  */
+  uniqueRequestId: string
+} & (
+  {=# enabledProviders.isGoogleAuthEnabled =}
+  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
+  {=/ enabledProviders.isGoogleAuthEnabled =}
+  {=# enabledProviders.isDiscordAuthEnabled =}
+  | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
+  {=/ enabledProviders.isDiscordAuthEnabled =}
+  {=# enabledProviders.isGitHubAuthEnabled =}
+  | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
+  {=/ enabledProviders.isGitHubAuthEnabled =}
+  {=# enabledProviders.isKeycloakAuthEnabled =}
+  | { providerName: 'keycloak'; tokens: import('arctic').KeycloakTokens }
+  {=/ enabledProviders.isKeycloakAuthEnabled =}
+  | never
+)

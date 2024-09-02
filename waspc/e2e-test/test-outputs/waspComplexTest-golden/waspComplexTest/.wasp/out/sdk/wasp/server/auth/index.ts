@@ -29,6 +29,9 @@ export type {
   OnBeforeLoginHook,
   OnAfterLoginHook,
   InternalAuthHookParams,
+  OAuthData,
 } from './hooks.js'
+
+export * from './oauth/index.js'
 
 
