@@ -24,4 +24,4 @@ data Attribute = Attribute
 
 -- | @db.Uuid or @db.String or @db.VarChar are examples of native db types.
 isNativeDbTypeAttr :: Attribute -> Bool
-isNativeDbTypeAttr = isPrefixOf "db." . _attrName
+isNativeDbTypeAttr = ("db." `isPrefixOf`) . _attrName

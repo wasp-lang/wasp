@@ -1,7 +1,9 @@
 module Generator.AuthInjectionTest where
 
 import Data.Maybe (maybeToList)
+import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
+import Util.Prisma (getPrismaModelBody)
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.DbGenerator.Auth (injectAuth)
 import Wasp.Generator.Monad (runGenerator)
@@ -128,112 +130,35 @@ spec_GeneratorAuthInjectionTest = do
               userIdFieldAttributes
 
     authIdentityEntity =
-      ( "AuthIdentity",
-        AS.Entity.makeEntity
-          ( Psl.Model.Body
-              [ Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "providerName"
-                    Psl.Model.String
-                    []
-                    [],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "providerUserId"
-                    Psl.Model.String
-                    []
-                    [],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "providerData"
-                    Psl.Model.String
-                    []
-                    [ Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "{}"]
-                    ],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "authId"
-                    Psl.Model.String
-                    []
-                    [],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "auth"
-                    (Psl.Model.UserType "Auth")
-                    []
-                    [ Psl.Attribute.Attribute
-                        "relation"
-                        [ Psl.Argument.ArgNamed "fields" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "authId"]),
-                          Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"]),
-                          Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
-                        ]
-                    ],
-                Psl.Model.ElementBlockAttribute $
-                  Psl.Attribute.Attribute "id" [Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "providerName", Psl.Argument.IdentifierExpr "providerUserId"]]
-              ]
-          )
-      )
+      makeEntity
+        "AuthIdentity"
+        [trimming|
+          providerName String
+          providerUserId String
+          providerData String @default("{}")
+          authId String
+          auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+          @@id([providerName, providerUserId])
+        |]
 
     sessionEntity =
-      ( "Session",
-        AS.Entity.makeEntity
-          ( Psl.Model.Body
-              [ Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "id"
-                    Psl.Model.String
-                    []
-                    [ Psl.Attribute.Attribute "id" [],
-                      Psl.Attribute.Attribute "unique" []
-                    ],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "expiresAt"
-                    Psl.Model.DateTime
-                    []
-                    [],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "userId"
-                    Psl.Model.String
-                    []
-                    [],
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "auth"
-                    (Psl.Model.UserType "Auth")
-                    []
-                    [ Psl.Attribute.Attribute
-                        "relation"
-                        [ Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"]),
-                          Psl.Argument.ArgNamed "fields" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]),
-                          Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
-                        ]
-                    ],
-                Psl.Model.ElementBlockAttribute $
-                  Psl.Attribute.Attribute
-                    "index"
-                    [ Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]
-                    ]
-              ]
-          )
-      )
+      makeEntity
+        "Session"
+        [trimming|
+          id String @id @unique
+          expiresAt DateTime
+          userId String
+          auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+          @@index([userId])
+        |]
 
     someOtherEntity =
-      ( "SomeOtherEntity",
-        AS.Entity.makeEntity
-          ( Psl.Model.Body
-              [ Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "id"
-                    Psl.Model.Int
-                    []
-                    [ Psl.Attribute.Attribute "id" [],
-                      Psl.Attribute.Attribute
-                        "default"
-                        [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
-                        ]
-                    ]
-              ]
-          )
-      )
+      makeEntity
+        "SomeOtherEntity"
+        [trimming|
+          id Int @id @default(autoincrement())
+        |]
+
+    makeEntity name bodyText = (name, AS.Entity.makeEntity $ getPrismaModelBody bodyText)
