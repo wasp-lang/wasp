@@ -2,10 +2,12 @@
 
 module Wasp.Psl.Ast.Attribute
   ( Attribute (..),
+    isNativeDbTypeAttr,
   )
 where
 
 import Data.Data (Data)
+import Data.List (isPrefixOf)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import Prelude hiding (Enum)
 
@@ -19,3 +21,7 @@ data Attribute = Attribute
     _attrArgs :: [Psl.Argument.Argument]
   }
   deriving (Show, Eq, Data)
+
+-- | @db.Uuid or @db.String or @db.VarChar are examples of native db types.
+isNativeDbTypeAttr :: Attribute -> Bool
+isNativeDbTypeAttr = ("db." `isPrefixOf`) . _attrName
