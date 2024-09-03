@@ -4,9 +4,6 @@ authors: [milica]
 image: /img/os-interviews/pg-boss-banner.jpeg
 tags: [webdev, auth, react, django, tutorial, full-stack]
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import ImgWithCaption from './components/ImgWithCaption'
 
 ![wasps interviewing Tim](/img/os-interviews/pg-boss-banner.jpeg)
 
