@@ -27,10 +27,6 @@ Even now in 2024 Redis seems to be the dominant queue persistence database in OS
 
 In 2015, the number 1 hit on Google for “Postgres job queue” was Brandur Leach’s “Postgres Job Queues & Failure By MVCC” blog post. LOL! The Internet replied with “don’t do this”. However, at this same point in time Postgres 9.5 was in beta and about to be released, and lo and behold a new core feature was added called SKIP LOCKED. This looked like a perfect fit, but it was too new for any packages to have this approach. After a successful prototype, I thought it seemed like a good opportunity to try creating the package myself, since I was new to Node and wanted to learn more about it. I started building it on nights and weekends, shipped version 0.0.1 in early 2016 then finally released 1.0 a year later.
 
-:::tip[Fun fact!]
-Did you know that Wasp uses pg-boss under the hood? We built Wasp Jobs on top of pg-boss, and [here's how we did it](https://wasp-lang.dev/blog/2022/06/15/jobs-feature-announcement).
-:::
-
 - **How do you manage contributions and feature requests?**
 
 The best thing about OSS in my opinion is in its name: “open”. Having the entire world of developers not only use your software, but also be able to read its code and make contributions produces the highest quality code. You will get questions you never thought about, and find bugs you didn’t know existed. In the case of bug fixes, most of the time it’s as simple as making sure said bug has a new unit test then merging a pull request (PR).
@@ -50,6 +46,10 @@ This is encouraging to see. I learned about pgmq from this question. It looks li
 In terms of job storage, we’ve been able to store 2-3 million jobs in v9’s shared job storage and survive, but not really thrive, as database performance starts to degrade. Before v10, in order to mitigate this you have to use configuration settings to move completed jobs into the archive more often.
 
 Once record counts are under control, in terms of job throughput, the number of concurrent queries to Postgres can be very high, especially when using connection poolers and job batching. I have a speed test in the suite that can both fetch and then complete 10,000 jobs in 0.5 seconds, a metric you would not easily be able to achieve even in some dedicated queuing products. For job creation on the other hand, you have the full power of SQL available in Postgres via INSERT or even COPY.
+
+:::tip[Fun fact!]
+Did you know that Wasp uses pg-boss under the hood? We built Wasp Jobs on top of pg-boss, and [here's how we did it](https://wasp-lang.dev/blog/2022/06/15/jobs-feature-announcement).
+:::
 
 - **While pg-boss has many production use cases, is there a scenario or limit where teams may need a traditional queue instead?**
 
