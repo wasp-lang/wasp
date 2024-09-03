@@ -8,7 +8,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ImgWithCaption from './components/ImgWithCaption'
 
-![a django dev tries wasp](/img/os-interviews/pg-boss-banner.jpeg)
+![wasps interviewing Tim](/img/os-interviews/pg-boss-banner.jpeg)
 
 We’re launching a new series of posts where we'll sit down with the folks who help us run our projects without expecting anyting in return. Yes, we're talking about open-source maintainers and builders, the people who dedicate their free time to make tech better. This is our way to say "Thank you!" to all of those who help us build and improve [Wasp](https://wasp-lang.dev/), as well as shape the webdev ecosystem.
 
