@@ -1,4 +1,14 @@
-module Wasp.Generator.DbGenerator.Auth where
+module Wasp.Generator.DbGenerator.Auth
+  ( injectAuth,
+    authEntityName,
+    authIdentityEntityName,
+    sessionEntityName,
+    userFieldOnAuthEntityName,
+    authFieldOnUserEntityName,
+    identitiesFieldOnAuthEntityName,
+    authFieldOnAuthIdentityEntityName,
+  )
+where
 
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
@@ -9,7 +19,9 @@ import Wasp.Generator.Monad
     GeneratorError (GenericGeneratorError),
     logAndThrowGeneratorError,
   )
+import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Generator.Attribute as Psl.Generator.Attribute
 import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 import qualified Wasp.Util as Util
 
@@ -111,7 +123,7 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.par
       T.unpack
         [trimming|
           id ${authEntityIdTypeText}   @id @default(uuid())
-          userId    ${userEntityIdTypeText}? @unique
+          userId    ${userEntityIdTypeText}? ${userEntityIdFieldAttributesText}
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [${userEntityIdFieldName}], onDelete: Cascade)
           ${identitiesFieldOnAuthEntityNameText} ${authIdentityEntityNameText}[]
           ${sessionsFieldOnAuthEntityNameText}   ${sessionEntityNameText}[]
@@ -127,6 +139,14 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.par
 
     userEntityIdTypeText = T.pack $ show . Psl.Model._type $ userEntityIdField
     userEntityIdFieldName = T.pack $ Psl.Model._name userEntityIdField
+    userEntityIdFieldAttributesText = T.pack $ makeUserEntityIdFieldAttributes userEntityIdField
+
+makeUserEntityIdFieldAttributes :: Psl.Model.Field -> String
+makeUserEntityIdFieldAttributes field = unwords attrs
+  where
+    attrs = waspDefinedAttrs ++ (Psl.Generator.Attribute.generateAttribute <$> userDefinedNativeDbTypeAttributes)
+    waspDefinedAttrs = ["@unique"]
+    userDefinedNativeDbTypeAttributes = filter Psl.Attribute.isNativeDbTypeAttr $ Psl.Model._attrs field
 
 makeSessionEntity :: Generator (String, AS.Entity.Entity)
 makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of

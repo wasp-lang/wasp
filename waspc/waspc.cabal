@@ -626,6 +626,7 @@ test-suite waspc-test
     ErrorTest
     FilePath.ExtraTest
     Fixtures
+    Generator.AuthInjectionTest
     Generator.DbGeneratorTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
