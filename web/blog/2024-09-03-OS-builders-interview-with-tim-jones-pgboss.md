@@ -1,7 +1,7 @@
 ---
 title: 'The Faces Behind Open Source Projects: Tim Jones and pg-boss'
 authors: [milica]
-image: /img/django-vs-wasp/wasp-django-banner.png
+image: /img/os-interviews/pg-boss-banner.jpeg
 tags: [webdev, auth, react, django, tutorial, full-stack]
 ---
 import Tabs from '@theme/Tabs';
