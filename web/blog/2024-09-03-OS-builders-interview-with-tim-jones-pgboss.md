@@ -2,7 +2,7 @@
 title: 'The Faces Behind Open Source Projects: Tim Jones and pg-boss'
 authors: [milica]
 image: /img/os-interviews/pg-boss-banner.jpeg
-tags: [webdev, auth, react, django, tutorial, full-stack]
+tags: [webdev, postgresql, database, os-maintainers]
 ---
 
 ![wasps interviewing Tim](/img/os-interviews/pg-boss-banner.jpeg)
