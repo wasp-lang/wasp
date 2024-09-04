@@ -200,7 +200,14 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "2cc606472b051688741cc5c7045a08e26b62aea573df70d89eb4862d7c1c37b8"
+        "d4acf9ed4d486a61f98e80190f34d7546ea6001a518da245a463d82665b9ed6c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/prisma-runtime-library.d.ts"
+        ],
+        "063a149e73066606948a7be815239e2446048dd066b28d542efb405c78bb3b35"
     ],
     [
         [
@@ -620,7 +627,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "83e5c0672c28f1afbb48117f2a8c41836640ab48639687f8b479dce77e8265ed"
+        "7228b4f5e531208f4049a6076597c6cfa4ebf2bef89509ff58833c1f4a01ccbe"
     ],
     [
         [

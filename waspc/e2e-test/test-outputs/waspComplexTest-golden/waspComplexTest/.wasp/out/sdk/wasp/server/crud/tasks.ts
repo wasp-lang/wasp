@@ -2,9 +2,9 @@ import type {
   AuthenticatedActionDefinition,
   AuthenticatedQueryDefinition,
   _Task,
-} from "wasp/server/_types";
+} from "../_types";
 import type { Prisma } from "@prisma/client";
-import { Payload } from "wasp/server/_types/serialization";
+import type { Payload } from "../_types/serialization";
 import type {
   Task,
 } from "wasp/entities";
@@ -39,7 +39,10 @@ type GetInput = Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
 export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>
 
-type CreateInput = Prisma.TaskCreateInput
+type CreateInput = Prisma.XOR<
+  Prisma.TaskCreateInput,
+  Prisma.TaskUncheckedCreateInput
+>
 type CreateOutput = _WaspEntity
 export type CreateActionResolved = tasks.CreateAction<CreateInput, CreateOutput>
 

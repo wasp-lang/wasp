@@ -4,11 +4,8 @@ import { prisma } from 'wasp/server'
 import { type User } from "wasp/entities"
 
 const prismaAdapter = new PrismaAdapter(
-  // Using `as any` here since Lucia's model types are not compatible with Prisma 4
-  // model types. This is a temporary workaround until we migrate to Prisma 5.
-  // This **works** in runtime, but Typescript complains about it.
-  prisma.session as any,
-  prisma.auth as any
+  prisma.session,
+  prisma.auth,
 );
 
 // PRIVATE API

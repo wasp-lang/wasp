@@ -143,11 +143,7 @@ setDefaultCliEnvVars = do
   where
     cliEnvVars :: [(String, String)]
     cliEnvVars =
-      [ ("PRISMA_HIDE_UPDATE_MESSAGE", "true"),
-        -- NOTE: We were getting errors from Prisma v4 related to their Checkpoint system
-        -- (which checks for updates that we don't want anyway), so now by default
-        -- we turn it off. Once we switch to Prisma v5, try removing this.
-        ("CHECKPOINT_DISABLE", "1")
+      [ ("PRISMA_HIDE_UPDATE_MESSAGE", "true")
       ]
 
 {- ORMOLU_DISABLE -}

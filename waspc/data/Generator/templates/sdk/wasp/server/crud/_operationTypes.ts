@@ -9,9 +9,9 @@ import type {
   UnauthenticatedQueryDefinition,
   {=/ isAuthEnabled =}
   _{= crud.entityUpper =},
-} from "wasp/server/_types";
+} from "../_types";
 import type { Prisma } from "@prisma/client";
-import { Payload } from "wasp/server/_types/serialization";
+import type { Payload } from "../_types/serialization";
 import type {
   {= crud.entityUpper =},
 } from "wasp/entities";
@@ -91,7 +91,10 @@ export type GetQueryResolved = typeof _waspGetQuery
 
 {=# crud.operations.Create =}
 {=^ overrides.Create.isDefined =}
-type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
+type CreateInput = Prisma.XOR<
+  Prisma.{= crud.entityUpper =}CreateInput,
+  Prisma.{= crud.entityUpper =}UncheckedCreateInput
+>
 type CreateOutput = _WaspEntity
 export type CreateActionResolved = {= crud.name =}.CreateAction<CreateInput, CreateOutput>
 {=/ overrides.Create.isDefined =}
@@ -103,7 +106,12 @@ export type CreateActionResolved = typeof _waspCreateAction
 
 {=# crud.operations.Update =}
 {=^ overrides.Update.isDefined =}
-type UpdateInput = Prisma.{= crud.entityUpper =}UpdateInput & Prisma.{= crud.entityUpper =}WhereUniqueInput
+type UpdateInput = Prisma.XOR<
+    Prisma.{= crud.entityUpper =}UpdateInput,
+    Prisma.{= crud.entityUpper =}UncheckedUpdateInput
+  >
+  & Prisma.{= crud.entityUpper =}WhereUniqueInput
+
 type UpdateOutput = _WaspEntity
 export type UpdateActionResolved = {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>
 {=/ overrides.Update.isDefined =}
