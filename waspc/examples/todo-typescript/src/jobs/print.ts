@@ -5,6 +5,6 @@ export const printTimeAndNumberOfTasks: PrintTimeAndNumberOfTasks<
   {},
   void
 > = async (data, context) => {
-  const count = await getTotalNumberOfTasks(null, context)
+  const count = await getTotalNumberOfTasks()
   console.log(Date.now(), 'Number of tasks:', count)
 }

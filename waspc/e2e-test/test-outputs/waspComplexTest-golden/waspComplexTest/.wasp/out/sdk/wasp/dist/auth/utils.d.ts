@@ -29,7 +29,7 @@ export type PossibleProviderData = {
 export type ProviderName = keyof PossibleProviderData;
 export declare const contextWithUserEntity: {
     entities: {
-        User: Prisma.UserDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation, import("@prisma/client/runtime/index.js").DefaultArgs>;
+        User: Prisma.UserDelegate<import("@prisma/client/runtime/library.js").DefaultArgs>;
     };
 };
 export declare const authConfig: {

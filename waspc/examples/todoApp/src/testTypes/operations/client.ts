@@ -32,17 +32,17 @@ import { QueryMetadata } from 'wasp/client/operations/rpc'
 
 type TestCases = [
   Expect<Equal<typeof taskToTaskSpecified, (args: Task) => Promise<Task>>>,
-  // todo(filip): Prisma errors casuing this test to fail, try to add Except
-  // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
-  Equal<
-    typeof taskToTaskUnspecified,
-    (args: Task) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
+  Expect<
+    Equal<
+      typeof taskToTaskUnspecified,
+      (args: Task) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
+    >
   >,
-  // todo(filip): Prisma errors casuing this test to fail, try to add Except
-  // after updating Prisma: https://github.com/wasp-lang/wasp/issues/2099
-  Equal<
-    typeof taskToTaskSatisfies,
-    (args: Task) => ReturnType<typeof taskToTaskSatisfiesDefinition>
+  Expect<
+    Equal<
+      typeof taskToTaskSatisfies,
+      (args: Task) => ReturnType<typeof taskToTaskSatisfiesDefinition>
+    >
   >,
   Expect<
     Equal<typeof unspecifiedToNumber, (args?: unknown) => Promise<number>>
@@ -69,8 +69,17 @@ type TestCases = [
     >
   >,
   Expect<Equal<typeof getTrueVoid, QueryMetadata & (() => Promise<string>)>>,
-  Expect<Equal<typeof getAnyNoAuth, QueryMetadata & ((args?: any) => Promise<any>)>>,
-  Expect<Equal<typeof getAnyAuth, QueryMetadata & ((args?: any) => Promise<any>)>>,
-  Expect<Equal<typeof getAnyToNumberSpecified, QueryMetadata & ((args?: any) => Promise<number>)>>,
-  Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>,
+  Expect<
+    Equal<typeof getAnyNoAuth, QueryMetadata & ((args?: any) => Promise<any>)>
+  >,
+  Expect<
+    Equal<typeof getAnyAuth, QueryMetadata & ((args?: any) => Promise<any>)>
+  >,
+  Expect<
+    Equal<
+      typeof getAnyToNumberSpecified,
+      QueryMetadata & ((args?: any) => Promise<number>)
+    >
+  >,
+  Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>
 ]
