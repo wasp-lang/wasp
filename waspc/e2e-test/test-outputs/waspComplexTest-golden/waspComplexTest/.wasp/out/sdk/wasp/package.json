@@ -2,7 +2,7 @@
   "dependencies": {
     "@lucia-auth/adapter-prisma": "^4.0.0",
     "@node-rs/argon2": "^1.8.3",
-    "@prisma/client": "5.18.0",
+    "@prisma/client": "5.19.1",
     "@sendgrid/mail": "^7.7.0",
     "@stitches/react": "^1.2.8",
     "@tanstack/react-query": "^4.29.0",
@@ -21,7 +21,7 @@
     "msw": "^1.1.0",
     "oslo": "^1.1.2",
     "pg-boss": "^8.4.2",
-    "prisma": "5.18.0",
+    "prisma": "5.19.1",
     "react": "^18.2.0",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^5.3.3",
