@@ -54,7 +54,8 @@ instance AppComponentRootDir DbRootDir
 
 prismaVersion :: SV.Version
 -- NOTE: If changing prisma version here, also change it in waspc/packages/prisma/package.json.
-prismaVersion = SV.Version 5 18 0
+--       Then, make sure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
+prismaVersion = SV.Version 5 19 1
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =
