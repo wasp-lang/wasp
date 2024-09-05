@@ -41,40 +41,47 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
   : { params?: never }
 
 // Optional static segments handling
+type GenerateRoute<S extends string> = S extends '/'
+  ? '/'
+  : `/${JoinPath<JoinSegments<ExplodeOptionalSegments<SplitPath<S>>>>}`
 
-
-type SplitPath<S extends string> = S extends `${infer T}/${infer U}`
-  ? [T, ...SplitPath<U>]
-  : [S]
-
-type DropEmptyStrings<T> = T extends [infer Head, ...infer Tail]
+type ExplodeOptionalSegments<T> = T extends [infer Head, ...infer Tail]
   ? Head extends ''
-    ? [...DropEmptyStrings<Tail>]
-    : [ExplodeOptionalStatic<Head>, ...DropEmptyStrings<Tail>]
+    ? [...ExplodeOptionalSegments<Tail>]
+    : [_ExplodeOptionalSegment<Head>, ...ExplodeOptionalSegments<Tail>]
   : T
 
-type ExplodeOptionalStatic<T> = T extends `:${infer P}`
-  ? T
+type _ExplodeOptionalSegment<T> = T extends `:${infer P}`
+  // Param segment
+  ? { segment: T }
   : T extends `${infer S}?`
-  ? [S, '']
-  : T
+  // Optional segment
+  ? { optionalSegment: S }
+  // Regular segment
+  : { segment: T }
 
-type Elem = string | [string, string]
+type Segment = { segment: string }
+type OptionalSegment = { optionalSegment: string }
+
+type Elem = Segment | OptionalSegment
 
 type JoinSegments<T extends Elem[]> = T extends []
   ? []
   : T extends [infer First extends Elem, ...infer Rest extends Elem[]]
-  ? First extends string
-    ? [First, ...JoinSegments<Rest>]
-    : [First[0], ...JoinSegments<Rest>] | JoinSegments<Rest>
+  ? First extends Segment
+    ? [First['segment'], ...JoinSegments<Rest>]
+    : First extends OptionalSegment
+    ? [First['optionalSegment'], ...JoinSegments<Rest>] | JoinSegments<Rest>
+    : []
   : []
+
+type SplitPath<S extends string> = S extends `${infer T}/${infer U}`
+  ? [T, ...SplitPath<U>]
+  : [S]
 
 type JoinPath<T extends string[]> = T extends [infer Only extends string]
   ? Only
   : T extends [infer First extends string, ...infer Rest extends string[]]
   ? `${First}/${JoinPath<Rest>}`
   : never
-
-type GenerateRoute<S extends string> = S extends '/'
-  ? '/'
-  : `/${JoinPath<JoinSegments<ExplodeOptionalStatic<DropEmptyStrings<SplitPath<S>>>>>}`
+  
