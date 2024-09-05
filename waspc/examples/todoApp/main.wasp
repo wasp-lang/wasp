@@ -109,7 +109,7 @@ page AboutPage {
   component: import About from "@src/pages/About"
 }
 
-route ProfileRoute { path: "/profile", to: ProfilePage }
+route ProfileRoute { path: "/profile/extra?", to: ProfilePage }
 page ProfilePage {
   authRequired: true,
   component: import { ProfilePage } from "@src/pages/ProfilePage"

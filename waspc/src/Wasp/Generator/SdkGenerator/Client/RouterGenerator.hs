@@ -17,7 +17,7 @@ import Wasp.Util.WebRouterPath (Param (Optional, Required), extractPathParams)
 genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
-    [ genRouterTsx spec,
+    [ genIndexTs spec,
       genFileCopy [relfile|client/router/types.ts|],
       genFileCopy [relfile|client/router/linkHelpers.ts|],
       genFileCopy [relfile|client/router/Link.tsx|]
@@ -25,8 +25,8 @@ genNewClientRouterApi spec =
   where
     genFileCopy = return . C.mkTmplFd
 
-genRouterTsx :: AppSpec -> Generator FileDraft
-genRouterTsx spec = return $ C.mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
+genIndexTs :: AppSpec -> Generator FileDraft
+genIndexTs spec = return $ C.mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
   where
     tmplData =
       object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
