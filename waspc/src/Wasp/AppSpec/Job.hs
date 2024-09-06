@@ -28,8 +28,6 @@ data Job = Job
   }
   deriving (Show, Eq, Data)
 
-instance IsDecl Job
-
 data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded)
 
@@ -39,8 +37,6 @@ data Perform = Perform
   }
   deriving (Show, Eq, Data)
 
-instance IsDecl Perform
-
 -- Allows jobs to run via some cron schedule.
 data Schedule = Schedule
   { cron :: String, -- 5 field cron expression, exe: "*/5 * * * *".
@@ -49,13 +45,10 @@ data Schedule = Schedule
   }
   deriving (Show, Eq, Data)
 
-instance IsDecl Schedule
-
 -- These are optional executor-specific JSON options we pass
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
   { pgBoss :: Maybe JSON,
-    simple :: Maybe JSON
   }
   deriving (Show, Eq, Data)
 
