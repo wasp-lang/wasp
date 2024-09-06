@@ -10,7 +10,7 @@ export type Params = {
 export type Search = string[][] | Record<string, string> | string | URLSearchParams;
 type RouteDefinitionsToRoutesObj<Routes extends RoutesDefinition> = {
     [K in keyof Routes]: {
-        to: GenerateRoute<Routes[K]['to']>;
+        to: ExpandRouteOnOptionalStaticSegments<Routes[K]['to']>;
     } & ParamsFromBuildFn<Routes[K]['build']>;
 };
 type RoutesDefinition = {
@@ -27,9 +27,17 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
 } : {
     params?: never;
 };
-type GenerateRoute<S extends string> = S extends '/' ? '/' : `/${JoinPath<JoinSegments<ExplodeOptionalSegments<SplitPath<S>>>>}`;
-type ExplodeOptionalSegments<T> = T extends [infer Head, ...infer Tail] ? Head extends '' ? [...ExplodeOptionalSegments<Tail>] : [_ExplodeOptionalSegment<Head>, ...ExplodeOptionalSegments<Tail>] : T;
-type _ExplodeOptionalSegment<T> = T extends `:${infer P}` ? {
+/**
+ * Optional static segments handling: expands routes with optional segments
+ * into multiple routes, one for each possible combination of optional segments.
+ *
+ * For example: /users/tasks?/:id? will be expanded into two routes:
+ * - /users/:id
+ * - /users/tasks/:id
+ */
+type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/' ? '/' : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`;
+type ExpandOptionalSegments<T> = T extends [infer Head, ...infer Tail] ? Head extends '' ? [...ExpandOptionalSegments<Tail>] : [_ExpandOptionalSegment<Head>, ...ExpandOptionalSegments<Tail>] : T;
+type _ExpandOptionalSegment<T> = T extends `:${infer P}` ? {
     segment: T;
 } : T extends `${infer S}?` ? {
     optionalSegment: S;

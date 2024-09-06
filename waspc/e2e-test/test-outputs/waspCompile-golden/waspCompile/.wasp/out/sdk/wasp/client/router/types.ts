@@ -21,7 +21,7 @@ export type Search =
 
 type RouteDefinitionsToRoutesObj<Routes extends RoutesDefinition> = {
   [K in keyof Routes]: {
-    to: GenerateRoute<Routes[K]['to']>
+    to: ExpandRouteOnOptionalStaticSegments<Routes[K]['to']>
   } & ParamsFromBuildFn<Routes[K]['build']>
 }
 
@@ -40,25 +40,32 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
   ? { params: Params }
   : { params?: never }
 
-// Optional static segments handling
-type GenerateRoute<S extends string> = S extends '/'
+/**
+ * Optional static segments handling: expands routes with optional segments
+ * into multiple routes, one for each possible combination of optional segments.
+ *
+ * For example: /users/tasks?/:id? will be expanded into two routes:
+ * - /users/:id
+ * - /users/tasks/:id
+ */
+type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/'
   ? '/'
-  : `/${JoinPath<JoinSegments<ExplodeOptionalSegments<SplitPath<S>>>>}`
+  : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`
 
-type ExplodeOptionalSegments<T> = T extends [infer Head, ...infer Tail]
+type ExpandOptionalSegments<T> = T extends [infer Head, ...infer Tail]
   ? Head extends ''
-    ? [...ExplodeOptionalSegments<Tail>]
-    : [_ExplodeOptionalSegment<Head>, ...ExplodeOptionalSegments<Tail>]
+    ? [...ExpandOptionalSegments<Tail>]
+    : [_ExpandOptionalSegment<Head>, ...ExpandOptionalSegments<Tail>]
   : T
 
-type _ExplodeOptionalSegment<T> = T extends `:${infer P}`
-  // Param segment
-  ? { segment: T }
+type _ExpandOptionalSegment<T> = T extends `:${infer P}`
+  ? // Param segment
+    { segment: T }
   : T extends `${infer S}?`
-  // Optional segment
-  ? { optionalSegment: S }
-  // Regular segment
-  : { segment: T }
+    ? // Optional segment
+      { optionalSegment: S }
+    : // Regular segment
+      { segment: T }
 
 type Segment = { segment: string }
 type OptionalSegment = { optionalSegment: string }
@@ -68,12 +75,12 @@ type Elem = Segment | OptionalSegment
 type JoinSegments<T extends Elem[]> = T extends []
   ? []
   : T extends [infer First extends Elem, ...infer Rest extends Elem[]]
-  ? First extends Segment
-    ? [First['segment'], ...JoinSegments<Rest>]
-    : First extends OptionalSegment
-    ? [First['optionalSegment'], ...JoinSegments<Rest>] | JoinSegments<Rest>
+    ? First extends Segment
+      ? [First['segment'], ...JoinSegments<Rest>]
+      : First extends OptionalSegment
+        ? [First['optionalSegment'], ...JoinSegments<Rest>] | JoinSegments<Rest>
+        : []
     : []
-  : []
 
 type SplitPath<S extends string> = S extends `${infer T}/${infer U}`
   ? [T, ...SplitPath<U>]
@@ -82,6 +89,5 @@ type SplitPath<S extends string> = S extends `${infer T}/${infer U}`
 type JoinPath<T extends string[]> = T extends [infer Only extends string]
   ? Only
   : T extends [infer First extends string, ...infer Rest extends string[]]
-  ? `${First}/${JoinPath<Rest>}`
-  : never
-  
+    ? `${First}/${JoinPath<Rest>}`
+    : never
