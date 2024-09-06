@@ -1,6 +1,7 @@
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
     readPackageJsonFile,
+    readDeclsJsonFile,
     analyzeWaspFileContent,
     findWaspFile,
     findPackageJsonFile,
@@ -11,15 +12,14 @@ where
 
 import Control.Applicative ((<|>))
 import Control.Arrow (ArrowChoice (left))
-import Control.Concurrent (newChan, readChan)
+import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Concurrent.Chan (Chan)
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
 import qualified StrongPath as SP
+import StrongPath.TH (relfile)
 import StrongPath.Types (File)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
@@ -34,12 +34,12 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Generator.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
     findFileInWaspProjectDir,
     packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
@@ -87,9 +87,14 @@ analyzeWaspFile prismaSchemaAst = \case
   WaspLangFile waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
   WaspTsFile waspFilePath -> analyzeWaspTsFile prismaSchemaAst waspFilePath
 
+readDeclsJsonFile :: Path' Abs File' -> IO (Either [CompileError] Aeson.Value)
+readDeclsJsonFile declsJsonFile = do
+  byteString <- IOUtil.readFile declsJsonFile
+  return $ Right $ Aeson.toJSON byteString
+
 analyzeWaspTsFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile _prismaSchemaAst waspFilePath = do
-  let workingDir = SP.parent waspFilePath
+  let workingDir :: Path' Abs (Dir WaspProjectDir) = SP.castDir $ SP.parent waspFilePath
   chan <- newChan
   (_, tscExitCode) <-
     concurrently
@@ -99,37 +104,31 @@ analyzeWaspTsFile _prismaSchemaAst waspFilePath = do
   case tscExitCode of
     ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
     ExitSuccess -> do
+      let runJsFile = workingDir </> [relfile|node_modules/wasp-ts-sdk/dist/run.js|]
+          compiledMainWaspJsFile = workingDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
+          specOutputFile = workingDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
+
       otherChan <- newChan
-      (_, runExitCode) <-
+      (_, runExitCode) <- do
         concurrently
-          (handleRunJsMessages otherChan)
+          (readJobMessagesAndPrintThemPrefixed otherChan)
           ( runNodeCommandAsJob
               workingDir
               "node"
-              [ SP.fromAbsDir workingDir ++ "node_modules/wasp-ts-sdk/dist/run.js",
-                SP.fromAbsDir workingDir ++ ".wasp/config/main.wasp.mjs"
+              [ SP.fromAbsFile runJsFile,
+                SP.fromAbsFile compiledMainWaspJsFile,
+                SP.fromAbsFile specOutputFile
               ]
               J.Wasp
               otherChan
           )
       case runExitCode of
         ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
-        ExitSuccess -> return $ Right []
-  where
-    handleRunJsMessages :: Chan J.JobMessage -> IO ()
-    handleRunJsMessages = runPrefixedWriter . processMessages
-    processMessages chan = do
-      jobMsg <- liftIO $ readChan chan
-      case J._data jobMsg of
-        J.JobOutput payload J.Stdout -> do
-          -- let payload:: String = read $ T.unpack text
-          liftIO $ putStrLn "Received on stdout"
-          -- parse payload as json
-          let json = Aeson.toJSON payload
-          liftIO $ print json
-          return ()
-        J.JobOutput _ J.Stderr -> printJobMessagePrefixed jobMsg >> processMessages chan
-        J.JobExit {} -> return ()
+        ExitSuccess -> do
+          contents <- readDeclsJsonFile specOutputFile
+          putStrLn "Here are the contents of the spec file:"
+          print contents
+          return $ Right []
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
