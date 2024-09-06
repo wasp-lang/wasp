@@ -408,6 +408,7 @@ waspComplexTest/.wasp/out/sdk/wasp/ext-src/server/queries/bar.js
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/waspLogo.png
 waspComplexTest/.wasp/out/sdk/wasp/package.json
+waspComplexTest/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/HttpError.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/serialization.ts

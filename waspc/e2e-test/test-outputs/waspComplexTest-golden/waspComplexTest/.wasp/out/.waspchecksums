@@ -116,7 +116,7 @@
             "file",
             "../out/sdk/wasp/auth/lucia.ts"
         ],
-        "66ed66be1f2c0b33c6a0546fa2ec2e4c633db123cb18106c6a3e108ba00f73a7"
+        "24765f3d3ccfc0b5ae34d4de9b8bf56d7e838a35adb74be8bc767a4f2477a04e"
     ],
     [
         [
@@ -487,7 +487,14 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "cb651813806e472b31ebc0691b88efd7361439781c6e10dc47363f15567294a3"
+        "a333b7881848511a13daf4220c5c96f447319660fad15d22f7e5272865dc2641"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/prisma-runtime-library.d.ts"
+        ],
+        "063a149e73066606948a7be815239e2446048dd066b28d542efb405c78bb3b35"
     ],
     [
         [
@@ -606,7 +613,7 @@
             "file",
             "../out/sdk/wasp/server/crud/tasks.ts"
         ],
-        "2cba96b41fe246ae5f9813a155cfb2dd6a0d9012fc9e3732ddbc9d4a3f625f42"
+        "f7f842a5d84e29fc897288adc80760c2c3f4a2e24c365a64cfe0b4a33f852b8c"
     ],
     [
         [
@@ -984,7 +991,7 @@
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "9c1fd4851be88c0e3664d571959f47b1817968bbee769c54c37356756232a07a"
+        "4669fd5e3d7c04bd3383e95e600d2425b63c07543aa1df3384acebc3316d3ec2"
     ],
     [
         [

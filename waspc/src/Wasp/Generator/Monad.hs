@@ -41,6 +41,7 @@ data GeneratorState = GeneratorState
   }
 
 data GeneratorError = GenericGeneratorError String
+  deriving (Eq)
 
 instance Show GeneratorError where
   show (GenericGeneratorError e) = e

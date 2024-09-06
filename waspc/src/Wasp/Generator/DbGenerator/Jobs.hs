@@ -157,9 +157,20 @@ runStudio projectRootDir =
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectRootDir =
-  runPrismaCommandAsJobFromWaspServerDir projectRootDir ["generate", "--schema", SP.fromAbsFile schema]
+  runPrismaCommandAsJobFromWaspServerDir
+    projectRootDir
+    [ "generate",
+      "--schema",
+      SP.fromAbsFile schema,
+      disablePrismaPromotionsFlag
+    ]
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
+
+    -- Prisma CLI will output various promotions to the user, such as "hints" about new features.
+    -- We want to disable these promotions because our users can't act on many of them (e.g. "Try out Prisma 6.0!").
+    disablePrismaPromotionsFlag :: String
+    disablePrismaPromotionsFlag = "--no-hints"
 
 runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
 runPrismaCommandAsJobFromWaspServerDir projectRootDir cmdArgs =

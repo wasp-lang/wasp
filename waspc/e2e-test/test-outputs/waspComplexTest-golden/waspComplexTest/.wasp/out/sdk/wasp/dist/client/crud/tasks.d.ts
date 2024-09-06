@@ -2,32 +2,32 @@ import { GetQueryResolved, GetAllQueryResolved } from 'wasp/server/crud/tasks';
 export declare const tasks: {
     get: {
         query: import("../operations/queries/core.js").QueryFor<GetQueryResolved>;
-        useQuery: (queryFnArgs?: import(".prisma/client").Prisma.TaskWhereUniqueInput, options?: any) => import("@tanstack/react-query").UseQueryResult<import("@prisma/client/runtime/index.js").GetResult<{
+        useQuery: (queryFnArgs?: import(".prisma/client").Prisma.TaskWhereUniqueInput, options?: any) => import("@tanstack/react-query").UseQueryResult<{
             id: number;
             description: string;
             isDone: boolean;
-        }, unknown> & {}, Error>;
+        }, Error>;
     };
     getAll: {
         query: import("../operations/queries/core.js").QueryFor<GetAllQueryResolved>;
-        useQuery: (queryFnArgs?: {}, options?: any) => import("@tanstack/react-query").UseQueryResult<(import("@prisma/client/runtime/index.js").GetResult<{
+        useQuery: (queryFnArgs?: {}, options?: any) => import("@tanstack/react-query").UseQueryResult<{
             id: number;
             description: string;
             isDone: boolean;
-        }, unknown> & {})[], Error>;
+        }[], Error>;
     };
     create: {
-        action: (args: import(".prisma/client").Prisma.TaskCreateInput) => Promise<import("@prisma/client/runtime/index.js").GetResult<{
+        action: (args: (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)) => Promise<{
             id: number;
             description: string;
             isDone: boolean;
-        }, unknown> & {}>;
+        }>;
         useAction: (actionOptions?: {
-            optimisticUpdates: import("../operations/hooks.js").OptimisticUpdateDefinition<import(".prisma/client").Prisma.TaskCreateInput, any>[];
-        }) => (args: import(".prisma/client").Prisma.TaskCreateInput) => Promise<import("@prisma/client/runtime/index.js").GetResult<{
+            optimisticUpdates: import("../operations/hooks.js").OptimisticUpdateDefinition<(import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput), any>[];
+        }) => (args: (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)) => Promise<{
             id: number;
             description: string;
             isDone: boolean;
-        }, unknown> & {}>;
+        }>;
     };
 };
