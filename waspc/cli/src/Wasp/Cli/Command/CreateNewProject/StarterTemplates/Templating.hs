@@ -9,7 +9,7 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Project.Analyze (findPackageJsonFile, findWaspFile)
+import Wasp.Project.Analyze (findPackageJsonFile, findWaspFile, _path)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -26,7 +26,7 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Nothing -> return ()
-    Just absMainWaspFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
+    Just absMainWaspFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName (_path absMainWaspFile)
 
 -- | Template file for package.json file has placeholders in it that we want to replace
 -- in the package.json file we have written to the disk.

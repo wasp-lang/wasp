@@ -5,13 +5,22 @@ module Wasp.Project.Analyze
     findWaspFile,
     findPackageJsonFile,
     analyzePrismaSchema,
+    WaspFile (..),
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Arrow (ArrowChoice (left))
+import Control.Concurrent (newChan, readChan)
+import Control.Concurrent.Async (concurrently)
+import Control.Concurrent.Chan (Chan)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
+import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
+import qualified StrongPath as SP
+import StrongPath.Types (File)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
@@ -23,6 +32,10 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.Generator.ConfigFile as G.CF
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
+import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
@@ -69,8 +82,57 @@ analyzeWaspProject waspDir options = do
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
-analyzeWaspFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspFile prismaSchemaAst waspFilePath = do
+analyzeWaspFile :: Psl.Schema.Schema -> WaspFile -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspFile prismaSchemaAst = \case
+  WaspLangFile waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
+  WaspTsFile waspFilePath -> analyzeWaspTsFile prismaSchemaAst waspFilePath
+
+analyzeWaspTsFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspTsFile _prismaSchemaAst waspFilePath = do
+  let workingDir = SP.parent waspFilePath
+  chan <- newChan
+  (_, tscExitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (runNodeCommandAsJob workingDir "npx" ["tsc", "-p", "tsconfig.node.json"] J.Wasp chan)
+
+  case tscExitCode of
+    ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
+    ExitSuccess -> do
+      otherChan <- newChan
+      (_, runExitCode) <-
+        concurrently
+          (handleRunJsMessages otherChan)
+          ( runNodeCommandAsJob
+              workingDir
+              "node"
+              [ SP.fromAbsDir workingDir ++ "node_modules/wasp-ts-sdk/dist/run.js",
+                SP.fromAbsDir workingDir ++ ".wasp/config/main.wasp.mjs"
+              ]
+              J.Wasp
+              otherChan
+          )
+      case runExitCode of
+        ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
+        ExitSuccess -> return $ Right []
+  where
+    handleRunJsMessages :: Chan J.JobMessage -> IO ()
+    handleRunJsMessages = runPrefixedWriter . processMessages
+    processMessages chan = do
+      jobMsg <- liftIO $ readChan chan
+      case J._data jobMsg of
+        J.JobOutput payload J.Stdout -> do
+          -- let payload:: String = read $ T.unpack text
+          liftIO $ putStrLn "Received on stdout"
+          -- parse payload as json
+          let json = Aeson.toJSON payload
+          liftIO $ print json
+          return ()
+        J.JobOutput _ J.Stderr -> printJobMessagePrefixed jobMsg >> processMessages chan
+        J.JobExit {} -> return ()
+
+analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs File' -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspLangFile prismaSchemaAst waspFilePath = do
   waspFileContent <- IOUtil.readFile waspFilePath
   left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
     <$> analyzeWaspFileContent prismaSchemaAst waspFileContent
@@ -118,15 +180,24 @@ constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
 
   return $ runValidation ASV.validateAppSpec appSpec
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+data WaspFile
+  = WaspLangFile {_path :: !(Path' Abs File')}
+  | WaspTsFile {_path :: !(Path' Abs File')}
+  deriving (Show)
+
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe WaspFile)
 findWaspFile waspDir = do
   files <- fst <$> IOUtil.listDirectory waspDir
-  return $ (waspDir </>) <$> find isWaspFile files
+  return $ findWaspTsFile files <|> findWaspLangFile files
   where
-    isWaspFile path =
-      ".wasp"
-        `isSuffixOf` toFilePath path
+    findWaspTsFile files = WaspTsFile . (waspDir </>) <$> find (`hasExtension` ".wasp.mts") files
+    findWaspLangFile files = WaspLangFile . (waspDir </>) <$> find isWaspLangFile files
+    isWaspLangFile path =
+      path `hasExtension` ".wasp"
         && (length (toFilePath path) > length (".wasp" :: String))
+
+hasExtension :: Path' s (File f) -> String -> Bool
+hasExtension path ext = ext `isSuffixOf` toFilePath path
 
 analyzePackageJsonContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
 analyzePackageJsonContent waspProjectDir =
