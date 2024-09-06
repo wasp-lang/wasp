@@ -2,7 +2,7 @@ import React, { useState, useRef, useContext } from "react";
 import { Plus, X, MoreHorizontal } from "react-feather";
 import { Popover } from "react-tiny-popover";
 import classnames from "classnames";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable } from "react-beautiful-dnd";
 
 import UserPageLayout from "./UserPageLayout";
 
@@ -29,28 +29,21 @@ const createListIdToSortedCardsMap = (listsAndCards) => {
   const listIdToSortedCardsMap = {};
 
   listsAndCards.forEach((list) => {
-    listIdToSortedCardsMap[list.id] = [...list.cards].sort(
-      (a, b) => a.pos - b.pos
-    );
+    listIdToSortedCardsMap[list.id] = [...list.cards].sort((a, b) => a.pos - b.pos);
   });
 
   return listIdToSortedCardsMap;
 };
 
 const MainPage = ({ user }) => {
-  const {
-    data: listsAndCards,
-    isFetchingListsAndCards,
-    errorListsAndCards,
+  const { data: listsAndCards, sFetchingListsAndCards, errorListsAndCards,
   } = useQuery(getListsAndCards);
 
   // NOTE(matija): this is only a shallow copy.
-  const listsSortedByPos =
-    listsAndCards && [...listsAndCards].sort((a, b) => a.pos - b.pos);
+  const listsSortedByPos = listsAndCards && [...listsAndCards].sort((a, b) => a.pos - b.pos);
 
   // Create a map with listId -> cards sorted by pos.
-  const listIdToSortedCardsMap =
-    listsAndCards && createListIdToSortedCardsMap(listsAndCards);
+  const listIdToSortedCardsMap = listsAndCards && createListIdToSortedCardsMap(listsAndCards);
 
   const onDragEnd = async (result) => {
     // Item was dropped outside of the droppable area.
@@ -60,10 +53,9 @@ const MainPage = ({ user }) => {
 
     // TODO(matija): make an enum for type strings (BOARD, CARD).
     if (result.type === "BOARD") {
-      const newPos = calcNewPosOfDndItemMovedWithinList(
-        listsSortedByPos,
-        result.source.index,
-        result.destination.index
+      const newPos =
+        calcNewPosOfDndItemMovedWithinList(
+        listsSortedByPos, result.source.index, result.destination.index
       );
 
       try {
@@ -88,26 +80,18 @@ const MainPage = ({ user }) => {
       const destListCardsSortedByPos = listIdToSortedCardsMap[destListId];
 
       let newPos = undefined;
-      if (sourceListId === destListId) {
-        // Card got moved within the same list.
+      if (sourceListId === destListId) {// Card got moved within the same list.
         newPos = calcNewPosOfDndItemMovedWithinList(
-          destListCardsSortedByPos,
-          result.source.index,
-          result.destination.index
+          destListCardsSortedByPos, result.source.index, result.destination.index
         );
-      } else {
-        // Card got inserted from another list.
+      } else {// Card got inserted from another list.
         newPos = calcNewPosOfDndItemInsertedInAnotherList(
-          destListCardsSortedByPos,
-          result.destination.index
+          destListCardsSortedByPos, result.destination.index
         );
       }
 
       try {
-        await updateCard({
-          cardId: movedCardId,
-          data: { pos: newPos, listId: destListId },
-        });
+        await updateCard({ cardId: movedCardId,  data: { pos: newPos, listId: destListId },});
       } catch (err) {
         window.alert("Error while updating card position: " + err.message);
       }
@@ -128,9 +112,7 @@ const MainPage = ({ user }) => {
         <Droppable droppableId="board" direction="horizontal" type="BOARD">
           {(provided, snapshot) => (
             <PositionProvider items={listsSortedByPos}>
-              <div
-                id="board"
-                className="u-fancy-scrollbar"
+              <div id="board" className="u-fancy-scrollbar"
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -147,6 +129,7 @@ const MainPage = ({ user }) => {
           )}
         </Droppable>
       </DragDropContext>
+
     </UserPageLayout>
   );
 };
@@ -157,10 +140,7 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 
   return lists.map((list, index) => {
     return (
-      <List
-        list={list}
-        key={list.id}
-        index={index}
+      <List list={list} key={list.id} index={index}
         cards={listIdToCardsMap[list.id]}
       />
     );
@@ -171,9 +151,10 @@ function getStyle(style, snapshot) {
   if (snapshot.isDragging) {
     // Apply tilt only when dragging
     const rotate = "rotate(5deg)";
+    const scale = "scale(0.85)";
     return {
       ...style,
-      transform: `${style.transform || ""} ${rotate}`,
+      transform: `${style.transform || ""} ${rotate}${scale}`,
       transition: "transform 0.2s ease",
     };
   }
@@ -197,8 +178,7 @@ const List = ({ list, index, cards }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
   const [isInEditMode, setIsInEditMode] = useState(false);
-  const { getPosOfItemInsertedInAnotherListAfter } =
-    useContext(PositionContext);
+  const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext);
 
   const textAreaRef = useRef(null);
 
@@ -219,10 +199,7 @@ const List = ({ list, index, cards }) => {
 
   const handleCopyList = async (listId, idx) => {
     try {
-      await createListCopy({
-        listId,
-        pos: getPosOfItemInsertedInAnotherListAfter(idx),
-      });
+      await createListCopy({ listId, pos: getPosOfItemInsertedInAnotherListAfter(idx),});
     } catch (err) {
       window.alert("Error while copying list: " + err.message);
     }
@@ -244,6 +221,13 @@ const List = ({ list, index, cards }) => {
     textAreaRef?.current?.focus();
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevents the default action of adding a new line
+      textAreaRef.current.blur(); // Triggers the blur event to save changes
+    }
+  };
+
   const ListMenu = () => {
     return (
       <div className="popover-menu">
@@ -253,9 +237,7 @@ const List = ({ list, index, cards }) => {
               <X size={16} />
             </button>
           </div>
-          <span className="popover-header-title popover-header-item">
-            List&nbsp;actions
-          </span>
+          <span className="popover-header-title popover-header-item">List&nbsp;actions</span>
           <div className="popover-header-item">
             <button
               className="popover-header-close-btn dark-hover"
@@ -268,7 +250,9 @@ const List = ({ list, index, cards }) => {
         <div className="popover-content">
           <ul className="popover-content-list">
             <li>
-              <button onClick={() => handleAddCard()}>Add card...</button>
+              <button onClick={() => handleAddCard()}>
+                Add card...
+              </button>
             </li>
             <li>
               <button onClick={() => handleCopyList(list.id, index)}>
@@ -314,6 +298,7 @@ const List = ({ list, index, cards }) => {
               <textarea
                 className="list-header-name mod-list-name"
                 onBlur={(e) => handleListNameUpdated(list.id, e.target.value)}
+                onKeyPress={handleKeyPress}
                 defaultValue={list.name}
                 ref={textAreaRef}
               />
@@ -334,8 +319,8 @@ const List = ({ list, index, cards }) => {
                   </div>
                 </Popover>
               </div>
-            </div>{" "}
-            {/* eof list-header */}
+            </div>{" "} {/* eof list-header */}
+
             <Droppable
               droppableId={`${list.id}`}
               direction="vertical"
@@ -352,6 +337,7 @@ const List = ({ list, index, cards }) => {
                 </div>
               )}
             </Droppable>
+
             <div className="card-composer-container">
               <PositionProvider items={cards}>
                 <AddCard
@@ -371,14 +357,45 @@ const List = ({ list, index, cards }) => {
 const Cards = ({ cards }) => {
   return (
     <div className="list-cards">
-      {cards.map((card, index) => (
-        <Card card={card} key={card.id} index={index} />
-      ))}
+      {cards.map((card, index) => (<Card card={card} key={card.id} index={index} />))}
     </div>
   );
 };
 
 const Card = ({ card, index }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(card.title);
+  const inputRef = useRef(null);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setTimeout(() => {
+      inputRef.current.focus();
+    }, 0);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    updateCard({
+      cardId: card.id,
+      data: {
+        title: title,
+        pos: card.pos,
+        listId: card.listId,
+      },
+    });
+  };
+
+  const handleChange = (e) => {
+    setTitle(e.target.value);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      inputRef.current.blur();
+    }
+  };
+
   return (
     <Draggable key={card.id} draggableId={`${card.id}`} index={index}>
       {(provided, snapshot) => (
@@ -390,7 +407,21 @@ const Card = ({ card, index }) => {
           isDragging={snapshot.isDragging && !snapshot.isDropAnimating}
           style={getStyle(provided.draggableProps.style, snapshot)}
         >
-          <span className="list-card-title">{card.title}</span>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              className="list-card-input"
+              value={title}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              onKeyPress={handleKeyPress}
+              autoFocus
+            />
+          ) : (
+            <div className="list-card-title" onClick={handleEdit}>
+              {title}
+            </div>
+          )}
         </div>
       )}
     </Draggable>
@@ -403,7 +434,10 @@ const AddList = () => {
 
   const AddListButton = () => {
     return (
-      <button className="open-add-list" onClick={() => setIsInEditMode(true)}>
+      <button 
+        className="open-add-list" 
+        onClick={() => setIsInEditMode(true)}
+      >
         <div className="add-icon">
           <Plus size={16} strokeWidth={2} />
         </div>
@@ -449,8 +483,8 @@ const AddList = () => {
 
   return (
     <div
-      className={classnames("add-list", "list-wrapper", "mod-add", {
-        "is-idle": !isInEditMode,
+      className={classnames(
+        "add-list", "list-wrapper", "mod-add", {"is-idle": !isInEditMode,
       })}
     >
       {isInEditMode ? <AddListInput /> : <AddListButton />}
@@ -459,6 +493,7 @@ const AddList = () => {
 };
 
 const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
+  
   const AddCardButton = () => {
     return (
       <button
@@ -476,6 +511,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
   const AddCardInput = ({ listId }) => {
     const formRef = useRef(null);
     const { getPosOfNewItem } = useContext(PositionContext);
+    const [error, setError] = useState("");
 
     const submitOnEnter = (e) => {
       if (e.keyCode === 13 /* && e.shiftKey == false */) {
@@ -489,21 +525,25 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
 
     const handleAddCard = async (event, listId) => {
       event.preventDefault();
+      const cardTitle = event.target.cardTitle.value.trim();
+
+      if (cardTitle === "") {
+        setError("⚠️Card title cannot be empty.");
+        return;
+      }
+
+      setError("");
       try {
-        const cardTitle = event.target.cardTitle.value;
         event.target.reset();
         await createCard({ title: cardTitle, pos: getPosOfNewItem(), listId });
+        setIsInEditMode(false);
       } catch (err) {
         window.alert("Error: " + err.message);
       }
     };
 
     return (
-      <form
-        className="card-composer"
-        ref={formRef}
-        onSubmit={(e) => handleAddCard(e, listId)}
-      >
+      <form className="card-composer" ref={formRef} onSubmit={(e) => handleAddCard(e, listId)}>
         <div className="list-card">
           <textarea
             className="card-composer-textarea"
@@ -512,6 +552,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
             name="cardTitle"
             placeholder="Enter a title for this card..."
           />
+          {error && <div className="error">{error}</div>}
         </div>
         <div className="card-add-controls">
           <input className="card-add-button" type="submit" value="Add card" />
