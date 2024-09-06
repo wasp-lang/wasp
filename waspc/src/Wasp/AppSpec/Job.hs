@@ -28,7 +28,7 @@ data Job = Job
   }
   deriving (Show, Eq, Data)
 
-instance IsDecl Job	
+instance IsDecl Job
 
 data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded)
@@ -50,7 +50,7 @@ data Schedule = Schedule
 -- These are optional executor-specific JSON options we pass
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
-  { pgBoss :: Maybe JSON,
+  { pgBoss :: Maybe JSON
   }
   deriving (Show, Eq, Data)
 
