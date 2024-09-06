@@ -28,6 +28,8 @@ data Job = Job
   }
   deriving (Show, Eq, Data)
 
+instance IsDecl Job	
+
 data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded)
 
