@@ -1,22 +1,39 @@
-module Wasp.Util.WebRouterPath where
+module Wasp.Util.WebRouterPath
+  ( Segment (StaticSegment, ParamSegment),
+    StaticSegment (RequiredStaticSegment, OptionalStaticSegment),
+    ParamSegment (RequiredParamSegment, OptionalParamSegment),
+    getRouteSegments,
+  )
+where
 
 import Data.List (isSuffixOf)
 import Data.List.Split (splitOn)
-import Data.Maybe (mapMaybe)
 
-data Param = Optional String | Required String deriving (Show, Eq)
+data Segment = StaticSegment StaticSegment | ParamSegment ParamSegment deriving (Show, Eq)
 
--- TODO: upgrade to work with React Router v6: https://reactrouter.com/en/main/route/route#splats
--- Maybe explode all optional segments and then compute the routes for the Link component
--- This would mean we have two different lists: routes and links?
-extractPathParams :: String -> [Param]
-extractPathParams = mapMaybe parseParam . splitOn "/"
+data StaticSegment = RequiredStaticSegment StaticSegmentValue | OptionalStaticSegment StaticSegmentValue deriving (Show, Eq)
+
+data ParamSegment = RequiredParamSegment ParamName | OptionalParamSegment ParamName deriving (Show, Eq)
+
+type StaticSegmentValue = String
+
+type ParamName = String
+
+getRouteSegments :: String -> [Segment]
+getRouteSegments = map parseSegment . splitOn "/"
   where
-    parseParam :: String -> Maybe Param
-    parseParam "*" = Just $ Required "splat"
-    parseParam (':' : xs) =
-      Just $
-        if "?" `isSuffixOf` xs
-          then Optional (take (length xs - 1) xs)
-          else Required xs
-    parseParam _ = Nothing
+    parseSegment :: String -> Segment
+    parseSegment "*" = ParamSegment $ RequiredParamSegment "splat"
+    parseSegment (':' : xs) =
+      ParamSegment $
+        if isSegmentOptional xs
+          then OptionalParamSegment (take (length xs - 1) xs)
+          else RequiredParamSegment xs
+    parseSegment x =
+      StaticSegment $
+        if isSegmentOptional x
+          then OptionalStaticSegment x
+          else RequiredStaticSegment x
+
+isSegmentOptional :: String -> Bool
+isSegmentOptional = isSuffixOf "?"

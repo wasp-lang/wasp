@@ -2,7 +2,7 @@
 export type RouteDefinitionsToRoutes<Routes extends RoutesDefinition> =
   RouteDefinitionsToRoutesObj<Routes>[keyof RouteDefinitionsToRoutesObj<Routes>]
 
-  // PRIVATE API
+// PRIVATE API
 export type OptionalRouteOptions = {
   search?: Search
   hash?: string
@@ -40,6 +40,7 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
   ? { params: Params }
   : { params?: never }
 
+// PRIVATE API (sdk)
 /**
  * Optional static segments handling: expands routes with optional segments
  * into multiple routes, one for each possible combination of optional segments.
@@ -48,7 +49,7 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
  * - /users/:id
  * - /users/tasks/:id
  */
-type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/'
+export type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/'
   ? '/'
   : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`
 

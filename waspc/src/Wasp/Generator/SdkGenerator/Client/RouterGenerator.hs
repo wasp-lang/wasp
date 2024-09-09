@@ -12,7 +12,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Util.WebRouterPath (Param (Optional, Required), extractPathParams)
+import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
 genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
@@ -37,13 +37,16 @@ createRouteTemplateData (name, route) =
     [ "name" .= name,
       "urlPath" .= path,
       "urlParams" .= map mapPathParamToJson urlParams,
-      "hasUrlParams" .= (not . null $ urlParams)
+      "hasUrlParams" .= (not . null $ urlParams),
+      "hasOptionalStaticSegments" .= (not . null $ optionalStaticSegments)
     ]
   where
     path = AS.Route.path route
 
-    urlParams = extractPathParams path
+    routeSegments = WebRouterPath.getRouteSegments path
+    urlParams = [param | WebRouterPath.ParamSegment param <- routeSegments]
+    optionalStaticSegments = [segment | (WebRouterPath.StaticSegment (WebRouterPath.OptionalStaticSegment segment)) <- routeSegments]
 
-    mapPathParamToJson :: Param -> Aeson.Value
-    mapPathParamToJson (Required paramName) = object ["name" .= paramName, "isOptional" .= False]
-    mapPathParamToJson (Optional paramName) = object ["name" .= paramName, "isOptional" .= True]
+    mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
+    mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
+    mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]

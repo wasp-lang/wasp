@@ -35,7 +35,7 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
  * - /users/:id
  * - /users/tasks/:id
  */
-type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/' ? '/' : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`;
+export type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/' ? '/' : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`;
 type ExpandOptionalSegments<T> = T extends [infer Head, ...infer Tail] ? Head extends '' ? [...ExpandOptionalSegments<Tail>] : [_ExpandOptionalSegment<Head>, ...ExpandOptionalSegments<Tail>] : T;
 type _ExpandOptionalSegment<T> = T extends `:${infer P}` ? {
     segment: T;
