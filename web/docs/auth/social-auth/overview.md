@@ -228,13 +228,13 @@ For example:
 
 ```jsx title=src/HomePage.jsx
 import { useAuth } from 'wasp/client/auth'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 export function HomePage() {
   const { data: user } = useAuth()
 
   if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />
+    return <Navigate to="/edit-user-details" />
   }
 
   // ...
@@ -246,13 +246,13 @@ export function HomePage() {
 
 ```tsx title=src/HomePage.tsx
 import { useAuth } from 'wasp/client/auth'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 export function HomePage() {
   const { data: user } = useAuth()
 
   if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />
+    return <Navigate to="/edit-user-details" />
   }
 
   // ...

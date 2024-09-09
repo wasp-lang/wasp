@@ -4,8 +4,8 @@ title: 3. Pages & Routes
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import WaspStartNote from '../_WaspStartNote.md'
-import TypescriptServerNote from '../_TypescriptServerNote.md'
+import WaspStartNote from '../\_WaspStartNote.md'
+import TypescriptServerNote from '../\_TypescriptServerNote.md'
 
 In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
@@ -15,7 +15,7 @@ In the default `main.wasp` file created by `wasp new`, there is a **page** and a
 ```wasp title="main.wasp"
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  // We specify that the React implementation of the page is exported from 
+  // We specify that the React implementation of the page is exported from
   // `src/MainPage.jsx`. This statement uses standard JS import syntax.
   // Use `@src` to reference files inside the `src` folder.
   component: import { MainPage } from "@src/MainPage"
@@ -83,7 +83,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/web/). Let's test this out by adding a new page:
+To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/en/6.26.1). Let's test this out by adding a new page:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -108,28 +108,29 @@ page HelloPage {
 </TabItem>
 </Tabs>
 
-When a user visits `/hello/their-name`, Wasp will render the component exported from `src/HelloPage.{jsx,tsx}` and pass the URL parameter the same way as in React Router:
+When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router-dom` to access the `name` parameter:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/HelloPage.jsx"
-export const HelloPage = (props) =>  {
-  return <div>Here's {props.match.params.name}!</div>
+import { useParams } from 'react-router-dom'
+
+export const HelloPage = () => {
+  const { name } = useParams()
+  return <div>Here's {name}!</div>
 }
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
-
 ```tsx title="src/HelloPage.tsx"
-import { RouteComponentProps } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-export const HelloPage = (
-  props: RouteComponentProps<{ name: string }>
-) => {
-  return <div>Here's {props.match.params.name}!</div>
+export const HelloPage = () => {
+  const { name } = useParams<'name'>()
+  return <div>Here's {name}!</div>
 }
 ```
 
@@ -180,7 +181,6 @@ At this point, the main page should look like this:
 src={useBaseUrl('img/todo-app-hello-world.png')}
 style={{ border: "1px solid black" }}
 />
-
 
 You can now delete redundant files: `src/Main.css`, `src/waspLogo.png`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
