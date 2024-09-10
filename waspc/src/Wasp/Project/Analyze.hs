@@ -106,8 +106,8 @@ readDeclsJsonFile declsJsonFile = do
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspDir _prismaSchemaAst _waspFilePath = runExceptT $ do
-  compiledMainWaspJsFile <- ExceptT $ compileWaspTsFile waspDir
-  specJsonFile <- ExceptT $ executeMainWaspJsFile waspDir compiledMainWaspJsFile
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspDir
+  specJsonFile <- ExceptT $ executeMainWaspJsFile waspDir compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
   liftIO $ putStrLn "Here are the contents of the spec file:"
   liftIO $ print contents
@@ -145,11 +145,26 @@ compileWaspTsFile waspDir = do
   (_, tscExitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob waspDir "npx" ["tsc", "-p", "tsconfig.node.json"] J.Wasp chan)
+      ( runNodeCommandAsJob
+          waspDir
+          "npx"
+          [ "tsc",
+            "-p",
+            "tsconfig.node.json",
+            "--noEmit",
+            "false",
+            "--outDir",
+            toFilePath $ SP.parent compiledWaspJsFile
+          ]
+          J.Wasp
+          chan
+      )
   case tscExitCode of
     ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
     -- TODO: I shoulde be getting the compiled file path from the tsconfig.node.file
-    ExitSuccess -> return $ Right $ waspDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
+    ExitSuccess -> return $ Right compiledWaspJsFile
+  where
+    compiledWaspJsFile = waspDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
