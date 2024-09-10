@@ -40,6 +40,44 @@ export const TaskList = () => {
 }
 ```
 
+### Catch-all Routes
+
+If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/en/main/route/route#splats)), you can use the `Link` component like this:
+
+```wasp title="main.wasp"
+route CatchAllRoute { path: "/pages/*", to: CatchAllPage }
+page CatchAllPage { ... }
+```
+
+```jsx title="TaskList.tsx"
+<Link to="/pages/*" params={{ splat: 'about' }}>
+  About
+</Link>
+```
+
+This will result in a link like this: `/pages/about`.
+
+### Optional Static Segments
+
+If a route contains optional static segments, you'll need to specify one of the possible paths:
+
+```wasp title="main.wasp"
+route OptionalRoute { path: "/task/:id/details?", to: OptionalPage }
+page OptionalPage { ... }
+```
+
+```jsx title="TaskList.tsx"
+/* You can include ... */
+<Link to="/task/:id/details" params={{ id: 1 }}>
+  Task 1
+</Link>
+
+/* ... or exclude the optional segment */
+<Link to="/task/:id" params={{ id: 1 }}>
+  Task 1
+</Link>
+```
+
 ### Using Search Query & Hash
 
 You can also pass `search` and `hash` props to the `Link` component:
@@ -69,6 +107,22 @@ const linkToTask = routes.TaskRoute.build({ params: { id: 1 } })
 
 This will result in a link like this: `/task/1`.
 
+### Optional Static Segments
+
+If a route contains optional static segments, you'll need to specify one of the possible paths:
+
+```wasp title="main.wasp"
+route OptionalRoute { path: "/task/:id/details?", to: OptionalPage }
+page OptionalPage { ... }
+```
+
+```tsx title="TaskList.tsx"
+const linkToOptional = routes.OptionalRoute.build({
+  path: '/task/:id/details', // or '/task/:id'
+  params: { id: 1 },
+})
+```
+
 You can also pass `search` and `hash` props to the `build` function. Check out the [API Reference](#routes-object) for more details.
 
 ## API Reference
@@ -80,6 +134,8 @@ The `Link` component accepts the following props:
 - `to` <Required />
 
   - A valid Wasp Route path from your `main.wasp` file.
+
+    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
 
 - `params: { [name: string]: string | number }` <Required /> (if the path contains params)
 
@@ -108,16 +164,39 @@ export const routes = {
     }) => // ...
   },
 
-  // DetailRoute has a path like "/task/:id/:something?"
+  // DetailRoute has a path like "/task/:id/:userId?"
   DetailRoute: {
     build: (
       options: {
-        params: { id: ParamValue; something?: ParamValue; },
+        params: { id: ParamValue; userId?: ParamValue; },
         search?: string[][] | Record<string, string> | string | URLSearchParams
         hash?: string
       }
     ) => // ...
-  }
+  },
+
+  // OptionalRoute has a path like "/task/:id/details?"
+  OptionalRoute: {
+    build: (
+      options: {
+        path: '/task/:id/details' | '/task/:id',
+        params: { id: ParamValue },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+
+  // CatchAllRoute has a path like "/pages/*"
+  CatchAllRoute: {
+    build: (
+      options: {
+        params: { splat: ParamValue },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
 }
 ```
 
@@ -130,4 +209,11 @@ import { routes } from 'wasp/client/router'
 
 const linkToRoot = routes.RootRoute.build()
 const linkToTask = routes.DetailRoute.build({ params: { id: 1 } })
+const linkToOptional = routes.DetailRoute.build({
+  path: '/task/:id/details',
+  params: { id: 1 },
+})
+const linkToCatchAll = routes.CatchAllRoute.build({
+  params: { splat: 'about' },
+})
 ```
