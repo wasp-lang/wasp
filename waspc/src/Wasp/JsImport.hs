@@ -11,7 +11,7 @@ module Wasp.JsImport
     applyJsImportAlias,
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
-    getJsImportStmtAndIdentifierRaw,
+    getDynamicJsImportExprAndIdentifier,
   )
 where
 
@@ -58,6 +58,9 @@ type JsImportClause = String
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
 
+-- | Represents the object destructuring part of a dynamic import statement e.g. @const { Name } = await import("file.js")@
+type JsImportObject = String
+
 getImportIdentifier :: JsImport -> JsImportIdentifier
 getImportIdentifier JsImport {_name = name} = case name of
   JsImportModule identifier -> identifier
@@ -71,12 +74,13 @@ applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
-  getJsImportStmtAndIdentifierRaw filePath importName maybeImportAlias
+  getJsImportStmtAndIdentifierRaw (getImportFilePath importPath) importName maybeImportAlias
+
+getImportFilePath :: JsImportPath -> FilePath
+getImportFilePath (RelativeImportPath relPath) = normalizePath $ SP.fromRelFileP relPath
   where
-    filePath = case importPath of
-      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
-      ModuleImportPath pathString -> SP.fromRelFileP pathString
     normalizePath path = if ".." `isPrefixOf` path then path else "./" ++ path
+getImportFilePath (ModuleImportPath pathString) = SP.fromRelFileP pathString
 
 -- todo(filip): attempt to simplify how we generate imports. I wanted to generate a
 -- module import (e.g., '@ext-src/something') and couldn't do it. This is one of
@@ -110,3 +114,36 @@ getJsImportStmtAndIdentifierRaw importPath importName maybeImportAlias =
           where
             resolvedIdentifier =
               if identifier == importAlias then identifier else identifier ++ " as " ++ importAlias
+
+getDynamicJsImportExprAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
+getDynamicJsImportExprAndIdentifier (JsImport importPath importName maybeImportAlias) =
+  getDynamicJsImportExprAndIdentifierRaw (getImportFilePath importPath) importName maybeImportAlias
+
+getDynamicJsImportExprAndIdentifierRaw ::
+  FilePath ->
+  JsImportName ->
+  Maybe JsImportAlias ->
+  (JsImportStatement, JsImportIdentifier)
+getDynamicJsImportExprAndIdentifierRaw importPath importName maybeImportAlias =
+  (importExpr, importIdentifier)
+  where
+    (importIdentifier, importObject) = jsImportIdentifierAndObject
+    importExpr = "const " ++ importObject ++ " = await import('" ++ importPath ++ "')"
+
+    -- First part of a dynamic import statement e.g. @{ default: Name }@
+    -- in @const { default: Name } = await import("file.js")@
+    jsImportIdentifierAndObject :: (JsImportIdentifier, JsImportObject)
+    jsImportIdentifierAndObject = case importName of
+      JsImportModule defaultImport -> getForDefault defaultImport maybeImportAlias
+      JsImportField namedImport -> getForNamed namedImport maybeImportAlias
+      where
+        getForDefault :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportObject)
+        getForDefault identifier Nothing = (identifier, "{ default: " ++ identifier ++ " }")
+        getForDefault _ (Just importAlias) = (importAlias, "{ default: " ++ importAlias ++ " }")
+
+        getForNamed :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportObject)
+        getForNamed identifier Nothing = (identifier, "{ " ++ identifier ++ " }")
+        getForNamed identifier (Just importAlias) = (importAlias, "{ " ++ resolvedIdentifier ++ " }")
+          where
+            resolvedIdentifier =
+              if identifier == importAlias then identifier else identifier ++ ": " ++ importAlias

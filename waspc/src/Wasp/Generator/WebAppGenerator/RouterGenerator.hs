@@ -17,7 +17,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -27,11 +26,10 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
-import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
+import Wasp.JsImport (applyJsImportAlias, getDynamicJsImportExprAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
-    _pagesToImport :: ![PageTemplateData],
     _isAuthEnabled :: Bool,
     _isExternalAuthEnabled :: Bool,
     _rootComponent :: Aeson.Value,
@@ -42,7 +40,6 @@ instance ToJSON RouterTemplateData where
   toJSON routerTD =
     object
       [ "routes" .= _routes routerTD,
-        "pagesToImport" .= _pagesToImport routerTD,
         "isAuthEnabled" .= _isAuthEnabled routerTD,
         "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
         "rootComponent" .= _rootComponent routerTD,
@@ -52,14 +49,18 @@ instance ToJSON RouterTemplateData where
 
 data RouteTemplateData = RouteTemplateData
   { _routeName :: !String,
-    _targetComponent :: !String
+    _importExpr :: !String,
+    _targetComponent :: !String,
+    _isAuthRequired :: !Bool
   }
 
 instance ToJSON RouteTemplateData where
   toJSON routeTD =
     object
       [ "name" .= _routeName routeTD,
-        "targetComponent" .= _targetComponent routeTD
+        "importExpr" .= _importExpr routeTD,
+        "targetComponent" .= _targetComponent routeTD,
+        "isAuthRequired" .= _isAuthRequired routeTD
       ]
 
 data PageTemplateData = PageTemplateData
@@ -95,7 +96,7 @@ createRouterTemplateData :: AppSpec -> RouterTemplateData
 createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
-      _pagesToImport = pages,
+      -- _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
       _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
@@ -103,28 +104,23 @@ createRouterTemplateData spec =
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
-    pages = map createPageTemplateData $ AS.getPages spec
+    -- pages = map createPageTemplateData $ AS.getPages spec
     maybeAuth = AS.App.auth $ snd $ getApp spec
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
-createRouteTemplateData spec namedRoute@(name, _) =
+createRouteTemplateData spec (name, route) =
   RouteTemplateData
     { _routeName = name,
-      _targetComponent = determineRouteTargetComponent spec namedRoute
+      _importExpr = importExpr,
+      _targetComponent = importIdentifier,
+      _isAuthRequired = isAuthRequired
     }
-
--- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
-determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
-determineRouteTargetComponent spec (_, route) =
-  maybe
-    targetPageName
-    determineRouteTargetComponent'
-    (AS.Page.authRequired $ snd targetPage)
   where
     targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
     targetPage =
       fromMaybe
+        -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
         ( error $
             "Can't find page with name '"
               ++ targetPageName
@@ -133,28 +129,13 @@ determineRouteTargetComponent spec (_, route) =
               ++ "'"
         )
         (find ((==) targetPageName . fst) (AS.getPages spec))
+    isAuthRequired = AS.Page.authRequired (snd targetPage) == Just True
 
-    determineRouteTargetComponent' :: Bool -> String
-    determineRouteTargetComponent' authRequired =
-      if authRequired
-        then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
-          "createAuthRequiredPage(" ++ targetPageName ++ ")"
-        else targetPageName
+    (importExpr, importIdentifier) = getDynamicJsImportExprAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
 
-createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
-createPageTemplateData page =
-  PageTemplateData
-    { _importStmt = importStmt
-    }
-  where
-    importStmt :: String
-    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
+    pageComponent = AS.Page.component $ snd targetPage
 
-    pageComponent :: AS.ExtImport.ExtImport
-    pageComponent = AS.Page.component $ snd page
-
-    importAlias :: String
-    importAlias = fst page
+    importAlias = fst targetPage
 
 relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]

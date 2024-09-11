@@ -9,10 +9,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 {=/ isAuthEnabled =}
 
-{=# pagesToImport =}
-{=& importStatement =}
-{=/ pagesToImport =}
-
 {=# isExternalAuthEnabled =}
 import { OAuthCallbackPage } from "./auth/pages/OAuthCallback"
 {=/ isExternalAuthEnabled =}
@@ -21,7 +17,11 @@ import { routes } from 'wasp/client/router'
 
 export const routeNameToRouteComponent = {
   {=# routes =}
-  {= name =}: {= targetComponent =},
+  {= name =}: async () => {
+    {=& importExpr =}
+    {=# isAuthRequired =}return { Component: createAuthRequiredPage({= targetComponent =}) }{=/ isAuthRequired =}
+    {=^ isAuthRequired =}return { Component: {= targetComponent =} }{=/ isAuthRequired =}
+  },
   {=/ routes =}
 } as const;
 
@@ -36,7 +36,7 @@ const waspDefinedRoutes = [
 const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
   return {
     path: route.to,
-    Component: routeNameToRouteComponent[routeKey],
+    lazy: routeNameToRouteComponent[routeKey],
   }
 })
 
