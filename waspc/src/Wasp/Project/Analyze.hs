@@ -39,6 +39,7 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
     findFileInWaspProjectDir,
     packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
@@ -147,7 +148,9 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
     ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
     ExitSuccess -> return $ Right absSpecOutputFile
   where
-    absSpecOutputFile = waspProjectDir </> [relfile|config/spec.json|]
+    -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
+    -- see notes in compileWaspFile.
+    absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
     absEntrypointFile = waspProjectDir </> tsSdkEntryPointFromProjectDir
 
 -- TODO: Reconsider the return value. Can I write the function in such a way
@@ -186,10 +189,10 @@ compileWaspTsFile waspProjectDir = do
       )
   case tscExitCode of
     ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
-    -- TODO: I shoulde be getting the compiled file path from the tsconfig.node.file
     ExitSuccess -> return $ Right absCompiledWaspJsFile
   where
-    absCompiledWaspJsFile = waspProjectDir </> [relfile|config/main.wasp.mjs|]
+    -- TODO: I should be getting the compiled file path from the tsconfig.node.file
+    absCompiledWaspJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
