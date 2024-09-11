@@ -17,6 +17,8 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 import { OAuthCallbackPage } from "./auth/pages/OAuthCallback"
 {=/ isExternalAuthEnabled =}
 
+import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+
 import { routes } from 'wasp/client/router'
 
 export const routeNameToRouteComponent = {
@@ -45,11 +47,11 @@ const browserRouter = createBrowserRouter([{
   {=# rootComponent.isDefined =}
   element: <{= rootComponent.importIdentifier =} />,
   {=/ rootComponent.isDefined =}
+  ErrorBoundary: DefaultRootErrorBoundary,
   children: [
     ...waspDefinedRoutes,
     ...userDefinedRoutes,
   ],
 }])
-
 
 export const router = <RouterProvider router={browserRouter} />

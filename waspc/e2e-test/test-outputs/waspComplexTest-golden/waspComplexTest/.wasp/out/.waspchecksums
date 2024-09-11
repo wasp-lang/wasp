@@ -1227,6 +1227,13 @@
     [
         [
             "file",
+            "web-app/src/components/DefaultRootErrorBoundary.tsx"
+        ],
+        "4a141a28ca7aed9daddd75c156f7bae5eec50f3e5a85b6a43a28fa2648f34c44"
+    ],
+    [
+        [
+            "file",
             "web-app/src/components/FullPageWrapper.tsx"
         ],
         "da3e7478b84e3c9a67516f0dce21447cddbe65f904b91db7ada6be6173b77973"
@@ -1271,7 +1278,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "9687e7af18a16abbde9b12548a9ede38a8dcc0d8d0872aeb951d8171b6eb20b2"
+        "8160ffecec82dde31d889825cf0a2d605e2b729be555c650b8accca2252ed613"
     ],
     [
         [

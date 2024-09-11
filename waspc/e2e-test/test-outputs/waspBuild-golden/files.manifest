@@ -219,6 +219,7 @@ waspBuild/.wasp/build/web-app/public/.gitkeep
 waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/manifest.json
 waspBuild/.wasp/build/web-app/scripts/validate-env.mjs
+waspBuild/.wasp/build/web-app/src/components/DefaultRootErrorBoundary.tsx
 waspBuild/.wasp/build/web-app/src/components/FullPageWrapper.tsx
 waspBuild/.wasp/build/web-app/src/components/Loader.module.css
 waspBuild/.wasp/build/web-app/src/components/Loader.tsx

@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { MainPage } from '../../../../src/MainPage'
 
 
+import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+
 import { routes } from 'wasp/client/router'
 
 export const routeNameToRouteComponent = {
@@ -22,11 +24,11 @@ const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
 
 const browserRouter = createBrowserRouter([{
   path: '/',
+  ErrorBoundary: DefaultRootErrorBoundary,
   children: [
     ...waspDefinedRoutes,
     ...userDefinedRoutes,
   ],
 }])
-
 
 export const router = <RouterProvider router={browserRouter} />
