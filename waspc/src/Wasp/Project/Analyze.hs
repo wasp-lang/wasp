@@ -17,7 +17,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import StrongPath.Types (File)
@@ -39,7 +39,6 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    dotWaspDirInWaspProjectDir,
     findFileInWaspProjectDir,
     packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
@@ -59,17 +58,29 @@ import qualified Wasp.Util.IO as IOUtil
 import Wasp.Valid (ValidationError)
 import qualified Wasp.Valid as Valid
 
-data CompiledWaspJsFile
-
-data SpecJsonFile
+data WaspFile
+  = WaspLang !(Path' Abs (File WaspLangFile))
+  | WaspTs !(Path' Abs (File WaspTsFile))
 
 data WaspLangFile
 
 data WaspTsFile
 
-data WaspFile
-  = WaspLang !(Path' Abs (File WaspLangFile))
-  | WaspTs !(Path' Abs (File WaspTsFile))
+data CompiledWaspJsFile
+
+data SpecJsonFile
+
+-- TODO: Not yet sure where this is going to come from because we also need that knowledge to generate a TS SDK project.
+--
+-- BEGIN SHARED STUFF
+
+tsconfigNodeFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+tsconfigNodeFileInWaspProjectDir = [relfile|tsconfig.node.json|]
+
+tsSdkEntryPointFromProjectDir :: Path' (Rel WaspProjectDir) File'
+tsSdkEntryPointFromProjectDir = [relfile|node_modules/wasp-config/dist/run.js|]
+
+-- END SHARED STUFF
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -105,43 +116,53 @@ readDeclsJsonFile declsJsonFile = do
   return $ Right $ Aeson.toJSON byteString
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile waspDir _prismaSchemaAst _waspFilePath = runExceptT $ do
+analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ do
   -- TODO: The function currently doesn't require the path to main.wasp.ts
   -- because it reads it from the tsconfig
   -- Should we ensure that the tsconfig indeed points to the name we expect? Probably.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspDir
-  specJsonFile <- ExceptT $ executeMainWaspJsFile waspDir compiledWaspJsFile
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir
+  specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
   liftIO $ putStrLn "Here are the contents of the spec file:"
   liftIO $ print contents
   return []
 
 executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
-executeMainWaspJsFile workingDir compiledMainWaspJsFile = do
+executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
       ( runNodeCommandAsJob
-          workingDir
+          waspProjectDir
           "node"
-          [ SP.fromAbsFile runJsFile,
-            SP.fromAbsFile compiledMainWaspJsFile,
-            SP.fromAbsFile specOutputFile
+          [ SP.fromAbsFile absEntrypointFile,
+            SP.fromAbsFile absCompiledMainWaspJsFile,
+            SP.fromAbsFile absSpecOutputFile
           ]
           J.Wasp
           chan
       )
   case runExitCode of
     ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
-    ExitSuccess -> return $ Right specOutputFile
+    ExitSuccess -> return $ Right absSpecOutputFile
   where
-    -- TODO: Figure out where this data comes from (source of truth).
-    specOutputFile = workingDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
-    runJsFile = workingDir </> [relfile|node_modules/wasp-ts-sdk/dist/run.js|]
+    absSpecOutputFile = waspProjectDir </> [relfile|config/spec.json|]
+    absEntrypointFile = waspProjectDir </> tsSdkEntryPointFromProjectDir
 
+-- TODO: Reconsider the return value. Can I write the function in such a way
+-- that it's impossible to get the absolute path to the compiled file without
+-- calling the function that compiles it?
+-- To do that, I'd have to craete a private module that knows where the file is
+-- and not expose the constant for creating the absoltue path (like I did with config/spec.json).
+-- Normally, I could just put the constant in the where clause like I did there, but I'm hesitant
+-- to do that since the path comes from the tsconfig.
+--
+-- This is what I did currently, but I'll have to figure out the long-term solution.
+-- The ideal solution is reading the TS file, and passing its config to tsc
+-- manually (and getting the output file path in the process).
 compileWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
-compileWaspTsFile waspDir = do
+compileWaspTsFile waspProjectDir = do
   -- TODO: The function should also receive the tsconfig.node.json file (not the main.wasp.ts file),
   -- because the source of truth (the name of the file, where it's compiled) comes from the typescript config.
   -- However, we might want to keep this information in haskell and then verify that the tsconfig is correct.
@@ -150,15 +171,15 @@ compileWaspTsFile waspDir = do
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
       ( runNodeCommandAsJob
-          waspDir
+          waspProjectDir
           "npx"
           [ "tsc",
             "-p",
-            toFilePath tsconfigNodeFile,
+            toFilePath (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
             "--noEmit",
             "false",
             "--outDir",
-            toFilePath $ SP.parent compiledWaspJsFile
+            toFilePath $ SP.parent absCompiledWaspJsFile
           ]
           J.Wasp
           chan
@@ -166,11 +187,9 @@ compileWaspTsFile waspDir = do
   case tscExitCode of
     ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
     -- TODO: I shoulde be getting the compiled file path from the tsconfig.node.file
-    ExitSuccess -> return $ Right compiledWaspJsFile
+    ExitSuccess -> return $ Right absCompiledWaspJsFile
   where
-    -- TODO: Potentially extract somewhere if it ends up being used in multiple places.
-    compiledWaspJsFile = waspDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
-    tsconfigNodeFile = waspDir </> [relfile|tsconfig.node.json|]
+    absCompiledWaspJsFile = waspProjectDir </> [relfile|config/main.wasp.mjs|]
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
