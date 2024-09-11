@@ -106,6 +106,9 @@ readDeclsJsonFile declsJsonFile = do
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspDir _prismaSchemaAst _waspFilePath = runExceptT $ do
+  -- TODO: The function currently doesn't require the path to main.wasp.ts
+  -- because it reads it from the tsconfig
+  -- Should we ensure that the tsconfig indeed points to the name we expect? Probably.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspDir
   specJsonFile <- ExceptT $ executeMainWaspJsFile waspDir compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
@@ -141,6 +144,7 @@ compileWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError]
 compileWaspTsFile waspDir = do
   -- TODO: The function should also receive the tsconfig.node.json file (not the main.wasp.ts file),
   -- because the source of truth (the name of the file, where it's compiled) comes from the typescript config.
+  -- However, we might want to keep this information in haskell and then verify that the tsconfig is correct.
   chan <- newChan
   (_, tscExitCode) <-
     concurrently
@@ -150,7 +154,7 @@ compileWaspTsFile waspDir = do
           "npx"
           [ "tsc",
             "-p",
-            "tsconfig.node.json",
+            toFilePath tsconfigNodeFile,
             "--noEmit",
             "false",
             "--outDir",
@@ -164,7 +168,9 @@ compileWaspTsFile waspDir = do
     -- TODO: I shoulde be getting the compiled file path from the tsconfig.node.file
     ExitSuccess -> return $ Right compiledWaspJsFile
   where
+    -- TODO: Potentially extract somewhere if it ends up being used in multiple places.
     compiledWaspJsFile = waspDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
+    tsconfigNodeFile = waspDir </> [relfile|tsconfig.node.json|]
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do

@@ -22,6 +22,7 @@ module Wasp.Project.Common
 where
 
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, toFilePath, (</>))
+import StrongPath.Types (File)
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
 import qualified Wasp.Generator.Common
@@ -86,8 +87,8 @@ tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) File' ->
-  IO (Maybe (Path' Abs File'))
+  Path' (Rel WaspProjectDir) (File f) ->
+  IO (Maybe (Path' Abs (File f)))
 findFileInWaspProjectDir waspDir file = do
   let fileAbsFp = waspDir </> file
   fileExists <- doesFileExist $ toFilePath fileAbsFp
