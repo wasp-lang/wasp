@@ -116,6 +116,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 Be careful not to do that.
               - We are using SQLite as a database for Prisma, so we can't use scalar arrays in PSL, like `String[]`,
                 as those are not supported in SQLite. We can of course normally use arrays of other models, like `Task[]`.
+              - Wasp file should not contain any `entity` declarations! That was ok in older Wasp versions, but now entities are described in prisma.schema file, and not in wasp file.
 
             With this in mind, generate a new, fixed wasp file.
             Try not to do big changes like changing names, removing/adding declarations and similar, those are usually correct, focus more on obvious, smaller errors.

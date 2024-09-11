@@ -12,7 +12,6 @@ module Wasp.AI.OpenAI.ChatGPT
     ChatMessage (..),
     ChatRole (..),
     getChatResponseContent,
-    checkIfGpt4IsAvailable,
   )
 where
 
@@ -70,13 +69,6 @@ queryChatGPT apiKey params requestMessages = do
 getChatResponseContent :: ChatResponse -> Text
 getChatResponseContent = content . message . head . choices
 
-checkIfGpt4IsAvailable :: OpenAIApiKey -> IO Bool
-checkIfGpt4IsAvailable apiKey = do
-  let request =
-        HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
-          HTTP.parseRequest_ $ "GET https://api.openai.com/v1/models/" <> show GPT_4
-  (200 ==) . HTTP.getResponseStatusCode <$> HTTP.httpNoBody request
-
 data ChatGPTParams = ChatGPTParams
   { _model :: !Model,
     _temperature :: !(Maybe Float)
@@ -87,20 +79,18 @@ data ChatGPTParams = ChatGPTParams
   deriving (Show)
 
 data Model
-  = --
-    GPT_3_5_turbo -- Alias model
-  | GPT_3_5_turbo_0125
-  | GPT_3_5_turbo_1106
-  | --
-    GPT_4_turbo_Preview -- Alias model
-  | GPT_4_0125_Preview
-  | GPT_4_1106_Preview
-  | --
+  = -- New flagship model.
+    GPT_4o -- Alias model
+  | GPT_4o_2024_08_06
+  | -- Faster & cheaper version of the new flagship model.
+    GPT_4o_mini -- Alias model
+  | GPT_4o_mini_2024_07_18
+  | -- Old flagship model.
     GPT_4 -- Alias model
   | GPT_4_0613
-  | --
-    GPT_4_32k -- Alias model
-  | GPT_4_32k_0613
+  | -- Faster & cheaper version of the old flagship model.
+    GPT_4_turbo -- Alias model
+  | GPT_4_turbo_2024_04_09
   deriving (Eq, Bounded, Enum)
 
 instance Show Model where
@@ -108,16 +98,14 @@ instance Show Model where
 
 modelOpenAiId :: Model -> String
 modelOpenAiId = \case
-  GPT_3_5_turbo -> "gpt-3.5-turbo"
-  GPT_3_5_turbo_0125 -> "gpt-3.5-turbo-0125"
-  GPT_3_5_turbo_1106 -> "gpt-3.5-turbo-1106"
-  GPT_4_turbo_Preview -> "gpt-4-turbo-preview"
-  GPT_4_0125_Preview -> "gpt-4-0125-preview"
-  GPT_4_1106_Preview -> "gpt-4-1106-preview"
+  GPT_4o -> "gpt-4o"
+  GPT_4o_2024_08_06 -> "gpt-4o-2024-08-06"
+  GPT_4o_mini -> "gpt-4o-mini"
+  GPT_4o_mini_2024_07_18 -> "gpt-4o-mini-2024-07-18"
   GPT_4 -> "gpt-4"
   GPT_4_0613 -> "gpt-4-0613"
-  GPT_4_32k -> "gpt-4-32k"
-  GPT_4_32k_0613 -> "gpt-4-32k-0613"
+  GPT_4_turbo -> "gpt-4-turbo"
+  GPT_4_turbo_2024_04_09 -> "gpt-4-turbo-2024-04-09"
 
 instance FromJSON Model where
   parseJSON = Aeson.withText "Model" $ \t ->
