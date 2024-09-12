@@ -16,7 +16,7 @@ Initially, his tool automatically created and uploaded shorts, but after some ti
 
 NuloApp is an AI tool designed to make video content creation simpler by converting long-form videos into short clips that have the highest chance to capture audience’s attention. It resizes content from horizontal (landscape) to vertical (portrait) for platforms like YouTube Shorts, Instagram Reels, and TikTok, helping creators push content faster.
 
-<ReactPlayer playing controls url='/img/nuloapp/vid.mp4' />
+<ReactPlayer playing controls muted={true} url='/img/nuloapp/vid.mp4' />
 
 ### **Tech Stack Overview**
 
