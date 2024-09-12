@@ -1,7 +1,7 @@
 ---
 title: "From Idea to $20K in Days: How Wasp Accelerated NuloApp's Launch"
 authors: [milica]
-image: /img/os-interviews/pg-boss-banner.jpeg
+image: /img/nuloapp/wasp-friends.webp
 tags: [webdev, wasp, saas, builders, showcase]
 ---
 import ReactPlayer from 'react-player'
