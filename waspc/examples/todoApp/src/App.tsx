@@ -24,11 +24,7 @@ export function App({ children }: any) {
     <div className="app border-spacing-2 p-4">
       <header className="flex justify-between">
         <h1 className="font-bold text-3xl mb-5">
-          <Link to="/*" params={{ splat: 'somethingelse' }}>
-            {appName}
-          </Link>
-
-          {/* <Link to="/task/nesto?/:id" params={{ id: 1 }}>Filip</Link> */}
+          <Link to="/">{appName}</Link>
         </h1>
         <h2>
           Your site was loaded at: {date?.toLocaleString()} {connectionIcon}
