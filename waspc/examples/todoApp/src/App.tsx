@@ -9,7 +9,7 @@ import { getName } from './user'
 // Necessary to trigger type tests.
 import './testTypes/operations/client'
 
-export function App({ children }: any) {
+export function App() {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
   const { isConnected } = useSocket()
