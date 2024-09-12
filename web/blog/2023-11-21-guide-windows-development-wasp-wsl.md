@@ -136,7 +136,7 @@ The folder that I have opened is
 \\wsl.localhost\Ubuntu\home\boris\Projects
 ```
 
-That is the “Projects” folder inside my home folder in WSL. There are 2 ways for us to know that we are in WSL: The top bar and in the bottom left corner of VS Code. In both places, we have WSL: Ubuntu written, as is shown on screenshots.
+That is the “Projects” folder inside my home folder in WSL. There are 2 ways for us to know that we are in WSL: The top bar and in the bottom left corner of VS Code. In both places, we should see the text _WSL: Ubuntu_, as shown on screenshots.
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mzhu765415sravn3vypu.png)
 
