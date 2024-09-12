@@ -160,8 +160,7 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
 -- and not expose the constant for creating the absoltue path (like I did with config/spec.json).
 -- Normally, I could just put the constant in the where clause like I did there, but I'm hesitant
 -- to do that since the path comes from the tsconfig.
---
--- This is what I did currently, but I'll have to figure out the long-term solution.
+-- That is what I did currently, but I'll have to figure out the long-term solution.
 -- The ideal solution is reading the TS file, and passing its config to tsc
 -- manually (and getting the output file path in the process).
 compileWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
@@ -257,6 +256,7 @@ findWaspFile waspDir = do
     -- but that's a problem that should be solved in a different way (it's
     -- still possible to have both main.waps and .wasp files and cause that
     -- error).
+    -- TODO: Try out what happens when Wasp finds this file, but the tsconfing setup and package are missing
     findFileThatEndsWith suffix files = SP.castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
 
 analyzePackageJsonContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
