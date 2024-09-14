@@ -60,11 +60,11 @@ query getFilteredTasks {
 // ...
 
 query getAllTasks {
-  fn: import { getAllTasks } from "@src/queries.js"
+  fn: import { getAllTasks } from "@src/queries.ts"
 }
 
 query getFilteredTasks {
-  fn: import { getFilteredTasks } from "@src/queries.js"
+  fn: import { getFilteredTasks } from "@src/queries.ts"
 }
 ```
 
@@ -616,7 +616,7 @@ Declaring the Query:
 
 ```wasp
 query getFoo {
-    fn: import { getFoo } from "@src/queries.js"
+    fn: import { getFoo } from "@src/queries.ts"
     entities: [Foo]
 }
 ```
