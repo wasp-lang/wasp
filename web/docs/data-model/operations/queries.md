@@ -204,7 +204,7 @@ Read more about type support for implementing Queries in the [API Reference](#im
 
 :::tip Inferring the return type
 
-If don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+If you don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
 
 ```typescript
 const getFoo = (async (_args, context) => {
