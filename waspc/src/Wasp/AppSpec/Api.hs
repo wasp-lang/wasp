@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
@@ -24,11 +25,9 @@ data Api = Api
     httpRoute :: (HttpMethod, String), -- (method, path), exe: (GET, "/foo/bar")
     auth :: Maybe Bool
   }
-  deriving (Show, Eq, Data, Generic)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 instance IsDecl Api
-
-instance FromJSON Api
 
 method :: Api -> HttpMethod
 method = fst . httpRoute
@@ -37,6 +36,4 @@ path :: Api -> String
 path = snd . httpRoute
 
 data HttpMethod = ALL | GET | POST | PUT | DELETE
-  deriving (Show, Eq, Ord, Data, Generic)
-
-instance FromJSON HttpMethod
+  deriving (Show, Eq, Ord, Data, Generic, FromJSON)
