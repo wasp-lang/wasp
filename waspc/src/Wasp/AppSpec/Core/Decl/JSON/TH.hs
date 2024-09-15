@@ -2,6 +2,7 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Wasp.AppSpec.Core.Decl.JSON.TH
   ( generateFromJsonInstanceForDecl,
@@ -21,7 +22,8 @@ generateFromJsonInstanceForDecl = do
 
   caseMatches <- forM isDeclTypes caseMatchForIsDeclType
 
-  -- _ -> fail $ "Unknown declType " <> declType
+  -- Generates:
+  --   _ -> fail $ "Unknown declType " <> declType
   defaultCaseMatch <-
     [e|fail $ "Unknown declType " <> declType|]
       <&> \body -> [Match WildP (NormalB body) []]
@@ -31,9 +33,12 @@ generateFromJsonInstanceForDecl = do
       parseJSON = withObject "Decl" $ \o -> do
         declType <- o .: "declType"
         declName <- o .: "declName"
-        -- case declType of
-        --   <caseMatches>
-        --   <defultCaseMatch>
+        -- Generates:
+        --   case declType of
+        --     <caseMatches[0]>
+        --     <caseMatches[1]>
+        --     ...
+        --     <defultCaseMatch>
         $(pure $ CaseE (VarE (mkName "declType")) (caseMatches <> defaultCaseMatch))
     |]
   where

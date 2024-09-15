@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
@@ -16,8 +17,6 @@ data Page = Page
   { component :: ExtImport,
     authRequired :: Maybe Bool
   }
-  deriving (Show, Eq, Data, Generic)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 instance IsDecl Page
-
-instance FromJSON Page

@@ -1,8 +1,12 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.App (App (..)) where
 
+import Data.Aeson (FromJSON)
 import Data.Data (Data)
+import GHC.Generics (Generic)
 import Wasp.AppSpec.App.Auth (Auth)
 import Wasp.AppSpec.App.Client (Client)
 import Wasp.AppSpec.App.Db (Db)
@@ -23,6 +27,6 @@ data App = App
     emailSender :: Maybe EmailSender,
     webSocket :: Maybe WebSocket
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 instance IsDecl App

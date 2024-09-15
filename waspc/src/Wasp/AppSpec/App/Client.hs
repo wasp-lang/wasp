@@ -1,11 +1,15 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.App.Client
   ( Client (..),
   )
 where
 
+import Data.Aeson (FromJSON)
 import Data.Data (Data)
+import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Client = Client
@@ -14,4 +18,4 @@ data Client = Client
     -- We expect the base dir to start with a slash e.g. /client
     baseDir :: Maybe String
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)

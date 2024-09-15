@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.Api
   ( Api (..),
@@ -8,7 +9,9 @@ module Wasp.AppSpec.Api
   )
 where
 
+import Data.Aeson (FromJSON)
 import Data.Data (Data)
+import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
@@ -21,9 +24,11 @@ data Api = Api
     httpRoute :: (HttpMethod, String), -- (method, path), exe: (GET, "/foo/bar")
     auth :: Maybe Bool
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic)
 
 instance IsDecl Api
+
+instance FromJSON Api
 
 method :: Api -> HttpMethod
 method = fst . httpRoute
@@ -32,4 +37,6 @@ path :: Api -> String
 path = snd . httpRoute
 
 data HttpMethod = ALL | GET | POST | PUT | DELETE
-  deriving (Show, Eq, Ord, Data)
+  deriving (Show, Eq, Ord, Data, Generic)
+
+instance FromJSON HttpMethod
