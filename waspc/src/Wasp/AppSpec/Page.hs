@@ -1,18 +1,23 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.Page
   ( Page (..),
   )
 where
 
+import Data.Aeson (FromJSON)
 import Data.Data (Data)
-import Wasp.AppSpec.Core.Decl (IsDecl)
+import GHC.Generics (Generic)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Page = Page
   { component :: ExtImport,
     authRequired :: Maybe Bool
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic)
 
 instance IsDecl Page
+
+instance FromJSON Page

@@ -15,7 +15,7 @@ where
 
 import Data.Data (Data)
 import Data.List (find)
-import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute

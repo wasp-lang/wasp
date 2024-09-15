@@ -6,7 +6,7 @@ module Wasp.AppSpec.Query
 where
 
 import Data.Data (Data)
-import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity
 import Wasp.AppSpec.ExtImport

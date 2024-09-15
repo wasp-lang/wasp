@@ -3,7 +3,7 @@
 module Wasp.AppSpec.App.Wasp (Wasp (..)) where
 
 import Data.Data (Data)
-import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 
 data Wasp = Wasp
   { version :: String

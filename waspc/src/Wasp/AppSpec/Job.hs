@@ -14,7 +14,7 @@ module Wasp.AppSpec.Job
 where
 
 import Data.Data (Data)
-import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
