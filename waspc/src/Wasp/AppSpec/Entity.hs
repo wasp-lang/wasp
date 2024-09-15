@@ -32,7 +32,7 @@ data Entity = Entity
 instance IsDecl Entity
 
 instance FromJSON Entity where
-  parseJSON = error "TODO: Hm what with entities do we really need this, we don't have them in the code anymore"
+  parseJSON = const $ fail "Entity declarations in wasp are deprecated, entities are now defined via prisma.schema file."
 
 makeEntity :: Psl.Model.Body -> Entity
 makeEntity body =
