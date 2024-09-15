@@ -240,6 +240,8 @@ library
     Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
+    Wasp.AppSpec.Core.Decl.JSON
+    Wasp.AppSpec.Core.Decl.JSON.TH
     Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
