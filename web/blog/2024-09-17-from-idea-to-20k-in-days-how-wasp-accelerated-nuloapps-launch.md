@@ -25,6 +25,16 @@ NuloApp is an AI tool designed to make video content creation simpler by convert
 - **Other tools:** OpenCV, FastAPI, Meta's llama, OpenAI's Whisper, LangChain
 - **Database:** PostgreSQL
 
+### **Programatically Editing Videos**
+
+The real genius behind NuloApp is the way that Kaloyan combined a number of tools to programatically edit the longer form videos and podcasts, into short, engaging clips for social media. 
+
+First of all, [OpenCV](https://opencv.org/), an open-source computer vision library, was used as the main editing tool. This is how NuloApp is able to get the correct aspect ratio for smartphone content, and do other cool things like centering the video on the speaker so that they aren't out of frame when the aspect ratio is changed. 
+
+And in order to programtically get the correct clips to extract, AI tools like Meta's [llama-3-70b LLM](https://github.com/meta-llama/llama3) and OpenAI's [Whisper](https://github.com/openai/whisper) were also used. Whisper allowed for fast speech-to-text transcription, which could then be passed on the llama in order to find segments worth extracting. 
+
+Putting these tools together and accessible via a standalone API was the final step in this process. But this really clever combination of tools was just one part of puzzle. The next problem to solve was how to deliver it all as a SaaS app that users could pay for?
+
 ### **Why Wasp?**
 
 When Kaloyan decided to relaunch his tool as a SaaS product, he didn’t have time to spare. He needed a framework that would allow him to build and deploy quickly. That’s where **Wasp** came in.
