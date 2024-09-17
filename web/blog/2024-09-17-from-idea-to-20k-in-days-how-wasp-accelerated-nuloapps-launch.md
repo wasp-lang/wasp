@@ -1,10 +1,12 @@
 ---
-title: "From Idea to $20K in Days: How Wasp Accelerated NuloApp's Launch"
+title: "Built in Days, Acquired for $20K: The NuloApp Story"
 authors: [milica]
 image: /img/nuloapp/wasp-friends.webp
 tags: [webdev, wasp, saas, builders, showcase]
 ---
 import ReactPlayer from 'react-player'
+import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Meet [**Kaloyan Stoyanov**](https://www.linkedin.com/in/kaloyan-stoyanov-466a54196/), a tech lead who turned his passion project into a full-fledged SaaS product, and sold it within days of launching it. 
 
@@ -31,7 +33,7 @@ The real genius behind NuloApp is the way that Kaloyan combined a number of tool
 
 First of all, [OpenCV](https://opencv.org/), an open-source computer vision library, was used as the main editing tool. This is how NuloApp is able to get the correct aspect ratio for smartphone content, and do other cool things like centering the video on the speaker so that they aren't out of frame when the aspect ratio is changed. 
 
-And in order to programtically get the correct clips to extract, AI tools like Meta's [llama-3-70b LLM](https://github.com/meta-llama/llama3) and OpenAI's [Whisper](https://github.com/openai/whisper) were also used. Whisper allowed for fast speech-to-text transcription, which could then be passed on the llama in order to find segments worth extracting. 
+In order to programtically get the correct clips to extract, AI tools like Meta's [llama-3-70b LLM](https://github.com/meta-llama/llama3) and OpenAI's [Whisper](https://github.com/openai/whisper) were also used. Whisper allowed for fast speech-to-text transcription, which could then be passed on the llama in order to find segments worth extracting. 
 
 Putting these tools together and accessible via a standalone API was the final step in this process. But this really clever combination of tools was just one part of puzzle. The next problem to solve was how to deliver it all as a SaaS app that users could pay for?
 
@@ -49,20 +51,53 @@ Kaloyan was particularly impressed with how Wasp simplified complex tasks that w
 
 One of Kaloyan’s least favorite tasks as a developer is building out authentication systems, and he found that even implementing third-party libraries could be frustrating. Fortunately, Wasp’s boilerplate made the process of setting up authentication and pre-configuring Stripe for payments seamless. 
 
+Here's what `wasp.config` file looks like, through which you can define full-stack auth in a Wasp app.
+
 ```jsx
-auth: {
-userEntity: User,
-methods: {
-email: {},
-google: {},
-gitHub: {},
-discord: {}
-},
-onAuthFailedRedirectTo: "/",
-},
+app myApp {
+  wasp: {
+    version: "^0.14.0"
+  },
+  title: "My App",
+  auth: {
+    // 1. Specify the User entity
+    userEntity: User,
+    methods: {
+      // 2. Enable Github Auth
+      gitHub: {},
+      email: {
+        // 3. Specify the email from field
+        fromField: {
+          name: "My App Postman",
+          email: "hello@itsme.com"
+        },
+        // 4. Specify the email verification and password reset options
+        emailVerification: {
+          clientRoute: EmailVerificationRoute, //this route/page should be created
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute, //this route/page should be created
+        },
+        // Add an emailSender -- Dummy just logs to console for dev purposes
+        // but there are a ton of supported providers :D
+        emailSender: {
+          provider: Dummy,
+        },
+      },
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
 ```
 
-Additionally, the framework's job scheduling features helped him avoid the headache of configuring cron jobs on Docker containers.
+And here's a 1 minute demo:
+<div className='flex justify-center'>
+    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Qiro77q-ulI?si=ALZU_PdeKRlq_-Ac" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
+<br/>
+
+Additionally, the framework's job scheduling features helped Kaloyan avoid the headache of configuring cron jobs on Docker containers.
 
 ### **Fast Acquisition: From Launch to Sale in 24 Hours**
 
@@ -80,13 +115,13 @@ If you’d like to follow in Kaloyan’s footsteps, this is how to get started w
 
 Open your terminal and install Wasp:
 
-```bash
+``` shell
 **curl** -sSL https://get.wasp-lang.dev/installer.sh | **sh**
 ```
 
 From there you only need to run:
 
-```bash
+``` shell
 wasp new -t saas
 ```
 
