@@ -9,7 +9,8 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Project.Analyze (findPackageJsonFile, findWaspFile)
+import Wasp.ExternalConfig.PackageJson (findPackageJsonFile)
+import Wasp.Project.Analyze (findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 

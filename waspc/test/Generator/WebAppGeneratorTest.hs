@@ -9,7 +9,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
-import qualified Wasp.AppSpec.PackageJson as AS.PJS
+import qualified Wasp.ExternalConfig.PackageJson as EC.PackageJson
 import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
@@ -52,10 +52,10 @@ spec_WebAppGenerator = do
             AS.externalCodeFiles = [],
             AS.externalPublicFiles = [],
             AS.packageJson =
-              AS.PJS.PackageJson
-                { AS.PJS.name = "testApp",
-                  AS.PJS.dependencies = M.empty,
-                  AS.PJS.devDependencies = M.empty
+              EC.PackageJson.PackageJson
+                { EC.PackageJson.name = "testApp",
+                  EC.PackageJson.dependencies = M.empty,
+                  EC.PackageJson.devDependencies = M.empty
                 },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
