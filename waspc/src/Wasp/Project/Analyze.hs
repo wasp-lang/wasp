@@ -78,9 +78,6 @@ data SpecJsonFile
 tsconfigNodeFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 tsconfigNodeFileInWaspProjectDir = [relfile|tsconfig.node.json|]
 
-tsSdkEntryPointFromProjectDir :: Path' (Rel WaspProjectDir) File'
-tsSdkEntryPointFromProjectDir = [relfile|node_modules/wasp-config/dist/run.js|]
-
 -- END SHARED STUFF
 
 analyzeWaspProject ::
@@ -136,8 +133,12 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
       (readJobMessagesAndPrintThemPrefixed chan)
       ( runNodeCommandAsJob
           waspProjectDir
-          "node"
-          [ SP.fromAbsFile absEntrypointFile,
+          "npx"
+          -- TODO: Figure out how to keep running instructions in a single place
+          -- (e.g., this is the same as the package name, but it's repeated in two places).
+          -- Before this, I had the entrypoint file hardcoded, which was bad
+          -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
+          [ "wasp-config",
             SP.fromAbsFile absCompiledMainWaspJsFile,
             SP.fromAbsFile absSpecOutputFile
           ]
@@ -151,7 +152,6 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
     -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
     -- see notes in compileWaspFile.
     absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
-    absEntrypointFile = waspProjectDir </> tsSdkEntryPointFromProjectDir
 
 -- TODO: Reconsider the return value. Can I write the function in such a way
 -- that it's impossible to get the absolute path to the compiled file without
@@ -254,7 +254,7 @@ findWaspFile waspDir = do
     -- IOUtil.listDirectory takes care of that).
     -- A bigger problem is if the user has a file with the same name as the wasp dir,
     -- but that's a problem that should be solved in a different way (it's
-    -- still possible to have both main.waps and .wasp files and cause that
+    -- still possible to have both main.wasp and .wasp files and cause that
     -- error).
     -- TODO: Try out what happens when Wasp finds this file, but the tsconfing setup and package are missing
     findFileThatEndsWith suffix files = SP.castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
