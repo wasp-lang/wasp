@@ -28,6 +28,7 @@ data TsConfig = TsConfig
 
 instance FromJSON TsConfig
 
+-- TODO: define fields we want to validate
 data CompilerOptions = CompilerOptions
   { target :: !String
   }
@@ -38,7 +39,7 @@ instance FromJSON CompilerOptions
 analyzeTsConfigContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] TsConfig)
 analyzeTsConfigContent waspDir = runExceptT $ do
   tsConfigFile <- ExceptT findTsConfigOrError
-  tsConfig <- ExceptT $ showTsConfig tsConfigFile
+  tsConfig <- ExceptT $ readTsConfigFile tsConfigFile
   ExceptT $ validateTsConfig tsConfig
   where
     findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findTsConfigFile waspDir
@@ -47,11 +48,11 @@ analyzeTsConfigContent waspDir = runExceptT $ do
 findTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findTsConfigFile waspProjectDir = findFileInWaspProjectDir waspProjectDir tsConfigInWaspProjectDir
 
-showTsConfig :: Path' Abs File' -> IO (Either [CompileError] TsConfig)
-showTsConfig tsConfigFile = do
-  tsConfigContent <- BS.toString <$> IOUtil.readFileBytes tsConfigFile
+readTsConfigFile :: Path' Abs File' -> IO (Either [CompileError] TsConfig)
+readTsConfigFile tsConfigFile = do
+  tsConfigContent <- IOUtil.readFileBytes tsConfigFile
 
-  parseResult <- parseJsonWithComments tsConfigContent
+  parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent
 
   case parseResult of
     Right tsConfig -> return $ Right tsConfig
