@@ -554,6 +554,7 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
+    Wasp.Cli.Command.TsConfigSetup
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common
