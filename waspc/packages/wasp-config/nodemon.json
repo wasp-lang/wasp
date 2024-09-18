@@ -1,0 +1,6 @@
+{
+    "watch": [
+        "./src/**/*.ts"
+    ],
+    "exec": "tsc || exit 1"
+}

@@ -14,7 +14,6 @@ module Wasp.NodePackageFFI
 where
 
 import Control.Monad.Extra (unlessM)
-import Debug.Trace (trace)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import System.Directory (doesDirectoryExist)
 import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
@@ -59,7 +58,6 @@ installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesD
 installablePackageDirInPackagesDir = \case
   WaspConfigPackage -> [reldir|wasp-config|]
 
-
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
 
@@ -89,8 +87,7 @@ getPackageInstallationPath :: InstallablePackage -> IO String
 getPackageInstallationPath package = do
   waspDataDir <- Data.getAbsDataDirPath
   let absPackagePath = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
-  let re = fromAbsDir absPackagePath
-  return $ trace re re
+  return $ fromAbsDir absPackagePath
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do
