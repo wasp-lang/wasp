@@ -28,7 +28,7 @@
     "@fastify/static": "^6.11.2",
     "commander": "^11.0.0",
     "dotenv": "^16.0.3",
-    "fastify": "^4.23.2",
+    "fastify": "^4.28.1",
     "fastify-socket.io": "^4.0.0",
     "socket.io": "^4.7.2"
   }
