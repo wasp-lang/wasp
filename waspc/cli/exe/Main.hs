@@ -32,6 +32,7 @@ import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
+import Wasp.Cli.Command.TsConfigSetup (tsConfigSetup)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Message (cliSendMessage)
@@ -51,6 +52,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
+        ["ts-setup"] -> Command.Call.TsSetup
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ["uninstall"] -> Command.Call.Uninstall
@@ -102,6 +104,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
+    Command.Call.TsSetup -> runCommand tsConfigSetup
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
