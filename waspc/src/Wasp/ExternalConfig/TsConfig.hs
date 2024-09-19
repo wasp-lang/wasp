@@ -1,7 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Wasp.ExternalConfig.TsConfig
   ( TsConfig (..),
@@ -13,7 +11,6 @@ import Control.Monad.Except
 import Data.Aeson (FromJSON, parseJSON, withObject, (.:?))
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
-import qualified Data.Map as M
 import GHC.Generics (Generic)
 import StrongPath (Abs, Dir, File', Path', toFilePath)
 import Wasp.Project.Common
@@ -93,19 +90,20 @@ validateTsConfig tsConfig =
   where
     tsConfigErrors =
       concat
-        [ validateTsConfigField "module" (_module compilerOptionsValues) "esnext",
-          validateTsConfigField "target" (target compilerOptionsValues) "esnext",
-          validateTsConfigField "moduleResolution" (moduleResolution compilerOptionsValues) "bundler",
-          validateTsConfigField "jsx" (jsx compilerOptionsValues) "preserve",
-          validateTsConfigField "strict" (strict compilerOptionsValues) True,
-          validateTsConfigField "esModuleInterop" (esModuleInterop compilerOptionsValues) True,
-          validateTsConfigField "lib" (lib compilerOptionsValues) ["dom", "dom.iterable", "esnext"],
-          validateTsConfigField "allowJs" (allowJs compilerOptionsValues) True,
-          validateTsConfigField "typeRoots" (typeRoots compilerOptionsValues) ["node_modules/@testing-library", "node_modules/@types"],
-          validateTsConfigField "outDir" (outDir compilerOptionsValues) ".wasp/phantom"
+        [ validateRequiredField "module" "esnext" (_module compilerOptionsValues),
+          validateRequiredField "target" "esnext" (target compilerOptionsValues),
+          validateRequiredField "moduleResolution" "bundler" (moduleResolution compilerOptionsValues),
+          validateRequiredField "jsx" "preserve" (jsx compilerOptionsValues),
+          validateRequiredField "strict" True (strict compilerOptionsValues),
+          validateRequiredField "esModuleInterop" True (esModuleInterop compilerOptionsValues),
+          validateRequiredField "lib" ["dom", "dom.iterable", "esnext"] (lib compilerOptionsValues),
+          validateRequiredField "allowJs" True (allowJs compilerOptionsValues),
+          validateRequiredField "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] (typeRoots compilerOptionsValues),
+          validateRequiredField "outDir" ".wasp/phantom" (outDir compilerOptionsValues)
         ]
     compilerOptionsValues = compilerOptions tsConfig
 
+-- | Used to show expected values in error messages.
 class ShowJs a where
   showJs :: a -> String
 
@@ -119,40 +117,15 @@ instance ShowJs Bool where
   showJs True = "true"
   showJs False = "false"
 
--- TODO: maybe use a more structured way of defining expected values, so that we can easily add new fields.
---     expectedValues :: M.Map FieldName TsConfigFieldType
---     expectedValues =
---       M.fromList
---         [ ("module", Str "esnext"),
---           ("target", Str "esnext"),
---           ("moduleResolution", Str "bundler"),
---           ("jsx", Str "preserve"),
---           ("strict", Bool True),
---           ("esModuleInterop", Bool True),
---           ("lib", StrList ["dom", "dom.iterable", "esnext"]),
---           ("allowJs", Bool True),
---           ("typeRoots", StrList ["node_modules/@testing-library", "node_modules/@types"]),
---           ("outDir", Str ".wasp/phantom")
---         ]
-
--- data TsConfigFieldType = Str String | Bool Bool | StrList [String]
-
--- instance Show TsConfigFieldType where
---   show :: TsConfigFieldType -> String
---   show (Str s) = s
---   show (Bool True) = show ("true" :: String)
---   show (Bool False) = show ("false" :: String)
---   show (StrList l) = show l
-
 type FieldName = String
 
-validateTsConfigField :: (Eq value, ShowJs value) => FieldName -> Maybe value -> value -> [CompileError]
-validateTsConfigField fieldName Nothing expectedValue = [missingFieldErrorMessage]
-  where
-    missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showJs expectedValue ++ "."]
-validateTsConfigField fieldName (Just userProvidedValue) expectedValue =
-  if userProvidedValue /= expectedValue
-    then [invalidValueErrorMessage]
-    else []
+validateRequiredField :: (Eq value, ShowJs value) => FieldName -> value -> Maybe value -> [CompileError]
+validateRequiredField fieldName expectedValue maybeUserProvidedValue = case maybeUserProvidedValue of
+  Nothing -> [missingFieldErrorMessage]
+  Just userProvidedValue ->
+    if userProvidedValue /= expectedValue
+      then [invalidValueErrorMessage]
+      else []
   where
     invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected:", showJs expectedValue ++ "."]
+    missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showJs expectedValue ++ "."]
