@@ -26,7 +26,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion, reactRouterVersion)
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -188,13 +188,13 @@ npmDepsForSdk spec =
             ("mitt", "3.0.0"),
             ("react", "^18.2.0"),
             ("lodash.merge", "^4.6.2"),
-            ("react-router-dom", "^5.3.3"),
+            ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", "^1.12.2"),
             -- Todo: why is this in dependencies, should it be in dev dependencies?
             -- Should it go into their package.json
             ("@types/express-serve-static-core", "^4.17.13"),
-            ("@types/react-router-dom", "^5.3.3")
+            ("@types/react-router-dom", show reactRouterVersion)
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec

@@ -11,6 +11,7 @@ module Wasp.Generator.Common
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
+    reactRouterVersion,
   )
 where
 
@@ -56,6 +57,9 @@ prismaVersion :: SV.Version
 -- NOTE: If changing prisma version here, also change it in waspc/packages/prisma/package.json.
 --       Then, make sure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
 prismaVersion = SV.Version 5 19 1
+
+reactRouterVersion :: SV.ComparatorSet
+reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 5 3 3
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =
