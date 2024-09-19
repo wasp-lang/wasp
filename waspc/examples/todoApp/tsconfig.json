@@ -15,11 +15,11 @@
     "strict": true,
     // Allow default imports.
     "esModuleInterop": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    // "lib": [
+    //   "dom",
+    //   "dom.iterable",
+    //   "esnext"
+    // ],
     "allowJs": true,
     "typeRoots": [
       // This is needed to properly support Vitest testing with jest-dom matchers.
