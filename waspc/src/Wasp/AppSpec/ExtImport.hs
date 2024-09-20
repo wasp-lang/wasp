@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
@@ -9,7 +8,7 @@ module Wasp.AppSpec.ExtImport
   )
 where
 
-import Data.Aeson (FromJSON (parseJSON), ToJSON, withObject, (.:))
+import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel, parseRelFileP)
@@ -25,11 +24,21 @@ data ExtImport = ExtImport
 
 instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
-    name' <- o .: "name"
+    kindStr <- o .: "kind"
+    nameStr <- o .: "name"
     pathStr <- o .: "path"
-    case parseRelFileP pathStr of
-      Just path' -> pure $ ExtImport {name = name', path = path'}
-      Nothing -> fail $ "Failed to parse relative posix path to file: " <> pathStr
+    extImportName <- parseExtImportName kindStr nameStr
+    extImportPath <- parseExtImportPath pathStr
+    return $ ExtImport extImportName extImportPath
+    where
+      parseExtImportName kindStr nameStr = case kindStr of
+        "default" -> pure $ ExtImportModule nameStr
+        "named" -> pure $ ExtImportField nameStr
+        _ -> fail $ "Failed to parse import kind: " <> kindStr
+
+      parseExtImportPath pathStr = case parseRelFileP pathStr of
+        Just path' -> pure path'
+        Nothing -> fail $ "Failed to parse relative posix path to file: " <> pathStr
 
 type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
@@ -40,7 +49,7 @@ data ExtImportName
     ExtImportModule Identifier
   | -- | Represents external imports like @import { Identifier } from "file.js"@
     ExtImportField Identifier
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic)
 
 importIdentifier :: ExtImport -> Identifier
 importIdentifier (ExtImport importName _) = case importName of
