@@ -61,8 +61,7 @@ data Schedule = Schedule
 -- These are optional executor-specific JSON options we pass
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
-  { pgBoss :: Maybe JSON,
-    simple :: Maybe JSON
+  { pgBoss :: Maybe JSON
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 

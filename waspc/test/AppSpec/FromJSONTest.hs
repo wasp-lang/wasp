@@ -170,8 +170,7 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Job.ExecutorOptions
-              { pgBoss = Aeson.decode "{ \"retryLimit\": 1 }",
-                simple = Nothing
+              { pgBoss = Aeson.decode "{ \"retryLimit\": 1 }"
               }
           )
   describe "Schedule" $ do
@@ -192,8 +191,7 @@ spec_AppSpecFromJSON = do
                 executorOptions =
                   Just
                     Job.ExecutorOptions
-                      { pgBoss = Aeson.decode "{ \"retryLimit\": 1 }",
-                        simple = Nothing
+                      { pgBoss = Aeson.decode "{ \"retryLimit\": 1 }"
                       }
               }
           )
@@ -252,8 +250,7 @@ spec_AppSpecFromJSON = do
                         executorOptions =
                           Just
                             Job.ExecutorOptions
-                              { pgBoss = Aeson.decode "{ \"retryLimit\": 1 }",
-                                simple = Nothing
+                              { pgBoss = Aeson.decode "{ \"retryLimit\": 1 }"
                               }
                       },
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef]
