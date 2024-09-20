@@ -46,7 +46,7 @@ data CompilerOptions = CompilerOptions
 instance FromJSON CompilerOptions where
   parseJSON = withObject "CompilerOptions" $ \v ->
     CompilerOptions
-      -- We couldn't use the Generic deriving for this because of the _ prefix in the field name.
+      -- We couldn't use the Generic deriving for this because of the _ prefix in the "module" field name.
       <$> v .:? "module"
       <*> v .:? "target"
       <*> v .:? "moduleResolution"
@@ -62,7 +62,6 @@ analyzeTsConfigContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileE
 analyzeTsConfigContent waspDir = runExceptT $ do
   tsConfigFile <- ExceptT findTsConfigOrError
   tsConfig <- ExceptT $ readTsConfigFile tsConfigFile
-  lift $ print tsConfig
   ExceptT $ validateTsConfig tsConfig
   where
     findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findTsConfigFile waspDir
@@ -127,5 +126,5 @@ validateRequiredField fieldName expectedValue maybeUserProvidedValue = case mayb
       then [invalidValueErrorMessage]
       else []
   where
-    invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected:", showJs expectedValue ++ "."]
+    invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected value:", showJs expectedValue ++ "."]
     missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showJs expectedValue ++ "."]
