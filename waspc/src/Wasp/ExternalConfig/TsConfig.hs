@@ -89,18 +89,22 @@ validateTsConfig tsConfig =
   where
     tsConfigErrors =
       concat
-        [ validateRequiredField "module" "esnext" (_module compilerOptionsValues),
-          validateRequiredField "target" "esnext" (target compilerOptionsValues),
-          validateRequiredField "moduleResolution" "bundler" (moduleResolution compilerOptionsValues),
-          validateRequiredField "jsx" "preserve" (jsx compilerOptionsValues),
-          validateRequiredField "strict" True (strict compilerOptionsValues),
-          validateRequiredField "esModuleInterop" True (esModuleInterop compilerOptionsValues),
-          validateRequiredField "lib" ["dom", "dom.iterable", "esnext"] (lib compilerOptionsValues),
-          validateRequiredField "allowJs" True (allowJs compilerOptionsValues),
-          validateRequiredField "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] (typeRoots compilerOptionsValues),
-          validateRequiredField "outDir" ".wasp/phantom" (outDir compilerOptionsValues)
+        [ validateRequiredFieldInCompilerOptions "module" "esnext" _module,
+          validateRequiredFieldInCompilerOptions "target" "esnext" target,
+          validateRequiredFieldInCompilerOptions "moduleResolution" "bundler" moduleResolution,
+          validateRequiredFieldInCompilerOptions "jsx" "preserve" jsx,
+          validateRequiredFieldInCompilerOptions "strict" True strict,
+          validateRequiredFieldInCompilerOptions "esModuleInterop" True esModuleInterop,
+          validateRequiredFieldInCompilerOptions "lib" ["dom", "dom.iterable", "esnext"] lib,
+          validateRequiredFieldInCompilerOptions "allowJs" True allowJs,
+          validateRequiredFieldInCompilerOptions "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] typeRoots,
+          validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" outDir
         ]
-    compilerOptionsValues = compilerOptions tsConfig
+
+    validateRequiredFieldInCompilerOptions fieldName expectedValue getField =
+      validateRequiredField fieldName expectedValue $ getField compilerOptionsFields
+
+    compilerOptionsFields = compilerOptions tsConfig
 
 -- | Used to show expected values in error messages.
 class ShowJs a where
@@ -122,9 +126,9 @@ validateRequiredField :: (Eq value, ShowJs value) => FieldName -> value -> Maybe
 validateRequiredField fieldName expectedValue maybeUserProvidedValue = case maybeUserProvidedValue of
   Nothing -> [missingFieldErrorMessage]
   Just userProvidedValue ->
-    if userProvidedValue /= expectedValue
-      then [invalidValueErrorMessage]
-      else []
+    if userProvidedValue == expectedValue
+      then []
+      else [invalidValueErrorMessage]
   where
     invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected value:", showJs expectedValue ++ "."]
     missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showJs expectedValue ++ "."]
