@@ -17,7 +17,7 @@ In other words, your users and their email servers pulled a Gandalf move on you.
 
 ![https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
-### 1. **Build up your domain reputation**
+## 1. **Build up your domain reputation**
 
 A new domain is often flagged as suspicious by email providers, causing your emails to land in spam or not be delivered at all. Google’s filtering is really heavy, especially if you’re trying to reach people with business addresses (user@theircompany.com). Even the basic signup confirmations have a high chance of bouncing when you’re sending them from a freshly registered domain.
 
@@ -27,7 +27,7 @@ To improve your domain reputation, do the following:
 - **Warm-up your domain**: You need to do this before you start onboarding your users. Any type of sudden bursts of emails from a new domain can be flagged as spam. For example, if you decide to launch on Product Hunt, you’ll get a spike in signups which increases the amount of sent emails. It’s possible that this spike triggers the alarms, and people stop receiving your emails. [There are numerous tools out there](https://letmegooglethat.com/?q=Email+warmup+tools) that can help you with this process. Don’t skip this step, it’s mandatory.
 - **Keep the sending volume consistent**: Regular email sending patterns are seen as trustworthy. Inconsistent or high-volume bursts from a new domain can trigger spam filters.
 
-### 2. **Authenticate your domain**
+## 2. **Authenticate your domain**
 
 Authentication adds a layer of security to your emails, proving to email providers that you’re a legitimate sender and not the next prince of spam from the land of Spamlia. Here are the key records you need to set up with your DNS provider:
 
@@ -39,13 +39,13 @@ Read more about these records and how to add them to your DNS servers [here](htt
 
 ![https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
-### 3. **Use professional email sending tools**
+## 3. **Use professional email sending tools**
 
 Instead of sending emails directly from your own server, consider using a third-party email service that specializes in this area. Tools like **SendGrid** or **Mailgun** have built-in features to help ensure your emails make it to the inbox. Wasp helps you to [add them to your stack](https://wasp-lang.dev/docs/advanced/email) with minimal configuration needed on your end.
 
 They monitor and improve your domain reputation, manage bounces, and handle email authentication out-of-the-box. We’d recommend you to offload sending emails to them, so that you can focus on the core aspects of your business.
 
-### 4. **Monitor your deliverability**
+## 4. **Monitor your deliverability**
 
 It’s important to keep an eye on how your emails are performing. Look for key metrics like bounce rate, open rate, and spam complaints. Most email sending services provide insights into your email deliverability, allowing you to make adjustments before your reputation gets damaged.
 
@@ -54,7 +54,7 @@ It’s important to keep an eye on how your emails are performing. Look for key 
 
 ![meme.jpg](/img/email/meme.jpg)
 
-### 5. **Create high-quality content**
+## 5. **Create high-quality content**
 
 What you write matters too. Emails are poorly written are more likely to be marked as spam.
 
