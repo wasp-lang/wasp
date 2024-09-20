@@ -1,23 +1,21 @@
-{-# LANGUAGE TypeApplications #-}  -- Needed by generateFromJsonInstanceForDecl (TH)
+-- Needed by generateFromJsonInstanceForDecl (TH)
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Wasp.AppSpec.Core.Decl.JSON where
 
-import Wasp.AppSpec.Core.Decl.JSON.TH (generateFromJsonInstanceForDecl)
-
-import Wasp.AppSpec.Api ()
-import Wasp.AppSpec.Route ()
-import Wasp.AppSpec.Crud ()
-import Wasp.AppSpec.App ()
 import Wasp.AppSpec.Action ()
-import Wasp.AppSpec.Job ()
-import Wasp.AppSpec.Entity ()
-import Wasp.AppSpec.Page ()
+import Wasp.AppSpec.Api ()
 import Wasp.AppSpec.ApiNamespace ()
+import Wasp.AppSpec.App ()
+import Wasp.AppSpec.Core.Decl.JSON.TH (generateFromJsonInstanceForDecl)
+import Wasp.AppSpec.Crud ()
+import Wasp.AppSpec.Entity ()
+import Wasp.AppSpec.Job ()
+import Wasp.AppSpec.Page ()
 import Wasp.AppSpec.Query ()
-
--- TODO: I haven't implemented any tests yet. We should have some. Maybe one big test
--- that captures it all might be enough.
+import Wasp.AppSpec.Route ()
 
 -- This TH function assumes that all IsDecl instances are imported in this file.
 -- It needs this to be able to pick them up.
