@@ -625,6 +625,7 @@ test-suite waspc-test
     Analyzer.ValidTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.FromJSONTest
     AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
