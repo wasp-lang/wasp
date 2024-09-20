@@ -15,7 +15,7 @@ module Wasp.AppSpec.Job
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, parseJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -35,7 +35,14 @@ data Job = Job
 instance IsDecl Job
 
 data JobExecutor = PgBoss
-  deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic, FromJSON)
+  deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic)
+
+-- NOTE: For some reason, deriving FromJSON for JobExecutor does not work.
+-- I'm guessing it's because "PgBoss" is the only data constructor (because it works with EmailProviders).
+instance FromJSON JobExecutor where
+  parseJSON executorStr = case executorStr of
+    "PgBoss" -> pure PgBoss
+    _ -> fail $ "Failed to parse job executor: " <> show executorStr
 
 data Perform = Perform
   { fn :: ExtImport,
