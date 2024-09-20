@@ -2,7 +2,7 @@
 title: Migration from 0.11.X to 0.12.X
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "./auth/Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "../auth/Pills";
 
 :::note Migrating to the latest version
 
@@ -71,9 +71,9 @@ The main differences are:
   no longer start with `@server` or `@client`.
 - Your project now features a top-level `public` dir. Wasp will publicly serve
   all the files it finds in this directory. Read more about it
-  [here](/project/static-assets.md).
+  [here](../project/static-assets.md).
 
-Our [Overview docs](./tutorial/02-project-structure.md) explain the new
+Our [Overview docs](../tutorial/02-project-structure.md) explain the new
 structure in detail, while this page provides a [quick guide](#migrating-your-project-to-the-new-structure) for migrating existing
 projects.
 
@@ -160,7 +160,7 @@ Auth field customization is no longer possible using the `_waspCustomValidations
 
 :::
 
-You can read more about the new auth system in the [Accessing User Data](./auth/entities) section.
+You can read more about the new auth system in the [Accessing User Data](../auth/entities) section.
 
 ## How to Migrate?
 
@@ -597,7 +597,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
 
     If you want to properly type the `profile` object, we recommend you use a validation library like Zod to define the shape of the `profile` object.
     
-    Read more about this and the `defineUserSignupFields` function in the [Auth Overview - Defining Extra Fields](./auth/overview.md#1-defining-extra-fields) section.
+    Read more about this and the `defineUserSignupFields` function in the [Auth Overview - Defining Extra Fields](../auth/overview.md#1-defining-extra-fields) section.
 
     </TabItem>
     </Tabs>
@@ -693,7 +693,7 @@ Your app should be working correctly and using new auth, but to finish the migra
 
   After doing the steps above successfully locally and making sure everything is working, it is time to push these changes to the deployed app again.
 
-  _Deploy the app again_, either via `wasp deploy` or manually. Check our [Deployment docs](advanced/deployment/overview.md) for more details.
+  _Deploy the app again_, either via `wasp deploy` or manually. Check our [Deployment docs](../advanced/deployment/overview.md) for more details.
 
   The database migrations will automatically run on successful deployment of the server and delete the now redundant auth-related `User` columns from the database.
 

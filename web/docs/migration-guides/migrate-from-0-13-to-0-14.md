@@ -396,7 +396,7 @@ All that's left to do is migrate the database.
 To avoid type errors, it's best to take care of database migrations after you've migrated the rest of the code.
 So, just keep reading, and we will remind you to migrate the database as [the last step of the migration guide](#migrate-the-database).
 
-Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
+Read more about the [Prisma Schema File](../data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
 
 ### Migrate how you access user auth fields
 
@@ -659,8 +659,8 @@ wasp db migrate-dev
 
 This command generates the Prisma client based on the `schema.prisma` file.
 
-Read more about the [Prisma Schema File](./data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
+Read more about the [Prisma Schema File](../data-model/prisma-file.md) and how Wasp uses it to generate the database schema and Prisma client.
 
 That's it!
 
-You should now be able to run your app with the new Wasp 0.14.0. We recommend reading through the updated [Accessing User Data](./auth/entities/entities.md) section to get a better understanding of the new API.
+You should now be able to run your app with the new Wasp 0.14.0. We recommend reading through the updated [Accessing User Data](../auth/entities/entities.md) section to get a better understanding of the new API.
