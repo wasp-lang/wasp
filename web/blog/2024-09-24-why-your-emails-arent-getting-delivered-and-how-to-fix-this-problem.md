@@ -2,7 +2,7 @@
 title: "Why Your Emails Aren't Getting Delivered and How to Fix This Problem"
 authors: [milica]
 image: /img/email/email-cover.jpg
-tags: [webdev, postgresql, database, os-maintainers]
+tags: [webdev, tips, emails]
 ---
 import ReactPlayer from 'react-player'
 import Link from '@docusaurus/Link';
