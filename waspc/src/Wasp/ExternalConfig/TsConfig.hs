@@ -102,7 +102,7 @@ validateTsConfig tsConfig =
         ]
 
     validateRequiredFieldInCompilerOptions fieldName expectedValue getField =
-      validateRequiredField fieldName expectedValue $ getField compilerOptionsFields
+      validateRequiredField ("compilerOptions." ++ fieldName) expectedValue $ getField compilerOptionsFields
 
     compilerOptionsFields = compilerOptions tsConfig
 
