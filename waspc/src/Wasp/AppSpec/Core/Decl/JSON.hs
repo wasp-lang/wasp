@@ -1,5 +1,5 @@
--- Needed by generateFromJsonInstanceForDecl (TH)
 {-# LANGUAGE TemplateHaskell #-}
+-- Needed by generateFromJsonInstanceForDecl (TH)
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
