@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
@@ -9,6 +10,7 @@ module Wasp.AppSpec.ExtImport
 where
 
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
+import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel, parseRelFileP)
@@ -20,7 +22,7 @@ data ExtImport = ExtImport
     -- | Path from which we are importing.
     path :: ExtImportPath
   }
-  deriving (Show, Eq, Data, Generic)
+  deriving (Show, Eq, Data)
 
 instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
@@ -49,7 +51,7 @@ data ExtImportName
     ExtImportModule Identifier
   | -- | Represents external imports like @import { Identifier } from "file.js"@
     ExtImportField Identifier
-  deriving (Show, Eq, Data, Generic)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 importIdentifier :: ExtImport -> Identifier
 importIdentifier (ExtImport importName _) = case importName of
