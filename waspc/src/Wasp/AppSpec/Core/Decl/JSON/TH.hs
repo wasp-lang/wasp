@@ -9,7 +9,6 @@ module Wasp.AppSpec.Core.Decl.JSON.TH
   )
 where
 
-import Control.Monad (forM)
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
 import Data.Functor ((<&>))
 import Language.Haskell.TH
@@ -18,9 +17,8 @@ import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
 
 generateFromJsonInstanceForDecl :: Q [Dec]
 generateFromJsonInstanceForDecl = do
-  isDeclTypes <- reifyIsDeclTypes
-
-  caseMatches <- forM isDeclTypes caseMatchForIsDeclType
+  declTypes <- reifyInstancesOfIsDeclClass
+  caseMatches <- mapM getCaseMatchForDeclType declTypes
 
   -- Generates:
   --   _ -> fail $ "Unknown declType " <> declType
@@ -39,18 +37,31 @@ generateFromJsonInstanceForDecl = do
         --     <caseMatches[1]>
         --     ...
         --     <defultCaseMatch>
-        $(pure $ CaseE (VarE (mkName "declType")) (caseMatches <> defaultCaseMatch))
+        $( pure $
+             CaseE
+               (VarE (mkName "declType"))
+               (caseMatches <> defaultCaseMatch)
+         )
     |]
   where
     -- Generates following (for e.g. `Page` type):
-    --   t | t == declTypeName @Page -> pure $ makeDecl @Page declName <$> o .: "declValue"
-    caseMatchForIsDeclType :: Type -> Q Match
-    caseMatchForIsDeclType typ = do
-      guardPredicate <- [|t == $(pure $ AppTypeE (VarE 'declTypeName) typ)|]
-      matchBody <- [e|$(pure $ AppTypeE (VarE 'makeDecl) typ) declName <$> (o .: "declValue")|]
-      pure $ Match (VarP (mkName "t")) (GuardedB [(NormalG guardPredicate, matchBody)]) []
+    --   t | t == declTypeName @Page -> makeDecl @Page declName <$> o .: "declValue"
+    getCaseMatchForDeclType :: Type -> Q Match
+    getCaseMatchForDeclType typ = do
+      casePredicate <- [|t == $(pure $ AppTypeE (VarE 'declTypeName) typ)|]
+      matchBody <-
+        [e|
+          $(pure $ AppTypeE (VarE 'makeDecl) typ)
+            declName
+            <$> (o .: "declValue")
+          |]
+      pure $
+        Match
+          (VarP (mkName "t"))
+          (GuardedB [(NormalG casePredicate, matchBody)])
+          []
 
-    reifyIsDeclTypes :: Q [Type]
-    reifyIsDeclTypes = do
+    reifyInstancesOfIsDeclClass :: Q [Type]
+    reifyInstancesOfIsDeclClass = do
       ClassI _ isDeclInstances <- reify ''IsDecl
       pure [t | InstanceD _ _ (AppT _ t) _ <- isDeclInstances]
