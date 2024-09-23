@@ -37,8 +37,9 @@ instance IsDecl Job
 data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic)
 
--- NOTE: For some reason, deriving FromJSON for JobExecutor does not work.
--- I'm guessing it's because "PgBoss" is the only data constructor (because it works with EmailProviders).
+-- NOTE: For some reason, deriving FromJSON for JobExecutor does not work. I'm
+-- guessing it's because "PgBoss" is the only data constructor (the same code
+-- works as expected with EmailProvider, which is very similar).
 instance FromJSON JobExecutor where
   parseJSON executorStr = case executorStr of
     "PgBoss" -> pure PgBoss
