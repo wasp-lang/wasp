@@ -1,5 +1,5 @@
 ---
-title: "Why Your Emails Aren't Getting Delivered and How to Fix This Problem"
+title: "Why Your SaaS Emails Aren’t Being Delivered and How to Fix This Issue"
 authors: [milica]
 image: /img/email/email-cover.jpg
 tags: [webdev, tips, emails]
@@ -11,11 +11,11 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ImgWithCaption from './components/ImgWithCaption'
 
-If you’re new to [Wasp](https://wasp-lang.dev/), and you’ve just built and deployed your app, it’s possible that your emails aren’t reaching your users. Don’t be too alarmed. This is a common issue that affects many developers who have newly registered domains.
+If you’ve just built your SaaS web app and deployed it on a production server, you might be running into email deliverability issues. Transactional or marketing emails might not be landing in your users' inboxes. Don’t panic! This is a pretty common problem, especially for apps that run on newly registered domains.
 
-In other words, your users and their email servers pulled a Gandalf move on you. No worries, this is something you can fix!
+We have seen a lot of [Wasp](https://wasp-lang.dev/) users facing similar challenges, thinking their toolkit was to blame. In our Discord community, we regularly help users who’ve just launched their first app with Wasp, and we've seen this issue pop up frequently. The bad news: your users and their email servers pulled a Gandalf move on you. The good news: no worries, this is something you can fix!
 
-![https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![Gandalf saying you shall not pass](https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
 ## 1. **Build up your domain reputation**
 
@@ -37,7 +37,7 @@ Authentication adds a layer of security to your emails, proving to email provide
 
 Read more about these records and how to add them to your DNS servers [here](https://www.cloudflare.com/en-gb/learning/email-security/dmarc-dkim-spf/). 
 
-![https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![A girl saying and you're going to fix it](https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
 ## 3. **Use professional email sending tools**
 
@@ -52,7 +52,7 @@ It’s important to keep an eye on how your emails are performing. Look for key 
 - **Bounce rate**: High bounce rates suggest you’re sending to invalid or outdated email addresses. Regularly clean your list to avoid this. If more than 3% of your emails bounce, your domain can get blocked by your email provider.
 - **Spam complaints**: High spam reports and complaints can also lead to email providers blocking your domain. If users are marking your emails as spam, reconsider the content and frequency of your emails. Also, please don’t buy email lists off of Internet, those will do you more harm than good.
 
-![meme.jpg](/img/email/meme.jpg)
+![meme saying are you looking into buying email lists](/img/email/meme.jpg)
 
 ## 5. **Create high-quality content**
 
@@ -64,7 +64,7 @@ What you write matters too. Emails are poorly written are more likely to be mark
 
 ## Inbox access granted
 
-![https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![you can do this gif](https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
 We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp-lang.dev/docs/advanced/email#using-the-mailgun-provider), Wasp supports some out of the box. 
 
