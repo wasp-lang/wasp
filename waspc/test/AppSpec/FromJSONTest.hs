@@ -101,7 +101,8 @@ spec_AppSpecFromJSON = do
             "declType": "IMadeThisUp"
           }
         |]
-        -- How to properly type this?
+        -- NOTE: We are using `Ref Entity` here, because the Show instance in
+        -- shouldDecodeTo demands a proper type.
         `shouldDecodeTo` (Nothing :: Maybe (Ref Entity))
   describe "Query" $ do
     it "parses a valid Query JSON with auth and entities" $ do
