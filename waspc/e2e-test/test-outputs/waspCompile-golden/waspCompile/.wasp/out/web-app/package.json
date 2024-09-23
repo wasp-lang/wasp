@@ -17,7 +17,7 @@
     "mitt": "3.0.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.4",
-    "react-router-dom": "^6.26.1",
+    "react-router-dom": "^6.26.2",
     "superjson": "^1.12.2"
   },
   "devDependencies": {

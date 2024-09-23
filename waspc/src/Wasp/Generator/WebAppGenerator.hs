@@ -122,7 +122,7 @@ npmDepsForWasp _spec =
             ("react", "^18.2.0"),
             ("react-dom", "^18.2.0"),
             ("@tanstack/react-query", "^4.29.0"),
-            ("react-router-dom", "^6.26.1"),
+            ("react-router-dom", "^6.26.2"),
             ("superjson", "^1.12.2"),
             ("mitt", "3.0.0"),
             -- Used for Auth UI
