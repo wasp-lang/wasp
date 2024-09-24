@@ -9,10 +9,11 @@ module Wasp.AppSpec.ExtImport
   )
 where
 
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
+import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import StrongPath (File', Path, Posix, Rel)
+import StrongPath (File', Path, Posix, Rel, parseRelFileP)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 
 data ExtImport = ExtImport
@@ -22,6 +23,24 @@ data ExtImport = ExtImport
     path :: ExtImportPath
   }
   deriving (Show, Eq, Data)
+
+instance FromJSON ExtImport where
+  parseJSON = withObject "ExtImport" $ \o -> do
+    kindStr <- o .: "kind"
+    nameStr <- o .: "name"
+    pathStr <- o .: "path"
+    extImportName <- parseExtImportName kindStr nameStr
+    extImportPath <- parseExtImportPath pathStr
+    return $ ExtImport extImportName extImportPath
+    where
+      parseExtImportName kindStr nameStr = case kindStr of
+        "default" -> pure $ ExtImportModule nameStr
+        "named" -> pure $ ExtImportField nameStr
+        _ -> fail $ "Failed to parse import kind: " <> kindStr
+
+      parseExtImportPath pathStr = case parseRelFileP pathStr of
+        Just path' -> pure path'
+        Nothing -> fail $ "Failed to parse relative posix path to file: " <> pathStr
 
 type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
