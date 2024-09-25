@@ -17,7 +17,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, basename, toFilePath, (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import StrongPath.Types (File)
@@ -56,6 +56,7 @@ import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Valid as PslV
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.StrongPath (replaceRelExtension)
 import Wasp.Valid (ValidationError)
 import qualified Wasp.Valid as Valid
 
@@ -100,31 +101,22 @@ analyzeWaspFile waspDir prismaSchemaAst = \case
   WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ do
+analyzeWaspTsFile waspProjectDir _prismaSchemaAst waspFilePath = runExceptT $ do
   -- TODO: I'm not yet sure where tsconfig.node.json location will come from
   -- because we also need that knowledge to generate a TS SDK project.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|]
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|] waspFilePath
   specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
   liftIO $ putStrLn "Here are the contents of the spec file:"
   liftIO $ print contents
   return []
 
--- TODO: Reconsider the return value. Can I write the function in such a way
--- that it's impossible to get the absolute path to the compiled file without
--- calling the function that compiles it?
--- To do that, I'd have to craete a private module that knows where the file is
--- and not expose the constant for creating the absoltue path (like I did with config/spec.json).
--- Normally, I could just put the constant in the where clause like I did there, but I'm hesitant
--- to do that since the path comes from the tsconfig.
--- That is what I did currently, but I'll have to figure out the long-term solution.
--- The ideal solution is reading the TS file, and passing its config to tsc
--- manually (and getting the output file path in the process).
 compileWaspTsFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) File' ->
+  Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
-compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir = do
+compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath = do
   chan <- newChan
   (_, tscExitCode) <-
     concurrently
@@ -138,7 +130,7 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir = do
             "--noEmit",
             "false",
             "--outDir",
-            toFilePath $ SP.parent absCompiledWaspJsFile
+            toFilePath outDir
           ]
           J.Wasp
           chan
@@ -147,8 +139,11 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir = do
     ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
     ExitSuccess -> return $ Right absCompiledWaspJsFile
   where
-    -- TODO: I should be getting the compiled file path from the tsconfig.node.file
-    absCompiledWaspJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
+    outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
+    absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
+    compiledWaspJsFileInDotWaspDir = SP.castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
+      Just path -> path
+      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ show waspFilePath
 
 executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
 executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
@@ -176,7 +171,7 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
   where
     -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
     -- see notes in compileWaspFile.
-    absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
+    absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec.json|]
 
 readDeclsJsonFile :: Path' Abs (File SpecJsonFile) -> IO (Either [CompileError] Aeson.Value)
 readDeclsJsonFile declsJsonFile = do
