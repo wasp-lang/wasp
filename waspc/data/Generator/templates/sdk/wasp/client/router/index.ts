@@ -12,14 +12,36 @@ export const routes = {
   {=# routes =}
   {= name =}: {
     to: "{= urlPath =}",
+    {=# hasUrlParams =}
     build: (
-      options{=^ hasUrlParams =}?{=/ hasUrlParams =}:
+      options: OptionalRouteOptions
+      & { params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
+      {=# hasOptionalStaticSegments =}
+      & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
+      {=/ hasOptionalStaticSegments =}
+    ) => interpolatePath(
+        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        options.params,
+        options?.search,
+        options?.hash
+      ),
+    {=/ hasUrlParams =}
+    {=^ hasUrlParams =}
+    build: (
+      options?:
       OptionalRouteOptions
-      {=#  hasUrlParams =}& {
-        params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}
-      }{=/ hasUrlParams =}
-      {=# hasOptionalStaticSegments =}& { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }{=/ hasOptionalStaticSegments =}
-    ) => interpolatePath({=# hasOptionalStaticSegments =}options.path{=/ hasOptionalStaticSegments =}{=^ hasOptionalStaticSegments =}"{= urlPath =}"{=/ hasOptionalStaticSegments =}, {=^ hasUrlParams =}undefined{=/ hasUrlParams =}{=# hasUrlParams =}options.params{=/ hasUrlParams =}, options?.search, options?.hash),
+      {=# hasOptionalStaticSegments =}
+      & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
+      {=/ hasOptionalStaticSegments =}
+    ) => interpolatePath(
+        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+    {=/ hasUrlParams =}
   },
   {=/ routes =}
 } as const;
