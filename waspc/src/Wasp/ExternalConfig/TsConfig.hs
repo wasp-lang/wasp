@@ -106,7 +106,7 @@ validateTsConfig tsConfig =
 
     compilerOptionsFields = compilerOptions tsConfig
 
--- | Used to show expected values in error messages.
+-- | Haskell type that implements ShowJS is a type whose values can be mapped to Javascript values (their string representation).
 class ShowJs a where
   showJs :: a -> String
 
