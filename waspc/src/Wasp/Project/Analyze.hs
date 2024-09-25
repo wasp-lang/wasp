@@ -59,27 +59,6 @@ import qualified Wasp.Util.IO as IOUtil
 import Wasp.Valid (ValidationError)
 import qualified Wasp.Valid as Valid
 
-data WaspFile
-  = WaspLang !(Path' Abs (File WaspLangFile))
-  | WaspTs !(Path' Abs (File WaspTsFile))
-
-data WaspLangFile
-
-data WaspTsFile
-
-data CompiledWaspJsFile
-
-data SpecJsonFile
-
--- TODO: Not yet sure where this is going to come from because we also need that knowledge to generate a TS SDK project.
---
--- BEGIN SHARED STUFF
-
-tsconfigNodeFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-tsconfigNodeFileInWaspProjectDir = [relfile|tsconfig.node.json|]
-
--- END SHARED STUFF
-
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
@@ -103,15 +82,22 @@ analyzeWaspProject waspDir options = do
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
+data WaspFile
+  = WaspLang !(Path' Abs (File WaspLangFile))
+  | WaspTs !(Path' Abs (File WaspTsFile))
+
+data WaspLangFile
+
+data WaspTsFile
+
+data CompiledWaspJsFile
+
+data SpecJsonFile
+
 analyzeWaspFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> WaspFile -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFile waspDir prismaSchemaAst = \case
   WaspLang waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
   WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
-
-readDeclsJsonFile :: Path' Abs (File SpecJsonFile) -> IO (Either [CompileError] Aeson.Value)
-readDeclsJsonFile declsJsonFile = do
-  byteString <- IOUtil.readFile declsJsonFile
-  return $ Right $ Aeson.toJSON byteString
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ do
@@ -124,34 +110,6 @@ analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ d
   liftIO $ putStrLn "Here are the contents of the spec file:"
   liftIO $ print contents
   return []
-
-executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
-executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
-  chan <- newChan
-  (_, runExitCode) <- do
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      ( runNodeCommandAsJob
-          waspProjectDir
-          "npx"
-          -- TODO: Figure out how to keep running instructions in a single place
-          -- (e.g., this is the same as the package name, but it's repeated in two places).
-          -- Before this, I had the entrypoint file hardcoded, which was bad
-          -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
-          [ "wasp-config",
-            SP.fromAbsFile absCompiledMainWaspJsFile,
-            SP.fromAbsFile absSpecOutputFile
-          ]
-          J.Wasp
-          chan
-      )
-  case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
-    ExitSuccess -> return $ Right absSpecOutputFile
-  where
-    -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
-    -- see notes in compileWaspFile.
-    absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
 
 -- TODO: Reconsider the return value. Can I write the function in such a way
 -- that it's impossible to get the absolute path to the compiled file without
@@ -192,6 +150,43 @@ compileWaspTsFile waspProjectDir = do
   where
     -- TODO: I should be getting the compiled file path from the tsconfig.node.file
     absCompiledWaspJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
+    -- TODO: I'm not yet sure where this is going to come from because we also need
+    -- that knowledge to generate a TS SDK project.
+    tsconfigNodeFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+    tsconfigNodeFileInWaspProjectDir = [relfile|tsconfig.node.json|]
+
+executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
+executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
+  chan <- newChan
+  (_, runExitCode) <- do
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      ( runNodeCommandAsJob
+          waspProjectDir
+          "npx"
+          -- TODO: Figure out how to keep running instructions in a single place
+          -- (e.g., this is the same as the package name, but it's repeated in two places).
+          -- Before this, I had the entrypoint file hardcoded, which was bad
+          -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
+          [ "wasp-config",
+            SP.fromAbsFile absCompiledMainWaspJsFile,
+            SP.fromAbsFile absSpecOutputFile
+          ]
+          J.Wasp
+          chan
+      )
+  case runExitCode of
+    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
+    ExitSuccess -> return $ Right absSpecOutputFile
+  where
+    -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
+    -- see notes in compileWaspFile.
+    absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
+
+readDeclsJsonFile :: Path' Abs (File SpecJsonFile) -> IO (Either [CompileError] Aeson.Value)
+readDeclsJsonFile declsJsonFile = do
+  byteString <- IOUtil.readFile declsJsonFile
+  return $ Right $ Aeson.toJSON byteString
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
@@ -250,8 +245,8 @@ findWaspFile waspDir = do
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
     -- TODO: We used to have a check that made sure not to misidentify the .wasp
-    -- dir as a wasp file, but that's not true (fst <$>
-    -- IOUtil.listDirectory takes care of that).
+    -- dir as a wasp file, but that's not needed (fst <$>
+    -- IOUtil.listDirectory already takes care of that and says so in its signature).
     -- A bigger problem is if the user has a file with the same name as the wasp dir,
     -- but that's a problem that should be solved in a different way (it's
     -- still possible to have both main.wasp and .wasp files and cause that
