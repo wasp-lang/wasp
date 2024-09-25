@@ -244,13 +244,6 @@ findWaspFile waspDir = do
   where
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    -- TODO: We used to have a check that made sure not to misidentify the .wasp
-    -- dir as a wasp file, but that's not needed (fst <$>
-    -- IOUtil.listDirectory already takes care of that and says so in its signature).
-    -- A bigger problem is if the user has a file with the same name as the wasp dir,
-    -- but that's a problem that should be solved in a different way (it's
-    -- still possible to have both main.wasp and .wasp files and cause that
-    -- error).
     -- TODO: Try out what happens when Wasp finds this file, but the tsconfing setup and package are missing
     findFileThatEndsWith suffix files = SP.castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
 
