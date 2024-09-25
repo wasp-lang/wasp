@@ -15,7 +15,7 @@ export const routes = {
     {=# hasUrlParams =}
     build: (
       options: OptionalRouteOptions
-      & { params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
+      & { params: {{=# urlParams =}"{= name =}"{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
       {=# hasOptionalStaticSegments =}
       & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
       {=/ hasOptionalStaticSegments =}

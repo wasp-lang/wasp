@@ -23,17 +23,17 @@ getRouteSegments :: String -> [Segment]
 getRouteSegments = map parseSegment . splitOn "/"
   where
     parseSegment :: String -> Segment
-    parseSegment "*" = ParamSegment $ RequiredParamSegment "splat"
-    parseSegment (':' : xs) =
+    parseSegment "*" = ParamSegment $ RequiredParamSegment "*"
+    parseSegment (':' : paramName) =
       ParamSegment $
-        if isSegmentOptional xs
-          then OptionalParamSegment (take (length xs - 1) xs)
-          else RequiredParamSegment xs
-    parseSegment x =
+        if isSegmentOptional paramName
+          then OptionalParamSegment $ init paramName
+          else RequiredParamSegment paramName
+    parseSegment segmentValue =
       StaticSegment $
-        if isSegmentOptional x
-          then OptionalStaticSegment x
-          else RequiredStaticSegment x
+        if isSegmentOptional segmentValue
+          then OptionalStaticSegment segmentValue
+          else RequiredStaticSegment segmentValue
 
 isSegmentOptional :: String -> Bool
 isSegmentOptional = isSuffixOf "?"
