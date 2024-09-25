@@ -26,7 +26,6 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Nothing -> return ()
-    -- TODO: Remove duplication?
     Just (WaspLang absMainWaspFile) -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
     Just (WaspTs absMainTsFile) -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainTsFile
 
