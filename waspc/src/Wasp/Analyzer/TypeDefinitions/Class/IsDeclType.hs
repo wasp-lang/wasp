@@ -10,7 +10,7 @@ import Wasp.Analyzer.Evaluator.Bindings (Bindings)
 import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Wasp.Analyzer.TypeChecker.AST (TypedExpr, WithCtx)
 import Wasp.Analyzer.TypeDefinitions.Internal (DeclType, TypeDefinitions)
-import qualified Wasp.AppSpec.Core.Decl as AppSpecDecl
+import qualified Wasp.AppSpec.Core.IsDecl as AppSpecIsDecl
 
 -- | Marks Haskell type as a representation of a specific Wasp declaration type.
 -- This is supposed to be used on types from @AppSpec@ (the main Wasp IR)
@@ -27,7 +27,7 @@ import qualified Wasp.AppSpec.Core.Decl as AppSpecDecl
 -- NOTE: If this Haskell type satisfies certain requirements, the IsDeclType instance for it
 -- can be automatically derived from its shape by using
 -- 'Wasp.Analyzer.TypeDefinitions.TH.makeDeclType'.
-class (Typeable a, AppSpecDecl.IsDecl a) => IsDeclType a where
+class (Typeable a, AppSpecIsDecl.IsDecl a) => IsDeclType a where
   declType :: DeclType
 
   -- | Evaluates a given Wasp "TypedExpr" to @a@, assuming given typed
