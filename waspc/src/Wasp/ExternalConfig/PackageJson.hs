@@ -106,16 +106,16 @@ validatePackageInDeps packageJson (packageName, expectedPackageVersion, validati
     incorrectVersionMessage :: String
     incorrectVersionMessage =
       unwords
-        ["The", show packageName, "package must have version", show expectedPackageVersion, "in package.json."]
+        ["Wasp requires package", show packageName, "to be version", show expectedPackageVersion, "in package.json."]
 
     requiredPackageMessage :: String -> String
     requiredPackageMessage packageJsonLocation =
       unwords
-        [ "The",
+        [ "Wasp requires package",
           show packageName,
-          "package with version",
+          "with version",
           show expectedPackageVersion,
-          "must be defined in",
+          "in",
           show packageJsonLocation,
           "in package.json."
         ]
