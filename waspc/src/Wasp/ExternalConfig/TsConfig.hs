@@ -8,7 +8,12 @@ module Wasp.ExternalConfig.TsConfig
 where
 
 import Control.Monad.Except
-import Data.Aeson (FromJSON, parseJSON, withObject, (.:?))
+import Data.Aeson
+  ( FromJSON,
+    genericParseJSON,
+    parseJSON,
+  )
+import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
 import GHC.Generics (Generic)
@@ -41,22 +46,16 @@ data CompilerOptions = CompilerOptions
     typeRoots :: !(Maybe [String]),
     outDir :: !(Maybe String)
   }
-  deriving (Show)
+  deriving (Show, Generic)
 
 instance FromJSON CompilerOptions where
-  parseJSON = withObject "CompilerOptions" $ \v ->
-    CompilerOptions
-      -- We couldn't use the Generic deriving for this because of the _ prefix in the "module" field name.
-      <$> v .:? "module"
-      <*> v .:? "target"
-      <*> v .:? "moduleResolution"
-      <*> v .:? "jsx"
-      <*> v .:? "strict"
-      <*> v .:? "esModuleInterop"
-      <*> v .:? "lib"
-      <*> v .:? "allowJs"
-      <*> v .:? "typeRoots"
-      <*> v .:? "outDir"
+  parseJSON =
+    genericParseJSON $
+      Aeson.defaultOptions {Aeson.fieldLabelModifier = modifyFieldLabel}
+    where
+      -- "module" is a reserved keyword in Haskell, so we use "_module" instead.
+      modifyFieldLabel "_module" = "module"
+      modifyFieldLabel other = other
 
 analyzeTsConfigContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] TsConfig)
 analyzeTsConfigContent waspDir = runExceptT $ do
