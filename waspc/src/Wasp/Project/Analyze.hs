@@ -102,8 +102,8 @@ analyzeWaspFile waspDir prismaSchemaAst = \case
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspProjectDir _prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: I'm not yet sure where tsconfig.node.json location will come from
-  -- because we also need that knowledge to generate a TS SDK project.
+  -- TODO: I'm not yet sure where tsconfig.node.json location should come from
+  -- because we also need that knowledge when generating a TS SDK project.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|] waspFilePath
   specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
@@ -154,8 +154,9 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
       ( runNodeCommandAsJob
           waspProjectDir
           "npx"
-          -- TODO: Figure out how to keep running instructions in a single place
-          -- (e.g., this is the same as the package name, but it's repeated in two places).
+          -- TODO: Figure out how to keep running instructions in a single
+          -- place (e.g., this is string the same as the package name, but it's
+          -- repeated in two places).
           -- Before this, I had the entrypoint file hardcoded, which was bad
           -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
           [ "wasp-config",
@@ -169,8 +170,6 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
     ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
     ExitSuccess -> return $ Right absSpecOutputFile
   where
-    -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
-    -- see notes in compileWaspFile.
     absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec.json|]
 
 readDeclsJsonFile :: Path' Abs (File SpecJsonFile) -> IO (Either [CompileError] Aeson.Value)
