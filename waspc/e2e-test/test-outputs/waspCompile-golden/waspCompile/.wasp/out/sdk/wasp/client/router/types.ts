@@ -49,46 +49,50 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
  * - /users/:id?
  * - /users/tasks/:id?
  */
-export type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/'
-  ? '/'
-  : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`
+export type ExpandRouteOnOptionalStaticSegments<Route extends string> = JoinPath<
+  ExpandOptionalSegments<ParseSegments<SplitPath<NonEmptyString<Route>>>>
+>;
 
-type ExpandOptionalSegments<T> = T extends [infer Head, ...infer Tail]
-  ? Head extends ''
-    ? [...ExpandOptionalSegments<Tail>]
-    : [_ExpandOptionalSegment<Head>, ...ExpandOptionalSegments<Tail>]
-  : T
+type ParseSegments<T> = T extends [infer Head, ...infer Tail]
+  ? [_ParseSegment<Head>, ...ParseSegments<Tail>]
+  : T;
 
-type _ExpandOptionalSegment<T> = T extends `:${infer P}`
+type _ParseSegment<T> = T extends `:${infer P}`
   ? // Param segment
     { segment: T }
   : T extends `${infer S}?`
     ? // Optional segment
       { optionalSegment: S }
     : // Regular segment
-      { segment: T }
+      { segment: T };
 
-type Segment = { segment: string }
-type OptionalSegment = { optionalSegment: string }
+type Segment = { segment: string };
+type OptionalSegment = { optionalSegment: string };
 
-type Elem = Segment | OptionalSegment
+type Elem = Segment | OptionalSegment;
 
-type JoinSegments<T extends Elem[]> = T extends []
+type ExpandOptionalSegments<T extends Elem[]> = T extends []
   ? []
   : T extends [infer First extends Elem, ...infer Rest extends Elem[]]
     ? First extends Segment
-      ? [First['segment'], ...JoinSegments<Rest>]
+      ? [First["segment"], ...ExpandOptionalSegments<Rest>]
       : First extends OptionalSegment
-        ? [First['optionalSegment'], ...JoinSegments<Rest>] | JoinSegments<Rest>
+        ? [First["optionalSegment"], ...ExpandOptionalSegments<Rest>] | ExpandOptionalSegments<Rest>
         : []
-    : []
+    : [];
 
-type SplitPath<S extends string> = S extends `${infer T}/${infer U}`
-  ? [T, ...SplitPath<U>]
-  : [S]
+type SplitPath<S extends string> = S extends "/"
+  ? [""]
+  : S extends `${infer T}/${infer U}`
+    ? [T, ...SplitPath<U>]
+    : [S];
 
 type JoinPath<T extends string[]> = T extends [infer Only extends string]
-  ? Only
+  ? Only extends ""
+    ? "/"
+    : Only
   : T extends [infer First extends string, ...infer Rest extends string[]]
     ? `${First}/${JoinPath<Rest>}`
-    : never
+    : never;
+
+type NonEmptyString<S extends string> = S extends "" ? never : S;
