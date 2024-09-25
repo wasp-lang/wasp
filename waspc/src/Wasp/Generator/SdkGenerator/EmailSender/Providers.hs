@@ -64,10 +64,10 @@ mailgun =
     }
   where
     mailgunVersionRange :: SV.Range
-    mailgunVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 0 5 1)]
+    mailgunVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 10 2 3)]
 
     mailgunDependency :: AS.Dependency.Dependency
-    mailgunDependency = AS.Dependency.make ("ts-mailgun", show mailgunVersionRange)
+    mailgunDependency = AS.Dependency.make ("mailgun.js", show mailgunVersionRange)
 
 dummy :: EmailSenderProvider
 dummy =
