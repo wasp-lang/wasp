@@ -11,9 +11,15 @@ import Data.List.Split (splitOn)
 
 data Segment = StaticSegment StaticSegment | ParamSegment ParamSegment deriving (Show, Eq)
 
-data StaticSegment = RequiredStaticSegment StaticSegmentValue | OptionalStaticSegment StaticSegmentValue deriving (Show, Eq)
+data StaticSegment
+  = RequiredStaticSegment StaticSegmentValue
+  | OptionalStaticSegment StaticSegmentValue
+  deriving (Show, Eq)
 
-data ParamSegment = RequiredParamSegment ParamName | OptionalParamSegment ParamName deriving (Show, Eq)
+data ParamSegment
+  = RequiredParamSegment ParamName
+  | OptionalParamSegment ParamName
+  deriving (Show, Eq)
 
 type StaticSegmentValue = String
 
