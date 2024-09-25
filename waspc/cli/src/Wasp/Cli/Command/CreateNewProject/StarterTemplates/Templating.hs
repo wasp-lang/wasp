@@ -26,8 +26,10 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Nothing -> return ()
-    Just (WaspLang absMainWaspFile) -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
-    Just (WaspTs absMainTsFile) -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainTsFile
+    Just (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
+    Just (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
+  where
+    replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk appName projectName
 
 -- | Template file for package.json file has placeholders in it that we want to replace
 -- in the package.json file we have written to the disk.
