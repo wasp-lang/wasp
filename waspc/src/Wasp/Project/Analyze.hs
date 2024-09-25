@@ -101,10 +101,9 @@ analyzeWaspFile waspDir prismaSchemaAst = \case
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ do
-  -- TODO: The function currently doesn't require the path to main.wasp.ts
-  -- because it reads it from the tsconfig
-  -- Should we ensure that the tsconfig indeed points to the name we expect? Probably.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir
+  -- TODO: I'm not yet sure where tsconfig.node.json location will come from
+  -- because we also need that knowledge to generate a TS SDK project.
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|]
   specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
   liftIO $ putStrLn "Here are the contents of the spec file:"
@@ -121,11 +120,11 @@ analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ d
 -- That is what I did currently, but I'll have to figure out the long-term solution.
 -- The ideal solution is reading the TS file, and passing its config to tsc
 -- manually (and getting the output file path in the process).
-compileWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
-compileWaspTsFile waspProjectDir = do
-  -- TODO: The function should also receive the tsconfig.node.json file (not the main.wasp.ts file),
-  -- because the source of truth (the name of the file, where it's compiled) comes from the typescript config.
-  -- However, we might want to keep this information in haskell and then verify that the tsconfig is correct.
+compileWaspTsFile ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (Rel WaspProjectDir) File' ->
+  IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
+compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir = do
   chan <- newChan
   (_, tscExitCode) <-
     concurrently
@@ -150,10 +149,6 @@ compileWaspTsFile waspProjectDir = do
   where
     -- TODO: I should be getting the compiled file path from the tsconfig.node.file
     absCompiledWaspJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
-    -- TODO: I'm not yet sure where this is going to come from because we also need
-    -- that knowledge to generate a TS SDK project.
-    tsconfigNodeFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-    tsconfigNodeFileInWaspProjectDir = [relfile|tsconfig.node.json|]
 
 executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
 executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
