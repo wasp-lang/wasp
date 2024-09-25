@@ -71,12 +71,12 @@ validatePackageJson packageJson =
     packageJsonErrors =
       concat
         [ -- Wasp needs the Wasp SDK to be installed in the project.
-          validate ("wasp", "file:.wasp/out/sdk/wasp", RequiredPackage),
+          validate ("wasp", "file:.wasp/out/sdk/wasp", IsListedWithExactVersion),
           -- Wrong version of Prisma will break the generated code.
-          validate ("prisma", show prismaVersion, RequiredDevPackage),
+          validate ("prisma", show prismaVersion, IsListedAsDevWithExactVersion),
           -- Installing the wrong version of "react-router-dom" can make users believe that they
           -- can use features that are not available in the version that Wasp supports.
-          validate ("react-router-dom", show reactRouterVersion, OptionalPackage)
+          validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
         ]
     validate = validatePackageInDeps packageJson
 
@@ -88,26 +88,20 @@ readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
-data PackageValidationType = RequiredPackage | RequiredDevPackage | OptionalPackage
+data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 
 validatePackageInDeps :: PackageJson -> (PackageName, PackageVersion, PackageValidationType) -> [CompileError]
-validatePackageInDeps packageJson (packageName, expectedPackageVersion, validationType) =
-  case map (M.lookup packageName) depsToCheck of
-    (Just actualPackageVersion : _) ->
-      if actualPackageVersion == expectedPackageVersion
-        then []
-        else [incorrectVersionMessage]
-    _rest -> case validationType of
-      RequiredPackage -> [requiredPackageMessage "dependencies"]
-      RequiredDevPackage -> [requiredPackageMessage "devDependencies"]
-      OptionalPackage -> []
+validatePackageInDeps packageJson (packageName, expectedPackageVersion, validationType) = case validationType of
+  IsListedWithExactVersion -> checkDeps [dependencies packageJson] [requiredPackageMessage "dependencies"]
+  IsListedAsDevWithExactVersion -> checkDeps [devDependencies packageJson] [requiredPackageMessage "devDependencies"]
+  HasExactVersionIfListed -> checkDeps [dependencies packageJson, devDependencies packageJson] []
   where
-    depsToCheck = case validationType of
-      RequiredPackage -> [dependencies packageJson]
-      RequiredDevPackage -> [devDependencies packageJson]
-      -- Users can install packages that don't need to be strictly in dependencies or devDependencies
-      -- which means Wasp needs to check both to validate the correct version of the package.
-      OptionalPackage -> [dependencies packageJson, devDependencies packageJson]
+    checkDeps depsToCheck errorMessagesIfPackageNotListed = case map (M.lookup packageName) depsToCheck of
+      (Just actualPackageVersion : _) ->
+        if actualPackageVersion == expectedPackageVersion
+          then []
+          else [incorrectVersionMessage]
+      _notListed -> errorMessagesIfPackageNotListed
 
     incorrectVersionMessage :: String
     incorrectVersionMessage =
