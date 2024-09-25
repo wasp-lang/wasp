@@ -100,34 +100,34 @@ validateTsConfig tsConfig =
           validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" outDir
         ]
 
-    validateRequiredFieldInCompilerOptions fieldName expectedValue getField =
-      validateRequiredField ("compilerOptions." ++ fieldName) expectedValue $ getField compilerOptionsFields
+    validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case getFieldValue compilerOptionsFields of
+      Just actualValue -> validateFieldValue ("compilerOptions." ++ fieldName) expectedValue actualValue
+      Nothing -> [missingFieldErrorMessage]
+      where
+        missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showAsJsValue expectedValue ++ "."]
 
     compilerOptionsFields = compilerOptions tsConfig
 
 -- | Haskell type that implements ShowJS is a type whose values can be mapped to Javascript values (their string representation).
-class ShowJs a where
-  showJs :: a -> String
+class IsJavascriptValue a where
+  showAsJsValue :: a -> String
 
-instance ShowJs String where
-  showJs = show
+instance IsJavascriptValue String where
+  showAsJsValue = show
 
-instance ShowJs [String] where
-  showJs = show
+instance IsJavascriptValue [String] where
+  showAsJsValue = show
 
-instance ShowJs Bool where
-  showJs True = "true"
-  showJs False = "false"
+instance IsJavascriptValue Bool where
+  showAsJsValue True = "true"
+  showAsJsValue False = "false"
 
 type FieldName = String
 
-validateRequiredField :: (Eq value, ShowJs value) => FieldName -> value -> Maybe value -> [CompileError]
-validateRequiredField fieldName expectedValue maybeUserProvidedValue = case maybeUserProvidedValue of
-  Nothing -> [missingFieldErrorMessage]
-  Just userProvidedValue ->
-    if userProvidedValue == expectedValue
-      then []
-      else [invalidValueErrorMessage]
+validateFieldValue :: (Eq value, IsJavascriptValue value) => FieldName -> value -> value -> [CompileError]
+validateFieldValue fieldName expectedValue actualValue =
+  if actualValue == expectedValue
+    then []
+    else [invalidValueErrorMessage]
   where
-    invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected value:", showJs expectedValue ++ "."]
-    missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showJs expectedValue ++ "."]
+    invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected value:", showAsJsValue expectedValue ++ "."]
