@@ -6,6 +6,8 @@ import qualified System.Process as P
 import Wasp.Util.Aeson (decodeFromString)
 
 -- | Uses Node.js to parse JSON with comments by treating it as a JavaScript object.
+-- We used this technique because Aeson can't handle it and we didn't want to write
+-- a custom parser.
 parseJsonWithComments :: FromJSON a => String -> IO (Either String a)
 parseJsonWithComments jsonStr = do
   let evalScript = "const v = " ++ jsonStr ++ ";console.log(JSON.stringify(v));"
