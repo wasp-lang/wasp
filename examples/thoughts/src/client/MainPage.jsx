@@ -1,4 +1,5 @@
 import { createThought } from "wasp/client/operations";
+import { routes } from "wasp/client/router";
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useNavigate } from 'react-router-dom'
@@ -61,7 +62,7 @@ const Thought = () => {
       }
       try {
         await createThought({ textMarkdown: textMd.trim(), tagNames })
-        navigate('/thoughts') // TODO: Would be cool if this was type checked somehow or if string was coming from the Wasp API.
+        navigate(routes.ThoughtsRoute.build())
       } catch (err) {
         return window.alert('Error: ' + err.message)
       }
