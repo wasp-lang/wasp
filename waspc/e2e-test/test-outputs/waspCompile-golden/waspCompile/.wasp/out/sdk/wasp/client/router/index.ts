@@ -13,9 +13,13 @@ export const routes = {
     build: (
       options?:
       OptionalRouteOptions
-      
-      
-    ) => interpolatePath("/", undefined, options?.search, options?.hash),
+    ) => interpolatePath(
+        
+        "/",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
   },
 } as const;
 

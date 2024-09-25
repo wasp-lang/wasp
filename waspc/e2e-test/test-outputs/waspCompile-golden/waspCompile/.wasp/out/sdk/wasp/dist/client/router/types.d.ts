@@ -32,8 +32,8 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
  * into multiple routes, one for each possible combination of optional segments.
  *
  * For example: /users/tasks?/:id? will be expanded into two routes:
- * - /users/:id
- * - /users/tasks/:id
+ * - /users/:id?
+ * - /users/tasks/:id?
  */
 export type ExpandRouteOnOptionalStaticSegments<S extends string> = S extends '/' ? '/' : `/${JoinPath<JoinSegments<ExpandOptionalSegments<SplitPath<S>>>>}`;
 type ExpandOptionalSegments<T> = T extends [infer Head, ...infer Tail] ? Head extends '' ? [...ExpandOptionalSegments<Tail>] : [_ExpandOptionalSegment<Head>, ...ExpandOptionalSegments<Tail>] : T;
