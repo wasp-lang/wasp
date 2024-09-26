@@ -134,14 +134,14 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
           chan
       )
   case tscExitCode of
-    ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
+    ExitFailure _status -> return $ Left ["Got TypeScript compiler errors for " ++ toFilePath waspFilePath ++ "."]
     ExitSuccess -> return $ Right absCompiledWaspJsFile
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
     compiledWaspJsFileInDotWaspDir = SP.castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
       Just path -> path
-      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ show waspFilePath
+      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ toFilePath waspFilePath ++ "."
 
 executeMainWaspJsFile ::
   Path' Abs (Dir WaspProjectDir) ->
