@@ -3,29 +3,17 @@
 
 module Wasp.ExternalConfig.TsConfig
   ( TsConfig (..),
-    analyzeTsConfigContent,
+    CompilerOptions (..),
   )
 where
 
-import Control.Monad.Except
 import Data.Aeson
   ( FromJSON,
     genericParseJSON,
     parseJSON,
   )
 import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy.UTF8 as BS
-import Data.Either.Extra (maybeToEither)
 import GHC.Generics (Generic)
-import StrongPath (Abs, Dir, File', Path', toFilePath)
-import Wasp.Project.Common
-  ( CompileError,
-    WaspProjectDir,
-    findFileInWaspProjectDir,
-    tsConfigInWaspProjectDir,
-  )
-import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.Json (parseJsonWithComments)
 
 data TsConfig = TsConfig
   { compilerOptions :: !CompilerOptions
@@ -56,78 +44,3 @@ instance FromJSON CompilerOptions where
       -- "module" is a reserved keyword in Haskell, so we use "_module" instead.
       modifyFieldLabel "_module" = "module"
       modifyFieldLabel other = other
-
-analyzeTsConfigContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] TsConfig)
-analyzeTsConfigContent waspDir = runExceptT $ do
-  tsConfigFile <- ExceptT findTsConfigOrError
-  tsConfig <- ExceptT $ readTsConfigFile tsConfigFile
-  ExceptT $ validateTsConfig tsConfig
-  where
-    findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findTsConfigFile waspDir
-    fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
-
-findTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findTsConfigFile waspProjectDir = findFileInWaspProjectDir waspProjectDir tsConfigInWaspProjectDir
-
-readTsConfigFile :: Path' Abs File' -> IO (Either [CompileError] TsConfig)
-readTsConfigFile tsConfigFile = do
-  tsConfigContent <- IOUtil.readFileBytes tsConfigFile
-
-  parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent
-
-  case parseResult of
-    Right tsConfig -> return $ Right tsConfig
-    Left err -> return $ Left ["Failed to parse tsconfig.json file: " ++ err]
-
-validateTsConfig :: TsConfig -> IO (Either [CompileError] TsConfig)
-validateTsConfig tsConfig =
-  return $
-    if null tsConfigErrors
-      then Right tsConfig
-      else Left tsConfigErrors
-  where
-    tsConfigErrors =
-      concat
-        [ validateRequiredFieldInCompilerOptions "module" "esnext" _module,
-          validateRequiredFieldInCompilerOptions "target" "esnext" target,
-          validateRequiredFieldInCompilerOptions "moduleResolution" "bundler" moduleResolution,
-          validateRequiredFieldInCompilerOptions "jsx" "preserve" jsx,
-          validateRequiredFieldInCompilerOptions "strict" True strict,
-          validateRequiredFieldInCompilerOptions "esModuleInterop" True esModuleInterop,
-          validateRequiredFieldInCompilerOptions "lib" ["dom", "dom.iterable", "esnext"] lib,
-          validateRequiredFieldInCompilerOptions "allowJs" True allowJs,
-          validateRequiredFieldInCompilerOptions "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] typeRoots,
-          validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" outDir
-        ]
-
-    validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case getFieldValue compilerOptionsFields of
-      Just actualValue -> validateFieldValue ("compilerOptions." ++ fieldName) expectedValue actualValue
-      Nothing -> [missingFieldErrorMessage]
-      where
-        missingFieldErrorMessage = unwords ["The", show fieldName, "field is missing in tsconfig.json. Expected value:", showAsJsValue expectedValue ++ "."]
-
-    compilerOptionsFields = compilerOptions tsConfig
-
--- | Haskell type that implements ShowJS is a type whose values can be mapped to Javascript values (their string representation).
-class IsJavascriptValue a where
-  showAsJsValue :: a -> String
-
-instance IsJavascriptValue String where
-  showAsJsValue = show
-
-instance IsJavascriptValue [String] where
-  showAsJsValue = show
-
-instance IsJavascriptValue Bool where
-  showAsJsValue True = "true"
-  showAsJsValue False = "false"
-
-type FieldName = String
-
-validateFieldValue :: (Eq value, IsJavascriptValue value) => FieldName -> value -> value -> [CompileError]
-validateFieldValue fieldName expectedValue actualValue =
-  if actualValue == expectedValue
-    then []
-    else [invalidValueErrorMessage]
-  where
-    invalidValueErrorMessage = unwords ["Invalid value for the", show fieldName, "field in tsconfig.json file, expected value:", showAsJsValue expectedValue ++ "."]

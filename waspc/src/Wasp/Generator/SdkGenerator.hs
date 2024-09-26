@@ -26,7 +26,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion, reactRouterVersion)
+import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -54,6 +54,7 @@ import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)

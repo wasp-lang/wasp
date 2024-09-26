@@ -18,7 +18,6 @@ import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
-import qualified Wasp.ExternalConfig as EC
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Project.Common
   ( CompileError,
@@ -31,6 +30,7 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -94,7 +94,7 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
-  let packageJsonContent = EC.packageJson externalConfigs
+  let packageJsonContent = EC._packageJson externalConfigs
 
   let appSpec =
         AS.AppSpec

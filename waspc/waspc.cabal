@@ -259,7 +259,6 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
-    Wasp.ExternalConfig
     Wasp.ExternalConfig.PackageJson
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
@@ -280,6 +279,8 @@ library
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
+    Wasp.Generator.ExternalConfig.PackageJson
+    Wasp.Generator.ExternalConfig.TsConfig
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -366,6 +367,7 @@ library
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Deployment
     Wasp.Project.Env
+    Wasp.Project.ExternalConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite

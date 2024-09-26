@@ -30,17 +30,14 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.Common
-  ( makeJsArrayFromHaskellList,
-    reactRouterVersion,
-  )
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
-import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir, webAppSrcDirInWebAppRootDir)
+import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, webAppRootDirInProjectRootDir, webAppSrcDirInWebAppRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)

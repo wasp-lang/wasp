@@ -4,6 +4,8 @@ module Wasp.Project.Common
     NodeModulesDir,
     CompileError,
     CompileWarning,
+    PackageJsonFile,
+    TsConfigFile,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
@@ -22,7 +24,7 @@ module Wasp.Project.Common
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
 import qualified Wasp.Generator.Common
@@ -36,6 +38,10 @@ data WaspProjectDir -- Root dir of Wasp project, containing source files.
 data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
+
+data PackageJsonFile
+
+data TsConfigFile
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
@@ -67,10 +73,10 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
 packageJsonInWaspProjectDir = [relfile|package.json|]
 
-tsConfigInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+tsConfigInWaspProjectDir :: Path' (Rel WaspProjectDir) (File TsConfigFile)
 tsConfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
@@ -90,8 +96,8 @@ tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) File' ->
-  IO (Maybe (Path' Abs File'))
+  Path' (Rel WaspProjectDir) (File file) ->
+  IO (Maybe (Path' Abs (File file)))
 findFileInWaspProjectDir waspDir file = do
   let fileAbsFp = waspDir </> file
   fileExists <- doesFileExist $ toFilePath fileAbsFp
