@@ -28,12 +28,12 @@ validatePackageJson packageJson =
           -- can use features that are not available in the version that Wasp supports.
           validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
         ]
-    validate = validatePackageInDeps packageJson
+    validate = validateDep packageJson
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 
-validatePackageInDeps :: P.PackageJson -> (P.PackageName, P.PackageVersion, PackageValidationType) -> [CompileError]
-validatePackageInDeps packageJson (packageName, expectedPackageVersion, validationType) = case validationType of
+validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion, PackageValidationType) -> [CompileError]
+validateDep packageJson (packageName, expectedPackageVersion, validationType) = case validationType of
   IsListedWithExactVersion -> checkDeps [P.dependencies packageJson] [requiredPackageMessage "dependencies"]
   IsListedAsDevWithExactVersion -> checkDeps [P.devDependencies packageJson] [requiredPackageMessage "devDependencies"]
   HasExactVersionIfListed -> checkDeps [P.dependencies packageJson, P.devDependencies packageJson] []
