@@ -7,32 +7,25 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.Common (prismaVersion)
 import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
-import Wasp.Project.Common
-  ( CompileError,
-  )
 
-validatePackageJson :: P.PackageJson -> IO (Either [CompileError] P.PackageJson)
+validatePackageJson :: P.PackageJson -> IO [String]
 validatePackageJson packageJson =
   return $
-    if null packageJsonErrors
-      then Right packageJson
-      else Left packageJsonErrors
+    concat
+      [ -- Wasp needs the Wasp SDK to be installed in the project.
+        validate ("wasp", "file:.wasp/out/sdk/wasp", IsListedWithExactVersion),
+        -- Wrong version of Prisma will break the generated code.
+        validate ("prisma", show prismaVersion, IsListedAsDevWithExactVersion),
+        -- Installing the wrong version of "react-router-dom" can make users believe that they
+        -- can use features that are not available in the version that Wasp supports.
+        validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
+      ]
   where
-    packageJsonErrors =
-      concat
-        [ -- Wasp needs the Wasp SDK to be installed in the project.
-          validate ("wasp", "file:.wasp/out/sdk/wasp", IsListedWithExactVersion),
-          -- Wrong version of Prisma will break the generated code.
-          validate ("prisma", show prismaVersion, IsListedAsDevWithExactVersion),
-          -- Installing the wrong version of "react-router-dom" can make users believe that they
-          -- can use features that are not available in the version that Wasp supports.
-          validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
-        ]
     validate = validateDep packageJson
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 
-validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion, PackageValidationType) -> [CompileError]
+validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion, PackageValidationType) -> [String]
 validateDep packageJson (packageName, expectedPackageVersion, validationType) = case validationType of
   IsListedWithExactVersion -> checkDeps [P.dependencies packageJson] [requiredPackageMessage "dependencies"]
   IsListedAsDevWithExactVersion -> checkDeps [P.devDependencies packageJson] [requiredPackageMessage "devDependencies"]

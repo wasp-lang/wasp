@@ -10,20 +10,20 @@ import StrongPath (Abs, Dir, File, Path', toFilePath)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.ExternalConfig.TsConfig (validateTsConfig)
 import Wasp.Project.Common
-  ( CompileError,
-    TsConfigFile,
+  ( TsConfigFile,
     WaspProjectDir,
     findFileInWaspProjectDir,
     tsConfigInWaspProjectDir,
   )
+import Wasp.Util (validateToEither)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
-analyzeTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] T.TsConfig)
+analyzeTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] T.TsConfig)
 analyzeTsConfigFile waspDir = runExceptT $ do
   tsConfigFile <- ExceptT findTsConfigOrError
   tsConfig <- ExceptT $ readTsConfigFile tsConfigFile
-  ExceptT $ validateTsConfig tsConfig
+  ExceptT $ validateToEither validateTsConfig tsConfig
   where
     findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findTsConfigFile waspDir
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
@@ -31,7 +31,7 @@ analyzeTsConfigFile waspDir = runExceptT $ do
 findTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File TsConfigFile)))
 findTsConfigFile waspProjectDir = findFileInWaspProjectDir waspProjectDir tsConfigInWaspProjectDir
 
-readTsConfigFile :: Path' Abs (File TsConfigFile) -> IO (Either [CompileError] T.TsConfig)
+readTsConfigFile :: Path' Abs (File TsConfigFile) -> IO (Either [String] T.TsConfig)
 readTsConfigFile tsConfigFile = do
   tsConfigContent <- IOUtil.readFileBytes tsConfigFile
 

@@ -11,19 +11,19 @@ import StrongPath (Abs, Dir, File, Path', toFilePath)
 import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.ExternalConfig.PackageJson (validatePackageJson)
 import Wasp.Project.Common
-  ( CompileError,
-    PackageJsonFile,
+  ( PackageJsonFile,
     WaspProjectDir,
     findFileInWaspProjectDir,
     packageJsonInWaspProjectDir,
   )
+import Wasp.Util (validateToEither)
 import qualified Wasp.Util.IO as IOUtil
 
-analyzePackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] P.PackageJson)
+analyzePackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] P.PackageJson)
 analyzePackageJsonFile waspProjectDir = runExceptT $ do
   packageJsonFile <- ExceptT findPackageJsonFileOrError
   packageJson <- ExceptT $ readPackageJsonFile packageJsonFile
-  ExceptT $ validatePackageJson packageJson
+  ExceptT $ validateToEither validatePackageJson packageJson
   where
     findPackageJsonFileOrError = maybeToEither [fileNotFoundMessage] <$> findPackageJsonFile waspProjectDir
     fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
@@ -31,7 +31,7 @@ analyzePackageJsonFile waspProjectDir = runExceptT $ do
 findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File PackageJsonFile)))
 findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
 
-readPackageJsonFile :: Path' Abs (File PackageJsonFile) -> IO (Either [CompileError] P.PackageJson)
+readPackageJsonFile :: Path' Abs (File PackageJsonFile) -> IO (Either [String] P.PackageJson)
 readPackageJsonFile packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
