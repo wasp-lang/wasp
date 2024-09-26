@@ -11,7 +11,7 @@ import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Project.Analyze (findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Project.ExternalConfig (findPackageJsonFile)
+import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import qualified Wasp.Util.IO as IOUtil
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()

@@ -368,6 +368,8 @@ library
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
+    Wasp.Project.ExternalConfig.PackageJson
+    Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
