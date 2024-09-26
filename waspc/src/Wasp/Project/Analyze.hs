@@ -55,6 +55,7 @@ import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Valid as PslV
 import Wasp.Util (maybeToEither)
+import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.StrongPath (replaceRelExtension)
 import Wasp.Valid (ValidationError)
@@ -101,11 +102,11 @@ analyzeWaspFile waspDir prismaSchemaAst = \case
   WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
 
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile waspProjectDir _prismaSchemaAst waspFilePath = runExceptT $ do
+analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
   -- TODO: I'm not yet sure where tsconfig.node.json location should come from
   -- because we also need that knowledge when generating a TS SDK project.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|] waspFilePath
-  specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir compiledWaspJsFile
+  specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
   contents <- ExceptT $ readDeclsJsonFile specJsonFile
   liftIO $ putStrLn "Here are the contents of the spec file:"
   liftIO $ print contents
@@ -145,8 +146,12 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
       Just path -> path
       Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ show waspFilePath
 
-executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
-executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
+executeMainWaspJsFile ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Psl.Schema.Schema ->
+  Path' Abs (File CompiledWaspJsFile) ->
+  IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
+executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
@@ -161,7 +166,8 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
           -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
           [ "wasp-config",
             SP.fromAbsFile absCompiledMainWaspJsFile,
-            SP.fromAbsFile absSpecOutputFile
+            SP.fromAbsFile absSpecOutputFile,
+            encodeToString allowedEntityNames
           ]
           J.Wasp
           chan
@@ -171,6 +177,7 @@ executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
     ExitSuccess -> return $ Right absSpecOutputFile
   where
     absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec.json|]
+    allowedEntityNames = Psl.Schema.getModelNames prismaSchemaAst
 
 readDeclsJsonFile :: Path' Abs (File SpecJsonFile) -> IO (Either [CompileError] Aeson.Value)
 readDeclsJsonFile declsJsonFile = do
