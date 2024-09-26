@@ -240,6 +240,9 @@ library
     Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
+    Wasp.AppSpec.Core.Decl.JSON
+    Wasp.AppSpec.Core.Decl.JSON.TH
+    Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
     Wasp.AppSpec.Entity.Field
@@ -622,6 +625,7 @@ test-suite waspc-test
     Analyzer.ValidTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.FromJSONTest
     AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
