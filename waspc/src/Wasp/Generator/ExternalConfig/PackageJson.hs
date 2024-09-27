@@ -6,20 +6,18 @@ where
 import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.Common (prismaVersion)
+import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
 
-validatePackageJson :: P.PackageJson -> IO [String]
+validatePackageJson :: P.PackageJson -> [ErrorMsg]
 validatePackageJson packageJson =
-  return $
-    concat
-      [ -- Wasp needs the Wasp SDK to be installed in the project.
-        validate ("wasp", "file:.wasp/out/sdk/wasp", IsListedWithExactVersion),
-        -- Wrong version of Prisma will break the generated code.
-        validate ("prisma", show prismaVersion, IsListedAsDevWithExactVersion),
-        -- Installing the wrong version of "react-router-dom" can make users believe that they
-        -- can use features that are not available in the version that Wasp supports.
-        validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
-      ]
+  concat
+    [ validate ("wasp", "file:.wasp/out/sdk/wasp", IsListedWithExactVersion),
+      validate ("prisma", show prismaVersion, IsListedAsDevWithExactVersion),
+      -- Installing the wrong version of "react-router-dom" can make users believe that they
+      -- can use features that are not available in the version that Wasp supports.
+      validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
+    ]
   where
     validate = validateDep packageJson
 

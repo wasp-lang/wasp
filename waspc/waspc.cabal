@@ -279,6 +279,7 @@ library
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
+    Wasp.Generator.ExternalConfig.Common
     Wasp.Generator.ExternalConfig.PackageJson
     Wasp.Generator.ExternalConfig.TsConfig
     Wasp.Generator.FileDraft
