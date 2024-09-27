@@ -5,8 +5,8 @@
 ### 🎉 New Features
 
 - Wasp now has experimental support for defining your app in pure Typescript or as we call it the Typescript SDK.
-- Wasp upgrades to the latest Prisma verion
-- Wasp upgrades to the latest React Router version
+- Wasp upgrades to the latest Prisma verion.
+- Wasp upgrades to the latest React Router version.
 
 ### ⚠️ Breaking Changes
 
@@ -16,8 +16,12 @@ Read more about them in the migration guide: https://wasp-lang.dev/docs/migratio
 
 ### 🐞 Bug fixes
 
-- Allow setting a custom server URL when deploying to Fly.io (by @Case-E)
-- If the user uses native DB types for the `userEntity`, Wasp will now correctly use them
+- Allow setting a custom server URL when deploying to Fly.io. (by @Case-E)
+- If the user uses native DB types for the `userEntity`, Wasp will now correctly use them.
+
+### 🔧 Small improvements
+
+- Enable users to use Mailgun's EU region by setting the `MAILGUN_API_URL` env variable.
 
 Community contributions by @Case-E @therumbler
 
