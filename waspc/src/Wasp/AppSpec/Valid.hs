@@ -31,6 +31,7 @@ import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
+import Wasp.AppSpec.Entity (doesFieldHaveAttribute)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -128,11 +129,19 @@ validateUserEntity spec =
   case App.auth (snd $ getApp spec) of
     Nothing -> []
     Just auth ->
-      [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
-        | isNothing idFieldType
-      ]
+      concat
+        [ [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
+            | isNothing idFieldType
+          ],
+          [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute) with a default value"
+            | doesIdFieldHaveDefaultAttribute /= Just True
+          ]
+        ]
       where
         idFieldType = Entity.getIdField userEntity
+
+        doesIdFieldHaveDefaultAttribute =
+          idFieldType >>= doesFieldHaveAttribute userEntity "default" . Psl.Model._name
 
         (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
 

@@ -7,8 +7,6 @@ module Wasp.AppSpec.Entity
     getPslModelBody,
     getIdField,
     getIdBlockAttribute,
-    isFieldUnique,
-    -- only for testing:
     doesFieldHaveAttribute,
   )
 where
@@ -54,18 +52,15 @@ getPslModelBody = pslModelBody
 getIdField :: Entity -> Maybe Psl.Model.Field
 getIdField = findIdField . getPslModelBody
 
-isFieldUnique :: String -> Entity -> Maybe Bool
-isFieldUnique fieldName = doesFieldHaveAttribute fieldName "unique"
-
-doesFieldHaveAttribute :: String -> String -> Entity -> Maybe Bool
-doesFieldHaveAttribute fieldName attrName entity =
+doesFieldHaveAttribute :: Entity -> String -> String -> Maybe Bool
+doesFieldHaveAttribute entity attrName fieldName =
   doesPslFieldHaveAttribute attrName <$> findPslFieldByName fieldName entity
 
 findPslFieldByName :: String -> Entity -> Maybe Psl.Model.Field
 findPslFieldByName fieldName Entity {pslModelBody = Psl.Model.Body elements} =
-  find isField [field | (Psl.Model.ElementField field) <- elements]
+  find isTargetField [field | (Psl.Model.ElementField field) <- elements]
   where
-    isField Psl.Model.Field {_name = name} = name == fieldName
+    isTargetField Psl.Model.Field {_name = name} = name == fieldName
 
 getIdBlockAttribute :: Entity -> Maybe Psl.Attribute.Attribute
 getIdBlockAttribute = findIdBlockAttribute . getPslModelBody
