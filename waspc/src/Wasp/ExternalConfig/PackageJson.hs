@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.ExternalConfig.PackageJson
@@ -22,7 +23,7 @@ data PackageJson = PackageJson
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap
   }
-  deriving (Show, Generic)
+  deriving (Show, Generic, FromJSON)
 
 getDependencies :: PackageJson -> [Dependency]
 getDependencies packageJson = D.fromList $ M.toList $ dependencies packageJson
@@ -35,5 +36,3 @@ type DependenciesMap = Map PackageName PackageVersion
 type PackageName = String
 
 type PackageVersion = String
-
-instance FromJSON PackageJson

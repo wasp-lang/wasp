@@ -12,19 +12,19 @@ import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
 validatePackageJson :: P.PackageJson -> [ErrorMsg]
 validatePackageJson packageJson =
   concat
-    [ validate ("wasp", "file:.wasp/out/sdk/wasp", IsListedWithExactVersion),
-      validate ("prisma", show prismaVersion, IsListedAsDevWithExactVersion),
+    [ validate ("wasp", "file:.wasp/out/sdk/wasp") IsListedWithExactVersion,
+      validate ("prisma", show prismaVersion) IsListedAsDevWithExactVersion,
       -- Installing the wrong version of "react-router-dom" can make users believe that they
       -- can use features that are not available in the version that Wasp supports.
-      validate ("react-router-dom", show reactRouterVersion, HasExactVersionIfListed)
+      validate ("react-router-dom", show reactRouterVersion) HasExactVersionIfListed
     ]
   where
     validate = validateDep packageJson
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 
-validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion, PackageValidationType) -> [String]
-validateDep packageJson (packageName, expectedPackageVersion, validationType) = case validationType of
+validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> PackageValidationType -> [String]
+validateDep packageJson (packageName, expectedPackageVersion) = \case
   IsListedWithExactVersion -> checkDeps [P.dependencies packageJson] [requiredPackageMessage "dependencies"]
   IsListedAsDevWithExactVersion -> checkDeps [P.devDependencies packageJson] [requiredPackageMessage "devDependencies"]
   HasExactVersionIfListed -> checkDeps [P.dependencies packageJson, P.devDependencies packageJson] []

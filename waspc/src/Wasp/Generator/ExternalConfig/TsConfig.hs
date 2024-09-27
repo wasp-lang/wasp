@@ -8,6 +8,21 @@ where
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 
+class IsJavascriptValue a where
+  showAsJsValue :: a -> String
+
+instance IsJavascriptValue String where
+  showAsJsValue = show
+
+instance IsJavascriptValue [String] where
+  showAsJsValue = show
+
+instance IsJavascriptValue Bool where
+  showAsJsValue True = "true"
+  showAsJsValue False = "false"
+
+type FieldName = String
+
 validateTsConfig :: T.TsConfig -> [ErrorMsg]
 validateTsConfig tsConfig =
   concat
@@ -37,31 +52,16 @@ validateTsConfig tsConfig =
 
     compilerOptionsFields = T.compilerOptions tsConfig
 
-class IsJavascriptValue a where
-  showAsJsValue :: a -> String
-
-instance IsJavascriptValue String where
-  showAsJsValue = show
-
-instance IsJavascriptValue [String] where
-  showAsJsValue = show
-
-instance IsJavascriptValue Bool where
-  showAsJsValue True = "true"
-  showAsJsValue False = "false"
-
-type FieldName = String
-
-validateFieldValue :: (Eq value, IsJavascriptValue value) => FieldName -> value -> value -> [String]
-validateFieldValue fieldName expectedValue actualValue =
-  if actualValue == expectedValue
-    then []
-    else [invalidValueErrorMessage]
-  where
-    invalidValueErrorMessage =
-      unwords
-        [ "Invalid value for the",
-          show fieldName,
-          "field in tsconfig.json file, expected value:",
-          showAsJsValue expectedValue ++ "."
-        ]
+    validateFieldValue :: (Eq value, IsJavascriptValue value) => FieldName -> value -> value -> [String]
+    validateFieldValue fieldName expectedValue actualValue =
+      if actualValue == expectedValue
+        then []
+        else [invalidValueErrorMessage]
+      where
+        invalidValueErrorMessage =
+          unwords
+            [ "Invalid value for the",
+              show fieldName,
+              "field in tsconfig.json file, expected value:",
+              showAsJsValue expectedValue ++ "."
+            ]
