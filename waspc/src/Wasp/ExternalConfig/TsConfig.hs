@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 
@@ -18,9 +19,7 @@ import GHC.Generics (Generic)
 data TsConfig = TsConfig
   { compilerOptions :: !CompilerOptions
   }
-  deriving (Show, Generic)
-
-instance FromJSON TsConfig
+  deriving (Show, Generic, FromJSON)
 
 data CompilerOptions = CompilerOptions
   { _module :: !(Maybe String),
