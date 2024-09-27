@@ -61,9 +61,6 @@ import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec = genSdkReal spec
-
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 buildSdk projectRootDir = do
   chan <- newChan
@@ -77,8 +74,8 @@ buildSdk projectRootDir = do
   where
     dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
-genSdkReal :: AppSpec -> Generator [FileDraft]
-genSdkReal spec =
+genSdk :: AppSpec -> Generator [FileDraft]
+genSdk spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],

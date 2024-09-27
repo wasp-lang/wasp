@@ -14,7 +14,7 @@ where
 import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
 import qualified Control.Monad.Except as MonadExcept
 import Control.Monad.Identity (Identity (runIdentity))
-import Control.Monad.State (MonadState, StateT (runStateT), modify)
+import Control.Monad.State (MonadState, State, modify, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
@@ -25,7 +25,7 @@ import Data.List.NonEmpty (NonEmpty, fromList)
 -- The mechanism to catch errors is only there to assist in collecting more errors, not recover.
 -- There may optionally be additional errors or non-fatal warnings logged in the State.
 newtype Generator a = Generator
-  { _runGenerator :: ExceptT GeneratorError (StateT GeneratorState Identity) a
+  { _runGenerator :: ExceptT GeneratorError (State GeneratorState) a
   }
   deriving
     ( Functor,
