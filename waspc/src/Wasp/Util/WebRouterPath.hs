@@ -9,7 +9,10 @@ where
 import Data.List (isSuffixOf)
 import Data.List.Split (splitOn)
 
-data Segment = StaticSegment StaticSegment | ParamSegment ParamSegment deriving (Show, Eq)
+data Segment
+  = StaticSegment StaticSegment
+  | ParamSegment ParamSegment
+  deriving (Show, Eq)
 
 data StaticSegment
   = RequiredStaticSegment StaticSegmentValue
