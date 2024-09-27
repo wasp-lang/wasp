@@ -21,6 +21,7 @@ export type MailgunEmailProvider = {
   type: "mailgun";
   apiKey: string;
   domain: string;
+  apiUrl?: string;
 };
 
 // PRIVATE API

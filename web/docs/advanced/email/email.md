@@ -222,15 +222,24 @@ Then, get the Mailgun API key and domain and add them to your `.env.server` file
 #### Getting the API Key and Domain
 
 1. Go to [Mailgun](https://www.mailgun.com/) and create an account.
-2. Go to [API Keys](https://app.mailgun.com/app/account/security/api_keys) and create a new API key.
-3. Copy the API key and add it to your `.env.server` file.
-4. Go to [Domains](https://app.mailgun.com/mg/sending/domains) and create a new domain.
-5. Copy the domain and add it to your `.env.server` file.
+1. Go to [Domains](https://app.mailgun.com/mg/sending/new-domain) and create a new domain.
+1. Copy the domain and add it to your `.env.server` file.
+1. Create a new Sending API key under `Send > Sending > Domain settings` and find `Sending API keys`.
+1. Copy the API key and add it to your `.env.server` file.
 
 ```properties title=".env.server"
 MAILGUN_API_KEY=
 MAILGUN_DOMAIN=
 ```
+
+#### Using the EU Region
+
+If your domain region is in the EU, you need to set the `MAILGUN_API_URL` variable in your `.env.server` file:
+
+```properties title=".env.server"
+MAILGUN_API_URL=https://api.eu.mailgun.net
+```
+
 
 ### Using the SendGrid Provider
 

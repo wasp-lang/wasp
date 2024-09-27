@@ -269,8 +269,7 @@ spec_Analyzer = do
               )
               ( Just $
                   Job.ExecutorOptions
-                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":1}",
-                      Job.simple = Nothing
+                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":1}"
                     }
               )
       let jobSchedule =
@@ -279,8 +278,7 @@ spec_Analyzer = do
               (JSON.JSON <$> Aeson.decode "{\"job\":\"args\"}")
               ( Just $
                   Job.ExecutorOptions
-                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":0}",
-                      Job.simple = Nothing
+                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":0}"
                     }
               )
       let expectedJob =

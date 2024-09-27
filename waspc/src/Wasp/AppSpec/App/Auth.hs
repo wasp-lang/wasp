@@ -1,4 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
 module Wasp.AppSpec.App.Auth
@@ -20,8 +22,10 @@ module Wasp.AppSpec.App.Auth
   )
 where
 
+import Data.Aeson (FromJSON)
 import Data.Data (Data)
 import Data.Maybe (isJust)
+import GHC.Generics (Generic)
 import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
 import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
 import Wasp.AppSpec.App.EmailSender (EmailFromField)
@@ -41,7 +45,7 @@ data Auth = Auth
     onBeforeLogin :: Maybe ExtImport,
     onAfterLogin :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
@@ -51,18 +55,18 @@ data AuthMethods = AuthMethods
     keycloak :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
   { userSignupFields :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
     userSignupFields :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 data EmailAuthConfig = EmailAuthConfig
   { userSignupFields :: Maybe ExtImport,
@@ -70,7 +74,7 @@ data EmailAuthConfig = EmailAuthConfig
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic, FromJSON)
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
