@@ -75,23 +75,16 @@ const faqs = [
 
       <br/><br/>
 
-      We use GPT4 during the planning phase, since that is the most critical step, and then use GPT3.5 for the rest of the steps.
-      Although using GPT4 exclusively does give better results, we use a mix to keep the costs, generation time, and bandwidth acceptable (due to pricing and rate limits of GPT4).
+      We use GPT4o for all the phases at the moment of writing, as it gives the best ratio of quality / cost.
 
-      <br/><br/>
-
-      However, in the future, when GPT4 becomes cheaper / faster, it would make sense to switch to it completely, since it does generate better code!
     </p>
   },
   {
-    question: '[Advanced] Can I use GPT4 for the whole app? / Can I run Mage locally?',
+    question: '[Advanced] Can I choose GPT model? / Can I run Mage locally?',
     answer: <p>
-      As mentioned above, we use GPT4 + GPT3.5 for practical reasons, even though using GPT4 exclusively does give better results.<br/>
+      If you have access yourself to the OpenAI API, you can choose GPT model for the whole app, or play with adjusting the temperature, by running the Wasp GPT code agent locally! So same thing like Mage, but via CLI.<br/>
       <br/>
-      However, if you have access yourself to the OpenAI API, you can use GPT4 for the whole app, or play with adjusting the temperature, by running the Wasp GPT code agent locally! So same thing like Mage, but via CLI.<br/>
-      Note: generating an app usually consumes from 20k to 50k tokens, which is then approximately $1 to $2 per app with the current GPT4 pricing (Jul 11th 2023).<br/>
-      <br/>
-      To run Wasp AI (Mage) locally, make sure you have wasp {'>='}v0.12 installed and just run:<br/>
+      To run Wasp AI (Mage) locally, make sure you have wasp installed and just run:<br/>
       <span className="bg-slate-800 text-slate-200 p-1 rounded">
         wasp new
       </span><br/>

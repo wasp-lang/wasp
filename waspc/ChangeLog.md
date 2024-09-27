@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.2 (2024-09-09)
+
+Updated GPT models used in Wasp AI to latest models, since 3.5 are getting deprecated.
+
+Default model used is now 4o (instead of old 4 + 3.5-turbo combo).
+
 ## 0.14.1 (2024-08-26)
 
 ### 🎉 New Features

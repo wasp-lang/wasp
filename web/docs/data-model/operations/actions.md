@@ -272,24 +272,24 @@ Wasp authenticates the logged-in user in the background.
 <TabItem value="js" label="JavaScript">
 
 ```js
-import { createTask, markTasAsDone } from 'wasp/client/operations'
+import { createTask, markTaskAsDone } from 'wasp/client/operations'
 
 // ...
 
 const newTask = await createTask({ description: 'Learn TypeScript' })
-await markTasAsDone({ id: 1 })
+await markTaskAsDone({ id: 1 })
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask, markTasAsDone } from 'wasp/client/operations'
+import { createTask, markTaskAsDone } from 'wasp/client/operations'
 
 // TypeScript automatically infers the return values and type-checks
 // the payloads.
 const newTask = await createTask({ description: 'Keep learning TypeScript' })
-await markTasAsDone({ id: 1 })
+await markTaskAsDone({ id: 1 })
 ```
 
 Wasp supports **automatic full-stack type safety**.
@@ -388,7 +388,7 @@ Here's what you have to do differently:
 <TabItem value="js" label="JavaScript">
 
 ```js
-import { createTask, markTasAsDone } from 'wasp/server/operations'
+import { createTask, markTaskAsDone } from 'wasp/server/operations'
 
 const user = // Get an AuthUser object, e.g., from context.user
 
@@ -396,14 +396,14 @@ const newTask = await createTask(
   { description: 'Learn TypeScript' },
   { user },
 )
-await markTasAsDone({ id: 1 }, { user })
+await markTaskAsDone({ id: 1 }, { user })
 ```
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask, markTasAsDone } from 'wasp/server/operations'
+import { createTask, markTaskAsDone } from 'wasp/server/operations'
 
 const user = // Get an AuthUser object, e.g., from context.user
 
@@ -413,7 +413,7 @@ const newTask = await createTask(
   { description: 'Keep learning TypeScript' },
   { user },
 )
-await markTasAsDone({ id: 1 }, { user })
+await markTaskAsDone({ id: 1 }, { user })
 ```
 
 </TabItem>

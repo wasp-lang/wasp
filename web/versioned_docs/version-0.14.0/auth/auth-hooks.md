@@ -529,7 +529,7 @@ Some OAuth providers support refreshing the access token when it expires. To ref
 
 Wasp exposes the OAuth refresh token in the `onAfterSignup` and `onAfterLogin` hooks. You can store the refresh token in your database and use it to refresh the access token when it expires.
 
-Import the provider object with the OAuth client from the `wasp/server/oauth` module. For example, to refresh the Google OAuth access token, import the `google` object from the `wasp/server/oauth` module. You use the `refreshAccessToken` method of the OAuth client to refresh the access token.
+Import the provider object with the OAuth client from the `wasp/server/auth` module. For example, to refresh the Google OAuth access token, import the `google` object from the `wasp/server/auth` module. You use the `refreshAccessToken` method of the OAuth client to refresh the access token.
 
 Here's an example of how you can refresh the access token for Google OAuth:
 
@@ -538,7 +538,7 @@ Here's an example of how you can refresh the access token for Google OAuth:
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/auth/hooks.js"
-import { google } from 'wasp/server/oauth'
+import { google } from 'wasp/server/auth'
 
 export const onAfterLogin = async ({ oauth }) => {
   if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
@@ -556,7 +556,7 @@ export const onAfterLogin = async ({ oauth }) => {
 
 ```ts title="src/auth/hooks.ts"
 import type { OnAfterLoginHook } from 'wasp/server/auth'
-import { google } from 'wasp/server/oauth'
+import { google } from 'wasp/server/auth'
 
 export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
   if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {

@@ -3,7 +3,6 @@
 
 module Wasp.AppSpec.Core.Decl
   ( Decl,
-    IsDecl,
     takeDecls,
     makeDecl,
     fromDecl,
@@ -11,9 +10,8 @@ module Wasp.AppSpec.Core.Decl
 where
 
 import Data.Maybe (mapMaybe)
-import Data.Typeable (Typeable, cast)
-
-class (Typeable a) => IsDecl a
+import Data.Typeable (cast)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 
 -- | A container for any (IsDecl a) type, allowing you to have a heterogenous list of
 --   Wasp declarations as [Decl].

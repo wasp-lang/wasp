@@ -28,7 +28,8 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
-import Wasp.AppSpec.Core.Decl (IsDecl, takeDecls)
+import Wasp.AppSpec.Core.Decl (takeDecls)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field

@@ -22,6 +22,7 @@ const emailProvider = {
   type: "mailgun",
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN,
+  apiUrl: process.env.MAILGUN_API_URL,
 } as const;
 {=/ isMailgunProviderUsed =}
 {=# isDummyProviderUsed =}
