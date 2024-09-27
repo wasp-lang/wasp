@@ -4,7 +4,7 @@ module Wasp.Project.ExternalConfig.PackageJson
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
+import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError), runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
@@ -16,14 +16,15 @@ import Wasp.Project.Common
     findFileInWaspProjectDir,
     packageJsonInWaspProjectDir,
   )
-import Wasp.Util (validateToEither)
 import qualified Wasp.Util.IO as IOUtil
 
 analyzePackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] P.PackageJson)
 analyzePackageJsonFile waspProjectDir = runExceptT $ do
   packageJsonFile <- ExceptT findPackageJsonFileOrError
   packageJson <- ExceptT $ readPackageJsonFile packageJsonFile
-  ExceptT $ validateToEither validatePackageJson packageJson
+  case validatePackageJson packageJson of
+    [] -> return packageJson
+    errors -> throwError errors
   where
     findPackageJsonFileOrError = maybeToEither [fileNotFoundMessage] <$> findPackageJsonFile waspProjectDir
     fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspProjectDir ++ " directory"

@@ -40,7 +40,6 @@ module Wasp.Util
     trim,
     secondsToMicroSeconds,
     findDuplicateElems,
-    validateToEither,
   )
 where
 
@@ -271,9 +270,3 @@ secondsToMicroSeconds = (* 1000000)
 
 findDuplicateElems :: Ord a => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort
-
-validateToEither :: (Monad m) => (a -> m [String]) -> a -> m (Either [String] a)
-validateToEither validateFn input =
-  validateFn input >>= \case
-    [] -> return $ Right input
-    errors -> return $ Left errors

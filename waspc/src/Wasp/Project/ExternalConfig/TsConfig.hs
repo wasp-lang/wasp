@@ -3,7 +3,7 @@ module Wasp.Project.ExternalConfig.TsConfig
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
@@ -15,7 +15,6 @@ import Wasp.Project.Common
     findFileInWaspProjectDir,
     tsConfigInWaspProjectDir,
   )
-import Wasp.Util (validateToEither)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
@@ -23,7 +22,9 @@ analyzeTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] T.T
 analyzeTsConfigFile waspDir = runExceptT $ do
   tsConfigFile <- ExceptT findTsConfigOrError
   tsConfig <- ExceptT $ readTsConfigFile tsConfigFile
-  ExceptT $ validateToEither validateTsConfig tsConfig
+  case validateTsConfig tsConfig of
+    [] -> return tsConfig
+    errors -> throwError errors
   where
     findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findTsConfigFile waspDir
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
