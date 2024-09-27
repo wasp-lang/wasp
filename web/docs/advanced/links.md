@@ -50,7 +50,7 @@ page CatchAllPage { ... }
 ```
 
 ```jsx title="TaskList.tsx"
-<Link to="/pages/*" params={{ splat: 'about' }}>
+<Link to="/pages/*" params={{ '*': 'about' }}>
   About
 </Link>
 ```
@@ -191,7 +191,7 @@ export const routes = {
   CatchAllRoute: {
     build: (
       options: {
-        params: { splat: ParamValue },
+        params: { '*': ParamValue },
         search?: string[][] | Record<string, string> | string | URLSearchParams
         hash?: string
       }
@@ -214,6 +214,6 @@ const linkToOptional = routes.DetailRoute.build({
   params: { id: 1 },
 })
 const linkToCatchAll = routes.CatchAllRoute.build({
-  params: { splat: 'about' },
+  params: { '*': 'about' },
 })
 ```
