@@ -44,5 +44,4 @@ getRouteSegments = map parseSegment . splitOn "/"
           then OptionalStaticSegment segmentValue
           else RequiredStaticSegment segmentValue
 
-isSegmentOptional :: String -> Bool
-isSegmentOptional = isSuffixOf "?"
+    isSegmentOptional = isSuffixOf "?"
