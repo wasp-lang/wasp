@@ -4,9 +4,9 @@
 
 ### 🎉 New Features
 
-- Wasp now has experimental support for defining your app in pure Typescript or as we call it the Typescript SDK.
-- Wasp upgrades to the latest Prisma verion.
-- Wasp upgrades to the latest React Router version.
+- Experimental support for defining your app in pure Typescript or as we call it the Typescript SDK.
+- Upgrade to the latest Prisma version which makes Wasp faster!
+- Upgrade to the latest React Router version which sets us up for some cool new features in the future.
 
 ### ⚠️ Breaking Changes
 
@@ -17,7 +17,7 @@ Read more about them in the migration guide: https://wasp-lang.dev/docs/migratio
 ### 🐞 Bug fixes
 
 - Allow setting a custom server URL when deploying to Fly.io. (by @Case-E)
-- If the user uses native DB types for the `userEntity`, Wasp will now correctly use them.
+- If the user uses native DB types for the `userEntity`, Wasp will use them correctly.
 
 ### 🔧 Small improvements
 
