@@ -22,8 +22,8 @@ runSetup spec projectRootDir sendMessage = do
         setUpDatabaseResults@(_warnings, _errors@[]) -> do
           -- todo(filip): Should we consider building SDK as part of code generation?
           -- todo(filip): Avoid building on each setup if we don't need to.
-          buildsSdkResults <- buildSdk projectRootDir sendMessage
-          return $ setUpDatabaseResults <> buildsSdkResults
+          buildSdkResults <- buildSdk projectRootDir sendMessage
+          return $ setUpDatabaseResults <> buildSdkResults
         setUpDatabaseResults -> return setUpDatabaseResults
     Left npmInstallError -> return ([], [npmInstallError])
 

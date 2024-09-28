@@ -1,6 +1,15 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.AppSpec.PackageJson where
+module Wasp.ExternalConfig.PackageJson
+  ( PackageJson (..),
+    DependenciesMap,
+    PackageName,
+    PackageVersion,
+    getDependencies,
+    getDevDependencies,
+  )
+where
 
 import Data.Aeson (FromJSON)
 import Data.Map (Map)
@@ -11,15 +20,19 @@ import qualified Wasp.AppSpec.App.Dependency as D
 
 data PackageJson = PackageJson
   { name :: !String,
-    dependencies :: !(Map String String),
-    devDependencies :: !(Map String String)
+    dependencies :: !DependenciesMap,
+    devDependencies :: !DependenciesMap
   }
-  deriving (Show, Generic)
-
-instance FromJSON PackageJson
+  deriving (Show, Generic, FromJSON)
 
 getDependencies :: PackageJson -> [Dependency]
 getDependencies packageJson = D.fromList $ M.toList $ dependencies packageJson
 
 getDevDependencies :: PackageJson -> [Dependency]
 getDevDependencies packageJson = D.fromList $ M.toList $ devDependencies packageJson
+
+type DependenciesMap = Map PackageName PackageVersion
+
+type PackageName = String
+
+type PackageVersion = String

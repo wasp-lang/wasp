@@ -24,6 +24,7 @@ module Wasp.Generator.WebAppGenerator.Common
     getBaseDir,
     getDefaultDevClientUrl,
     defaultClientPort,
+    reactRouterVersion,
   )
 where
 
@@ -48,6 +49,7 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.SemanticVersion as SV
 
 data WebAppSrcDir
 
@@ -150,3 +152,6 @@ defaultClientPort = 3000
 
 getDefaultDevClientUrl :: AppSpec -> String
 getDefaultDevClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ SP.fromAbsDirP (getBaseDir spec)
+
+reactRouterVersion :: SV.ComparatorSet
+reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 5 3 3

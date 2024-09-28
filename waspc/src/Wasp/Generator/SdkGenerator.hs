@@ -54,15 +54,13 @@ import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
-
-genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec = genSdkReal spec
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 buildSdk projectRootDir = do
@@ -77,8 +75,8 @@ buildSdk projectRootDir = do
   where
     dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
-genSdkReal :: AppSpec -> Generator [FileDraft]
-genSdkReal spec =
+genSdk :: AppSpec -> Generator [FileDraft]
+genSdk spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
@@ -188,20 +186,21 @@ npmDepsForSdk spec =
             ("mitt", "3.0.0"),
             ("react", "^18.2.0"),
             ("lodash.merge", "^4.6.2"),
-            ("react-router-dom", "^5.3.3"),
+            ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", "^1.12.2"),
             -- Todo: why is this in dependencies, should it be in dev dependencies?
             -- Should it go into their package.json
             ("@types/express-serve-static-core", "^4.17.13"),
-            ("@types/react-router-dom", "^5.3.3")
+            ("@types/react-router-dom", show reactRouterVersion)
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
-          -- This must be installed in the SDK because it lists prisma/client as a dependency.
+          -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
+          -- lists prisma/client as a dependency.
           -- Installing it inside .wasp/out/server/node_modules would also
           -- install prisma/client in the same folder, which would cause our
-          -- runtime to load the wrong (uninitialized prisma/client)
+          -- runtime to load the wrong (uninitialized prisma/client).
           -- TODO(filip): Find a better way to handle duplicate
           -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
           ++ ServerAuthG.depsRequiredByAuth spec
