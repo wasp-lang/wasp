@@ -13,14 +13,6 @@ spec_AppSpecEntityTest = do
       getIdField entityWithIdField `shouldBe` Just idField
     it "Returns Nothing if primary field doesn't exist" $ do
       getIdField entityWithoutIdField `shouldBe` Nothing
-
-  describe "doesFieldHaveAttribute" $ do
-    it "Returns Nothing if the field doesn't exist on the entity" $ do
-      Entity.doesFieldHaveAttribute entityWithoutIdField "unique" "nonExistingField" `shouldBe` Nothing
-    it "Returns Just False if the field exists on the entity but doesn't have the required attribute" $ do
-      Entity.doesFieldHaveAttribute entityWithIdField "id" "description" `shouldBe` Just False
-    it "Returns Just True if the field exists on the entity and has the required attribute" $ do
-      Entity.doesFieldHaveAttribute entityWithIdField "id" "id" `shouldBe` Just True
   where
     entityWithIdField =
       Entity.makeEntity $

@@ -31,7 +31,6 @@ import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.AppSpec.Entity (doesFieldHaveAttribute)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -41,6 +40,7 @@ import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
@@ -129,21 +129,17 @@ validateUserEntity spec =
   case App.auth (snd $ getApp spec) of
     Nothing -> []
     Just auth ->
-      concat
-        [ [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
-            | isNothing idFieldType
-          ],
-          [ GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute) with a default value"
-            | doesIdFieldHaveDefaultAttribute /= Just True
-          ]
-        ]
+      case Entity.getIdField userEntity of
+        Nothing -> [userEntityMissingIdFieldError]
+        Just idField ->
+          if Psl.Util.doesPslFieldHaveAttribute "default" idField
+            then []
+            else [userEntityIdFieldMissingDefaultAttrError]
       where
-        idFieldType = Entity.getIdField userEntity
-
-        doesIdFieldHaveDefaultAttribute =
-          idFieldType >>= doesFieldHaveAttribute userEntity "default" . Psl.Model._name
-
         (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+
+        userEntityMissingIdFieldError = GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
+        userEntityIdFieldMissingDefaultAttrError = GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute) with a default value"
 
 validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =
