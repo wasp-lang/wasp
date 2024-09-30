@@ -19,6 +19,7 @@ import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Query (Query)
 import qualified Wasp.AppSpec.Query as Query
+import qualified Wasp.AppSpec.Route as Route
 
 spec_AppSpecFromJSON :: Spec
 spec_AppSpecFromJSON = do
@@ -81,6 +82,21 @@ spec_AppSpecFromJSON = do
           }
         |]
         `shouldDecodeTo` (Nothing :: Maybe Page.Page)
+  describe "Route" $ do
+    it "parses a valid Route JSON" $ do
+      [trimming|
+          {
+            "path": "/foo",
+            "to": ${pageRef}
+          }
+        |]
+        `shouldDecodeTo` Just
+          ( Route.Route
+              { Route.path = "/foo",
+                Route.to = fromJust $ decodeJson pageRef
+              }
+          )
+
   describe "Ref" $ do
     it "parses a valid Entity Ref JSON" $ do
       fooEntityRef `shouldDecodeTo` Just (Ref.Ref "foo" :: Ref Entity)

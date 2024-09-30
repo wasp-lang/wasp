@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { writeFileSync } from 'fs'
 import { App, Spec } from './lib.js'
+import { Decl } from './decls.js'
 
 async function main() {
   const {
@@ -16,8 +17,12 @@ async function main() {
   console.log(`Wasp spec written to ${outputFile}`)
 }
 
-function analyzeApp(app: App, entityNames: string[]): Spec {
-  return app.getSpec()
+function analyzeApp(app: App, entityNames: string[]): Decl[] {
+  const userSpec = app.getSpec()
+  // TODO: Semantic analysis and type checking (check entities, check routes, check pages, ...)
+  // Check how much you need to do and how much you can offload to the wasp compiler.
+  // I only need to reimplement the stuff that comes before appspec validation.
+  return []
 }
 
 function parseProcessArguments(args: string[]): {
@@ -59,7 +64,7 @@ function parseEntityNamesJson(entitiesJson: string): string[] {
   return entities
 }
 
-function serialize(appConfig: Spec): string {
+function serialize(appConfig: Decl[]): string {
   return JSON.stringify(appConfig)
 }
 
