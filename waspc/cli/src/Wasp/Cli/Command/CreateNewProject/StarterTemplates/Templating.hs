@@ -11,7 +11,6 @@ import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
 import Wasp.Project.Analyze (WaspFile (..), findWaspFile)
-import Wasp.Project.Analyze (WaspFile (..), findPackageJsonFile, findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import qualified Wasp.Util.IO as IOUtil
