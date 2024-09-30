@@ -15,6 +15,7 @@ TODO: @sodic has to write this part
 Wasp is now using the latest Prisma 5, which brings a lot of performance improvements and new features.
 
 From the Prisma docs:
+
 > Prisma ORM 5.0.0 introduces a number of changes, including the usage of our new JSON Protocol, which make Prisma Client faster by default.
 
 This means that your Wasp app will be faster and more reliable with the new Prisma 5 version.
@@ -27,12 +28,7 @@ There are some breaking changes in React Router 6, so you will need to update yo
 
 ## How to migrate?
 
-To migrate your app to Wasp 0.15.x, you must:
-
-1. Bump the version in `main.wasp`
-2. Update the `package.json` file
-3. Migrate from old React Router 5 APIs to new React Router 6 APIs
-4. Migrate your client root component
+To migrate your Wasp app from 0.14.X to 0.15.X, follow these steps:
 
 ### 1. Bump the Wasp version
 
@@ -56,7 +52,7 @@ Update the `prisma` version in your `package.json` file to `5.19.1`:
   "dependencies": {
     // highlight-next-line
     "prisma": "5.19.1"
- }
+  }
 }
 ```
 
@@ -68,38 +64,36 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
 
   <Tabs>
   <TabItem value="before" label="Before">
-  
+
   ```tsx title="src/SomePage.tsx"
-  import { useHistory } from 'react-router-dom';
+  import { useHistory } from 'react-router-dom'
 
   export function SomePage() {
-    const history = useHistory();
+    const history = useHistory()
     const handleClick = () => {
       // highlight-next-line
-      history.push('/new-route');
+      history.push('/new-route')
     }
-    return (
-      <button onClick={handleClick}>Go to new route</button>
-    )
+    return <button onClick={handleClick}>Go to new route</button>
   }
   ```
+
   </TabItem>
   <TabItem value="after" label="After">
-  
+
   ```tsx title="src/SomePage.tsx"
-  import { useNavigate } from 'react-router-dom';
+  import { useNavigate } from 'react-router-dom'
 
   export function SomePage() {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const handleClick = () => {
       // highlight-next-line
-      navigate('/new-route');
+      navigate('/new-route')
     }
-    return (
-      <button onClick={handleClick}>Go to new route</button>
-    )
+    return <button onClick={handleClick}>Go to new route</button>
   }
   ```
+
   </TabItem>
   </Tabs>
 
@@ -111,9 +105,9 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
 
   <Tabs>
   <TabItem value="before" label="Before">
-  
+
   ```tsx title="src/SomePage.tsx"
-  import { Redirect } from 'react-router-dom';
+  import { Redirect } from 'react-router-dom'
 
   export function SomePage() {
     return (
@@ -122,11 +116,12 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
     )
   }
   ```
+
   </TabItem>
   <TabItem value="after" label="After">
-  
+
   ```tsx title="src/SomePage.tsx"
-  import { Navigate } from 'react-router-dom';
+  import { Navigate } from 'react-router-dom'
 
   export function SomePage() {
     return (
@@ -135,6 +130,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
     )
   }
   ```
+
   </TabItem>
   </Tabs>
 
@@ -144,13 +140,13 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
 
   <Tabs>
   <TabItem value="before" label="Before">
-  
+
   ```tsx title="src/SomePage.tsx"
-  import { RouteComponentProps } from 'react-router-dom';
+  import { RouteComponentProps } from 'react-router-dom'
 
   export function SomePage(props: RouteComponentProps) {
     // highlight-next-line
-    const { id } = props.match.params;
+    const { id } = props.match.params
     return (
       <div>
         <h1>Item {id}</h1>
@@ -158,15 +154,16 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
     )
   }
   ```
+
   </TabItem>
   <TabItem value="after" label="After">
-  
+
   ```tsx title="src/SomePage.tsx"
-  import { useParams } from 'react-router-dom';
+  import { useParams } from 'react-router-dom'
 
   export function SomePage() {
     // highlight-next-line
-    const { id } = useParams();
+    const { id } = useParams()
     return (
       <div>
         <h1>Item {id}</h1>
@@ -174,18 +171,77 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs.
     )
   }
   ```
+
   </TabItem>
   </Tabs>
 
   Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-params) for more information on the `useParams()` hook.
 
+- If you used the `<NavLink />` component and its `isActive` prop to set the active link state, you should now set the `className` prop directly.
+
+  <Tabs>
+  <TabItem value="before" label="Before">
+
+  ```tsx title="src/SomePage.tsx"
+  import { NavLink } from 'react-router-dom'
+
+  export function SomePage() {
+    return (
+      <NavLink
+        to="/new-route"
+        // highlight-start
+        isActive={(_match, location) => {
+          return location.pathname === '/new-route'
+        }}
+        // highlight-end
+        className={(isActive) =>
+          cn('text-blue-500', {
+            underline: isActive,
+          })
+        }
+      >
+        Go to new route
+      </NavLink>
+    )
+  }
+  ```
+
+  </TabItem>
+  <TabItem value="after" label="After">
+
+  ```tsx title="src/SomePage.tsx"
+  import { NavLink, useLocation } from 'react-router-dom'
+
+  export function SomePage() {
+    // highlight-next-line
+    const location = useLocation()
+    return (
+      <NavLink
+        to="/new-route"
+        className={() =>
+          cn('text-blue-500', {
+            // highlight-next-line
+            underline: location.pathname === '/new-route',
+          })
+        }
+      >
+        Go to new route
+      </NavLink>
+    )
+  }
+  ```
+
+  </TabItem>
+  </Tabs>
+
+  Check the [React Router 6 docs](https://reactrouter.com/en/main/components/nav-link#navlink) for more information on the `<NavLink />` component.
+
 ### 4. Update your root component
 
-- The `client.rootComponent` now requires rendering `<Outlet />` instead the `children` prop.
+The `client.rootComponent` now requires rendering `<Outlet />` instead the `children` prop.
 
 <Tabs>
 <TabItem value="before" label="Before">
-
 
 ```wasp title="main.wasp"
 app MyApp {
@@ -213,6 +269,7 @@ export function App({ children }: { children: React.ReactNode }) {
   )
 }
 ```
+
 </TabItem>
 <TabItem value="after" label="After">
 
@@ -227,7 +284,7 @@ app MyApp {
 ```
 
 ```tsx title="src/App.tsx"
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom'
 
 export function App() {
   return (
@@ -244,6 +301,7 @@ export function App() {
   )
 }
 ```
+
 </TabItem>
 </Tabs>
 
