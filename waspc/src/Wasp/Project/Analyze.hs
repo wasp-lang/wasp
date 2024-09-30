@@ -1,22 +1,18 @@
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
-    readPackageJsonFile,
     analyzeWaspFileContent,
     findWaspFile,
-    findPackageJsonFile,
     analyzePrismaSchema,
   )
 where
 
 import Control.Arrow (ArrowChoice (left))
-import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', toFilePath, (</>))
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.PackageJson (PackageJson)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
@@ -28,13 +24,13 @@ import Wasp.Project.Common
     CompileWarning,
     WaspProjectDir,
     findFileInWaspProjectDir,
-    packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -63,9 +59,9 @@ analyzeWaspProject waspDir options = do
           analyzeWaspFile prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
-              analyzePackageJsonContent waspDir >>= \case
+              EC.analyzeExternalConfigs waspDir >>= \case
                 Left errors -> return (Left errors, [])
-                Right packageJsonContent -> constructAppSpec waspDir options packageJsonContent prismaSchemaAst declarations
+                Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
@@ -81,11 +77,11 @@ analyzeWaspFileContent prismaSchemaAst = return . left (map getErrorMessageAndCt
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  PackageJson ->
+  EC.ExternalConfigs ->
   Psl.Schema.Schema ->
   [AS.Decl] ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
+constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
@@ -98,11 +94,13 @@ constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
+  let packageJsonContent = EC._packageJson externalConfigs
+
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
             AS.prismaSchema = parsedPrismaSchema,
-            AS.packageJson = packageJson,
+            AS.packageJson = packageJsonContent,
             AS.waspProjectDir = waspDir,
             AS.externalCodeFiles = externalCodeFiles,
             AS.externalPublicFiles = externalPublicFiles,
@@ -127,22 +125,6 @@ findWaspFile waspDir = do
       ".wasp"
         `isSuffixOf` toFilePath path
         && (length (toFilePath path) > length (".wasp" :: String))
-
-analyzePackageJsonContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
-analyzePackageJsonContent waspProjectDir =
-  findPackageJsonFile waspProjectDir >>= \case
-    Just packageJsonFile -> readPackageJsonFile packageJsonFile
-    Nothing -> return $ Left [fileNotFoundMessage]
-  where
-    fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
-
-findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
-
-readPackageJsonFile :: Path' Abs File' -> IO (Either [CompileError] PackageJson)
-readPackageJsonFile packageJsonFile = do
-  byteString <- IOUtil.readFileBytes packageJsonFile
-  return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do
