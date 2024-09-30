@@ -188,11 +188,7 @@ npmDepsForSdk spec =
             ("lodash.merge", "^4.6.2"),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
-            ("superjson", "^1.12.2"),
-            -- Todo: why is this in dependencies, should it be in dev dependencies?
-            -- Should it go into their package.json
-            ("@types/express-serve-static-core", "^4.17.13"),
-            ("@types/react-router-dom", show reactRouterVersion)
+            ("superjson", "^1.12.2")
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
@@ -214,7 +210,9 @@ npmDepsForSdk spec =
           ++ depsRequiredByTailwind spec,
       N.devDependencies =
         AS.Dependency.fromList
-          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest")
+          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
+            -- Should @types/* go into their package.json?
+            ("@types/express-serve-static-core", "^4.17.13")
           ]
     }
   where

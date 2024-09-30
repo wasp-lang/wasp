@@ -53,6 +53,7 @@ test.describe("signup and login", () => {
 
     await page.goto("/");
 
+    // Create a new task
     const randomTask = `New Task ${Math.random().toString(36).substring(7)}`;
     await page.locator("input[type='text']").fill(randomTask);
     await page.getByText("Create new task").click();
@@ -61,5 +62,10 @@ test.describe("signup and login", () => {
     await page.waitForSelector(`text=${fullTaskText}`);
 
     await expect(page.locator("body")).toContainText(fullTaskText);
+
+    // Navigate to task page
+    await page.locator(`text=${fullTaskText}`).click();
+    const taskPageText = `description: ${randomTask}`;
+    await page.waitForSelector(`text=${taskPageText}`);
   });
 });

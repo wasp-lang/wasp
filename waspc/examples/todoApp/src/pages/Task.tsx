@@ -11,11 +11,13 @@ import {
 } from 'wasp/client/operations'
 
 import React from 'react'
+import { useParams } from 'react-router-dom'
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>
 
-const Todo = (props: any) => {
-  const taskId = parseInt(props.match.params.id)
+const Todo = () => {
+  const { id } = useParams()
+  const taskId = parseInt(id!)
 
   const {
     data: task,

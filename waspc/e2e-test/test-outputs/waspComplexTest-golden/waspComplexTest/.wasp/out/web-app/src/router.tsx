@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from '../../../../src/client/App.jsx'
 
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
@@ -8,35 +8,35 @@ import { MainPage } from '../../../../src/MainPage'
 
 import { OAuthCallbackPage } from "./auth/pages/OAuthCallback"
 
+import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+
 import { routes } from 'wasp/client/router'
 
 export const routeNameToRouteComponent = {
   RootRoute: MainPage,
 } as const;
 
-const router = (
-  <Router basename="/">
-    <App>
-    <Switch>
-      {/* 
-        Wasp specific routes *must* go first to prevent user
-        defined routes from overriding them.
-        Details in https://github.com/wasp-lang/wasp/issues/2029
-      */}
-      <Route exact path="/oauth/callback">
-        <OAuthCallbackPage />
-      </Route>
-      {Object.entries(routes).map(([routeKey, route]) => (
-        <Route
-          exact
-          key={routeKey}
-          path={route.to}
-          component={routeNameToRouteComponent[routeKey]}
-        />
-      ))}
-    </Switch>
-    </App>
-  </Router>
-)
+const waspDefinedRoutes = [
+  {
+    path: "/oauth/callback",
+    Component: OAuthCallbackPage,
+  },
+]
+const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
+  return {
+    path: route.to,
+    Component: routeNameToRouteComponent[routeKey],
+  }
+})
 
-export default router
+const browserRouter = createBrowserRouter([{
+  path: '/',
+  element: <App />,
+  ErrorBoundary: DefaultRootErrorBoundary,
+  children: [
+    ...waspDefinedRoutes,
+    ...userDefinedRoutes,
+  ],
+}])
+
+export const router = <RouterProvider router={browserRouter} />

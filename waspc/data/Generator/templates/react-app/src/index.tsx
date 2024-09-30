@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import router from './router'
+import { router } from './router'
 import {
   initializeQueryClient,
   queryClientInitialized,

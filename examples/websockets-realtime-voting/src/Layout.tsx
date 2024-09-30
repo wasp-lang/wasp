@@ -1,6 +1,5 @@
-import { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import { logout, useAuth } from "wasp/client/auth";
-// @ts-check
 import "./Main.css";
 
 import { Flowbite, Dropdown, Navbar, Avatar } from "flowbite-react";
@@ -14,7 +13,7 @@ const customTheme = {
   },
 };
 
-export const Layout = ({ children }: { children: ReactNode }) => {
+export const Layout = () => {
   const { data: user } = useAuth();
 
   return (
@@ -40,7 +39,9 @@ export const Layout = ({ children }: { children: ReactNode }) => {
                 }
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">{user.getFirstProviderUserId()}</span>
+                  <span className="block text-sm">
+                    {user.getFirstProviderUserId()}
+                  </span>
                 </Dropdown.Header>
                 <Dropdown.Item>Dashboard</Dropdown.Item>
                 <Dropdown.Item>Settings</Dropdown.Item>
@@ -61,7 +62,9 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             <Navbar.Link href="#">Contact</Navbar.Link>
           </Navbar.Collapse> */}
         </Navbar>
-        <div className="grid place-items-center mt-8">{children}</div>
+        <div className="grid place-items-center mt-8">
+          <Outlet />
+        </div>
       </div>
     </Flowbite>
   );

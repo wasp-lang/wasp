@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom'
 import { useSocket } from 'wasp/client/webSocket'
 import { Link } from 'wasp/client/router'
 import { logout, useAuth } from 'wasp/client/auth'
@@ -8,7 +9,7 @@ import { getName } from './user'
 // Necessary to trigger type tests.
 import './testTypes/operations/client'
 
-export function App({ children }: any) {
+export function App() {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
   const { isConnected } = useSocket()
@@ -41,7 +42,9 @@ export function App({ children }: any) {
           </div>
         )}
       </header>
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
       <footer className="mt-8 text-center">Created with Wasp</footer>
     </div>
   )
