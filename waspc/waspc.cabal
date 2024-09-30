@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.14.1
+version:        0.14.2
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -240,6 +240,9 @@ library
     Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
+    Wasp.AppSpec.Core.Decl.JSON
+    Wasp.AppSpec.Core.Decl.JSON.TH
+    Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
     Wasp.AppSpec.Entity.Field
@@ -248,7 +251,6 @@ library
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
-    Wasp.AppSpec.PackageJson
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query
     Wasp.AppSpec.Route
@@ -260,6 +262,8 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
+    Wasp.ExternalConfig.PackageJson
+    Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
@@ -278,6 +282,9 @@ library
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
     Wasp.Generator.ExternalCodeGenerator.Common
+    Wasp.Generator.ExternalConfig.Common
+    Wasp.Generator.ExternalConfig.PackageJson
+    Wasp.Generator.ExternalConfig.TsConfig
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -364,6 +371,9 @@ library
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Deployment
     Wasp.Project.Env
+    Wasp.Project.ExternalConfig
+    Wasp.Project.ExternalConfig.PackageJson
+    Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
@@ -408,6 +418,7 @@ library
     Wasp.Util.HashMap
     Wasp.Util.IO
     Wasp.Util.IO.Retry
+    Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.Terminal
@@ -453,7 +464,6 @@ library waspls
     Wasp.LSP.TypeInference
     Wasp.LSP.Util
     Wasp.LSP.Prisma.Analyze
-    Wasp.LSP.Prisma.Util
   build-depends:
       base
     , aeson
@@ -623,6 +633,7 @@ test-suite waspc-test
     Analyzer.ValidTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.FromJSONTest
     AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest

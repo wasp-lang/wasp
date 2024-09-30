@@ -133,7 +133,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
     handleInternalErrors :: E.ErrorCall -> IO ()
     handleInternalErrors e = do
-      putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
+      putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
       exitFailure
 
 -- | Sets env variables that are visible to the commands run by the CLI.

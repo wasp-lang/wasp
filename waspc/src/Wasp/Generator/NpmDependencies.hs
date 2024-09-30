@@ -25,7 +25,7 @@ import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as D
-import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
+import qualified Wasp.ExternalConfig.PackageJson as EC.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFramework = NpmDepsForFramework
@@ -110,9 +110,9 @@ buildWaspFrameworkNpmDeps spec forServer forWebApp =
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
   NpmDepsForUser
-    { userDependencies = AS.PackageJson.getDependencies $ AS.packageJson spec,
+    { userDependencies = EC.PackageJson.getDependencies $ AS.packageJson spec,
       -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-      userDevDependencies = AS.PackageJson.getDevDependencies $ AS.packageJson spec
+      userDevDependencies = EC.PackageJson.getDevDependencies $ AS.packageJson spec
     }
 
 conflictErrorToMessage :: DependencyConflictError -> String

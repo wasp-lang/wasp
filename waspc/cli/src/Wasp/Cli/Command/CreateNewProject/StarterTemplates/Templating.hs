@@ -10,8 +10,10 @@ import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
+import Wasp.Project.Analyze (WaspFile (..), findWaspFile)
 import Wasp.Project.Analyze (WaspFile (..), findPackageJsonFile, findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import qualified Wasp.Util.IO as IOUtil
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
@@ -27,9 +29,10 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Nothing -> return ()
-    -- TODO: Remove duplication?
-    Just (WaspLang absMainWaspFile) -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
-    Just (WaspTs absMainTsFile) -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainTsFile
+    Just (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
+    Just (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
+  where
+    replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk appName projectName
 
 -- | Template file for package.json file has placeholders in it that we want to replace
 -- in the package.json file we have written to the disk.

@@ -455,11 +455,11 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     return <span className="py-1 px-2 font-semibold text-pink-800 rounded">{children}</span>;
   }
 
-  function calcCostForGpt_3_5_Turbo_0125(numTokensSpent) {
+  function calcCostForGpt_4o(numTokensSpent) {
     const estimatedInputTokenShare = 0.8;
     const estimatedOutputTokenShare = 1 - estimatedInputTokenShare;
-    const costInUsdForMillionInputTokens = 0.5; // This is price for GPT 3.5 Turbo 0125.
-    const costInUsdForMillionOutputTokens = 1.5; // This is price for GPT 3.5 Turbo 0125.
+    const costInUsdForMillionInputTokens = 5.0; // This is price for gpt-4o-2024-05-13.
+    const costInUsdForMillionOutputTokens = 15.0; // This is price for gpt-4o-2024-05-13.
     const costInUsdForMillionTokens =
       costInUsdForMillionInputTokens * estimatedInputTokenShare +
       costInUsdForMillionOutputTokens * estimatedOutputTokenShare;
@@ -491,7 +491,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`~$${calcCostForGpt_3_5_Turbo_0125(
+                  <FormattedText>{`~$${calcCostForGpt_4o(
                     Number(numTokensSpent)
                   )}`}</FormattedText>{" "}
                 </td>

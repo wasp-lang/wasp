@@ -20,7 +20,7 @@ export declare const returnHelloJob: {
         readonly pgBoss: {
             readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;
             readonly resume: () => ReturnType<import("pg-boss")["resume"]>;
-            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & {
+            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & ({
                 data: JSONObject;
             } & ({
                 state: "failed";
@@ -39,7 +39,7 @@ export declare const returnHelloJob: {
                 } | {
                     value: true;
                 };
-            })>;
+            }))>;
         };
         readonly job: import("./core/job").Job;
         readonly jobId: string;

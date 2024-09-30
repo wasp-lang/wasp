@@ -2,7 +2,6 @@ module Wasp.Project.Analyze
   ( analyzeWaspProject,
     analyzeWaspFileContent,
     findWaspFile,
-    findPackageJsonFile,
     analyzePrismaSchema,
     WaspFile (..),
   )
@@ -13,11 +12,10 @@ import Control.Arrow (ArrowChoice (left))
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (..), runExceptT)
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', Rel, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, basename, toFilePath, (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import StrongPath.Types (File)
@@ -25,7 +23,7 @@ import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.PackageJson (PackageJson)
+import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
@@ -41,13 +39,13 @@ import Wasp.Project.Common
     WaspProjectDir,
     dotWaspDirInWaspProjectDir,
     findFileInWaspProjectDir,
-    packageJsonInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -55,30 +53,11 @@ import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Valid as PslV
 import Wasp.Util (maybeToEither)
+import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.StrongPath (replaceRelExtension)
 import Wasp.Valid (ValidationError)
 import qualified Wasp.Valid as Valid
-
-data WaspFile
-  = WaspLang !(Path' Abs (File WaspLangFile))
-  | WaspTs !(Path' Abs (File WaspTsFile))
-
-data WaspLangFile
-
-data WaspTsFile
-
-data CompiledWaspJsFile
-
-data SpecJsonFile
-
--- TODO: Not yet sure where this is going to come from because we also need that knowledge to generate a TS SDK project.
---
--- BEGIN SHARED STUFF
-
-tsconfigNodeFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-tsconfigNodeFileInWaspProjectDir = [relfile|tsconfig.node.json|]
-
--- END SHARED STUFF
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -97,77 +76,43 @@ analyzeWaspProject waspDir options = do
           analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
-              analyzePackageJsonContent waspDir >>= \case
+              EC.analyzeExternalConfigs waspDir >>= \case
                 Left errors -> return (Left errors, [])
-                Right packageJsonContent -> constructAppSpec waspDir options packageJsonContent prismaSchemaAst declarations
+                Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
   where
     fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
+
+data WaspFile
+  = WaspLang !(Path' Abs (File WaspLangFile))
+  | WaspTs !(Path' Abs (File WaspTsFile))
+
+data WaspLangFile
+
+data WaspTsFile
+
+data CompiledWaspJsFile
+
+data DeclsJsonFile
 
 analyzeWaspFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> WaspFile -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFile waspDir prismaSchemaAst = \case
   WaspLang waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
   WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
 
-readDeclsJsonFile :: Path' Abs (File SpecJsonFile) -> IO (Either [CompileError] Aeson.Value)
-readDeclsJsonFile declsJsonFile = do
-  byteString <- IOUtil.readFile declsJsonFile
-  return $ Right $ Aeson.toJSON byteString
-
 analyzeWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> Path' Abs (File WaspTsFile) -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile waspProjectDir _prismaSchemaAst _waspFilePath = runExceptT $ do
-  -- TODO: The function currently doesn't require the path to main.wasp.ts
-  -- because it reads it from the tsconfig
-  -- Should we ensure that the tsconfig indeed points to the name we expect? Probably.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir
-  specJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir compiledWaspJsFile
-  contents <- ExceptT $ readDeclsJsonFile specJsonFile
-  liftIO $ putStrLn "Here are the contents of the spec file:"
-  liftIO $ print contents
-  return []
+analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
+  -- TODO: I'm not yet sure where tsconfig.node.json location should come from
+  -- because we also need that knowledge when generating a TS SDK project.
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|] waspFilePath
+  declsJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
+  ExceptT $ readDeclsFromJsonFile declsJsonFile
 
-executeMainWaspJsFile :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File CompiledWaspJsFile) -> IO (Either [CompileError] (Path' Abs (File SpecJsonFile)))
-executeMainWaspJsFile waspProjectDir absCompiledMainWaspJsFile = do
-  chan <- newChan
-  (_, runExitCode) <- do
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      ( runNodeCommandAsJob
-          waspProjectDir
-          "npx"
-          -- TODO: Figure out how to keep running instructions in a single place
-          -- (e.g., this is the same as the package name, but it's repeated in two places).
-          -- Before this, I had the entrypoint file hardcoded, which was bad
-          -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
-          [ "wasp-config",
-            SP.fromAbsFile absCompiledMainWaspJsFile,
-            SP.fromAbsFile absSpecOutputFile
-          ]
-          J.Wasp
-          chan
-      )
-  case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
-    ExitSuccess -> return $ Right absSpecOutputFile
-  where
-    -- TODO: The config part of the path is problematic because it relies on TSC to create it during compilation,
-    -- see notes in compileWaspFile.
-    absSpecOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/spec.json|]
-
--- TODO: Reconsider the return value. Can I write the function in such a way
--- that it's impossible to get the absolute path to the compiled file without
--- calling the function that compiles it?
--- To do that, I'd have to craete a private module that knows where the file is
--- and not expose the constant for creating the absoltue path (like I did with config/spec.json).
--- Normally, I could just put the constant in the where clause like I did there, but I'm hesitant
--- to do that since the path comes from the tsconfig.
--- That is what I did currently, but I'll have to figure out the long-term solution.
--- The ideal solution is reading the TS file, and passing its config to tsc
--- manually (and getting the output file path in the process).
-compileWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
-compileWaspTsFile waspProjectDir = do
-  -- TODO: The function should also receive the tsconfig.node.json file (not the main.wasp.ts file),
-  -- because the source of truth (the name of the file, where it's compiled) comes from the typescript config.
-  -- However, we might want to keep this information in haskell and then verify that the tsconfig is correct.
+compileWaspTsFile ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (Rel WaspProjectDir) File' ->
+  Path' Abs (File WaspTsFile) ->
+  IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
+compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath = do
   chan <- newChan
   (_, tscExitCode) <-
     concurrently
@@ -181,17 +126,60 @@ compileWaspTsFile waspProjectDir = do
             "--noEmit",
             "false",
             "--outDir",
-            toFilePath $ SP.parent absCompiledWaspJsFile
+            toFilePath outDir
           ]
           J.Wasp
           chan
       )
   case tscExitCode of
-    ExitFailure _status -> return $ Left ["Error while running TypeScript compiler on the *.wasp.mts file."]
+    ExitFailure _status -> return $ Left ["Got TypeScript compiler errors for " ++ toFilePath waspFilePath ++ "."]
     ExitSuccess -> return $ Right absCompiledWaspJsFile
   where
-    -- TODO: I should be getting the compiled file path from the tsconfig.node.file
-    absCompiledWaspJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|config/main.wasp.mjs|]
+    outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
+    absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
+    compiledWaspJsFileInDotWaspDir = SP.castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
+      Just path -> path
+      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ toFilePath waspFilePath ++ "."
+
+executeMainWaspJsFile ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Psl.Schema.Schema ->
+  Path' Abs (File CompiledWaspJsFile) ->
+  IO (Either [CompileError] (Path' Abs (File DeclsJsonFile)))
+executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
+  chan <- newChan
+  (_, runExitCode) <- do
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      ( runNodeCommandAsJob
+          waspProjectDir
+          "npx"
+          -- TODO: Figure out how to keep running instructions in a single
+          -- place (e.g., this is string the same as the package name, but it's
+          -- repeated in two places).
+          -- Before this, I had the entrypoint file hardcoded, which was bad
+          -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
+          [ "wasp-config",
+            SP.fromAbsFile absCompiledMainWaspJsFile,
+            SP.fromAbsFile absDeclsOutputFile,
+            encodeToString allowedEntityNames
+          ]
+          J.Wasp
+          chan
+      )
+  case runExitCode of
+    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
+    ExitSuccess -> return $ Right absDeclsOutputFile
+  where
+    absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
+    allowedEntityNames = Psl.Schema.getModelNames prismaSchemaAst
+
+readDeclsFromJsonFile :: Path' Abs (File DeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
+readDeclsFromJsonFile declsJsonFile = do
+  declsBytestring <- IOUtil.readFileBytes declsJsonFile
+  case Aeson.eitherDecode declsBytestring of
+    Right value -> return $ Right value
+    Left err -> return $ Left ["Error while parsing the declarations from JSON: " ++ err]
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
@@ -205,11 +193,11 @@ analyzeWaspFileContent prismaSchemaAst = return . left (map getErrorMessageAndCt
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  PackageJson ->
+  EC.ExternalConfigs ->
   Psl.Schema.Schema ->
   [AS.Decl] ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
+constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
@@ -222,11 +210,13 @@ constructAppSpec waspDir options packageJson parsedPrismaSchema decls = do
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
+  let packageJsonContent = EC._packageJson externalConfigs
+
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
             AS.prismaSchema = parsedPrismaSchema,
-            AS.packageJson = packageJson,
+            AS.packageJson = packageJsonContent,
             AS.waspProjectDir = waspDir,
             AS.externalCodeFiles = externalCodeFiles,
             AS.externalPublicFiles = externalPublicFiles,
@@ -249,31 +239,7 @@ findWaspFile waspDir = do
   where
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    -- TODO: We used to have a check that made sure not to misidentify the .wasp
-    -- dir as a wasp file, but that's not true (fst <$>
-    -- IOUtil.listDirectory takes care of that).
-    -- A bigger problem is if the user has a file with the same name as the wasp dir,
-    -- but that's a problem that should be solved in a different way (it's
-    -- still possible to have both main.wasp and .wasp files and cause that
-    -- error).
-    -- TODO: Try out what happens when Wasp finds this file, but the tsconfing setup and package are missing
     findFileThatEndsWith suffix files = SP.castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
-
-analyzePackageJsonContent :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
-analyzePackageJsonContent waspProjectDir =
-  findPackageJsonFile waspProjectDir >>= \case
-    Just packageJsonFile -> readPackageJsonFile packageJsonFile
-    Nothing -> return $ Left [fileNotFoundMessage]
-  where
-    fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
-
-findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
-
-readPackageJsonFile :: Path' Abs File' -> IO (Either [CompileError] PackageJson)
-readPackageJsonFile packageJsonFile = do
-  byteString <- IOUtil.readFileBytes packageJsonFile
-  return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString
 
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do

@@ -4,11 +4,11 @@ import Control.Lens ((.~))
 import Control.Monad.Cont (liftIO)
 import Control.Monad.Log.Class (logM)
 import StrongPath (Abs, Dir, Path')
-import Wasp.LSP.Prisma.Util (showModelNames)
 import Wasp.LSP.ServerMonads (ServerM, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.Project (WaspProjectDir)
 import Wasp.Project.Analyze (analyzePrismaSchema)
+import Wasp.Psl.Ast.Schema (getModelNames)
 
 analyzeAndSetPrismaSchema :: Path' Abs (Dir WaspProjectDir) -> ServerM ()
 analyzeAndSetPrismaSchema waspDir = do
@@ -18,7 +18,7 @@ analyzeAndSetPrismaSchema waspDir = do
       logOutput "warnings" $ show warnings
     (Right prismaSchemaAst, warnings) -> do
       logOutput "warnings" $ show warnings
-      logOutput "models" $ showModelNames prismaSchemaAst
+      logOutput "models" $ show $ getModelNames prismaSchemaAst
       modify (State.prismaSchemaAst .~ prismaSchemaAst)
   where
     logOutput :: String -> String -> ServerM ()

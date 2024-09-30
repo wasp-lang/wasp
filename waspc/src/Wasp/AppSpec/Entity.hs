@@ -13,9 +13,10 @@ module Wasp.AppSpec.Entity
   )
 where
 
+import Data.Aeson (FromJSON (parseJSON))
 import Data.Data (Data)
 import Data.List (find)
-import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
@@ -29,6 +30,9 @@ data Entity = Entity
   deriving (Show, Eq, Data)
 
 instance IsDecl Entity
+
+instance FromJSON Entity where
+  parseJSON = const $ fail "Entity declarations in wasp are deprecated, entities are now defined via prisma.schema file."
 
 makeEntity :: Psl.Model.Body -> Entity
 makeEntity body =

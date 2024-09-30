@@ -4,6 +4,8 @@ module Wasp.Project.Common
     NodeModulesDir,
     CompileError,
     CompileWarning,
+    PackageJsonFile,
+    TsConfigFile,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
@@ -18,11 +20,11 @@ module Wasp.Project.Common
     extPublicDirInWaspProjectDir,
     tsconfigInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
+    tsConfigInWaspProjectDir,
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, toFilePath, (</>))
-import StrongPath.Types (File)
+import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
 import qualified Wasp.Generator.Common
@@ -36,6 +38,10 @@ data WaspProjectDir -- Root dir of Wasp project, containing source files.
 data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
+
+data PackageJsonFile
+
+data TsConfigFile
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
@@ -67,8 +73,11 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
 packageJsonInWaspProjectDir = [relfile|package.json|]
+
+tsConfigInWaspProjectDir :: Path' (Rel WaspProjectDir) (File TsConfigFile)
+tsConfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
