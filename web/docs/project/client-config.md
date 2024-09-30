@@ -2,7 +2,7 @@
 title: Client Config
 ---
 
-import BaseDirEnvNote from './_baseDirEnvNote.md'
+import BaseDirEnvNote from './\_baseDirEnvNote.md'
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
@@ -66,13 +66,16 @@ app MyApp {
 ```
 
 ```jsx title="src/Root.jsx"
-export default function Root({ children }) {
+import { Outlet } from 'react-router-dom'
+
+export default function Root() {
   return (
     <div>
       <header>
         <h1>My App</h1>
       </header>
-      {children}
+      // highlight-next-line
+      <Outlet />
       <footer>
         <p>My App footer</p>
       </footer>
@@ -95,13 +98,16 @@ app MyApp {
 ```
 
 ```tsx title="src/Root.tsx"
-export default function Root({ children }: { children: React.ReactNode }) {
+import { Outlet } from 'react-router-dom'
+
+export default function Root() {
   return (
     <div>
       <header>
         <h1>My App</h1>
       </header>
-      {children}
+      // highlight-next-line
+      <Outlet />
       <footer>
         <p>My App footer</p>
       </footer>
@@ -112,6 +118,8 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
 </TabItem>
 </Tabs>
+
+You need to import the [`Outlet`](https://reactrouter.com/en/main/components/outlet#outlet) component from `react-router-dom` and put it where you want the current page to be rendered.
 
 ### Setting up a Provider
 
@@ -131,11 +139,16 @@ app MyApp {
 ```
 
 ```jsx title="src/Root.jsx"
+import { Outlet } from 'react-router-dom'
 import store from './store'
 import { Provider } from 'react-redux'
 
-export default function Root({ children }) {
-  return <Provider store={store}>{children}</Provider>
+export default function Root() {
+  return (
+    <Provider store={store}>
+      <Outlet />
+    </Provider>
+  )
 }
 ```
 
@@ -153,19 +166,23 @@ app MyApp {
 ```
 
 ```tsx title="src/Root.tsx"
+import { Outlet } from 'react-router-dom'
 import store from './store'
 import { Provider } from 'react-redux'
 
-export default function Root({ children }: { children: React.ReactNode }) {
-  return <Provider store={store}>{children}</Provider>
+export default function Root() {
+  return (
+    <Provider store={store}>
+      <Outlet />
+    </Provider>
+  )
 }
 ```
 
 </TabItem>
 </Tabs>
 
-As long as you render the children, you can do whatever you want in your root
-component.
+As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
 Read more about the root component in the [API Reference](#rootcomponent-extimport).
 
@@ -326,8 +343,10 @@ Client has the following options:
 - #### `rootComponent: ExtImport`
 
   `rootComponent` defines the root component of your client application. It is
-  expected to be a React component, and Wasp will use it to wrap your entire app.
-  It must render its children, which are the actual pages of your application.
+  expected to be a React component, and Wasp will use it as the root of the
+  client application.
+  It must render the `Outlet` component from `react-router-dom` to render the
+  current page.
 
   Here's an example of a root component that both sets up a provider and
   renders a custom layout:
@@ -336,24 +355,26 @@ Client has the following options:
   <TabItem value="js" label="JavaScript">
 
   ```jsx title="src/Root.jsx"
+  import { Outlet } from 'react-router-dom'
   import store from './store'
   import { Provider } from 'react-redux'
 
-  export default function Root({ children }) {
+  export default function Root() {
     return (
       <Provider store={store}>
-        <Layout>{children}</Layout>
+        <Layout />
       </Provider>
     )
   }
 
-  function Layout({ children }) {
+  function Layout() {
     return (
       <div>
         <header>
           <h1>My App</h1>
         </header>
-        {children}
+        // highlight-next-line
+        <Outlet />
         <footer>
           <p>My App footer</p>
         </footer>
@@ -366,24 +387,26 @@ Client has the following options:
   <TabItem value="ts" label="TypeScript">
 
   ```tsx title="src/Root.tsx"
+  import { Outlet } from 'react-router-dom'
   import store from './store'
   import { Provider } from 'react-redux'
 
-  export default function Root({ children }: { children: React.ReactNode }) {
+  export default function Root() {
     return (
       <Provider store={store}>
-        <Layout>{children}</Layout>
+        <Layout />
       </Provider>
     )
   }
 
-  function Layout({ children }: { children: React.ReactNode }) {
+  function Layout() {
     return (
       <div>
         <header>
           <h1>My App</h1>
         </header>
-        {children}
+        // highlight-next-line
+        <Outlet />
         <footer>
           <p>My App footer</p>
         </footer>

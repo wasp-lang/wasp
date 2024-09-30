@@ -154,4 +154,4 @@ getDefaultDevClientUrl :: AppSpec -> String
 getDefaultDevClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ SP.fromAbsDirP (getBaseDir spec)
 
 reactRouterVersion :: SV.ComparatorSet
-reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 5 3 3
+reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 6 26 2

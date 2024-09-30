@@ -133,7 +133,6 @@ npmDepsForWasp _spec =
             ("typescript", "^5.1.0"),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
-            ("@types/react-router-dom", show reactRouterVersion),
             ("@vitejs/plugin-react", "^4.2.1"),
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
@@ -197,6 +196,7 @@ genSrcDir spec =
       genFileCopy [relfile|components/Loader.tsx|],
       genFileCopy [relfile|components/Loader.module.css|],
       genFileCopy [relfile|components/FullPageWrapper.tsx|],
+      genFileCopy [relfile|components/DefaultRootErrorBoundary.tsx|],
       getIndexTs spec
     ]
     <++> genAuth spec

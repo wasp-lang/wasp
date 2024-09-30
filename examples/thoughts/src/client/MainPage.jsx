@@ -1,7 +1,8 @@
 import { createThought } from "wasp/client/operations";
+import { routes } from "wasp/client/router";
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import Tag from './Tag'
 import './Main.css'
@@ -35,7 +36,7 @@ const MainPage = ({ user }) => {
   )
 }
 
-const Thought = (props) => {
+const Thought = () => {
   const defaultTextMd = ''
   const defaultNewTagName = ''
   const defaultTagNames = []
@@ -44,7 +45,7 @@ const Thought = (props) => {
   const [tagNames, setTagNames] = useState(defaultTagNames)
   const [newTagName, setNewTagName] = useState(defaultNewTagName)
   const [inPreviewMode, setInPreviewMode] = useState(defaultInPreviewMode)
-  const history = useHistory()
+  const navigate = useNavigate()
   const formRef = useRef(null) // TODO: Why do I have this ref? I don't seem to use it anywhere?
 
   const setNewTagNameIfValid = (tagName) => {
@@ -61,7 +62,7 @@ const Thought = (props) => {
       }
       try {
         await createThought({ textMarkdown: textMd.trim(), tagNames })
-        history.push('/thoughts') // TODO: Would be cool if this was type checked somehow or if string was coming from the Wasp API.
+        navigate(routes.ThoughtsRoute.build())
       } catch (err) {
         return window.alert('Error: ' + err.message)
       }

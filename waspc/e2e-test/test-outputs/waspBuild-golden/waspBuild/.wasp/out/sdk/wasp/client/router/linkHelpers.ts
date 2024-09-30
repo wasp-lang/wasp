@@ -17,6 +17,9 @@ export function interpolatePath(
 
 function interpolatePathParams(path: string, params: Params) {
   function mapPathPart(part: string) {
+    if (part === '*') {
+      return params['*'];
+    }
     if (part.startsWith(":")) {
       const paramName = extractParamNameFromPathPart(part);
       return params[paramName];

@@ -4,6 +4,7 @@ import type {
   RouteDefinitionsToRoutes,
   OptionalRouteOptions,
   ParamValue,
+  ExpandRouteOnOptionalStaticSegments,
 } from './types'
 
 // PUBLIC API
@@ -11,17 +12,35 @@ export const routes = {
   {=# routes =}
   {= name =}: {
     to: "{= urlPath =}",
-    {=#  hasUrlParams =}
+    {=# hasUrlParams =}
     build: (
-      options: {
-        params: {{=# urlParams =}{= name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}
-      } & OptionalRouteOptions,
-    ) => interpolatePath("{= urlPath =}", options.params, options?.search, options?.hash),
+      options: OptionalRouteOptions
+      & { params: {{=# urlParams =}"{= name =}"{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
+      {=# hasOptionalStaticSegments =}
+      & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
+      {=/ hasOptionalStaticSegments =}
+    ) => interpolatePath(
+        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        options.params,
+        options?.search,
+        options?.hash
+      ),
     {=/ hasUrlParams =}
     {=^ hasUrlParams =}
     build: (
-      options?: OptionalRouteOptions,
-    ) => interpolatePath("{= urlPath =}", undefined, options?.search, options?.hash),
+      options?:
+      OptionalRouteOptions
+      {=# hasOptionalStaticSegments =}
+      & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
+      {=/ hasOptionalStaticSegments =}
+    ) => interpolatePath(
+        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        undefined,
+        options?.search,
+        options?.hash
+      ),
     {=/ hasUrlParams =}
   },
   {=/ routes =}

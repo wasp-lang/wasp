@@ -15,6 +15,7 @@ Wasp supports username & password authentication out of the box with login and s
 ## Setting Up Username & Password Authentication
 
 To set up username authentication we need to:
+
 1. Enable username authentication in the Wasp file
 1. Add the `User` entity
 1. Add the auth routes and pages
@@ -58,6 +59,7 @@ app myApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -78,6 +80,7 @@ app myApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -99,6 +102,7 @@ model User {
   // ...
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -111,6 +115,7 @@ model User {
   // ...
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -136,6 +141,7 @@ page SignupPage {
   component: import { Signup } from "@src/pages/auth.jsx"
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -150,6 +156,7 @@ page SignupPage {
   component: import { Signup } from "@src/pages/auth.tsx"
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -179,7 +186,7 @@ export function Login() {
         Don't have an account yet? <Link to="/signup">go to signup</Link>.
       </span>
     </Layout>
-  );
+  )
 }
 
 export function Signup() {
@@ -191,22 +198,23 @@ export function Signup() {
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
     </Layout>
-  );
+  )
 }
 
 // A layout component to center the content
 export function Layout({ children }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -223,7 +231,7 @@ export function Login() {
         Don't have an account yet? <Link to="/signup">go to signup</Link>.
       </span>
     </Layout>
-  );
+  )
 }
 
 export function Signup() {
@@ -235,22 +243,23 @@ export function Signup() {
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
     </Layout>
-  );
+  )
 }
 
 // A layout component to center the content
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -271,23 +280,25 @@ The login and signup flows are pretty standard: they allow the user to sign up a
 Read more about the default username and password validation rules in the [auth overview docs](../auth/overview#default-validations).
 
 If you require more control in your authentication flow, you can achieve that in the following ways:
+
 1. Create your UI and use `signup` and `login` actions.
 1. Create your custom sign-up action which uses the lower-level API, along with your custom code.
 
 ### 1. Using the `signup` and `login` actions
 
 #### `login()`
+
 An action for logging in the user.
 
 It takes two arguments:
 
-  - `username: string` <Required />
+- `username: string` <Required />
 
-  Username of the user logging in.
+Username of the user logging in.
 
-  - `password: string` <Required />
+- `password: string` <Required />
 
-  Password of the user logging in.
+Password of the user logging in.
 
 You can use it like this:
 
@@ -298,31 +309,28 @@ You can use it like this:
 import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useHistory, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   async function handleSubmit(event) {
     event.preventDefault()
     try {
       await login(username, password)
-      history.push('/')
+      navigate('/')
     } catch (error) {
       setError(error)
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* ... */}
-    </form>
-  );
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -330,31 +338,28 @@ export function LoginPage() {
 import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useHistory, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     try {
       await login(username, password)
-      history.push('/')
+      navigate('/')
     } catch (error: unknown) {
       setError(error as Error)
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* ... */}
-    </form>
-  );
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -363,12 +368,15 @@ When using the exposed `login()` function, make sure to implement your redirect 
 :::
 
 #### `signup()`
+
 An action for signing up the user. This action does not log in the user, you still need to call `login()`.
 
 It takes one argument:
+
 - `userFields: object` <Required />
 
   It has the following fields:
+
   - `username: string` <Required />
 
   - `password: string` <Required />
@@ -386,14 +394,13 @@ You can use it like this:
 import { signup, login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export function Signup() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -403,19 +410,16 @@ export function Signup() {
         password,
       })
       await login(username, password)
-      history.push("/")
+      navigate('/')
     } catch (error) {
       setError(error)
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* ... */}
-    </form>
-  );
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -423,14 +427,13 @@ export function Signup() {
 import { signup, login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export function Signup() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -440,19 +443,16 @@ export function Signup() {
         password,
       })
       await login(username, password)
-      history.push("/")
+      navigate('/')
     } catch (error: unknown) {
       setError(error as Error)
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* ... */}
-    </form>
-  );
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -470,7 +470,6 @@ action customSignup {
   fn: import { signup } from "@src/auth/signup.js",
 }
 ```
-
 
 ```js title="src/auth/signup.js"
 import {
@@ -497,7 +496,7 @@ export const signup = async (args, _context) => {
       providerId,
       providerData,
       // Any additional data you want to store on the User entity
-      {},
+      {}
     )
   } catch (e) {
     return {
@@ -515,6 +514,7 @@ export const signup = async (args, _context) => {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -564,7 +564,7 @@ export const signup: CustomSignup<
       providerId,
       providerData,
       // Any additional data you want to store on the User entity
-      {},
+      {}
     )
   } catch (e) {
     return {
@@ -582,6 +582,7 @@ export const signup: CustomSignup<
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -603,7 +604,7 @@ We suggest using the built-in field validators for your authentication flow. You
 
   Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
 
-## Using Auth 
+## Using Auth
 
 To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../auth/overview).
 
@@ -641,6 +642,7 @@ model User {
   id Int @id @default(autoincrement())
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -665,6 +667,7 @@ model User {
   id Int @id @default(autoincrement())
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -693,6 +696,7 @@ app myApp {
 }
 // ...
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -714,6 +718,7 @@ app myApp {
 }
 // ...
 ```
+
 </TabItem>
 </Tabs>
 

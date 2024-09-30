@@ -9,6 +9,9 @@ export function interpolatePath(path, params, search, hash) {
 }
 function interpolatePathParams(path, params) {
     function mapPathPart(part) {
+        if (part === '*') {
+            return params['*'];
+        }
         if (part.startsWith(":")) {
             const paramName = extractParamNameFromPathPart(part);
             return params[paramName];
