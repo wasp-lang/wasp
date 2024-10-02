@@ -4,7 +4,6 @@
 
 ### 🎉 New Features
 
-- Experimental support for defining your app in pure Typescript or as we call it the Typescript SDK.
 - Upgrade to the latest Prisma version which makes Wasp faster!
 - Upgrade to the latest React Router version which sets us up for some cool new features in the future.
 

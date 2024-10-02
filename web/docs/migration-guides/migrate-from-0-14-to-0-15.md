@@ -4,11 +4,7 @@ title: Migration from 0.14.X to 0.15.X
 
 ## What's new in 0.15.0?
 
-Wasp 0.15.0 brings the experimental Typescript SDK and upgrades to some of Wasp's most important dependencies. Let's see what's new.
-
-### TS SDK for Wasp (preview)
-
-TODO: @sodic has to write this part
+Wasp 0.15.0 brings upgrades to some of Wasp's most important dependencies. Let's see what's new.
 
 ### Prisma 5
 
