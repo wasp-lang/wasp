@@ -37,7 +37,14 @@ import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
-import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, webAppRootDirInProjectRootDir, webAppSrcDirInWebAppRootDir)
+import Wasp.Generator.WebAppGenerator.Common
+  ( axiosVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactVersion,
+    webAppRootDirInProjectRootDir,
+    webAppSrcDirInWebAppRootDir,
+  )
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
@@ -116,15 +123,12 @@ npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("axios", "^1.4.0"),
-            ("react", "^18.2.0"),
-            ("react-dom", "^18.2.0"),
-            ("@tanstack/react-query", "^4.29.0"),
-            ("react-router-dom", show reactRouterVersion),
-            ("superjson", "^1.12.2"),
-            ("mitt", "3.0.0"),
-            -- Used for Auth UI
-            ("react-hook-form", "^7.45.4")
+          [ ("axios", show axiosVersion),
+            ("react", show reactVersion),
+            -- React and ReactDOM versions should always match.
+            ("react-dom", show reactVersion),
+            ("@tanstack/react-query", show reactQueryVersion),
+            ("react-router-dom", show reactRouterVersion)
           ],
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -134,6 +138,7 @@ npmDepsForWasp _spec =
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@vitejs/plugin-react", "^4.2.1"),
+            -- NOTE: used in the validat-env.mjs script
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions

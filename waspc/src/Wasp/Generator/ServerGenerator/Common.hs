@@ -19,6 +19,7 @@ module Wasp.Generator.ServerGenerator.Common
     ServerTemplatesSrcDir,
     defaultDevServerUrl,
     defaultServerPort,
+    expressVersionStr,
   )
 where
 
@@ -132,3 +133,8 @@ defaultServerPort = 3001
 
 defaultDevServerUrl :: String
 defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+
+-- TODO: update this to use Wasp.SemanticVersion when we'll have support
+-- for patch versions
+expressVersionStr :: String
+expressVersionStr = "~4.21.0"

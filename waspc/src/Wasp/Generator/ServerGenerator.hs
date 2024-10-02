@@ -38,6 +38,7 @@ import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
+    superjsonVersion,
   )
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
@@ -45,6 +46,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.Common (expressVersionStr)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
@@ -145,12 +147,12 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("express", "~4.18.1"),
+            ("express", expressVersionStr),
             ("morgan", "~1.10.0"),
-            ("dotenv", "16.0.2"),
+            ("dotenv", "^16.0.2"),
             ("helmet", "^6.0.0"),
             ("rate-limiter-flexible", "^2.4.1"),
-            ("superjson", "^1.12.2")
+            ("superjson", show superjsonVersion)
           ]
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
