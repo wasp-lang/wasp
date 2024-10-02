@@ -22,6 +22,7 @@ Read more about them in the migration guide: https://wasp-lang.dev/docs/migratio
 ### 🔧 Small improvements
 
 - Enable users to use Mailgun's EU region by setting the `MAILGUN_API_URL` env variable.
+- Validate `userEntity` ID field's `@default` attribute.
 
 Community contributions by @Case-E @therumbler
 
