@@ -8,6 +8,7 @@ module Wasp.Generator.Common
     DbRootDir,
     prismaVersion,
     superjsonVersion,
+    typescriptVersion,
     makeJsonWithEntityData,
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
@@ -60,6 +61,9 @@ prismaVersion = SV.Version 5 19 1
 
 superjsonVersion :: SV.ComparatorSet
 superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
+
+typescriptVersion :: SV.ComparatorSet
+typescriptVersion = SV.backwardsCompatibleWith $ SV.Version 5 1 0
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =

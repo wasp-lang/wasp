@@ -46,6 +46,7 @@ instance Show Operator where
   show GreaterThan = ">"
   show GreaterThanOrEqual = ">="
 
+-- TODO: implement the rest of the Advanved Range Syntax (i.e. tilde): https://github.com/npm/node-semver?tab=readme-ov-file#advanced-range-syntax
 data Comparator
   = PrimitiveComparator Operator Version
   | BackwardsCompatibleWith Version

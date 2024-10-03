@@ -20,6 +20,7 @@ module Wasp.Generator.ServerGenerator.Common
     defaultDevServerUrl,
     defaultServerPort,
     expressVersionStr,
+    expressTypesVersion,
   )
 where
 
@@ -36,6 +37,7 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.SemanticVersion as SV
 
 data ServerSrcDir
 
@@ -138,3 +140,6 @@ defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
 -- for patch versions
 expressVersionStr :: String
 expressVersionStr = "~4.21.0"
+
+expressTypesVersion :: SV.ComparatorSet
+expressTypesVersion = SV.backwardsCompatibleWith $ SV.Version 4 17 13

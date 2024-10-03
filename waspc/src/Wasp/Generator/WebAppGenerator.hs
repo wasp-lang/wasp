@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.Common (makeJsArrayFromHaskellList)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.JsImport (jsImportToImportJson)
@@ -134,11 +134,11 @@ npmDepsForWasp _spec =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^5.1.0"),
+            ("typescript", show typescriptVersion),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@vitejs/plugin-react", "^4.2.1"),
-            -- NOTE: used in the validat-env.mjs script
+            -- NOTE: used in the validate-env.mjs script
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions

@@ -58,7 +58,6 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common
   ( axiosVersion,
@@ -193,7 +192,7 @@ npmDepsForSdk spec =
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),
-            ("express", expressVersionStr),
+            ("express", Server.expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
             ("lodash.merge", "^4.6.2"),
@@ -223,7 +222,7 @@ npmDepsForSdk spec =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             -- Should @types/* go into their package.json?
-            ("@types/express-serve-static-core", "^4.17.13")
+            ("@types/express-serve-static-core", show Server.expressTypesVersion)
           ]
     }
   where
