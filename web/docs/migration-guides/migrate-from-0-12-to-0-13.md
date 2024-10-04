@@ -42,7 +42,7 @@ Follow the steps below to migrate:
 
     If you are migrating a deployed app, you will need to define the `WASP_SERVER_URL` server env variable in your deployment environment.
 
-    Read more about setting env variables in production [here](./project/env-vars#defining-env-vars-in-production).
+    Read more about setting env variables in production [here](../project/env-vars#defining-env-vars-in-production).
    :::
 
 2. **Update the redirect URLs** for the OAuth providers
@@ -64,7 +64,7 @@ Follow the steps below to migrate:
     </TabItem>
     </Tabs>
 
-    Check the new redirect URLs for [Google](./auth/social-auth/google.md#3-creating-a-google-oauth-app) and [GitHub](./auth/social-auth/github.md#3-creating-a-github-oauth-app) in Wasp's docs.
+    Check the new redirect URLs for [Google](../auth/social-auth/google.md#3-creating-a-google-oauth-app) and [GitHub](../auth/social-auth/github.md#3-creating-a-github-oauth-app) in Wasp's docs.
 
 3. **Update the `configFn`** for the OAuth providers
 
@@ -129,7 +129,7 @@ Follow the steps below to migrate:
     </TabItem>
     </Tabs>
 
-    Wasp now directly forwards what it receives from the OAuth providers. You can check the data format for [Google](./auth/social-auth/google.md#data-received-from-google) and [GitHub](./auth/social-auth/github.md#data-received-from-github) in Wasp's docs.
+    Wasp now directly forwards what it receives from the OAuth providers. You can check the data format for [Google](../auth/social-auth/google.md#data-received-from-google) and [GitHub](../auth/social-auth/github.md#data-received-from-github) in Wasp's docs.
 
 That's it!
 

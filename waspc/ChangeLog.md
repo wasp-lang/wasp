@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.15.0
+
+### 🎉 New Features
+
+- Upgrade to the latest Prisma version which makes Wasp faster!
+- Upgrade to the latest React Router version which sets us up for some cool new features in the future.
+
+### ⚠️ Breaking Changes
+
+There are some breaking changes with React Router 6 which will require you to update your code.
+
+Read more about them in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15
+
+### 🐞 Bug fixes
+
+- Allow setting a custom server URL when deploying to Fly.io. (by @Case-E)
+- If the user uses native DB types for the `userEntity`, Wasp will use them correctly.
+
+### 🔧 Small improvements
+
+- Enable users to use Mailgun's EU region by setting the `MAILGUN_API_URL` env variable.
+- Validate `userEntity` ID field's `@default` attribute.
+
+Community contributions by @Case-E @therumbler
+
 ## 0.14.2 (2024-09-09)
 
 Updated GPT models used in Wasp AI to latest models, since 3.5 are getting deprecated.
