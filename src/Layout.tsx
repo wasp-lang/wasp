@@ -1,4 +1,8 @@
-import { logout, useAuth, googleSignInUrl as signInUrl } from "wasp/client/auth";
+import {
+  logout,
+  useAuth,
+  googleSignInUrl as signInUrl,
+} from "wasp/client/auth";
 import {
   NextUIProvider,
   Navbar,
@@ -8,9 +12,10 @@ import {
   Link,
   Button,
 } from "@nextui-org/react";
+import { Outlet } from "react-router-dom";
 import "./Main.css";
 
-export function Layout({ children }: React.PropsWithChildren<{}>) {
+export function Layout() {
   const { data: user } = useAuth();
 
   const loginButton = (
@@ -36,7 +41,7 @@ export function Layout({ children }: React.PropsWithChildren<{}>) {
             <NavbarItem>{user ? logoutButton : loginButton}</NavbarItem>
           </NavbarContent>
         </Navbar>
-        {children}
+        <Outlet />
       </div>
     </NextUIProvider>
   );
