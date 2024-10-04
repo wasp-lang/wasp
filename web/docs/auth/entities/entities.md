@@ -190,7 +190,7 @@ We'll mention the `auth` and the `identities` relations which we will explain in
 
 :::caution Be careful about sensitive data
 
-You'll need to include the `auth` and the `identities` relations to get the full auth data about the user. However, you should keep in mind that the `providerData` field in the `identities` can contain sensitive data like the user's hashed password (in case of email or username auth), so you will likely want to exclude it if you are returning those values to the client. 
+You'll need to include the `auth` and the `identities` relations to get the full auth data about the user. However, you should keep in mind that the `providerData` field in the `identities` can contain sensitive data like the user's hashed password (in case of email or username auth), so you will likely want to exclude it if you are returning those values to the client.
 
 :::
 
@@ -410,7 +410,7 @@ function MainPage() {
 
 #### `getFirstProviderUserId`
 
-It returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID.  The `user` object needs to have the `auth` and the `identities` relations included.
+It returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID. The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -470,7 +470,7 @@ For example, you might set it to `User`:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -490,9 +490,9 @@ model User {
 }
 ```
 
-The `User` entity is a "business logic user" which represents a user of your app. 
+The `User` entity is a "business logic user" which represents a user of your app.
 
-You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. 
+You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address.
 
 You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
 

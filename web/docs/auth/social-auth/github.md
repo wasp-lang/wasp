@@ -11,7 +11,7 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
-import GithubData from '../entities/_github-data.md';
+import GithubData from '../entities/\_github-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 
 Wasp supports Github Authentication out of the box.
@@ -43,7 +43,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -68,7 +68,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -213,9 +213,9 @@ export function Login() {
 // A layout component to center the content
 export function Layout({ children }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
@@ -241,9 +241,9 @@ export function Login() {
 // A layout component to center the content
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
@@ -276,7 +276,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -296,7 +296,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -339,7 +339,7 @@ The data we receive from GitHub on the `/user` endpoint looks something this:
   "id": 1,
   "name": "monalisa octocat",
   "avatar_url": "https://github.com/images/error/octocat_happy.gif",
-  "gravatar_id": "",
+  "gravatar_id": ""
   // ...
 }
 ```
@@ -374,7 +374,7 @@ For an up to date info about the data received from GitHub, please refer to the 
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -404,14 +404,14 @@ model User {
 
 ```js title=src/auth/github.js
 export const userSignupFields = {
-  username: () => "hardcoded-username",
+  username: () => 'hardcoded-username',
   displayName: (data) => data.profile.name,
-};
+}
 
 export function getConfig() {
   return {
     scopes: ['user'],
-  };
+  }
 }
 ```
 
@@ -421,7 +421,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -453,7 +453,7 @@ model User {
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
-  username: () => "hardcoded-username",
+  username: () => 'hardcoded-username',
   displayName: (data: any) => data.profile.name,
 })
 
@@ -489,7 +489,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -513,7 +513,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -568,5 +568,5 @@ The `gitHub` dict has the following properties:
 - #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />
-  
+
   Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).

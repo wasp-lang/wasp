@@ -11,7 +11,7 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
-import KeycloakData from '../entities/_keycloak-data.md';
+import KeycloakData from '../entities/\_keycloak-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 
 Wasp supports Keycloak Authentication out of the box.
@@ -42,7 +42,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -65,7 +65,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -125,19 +125,19 @@ model User {
 1. Log into your Keycloak admin console.
 1. Under **Clients**, click on **Create Client**.
 
-  ![Keycloak Screenshot 1](/img/auth/keycloak/1-keycloak.png)
+![Keycloak Screenshot 1](/img/auth/keycloak/1-keycloak.png)
 
 1. Fill in the **Client ID** and choose a name for the client.
 
-  ![Keycloak Screenshot 2](/img/auth/keycloak/2-keycloak.png)
+![Keycloak Screenshot 2](/img/auth/keycloak/2-keycloak.png)
 
 1. In the next step, enable **Client Authentication**.
 
-  ![Keycloak Screenshot 3](/img/auth/keycloak/3-keycloak.png)
+![Keycloak Screenshot 3](/img/auth/keycloak/3-keycloak.png)
 
 1. Under **Valid Redirect URIs**, add `http://localhost:3001/auth/keycloak/callback` for local development.
 
-  ![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
+![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
 
     - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
     - For example: `https://my-server-url.com/auth/keycloak/callback`.
@@ -145,7 +145,7 @@ model User {
 1. Click **Save**.
 1. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.
 
-  ![Keycloak Screenshot 5](/img/auth/keycloak/5-keycloak.png)
+![Keycloak Screenshot 5](/img/auth/keycloak/5-keycloak.png)
 
 ### 4. Adding Environment Variables
 
@@ -220,9 +220,9 @@ export function Login() {
 // A layout component to center the content
 export function Layout({ children }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
@@ -248,9 +248,9 @@ export function Login() {
 // A layout component to center the content
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
@@ -283,7 +283,7 @@ Add `keycloak: {}` to the `auth.methods` dictionary to use it with default setti
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -303,7 +303,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -359,7 +359,7 @@ For up-to-date info about the data received from Keycloak, please refer to the [
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -389,7 +389,7 @@ model User {
 
 ```js title=src/auth/keycloak.js
 export const userSignupFields = {
-  username: () => "hardcoded-username",
+  username: () => 'hardcoded-username',
   displayName: (data) => data.profile.name,
 }
 
@@ -406,7 +406,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -438,7 +438,7 @@ model User {
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
-  username: () => "hardcoded-username",
+  username: () => 'hardcoded-username',
   displayName: (data: any) => data.profile.name,
 })
 
@@ -474,7 +474,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -498,7 +498,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -553,5 +553,5 @@ The `keycloak` dict has the following properties:
 - #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />
-  
+
   Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).
