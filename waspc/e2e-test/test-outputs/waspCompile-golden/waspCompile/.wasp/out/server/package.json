@@ -3,12 +3,11 @@
   "dependencies": {
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "16.0.2",
-    "express": "~4.18.1",
+    "dotenv": "^16.0.2",
+    "express": "~4.21.0",
     "helmet": "^6.0.0",
     "morgan": "~1.10.0",
-    "rate-limiter-flexible": "^2.4.1",
-    "superjson": "^1.12.2"
+    "superjson": "^2.2.1"
   },
   "devDependencies": {
     "@tsconfig/node18": "latest",
@@ -18,8 +17,7 @@
     "@types/node": "^18.0.0",
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "standard": "^17.0.0"
+    "rollup-plugin-esbuild": "^6.1.1"
   },
   "engineStrict": true,
   "engines": {
@@ -36,7 +34,6 @@
     "bundle-and-start": "npm run bundle && npm run start",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
-    "standard": "standard",
     "start": "npm run validate-env && node --enable-source-maps -r dotenv/config bundle/server.js",
     "start-production": "NODE_ENV=production npm run start",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",

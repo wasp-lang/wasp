@@ -26,7 +26,12 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import Wasp.Generator.Common (ProjectRootDir, makeJsonWithEntityData, prismaVersion)
+import Wasp.Generator.Common
+  ( ProjectRootDir,
+    makeJsonWithEntityData,
+    prismaVersion,
+    superjsonVersion,
+  )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -54,7 +59,12 @@ import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
+import Wasp.Generator.WebAppGenerator.Common
+  ( axiosVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactVersion,
+  )
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
@@ -180,15 +190,15 @@ npmDepsForSdk spec =
         AS.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
-            ("@tanstack/react-query", "^4.29.0"),
-            ("axios", "^1.4.0"),
-            ("express", "~4.18.1"),
+            ("@tanstack/react-query", show reactQueryVersion),
+            ("axios", show axiosVersion),
+            ("express", Server.expressVersionStr),
             ("mitt", "3.0.0"),
-            ("react", "^18.2.0"),
+            ("react", show reactVersion),
             ("lodash.merge", "^4.6.2"),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
-            ("superjson", "^1.12.2")
+            ("superjson", show superjsonVersion)
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
@@ -212,7 +222,7 @@ npmDepsForSdk spec =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             -- Should @types/* go into their package.json?
-            ("@types/express-serve-static-core", "^4.17.13")
+            ("@types/express-serve-static-core", show Server.expressTypesVersion)
           ]
     }
   where
