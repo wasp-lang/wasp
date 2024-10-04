@@ -38,7 +38,7 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   // highlight-start
   title: "TodoApp",
@@ -274,7 +274,6 @@ wasp db studio
 src={useBaseUrl('img/wasp_user_in_db.gif')}
 style={{ border: "1px solid black" }}
 />
-
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
