@@ -38,6 +38,8 @@ import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
+    superjsonVersion,
+    typescriptVersion,
   )
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
@@ -45,6 +47,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.Common (expressTypesVersion, expressVersionStr)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
@@ -145,23 +148,21 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("express", "~4.18.1"),
+            ("express", expressVersionStr),
             ("morgan", "~1.10.0"),
-            ("dotenv", "16.0.2"),
+            ("dotenv", "^16.0.2"),
             ("helmet", "^6.0.0"),
-            ("rate-limiter-flexible", "^2.4.1"),
-            ("superjson", "^1.12.2")
+            ("superjson", show superjsonVersion)
           ]
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
-            ("standard", "^17.0.0"),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^5.1.0"),
-            ("@types/express", "^4.17.13"),
-            ("@types/express-serve-static-core", "^4.17.13"),
+            ("typescript", show typescriptVersion),
+            ("@types/express", show expressTypesVersion),
+            ("@types/express-serve-static-core", show expressTypesVersion),
             ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/cors", "^2.8.5"),
