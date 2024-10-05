@@ -277,6 +277,8 @@ or
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
+Please note, you should do this for every deployment, not just the first time you set up the variables!
+
 ### Fly.io Regions
 
 > Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
