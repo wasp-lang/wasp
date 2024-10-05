@@ -76,8 +76,9 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
 packageJsonInWaspProjectDir = [relfile|package.json|]
 
+-- TODO: Do this properly
 tsConfigInWaspProjectDir :: Path' (Rel WaspProjectDir) (File TsConfigFile)
-tsConfigInWaspProjectDir = [relfile|tsconfig.json|]
+tsConfigInWaspProjectDir = [relfile|tsconfig.app.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
