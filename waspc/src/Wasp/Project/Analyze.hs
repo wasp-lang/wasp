@@ -11,7 +11,7 @@ import Control.Applicative ((<|>))
 import Control.Arrow (ArrowChoice (left))
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (ExceptT (..), runExceptT)
+import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
@@ -105,7 +105,7 @@ analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
   -- because we also need that knowledge when generating a TS SDK project.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.node.json|] waspFilePath
   declsJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
-  ExceptT $ readDeclsFromJsonFile declsJsonFile
+  ExceptT $ readDecls prismaSchemaAst declsJsonFile
 
 compileWaspTsFile ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -174,12 +174,22 @@ executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile =
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
     allowedEntityNames = Psl.Schema.getModelNames prismaSchemaAst
 
-readDeclsFromJsonFile :: Path' Abs (File DeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
-readDeclsFromJsonFile declsJsonFile = do
-  declsBytestring <- IOUtil.readFileBytes declsJsonFile
-  case Aeson.eitherDecode declsBytestring of
-    Right value -> return $ Right value
-    Left err -> return $ Left ["Error while parsing the declarations from JSON: " ++ err]
+readDecls :: Psl.Schema.Schema -> Path' Abs (File DeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
+readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
+  entityDecls <- liftEither entityDeclsOrErrors
+  remainingDecls <- ExceptT declsFromJsonOrError
+  return $ entityDecls ++ remainingDecls
+  where
+    entityDeclsOrErrors =
+      left (map fst) $
+        left (map getErrorMessageAndCtx) $
+          Analyzer.getEntityDecls prismaSchemaAst
+
+    declsFromJsonOrError = do
+      declsBytestring <- IOUtil.readFileBytes declsJsonFile
+      return $ case Aeson.eitherDecode declsBytestring of
+        Left err -> Left ["Error while parsing the declarations from JSON: " ++ err]
+        Right value -> Right value
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do

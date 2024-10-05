@@ -12,8 +12,10 @@ where
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
 import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
+import Data.List (stripPrefix)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel, parseRelFileP)
+import qualified StrongPath as SP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 
 data ExtImport = ExtImport
@@ -30,17 +32,15 @@ instance FromJSON ExtImport where
     nameStr <- o .: "name"
     pathStr <- o .: "path"
     extImportName <- parseExtImportName kindStr nameStr
-    extImportPath <- parseExtImportPath pathStr
+    extImportPath <- case parseExtImportPath pathStr of
+      Right path' -> pure path'
+      Left err -> fail err
     return $ ExtImport extImportName extImportPath
     where
       parseExtImportName kindStr nameStr = case kindStr of
         "default" -> pure $ ExtImportModule nameStr
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
-
-      parseExtImportPath pathStr = case parseRelFileP pathStr of
-        Just path' -> pure path'
-        Nothing -> fail $ "Failed to parse relative posix path to file: " <> pathStr
 
 type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
@@ -57,3 +57,23 @@ importIdentifier :: ExtImport -> Identifier
 importIdentifier (ExtImport importName _) = case importName of
   ExtImportModule n -> n
   ExtImportField n -> n
+
+-- TODO: Remove duplication
+parseExtImportPath :: String -> Either String ExtImportPath
+parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
+  Just relFileFP -> case SP.parseRelFileP relFileFP of
+    Left err -> Left $ "Failed to parse relative posix path to file: " ++ show err
+    Right path' -> Right path'
+  Nothing -> Left $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
+  where
+    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
+    -- Filip: We no longer want separation between client and server code
+    -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
+    -- For now, as we'd like (expect):
+    --   - Nodemon watches all files in the user's source folder (client files
+    --   included), but tsc only compiles the server files (I think because it
+    --   knows that the others aren't used). I am not yet sure how it knows this.
+    --   - Vite also only triggers on client files. I am not sure how it knows
+    --   about the difference either.
+    -- todo (filip): investigate
+    extSrcPrefix = "@src/"

@@ -111,6 +111,7 @@ module Wasp.Analyzer
 
     -- * API
     analyze,
+    getEntityDecls,
     takeDecls,
     AnalyzeError (..),
     getErrorMessageAndCtx,
@@ -127,8 +128,9 @@ import Wasp.Analyzer.AnalyzeError
   )
 import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
 import Wasp.Analyzer.Parser (parseStatements)
+import qualified Wasp.Analyzer.Parser as Parser
 import Wasp.Analyzer.Parser.Valid (validateAst)
-import Wasp.Analyzer.Prisma (injectEntitiesFromPrismaSchema)
+import Wasp.Analyzer.Prisma (injectEntitiesFromPrismaSchema, parseEntityStatements)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -157,7 +159,18 @@ analyze prismaSchemaAst =
           ^ disallow entities here
                                                         ^ inject entities here
     --}
-    >=> (left ((: []) . ValidationError) . validateAst)
+    >=> wrapAnalyzerError ValidationError . validateAst
     >=> injectEntitiesFromPrismaSchema prismaSchemaAst
-    >=> (left ((: []) . TypeError) . typeCheck stdTypes)
-    >=> (left ((: []) . EvaluationError) . evaluate stdTypes)
+    >=> (wrapAnalyzerError TypeError . typeCheck stdTypes)
+    >=> (wrapAnalyzerError EvaluationError . evaluate stdTypes)
+
+getEntityDecls :: Psl.Schema.Schema -> Either [AnalyzeError] [Decl]
+getEntityDecls schema =
+  wrapAnalyzerError TypeError (typeCheck stdTypes ast)
+    >>= (wrapAnalyzerError EvaluationError . evaluate stdTypes)
+  where
+    entityStatements = parseEntityStatements schema
+    ast = Parser.AST entityStatements
+
+wrapAnalyzerError :: (e -> AnalyzeError) -> Either e a -> Either [AnalyzeError] a
+wrapAnalyzerError makeError = left ((: []) . makeError)
