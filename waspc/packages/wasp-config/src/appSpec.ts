@@ -8,28 +8,31 @@ export type Decl =
   | { declType: 'Query'; declName: string; declValue: Query }
   | { declType: 'Action'; declName: string; declValue: Action }
   | { declType: 'App'; declName: string; declValue: App }
-  | { declType: 'Entity'; declName: string; declValue: Entity }
   | { declType: 'Job'; declName: string; declValue: Job }
   | { declType: 'Api'; declName: string; declValue: Api }
   | { declType: 'ApiNamespace'; declName: string; declValue: ApiNamespace }
   | { declType: 'Crud'; declName: string; declValue: Crud }
 
-export type TypeChecker<T extends Decl['declType']> = (
+// NOTE: Entities are defined in the schema.prisma file, but they can still be
+// referenced.
+type DeclType = Decl['declType'] | 'Entity'
+
+export type RefParser<T extends DeclType> = (
   potentialReferences: string
 ) => Ref<T>
 
-export function makeTypeChecker<T extends Decl['declType']>(
+export function makeRefParser<T extends DeclType>(
   declType: T,
   declNames: string[]
-): TypeChecker<T> {
-  return (potentialReference: string): Ref<T> => {
-    console.log({ potentialReference, declNames })
-    if (!declNames.includes(potentialReference)) {
-      console.log(`Invalid ${declType} reference: ${potentialReference}`)
-      throw new Error(`Invalid ${declType} reference: ${potentialReference}`)
+): RefParser<T> {
+  return (potentialRef: string): Ref<T> => {
+    console.log({ potentialReference: potentialRef, declNames })
+    if (!declNames.includes(potentialRef)) {
+      console.log(`Invalid ${declType} reference: ${potentialRef}`)
+      throw new Error(`Invalid ${declType} reference: ${potentialRef}`)
     }
     return {
-      name: potentialReference,
+      name: potentialRef,
       declType,
     } as Ref<T>
   }
@@ -199,7 +202,7 @@ export type PasswordResetConfig = {
   clientRoute: Ref<'Route'>
 }
 
-export type Ref<T extends Decl['declType']> = {
+export type Ref<T extends DeclType> = {
   name: string
   declType: T
 }

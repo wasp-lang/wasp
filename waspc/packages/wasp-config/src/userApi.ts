@@ -38,17 +38,11 @@ export type RouteConfig = {
   to: PageName
 }
 
-// Do the trick with brands and symbols
-const pageBrand = Symbol('Page')
-
-type PageName = string & { _brand: typeof pageBrand }
-
-// TODO: I have to pull this out of the schema.prisma somehow
-type Entity = string
+type PageName = string & { _brand: 'Page' }
 
 export type ActionConfig = {
   fn: ExtImport
-  entities: Entity[]
+  entities: string[]
   auth?: boolean
 }
 
@@ -60,7 +54,7 @@ export type ApiNamespaceConfig = {
 export type ApiConfig = {
   fn: ExtImport
   middlewareConfigFn?: ExtImport
-  entities: Entity[]
+  entities: string[]
   httpRoute: AppSpec.HttpRoute[]
   auth?: boolean
 }
@@ -69,7 +63,7 @@ export type JobConfig = {
   executor: AppSpec.JobExecutor
   perform: Perform
   schedule?: ScheduleConfig
-  entities: Entity[]
+  entities: string[]
 }
 
 export type Crud = {
@@ -108,8 +102,8 @@ type ExecutorOptions = {
 
 export type QueryConfig = {
   fn: ExtImport
-  entities: Entity[]
-  auth: boolean
+  entities: string[]
+  auth?: boolean
 }
 
 export type EmailSenderConfig = AppSpec.EmailSender
@@ -157,8 +151,7 @@ export type EmailSender = {
   defaultFrom?: EmailFromField
 }
 
-// TODO: duplication
-export type EmailProvider = 'SMTP' | 'SendGrid' | 'Mailgun' | 'Dummy'
+export type EmailProvider = AppSpec.EmailProvider
 
 export type EmailFromField = {
   name?: string
@@ -175,10 +168,8 @@ export type PasswordResetConfig = {
   clientRoute: string
 }
 
-// TODO: Treat user-facing config objects and spec objects differently
 export type UserSpec = {
   app: { name: string; config: AppConfig }
-  // TODO: handle this one too
   actions: Map<string, ActionConfig>
   apiNamespaces: Map<string, ApiNamespaceConfig>
   apis: Map<string, ApiConfig>
@@ -224,7 +215,6 @@ export class App {
   }
 
   // TODO: Enforce that all methods are covered in compile time
-
   action(this: App, name: string, config: ActionConfig): void {
     this.spec.actions.set(name, config)
   }
