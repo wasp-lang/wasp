@@ -10,7 +10,7 @@ import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
-import Wasp.Project.Analyze (WaspFile (..), findWaspFile)
+import Wasp.Project.Analyze (WaspFile (..), WaspFilePath (..), findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import qualified Wasp.Util.IO as IOUtil
@@ -27,9 +27,9 @@ replaceTemplatePlaceholdersInWaspFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
-    Nothing -> return ()
-    Just (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
-    Just (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
+    Left _error -> return ()
+    Right (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
+    Right (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
   where
     replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk appName projectName
 
