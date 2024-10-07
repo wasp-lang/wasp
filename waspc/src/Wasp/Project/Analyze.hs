@@ -7,7 +7,6 @@ module Wasp.Project.Analyze
   )
 where
 
-import Control.Applicative ((<|>))
 import Control.Arrow (ArrowChoice (left))
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
@@ -52,7 +51,6 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Valid as PslV
-import Wasp.Util (maybeToEither)
 import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.StrongPath (replaceRelExtension)
@@ -64,7 +62,7 @@ analyzeWaspProject ::
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 analyzeWaspProject waspDir options = do
-  waspFilePathOrError <- maybeToEither [fileNotFoundMessage] <$> findWaspFile waspDir
+  waspFilePathOrError <- left (: []) <$> findWaspFile waspDir
 
   case waspFilePathOrError of
     Left err -> return (Left err, [])
@@ -79,8 +77,6 @@ analyzeWaspProject waspDir options = do
               EC.analyzeExternalConfigs waspDir >>= \case
                 Left errors -> return (Left errors, [])
                 Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
-  where
-    fileNotFoundMessage = "Couldn't find the *.wasp file in the " ++ toFilePath waspDir ++ " directory"
 
 data WaspFile
   = WaspLang !(Path' Abs (File WaspLangFile))
@@ -242,14 +238,22 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
 
   return $ runValidation ASV.validateAppSpec appSpec
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe WaspFile)
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFile)
 findWaspFile waspDir = do
   files <- fst <$> IOUtil.listDirectory waspDir
-  return $ findWaspTsFile files <|> findWaspLangFile files
+  return $ case (findWaspTsFile files, findWaspLangFile files) of
+    (Just _, Just _) -> Left bothFilesFoundMessage
+    (Nothing, Nothing) -> Left fileNotFoundMessage
+    (Just waspTsFile, Nothing) -> Right waspTsFile
+    (Nothing, Just waspLangFile) -> Right waspLangFile
   where
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
     findFileThatEndsWith suffix files = SP.castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
+    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.mts file in the " ++ toFilePath waspDir ++ " directory"
+    bothFilesFoundMessage =
+      "Found both *.wasp and *.wasp.mts files in the project directory. "
+        ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
 
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do
