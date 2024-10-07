@@ -3,7 +3,7 @@ module Wasp.Project.Analyze
     analyzeWaspFileContent,
     findWaspFile,
     analyzePrismaSchema,
-    WaspFile (..),
+    WaspFilePath (..),
   )
 where
 
@@ -14,7 +14,21 @@ import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File, File', Path', Rel, basename, castFile, fromAbsFile, relfile, toFilePath, (</>))
+import StrongPath
+  ( Abs,
+    Dir,
+    File,
+    File',
+    Path',
+    Rel,
+    basename,
+    castFile,
+    fromAbsDir,
+    fromAbsFile,
+    fromRelFile,
+    relfile,
+    (</>),
+  )
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
@@ -75,7 +89,7 @@ analyzeWaspProject waspDir options = do
                 Left errors -> return (Left errors, [])
                 Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
 
-data WaspFile
+data WaspFilePath
   = WaspLang !(Path' Abs (File WaspLangFile))
   | WaspTs !(Path' Abs (File WaspTsFile))
 
@@ -87,7 +101,7 @@ data CompiledWaspJsFile
 
 data AppSpecDeclsJsonFile
 
-analyzeWaspFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> WaspFile -> IO (Either [CompileError] [AS.Decl])
+analyzeWaspFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> WaspFilePath -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFile waspDir prismaSchemaAst = \case
   WaspLang waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
   WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
@@ -97,7 +111,7 @@ analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
   -- TODO: I'm not yet sure where tsconfig.node.json location should come from
   -- because we also need that knowledge when generating a TS SDK project.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
-  declsJsonFile <- ExceptT $ executeMainWaspJsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
+  declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
 
 compileWaspTsFile ::
@@ -115,31 +129,31 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
           "npx"
           [ "tsc",
             "-p",
-            toFilePath (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
+            fromAbsFile (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
             "--noEmit",
             "false",
             "--outDir",
-            toFilePath outDir
+            fromAbsDir outDir
           ]
           J.Wasp
           chan
       )
-  case tscExitCode of
-    ExitFailure _status -> return $ Left ["Got TypeScript compiler errors for " ++ toFilePath waspFilePath ++ "."]
-    ExitSuccess -> return $ Right absCompiledWaspJsFile
+  return $ case tscExitCode of
+    ExitFailure _status -> Left ["Got TypeScript compiler errors for " ++ fromAbsFile waspFilePath ++ "."]
+    ExitSuccess -> Right absCompiledWaspJsFile
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
     compiledWaspJsFileInDotWaspDir = castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
       Just path -> path
-      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ toFilePath waspFilePath ++ "."
+      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ "."
 
-executeMainWaspJsFile ::
+executeMainWaspJsFileAndGetDeclsFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Psl.Schema.Schema ->
   Path' Abs (File CompiledWaspJsFile) ->
   IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
-executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
+executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
@@ -170,7 +184,7 @@ executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile =
 readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
   entityDecls <- liftEither entityDeclsOrErrors
-  remainingDecls <- ExceptT declsFromJsonOrError
+  remainingDecls <- ExceptT $ left (: []) <$> declsFromJsonOrError
   return $ entityDecls ++ remainingDecls
   where
     entityDeclsOrErrors =
@@ -180,9 +194,9 @@ readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
 
     declsFromJsonOrError = do
       declsBytestring <- IOUtil.readFileBytes declsJsonFile
-      return $ case Aeson.eitherDecode declsBytestring of
-        Left err -> Left ["Error while parsing the declarations from JSON: " ++ err]
-        Right value -> Right value
+      return $
+        left ("Error while reading the declarations from JSON: " ++) $
+          Aeson.eitherDecode declsBytestring
 
 analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspLangFile prismaSchemaAst waspFilePath = do
@@ -235,7 +249,7 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
 
   return $ runValidation ASV.validateAppSpec appSpec
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFile)
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
 findWaspFile waspDir = do
   files <- fst <$> IOUtil.listDirectory waspDir
   return $ case (findWaspTsFile files, findWaspLangFile files) of
@@ -246,8 +260,8 @@ findWaspFile waspDir = do
   where
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
-    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.mts file in the " ++ toFilePath waspDir ++ " directory"
+    findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . fromRelFile) files
+    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.mts file in the " ++ fromAbsDir waspDir ++ " directory"
     bothFilesFoundMessage =
       "Found both *.wasp and *.wasp.mts files in the project directory. "
         ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
@@ -269,7 +283,7 @@ analyzePrismaSchema waspProjectDir = do
     -- NOTE: linking here to migration docs because I think it's the most common reason why schema.prisma file is missing.
     -- After people mostly start using 0.14.0+ they will have schema.prisma file, so this message will be less relevant.
     -- If we see that this message is still relevant, we can change it to be more general.
-    couldntFindPrismaSchemaMessage = "Couldn't find the schema.prisma file in the " ++ toFilePath waspProjectDir ++ " directory. \nRead more: https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
+    couldntFindPrismaSchemaMessage = "Couldn't find the schema.prisma file in the " ++ fromAbsDir waspProjectDir ++ " directory. \nRead more: https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
 
 runValidation :: (result -> [ValidationError]) -> result -> (Either [CompileError] result, [CompileWarning])
 runValidation getErrorsAndWarnings result =
