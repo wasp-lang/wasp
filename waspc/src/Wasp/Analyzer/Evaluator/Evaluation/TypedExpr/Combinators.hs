@@ -155,7 +155,8 @@ tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> withCtx $
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
 extImport = evaluation' . withCtx $ \ctx -> \case
-  TypedAST.ExtImport name extImportPath -> 
+  TypedAST.ExtImport name extImportPath ->
+    -- NOTE(martin): This parsing here could instead be done in Parser.
     -- NOTE(martin): This parsing here could instead be done in Parser.
     --   I don't have a very good reason for doing it here instead of Parser, except
     --   for being somewhat simpler to implement.
