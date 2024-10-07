@@ -6,15 +6,17 @@ module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
     ExtImportName (..),
     importIdentifier,
+    parseExtImportPath,
   )
 where
 
+import Control.Arrow (left)
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
 import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
 import Data.List (stripPrefix)
 import GHC.Generics (Generic)
-import StrongPath (File', Path, Posix, Rel, parseRelFileP)
+import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 
@@ -58,13 +60,13 @@ importIdentifier (ExtImport importName _) = case importName of
   ExtImportModule n -> n
   ExtImportField n -> n
 
--- TODO: Remove duplication
 parseExtImportPath :: String -> Either String ExtImportPath
 parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
-  Just relFileFP -> case SP.parseRelFileP relFileFP of
-    Left err -> Left $ "Failed to parse relative posix path to file: " ++ show err
-    Right path' -> Right path'
   Nothing -> Left $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
+  Just relFileFP ->
+    left
+      (("Failed to parse relative posix path to file: " ++) . show)
+      $ SP.parseRelFileP relFileFP
   where
     stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
     -- Filip: We no longer want separation between client and server code

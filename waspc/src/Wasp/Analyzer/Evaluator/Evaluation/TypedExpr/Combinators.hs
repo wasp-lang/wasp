@@ -155,34 +155,18 @@ tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> withCtx $
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
 extImport = evaluation' . withCtx $ \ctx -> \case
-  TypedAST.ExtImport name extImportPath ->
+  TypedAST.ExtImport name extImportPath -> 
     -- NOTE(martin): This parsing here could instead be done in Parser.
     --   I don't have a very good reason for doing it here instead of Parser, except
     --   for being somewhat simpler to implement.
     --   So we might want to move it to Parser at some point in the future, if we
     --   figure out that is better (it sounds/feels like it could be).
-    case stripImportPrefix extImportPath of
-      Just relFileFP -> case SP.parseRelFileP relFileFP of
-        Left err -> mkParseError ctx $ show err
-        Right relFileSP -> pure $ AppSpec.ExtImport.ExtImport name relFileSP
-      Nothing ->
-        mkParseError
-          ctx
-          $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
+    case AppSpec.ExtImport.parseExtImportPath extImportPath of
+      Left err -> mkParseError ctx err
+      Right importPath -> pure $ AppSpec.ExtImport.ExtImport name importPath
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
   where
     mkParseError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg
-    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
-    -- Filip: We no longer want separation between client and server code
-    -- todo (filip): Do we still want to know whic is which. We might (because of the reloading).
-    -- For now, as we'd like (expect):
-    --   - Nodemon watches all files in the user's source folder (client files
-    --   included), but tsc only compiles the server files (I think because it
-    --   knows that the others aren't used). I am not yet sure how it knows this.
-    --   - Vite also only triggers on client files. I am not sure how it knows
-    --   about the difference either.
-    -- todo (filip): investigate
-    extSrcPrefix = "@src/"
 
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON
