@@ -1,5 +1,8 @@
-// TODO: This whole file is not DRY, we have the AppSpec specified in two
-// diffeernent places: Haskell code and hare.
+/** This module is a mirror implementation of AppSpec Decls in TypeScript.
+ * The original implemention is in Haskell (waspc).
+ *
+ * IMPORTANT: Do not change this file without updating the AppSpec in waspc.
+ */
 
 export type Decl =
   | { declType: 'App'; declName: string; declValue: App }
@@ -15,28 +18,7 @@ export type Decl =
 
 // NOTE: Entities are defined in the schema.prisma file, but they can still be
 // referenced.
-type DeclType = Decl['declType'] | 'Entity'
-
-export type RefParser<T extends DeclType> = (
-  potentialReferences: string
-) => Ref<T>
-
-export function makeRefParser<T extends DeclType>(
-  declType: T,
-  declNames: string[]
-): RefParser<T> {
-  return (potentialRef: string): Ref<T> => {
-    console.log({ potentialReference: potentialRef, declNames })
-    if (!declNames.includes(potentialRef)) {
-      console.log(`Invalid ${declType} reference: ${potentialRef}`)
-      throw new Error(`Invalid ${declType} reference: ${potentialRef}`)
-    }
-    return {
-      name: potentialRef,
-      declType,
-    } as Ref<T>
-  }
-}
+export type DeclType = Decl['declType'] | 'Entity'
 
 export type Page = {
   component: ExtImport

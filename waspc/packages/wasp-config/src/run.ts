@@ -3,7 +3,9 @@ import { writeFileSync } from 'fs'
 import { App } from './userApi.js'
 import { Decl } from './appSpec.js'
 import { mapUserSpecToDecls } from './mappers.js'
-import { GET_USER_SPEC } from './private.js'
+import { GET_USER_SPEC } from './_private.js'
+
+main()
 
 async function main() {
   const {
@@ -66,5 +68,3 @@ function parseEntityNamesJson(entitiesJson: string): string[] {
 function serialize(appConfig: Decl[]): string {
   return JSON.stringify(appConfig)
 }
-
-main()

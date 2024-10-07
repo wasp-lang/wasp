@@ -1,9 +1,12 @@
+/** This module defines the user-facing API for defining a Wasp app.
+ */
 import * as AppSpec from './appSpec.js'
-import { GET_USER_SPEC } from './private.js'
+import { GET_USER_SPEC } from './_private.js'
 
 export class App {
   #userSpec: UserSpec;
 
+  // NOTE: Using a non-public symbol gives us a pacakge-private property.
   [GET_USER_SPEC]() {
     return this.#userSpec
   }

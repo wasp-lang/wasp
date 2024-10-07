@@ -1,3 +1,5 @@
+/** This module maps the user-facing API to the internal representation of the app (AppSpec Decl).
+ */
 import * as AppSpec from './appSpec.js'
 import * as User from './userApi.js'
 
@@ -24,9 +26,9 @@ export function mapUserSpecToDecls(
 
   const pageNames = Array.from(pages.keys())
   const routeNames = Array.from(routes.keys())
-  const parseEntityRef = AppSpec.makeRefParser('Entity', entityNames)
-  const parsePageRef = AppSpec.makeRefParser('Page', pageNames)
-  const parseRouteRef = AppSpec.makeRefParser('Route', routeNames)
+  const parseEntityRef = makeRefParser('Entity', entityNames)
+  const parsePageRef = makeRefParser('Page', pageNames)
+  const parseRouteRef = makeRefParser('Route', routeNames)
 
   // TODO: Try to build the entire object at once
   const decls: AppSpec.Decl[] = []
@@ -120,15 +122,15 @@ export function mapUserSpecToDecls(
 
 function mapOperationConfig(
   config: User.QueryConfig,
-  parseEntityRef: AppSpec.RefParser<'Entity'>
+  parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Query
 function mapOperationConfig(
   config: User.ActionConfig,
-  parseEntityRef: AppSpec.RefParser<'Entity'>
+  parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Action
 function mapOperationConfig(
   config: User.ActionConfig | User.QueryConfig,
-  parseEntityRef: AppSpec.RefParser<'Entity'>
+  parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Action | AppSpec.Query {
   // TODO: How to make sure I've destructured everything?
   const { fn, entities, auth } = config
@@ -146,7 +148,7 @@ function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
 
 function mapApiConfig(
   config: User.ApiConfig,
-  parseEntityRef: AppSpec.RefParser<'Entity'>
+  parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Api {
   const { fn, middlewareConfigFn, entities, httpRoute, auth } = config
   return {
@@ -171,8 +173,8 @@ function mapApiNamespace(
 function mapApp(
   app: User.AppConfig,
   // TODO: Make this better, optional props are problematic so I have to pass the parsers first
-  parseEntityRef: AppSpec.RefParser<'Entity'>,
-  parseRouteRef: AppSpec.RefParser<'Route'>,
+  parseEntityRef: RefParser<'Entity'>,
+  parseRouteRef: RefParser<'Route'>,
   auth?: User.AuthConfig,
   server?: User.ServerConfig,
   client?: User.ClientConfig,
@@ -196,8 +198,8 @@ function mapApp(
 
 function mapAuth(
   auth: User.AuthConfig,
-  parseEntityRef: AppSpec.RefParser<'Entity'>,
-  parseRouteRef: AppSpec.RefParser<'Route'>
+  parseEntityRef: RefParser<'Entity'>,
+  parseRouteRef: RefParser<'Route'>
 ): AppSpec.Auth {
   const {
     userEntity,
@@ -231,7 +233,7 @@ function mapAuth(
 
 function mapAuthMethods(
   methods: User.AuthMethods,
-  parseRouteRef: AppSpec.RefParser<'Route'>
+  parseRouteRef: RefParser<'Route'>
 ): AppSpec.AuthMethods {
   // TODO: check keyof danger, effective ts
   const { usernameAndPassword, discord, google, gitHub, keycloak, email } =
@@ -268,7 +270,7 @@ export function mapExternalAuth(
 
 function mapEmailAuth(
   email: User.EmailAuthConfig,
-  parseRouteRef: AppSpec.RefParser<'Route'>
+  parseRouteRef: RefParser<'Route'>
 ): AppSpec.EmailAuthConfig {
   const { userSignupFields, fromField, emailVerification, passwordReset } =
     email
@@ -282,7 +284,7 @@ function mapEmailAuth(
 
 function mapEmailVerification(
   emailVerification: User.EmailVerificationConfig,
-  parseRouteRef: AppSpec.RefParser<'Route'>
+  parseRouteRef: RefParser<'Route'>
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailVerification
   return {
@@ -293,7 +295,7 @@ function mapEmailVerification(
 
 export function mapPasswordReset(
   passwordReset: User.PasswordResetConfig,
-  parseRouteRef: AppSpec.RefParser<'Route'>
+  parseRouteRef: RefParser<'Route'>
 ): AppSpec.PasswordResetConfig {
   const { getEmailContentFn, clientRoute } = passwordReset
   return {
@@ -341,7 +343,7 @@ function mapWebSocket(websocket: User.WebsocketConfig): AppSpec.WebSocket {
 
 function mapJob(
   job: User.JobConfig,
-  parseEntityRef: AppSpec.RefParser<'Entity'>
+  parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Job {
   const { executor, perform, schedule, entities } = job
   return {
@@ -370,7 +372,7 @@ function mapPerform(perform: User.Perform): AppSpec.Perform {
 
 function mapRoute(
   route: User.RouteConfig,
-  parsePageRef: AppSpec.RefParser<'Page'>
+  parsePageRef: RefParser<'Page'>
 ): AppSpec.Route {
   const { path, to } = route
   return {
@@ -380,7 +382,7 @@ function mapRoute(
 }
 function mapCrud(
   crudConfig: User.Crud,
-  parseEntityRef: AppSpec.RefParser<'Entity'>
+  parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Crud {
   const { entity, operations } = crudConfig
   return {
@@ -418,5 +420,24 @@ function mapPage(pageConfig: User.PageConfig): AppSpec.Page {
   return {
     component: mapExtImport(component),
     authRequired,
+  }
+}
+
+type RefParser<T extends AppSpec.DeclType> = (
+  potentialReferences: string
+) => AppSpec.Ref<T>
+
+function makeRefParser<T extends AppSpec.DeclType>(
+  declType: T,
+  declNames: string[]
+): RefParser<T> {
+  return function parseRef(potentialRef: string): AppSpec.Ref<T> {
+    if (!declNames.includes(potentialRef)) {
+      throw new Error(`Invalid ${declType} reference: ${potentialRef}`)
+    }
+    return {
+      name: potentialRef,
+      declType,
+    } as AppSpec.Ref<T>
   }
 }
