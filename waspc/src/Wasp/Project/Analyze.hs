@@ -14,8 +14,7 @@ import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File, File', Path', Rel, basename, relfile, toFilePath, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, File, File', Path', Rel, basename, castFile, fromAbsFile, relfile, toFilePath, (</>))
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
@@ -131,7 +130,7 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
-    compiledWaspJsFileInDotWaspDir = SP.castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
+    compiledWaspJsFileInDotWaspDir = castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
       Just path -> path
       Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ toFilePath waspFilePath ++ "."
 
@@ -154,8 +153,8 @@ executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile =
           -- Before this, I had the entrypoint file hardcoded, which was bad
           -- too: waspProjectDir </> [relfile|node_modules/wasp-config/dist/run.js|]
           [ "wasp-config",
-            SP.fromAbsFile absCompiledMainWaspJsFile,
-            SP.fromAbsFile absDeclsOutputFile,
+            fromAbsFile absCompiledMainWaspJsFile,
+            fromAbsFile absDeclsOutputFile,
             encodeToString allowedEntityNames
           ]
           J.Wasp
@@ -247,7 +246,7 @@ findWaspFile waspDir = do
   where
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    findFileThatEndsWith suffix files = SP.castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
+    findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . toFilePath) files
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.mts file in the " ++ toFilePath waspDir ++ " directory"
     bothFilesFoundMessage =
       "Found both *.wasp and *.wasp.mts files in the project directory. "
