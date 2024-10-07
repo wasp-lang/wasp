@@ -78,7 +78,7 @@ packageJsonInWaspProjectDir = [relfile|package.json|]
 
 -- TODO: Do this properly
 tsConfigInWaspProjectDir :: Path' (Rel WaspProjectDir) (File TsConfigFile)
-tsConfigInWaspProjectDir = [relfile|tsconfig.app.json|]
+tsConfigInWaspProjectDir = [relfile|tsconfig.src.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
