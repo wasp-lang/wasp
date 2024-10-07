@@ -85,7 +85,7 @@ data WaspTsFile
 
 data CompiledWaspJsFile
 
-data DeclsJsonFile
+data AppSpecDeclsJsonFile
 
 analyzeWaspFile :: Path' Abs (Dir WaspProjectDir) -> Psl.Schema.Schema -> WaspFile -> IO (Either [CompileError] [AS.Decl])
 analyzeWaspFile waspDir prismaSchemaAst = \case
@@ -138,7 +138,7 @@ executeMainWaspJsFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Psl.Schema.Schema ->
   Path' Abs (File CompiledWaspJsFile) ->
-  IO (Either [CompileError] (Path' Abs (File DeclsJsonFile)))
+  IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
 executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
   chan <- newChan
   (_, runExitCode) <- do
@@ -167,7 +167,7 @@ executeMainWaspJsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile =
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
     allowedEntityNames = Psl.Schema.getModelNames prismaSchemaAst
 
-readDecls :: Psl.Schema.Schema -> Path' Abs (File DeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
+readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
   entityDecls <- liftEither entityDeclsOrErrors
   remainingDecls <- ExceptT declsFromJsonOrError
