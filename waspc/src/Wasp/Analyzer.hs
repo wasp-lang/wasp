@@ -166,11 +166,10 @@ analyze prismaSchemaAst =
 
 getEntityDecls :: Psl.Schema.Schema -> Either [AnalyzeError] [Decl]
 getEntityDecls schema =
-  wrapAnalyzerError TypeError (typeCheck stdTypes ast)
+  wrapAnalyzerError TypeError (typeCheck stdTypes astWithEntitiesOnly)
     >>= (wrapAnalyzerError EvaluationError . evaluate stdTypes)
   where
-    entityStatements = parseEntityStatements schema
-    ast = Parser.AST entityStatements
+    astWithEntitiesOnly = Parser.AST $ parseEntityStatements schema
 
 wrapAnalyzerError :: (e -> AnalyzeError) -> Either e a -> Either [AnalyzeError] a
 wrapAnalyzerError makeError = left ((: []) . makeError)
