@@ -14,10 +14,8 @@ import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', Rel, basename, toFilePath, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, basename, relfile, toFilePath, (</>))
 import qualified StrongPath as SP
-import StrongPath.TH (relfile)
-import StrongPath.Types (File)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
