@@ -278,8 +278,8 @@ spec_AppSpecFromJSON = do
               }
           )
   where
-    extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "folder/file.js" }|]
-    extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "path": "folder/subfolder/file.js" }|]
+    extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.js" }|]
+    extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "path": "@src/folder/subfolder/file.js" }|]
 
     fooEntityRef = [trimming| { "name": "foo", "declType": "Entity" }|]
     barEntityRef = [trimming| { "name": "bar", "declType": "Entity" }|]
