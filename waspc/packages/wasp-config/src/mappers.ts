@@ -213,7 +213,7 @@ function mapAuth(
   } = auth
   return {
     userEntity: parseEntityRef(userEntity),
-    // TODO: Abstract pattern
+    // TODO: Abstract away this pattern
     ...(externalAuthEntity && {
       externalAuthEntity: parseEntityRef(externalAuthEntity),
     }),

@@ -3,6 +3,7 @@ import { writeFileSync } from 'fs'
 import { App } from './userApi.js'
 import { Decl } from './appSpec.js'
 import { mapUserSpecToDecls } from './mappers.js'
+import { GET_USER_SPEC } from './private.js'
 
 async function main() {
   const {
@@ -19,7 +20,7 @@ async function main() {
 }
 
 function analyzeApp(app: App, entityNames: string[]): Decl[] {
-  const userSpec = app.getSpec()
+  const userSpec = app[GET_USER_SPEC]()
   return mapUserSpecToDecls(userSpec, entityNames)
 }
 
