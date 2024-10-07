@@ -18,7 +18,6 @@ async function main() {
   const spec = analyzeApp(app, entityNames)
 
   writeFileSync(outputFile, serialize(spec))
-  console.log(`Wasp spec written to ${outputFile}`)
 }
 
 function analyzeApp(app: App, entityNames: string[]): Decl[] {
