@@ -36,7 +36,7 @@ Here's what the full setup looks like:
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -63,7 +63,7 @@ model User {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -148,7 +148,7 @@ Declare an import under `app.auth.methods.google.userSignupFields` (the example 
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -180,7 +180,7 @@ export const userSignupFields = {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -228,13 +228,13 @@ For example:
 
 ```jsx title=src/HomePage.jsx
 import { useAuth } from 'wasp/client/auth'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 export function HomePage() {
   const { data: user } = useAuth()
 
   if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />
+    return <Navigate to="/edit-user-details" />
   }
 
   // ...
@@ -246,13 +246,13 @@ export function HomePage() {
 
 ```tsx title=src/HomePage.tsx
 import { useAuth } from 'wasp/client/auth'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 export function HomePage() {
   const { data: user } = useAuth()
 
   if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />
+    return <Navigate to="/edit-user-details" />
   }
 
   // ...

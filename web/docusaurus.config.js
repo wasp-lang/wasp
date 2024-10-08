@@ -228,6 +228,8 @@ module.exports = {
         },
       }
     },
+    // This plugin is always inactive in development and only active in
+    // production because it works on the build output.
     [
       '@docusaurus/plugin-client-redirects',
       {
@@ -280,6 +282,18 @@ module.exports = {
             from: '/docs/tutorials/todo-app',
             to: '/docs/tutorial/create',
           },
+          {
+            from: '/docs/migrate-from-0-11-to-0-12',
+            to: '/docs/migration-guides/migrate-from-0-11-to-0-12',
+          },
+          {
+            from: '/docs/migrate-from-0-12-to-0-13',
+            to: '/docs/migration-guides/migrate-from-0-12-to-0-13',
+          },
+          {
+            from: '/docs/migrate-from-0-13-to-0-14',
+            to: '/docs/migration-guides/migrate-from-0-13-to-0-14'
+          }
         ],
       },
     ],

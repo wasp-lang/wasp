@@ -9,7 +9,7 @@ Each Wasp project can have only one `app` type declaration. It is used to config
 ```wasp
 app todoApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "ToDo App",
   head: [
@@ -27,7 +27,7 @@ You may want to change the title of your app, which appears in the browser tab, 
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "BookFace"
 }
@@ -42,7 +42,7 @@ An example of adding extra style sheets and scripts:
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   head: [  // optional
@@ -58,7 +58,7 @@ app myApp {
 ```wasp
 app todoApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "ToDo App",
   head: [

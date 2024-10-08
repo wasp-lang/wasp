@@ -11,9 +11,8 @@ import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
 import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
-import DiscordData from '../entities/_discord-data.md';
+import DiscordData from '../entities/\_discord-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
-
 
 Wasp supports Discord Authentication out of the box.
 
@@ -43,7 +42,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -68,7 +67,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -137,8 +136,9 @@ width="400px"
 />
 
 4. Go to the **OAuth2** tab on the sidebar and click **Add Redirect**
-  - For development, put: `http://localhost:3001/auth/discord/callback`.
-  - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/discord/callback`.
+
+- For development, put: `http://localhost:3001/auth/discord/callback`.
+- Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/discord/callback`.
 
 4. Hit **Save Changes**.
 5. Hit **Reset Secret**.
@@ -213,9 +213,9 @@ export function Login() {
 // A layout component to center the content
 export function Layout({ children }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
@@ -241,9 +241,9 @@ export function Login() {
 // A layout component to center the content
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
@@ -263,7 +263,6 @@ Yay, we've successfully set up Discord Auth! 🎉
 
 ![Discord Auth](/img/auth/discord.png)
 
-
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).
 
@@ -277,7 +276,7 @@ Add `discord: {}` to the `auth.methods` dictionary to use it with default settin
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -297,7 +296,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -362,7 +361,7 @@ For an up to date info about the data received from Discord, please refer to the
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -394,12 +393,12 @@ model User {
 export const userSignupFields = {
   username: (data) => data.profile.global_name,
   avatarUrl: (data) => data.profile.avatar,
-};
+}
 
 export function getConfig() {
   return {
     scopes: ['identify'],
-  };
+  }
 }
 ```
 
@@ -409,7 +408,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -477,7 +476,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -501,7 +500,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -556,5 +555,5 @@ The `discord` dict has the following properties:
 - #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />
-  
+
   Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).

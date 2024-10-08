@@ -1,18 +1,47 @@
-module Wasp.Util.WebRouterPath where
+module Wasp.Util.WebRouterPath
+  ( Segment (StaticSegment, ParamSegment),
+    StaticSegment (RequiredStaticSegment, OptionalStaticSegment),
+    ParamSegment (RequiredParamSegment, OptionalParamSegment),
+    getRouteSegments,
+  )
+where
 
 import Data.List (isSuffixOf)
 import Data.List.Split (splitOn)
-import Data.Maybe (mapMaybe)
 
-data Param = Optional String | Required String deriving (Show, Eq)
+data Segment
+  = StaticSegment StaticSegment
+  | ParamSegment ParamSegment
+  deriving (Show, Eq)
 
-extractPathParams :: String -> [Param]
-extractPathParams = mapMaybe parseParam . splitOn "/"
+data StaticSegment
+  = RequiredStaticSegment StaticSegmentValue
+  | OptionalStaticSegment StaticSegmentValue
+  deriving (Show, Eq)
+
+data ParamSegment
+  = RequiredParamSegment ParamName
+  | OptionalParamSegment ParamName
+  deriving (Show, Eq)
+
+type StaticSegmentValue = String
+
+type ParamName = String
+
+getRouteSegments :: String -> [Segment]
+getRouteSegments = map parseSegment . splitOn "/"
   where
-    parseParam :: String -> Maybe Param
-    parseParam (':' : xs) =
-      Just $
-        if "?" `isSuffixOf` xs
-          then Optional (take (length xs - 1) xs)
-          else Required xs
-    parseParam _ = Nothing
+    parseSegment :: String -> Segment
+    parseSegment "*" = ParamSegment $ RequiredParamSegment "*"
+    parseSegment (':' : paramName) =
+      ParamSegment $
+        if isSegmentOptional paramName
+          then OptionalParamSegment $ init paramName
+          else RequiredParamSegment paramName
+    parseSegment segmentValue =
+      StaticSegment $
+        if isSegmentOptional segmentValue
+          then OptionalStaticSegment segmentValue
+          else RequiredStaticSegment segmentValue
+
+    isSegmentOptional = isSuffixOf "?"

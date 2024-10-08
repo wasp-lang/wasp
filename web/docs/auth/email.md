@@ -19,6 +19,7 @@ Wasp supports e-mail authentication out of the box, along with email verificatio
 ## Setting Up Email Authentication
 
 We'll need to take the following steps to set up email authentication:
+
 1. Enable email authentication in the Wasp file
 1. Add the `User` entity
 1. Add the auth routes and pages
@@ -49,7 +50,7 @@ Let's start with adding the following to our `main.wasp` file:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -77,13 +78,14 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "My App",
   auth: {
@@ -111,6 +113,7 @@ app myApp {
   },
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -132,6 +135,7 @@ model User {
   // ...
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -144,11 +148,11 @@ model User {
   // ...
 }
 ```
+
 </TabItem>
 </Tabs>
 
 <ReadMoreAboutAuthEntities />
-
 
 ### 3. Add the Routes and Pages
 
@@ -187,6 +191,7 @@ page EmailVerificationPage {
   component: import { EmailVerification } from "@src/pages/auth.jsx",
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -218,6 +223,7 @@ page EmailVerificationPage {
   component: import { EmailVerification } from "@src/pages/auth.tsx",
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -254,11 +260,10 @@ export function Login() {
       </span>
       <br />
       <span className="text-sm font-medium text-gray-900">
-        Forgot your password? <Link to="/request-password-reset">reset it</Link>
-        .
+        Forgot your password? <Link to="/request-password-reset">reset it</Link>.
       </span>
     </Layout>
-  );
+  )
 }
 
 export function Signup() {
@@ -270,7 +275,7 @@ export function Signup() {
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
     </Layout>
-  );
+  )
 }
 
 export function EmailVerification() {
@@ -282,7 +287,7 @@ export function EmailVerification() {
         If everything is okay, <Link to="/login">go to login</Link>
       </span>
     </Layout>
-  );
+  )
 }
 
 export function RequestPasswordReset() {
@@ -290,7 +295,7 @@ export function RequestPasswordReset() {
     <Layout>
       <ForgotPasswordForm />
     </Layout>
-  );
+  )
 }
 
 export function PasswordReset() {
@@ -302,22 +307,23 @@ export function PasswordReset() {
         If everything is okay, <Link to="/login">go to login</Link>
       </span>
     </Layout>
-  );
+  )
 }
 
 // A layout component to center the content
 export function Layout({ children }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -341,11 +347,10 @@ export function Login() {
       </span>
       <br />
       <span className="text-sm font-medium text-gray-900">
-        Forgot your password? <Link to="/request-password-reset">reset it</Link>
-        .
+        Forgot your password? <Link to="/request-password-reset">reset it</Link>.
       </span>
     </Layout>
-  );
+  )
 }
 
 export function Signup() {
@@ -357,7 +362,7 @@ export function Signup() {
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
     </Layout>
-  );
+  )
 }
 
 export function EmailVerification() {
@@ -369,7 +374,7 @@ export function EmailVerification() {
         If everything is okay, <Link to="/login">go to login</Link>
       </span>
     </Layout>
-  );
+  )
 }
 
 export function RequestPasswordReset() {
@@ -377,7 +382,7 @@ export function RequestPasswordReset() {
     <Layout>
       <ForgotPasswordForm />
     </Layout>
-  );
+  )
 }
 
 export function PasswordReset() {
@@ -389,22 +394,23 @@ export function PasswordReset() {
         If everything is okay, <Link to="/login">go to login</Link>
       </span>
     </Layout>
-  );
+  )
 }
 
 // A layout component to center the content
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
           <div>{children}</div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -430,6 +436,7 @@ app myApp {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -442,6 +449,7 @@ app myApp {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -462,21 +470,22 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 ![Auth UI](/img/authui/signup.png)
 
 Some of the behavior you get out of the box:
+
 1. Rate limiting
-  
-  We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+
+We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
 
 2. Preventing user email leaks
-  
-  If somebody tries to signup with an email that already exists and it's verified, we _pretend_ that the account was created instead of saying it's an existing account. This is done to prevent leaking the user's email address.
+
+If somebody tries to signup with an email that already exists and it's verified, we _pretend_ that the account was created instead of saying it's an existing account. This is done to prevent leaking the user's email address.
 
 3. Allowing registration for unverified emails
 
-  If a user tries to register with an existing but **unverified** email, we'll allow them to do that. This is done to prevent bad actors from locking out other users from registering with their email address.
+If a user tries to register with an existing but **unverified** email, we'll allow them to do that. This is done to prevent bad actors from locking out other users from registering with their email address.
 
 4. Password validation
 
-  Read more about the default password validation rules and how to override them in [auth overview docs](../auth/overview).
+Read more about the default password validation rules and how to override them in [auth overview docs](../auth/overview).
 
 ## Email Verification Flow
 
@@ -505,6 +514,7 @@ emailVerification: {
     clientRoute: EmailVerificationRoute,
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -515,10 +525,11 @@ emailVerification: {
     clientRoute: EmailVerificationRoute,
 }
 ```
+
 </TabItem>
 </Tabs>
 
-When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field.  In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp` file.
+When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp` file.
 
 The content of the e-mail can be customized, read more about it [here](#emailverification-emailverificationconfig-).
 
@@ -533,13 +544,14 @@ We defined our email verification page in the `auth.{jsx,tsx}` file.
 Users can request a password and then they'll receive an e-mail with a link to reset their password.
 
 Some of the behavior you get out of the box:
+
 1. Rate limiting
-  
-  We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+
+We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
 
 2. Preventing user email leaks
 
-  If somebody requests a password reset with an unknown email address, we'll give back the same response as if the user requested a password reset successfully. This is done to prevent leaking information.
+If somebody requests a password reset with an unknown email address, we'll give back the same response as if the user requested a password reset successfully. This is done to prevent leaking information.
 
 Our setup in `main.wasp` looks like this:
 
@@ -553,6 +565,7 @@ passwordReset: {
     clientRoute: PasswordResetRoute,
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -563,6 +576,7 @@ passwordReset: {
     clientRoute: PasswordResetRoute,
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -665,7 +679,7 @@ export const signup = async (args, _context) => {
       } catch (e: unknown) {
           console.error("Failed to send email verification email:", e);
           throw new HttpError(500, "Failed to send email verification email.");
-      } 
+      }
     }
   } catch (e) {
     return {
@@ -683,6 +697,7 @@ export const signup = async (args, _context) => {
   }
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -718,7 +733,10 @@ type CustomSignupOutput = {
   message: string
 }
 
-export const signup: CustomSignup<CustomSignupInput, CustomSignupOutput> = async (args, _context) => {
+export const signup: CustomSignup<
+  CustomSignupInput,
+  CustomSignupOutput
+> = async (args, _context) => {
   ensureValidEmail(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
@@ -728,46 +746,49 @@ export const signup: CustomSignup<CustomSignupInput, CustomSignupOutput> = async
     const existingAuthIdentity = await findAuthIdentity(providerId)
 
     if (existingAuthIdentity) {
-      const providerData = deserializeAndSanitizeProviderData<'email'>(existingAuthIdentity.providerData)
+      const providerData = deserializeAndSanitizeProviderData<'email'>(
+        existingAuthIdentity.providerData
+      )
       // Your custom code here
     } else {
       // sanitizeAndSerializeProviderData will hash the user's password
-      const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>({
+      const newUserProviderData =
+        await sanitizeAndSerializeProviderData<'email'>({
           hashedPassword: args.password,
           isEmailVerified: false,
           emailVerificationSentAt: null,
           passwordResetSentAt: null,
-      })
+        })
       await createUser(
         providerId,
         providerData,
         // Any additional data you want to store on the User entity
-        {},
+        {}
       )
 
       // Verification link links to a client route e.g. /email-verification
-      const verificationLink = await createEmailVerificationLink(args.email, '/email-verification');
+      const verificationLink = await createEmailVerificationLink(
+        args.email,
+        '/email-verification'
+      )
       try {
-          await sendEmailVerificationEmail(
-              args.email,
-              {
-                  from: {
-                    name: "My App Postman",
-                    email: "hello@itsme.com",
-                  },
-                  to: args.email,
-                  subject: "Verify your email",
-                  text: `Click the link below to verify your email: ${verificationLink}`,
-                  html: `
+        await sendEmailVerificationEmail(args.email, {
+          from: {
+            name: 'My App Postman',
+            email: 'hello@itsme.com',
+          },
+          to: args.email,
+          subject: 'Verify your email',
+          text: `Click the link below to verify your email: ${verificationLink}`,
+          html: `
                       <p>Click the link below to verify your email</p>
                       <a href="${verificationLink}">Verify email</a>
                   `,
-              }
-          );
+        })
       } catch (e: unknown) {
-          console.error("Failed to send email verification email:", e);
-          throw new HttpError(500, "Failed to send email verification email.");
-      } 
+        console.error('Failed to send email verification email:', e)
+        throw new HttpError(500, 'Failed to send email verification email.')
+      }
     }
   } catch (e) {
     return {
@@ -785,6 +806,7 @@ export const signup: CustomSignup<CustomSignupInput, CustomSignupOutput> = async
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -875,6 +897,7 @@ model User {
   id Int @id @default(autoincrement())
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -914,6 +937,7 @@ app myApp {
   // ...
 }
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -946,6 +970,7 @@ app myApp {
   // ...
 }
 ```
+
 </TabItem>
 </Tabs>
 
@@ -953,19 +978,23 @@ app myApp {
 
 <UserSignupFieldsExplainer />
 
-Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields). 
+Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields).
 
 #### `fromField: EmailFromField` <Required />
-`fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by your app. 
+
+`fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by your app.
 
 It has the following fields:
+
 - `name`: name of the sender
 - `email`: e-mail address of the sender <Required />
 
 #### `emailVerification: EmailVerificationConfig` <Required />
+
 `emailVerification` is a dict that specifies the details of the e-mail verification process.
 
 It has the following fields:
+
 - `clientRoute: Route`: a route that is used for the user to verify their e-mail address. <Required />
 
   Client route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our `verifyEmail` action for that.
@@ -978,6 +1007,7 @@ It has the following fields:
   ...
   await verifyEmail({ token });
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -986,11 +1016,12 @@ It has the following fields:
   ...
   await verifyEmail({ token });
   ```
+
   </TabItem>
   </Tabs>
 
   :::note
-    We used Auth UI above to avoid doing this work of sending the token to the server manually.
+  We used Auth UI above to avoid doing this work of sending the token to the server manually.
   :::
 
 - `getEmailContentFn: ExtImport`: a function that returns the content of the e-mail that is sent to the user.
@@ -1010,6 +1041,7 @@ It has the following fields:
       `,
   })
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -1027,19 +1059,21 @@ It has the following fields:
       `,
   })
   ```
+
   </TabItem>
   </Tabs>
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>
 
-
 #### `passwordReset: PasswordResetConfig` <Required />
-`passwordReset` is a dict that specifies the password reset process. 
+
+`passwordReset` is a dict that specifies the password reset process.
 
 It has the following fields:
+
 - `clientRoute: Route`: a route that is used for the user to reset their password. <Required />
 
-  Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server.  You can use our `requestPasswordReset` and `resetPassword` actions to do that.
+  Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server. You can use our `requestPasswordReset` and `resetPassword` actions to do that.
 
   <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -1055,6 +1089,7 @@ It has the following fields:
   ...
   await resetPassword({ password, token })
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -1069,6 +1104,7 @@ It has the following fields:
   ...
   await resetPassword({ password, token })
   ```
+
   </TabItem>
   </Tabs>
 
@@ -1093,6 +1129,7 @@ It has the following fields:
       `,
   })
   ```
+
   </TabItem>
   <TabItem value="ts" label="TypeScript">
 
@@ -1110,6 +1147,7 @@ It has the following fields:
       `,
   })
   ```
+
   </TabItem>
   </Tabs>
 

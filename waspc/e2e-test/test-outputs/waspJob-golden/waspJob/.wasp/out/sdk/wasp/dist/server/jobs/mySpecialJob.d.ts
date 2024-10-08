@@ -16,7 +16,7 @@ export declare const mySpecialJob: {
         readonly pgBoss: {
             readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;
             readonly resume: () => ReturnType<import("pg-boss")["resume"]>;
-            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & ({
+            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "state" | "output"> & ({
                 data: JSONObject;
             } & ({
                 state: "failed";

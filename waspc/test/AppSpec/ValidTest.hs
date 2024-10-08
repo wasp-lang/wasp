@@ -31,6 +31,7 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.PackageJson as EC.PackageJson
+import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.SemanticVersion as SV
@@ -260,21 +261,43 @@ spec_AppSpecValid = do
                       AS.Decl.makeDecl userEntityName (userEntity :: AS.Entity.Entity)
                     ]
                 }
-        let invalidUserEntity =
+        let invalidUserEntityWithoutIdField =
               AS.Entity.makeEntity
                 ( Psl.Model.Body
                     []
                 )
+        let invalidUserEntityWithoutDefaultAttr =
+              AS.Entity.makeEntity
+                ( Psl.Model.Body
+                    [ Psl.Model.ElementField $
+                        Psl.Model.Field
+                          { Psl.Model._name = "id",
+                            Psl.Model._type = Psl.Model.String,
+                            Psl.Model._typeModifiers = [],
+                            Psl.Model._attrs =
+                              [ Psl.Attribute.Attribute
+                                  { Psl.Attribute._attrName = "id",
+                                    Psl.Attribute._attrArgs = []
+                                  }
+                              ]
+                          }
+                    ]
+                )
 
         it "returns no error if app.auth is not set, regardless of shape of user entity" $ do
-          ASV.validateAppSpec (makeSpec Nothing invalidUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec Nothing invalidUserEntityWithoutIdField) `shouldBe` []
           ASV.validateAppSpec (makeSpec Nothing validUserEntity) `shouldBe` []
         it "returns no error if app.auth is set and user entity is of valid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) validUserEntity) `shouldBe` []
-        it "returns an error if app.auth is set and user entity is of invalid shape" $ do
-          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
+        it "returns an error if app.auth is set and user entity wihtout an ID field" $ do
+          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntityWithoutIdField)
             `shouldBe` [ Valid.GenericValidationError
                            "Entity 'User' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
+                       ]
+        it "returns an error if app.auth is set and user entity with an ID field that is missing the default attr" $ do
+          ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntityWithoutDefaultAttr)
+            `shouldBe` [ Valid.GenericValidationError
+                           "Entity 'User' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute) with a default value"
                        ]
 
       describe "should validate email sender setup." $ do
@@ -414,6 +437,12 @@ spec_AppSpecValid = do
             [ Psl.Attribute.Attribute
                 { Psl.Attribute._attrName = "id",
                   Psl.Attribute._attrArgs = []
+                },
+              Psl.Attribute.Attribute
+                { Psl.Attribute._attrName = "default",
+                  Psl.Attribute._attrArgs =
+                    [ Psl.Argument.ArgUnnamed (Psl.Argument.FuncExpr "autoincrement" [])
+                    ]
                 }
             ]
         }

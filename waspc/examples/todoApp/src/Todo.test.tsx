@@ -8,6 +8,8 @@ import Todo, { areThereAnyTasks } from './Todo'
 import { App } from './App'
 import { getMe } from 'wasp/client/auth'
 
+import { Routes, Route } from 'react-router-dom'
+
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
 })
@@ -49,9 +51,11 @@ test('handles multiple mock data sources', async () => {
   mockQuery(getTasks, mockTasks)
 
   renderInContext(
-    <App>
-      <Todo />
-    </App>
+    <Routes>
+      <Route path="/" Component={App}>
+        <Route path="/" Component={Todo} />
+      </Route>
+    </Routes>
   )
 
   await screen.findByText('elon@tesla.com')
