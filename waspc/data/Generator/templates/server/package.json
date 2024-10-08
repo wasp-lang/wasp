@@ -13,8 +13,7 @@
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "start-production": "{=& startProductionScript =}",
-    "standard": "standard"
+    "start-production": "{=& startProductionScript =}"
   },
   "nodemonConfig": {
     "delay": "1000"

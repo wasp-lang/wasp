@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { useEffect, useRef, useState } from "react";
 import { type AxiosResponse } from "axios";
-import { Redirect, useLocation } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
@@ -14,7 +14,7 @@ export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
   
   if (user !== undefined && user !== null) {
-    return <Redirect to="{= onAuthSucceededRedirectTo =}" />;
+    return <Navigate to="{= onAuthSucceededRedirectTo =}" replace />;
   }
 
 

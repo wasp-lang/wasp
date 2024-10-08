@@ -11,7 +11,7 @@
   <a href="https://discord.gg/rzdnErX"><img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/></a>
 </p>
 
-------
+---
 
 <p align="center">
   <a href="https://wasp-lang.dev">Web page</a> | <a href="https://wasp-lang.dev/docs">Docs</a>
@@ -23,22 +23,25 @@ Wasp (**W**eb **A**pplication **Sp**ecification) is a Rails-like framework for R
 Build your app in a day and deploy it with a single CLI command!
 
 ### Why is Wasp awesome
+
 - 🚀 **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
 - 😌 **No boilerplate**: By abstracting away complex full-stack features, there is less boilerplate code. That means less code to maintain and understand! It also means easier upgrades.
 - 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have full control over the code (and can actually check it out in .wasp/ dir if you are interested ).
 
 ### Features
- 🔒 Full-stack Auth, 🖇️ RPC (Client <-> Server), 🚀 Simple Deployment, ⚙ ️Jobs, ✉️ Email Sending, 🛟 Full-stack Type Safety, ...
+
+🔒 Full-stack Auth, 🖇️ RPC (Client <-> Server), 🚀 Simple Deployment, ⚙ ️Jobs, ✉️ Email Sending, 🛟 Full-stack Type Safety, ...
 
 ### Code example
 
 Simple Wasp config file in which you describe the high-level details of your web app:
+
 ```js
 // file: main.wasp
 
 app todoApp {
   title: "ToDo App",  // visible in the browser tab
-  wasp: { version: "^0.14.0" },
+  wasp: { version: "^0.15.0" },
   auth: { // full-stack auth out-of-the-box
     userEntity: User, methods: { email: {...} }
   }
@@ -81,9 +84,11 @@ For more information about Wasp, check [**docs**](https://wasp-lang.dev/docs).
 # Get started
 
 Run
+
 ```
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
+
 to install Wasp on OSX/Linux/WSL(Win). From there, just follow the instructions to run your first app in less than a minute!
 
 For more details, check out [the docs](https://wasp-lang.dev/docs).
@@ -114,9 +119,10 @@ The core of Wasp is built in Haskell, but there are also a lot of non-Haskell pa
 Even if you don't plan to submit any code, just joining the discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
 You can also:
- - :star: Star this repo to show your interest/support.
- - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
- - :speech_balloon: Join the discussion at https://github.com/wasp-lang/wasp/discussions .
+
+- :star: Star this repo to show your interest/support.
+- :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
+- :speech_balloon: Join the discussion at https://github.com/wasp-lang/wasp/discussions .
 
 # Careers
 
@@ -143,5 +149,3 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 <a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a>
 <a href="https://github.com/Tech4Money"><img src="https://github.com/Tech4Money.png" width="50px" alt="Tech4Money" /></a>
 <a href="https://github.com/haseeb-heaven"><img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" /></a>
-
-

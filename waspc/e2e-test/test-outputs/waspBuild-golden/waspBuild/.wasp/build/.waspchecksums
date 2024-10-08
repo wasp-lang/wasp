@@ -116,21 +116,21 @@
             "file",
             "../out/sdk/wasp/client/router/index.ts"
         ],
-        "6fe430c2956c25c3833d6893c695523a7b2a5f1cb9eceb0bed26429c2e33e6a0"
+        "ad12dae94c1c68a4f31f660dd942fc0b43d713b4ed37145faeb2f65d3e5bc392"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/router/linkHelpers.ts"
         ],
-        "62e48c724070c59a95c837288112922326e1351ee1defa4759bdc47f7361ce9e"
+        "3b523ed6020fe18d71a108551de0a71cbfa23bdc4e3245b3491c5224251faa20"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/router/types.ts"
         ],
-        "9bfaabe92126b641e6b939c26bac121dbbe1bb495392a5d40474ef4981432b5f"
+        "ffbce0f351b849dfe04f00421a31844836cbd5a80ab97445f6ed8859e6b94928"
     ],
     [
         [
@@ -200,7 +200,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "866e8d016c5972a35983615a9ac0bc4b3c1b25f4155ed09b60300be71af975c7"
+        "6f1afd30c951e1f49740256440cd626c9cb521cf0822d93d2d2a5d63d8719d7b"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "server/README.md"
         ],
-        "e14514b8b152dd2160a217d8fc66a710c8607c4ed1441a2148a0770701818249"
+        "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "server/package.json"
         ],
-        "c33727afcd03aa83fbd2c4b213a05cf7a2c53525e3b1daa72521d8c1312033a5"
+        "a4eb7e59ac5309fc5c39ccd7e19f4fdc7a9a568a3b393f62358ef6a6065d65c3"
     ],
     [
         [
@@ -536,7 +536,7 @@
             "file",
             "web-app/package.json"
         ],
-        "c9ec6110684c2e6c76392fc93458756ca636fa30f2b6c23db1507c0cc910e8b8"
+        "b9902749188431ba59e788a2e734086cf745bae9b7f7813f17ec90e2a3510daa"
     ],
     [
         [
@@ -565,6 +565,13 @@
             "web-app/scripts/validate-env.mjs"
         ],
         "a9a3a7eb6bc3ead49d8e3850a70737c93c789098beb3b40196bf145fd38893cd"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/components/DefaultRootErrorBoundary.tsx"
+        ],
+        "4a141a28ca7aed9daddd75c156f7bae5eec50f3e5a85b6a43a28fa2648f34c44"
     ],
     [
         [
@@ -599,7 +606,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "ff83778b7f03a8f15116bc73adce607c2c13fc9cbd4228626980a530541aaeb2"
+        "61265d54c480ce94df81fdd0c65fa2e3c154e7d9fb9621c87a2d81e32ecd2adf"
     ],
     [
         [
@@ -613,7 +620,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "5641aec64e4771fde7aaedb217fbb726103c9859de65f2b6bdc51fbb2e970a3e"
+        "72f880dba47672ec9fb112a8b88cc8d831458cccddcc891b853a6dc9809a5752"
     ],
     [
         [

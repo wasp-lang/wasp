@@ -53,6 +53,7 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocke
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
 
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredByWebSockets spec
-  | AS.WS.areWebSocketsUsed spec = AS.WS.sdkDepsRequiredForWebSockets
-  | otherwise = AS.Dependency.fromList [("uuid", "^9.0.0")]
+depsRequiredByWebSockets spec =
+  if AS.WS.areWebSocketsUsed spec
+    then AS.WS.sdkDepsRequiredForWebSockets
+    else []

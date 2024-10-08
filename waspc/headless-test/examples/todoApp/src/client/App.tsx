@@ -1,3 +1,5 @@
+import { Outlet } from 'react-router-dom'
+
 import { Link } from 'wasp/client/router'
 import { logout, useAuth } from 'wasp/client/auth'
 import { useQuery, getDate } from 'wasp/client/operations'
@@ -5,7 +7,7 @@ import { useQuery, getDate } from 'wasp/client/operations'
 import './Main.css'
 import { getName } from './user'
 
-export function App({ children }: { children: React.ReactNode }) {
+export function App() {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
 
@@ -31,7 +33,9 @@ export function App({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </header>
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
       <footer className="mt-8 text-center">Created with Wasp</footer>
     </div>
   )

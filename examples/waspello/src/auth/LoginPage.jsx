@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import EmailAndPassForm from './components/EmailAndPassForm'
 import GoogleAuthButton from './components/GoogleAuthButton'
@@ -11,7 +11,7 @@ import './Signup.css'
 import { login } from "wasp/client/auth";
 
 const LoginPage = (props) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
@@ -24,7 +24,7 @@ const LoginPage = (props) => {
       setUsernameFieldVal('')
       setPasswordFieldVal('')
 
-      history.push('/')
+      navigate('/')
     } catch (err) {
       console.log(err)
       window.alert(err)

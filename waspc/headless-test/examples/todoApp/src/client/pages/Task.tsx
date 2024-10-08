@@ -1,4 +1,5 @@
 import React from 'react'
+import { useParams } from 'react-router-dom'
 import { Link } from 'wasp/client/router'
 import { type Task } from 'wasp/entities'
 
@@ -14,8 +15,9 @@ import {
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>
 
-const Todo = (props: any) => {
-  const taskId = parseInt(props.match.params.id)
+const Todo = () => {
+  const { id } = useParams()
+  const taskId = parseInt(id!)
 
   const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
 

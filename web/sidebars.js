@@ -29,7 +29,7 @@ module.exports = {
     {
       type: 'link',
       label: 'Examples',
-      href: 'https://github.com/wasp-lang/wasp/tree/release/examples'
+      href: 'https://github.com/wasp-lang/wasp/tree/release/examples',
     },
     {
       type: 'category',
@@ -50,7 +50,7 @@ module.exports = {
         },
         'data-model/crud',
         'data-model/backends',
-        'data-model/prisma-file'
+        'data-model/prisma-file',
       ],
     },
     {
@@ -76,7 +76,7 @@ module.exports = {
           ],
         },
         'auth/entities/entities',
-        'auth/auth-hooks'
+        'auth/auth-hooks',
       ],
     },
     {
@@ -139,18 +139,22 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Miscellaneous',
-      collapsed: false,
+      label: 'Migration guides',
+      collapsed: true,
       collapsible: true,
       items: [
-        'contributing',
-        'telemetry',
-        'vision',
-        'contact',
-        'migrate-from-0-11-to-0-12',
-        'migrate-from-0-12-to-0-13',
-        'migrate-from-0-13-to-0-14'
+        'migration-guides/migrate-from-0-14-to-0-15',
+        'migration-guides/migrate-from-0-13-to-0-14',
+        'migration-guides/migrate-from-0-12-to-0-13',
+        'migration-guides/migrate-from-0-11-to-0-12',
       ],
+    },
+    {
+      type: 'category',
+      label: 'Miscellaneous',
+      collapsed: true,
+      collapsible: true,
+      items: ['contributing', 'telemetry', 'vision', 'contact'],
     },
   ],
 }

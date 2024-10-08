@@ -73,7 +73,7 @@ We can start by running `wasp new tasksCrudApp` and then adding the following to
 ```wasp title="main.wasp"
 app tasksCrudApp {
   wasp: {
-    version: "^0.14.0"
+    version: "^0.15.0"
   },
   title: "Tasks Crud App",
 
