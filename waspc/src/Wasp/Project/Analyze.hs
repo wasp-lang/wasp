@@ -144,7 +144,7 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
-    compiledWaspJsFileInDotWaspDir = castFile $ case replaceRelExtension (basename waspFilePath) ".mjs" of
+    compiledWaspJsFileInDotWaspDir = castFile $ case replaceRelExtension (basename waspFilePath) ".js" of
       Just path -> path
       Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ "."
 
@@ -175,7 +175,7 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
           chan
       )
   case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.mts file."]
+    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.ts file."]
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
@@ -258,12 +258,12 @@ findWaspFile waspDir = do
     (Just waspTsFile, Nothing) -> Right waspTsFile
     (Nothing, Just waspLangFile) -> Right waspLangFile
   where
-    findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.mts" files
+    findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.ts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
     findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . fromRelFile) files
-    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.mts file in the " ++ fromAbsDir waspDir ++ " directory"
+    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
     bothFilesFoundMessage =
-      "Found both *.wasp and *.wasp.mts files in the project directory. "
+      "Found both *.wasp and *.wasp.ts files in the project directory. "
         ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
 
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
