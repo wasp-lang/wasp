@@ -46,9 +46,13 @@ import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
+    WaspFilePath (..),
+    WaspLangFile,
     WaspProjectDir,
+    WaspTsFile,
     dotWaspDirInWaspProjectDir,
     findFileInWaspProjectDir,
+    getSrcTsConfigInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
@@ -85,17 +89,9 @@ analyzeWaspProject waspDir options = do
           analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
-              EC.analyzeExternalConfigs waspDir >>= \case
+              EC.analyzeExternalConfigs waspDir (getSrcTsConfigInWaspProjectDir waspFilePath) >>= \case
                 Left errors -> return (Left errors, [])
                 Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
-
-data WaspFilePath
-  = WaspLang !(Path' Abs (File WaspLangFile))
-  | WaspTs !(Path' Abs (File WaspTsFile))
-
-data WaspLangFile
-
-data WaspTsFile
 
 data CompiledWaspJsFile
 
