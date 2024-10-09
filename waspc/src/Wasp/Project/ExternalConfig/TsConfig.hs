@@ -1,39 +1,38 @@
 module Wasp.Project.ExternalConfig.TsConfig
-  ( analyzeTsConfigFile,
+  ( analyzeSrcTsConfigFile,
   )
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
-import StrongPath (Abs, Dir, File, Path', toFilePath)
+import StrongPath (Abs, Dir, File, Path', Rel, toFilePath)
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Generator.ExternalConfig.TsConfig (validateTsConfig)
+import Wasp.Generator.ExternalConfig.TsConfig (validateSrcTsConfig)
 import Wasp.Project.Common
-  ( TsConfigFile,
+  ( SrcTsConfigFile,
     WaspProjectDir,
     findFileInWaspProjectDir,
-    tsConfigInWaspProjectDir,
   )
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
-analyzeTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] T.TsConfig)
-analyzeTsConfigFile waspDir = runExceptT $ do
-  tsConfigFile <- ExceptT findTsConfigOrError
-  tsConfig <- ExceptT $ readTsConfigFile tsConfigFile
-  case validateTsConfig tsConfig of
-    [] -> return tsConfig
+analyzeSrcTsConfigFile ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
+  IO (Either [String] T.TsConfig)
+analyzeSrcTsConfigFile waspDir srcTsConfigFile = runExceptT $ do
+  tsConfigFileContents <- ExceptT findTsConfigOrError
+  srcTsConfigContents <- ExceptT $ readSrcTsConfigFile tsConfigFileContents
+  case validateSrcTsConfig srcTsConfigContents of
+    [] -> return srcTsConfigContents
     errors -> throwError errors
   where
-    findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findTsConfigFile waspDir
+    findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findFileInWaspProjectDir waspDir srcTsConfigFile
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
 
-findTsConfigFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File TsConfigFile)))
-findTsConfigFile waspProjectDir = findFileInWaspProjectDir waspProjectDir tsConfigInWaspProjectDir
-
-readTsConfigFile :: Path' Abs (File TsConfigFile) -> IO (Either [String] T.TsConfig)
-readTsConfigFile tsConfigFile = do
+readSrcTsConfigFile :: Path' Abs (File SrcTsConfigFile) -> IO (Either [String] T.TsConfig)
+readSrcTsConfigFile tsConfigFile = do
   tsConfigContent <- IOUtil.readFileBytes tsConfigFile
 
   parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent
