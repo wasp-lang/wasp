@@ -21,9 +21,9 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     extPublicDirInWaspProjectDir,
-    tsconfigInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
+    tsConfigInWaspLangProject,
   )
 where
 
@@ -87,10 +87,17 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
 packageJsonInWaspProjectDir = [relfile|package.json|]
 
+-- TODO: The entire tsconfig story is very fragile
 getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 getSrcTsConfigInWaspProjectDir = \case
-  WaspTs _ -> [relfile|tsconfig.src.json|]
-  WaspLang _ -> [relfile|tsconfig.json|]
+  WaspTs _ -> tsConfigInWaspTsProject
+  WaspLang _ -> tsConfigInWaspLangProject
+
+tsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+tsConfigInWaspLangProject = [relfile|tsconfig.json|]
+
+tsConfigInWaspTsProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+tsConfigInWaspTsProject = [relfile|tsconfig.src.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
@@ -103,9 +110,6 @@ srcDirInWaspProjectDir = [reldir|src|]
 
 extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
 extPublicDirInWaspProjectDir = [reldir|public|]
-
-tsconfigInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
