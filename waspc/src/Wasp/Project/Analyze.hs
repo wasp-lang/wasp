@@ -12,7 +12,6 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
-import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.List (find, isSuffixOf)
 import StrongPath
   ( Abs,
@@ -29,6 +28,7 @@ import StrongPath
     relfile,
     (</>),
   )
+import System.Exit (ExitCode (..))
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import Wasp.Analyzer.Parser.Ctx (Ctx)

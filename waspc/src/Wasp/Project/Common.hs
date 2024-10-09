@@ -23,7 +23,8 @@ module Wasp.Project.Common
     extPublicDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
-    tsConfigInWaspLangProject,
+    srcTsConfigInWaspLangProject,
+    srcTsConfigInWaspTsProject,
   )
 where
 
@@ -90,14 +91,14 @@ packageJsonInWaspProjectDir = [relfile|package.json|]
 -- TODO: The entire tsconfig story is very fragile
 getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 getSrcTsConfigInWaspProjectDir = \case
-  WaspTs _ -> tsConfigInWaspTsProject
-  WaspLang _ -> tsConfigInWaspLangProject
+  WaspTs _ -> srcTsConfigInWaspTsProject
+  WaspLang _ -> srcTsConfigInWaspLangProject
 
-tsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-tsConfigInWaspLangProject = [relfile|tsconfig.json|]
+srcTsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+srcTsConfigInWaspLangProject = [relfile|tsconfig.json|]
 
-tsConfigInWaspTsProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-tsConfigInWaspTsProject = [relfile|tsconfig.src.json|]
+srcTsConfigInWaspTsProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+srcTsConfigInWaspTsProject = [relfile|tsconfig.src.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]

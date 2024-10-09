@@ -3,6 +3,7 @@ module Wasp.Project.ExternalConfig.TsConfig
   )
 where
 
+import Control.Arrow (left)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
@@ -23,7 +24,7 @@ analyzeSrcTsConfigFile ::
   IO (Either [String] T.TsConfig)
 analyzeSrcTsConfigFile waspDir srcTsConfigFile = runExceptT $ do
   tsConfigFileContents <- ExceptT findTsConfigOrError
-  srcTsConfigContents <- ExceptT $ readSrcTsConfigFile tsConfigFileContents
+  srcTsConfigContents <- ExceptT $ left (: []) <$> readTsConfigFile tsConfigFileContents
   case validateSrcTsConfig srcTsConfigContents of
     [] -> return srcTsConfigContents
     errors -> throwError errors
@@ -31,12 +32,9 @@ analyzeSrcTsConfigFile waspDir srcTsConfigFile = runExceptT $ do
     findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findFileInWaspProjectDir waspDir srcTsConfigFile
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
 
-readSrcTsConfigFile :: Path' Abs (File SrcTsConfigFile) -> IO (Either [String] T.TsConfig)
-readSrcTsConfigFile tsConfigFile = do
+-- TODO: Reduce polymorphism, should only work with TsConfig files
+readTsConfigFile :: Path' Abs (File f) -> IO (Either String T.TsConfig)
+readTsConfigFile tsConfigFile = do
   tsConfigContent <- IOUtil.readFileBytes tsConfigFile
-
   parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent
-
-  case parseResult of
-    Right tsConfig -> return $ Right tsConfig
-    Left err -> return $ Left ["Failed to parse tsconfig.json file: " ++ err]
+  return $ left ("Failed to parse tsconfig file" ++) parseResult
