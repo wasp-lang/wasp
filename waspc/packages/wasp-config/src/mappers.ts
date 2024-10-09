@@ -136,7 +136,7 @@ function mapOperationConfig(
   const { fn, entities, auth } = config
   return {
     fn: mapExtImport(fn),
-    ...( entities && { entities: entities.map(parseEntityRef) }),
+    ...(entities && { entities: entities.map(parseEntityRef) }),
     auth: auth,
   }
 }
@@ -160,7 +160,7 @@ function mapApiConfig(
   return {
     fn: mapExtImport(fn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
-    ...( entities && { entities: entities.map(parseEntityRef) }),
+    ...(entities && { entities: entities.map(parseEntityRef) }),
     httpRoute: httpRoute,
     auth: auth,
   }
@@ -356,7 +356,7 @@ function mapJob(
     executor: executor,
     perform: mapPerform(perform),
     schedule: schedule && mapSchedule(schedule),
-    ...( entities && { entities: entities.map(parseEntityRef) }),
+    ...(entities && { entities: entities.map(parseEntityRef) }),
   }
 }
 
