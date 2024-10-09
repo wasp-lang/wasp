@@ -63,7 +63,7 @@ export type Api = {
   fn: ExtImport
   middlewareConfigFn?: ExtImport
   entities?: Ref<'Entity'>[]
-  httpRoute: HttpRoute[]
+  httpRoute: HttpRoute
   auth?: boolean
 }
 
