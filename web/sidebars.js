@@ -135,7 +135,12 @@ module.exports = {
       label: 'General',
       collapsed: false,
       collapsible: true,
-      items: ['general/language', 'general/cli', 'general/typescript'],
+      items: [
+        'general/language',
+        'general/cli',
+        'general/typescript',
+        'general/wasp-ts-config'
+      ],
     },
     {
       type: 'category',
