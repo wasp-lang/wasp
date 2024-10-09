@@ -1,5 +1,6 @@
 {
   "name": "todoApp",
+  "type": "module",
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server"
@@ -16,6 +17,7 @@
     "@types/uuid": "^9.0.8",
     "prisma": "5.19.1",
     "typescript": "^5.1.0",
-    "vite": "^4.3.9"
+    "vite": "^4.3.9",
+    "wasp-config": "file:/home/martin/git/wasp-lang/wasp/waspc/data/packages/wasp-config"
   }
 }
