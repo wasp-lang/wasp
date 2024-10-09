@@ -97,6 +97,9 @@ export type AppConfig = Pick<AppSpec.App, 'title' | 'wasp' | 'head'>
 export type ExtImport = {
   import: string
   from: AppSpec.ExtImport['path']
+} | {
+  importDefault: string
+  from: AppSpec.ExtImport['path']
 }
 
 export type ServerConfig = {
@@ -132,7 +135,7 @@ type PageName = string & { _brand: 'Page' }
 
 export type ActionConfig = {
   fn: ExtImport
-  entities: string[]
+  entities?: string[]
   auth?: boolean
 }
 
@@ -144,8 +147,8 @@ export type ApiNamespaceConfig = {
 export type ApiConfig = {
   fn: ExtImport
   middlewareConfigFn?: ExtImport
-  entities: string[]
-  httpRoute: AppSpec.HttpRoute[]
+  entities?: string[]
+  httpRoute: AppSpec.HttpRoute
   auth?: boolean
 }
 
@@ -153,7 +156,7 @@ export type JobConfig = {
   executor: AppSpec.JobExecutor
   perform: Perform
   schedule?: ScheduleConfig
-  entities: string[]
+  entities?: string[]
 }
 
 export type Crud = {
@@ -193,7 +196,7 @@ type ExecutorOptions = {
 
 export type QueryConfig = {
   fn: ExtImport
-  entities: string[]
+  entities?: string[]
   auth?: boolean
 }
 

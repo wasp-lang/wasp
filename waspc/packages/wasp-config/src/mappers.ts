@@ -136,14 +136,20 @@ function mapOperationConfig(
   const { fn, entities, auth } = config
   return {
     fn: mapExtImport(fn),
-    entities: entities.map((e) => parseEntityRef(e)),
+    ...( entities && { entities: entities.map(parseEntityRef) }),
     auth: auth,
   }
 }
 
 function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
-  const { import: name, from: path } = extImport
-  return { kind: 'named', name, path }
+  if ('import' in extImport) {
+    return { kind: 'named', name: extImport.import, path: extImport.from };
+  } else if ('importDefault' in extImport) {
+    return { kind: 'default', name: extImport.importDefault, path: extImport.from };
+  } else {
+    const _exhaustiveCheck: never = extImport;
+    throw new Error('Invalid ExtImport: neither `import` nor `importDefault` is defined');
+  }
 }
 
 function mapApiConfig(
@@ -154,7 +160,7 @@ function mapApiConfig(
   return {
     fn: mapExtImport(fn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
-    entities: entities.map((e) => parseEntityRef(e)),
+    ...( entities && { entities: entities.map(parseEntityRef) }),
     httpRoute: httpRoute,
     auth: auth,
   }
@@ -350,7 +356,7 @@ function mapJob(
     executor: executor,
     perform: mapPerform(perform),
     schedule: schedule && mapSchedule(schedule),
-    entities: entities.map((e) => parseEntityRef(e)),
+    ...( entities && { entities: entities.map(parseEntityRef) }),
   }
 }
 
