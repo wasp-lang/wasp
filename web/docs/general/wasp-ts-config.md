@@ -17,7 +17,7 @@ In Wasp, you normally define/configure the high level of your app (pages, routes
 
 Wasp 0.15 introduces the **Wasp TS config**, an alternative way to define the high level of your app via `main.wasp.ts`! Although it looks similar to how you would do it in `main.wasp`, the difference is that you write in TypeScript, not in Wasp's DSL.
 
-This is an **early preview** feature, meaning it is quite rough and unpolished and not yet where it could be, but it does work, we think it is pretty cool already, and you can try it out now. If you do, please share your feedback and any ideas with us on our [GitHub](https://github.com/wasp-lang/wasp) or <DiscordLink />, this is crucial for us to be able to shape this feature in the best possible way!
+Wasp TS config is an **early preview** feature, meaning it is a little rough and not yet where it could be, but it does work. We think it's pretty cool already, and you can try it out now. If you do, please share your feedback and ideas with us on our [GitHub](https://github.com/wasp-lang/wasp) or <DiscordLink />. This is crucial for us to be able to shape this feature in the best possible way!
 
 ## Motivation
 
