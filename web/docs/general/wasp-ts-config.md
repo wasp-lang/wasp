@@ -78,7 +78,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
     }
     ```
 
-5. Add `"type": "module"` to the top level of your `package.json`:
+5. Add `"type": "module"` to the top level of your `package.json`, if you don't have it yet:
 
     ```json title="package.json"
     {
@@ -93,16 +93,16 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
    Check out the [reference main.wasp.ts file](#reference-main-wasp-ts-file) below for details on what the TypeScript API for configuring Wasp looks like.
-In short, you'll have to:
-  1. Import `App` from `wasp-config`
-  2. Create a new `app` object with `new App()`.
-  3. Use the `app` object to define parts of your web app like `auth`, `pages`, `query`, `api`...
-  4. Export the `app` from your file using a default export.
+   In short, you'll have to:
+   1. Import `App` from `wasp-config`
+   2. Create a new `app` object with `new App()`.
+   3. Use the `app` object to define parts of your web app like `auth`, `pages`, `query`, `api`...
+   4. Export the `app` from your file using a default export.
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
 10. Run `wasp start` to run your app! If you got everything right, your app should work exactly like it did before. The only difference is that it's now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
     :::tip
-      Don't forget to have the database running or do the db migrations if needed, as you would normally when running your app in development.
+      Don't forget, during `wasp start`, to have the database running or do the db migrations if needed, as you would normally when running your app in development.
     :::
 11. That is it, you are now using Wasp TS config! You can delete `main.wasp.old` file now if you still have it around.
 
