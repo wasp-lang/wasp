@@ -87,7 +87,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
     }
     ```
 
-6. Rename `main.wasp` file to `main.wasp.old`: we want to keep it for now so we can look at it while writing `main.wasp.ts` based on it.
+6. Rename the `main.wasp` file to `main.wasp.old`. You'll want to use it as a reference while writing `main.wasp.ts`.
 7. Run `wasp clean` and `rm package-lock.json` to ensure we have a clean slate to start from.
 8. Run `wasp ts-setup` to do the basic setup for Wasp TS config. It will also add `wasp-config` package to `devDependencies` in your `package.json`.
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
