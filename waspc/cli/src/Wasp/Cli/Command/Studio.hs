@@ -179,6 +179,9 @@ studio = do
                          [ "discord"
                            | isJust $ AS.App.Auth.discord methods
                          ],
+                         [ "twitter"
+                           | isJust $ AS.App.Auth.twitter methods
+                         ],
                          [ "google"
                            | isJust $ AS.App.Auth.google methods
                          ],
