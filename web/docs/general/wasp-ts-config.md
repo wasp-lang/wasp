@@ -42,7 +42,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
     }
     ```
 
-3. Create new `tsconfig.json` file with the following content:
+3. Create a new `tsconfig.json` file with the following content:
 
     ```json title="tsconfig.json"
     {
