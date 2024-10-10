@@ -1,59 +1,49 @@
-import { App } from 'wasp-config'
+import { App, ExtImport } from 'wasp-config'
 
 const app = new App('Thoughts', {
   title: 'Thoughts',
   wasp: { version: '^0.15.0' }
 });
 
+app.db({
+  seeds: [{ import: 'devSeedBasic', from: '@src/server/seeds.js' }]
+});
+
 app.auth({
   userEntity: 'User',
-  methods: {
-    usernameAndPassword: {}
-  },
+  methods: { usernameAndPassword: {} },
   onAuthFailedRedirectTo: '/login'
 });
 
-app.db({
-  seeds: [
-    { import: 'devSeedBasic', from: '@src/server/seeds.js' }
-  ]
-});
+appPageWithRoute('Main',     '/',         '@src/client/MainPage.jsx',     { auth: true });
+appPageWithRoute('Thoughts', '/thoughts', '@src/client/ThoughtsPage.jsx', { auth: true });
+appPageWithRoute('Login',    '/login',    '@src/client/LoginPage.jsx');
+appPageWithRoute('Signup',   '/signup',   '@src/client/SignupPage.jsx');
 
-const mainPage = app.page('MainPage', {
-  component: { importDefault: 'Main', from: '@src/client/MainPage.jsx' },
-  authRequired: true
-});
-app.route('MainRoute', { path: '/', to: mainPage });
+appAction('createThought', ['Thought', 'Tag'], '@src/server/actions.js');
+appQuery( 'getTags',       ['Tag'],            '@src/server/queries.js');
+appQuery( 'getThoughts',   ['Thought'],        '@src/server/queries.js');
 
-const thoughtsPage = app.page('ThoughtsPage', {
-  component: { importDefault: 'Thoughts', from: '@src/client/ThoughtsPage.jsx' },
-  authRequired: true
-});
-app.route('ThoughtsRoute', { path: '/thoughts', to: thoughtsPage });
+function appPageWithRoute(pageName: string, path: string, from: ExtImport['from'], config?: { auth: boolean }) {
+  const page = app.page(pageName, {
+    component: { importDefault: pageName, from },
+    ...(config?.auth && { authRequired: config?.auth })
+  });
+  app.route(pageName + 'Route', { path, to: page });
+}
 
-const loginPage = app.page('LoginPage', {
-  component: { importDefault: 'Login', from: '@src/client/LoginPage.jsx' }
-});
-app.route('LoginRoute', { path: '/login', to: loginPage });
+function appQuery(jsName: string, entities: string[], from: ExtImport['from']) {
+  app.query(jsName, {
+    fn: { import: jsName, from },
+    entities
+  });
+}
 
-const signupPage = app.page('SignupPage', {
-  component: { importDefault: 'Signup', from: '@src/client/SignupPage.jsx' }
-});
-app.route('SignupRoute', { path: '/signup', to: signupPage });
-
-app.action('createThought', {
-  fn: { import: 'createThought', from: '@src/server/actions.js' },
-  entities: ['Thought', 'Tag']
-});
-
-app.query('getThoughts', {
-  fn: { import: 'getThoughts', from: '@src/server/queries.js' },
-  entities: ['Thought']
-});
-
-app.query('getTags', {
-  fn: { import: 'getTags', from: '@src/server/queries.js' },
-  entities: ['Tag']
-});
+function appAction(jsName: string, entities: string[], from: ExtImport['from']) {
+  app.action(jsName, {
+    fn: { import: jsName, from },
+    entities
+  });
+}
 
 export default app;
