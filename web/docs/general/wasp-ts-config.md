@@ -78,7 +78,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
     }
     ```
 
-5. In your `package.json`, add `"type": "module"` entry at the top level:
+5. Add `"type": "module"` to the top level of your `package.json`:
 
     ```json title="package.json"
     {
