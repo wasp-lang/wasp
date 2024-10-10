@@ -15,7 +15,7 @@ This feature is currently in early preview and we are actively working on it.
 
 In Wasp, you normally define/configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp` file in the root of your project. In `main.wasp` you write in Wasp's DSL (domain-specific language), which is a simple configuration language similar to JSON but smarter.
 
-In Wasp 0.15, we introduce **Wasp TS config**, an alternative way to define the high level of your app via `main.wasp.ts`! Although it looks extremely similar to how you would do it in `main.wasp`, the difference is that you write in TypeScript, not in Wasp's DSL.
+Wasp 0.15 introduces the **Wasp TS config**, an alternative way to define the high level of your app via `main.wasp.ts`! Although it looks similar to how you would do it in `main.wasp`, the difference is that you write in TypeScript, not in Wasp's DSL.
 
 This is an **early preview** feature, meaning it is quite rough and unpolished and not yet where it could be, but it does work, we think it is pretty cool already, and you can try it out now. If you do, please share your feedback and any ideas with us on our [GitHub](https://github.com/wasp-lang/wasp) or <DiscordLink />, this is crucial for us to be able to shape this feature in the best possible way!
 
