@@ -24,7 +24,7 @@ The **tutorials** directory contains [Wasp tutorial](https://wasp-lang.dev/docs/
 
 1. **thoughts**
     - A simple note-taking app organized around the concept of hashtags.
-    - Demonstrates: [db seeding](https://wasp-lang.dev/docs/data-model/backends#seeding-the-database), [auth](https://wasp-lang.dev/docs/auth/overview), [rpc](https://wasp-lang.dev/docs/data-model/operations/overview)
+    - Demonstrates: [db seeding](https://wasp-lang.dev/docs/data-model/backends#seeding-the-database), [auth](https://wasp-lang.dev/docs/auth/overview), [rpc](https://wasp-lang.dev/docs/data-model/operations/overview), [Wasp TS config](https://wasp-lang.dev/docs/general/wasp-ts-config) .
 
 1. **streaming**
     - Demonstrates: **http streaming**, [api](https://wasp-lang.dev/docs/advanced/apis)
