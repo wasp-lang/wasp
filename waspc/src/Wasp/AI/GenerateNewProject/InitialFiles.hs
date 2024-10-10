@@ -147,6 +147,7 @@ generatePackageJson newProjectDetails =
     [trimming|
       {
         "name": "${appName}",
+        "type": "module",
         "dependencies": {
           "wasp": "file:.wasp/out/sdk/wasp",
           "react": "^18.2.0"
@@ -273,9 +274,10 @@ generateLayoutComponent newProjectDetails =
     [trimming|
       import { Link } from "wasp/client/router";
       import { useAuth, logout } from "wasp/client/auth";
+      import { Outlet } from "react-router-dom";
       import "./Main.css";
 
-      export const Layout = ({ children }) => {
+      export const Layout = () => {
         const { data: user } = useAuth();
 
         return (
@@ -300,7 +302,7 @@ generateLayoutComponent newProjectDetails =
               </div>
             </header>
             <main className="container mx-auto px-4 py-2 flex-grow">
-              {children}
+              <Outlet />
             </main>
             <footer>
               <div className="container mx-auto p-4">
