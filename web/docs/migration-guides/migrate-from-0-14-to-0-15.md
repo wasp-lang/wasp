@@ -41,14 +41,19 @@ app MyApp {
 
 ### 2. Update the `package.json` file
 
-1. Update the `prisma` version in your `package.json` file to `5.19.1`:
+1. Update the `prisma` version in your `package.json` file to `5.19.1`, and add `"type": "module"` to the top level:
 
    ```json title="package.json"
    {
+     ...
+      // highlight-next-line
+     "type": "module",
      "dependencies": {
+       ....
        // highlight-next-line
        "prisma": "5.19.1"
      }
+     ...
    }
    ```
 

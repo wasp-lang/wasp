@@ -1,5 +1,6 @@
 {
   "name": "waspello",
+  "type": "module",
   "dependencies": {
     "react-feather": "2.0.10",
     "classnames": "2.3.1",

@@ -1,5 +1,6 @@
 {
   "name": "streaming",
+  "type": "module",
   "dependencies": {
     "wasp": "file:.wasp/out/sdk/wasp",
     "react": "^18.2.0"
