@@ -100,7 +100,7 @@ In short, you'll have to:
   4. Export the `app` from your file using a default export.
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
-10. Run `wasp start` to run your app! If you got it all right, it should work the same as it worked before: the only difference is that it is now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
+10. Run `wasp start` to run your app! If you got everything right, your app should work exactly like it did before. The only difference is that it's now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
     :::tip
       Don't forget to have the database running or do the db migrations if needed, as you would normally when running your app in development.
     :::
