@@ -69,8 +69,10 @@ To learn more about this feature and how to activate it, check out the docs.
 ### ⚠️ Breaking Changes
 
 There are some breaking changes with React Router 6 which will require you to update your code.
+Also, the new version of Prisma may cause breaking changes depending on how you're using it.
 
-Read more about them in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15
+
+Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15
 
 ### 🐞 Bug fixes
 
