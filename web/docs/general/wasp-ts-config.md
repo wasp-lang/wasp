@@ -25,7 +25,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 - Less maintenance on our side.
 - More flexibility for you while writing the config.
 - It will enable us to easily add support for multiple Wasp files in the future.
-- Lays down a good foundation for the Full Stack Modules (FSM) that are a part of our future plans.
+- A great foundation for the Full Stack Modules (FSM) that are a part of our future plans.
 
 ## How to switch from Wasp DSL config to Wasp TS config
 
