@@ -464,7 +464,6 @@ library waspls
     Wasp.LSP.TypeInference
     Wasp.LSP.Util
     Wasp.LSP.Prisma.Analyze
-    Wasp.LSP.Prisma.Util
   build-depends:
       base
     , aeson
@@ -565,6 +564,7 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
+    Wasp.Cli.Command.TsConfigSetup
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common

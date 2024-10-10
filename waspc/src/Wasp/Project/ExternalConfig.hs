@@ -5,15 +5,16 @@ module Wasp.Project.ExternalConfig
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, File, Path', Rel)
 import qualified Wasp.ExternalConfig.PackageJson as P
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common
   ( CompileError,
+    SrcTsConfigFile,
     WaspProjectDir,
   )
 import Wasp.Project.ExternalConfig.PackageJson (analyzePackageJsonFile)
-import Wasp.Project.ExternalConfig.TsConfig (analyzeTsConfigFile)
+import Wasp.Project.ExternalConfig.TsConfig (analyzeSrcTsConfigFile)
 
 data ExternalConfigs = ExternalConfigs
   { _packageJson :: P.PackageJson,
@@ -21,10 +22,13 @@ data ExternalConfigs = ExternalConfigs
   }
   deriving (Show)
 
-analyzeExternalConfigs :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] ExternalConfigs)
-analyzeExternalConfigs waspDir = runExceptT $ do
+analyzeExternalConfigs ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
+  IO (Either [CompileError] ExternalConfigs)
+analyzeExternalConfigs waspDir srcTsConfigFile = runExceptT $ do
   packageJsonContent <- ExceptT $ analyzePackageJsonFile waspDir
-  tsConfigContent <- ExceptT $ analyzeTsConfigFile waspDir
+  tsConfigContent <- ExceptT $ analyzeSrcTsConfigFile waspDir srcTsConfigFile
 
   return $
     ExternalConfigs

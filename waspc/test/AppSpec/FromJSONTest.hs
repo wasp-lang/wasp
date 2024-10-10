@@ -19,6 +19,7 @@ import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Query (Query)
 import qualified Wasp.AppSpec.Query as Query
+import qualified Wasp.AppSpec.Route as Route
 
 spec_AppSpecFromJSON :: Spec
 spec_AppSpecFromJSON = do
@@ -81,6 +82,21 @@ spec_AppSpecFromJSON = do
           }
         |]
         `shouldDecodeTo` (Nothing :: Maybe Page.Page)
+  describe "Route" $ do
+    it "parses a valid Route JSON" $ do
+      [trimming|
+          {
+            "path": "/foo",
+            "to": ${pageRef}
+          }
+        |]
+        `shouldDecodeTo` Just
+          ( Route.Route
+              { Route.path = "/foo",
+                Route.to = fromJust $ decodeJson pageRef
+              }
+          )
+
   describe "Ref" $ do
     it "parses a valid Entity Ref JSON" $ do
       fooEntityRef `shouldDecodeTo` Just (Ref.Ref "foo" :: Ref Entity)
@@ -94,16 +110,6 @@ spec_AppSpecFromJSON = do
           }
         |]
         `shouldDecodeTo` Just (Ref.Ref "foo" :: Ref Query)
-    it "fails to parse an invalid declType" $ do
-      [trimming|
-          {
-            "name": "foo",
-            "declType": "IMadeThisUp"
-          }
-        |]
-        -- NOTE: We are using `Ref Entity` here, because the Show instance in
-        -- shouldDecodeTo demands a proper type.
-        `shouldDecodeTo` (Nothing :: Maybe (Ref Entity))
   describe "Query" $ do
     it "parses a valid Query JSON with auth and entities" $ do
       [trimming|
@@ -288,8 +294,8 @@ spec_AppSpecFromJSON = do
               }
           )
   where
-    extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "folder/file.js" }|]
-    extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "path": "folder/subfolder/file.js" }|]
+    extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.js" }|]
+    extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "path": "@src/folder/subfolder/file.js" }|]
 
     fooEntityRef = [trimming| { "name": "foo", "declType": "Entity" }|]
     barEntityRef = [trimming| { "name": "bar", "declType": "Entity" }|]

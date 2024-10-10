@@ -7,7 +7,7 @@ module Wasp.Psl.Ast.Model
     Field (..),
     FieldType (..),
     FieldTypeModifier (..),
-    getFields,
+    getName,
   )
 where
 
@@ -60,5 +60,5 @@ data FieldTypeModifier
   | Optional
   deriving (Show, Eq, Data)
 
-getFields :: Model -> [Field]
-getFields (Model _ (Body elements)) = [field | ElementField field <- elements]
+getName :: Model -> Name
+getName (Model name _) = name

@@ -5,7 +5,10 @@ module Wasp.Project.Common
     CompileError,
     CompileWarning,
     PackageJsonFile,
-    TsConfigFile,
+    SrcTsConfigFile,
+    WaspFilePath (..),
+    WaspLangFile,
+    WaspTsFile,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
@@ -18,9 +21,10 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     extPublicDirInWaspProjectDir,
-    tsconfigInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
-    tsConfigInWaspProjectDir,
+    getSrcTsConfigInWaspProjectDir,
+    srcTsConfigInWaspLangProject,
+    srcTsConfigInWaspTsProject,
   )
 where
 
@@ -41,7 +45,15 @@ data DotWaspDir -- Here we put everything that wasp generates.
 
 data PackageJsonFile
 
-data TsConfigFile
+data SrcTsConfigFile
+
+data WaspFilePath
+  = WaspLang !(Path' Abs (File WaspLangFile))
+  | WaspTs !(Path' Abs (File WaspTsFile))
+
+data WaspLangFile
+
+data WaspTsFile
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
@@ -76,8 +88,17 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
 packageJsonInWaspProjectDir = [relfile|package.json|]
 
-tsConfigInWaspProjectDir :: Path' (Rel WaspProjectDir) (File TsConfigFile)
-tsConfigInWaspProjectDir = [relfile|tsconfig.json|]
+-- TODO: The entire tsconfig story is very fragile
+getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+getSrcTsConfigInWaspProjectDir = \case
+  WaspTs _ -> srcTsConfigInWaspTsProject
+  WaspLang _ -> srcTsConfigInWaspLangProject
+
+srcTsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+srcTsConfigInWaspLangProject = [relfile|tsconfig.json|]
+
+srcTsConfigInWaspTsProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+srcTsConfigInWaspTsProject = [relfile|tsconfig.src.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
@@ -91,13 +112,10 @@ srcDirInWaspProjectDir = [reldir|src|]
 extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
 extPublicDirInWaspProjectDir = [reldir|public|]
 
-tsconfigInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-tsconfigInWaspProjectDir = [relfile|tsconfig.json|]
-
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) (File file) ->
-  IO (Maybe (Path' Abs (File file)))
+  Path' (Rel WaspProjectDir) (File f) ->
+  IO (Maybe (Path' Abs (File f)))
 findFileInWaspProjectDir waspDir file = do
   let fileAbsFp = waspDir </> file
   fileExists <- doesFileExist $ toFilePath fileAbsFp

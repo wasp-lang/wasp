@@ -5,7 +5,7 @@ where
 
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
-import Wasp.NodePackageFFI (Package (WaspStudioPackage), getPackageProcessOptions)
+import Wasp.NodePackageFFI (RunnablePackage (WaspStudioPackage), getPackageProcessOptions)
 
 startStudio ::
   -- | Path to the data JSON file.

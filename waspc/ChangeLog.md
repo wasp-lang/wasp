@@ -2,16 +2,77 @@
 
 ## 0.15.0
 
-### 🎉 New Features
+### 🎉 New Features and improvements
 
-- Upgrade to the latest Prisma version which makes Wasp faster!
-- Upgrade to the latest React Router version which sets us up for some cool new features in the future.
+#### Write your app config in TypeScript (preview feature)
+
+Wasp 0.15.0 ships a preview feature that lets you define your app using TypeScript instead of the Wasp language.
+
+So, instead of this:
+
+```c
+app TodoApp {
+  wasp: {
+    version: "^0.15.0"
+  },
+  title: "TodoApp",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  authRequired: true,
+  component: import { MainPage } from "@src/MainPage"
+}
+```
+
+You can now write this:
+
+```typescript
+
+improt { App } from 'wasp-config'
+
+const app = new App('TodoApp', {
+  title: 'TodoApp',
+  wasp: {
+    version: '^0.15.0',
+  },
+})
+
+app.auth({
+  userEntity: 'User',
+  methods: {
+    usernameAndPassword: {}
+  },
+  onAuthFailedRedirectTo: '/login',
+})
+
+const mainPage = app.page('MainPage', {
+  authRequired: true,
+  component: { import: 'MainPage', from: '@src/MainPage' },
+})
+
+app.route('RootRoute', {
+  path: '/',
+  to: mainPage,
+})
+```
+
+To learn more about this feature and how to activate it, check out the docs.
 
 ### ⚠️ Breaking Changes
 
 There are some breaking changes with React Router 6 which will require you to update your code.
+Also, the new version of Prisma may cause breaking changes depending on how you're using it.
 
-Read more about them in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15
+
+Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15
 
 ### 🐞 Bug fixes
 
@@ -20,6 +81,8 @@ Read more about them in the migration guide: https://wasp-lang.dev/docs/migratio
 
 ### 🔧 Small improvements
 
+- Upgrade to the latest Prisma version which makes Wasp faster!
+- Upgrade to the latest React Router version which sets us up for some cool new features in the future.
 - Enable users to use Mailgun's EU region by setting the `MAILGUN_API_URL` env variable.
 - Validate `userEntity` ID field's `@default` attribute.
 

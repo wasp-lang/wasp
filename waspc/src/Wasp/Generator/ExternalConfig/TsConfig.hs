@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Wasp.Generator.ExternalConfig.TsConfig
-  ( validateTsConfig,
+  ( validateSrcTsConfig,
   )
 where
 
@@ -23,8 +23,8 @@ instance IsJavascriptValue Bool where
 
 type FieldName = String
 
-validateTsConfig :: T.TsConfig -> [ErrorMsg]
-validateTsConfig tsConfig =
+validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
+validateSrcTsConfig tsConfig =
   concat
     [ validateRequiredFieldInCompilerOptions "module" "esnext" T._module,
       validateRequiredFieldInCompilerOptions "target" "esnext" T.target,

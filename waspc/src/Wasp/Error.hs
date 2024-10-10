@@ -1,8 +1,9 @@
 module Wasp.Error (showCompilerErrorForTerminal) where
 
 import Data.List (intercalate)
-import StrongPath (Abs, File', Path')
+import StrongPath (Abs, Path')
 import qualified StrongPath as SP
+import StrongPath.Types (File)
 import Wasp.Analyzer.Parser.Ctx (Ctx, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
@@ -12,7 +13,7 @@ import qualified Wasp.Util.Terminal as T
 -- | Transforms compiler error (error with parse context) into an informative, pretty String that
 -- can be printed directly into the terminal. It uses terminal features like escape codes
 -- (colors, styling, ...).
-showCompilerErrorForTerminal :: (Path' Abs File', String) -> (String, Ctx) -> String
+showCompilerErrorForTerminal :: (Path' Abs (File f), String) -> (String, Ctx) -> String
 showCompilerErrorForTerminal (waspFilePath, waspFileContent) (errMsg, errCtx) =
   let srcRegion = getCtxRgn errCtx
    in intercalate
