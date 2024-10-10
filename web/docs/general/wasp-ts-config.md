@@ -27,7 +27,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 - It will enable us to easily add support for multiple Wasp files in the future.
 - A great foundation for the Full Stack Modules (FSM) that are a part of our future plans.
 
-## How to switch from Wasp DSL config to Wasp TS config
+## How to switch from the Wasp DSL config to the Wasp TS config
 
 1. Go into your Wasp project that you want to switch to Wasp TS config (or create a new Wasp project if you want to try it out like that). Make sure you are on Wasp >= 0.15 and your project is working.
 2. Rename `tsconfig.json` file to `tsconfig.src.json` and add `"include": ["src"]` entry to the top level (next to `compilerOptions`, not in them!):
