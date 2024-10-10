@@ -108,7 +108,7 @@ Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will 
 
 ### Experiment
 
-Play with the Wasp TS config, see if you can improve it in any way, and get a feel for it. Some ideas to experiment with:
+Play with the Wasp TS config, get the feel of it, and see if you can find ways to improve it. Here are some ideas you can experiment with:
 
 - How would you reduce the boilerplate in `main.wasp.ts` file? Helper functions, loops?
 - Can you imagine a better API or better abstractions? If you can, what would that look like? Perhaps you can even implement it on top of our API?
