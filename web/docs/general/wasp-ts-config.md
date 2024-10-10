@@ -121,7 +121,7 @@ Whatever you end up doing, we would love it if you would let us know how it was 
 
 We do have some immediate ideas of our own about what we want to improve, but we want to hear what you thought of, what you liked or disliked, or what you came up with. Even if you just found it all good, or just a single thing you didn't or did like, that is also valuable feedback and we would love to hear it!
 
-Let us know either on our [GitHub](https://github.com/wasp-lang/wasp) or even better in our <DiscordLink />.
+Let us know on our [GitHub](https://github.com/wasp-lang/wasp) or, even better, in our <DiscordLink />.
 
 ## Reference main.wasp.ts file
 
