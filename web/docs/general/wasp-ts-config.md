@@ -111,7 +111,7 @@ Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will 
 Play with the Wasp TS config, see if you can improve it in any way, and get a feel for it. Some ideas to experiment with:
 
 - How would you go about reducing the boilerplate in `main.wasp.ts` file? Helper functions, loops?
-- Can you imagine a better API / abstractions? If you do, what would it look like? Maybe you can even implement it on top of our API?
+- Can you imagine a better API or better abstractions? If you can, what would that look like? Perhaps you can even implement it on top of our API?
 - Give a try at implementing your own file-based routing if that is what you like: you are now in Turing complete language and have access to the disk!
 - Surprise us!
 
