@@ -24,7 +24,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 - Out-of-the-box support in all editors.
 - Less maintenance on our side.
 - More flexibility for you while writing the config.
-- It makes it easy to support splitting the Wasp config into multiple files.
+- It will enable us to easily add support for multiple Wasp files in the future.
 - Lays down a good foundation for the Full Stack Modules (FSM) that are a part of our future plans.
 
 ## How to switch from Wasp DSL config to Wasp TS config
