@@ -30,7 +30,7 @@ This is an **early preview** feature, meaning it is quite rough and unpolished a
 ## How to switch from Wasp DSL config to Wasp TS config
 
 1. Go into your Wasp project that you want to switch to Wasp TS config (or create a new Wasp project if you want to try it out like that). Make sure you are on Wasp >= 0.15 and your project is working.
-2. Rename `tsconfig.json` file to `tsconfig.src.json` and add `"include": ["src"]` entry to it:
+2. Rename `tsconfig.json` file to `tsconfig.src.json` and add `"include": ["src"]` entry to the top level (next to `compilerOptions`, not in them!):
 
     ```json title="tsconfig.src.json"
     {
