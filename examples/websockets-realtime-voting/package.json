@@ -1,5 +1,6 @@
 {
   "name": "websocketsRealtimeVoting",
+  "type": "module",
   "dependencies": {
     "flowbite": "1.6.6",
     "flowbite-react": "0.4.9",

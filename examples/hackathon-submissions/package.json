@@ -1,5 +1,6 @@
 {
   "name": "hackathonSubmissions",
+  "type": "module",
   "dependencies": {
     "react-feather": "2.0.10",
     "wasp": "file:.wasp/out/sdk/wasp",
