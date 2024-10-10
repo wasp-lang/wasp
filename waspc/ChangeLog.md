@@ -6,7 +6,7 @@
 
 #### Write your app config in TypeScript (preview feature)
 
-Wasp 0.15.0 ships a preview feature that lets you define your app using TypeScript instead of the Wasp language.
+Wasp 0.15.0 ships a preview feature that lets you define your app in `main.wasp.ts` using TypeScript instead of in `main.wasp` using the Wasp DSL.
 
 So, instead of this:
 
@@ -39,10 +39,10 @@ You can now write this:
 improt { App } from 'wasp-config'
 
 const app = new App('TodoApp', {
-  title: 'TodoApp',
   wasp: {
     version: '^0.15.0',
   },
+  title: 'TodoApp',
 })
 
 app.auth({
@@ -57,14 +57,10 @@ const mainPage = app.page('MainPage', {
   authRequired: true,
   component: { import: 'MainPage', from: '@src/MainPage' },
 })
-
-app.route('RootRoute', {
-  path: '/',
-  to: mainPage,
-})
+app.route('RootRoute', { path: '/', to: mainPage })
 ```
 
-To learn more about this feature and how to activate it, check out the docs.
+To learn more about this feature and how to activate it, check out the [Wasp TS config docs](https://wasp-lang.dev/docs/general/wasp-ts-config).
 
 ### ⚠️ Breaking Changes
 
@@ -72,7 +68,7 @@ There are some breaking changes with React Router 6 which will require you to up
 Also, the new version of Prisma may cause breaking changes depending on how you're using it.
 
 
-Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15
+Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15 .
 
 ### 🐞 Bug fixes
 

@@ -4,6 +4,10 @@ title: Wasp Language (.wasp)
 
 Wasp language (what you write in .wasp files) is a declarative, statically typed, domain-specific language (DSL).
 
+:::tip Wasp TS config [Early-preview feature]
+If you wish, you can alternatively define your [Wasp config in TS](./wasp-ts-config.md) (`main.wasp.ts`) instead of `main.wasp`.
+:::
+
 It is a quite simple language, closer to JSON, CSS or SQL than to e.g. Javascript or Python, since it is not a general programming language, but more of a configuration language.
 
 It is pretty intuitive to learn (there isn't much to learn really!) and you can probably do just fine without reading this page and learning from the rest of the docs as you go, but if you want a bit more formal definition and deeper understanding of how it works, then read on!
