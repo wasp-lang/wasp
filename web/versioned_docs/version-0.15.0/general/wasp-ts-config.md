@@ -106,6 +106,10 @@ In short, you'll have to:
     :::
 11. That is it, you are now using Wasp TS config! You can delete `main.wasp.old` file now if you still have it around.
 
+:::caution
+  If you run `wasp clean` or remove `node_modules` on  your own, you will have to rerun `wasp ts-setup`!
+:::
+
 Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will help!
 
 ## What next?
