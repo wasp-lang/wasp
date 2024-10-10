@@ -93,7 +93,11 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
    Check out the [reference main.wasp.ts file](#reference-main-wasp-ts-file) below for details on what the TypeScript API for configuring Wasp looks like.
-In short, you will want to import the `App` from `wasp-config`, use it to define parts of your web app like `auth`, `pages`, `query`, `api`, ..., and at the end do the `default export app`.
+In short, you'll have to:
+  1. Import `App` from `wasp-config`
+  2. Create a new `app` object with `new App()`.
+  3. Use the `app` object to define parts of your web app like `auth`, `pages`, `query`, `api`...
+  4. Export the `app` from your file using a default export.
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
 10. Run `wasp start` to run your app! If you got it all right, it should work the same as it worked before: the only difference is that it is now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
