@@ -4,6 +4,9 @@ slug: /
 ---
 
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { HiddenLLMHelper } from '@site/src/components/HiddenLLMHelper'
+
+<HiddenLLMHelper />
 
 :::note
 If you are looking for the installation instructions, check out the [Quick Start](./quick-start.md) section.
