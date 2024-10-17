@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkweb=self.webpackChunkweb||[]).push([[50001],{13460:a=>{a.exports=JSON.parse('{"label":"chakra","permalink":"/blog/tags/chakra","allTagsPath":"/blog/tags","count":2}')}}]);

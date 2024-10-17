@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkweb=self.webpackChunkweb||[]).push([[6016],{28819:l=>{l.exports=JSON.parse('{"label":"function calling","permalink":"/blog/tags/function-calling","allTagsPath":"/blog/tags","count":1}')}}]);

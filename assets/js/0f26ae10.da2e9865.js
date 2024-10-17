@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkweb=self.webpackChunkweb||[]).push([[83719],{38699:e=>{e.exports=JSON.parse('{"label":"Solopreneur","permalink":"/blog/tags/solopreneur","allTagsPath":"/blog/tags","count":1}')}}]);

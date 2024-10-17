@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkweb=self.webpackChunkweb||[]).push([[32467],{92827:e=>{e.exports=JSON.parse('{"label":"web-development","permalink":"/blog/tags/web-development","allTagsPath":"/blog/tags","count":1}')}}]);
