@@ -180,8 +180,8 @@ app MyApp {
   // ...
   db: {
     seeds: [
-      import { devSeedSimple } from "@src/dbSeeds.js",
-      import { prodSeed } from "@src/dbSeeds.js"
+      import { devSeedSimple } from "@src/dbSeeds.ts",
+      import { prodSeed } from "@src/dbSeeds.ts"
     ]
   }
 }
@@ -243,7 +243,7 @@ async function createUser(prisma, data) {
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-import { createTask } from './actions.js'
+import { createTask } from './actions.ts'
 import { type DbSeedFn } from 'wasp/server'
 import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 import { type AuthUser } from 'wasp/auth'
@@ -343,7 +343,7 @@ app MyApp {
   // ...
   db: {
     seeds: [
-      import devSeed from "@src/dbSeeds.js"
+      import devSeed from "@src/dbSeeds.ts"
     ],
   }
 }
@@ -396,7 +396,7 @@ Use one of the following commands to run the seed functions:
     db: {
       seeds: [
         // ...
-        import { devSeedSimple } from "@src/dbSeeds.js",
+        import { devSeedSimple } from "@src/dbSeeds.ts",
       ]
     }
   }

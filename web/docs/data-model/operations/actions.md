@@ -60,11 +60,11 @@ action markTaskAsDone {
 // ...
 
 action createTask {
-  fn: import { createTask } from "@src/actions.js"
+  fn: import { createTask } from "@src/actions.ts"
 }
 
 action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@src/actions.js"
+  fn: import { markTaskAsDone } from "@src/actions.ts"
 }
 ```
 
@@ -487,12 +487,12 @@ action markTaskAsDone {
 ```wasp {4,9} title="main.wasp"
 
 action createTask {
-  fn: import { createTask } from "@src/actions.js",
+  fn: import { createTask } from "@src/actions.ts",
   entities: [Task]
 }
 
 action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@src/actions.js",
+  fn: import { markTaskAsDone } from "@src/actions.ts",
   entities: [Task]
 }
 ```
