@@ -265,6 +265,89 @@ netlify deploy --prod
 
 That is it! Your client should be live at `https://<app-name>.netlify.app` ✨
 
+:::caution
+Please do not set up the continuous deploy through the Netlify website. When deployed in this way, Netlify doesn't redirect URLs toward `index.html` but instead returns 404, which can break the user authentication functionality. Wasp by default comes with a `netlify.toml` file in `.wasp/build/web-app` that configures Netfliy correctly, but the configuration may break when deployed through the Netlify website.
+
+It is recommended to deploy through the Netlify CLI in Github Actions. The first deploy can be through the website or manually through get a `NETLIFY_SITE_ID`, then the following deploys can be automatic.
+
+<details>
+<summary>Example Github Action (Updated for 0.15.0)</summary>
+
+```
+name: Deploy Client to Netlify
+
+on:
+  push:
+    branches:
+      - main  # Deploy on every push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Docker setup
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Wasp
+        run: curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.15.0 # Change to your Wasp version
+
+      - name: Wasp Build
+        run: cd ./app && wasp build
+
+      - name: Install dependencies and build Vite project
+        run: |
+          cd ./app/.wasp/build/web-app
+          npm install
+          REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+
+      - name: Deploy to Netlify
+        run: |
+          cd ./app/.wasp/build/web-app
+          npm install -g netlify-cli
+          netlify deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID
+
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+```
+</details>
+
+<details>
+<summary>How do I get the Environment Variables?</summary>
+
+- **`NETLIFY_AUTH_TOKEN`**: This is the token that allows GitHub Actions to authenticate with your Netlify account. You can generate this from the **Netlify User Settings**:
+  - Go to your [Netlify User Settings Page](https://app.netlify.com/user/settings).
+  - Scroll down to **Personal Access Tokens**.
+  - Click on **New Access Token** to create a new token.
+  
+- **`NETLIFY_SITE_ID`**: This is the unique identifier for your Netlify site. You can obtain this from the **Site Settings** of your site in the Netlify dashboard:
+  - Go to your **Netlify dashboard**.
+  - Click on the specific site you want to deploy.
+  - Go to **Site Settings** → **General** → **Site Information** → **Site ID**.
+
+- **`WASP_SERVER_URL`**: This is the link that points to your backend and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
+
+After obtaining the environment variables, you need to store these values securely in GitHub Secrets. To add these:
+
+1. Go to your **GitHub repository**.
+2. Navigate to **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
+3. Add the following secrets:
+   - `NETLIFY_AUTH_TOKEN`
+   - `NETLIFY_SITE_ID`
+   - `WASP_SERVER_URL`
+</details>
+:::
+
 :::note
 Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment (e.g., Fly.io or Heroku).
 :::
