@@ -268,7 +268,7 @@ That is it! Your client should be live at `https://<app-name>.netlify.app` ✨
 :::caution
 Please do not set up the continuous deploy through the Netlify website. When deployed in this way, Netlify doesn't redirect URLs toward `index.html` but instead returns 404, which can break the user authentication functionality. Wasp by default comes with a `netlify.toml` file in `.wasp/build/web-app` that configures Netfliy correctly, but the configuration may break when deployed through the Netlify website.
 
-It is recommended to deploy through the Netlify CLI in Github Actions. The first deploy can be through the website or manually through get a `NETLIFY_SITE_ID`, then the following deploys can be automatic.
+It is recommended to deploy through the Netlify CLI in Github Actions. The first deploy can be through the website or manually to get a `NETLIFY_SITE_ID`, the following deploys can then be automatic.
 
 <details>
 <summary>Example Github Action (Updated for 0.15.0)</summary>
