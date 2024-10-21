@@ -92,7 +92,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 8. Run `wasp ts-setup`. This command will add the `wasp-config` package to your `package.json`'s `devDependencies`.
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
-   Check out the [reference main.wasp.ts file](#reference-main-wasp-ts-file) below for details on what the TypeScript API for configuring Wasp looks like.
+   Check out the [reference main.wasp.ts file](#reference-mainwaspts-file) below for details on what the TypeScript API for configuring Wasp looks like.
    In short, you'll have to:
    1. Import `App` from `wasp-config`
    2. Create a new `app` object with `new App()`.
