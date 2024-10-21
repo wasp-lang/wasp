@@ -143,12 +143,18 @@ function mapOperationConfig(
 
 function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
   if ('import' in extImport) {
-    return { kind: 'named', name: extImport.import, path: extImport.from };
+    return { kind: 'named', name: extImport.import, path: extImport.from }
   } else if ('importDefault' in extImport) {
-    return { kind: 'default', name: extImport.importDefault, path: extImport.from };
+    return {
+      kind: 'default',
+      name: extImport.importDefault,
+      path: extImport.from,
+    }
   } else {
-    const _exhaustiveCheck: never = extImport;
-    throw new Error('Invalid ExtImport: neither `import` nor `importDefault` is defined');
+    const _exhaustiveCheck: never = extImport
+    throw new Error(
+      'Invalid ExtImport: neither `import` nor `importDefault` is defined'
+    )
   }
 }
 
@@ -326,16 +332,19 @@ function mapEmailSender(
 function mapServer(server: User.ServerConfig): AppSpec.Server {
   const { setupFn, middlewareConfigFn } = server
   return {
-    setupFn: mapExtImport(setupFn),
-    middlewareConfigFn: mapExtImport(middlewareConfigFn),
+    ...(setupFn && { setupFn: mapExtImport(setupFn) }),
+    ...(middlewareConfigFn && {
+      middlewareConfigFn: mapExtImport(middlewareConfigFn),
+    }),
   }
 }
 
 function mapClient(client: User.ClientConfig): AppSpec.Client {
-  const { setupFn, rootComponent } = client
+  const { setupFn, rootComponent, baseDir } = client
   return {
-    setupFn: mapExtImport(setupFn),
-    rootComponent: mapExtImport(rootComponent),
+    ...(setupFn && { setupFn: mapExtImport(setupFn) }),
+    ...(rootComponent && { rootComponent: mapExtImport(rootComponent) }),
+    ...(baseDir && { baseDir }),
   }
 }
 
