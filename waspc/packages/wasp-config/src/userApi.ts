@@ -94,17 +94,19 @@ export type WaspConfig = AppSpec.Wasp
 
 export type AppConfig = Pick<AppSpec.App, 'title' | 'wasp' | 'head'>
 
-export type ExtImport = {
-  import: string
-  from: AppSpec.ExtImport['path']
-} | {
-  importDefault: string
-  from: AppSpec.ExtImport['path']
-}
+export type ExtImport =
+  | {
+      import: string
+      from: AppSpec.ExtImport['path']
+    }
+  | {
+      importDefault: string
+      from: AppSpec.ExtImport['path']
+    }
 
 export type ServerConfig = {
-  setupFn: ExtImport
-  middlewareConfigFn: ExtImport
+  setupFn?: ExtImport
+  middlewareConfigFn?: ExtImport
 }
 
 export type PageConfig = {
@@ -118,8 +120,9 @@ export type WebsocketConfig = {
 }
 
 export type ClientConfig = {
-  rootComponent: ExtImport
-  setupFn: ExtImport
+  rootComponent?: ExtImport
+  setupFn?: ExtImport
+  baseDir?: `/${string}`
 }
 
 export type DbConfig = {

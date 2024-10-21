@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.1
+
+### 🐞 Bug fixes
+
+- Server and Client setup props are no longer mandatory when using TS Config.
+
 ## 0.15.0
 
 ### 🎉 New Features and improvements
