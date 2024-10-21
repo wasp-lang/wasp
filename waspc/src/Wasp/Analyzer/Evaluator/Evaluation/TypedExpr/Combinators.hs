@@ -20,8 +20,6 @@ where
 import Control.Arrow (left)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
-import Data.List (stripPrefix)
-import qualified StrongPath as SP
 import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as ER
