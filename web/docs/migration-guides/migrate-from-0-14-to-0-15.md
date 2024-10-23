@@ -48,7 +48,7 @@ app MyApp {
      ...
       // highlight-next-line
      "type": "module",
-     "dependencies": {
+     "devDependencies": {
        ....
        // highlight-next-line
        "prisma": "5.19.1"
