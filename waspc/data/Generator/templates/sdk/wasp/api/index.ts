@@ -15,9 +15,11 @@ let waspAppAuthSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string 
 
 // PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
-  waspAppAuthSessionId = sessionId
-  storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
-  apiEventsEmitter.emit('sessionId.set')
+  if (waspAppAuthSessionId !== sessionId) {
+    waspAppAuthSessionId = sessionId
+    storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
+    apiEventsEmitter.emit('sessionId.set')
+  }
 }
 
 // PRIVATE API (sdk)
@@ -27,9 +29,12 @@ export function getSessionId(): string | undefined {
 
 // PRIVATE API (sdk)
 export function clearSessionId(): void {
-  waspAppAuthSessionId = undefined
-  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
-  apiEventsEmitter.emit('sessionId.clear')
+  const sessionIdInStorage = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
+  if (!sessionIdInStorage || sessionIdInStorage === waspAppAuthSessionId) {
+    waspAppAuthSessionId = undefined
+    storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
+    apiEventsEmitter.emit('sessionId.clear')
+  }
 }
 
 // PRIVATE API (sdk)
@@ -49,7 +54,10 @@ api.interceptors.request.use((request) => {
 
 api.interceptors.response.use(undefined, (error) => {
   if (error.response?.status === 401) {
-    clearSessionId()
+    const sessionIdInStorage = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
+    if (!sessionIdInStorage || sessionIdInStorage === waspAppAuthSessionId) {
+      clearSessionId()
+    }
   }
   return Promise.reject(error)
 })
