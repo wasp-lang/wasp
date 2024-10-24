@@ -12,7 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects they continue working on. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an inspiring young dev from Japan, famous for his auth library Lucia and love for auth and security. 
+We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects they keep pushing. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an inspiring young dev from Japan, famous for his auth library Lucia and love for auth and security. 
 
 [Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. It grew to 9.5K stars on GitHub since October 2023. Unfortunately, this project is going to be deprecated in April 2025. Wasp will make all the necessary changes on time, no worries 😃 You should look into other projects Pilcrow has kickstarted as well, some of those will serve as a replacement for Lucia.
 
