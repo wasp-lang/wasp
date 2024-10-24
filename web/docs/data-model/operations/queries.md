@@ -60,11 +60,11 @@ query getFilteredTasks {
 // ...
 
 query getAllTasks {
-  fn: import { getAllTasks } from "@src/queries.js"
+  fn: import { getAllTasks } from "@src/queries.ts"
 }
 
 query getFilteredTasks {
-  fn: import { getFilteredTasks } from "@src/queries.js"
+  fn: import { getFilteredTasks } from "@src/queries.ts"
 }
 ```
 
@@ -204,7 +204,7 @@ Read more about type support for implementing Queries in the [API Reference](#im
 
 :::tip Inferring the return type
 
-If don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+If you don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
 
 ```typescript
 const getFoo = (async (_args, context) => {
@@ -616,7 +616,7 @@ Declaring the Query:
 
 ```wasp
 query getFoo {
-    fn: import { getFoo } from "@src/queries.js"
+    fn: import { getFoo } from "@src/queries.ts"
     entities: [Foo]
 }
 ```
