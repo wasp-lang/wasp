@@ -1,5 +1,5 @@
 ---
-title: 'The Faces Behind Open Source Projects: Pilcrow'
+title: 'The Faces Behind Open Source Projects: Pilcrow, author of Lucia Auth 🔒'
 authors: [milica]
 image: /img/os-interviews/pilcrow_banner.png
 tags: [webdev, auth, os-maintainers]
@@ -14,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects they keep pushing. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an inspiring young dev from Japan, famous for his auth library Lucia and love for auth and security. 
 
-[Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. It grew to 9.5K stars on GitHub since October 2023. Unfortunately, this project is going to be deprecated in April 2025. Wasp will make all the necessary changes on time, no worries 😃 You should look into other projects Pilcrow has kickstarted as well, some of those will serve as a replacement for Lucia.
+[Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. It grew to 9.5K stars on GitHub since October 2023. Although Lucia itself will be deprecated as a library in 2025 and converted into a [learning resource](https://github.com/lucia-auth/lucia/discussions/1714), Pilcrow is also working on other projects related to auth, such as Copenhagen and Oslo. You can learn more about his work and projects on his [blog](https://pilcrowonpaper.com/).
 
 We hope this interview inspires you to contribute to the open-source community yourself. Let's dive in!
 
