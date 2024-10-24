@@ -1,7 +1,7 @@
 ---
 title: 'The Faces Behind Open Source Projects: Pilcrow'
 authors: [milica]
-image: /img/os-interviews/pilcrow.jpeg
+image: /img/os-interviews/pilcrow_banner.png
 tags: [webdev, auth, os-maintainers]
 ---
 
