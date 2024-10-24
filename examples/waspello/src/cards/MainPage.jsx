@@ -2,8 +2,8 @@ import React, { useState, useRef, useContext } from 'react'
 import { Plus, X, MoreHorizontal } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-
+import { DragDropContext, Draggable } from 'react-beautiful-dnd'
+import { Droppable } from './Drappable'
 import UserPageLayout from './UserPageLayout'
 
 import './Main.css'
@@ -243,7 +243,7 @@ const List = ({ list, index, cards }) => {
       index={index}
     >
       {(provided, snapshot) => (
-        <div className='list-wrapper'
+        <div className={`list-wrapper`}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
