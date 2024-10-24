@@ -12,11 +12,11 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an amazing young dev from Japan, famous for his auth library Lucia and love towards auth and security. 
+We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an amazing young dev from Japan, famous for his auth library Lucia and love for auth and security. 
 
-[Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. This project is going to be deprecated in 2025, but you should look into other projects Pilcrow has kickstarted as well. We hope this interview inspires you to contribute to the open-source community as well.
+[Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. Unfortunately, this project is going to be deprecated in April 2025. Wasp will make all the necessary changes on time, no worries 😃 You should look into other projects Pilcrow has kickstarted as well, some of those will serve as a replacement for Lucia.
 
-Let's dive in!
+We hope this interview inspires you to contribute to the open-source community yourself. Let's dive in!
 
 - **Could you tell us a little about yourself and how you got into coding? What led you to focus on authentication and tooling for developers?**
 
@@ -30,8 +30,8 @@ Over summer break, I decided to build a more leaner NextAuth for SvelteKit so I 
 
 Working on it got me hooked on library development, and I found designing APIs and even documenting them to be very enjoyable.
 
-:::tip[Fun fact!]
-Did you know that Wasp uses Lucia under the hood? We built Wasp Auth on top of Lucia, and [here's how you can add it to your app + how you can do it with Wasp](http://localhost:3002/blog/2024/08/13/how-to-add-auth-with-lucia-to-your-react-nextjs-app).
+:::tip[Would you star us on GitHub?]
+If you'd like to keep reading more about other open-source maintainers and help Wasp grow, could you please [star us on GitHub as a sign of your support](https://github.com/wasp-lang/wasp)? 🙏
 :::
 
 - **Managing an open-source project like Lucia must come with challenges. What were some unexpected hurdles, and how did you handle them?**
@@ -87,6 +87,6 @@ I also think that libraries that are flexible in how and where they can be used,
 
 - **What is your favorite type of ramen?**
 
-Probably tonkotsu, specifically from Kyushu. The broth is based on pork bones, which gives it a creamy and rich texture, and the noodle has a bite to it (like al dente pasta).
+Probably tonkotsu, specifically from Kyushu (the third-largest island of Japan's four main islands). The broth is based on pork bones, which gives it a creamy and rich texture, and the noodle has a bite to it (like al dente pasta).
 
 ![Tonkatsu ramen](https://prd-static.gltjp.com/glt/data/article/21000/20290/20230407_103858_503a919a_w1920.webp)
