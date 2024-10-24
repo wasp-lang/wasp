@@ -12,9 +12,9 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an amazing young dev from Japan, famous for his auth library Lucia and love for auth and security. 
+We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects they continue working on. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an inspiring young dev from Japan, famous for his auth library Lucia and love for auth and security. 
 
-[Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. Unfortunately, this project is going to be deprecated in April 2025. Wasp will make all the necessary changes on time, no worries 😃 You should look into other projects Pilcrow has kickstarted as well, some of those will serve as a replacement for Lucia.
+[Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. It grew to 9.5K stars on GitHub since October 2023. Unfortunately, this project is going to be deprecated in April 2025. Wasp will make all the necessary changes on time, no worries 😃 You should look into other projects Pilcrow has kickstarted as well, some of those will serve as a replacement for Lucia.
 
 We hope this interview inspires you to contribute to the open-source community yourself. Let's dive in!
 
@@ -90,3 +90,5 @@ I also think that libraries that are flexible in how and where they can be used,
 Probably tonkotsu, specifically from Kyushu (the third-largest island of Japan's four main islands). The broth is based on pork bones, which gives it a creamy and rich texture, and the noodle has a bite to it (like al dente pasta).
 
 ![Tonkatsu ramen](https://prd-static.gltjp.com/glt/data/article/21000/20290/20230407_103858_503a919a_w1920.webp)
+
+Hope you enjoyed this interview. If you have any suggestions about whom to interview next, [join us on Discord](https://discord.gg/TUeXksNqaH) and let us know!
