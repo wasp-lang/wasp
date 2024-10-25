@@ -49,6 +49,7 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -125,6 +126,7 @@ genSdk spec =
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
+    <++> genEnvValidation spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -217,7 +219,8 @@ npmDepsForSdk spec =
           -- These deps need to be installed in the SDK becasue when we run client tests,
           -- we are running them from the project root dir and PostCSS and Tailwind
           -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
-          ++ depsRequiredByTailwind spec,
+          ++ depsRequiredByTailwind spec
+          ++ depsRequiredByEnvValidation,
       N.devDependencies =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
