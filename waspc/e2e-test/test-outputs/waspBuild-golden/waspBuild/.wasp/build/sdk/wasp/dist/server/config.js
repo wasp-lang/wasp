@@ -18,8 +18,8 @@ const resolvedConfig = merge(config.all, config[nodeEnv]);
 export default resolvedConfig;
 function getDevelopmentConfig() {
     var _a, _b;
-    const frontendUrl = (_a = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL)) !== null && _a !== void 0 ? _a : 'http://localhost:3000/';
-    const serverUrl = (_b = stripTrailingSlash(process.env.WASP_SERVER_URL)) !== null && _b !== void 0 ? _b : 'http://localhost:3001';
+    const frontendUrl = stripTrailingSlash((_a = process.env.WASP_WEB_CLIENT_URL) !== null && _a !== void 0 ? _a : 'http://localhost:3000/');
+    const serverUrl = stripTrailingSlash((_b = process.env.WASP_SERVER_URL) !== null && _b !== void 0 ? _b : 'http://localhost:3001');
     return {
         // @ts-ignore
         frontendUrl,

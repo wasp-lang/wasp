@@ -59,8 +59,8 @@ const resolvedConfig: Config = merge(config.all, config[nodeEnv])
 export default resolvedConfig
 
 function getDevelopmentConfig(): EnvConfig {
-  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) ??  '{= defaultClientUrl =}';
-  const serverUrl = stripTrailingSlash(process.env.WASP_SERVER_URL) ?? '{= defaultServerUrl =}';
+  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL ?? '{= defaultClientUrl =}');
+  const serverUrl = stripTrailingSlash(process.env.WASP_SERVER_URL ?? '{= defaultServerUrl =}');
   return {
     // @ts-ignore
     frontendUrl,
