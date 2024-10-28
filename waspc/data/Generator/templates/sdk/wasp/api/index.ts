@@ -77,7 +77,7 @@ window.addEventListener('storage', (event) => {
  * standard format to be further used by the client. It is also assumed that given API
  * error has been formatted as implemented by HttpError on the server.
  */
-export function handleApiError(error: AxiosError<{ message?: string, data?: unknown }>): AxiosError | WaspHttpError {
+export function handleApiError<T extends AxiosError<{ message?: string, data?: unknown }>>(error: T): T | WaspHttpError {
   if (error?.response) {
     // If error came from HTTP response, we capture most informative message
     // and also add .statusCode information to it.
