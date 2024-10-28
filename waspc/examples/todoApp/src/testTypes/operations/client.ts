@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
 import {
@@ -32,17 +31,17 @@ import { Expect, Equal } from '../helpers'
 import { QueryMetadata } from 'wasp/client/operations/rpc'
 
 type TestCases = [
-  Expect<Equal<typeof taskToTaskSpecified, (args: Task) => Promise<Task>>>,
+  Expect<Equal<typeof taskToTaskSpecified, (args?: Task) => Promise<Task>>>,
   Expect<
     Equal<
       typeof taskToTaskUnspecified,
-      (args: Task) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
+      (args?: Task) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
     >
   >,
   Expect<
     Equal<
       typeof taskToTaskSatisfies,
-      (args: Task) => ReturnType<typeof taskToTaskSatisfiesDefinition>
+      (args?: Task) => ReturnType<typeof taskToTaskSatisfiesDefinition>
     >
   >,
   Expect<
@@ -50,12 +49,12 @@ type TestCases = [
   >,
   Expect<Equal<typeof voidToStringNoAuth, () => Promise<string>>>,
   Expect<
-    Equal<typeof boolToStringNoAuth, (payload: boolean) => Promise<string>>
+    Equal<typeof boolToStringNoAuth, (payload?: boolean) => Promise<string>>
   >,
   Expect<Equal<typeof voidToStringAuth, () => Promise<string>>>,
-  Expect<Equal<typeof boolToStringAuth, (payload: boolean) => Promise<string>>>,
-  Expect<Equal<typeof boolToVoidNoAuth, (payload: boolean) => Promise<void>>>,
-  Expect<Equal<typeof boolToVoidAuth, (payload: boolean) => Promise<void>>>,
+  Expect<Equal<typeof boolToStringAuth, (payload?: boolean) => Promise<string>>>,
+  Expect<Equal<typeof boolToVoidNoAuth, (payload?: boolean) => Promise<void>>>,
+  Expect<Equal<typeof boolToVoidAuth, (payload?: boolean) => Promise<void>>>,
   Expect<Equal<typeof getDate, QueryMetadata & (() => Promise<Date>)>>,
   Expect<
     Equal<
