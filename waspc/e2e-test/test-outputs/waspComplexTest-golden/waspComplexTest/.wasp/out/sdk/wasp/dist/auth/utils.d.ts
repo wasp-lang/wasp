@@ -1,3 +1,4 @@
+import { HttpError } from 'wasp/server';
 import { type User, type Auth, type AuthIdentity } from 'wasp/entities';
 import { Prisma } from '@prisma/client';
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js';
@@ -61,11 +62,11 @@ export declare function findAuthIdentity(providerId: ProviderId): Promise<AuthId
  */
 export declare function updateAuthIdentityProviderData<PN extends ProviderName>(providerId: ProviderId, existingProviderData: PossibleProviderData[PN], providerDataUpdates: Partial<PossibleProviderData[PN]>): Promise<AuthIdentity>;
 type FindAuthWithUserResult = Auth & {
-    user: User;
+    user: User | null;
 };
-export declare function findAuthWithUserBy(where: Prisma.AuthWhereInput): Promise<FindAuthWithUserResult>;
+export declare function findAuthWithUserBy(where: Prisma.AuthWhereInput): Promise<FindAuthWithUserResult | null>;
 export declare function createUser(providerId: ProviderId, serializedProviderData?: string, userFields?: PossibleUserFields): Promise<User & {
-    auth: Auth;
+    auth: Auth | null;
 }>;
 export declare function deleteUserByAuthId(authId: string): Promise<{
     count: number;
@@ -79,5 +80,5 @@ export declare function deserializeAndSanitizeProviderData<PN extends ProviderNa
     shouldRemovePasswordField?: boolean;
 }): PossibleProviderData[PN];
 export declare function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<string>;
-export declare function throwInvalidCredentialsError(message?: string): void;
+export declare function createInvalidCredentialsError(message?: string): HttpError;
 export {};

@@ -4,7 +4,7 @@ declare const entities: {};
 export type MySpecialJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
 export declare const mySpecialJob: {
     readonly defaultJobOptions: Parameters<import("pg-boss")["send"]>[2];
-    readonly startAfter: number | string | Date;
+    readonly startAfter: number | string | Date | undefined;
     readonly entities: {};
     readonly jobSchedule: {
         cron: Parameters<import("pg-boss")["schedule"]>[1];
@@ -16,7 +16,7 @@ export declare const mySpecialJob: {
         readonly pgBoss: {
             readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;
             readonly resume: () => ReturnType<import("pg-boss")["resume"]>;
-            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & ({
+            readonly details: () => Promise<(Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & ({
                 data: JSONObject;
             } & ({
                 state: "failed";
@@ -34,8 +34,8 @@ export declare const mySpecialJob: {
                     value: false;
                 } | {
                     value: true;
-                };
-            }))>;
+                } | null;
+            }))) | null>;
         };
         readonly job: import("./core/job").Job;
         readonly jobId: string;

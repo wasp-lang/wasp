@@ -167,6 +167,10 @@ export function deserializeAndSanitizeProviderData(providerData, { shouldRemoveP
     // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
     let data = JSON.parse(providerData);
     if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
+        // TODO: we are removing the password from the runtime data, but we are not
+        // signaling that in the type system. The return type of this function should
+        // be different when `shouldRemovePasswordField` is true.
+        // @ts-ignore
         delete data.hashedPassword;
     }
     return data;
@@ -189,7 +193,7 @@ function providerDataHasPasswordField(providerData) {
     return 'hashedPassword' in providerData;
 }
 // PRIVATE API
-export function throwInvalidCredentialsError(message) {
-    throw new HttpError(401, 'Invalid credentials', { message });
+export function createInvalidCredentialsError(message) {
+    return new HttpError(401, 'Invalid credentials', { message });
 }
 //# sourceMappingURL=utils.js.map

@@ -124,13 +124,13 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
 }
 
 type FindAuthWithUserResult = Auth & {
-  user: User
+  user: User | null
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.AuthWhereInput
-): Promise<FindAuthWithUserResult> {
+): Promise<FindAuthWithUserResult | null> {
   return prisma.auth.findFirst({ where, include: { user: true }});
 }
 
@@ -140,7 +140,7 @@ export async function createUser(
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
 ): Promise<User & {
-  auth: Auth
+  auth: Auth | null
 }> {
   return prisma.user.create({
     data: {
@@ -268,6 +268,10 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   let data = JSON.parse(providerData) as PossibleProviderData[PN];
 
   if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
+    // TODO: we are removing the password from the runtime data, but we are not
+    // signaling that in the type system. The return type of this function should
+    // be different when `shouldRemovePasswordField` is true.
+    // @ts-ignore
     delete data.hashedPassword;
   }
 
@@ -308,6 +312,6 @@ function providerDataHasPasswordField(
 }
 
 // PRIVATE API
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
+export function createInvalidCredentialsError(message?: string): HttpError {
+  return new HttpError(401, 'Invalid credentials', { message })
 }

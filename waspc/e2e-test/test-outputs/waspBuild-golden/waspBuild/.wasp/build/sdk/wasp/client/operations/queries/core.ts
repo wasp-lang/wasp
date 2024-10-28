@@ -18,7 +18,7 @@ import {
 // Details here: https://github.com/wasp-lang/wasp/issues/2017
 export function makeQueryCacheKey<Input, Output>(
   query: Query<Input, Output>,
-  payload: Input
+  payload?: Input
 ): (string | Input)[] {
   return payload !== undefined ?
     [...query.queryCacheKey, payload]

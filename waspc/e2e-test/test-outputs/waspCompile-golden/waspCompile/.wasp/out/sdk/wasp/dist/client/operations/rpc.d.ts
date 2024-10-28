@@ -37,5 +37,5 @@ export type GenericOperationRpc = (args: never) => Promise<unknown>;
 type ClientOperation<Input, Output> = IfAny<Input, (args?: any) => Promise<Output>, ClientOperationWithNonAnyInput<Input, Output>>;
 type ClientOperationWithNonAnyInput<Input, Output> = [
     Input
-] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
+] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args?: Input) => Promise<Output>;
 export {};

@@ -14,9 +14,9 @@ type JobSchedule = {
  * information to submit a job to pg-boss.
  */
 export declare function createJobDefinition<Input extends JSONObject, Output extends JSONValue | void, Entities extends Partial<PrismaDelegate>>({ jobName, defaultJobOptions, jobSchedule, entities, }: {
-    jobName: Parameters<PgBoss['schedule']>[0];
-    defaultJobOptions: PgBoss.Schedule['options'];
-    jobSchedule: JobSchedule | null;
+    jobName: PgBossJob<Input, Output, Entities>['jobName'];
+    defaultJobOptions: PgBossJob<Input, Output, Entities>['defaultJobOptions'];
+    jobSchedule: PgBossJob<Input, Output, Entities>['jobSchedule'];
     entities: Entities;
 }): PgBossJob<Input, Output, Entities>;
 /**
@@ -35,7 +35,7 @@ export declare function registerJob<Input extends JSONObject, Output extends JSO
  */
 declare class PgBossJob<Input extends JSONObject, Output extends JSONValue | void, Entities extends Partial<PrismaDelegate>> extends Job {
     readonly defaultJobOptions: Parameters<PgBoss['send']>[2];
-    readonly startAfter: number | string | Date;
+    readonly startAfter: number | string | Date | undefined;
     readonly entities: Entities;
     readonly jobSchedule: JobSchedule | null;
     constructor(jobName: string, defaultJobOptions: Parameters<PgBoss['send']>[2], entities: Entities, jobSchedule: JobSchedule | null, startAfter?: number | string | Date);

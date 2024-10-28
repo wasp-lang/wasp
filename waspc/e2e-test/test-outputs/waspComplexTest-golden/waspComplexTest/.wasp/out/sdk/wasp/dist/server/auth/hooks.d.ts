@@ -71,7 +71,7 @@ type OnBeforeLoginHookParams = {
     /**
      * User that is trying to log in.
     */
-    user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user'];
+    user: NonNullable<Awaited<ReturnType<typeof findAuthWithUserBy>>>['user'];
     /**
      * Request object that can be used to access the incoming request.
     */
@@ -85,7 +85,7 @@ type OnAfterLoginHookParams = {
     /**
      * User that is logged in.
     */
-    user: Awaited<ReturnType<typeof findAuthWithUserBy>>['user'];
+    user: NonNullable<Awaited<ReturnType<typeof findAuthWithUserBy>>>['user'];
     /**
      * OAuth flow data that was generated during the OAuth flow. This is only
      * available if the user logged in using OAuth.

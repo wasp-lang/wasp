@@ -46,12 +46,12 @@ function makeAuthUser(data: AuthUserData): AuthUser {
     ...data,
     getFirstProviderUserId: () => {
       const identities = Object.values(data.identities).filter(Boolean);
-      return identities.length > 0 ? identities[0].id : null;
+      return identities.length > 0 ? identities[0]!.id : null;
     },
   };
 }
 
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): UserEntityWithAuth['auth']['identities'][number] | null {
+function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): NonNullable<UserEntityWithAuth['auth']>['identities'][number] | null {
   if (!user.auth) {
     return null;
   }

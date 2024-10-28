@@ -80,8 +80,12 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
  */
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
     return (function performActionWithOptimisticUpdates(item) {
-        const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map((generalDefinition) => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item));
-        return actionFn.internal(item, specificOptimisticUpdateDefinitions);
+        const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map((generalDefinition) => 
+        // @ts-ignore
+        getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item));
+        return actionFn.internal(
+        // @ts-ignore
+        item, specificOptimisticUpdateDefinitions);
         // This assertion is necessary because, when the Input is void, we want to
         // present the function as not accepting a payload (which isn't consistent
         // with how it's defined).
@@ -115,9 +119,11 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
         const previousData = new Map();
         specificOptimisticUpdateDefinitions.forEach(({ queryKey, updateQuery }) => {
             // Snapshot the currently cached value.
+            // @ts-ignore
             const previousDataForQuery = queryClient.getQueryData(queryKey);
             // Attempt to optimistically update the cache using the new value.
             try {
+                // @ts-ignore
                 queryClient.setQueryData(queryKey, updateQuery);
             }
             catch (e) {

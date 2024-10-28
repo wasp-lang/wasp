@@ -93,4 +93,4 @@ type ClientOperationWithNonAnyInput<Input, Output> =
   ? (args?: unknown) => Promise<Output>
   : [Input] extends [void]
   ? () => Promise<Output>
-  : (args: Input) => Promise<Output>
+  : (args?: Input) => Promise<Output>

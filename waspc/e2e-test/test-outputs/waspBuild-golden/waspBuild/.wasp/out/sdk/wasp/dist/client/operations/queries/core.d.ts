@@ -1,6 +1,6 @@
 import { Route } from 'wasp/client';
 import type { GenericBackendOperation, GenericOperationRpc, OperationRpcFor, Query, QueryMetadata } from '../rpc.js';
-export declare function makeQueryCacheKey<Input, Output>(query: Query<Input, Output>, payload: Input): (string | Input)[];
+export declare function makeQueryCacheKey<Input, Output>(query: Query<Input, Output>, payload?: Input): (string | Input)[];
 export declare function createQuery<BackendQuery extends GenericBackendOperation>(relativeQueryPath: string, entitiesUsed: string[]): QueryFor<BackendQuery>;
 export declare function buildAndRegisterQuery<QF extends GenericOperationRpc>(queryFn: QF, { queryCacheKey, queryRoute, entitiesUsed }: {
     queryCacheKey: string[];

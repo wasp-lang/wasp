@@ -2,7 +2,7 @@ export class HttpError extends Error {
   public statusCode: number
   public data: unknown
 
-  constructor (statusCode: number, message?: string, data?: Record<string, unknown>, ...params: unknown[]) {
+  constructor (statusCode: number, message?: string, data?: Record<string, unknown>, ...params: any[]) {
     super(message, ...params)
 
     if (Error.captureStackTrace) {

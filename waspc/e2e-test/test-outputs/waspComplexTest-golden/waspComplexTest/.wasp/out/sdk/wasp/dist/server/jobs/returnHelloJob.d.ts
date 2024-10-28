@@ -6,7 +6,7 @@ declare const entities: {
 export type ReturnHelloJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
 export declare const returnHelloJob: {
     readonly defaultJobOptions: Parameters<import("pg-boss")["send"]>[2];
-    readonly startAfter: number | string | Date;
+    readonly startAfter: number | string | Date | undefined;
     readonly entities: {
         User: import(".prisma/client").Prisma.UserDelegate<import("@prisma/client/runtime/library.js").DefaultArgs>;
     };
@@ -20,7 +20,7 @@ export declare const returnHelloJob: {
         readonly pgBoss: {
             readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;
             readonly resume: () => ReturnType<import("pg-boss")["resume"]>;
-            readonly details: () => Promise<Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & ({
+            readonly details: () => Promise<(Omit<import("pg-boss").JobWithMetadata<JSONObject>, "output" | "state"> & ({
                 data: JSONObject;
             } & ({
                 state: "failed";
@@ -38,8 +38,8 @@ export declare const returnHelloJob: {
                     value: false;
                 } | {
                     value: true;
-                };
-            }))>;
+                } | null;
+            }))) | null>;
         };
         readonly job: import("./core/job").Job;
         readonly jobId: string;

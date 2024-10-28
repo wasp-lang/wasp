@@ -11,14 +11,14 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "5784ba365e8a5cb2031571cfebf1cbae8670f86f8e5a596b133d333cdf6c91eb"
+        "2c300f215d89a72dad5e7a766dd97a64aa85b19126c96708487201b9b08a94f9"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "bc7d48bd7ec4cdf74f85b98113eb26e670ef265ca4bbd735e361409c9335ad85"
+        "d94e8bee5fd8f6793b511652b9ee558e57f4913595763137a5385cd929648168"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "d1a8fccfb8207476b90708e8285d1455b33ff4e446749b33c3eb1a54dcfe2d41"
+        "f2931d9a078f46f256942d66234969945273b4f964793b69ab4d096c72b40588"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "../out/sdk/wasp/client/operations/internal/index.ts"
         ],
-        "f08a4f1fb1f897edca465b3f228215e06418109fb439232e8fa0ffdbdc98b833"
+        "d710d9894f56194c0d87921f339100414c69b987f1f5221881ca372fd70be371"
     ],
     [
         [
@@ -81,7 +81,7 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/core.ts"
         ],
-        "7f842b7add5a2949a49981dac64dd5951457eb5b9d3c555f25f6e4f11c04f3b4"
+        "24e54be1a709bb7d385eb585df02e861e07d21ba3059fc124a5883be620f96fe"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "../out/sdk/wasp/client/operations/rpc.ts"
         ],
-        "08f30fe4e31a691a225949ccd4d638cffe78bf2f4f2a76feb70133d4d9a5ba94"
+        "92916b01c4d6127ea72c93367111dab5bcaad885c0a48420f6a0d40779e953d0"
     ],
     [
         [
@@ -214,7 +214,7 @@
             "file",
             "../out/sdk/wasp/server/HttpError.ts"
         ],
-        "eaa296c30acc65c78b90ebdf9a1d6fdb863f0c26c743d352afaeaa3bbc2fdd1b"
+        "5db03b580bebb72a8fbe9ff3b4f7abdf01e9d0eee4a3feabba20983d5c5c56b4"
     ],
     [
         [
@@ -242,7 +242,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "e5388a9259a22671ee2d2ef46d2c09fdd46c3b3ec24248c7a0b471c0fbf7aa54"
+        "caae4cf8c442998ef1f07b099a93e5c680c92a55d8f1556912948ce85dccecd8"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "4323884e7e8c52683788995be58e8f583c00fc611845fdbd481157d0118dccd2"
+        "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
     ],
     [
         [
