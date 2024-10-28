@@ -65,7 +65,6 @@ async function sendEmailAndSaveMetadata(
   const providerId = createProviderId("email", email);
   const authIdentity = await findAuthIdentity(providerId);
 
-
   if (!authIdentity) {
     throw new Error(`User with email: ${email} not found.`);
   }
