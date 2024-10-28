@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/auth/utils'
 import { verifyPassword } from 'wasp/auth/password'
 import {
     createProviderId,
@@ -22,16 +22,16 @@ export function getLoginRoute() {
         const providerId = createProviderId("email", fields.email)
         const authIdentity = await findAuthIdentity(providerId)
         if (!authIdentity) {
-            throwInvalidCredentialsError()
+            throw createInvalidCredentialsError()
         }
         const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
         if (!providerData.isEmailVerified) {
-            throwInvalidCredentialsError()
+            throw createInvalidCredentialsError()
         }
         try {
             await verifyPassword(providerData.hashedPassword, fields.password);
         } catch(e) {
-            throwInvalidCredentialsError()
+            throw createInvalidCredentialsError()
         }
     
         const auth = await findAuthWithUserBy({ id: authIdentity.authId })

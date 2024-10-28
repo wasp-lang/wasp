@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/auth/utils'
 import { handleRejection } from 'wasp/server/utils'
 import { verifyPassword } from 'wasp/auth/password'
 
@@ -20,7 +20,7 @@ export default handleRejection(async (req, res) => {
   const providerId = createProviderId('username', fields.username)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
 
   try {
@@ -28,7 +28,7 @@ export default handleRejection(async (req, res) => {
 
     await verifyPassword(providerData.hashedPassword, fields.password)
   } catch(e) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
 
   const auth = await findAuthWithUserBy({

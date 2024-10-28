@@ -311,6 +311,6 @@ function providerDataHasPasswordField(
 }
 
 // PRIVATE API
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
+export function createInvalidCredentialsError(message?: string): HttpError {
+  return new HttpError(401, 'Invalid credentials', { message })
 }

@@ -6,7 +6,7 @@ import { type AuthUserData } from '../server/auth/user.js';
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
-import { throwInvalidCredentialsError } from "./utils.js";
+import { createInvalidCredentialsError } from "./utils.js";
 
 import { prisma } from 'wasp/server';
 import { createAuthUserData } from "../server/auth/user.js";
@@ -66,10 +66,10 @@ async function getAuthUserData(userId: {= userEntityUpper =}['id']): Promise<Aut
     })
 
   if (!user) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
 
-  return createAuthUserData(user!);
+  return createAuthUserData(user);
 }
 
 // PRIVATE API

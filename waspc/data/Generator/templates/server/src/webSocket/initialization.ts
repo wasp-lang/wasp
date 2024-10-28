@@ -43,7 +43,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
   const sessionId = socket.handshake.auth.sessionId
   if (sessionId) {
     try {
-      const sessionAndUser =  await getSessionAndUserFromSessionId(sessionId)
+      const sessionAndUser = await getSessionAndUserFromSessionId(sessionId)
       const user = sessionAndUser ? makeAuthUserIfPossible(sessionAndUser.user) : null
       socket.data = {
         ...socket.data,
