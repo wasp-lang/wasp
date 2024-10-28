@@ -39,6 +39,7 @@ export function createJobDefinition<
 }) {
   return new PgBossJob<Input, Output, Entities>(
     jobName,
+    // @ts-ignore
     defaultJobOptions,
     entities,
     jobSchedule,
@@ -90,7 +91,7 @@ export function registerJob<
       await boss.schedule(
         job.jobName,
         job.jobSchedule.cron,
-        job.jobSchedule.args || null,
+        job.jobSchedule.args,
         options
       )
     }
@@ -107,8 +108,8 @@ class PgBossJob<
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 > extends Job {
-  public readonly defaultJobOptions: Parameters<PgBoss['send']>[2]
-  public readonly startAfter: number | string | Date
+  public readonly defaultJobOptions?: Parameters<PgBoss['send']>[2]
+  public readonly startAfter: number | string | Date | undefined
   public readonly entities: Entities
   public readonly jobSchedule: JobSchedule | null
 
@@ -128,6 +129,7 @@ class PgBossJob<
   delay(startAfter: number | string | Date) {
     return new PgBossJob<Input, Output, Entities>(
       this.jobName,
+      // @ts-ignore
       this.defaultJobOptions,
       this.entities,
       this.jobSchedule,

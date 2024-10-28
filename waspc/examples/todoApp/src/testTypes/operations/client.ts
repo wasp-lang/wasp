@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
 import {

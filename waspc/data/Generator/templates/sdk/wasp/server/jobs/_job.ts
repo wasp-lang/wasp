@@ -16,6 +16,8 @@ export type {= typeName =}<Input extends JSONObject, Output extends JSONValue | 
 export const {= jobName =} = createJobDefinition({
   jobName: '{= jobName =}',
   defaultJobOptions: {=& jobPerformOptions =},
+  // TODO: output job schedule args as undefined if not provided
+  // @ts-ignore
   jobSchedule: {=& jobSchedule =},
   entities,
 })

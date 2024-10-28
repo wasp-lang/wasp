@@ -31,8 +31,8 @@ const auth = handleRejection(async (req, res, next) => {
     throwInvalidCredentialsError()
   }
 
-  req.sessionId = sessionAndUser.session.id
-  req.user = sessionAndUser.user
+  req.sessionId = sessionAndUser!.session.id
+  req.user = sessionAndUser!.user
 
   next()
 })

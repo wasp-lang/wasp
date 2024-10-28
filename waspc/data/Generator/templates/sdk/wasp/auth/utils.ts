@@ -125,13 +125,13 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
 }
 
 type FindAuthWithUserResult = {= authEntityUpper =} & {
-  {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
+  {= userFieldOnAuthEntityName =}: {= userEntityUpper =} | null
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.{= authEntityUpper =}WhereInput
-): Promise<FindAuthWithUserResult> {
+): Promise<FindAuthWithUserResult | null> {
   return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
 }
 
@@ -141,7 +141,7 @@ export async function createUser(
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
 ): Promise<{= userEntityUpper =} & {
-  auth: {= authEntityUpper =}
+  auth: {= authEntityUpper =} | null
 }> {
   return prisma.{= userEntityLower =}.create({
     data: {
@@ -269,6 +269,8 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   let data = JSON.parse(providerData) as PossibleProviderData[PN];
 
   if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
+    // TODO: fix this type
+    // @ts-ignore
     delete data.hashedPassword;
   }
 

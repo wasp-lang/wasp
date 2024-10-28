@@ -39,5 +39,5 @@ function getRedirectUriForError(error: string): URL {
 }
 
 function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { data: { message: string } } {
-  return error.data && typeof (error.data as any).message === 'string';
+  return error.data ? typeof (error.data as any).message === 'string' : false;
 }

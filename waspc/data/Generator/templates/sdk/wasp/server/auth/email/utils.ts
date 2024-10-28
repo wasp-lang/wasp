@@ -64,7 +64,13 @@ async function sendEmailAndSaveMetadata(
   // so the user can't send multiple requests while the email is being sent.
   const providerId = createProviderId("email", email);
   const authIdentity = await findAuthIdentity(providerId);
-  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+
+  if (!authIdentity) {
+    throw new Error(`User with email: ${email} not found.`);
+  }
+
+  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity!.providerData);
   await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
 
   emailSender.send(content).catch((e) => {

@@ -69,7 +69,7 @@ async function getAuthUserData(userId: {= userEntityUpper =}['id']): Promise<Aut
     throwInvalidCredentialsError()
   }
 
-  return createAuthUserData(user);
+  return createAuthUserData(user!);
 }
 
 // PRIVATE API

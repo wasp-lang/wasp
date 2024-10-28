@@ -5,10 +5,12 @@ import { EmailSender } from "./core/types.js";
 {=# isSmtpProviderUsed =}
 const emailProvider = {
     type: "smtp",
-    host: process.env.SMTP_HOST,
+    // TODO: We'll validate this
+    host: process.env.SMTP_HOST!,
+    // @ts-ignore
     port: parseInt(process.env.SMTP_PORT, 10),
-    username: process.env.SMTP_USERNAME,
-    password: process.env.SMTP_PASSWORD,
+    username: process.env.SMTP_USERNAME!,
+    password: process.env.SMTP_PASSWORD!,
 } as const;
 {=/ isSmtpProviderUsed =}
 {=# isSendGridProviderUsed =}

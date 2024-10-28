@@ -280,7 +280,7 @@ function AdditionalFormFields({
 }: {
   hookForm: UseFormReturn<LoginSignupFormFields>;
   formState: FormState;
-  additionalSignupFields: AdditionalSignupFields;
+  additionalSignupFields?: AdditionalSignupFields;
 }) {
   const {
     register,
@@ -302,7 +302,7 @@ function AdditionalFormFields({
           disabled={isLoading}
         />
         {errors[field.name] && (
-          <FormError>{errors[field.name].message}</FormError>
+          <FormError>{errors[field.name]!.message}</FormError>
         )}
       </FormItemGroup>
     );
@@ -341,7 +341,7 @@ function isFieldRenderFn(
 }
 
 function areAdditionalFieldsRenderFn(
-  additionalSignupFields: AdditionalSignupFields
+  additionalSignupFields?: AdditionalSignupFields
 ): additionalSignupFields is AdditionalSignupFieldRenderFn {
   return typeof additionalSignupFields === 'function'
 }
