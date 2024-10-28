@@ -30,7 +30,7 @@ data FullyQualifiedFieldName = FieldName FieldPath
 type FieldPath = [String]
 
 instance Show FullyQualifiedFieldName where
-  show (FieldName fieldPath) = show $ intercalate "." fieldPath
+  show (FieldName fieldPath) = intercalate "." fieldPath
 
 validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
 validateSrcTsConfig tsConfig =
@@ -57,7 +57,7 @@ validateSrcTsConfig tsConfig =
         missingFieldErrorMessage =
           unwords
             [ "The",
-              show fullyQualifiedFieldName,
+              "\"" ++ show fullyQualifiedFieldName ++ "\"",
               "field is missing in tsconfig.json, expected value:",
               showAsJsValue expectedValue ++ "."
             ]
@@ -71,7 +71,7 @@ validateSrcTsConfig tsConfig =
         invalidValueErrorMessage =
           unwords
             [ "Invalid value for the",
-              show fullyQualifiedFieldName,
+              "\"" ++ show fullyQualifiedFieldName ++ "\"",
               "field in tsconfig.json, expected value:",
               showAsJsValue expectedValue ++ "."
             ]
