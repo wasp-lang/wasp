@@ -16,7 +16,9 @@ export type {= typeName =}<Input extends JSONObject, Output extends JSONValue | 
 export const {= jobName =} = createJobDefinition({
   jobName: '{= jobName =}',
   defaultJobOptions: {=& jobPerformOptions =},
-  // TODO: output job schedule args as undefined if not provided
+  // TODO: jobSchdule template variable is a JSON string
+  // and the "args" field is outputted as "null" but it should be "undefined"
+  // when the value is not provided
   // @ts-ignore
   jobSchedule: {=& jobSchedule =},
   entities,

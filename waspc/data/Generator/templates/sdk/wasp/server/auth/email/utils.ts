@@ -69,7 +69,7 @@ async function sendEmailAndSaveMetadata(
     throw new Error(`User with email: ${email} not found.`);
   }
 
-  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity!.providerData);
+  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
   await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
 
   emailSender.send(content).catch((e) => {
