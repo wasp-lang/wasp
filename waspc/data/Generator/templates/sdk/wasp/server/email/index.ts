@@ -2,10 +2,11 @@
 import { initEmailSender } from "./core/index.js";
 import { EmailSender } from "./core/types.js";
 
+// TODO: We need to validate all the env variables
+// For now, we are letting the runtime throw if they are not provided
 {=# isSmtpProviderUsed =}
 const emailProvider = {
     type: "smtp",
-    // TODO: We'll validate this
     host: process.env.SMTP_HOST!,
     // @ts-ignore
     port: parseInt(process.env.SMTP_PORT, 10),
@@ -16,15 +17,15 @@ const emailProvider = {
 {=# isSendGridProviderUsed =}
 const emailProvider = {
   type: "sendgrid",
-  apiKey: process.env.SENDGRID_API_KEY,
+  apiKey: process.env.SENDGRID_API_KEY!,
 } as const;
 {=/ isSendGridProviderUsed =}
 {=# isMailgunProviderUsed =}
 const emailProvider = {
   type: "mailgun",
-  apiKey: process.env.MAILGUN_API_KEY,
-  domain: process.env.MAILGUN_DOMAIN,
-  apiUrl: process.env.MAILGUN_API_URL,
+  apiKey: process.env.MAILGUN_API_KEY!,
+  domain: process.env.MAILGUN_DOMAIN!,
+  apiUrl: process.env.MAILGUN_API_URL!,
 } as const;
 {=/ isMailgunProviderUsed =}
 {=# isDummyProviderUsed =}
