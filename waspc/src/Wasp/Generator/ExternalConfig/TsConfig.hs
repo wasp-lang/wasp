@@ -5,6 +5,7 @@ module Wasp.Generator.ExternalConfig.TsConfig
   )
 where
 
+import Data.List (intercalate)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 
@@ -21,7 +22,15 @@ instance IsJavascriptValue Bool where
   showAsJsValue True = "true"
   showAsJsValue False = "false"
 
-type FieldName = String
+-- | Represents a fully qualified field name in a JSON object.
+-- For example, for the field "module" in the "compilerOptions" object,
+-- the fully qualified field name would be "compilerOptions.module".
+data FullyQualifiedFieldName = FieldName FieldPath
+
+type FieldPath = [String]
+
+instance Show FullyQualifiedFieldName where
+  show (FieldName fieldPath) = intercalate "." fieldPath
 
 validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
 validateSrcTsConfig tsConfig =
@@ -38,22 +47,23 @@ validateSrcTsConfig tsConfig =
       validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" T.outDir
     ]
   where
-    validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case getFieldValue compilerOptionsFields of
-      Just actualValue -> validateFieldValue ("compilerOptions." ++ fieldName) expectedValue actualValue
+    validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case fieldValue of
+      Just actualValue -> validateFieldValue fullyQualifiedFieldName expectedValue actualValue
       Nothing -> [missingFieldErrorMessage]
       where
+        fieldValue = getFieldValue $ T.compilerOptions tsConfig
+        fullyQualifiedFieldName = FieldName ["compilerOptions", fieldName]
+
         missingFieldErrorMessage =
           unwords
             [ "The",
-              show fieldName,
-              "field is missing in tsconfig.json. Expected value:",
+              "\"" ++ show fullyQualifiedFieldName ++ "\"",
+              "field is missing in tsconfig.json, expected value:",
               showAsJsValue expectedValue ++ "."
             ]
 
-    compilerOptionsFields = T.compilerOptions tsConfig
-
-    validateFieldValue :: (Eq value, IsJavascriptValue value) => FieldName -> value -> value -> [String]
-    validateFieldValue fieldName expectedValue actualValue =
+    validateFieldValue :: (Eq value, IsJavascriptValue value) => FullyQualifiedFieldName -> value -> value -> [String]
+    validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
       if actualValue == expectedValue
         then []
         else [invalidValueErrorMessage]
@@ -61,7 +71,7 @@ validateSrcTsConfig tsConfig =
         invalidValueErrorMessage =
           unwords
             [ "Invalid value for the",
-              show fieldName,
-              "field in tsconfig.json file, expected value:",
+              "\"" ++ show fullyQualifiedFieldName ++ "\"",
+              "field in tsconfig.json, expected value:",
               showAsJsValue expectedValue ++ "."
             ]
