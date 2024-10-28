@@ -3,7 +3,11 @@ Thoughts
 
 **Thoughts** is a note-taking app organized around the concept of hashtags.
 
-Run `wasp start` to start the app in development mode.
+## Running
+
+Run `wasp start` to start the app in development mode. Make sure that you have database running first: easiest way is to run `wasp start db`.
+
+## Deployment
 
 This app is deployed at https://wasp-thoughts-client.fly.dev/ : client, server and db on Fly.io .
 

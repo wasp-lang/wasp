@@ -7,11 +7,8 @@ module Wasp.AppSpec.App.Wasp (Wasp (..)) where
 import Data.Aeson (FromJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
 
 data Wasp = Wasp
   { version :: String
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
-
-instance IsDecl Wasp

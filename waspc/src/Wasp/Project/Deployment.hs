@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
-import Wasp.NodePackageFFI (Package (DeployPackage), getPackageProcessOptions)
+import Wasp.NodePackageFFI (RunnablePackage (DeployPackage), getPackageProcessOptions)
 import Wasp.Project.Common (WaspProjectDir)
 
 loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)

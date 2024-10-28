@@ -6,8 +6,10 @@ module Wasp.NodePackageFFI
 
     -- Provides utilities for setting up and running node processes from the
     -- @packages/@ directory.
-    Package (..),
+    RunnablePackage (..),
+    InstallablePackage (..),
     getPackageProcessOptions,
+    getPackageInstallationPath,
   )
 where
 
@@ -21,7 +23,7 @@ import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
 import qualified Wasp.Node.Version as NodeVersion
 
-data Package
+data RunnablePackage
   = DeployPackage
   | TsInspectPackage
   | -- | TODO(martin): I implemented this ts package because I planned to use prisma's TS sdk
@@ -34,6 +36,8 @@ data Package
     PrismaPackage
   | WaspStudioPackage
 
+data InstallablePackage = WaspConfigPackage
+
 data PackagesDir
 
 data PackageDir
@@ -43,11 +47,16 @@ data PackageScript
 packagesDirInDataDir :: Path' (Rel DataDir) (Dir PackagesDir)
 packagesDirInDataDir = [reldir|packages|]
 
-packageDirInPackagesDir :: Package -> Path' (Rel PackagesDir) (Dir PackageDir)
-packageDirInPackagesDir DeployPackage = [reldir|deploy|]
-packageDirInPackagesDir TsInspectPackage = [reldir|ts-inspect|]
-packageDirInPackagesDir PrismaPackage = [reldir|prisma|]
-packageDirInPackagesDir WaspStudioPackage = [reldir|studio|]
+runnablePackageDirInPackagesDir :: RunnablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
+runnablePackageDirInPackagesDir = \case
+  DeployPackage -> [reldir|deploy|]
+  TsInspectPackage -> [reldir|ts-inspect|]
+  PrismaPackage -> [reldir|prisma|]
+  WaspStudioPackage -> [reldir|studio|]
+
+installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
+installablePackageDirInPackagesDir = \case
+  WaspConfigPackage -> [reldir|wasp-config|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
@@ -60,22 +69,30 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- If the package does not have its dependencies installed yet (for example,
 -- when the package is run for the first time after installing Wasp), we install
 -- the dependencies.
-getPackageProcessOptions :: Package -> [String] -> IO P.CreateProcess
+-- TODO: How would it not have npm dependencies installed if we always to it in
+-- install_packages_to_data_dir.sh?
+getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
   NodeVersion.getAndCheckUserNodeVersion >>= \case
     NodeVersion.VersionCheckSuccess -> pure ()
     NodeVersion.VersionCheckFail errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
-  packageDir <- getPackageDir package
+  packageDir <- getRunnablePackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
   ensurePackageDependenciesAreInstalled packageDir
   return $ packageCreateProcess packageDir "node" (fromAbsFile scriptFile : args)
 
-getPackageDir :: Package -> IO (Path' Abs (Dir PackageDir))
-getPackageDir package = do
+getPackageInstallationPath :: InstallablePackage -> IO String
+getPackageInstallationPath package = do
   waspDataDir <- Data.getAbsDataDirPath
-  let packageDir = waspDataDir </> packagesDirInDataDir </> packageDirInPackagesDir package
+  let absPackagePath = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
+  return $ fromAbsDir absPackagePath
+
+getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
+getRunnablePackageDir package = do
+  waspDataDir <- Data.getAbsDataDirPath
+  let packageDir = waspDataDir </> packagesDirInDataDir </> runnablePackageDirInPackagesDir package
   return packageDir
 
 -- | Runs @npm install@ if @node_modules@ does not exist in the package directory.

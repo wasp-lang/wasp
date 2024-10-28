@@ -41,7 +41,7 @@ RUN cd .wasp/build/server && npm run bundle
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.14.2
+RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.15.0
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
 WORKDIR /app

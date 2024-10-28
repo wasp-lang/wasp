@@ -9,7 +9,8 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
-import Wasp.Project.Analyze (findWaspFile)
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
+import Wasp.Project.Analyze (WaspFilePath (..), findWaspFile)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import qualified Wasp.Util.IO as IOUtil
@@ -26,8 +27,11 @@ replaceTemplatePlaceholdersInWaspFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
-    Nothing -> return ()
-    Just absMainWaspFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absMainWaspFile
+    Left _error -> return ()
+    Right (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
+    Right (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
+  where
+    replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk appName projectName
 
 -- | Template file for package.json file has placeholders in it that we want to replace
 -- in the package.json file we have written to the disk.
@@ -40,8 +44,16 @@ replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
     Just absPackageJsonFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absPackageJsonFile
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
-replaceTemplatePlaceholdersInFileOnDisk appName projectName =
-  updateFileContentWith (replacePlaceholders waspTemplateReplacements)
+replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
+  waspConfigPackagePath <- getPackageInstallationPath WaspConfigPackage
+  let waspTemplateReplacements =
+        [ ("__waspConfigPath__", waspConfigPackagePath),
+          ("__waspAppName__", show appName),
+          ("__waspProjectName__", show projectName),
+          ("__waspVersion__", defaultWaspVersionBounds)
+        ]
+  -- TODO: We do this in all files, but not all files have all placeholders
+  updateFileContentWith (replacePlaceholders waspTemplateReplacements) file
   where
     updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()
     updateFileContentWith updateFn absFilePath = IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
@@ -50,9 +62,3 @@ replaceTemplatePlaceholdersInFileOnDisk appName projectName =
     replacePlaceholders replacements content = foldl' replacePlaceholder content replacements
       where
         replacePlaceholder content' (placeholder, value) = T.replace (T.pack placeholder) (T.pack value) content'
-
-    waspTemplateReplacements =
-      [ ("__waspAppName__", show appName),
-        ("__waspProjectName__", show projectName),
-        ("__waspVersion__", defaultWaspVersionBounds)
-      ]

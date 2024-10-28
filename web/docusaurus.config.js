@@ -24,15 +24,15 @@ module.exports = {
     'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
   ],
   themeConfig: {
-    
     announcementBar: {
-      id: 'LW6',
-      content: '<b>Launch Week #6</b>: July 17 - 22 🐝 <a href="/blog/2024/07/15/wasp-launch-week-six">See what\'s new</a>',
+      id: 'LW7',
+      content:
+        '<b>Wasp v0.15 is here!</b> 🐝 <a href="/blog/2024/09/30/wasp-launch-week-7">See what\'s new ⚙️</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
     },
-    
+
     imageZoom: {
       // CSS selector to apply the plugin to, defaults to '.markdown img'
       //selector: '.markdown img',
@@ -168,8 +168,7 @@ module.exports = {
           // In development, we want "current" docs to be the default docs (served at /docs),
           // to make it easier for us a bit. Otherwise, by default, the latest versioned docs
           // will be served under /docs.
-          lastVersion:
-            includeCurrentVersion ? 'current' : undefined,
+          lastVersion: includeCurrentVersion ? 'current' : undefined,
 
           // Uncomment line below to build and show only current docs, for faster build times
           // during development, if/when needed.
@@ -292,8 +291,8 @@ module.exports = {
           },
           {
             from: '/docs/migrate-from-0-13-to-0-14',
-            to: '/docs/migration-guides/migrate-from-0-13-to-0-14'
-          }
+            to: '/docs/migration-guides/migrate-from-0-13-to-0-14',
+          },
         ],
       },
     ],

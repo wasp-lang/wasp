@@ -5,8 +5,8 @@ module Wasp.Cli.Command.Common
   )
 where
 
-import Control.Monad.Except
 import qualified Control.Monad.Except as E
+import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import StrongPath.Operations

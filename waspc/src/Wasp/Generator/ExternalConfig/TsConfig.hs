@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Wasp.Generator.ExternalConfig.TsConfig
-  ( validateTsConfig,
+  ( validateSrcTsConfig,
   )
 where
 
@@ -32,8 +32,8 @@ type FieldPath = [String]
 instance Show FullyQualifiedFieldName where
   show (FieldName fieldPath) = show $ intercalate "." fieldPath
 
-validateTsConfig :: T.TsConfig -> [ErrorMsg]
-validateTsConfig tsConfig =
+validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
+validateSrcTsConfig tsConfig =
   concat
     [ validateRequiredFieldInCompilerOptions "module" "esnext" T._module,
       validateRequiredFieldInCompilerOptions "target" "esnext" T.target,

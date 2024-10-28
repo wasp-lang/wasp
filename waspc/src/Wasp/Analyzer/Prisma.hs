@@ -1,5 +1,6 @@
 module Wasp.Analyzer.Prisma
   ( injectEntitiesFromPrismaSchema,
+    parseEntityStatements,
   )
 where
 
@@ -11,8 +12,11 @@ import qualified Wasp.Psl.Generator.Model as Psl.Model.Generator
 injectEntitiesFromPrismaSchema :: Psl.Schema.Schema -> Parser.AST -> Either a Parser.AST
 injectEntitiesFromPrismaSchema schema ast = Right $ ast {Parser.astStmts = stmts ++ entityStmts}
   where
-    entityStmts = makeEntityStmt <$> generatePrismaModelSources schema
+    entityStmts = parseEntityStatements schema
     stmts = Parser.astStmts ast
+
+parseEntityStatements :: Psl.Schema.Schema -> [WithCtx Parser.Stmt]
+parseEntityStatements schema = makeEntityStmt <$> generatePrismaModelSources schema
 
 type ModelName = String
 
