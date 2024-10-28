@@ -29,17 +29,16 @@ export function createJobDefinition<
   entities,
 }: {
   // jobName - The user-defined job name in their .wasp file.
-  jobName: Parameters<PgBoss['schedule']>[0]
+  jobName: PgBossJob<Input, Output, Entities>['jobName']
   // defaultJobOptions - pg-boss specific options for `boss.send()` applied to every `submit()` invocation,
   // which can overriden in that call.
-  defaultJobOptions: PgBoss.Schedule['options']
-  jobSchedule: JobSchedule | null
+  defaultJobOptions: PgBossJob<Input, Output, Entities>['defaultJobOptions']
+  jobSchedule: PgBossJob<Input, Output, Entities>['jobSchedule']
   // Entities used by job, passed into callback context.
   entities: Entities
 }) {
   return new PgBossJob<Input, Output, Entities>(
     jobName,
-    // @ts-ignore
     defaultJobOptions,
     entities,
     jobSchedule,
@@ -108,7 +107,7 @@ class PgBossJob<
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 > extends Job {
-  public readonly defaultJobOptions?: Parameters<PgBoss['send']>[2]
+  public readonly defaultJobOptions: Parameters<PgBoss['send']>[2]
   public readonly startAfter: number | string | Date | undefined
   public readonly entities: Entities
   public readonly jobSchedule: JobSchedule | null
@@ -129,7 +128,6 @@ class PgBossJob<
   delay(startAfter: number | string | Date) {
     return new PgBossJob<Input, Output, Entities>(
       this.jobName,
-      // @ts-ignore
       this.defaultJobOptions,
       this.entities,
       this.jobSchedule,
