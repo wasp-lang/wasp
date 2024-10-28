@@ -29,7 +29,7 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({ providerId }) => {
 
 export const onAfterLogin: OnAfterLoginHook = async ({ prisma, user }) => {
   await prisma.user.update({
-    where: { id: user.id },
+    where: { id: user!.id },
     data: {
       isOnAfterLoginHookCalled: true,
     },

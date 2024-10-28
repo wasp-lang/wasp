@@ -1,11 +1,11 @@
-import { type Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { type Task } from 'wasp/entities'
+import { HttpError } from 'wasp/server'
 import {
   type CreateTask,
   type DeleteCompletedTasks,
   type ToggleAllTasks,
   type UpdateTaskIsDone,
-} from "wasp/server/operations";
+} from 'wasp/server/operations'
 import { getSomeResource } from './serverSetup.js'
 
 export const createTask: CreateTask<Pick<Task, 'description'>> = async (
@@ -73,7 +73,7 @@ export const toggleAllTasks: ToggleAllTasks = async (_args, context) => {
 
   const whereIsDone = (isDone: boolean) => ({
     isDone,
-    user: { id: context.user.id },
+    user: { id: context.user!.id },
   })
   const Task = context.entities.Task
   const notDoneTasksCount = await Task.count({ where: whereIsDone(false) })
