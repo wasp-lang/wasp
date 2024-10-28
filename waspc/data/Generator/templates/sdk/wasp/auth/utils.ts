@@ -269,7 +269,9 @@ export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
   let data = JSON.parse(providerData) as PossibleProviderData[PN];
 
   if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
-    // TODO: fix this type
+    // TODO: we are removing the password from the runtime data, but we are not
+    // signaling that in the type system. The return type of this function should
+    // be different when `shouldRemovePasswordField` is true.
     // @ts-ignore
     delete data.hashedPassword;
   }
