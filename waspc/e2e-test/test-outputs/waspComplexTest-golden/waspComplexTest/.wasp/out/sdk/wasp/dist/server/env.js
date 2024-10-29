@@ -9,7 +9,12 @@ const serverCommonSchema = z.object({
     SENDGRID_API_KEY: z.string({
         required_error: 'SENDGRID_API_KEY is required',
     }),
-    SKIP_EMAIL_VERIFICATION_IN_DEV: z.boolean().default(false),
+    SKIP_EMAIL_VERIFICATION_IN_DEV: z
+        .enum(['true', 'false'], {
+        message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
+    })
+        .transform((value) => value === 'true')
+        .default('false'),
     GOOGLE_CLIENT_ID: z.string({
         required_error: 'GOOGLE_CLIENT_ID is required',
     }),

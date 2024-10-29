@@ -40,7 +40,12 @@ const serverCommonSchema = z.object({
   MAILGUN_API_URL: z.string().optional(),
   {=/ enabledEmailSenders.isMailgunProviderUsed =}
   {=/ isEmailSenderUsed =}
-  SKIP_EMAIL_VERIFICATION_IN_DEV: z.boolean().default(false),
+  SKIP_EMAIL_VERIFICATION_IN_DEV: z
+    .enum(['true', 'false'], {
+      message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
+    })
+    .transform((value) => value === 'true')
+    .default('false'),
   {=# isAuthEnabled =}
   {=# enabledAuthProviders.isGoogleAuthEnabled =}
   GOOGLE_CLIENT_ID: z.string({

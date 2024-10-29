@@ -11,12 +11,13 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   } catch (e) {
     // TODO: figure out how to output the error message in a better way
     if (e instanceof z.ZodError) {
+      console.error()
       console.error(redColor, '╔═════════════════════════════╗');
       console.error(redColor, '║ Env vars validation failed  ║');
       console.error(redColor, '╚═════════════════════════════╝');
       console.error()
       for (const error of e.errors) {
-        console.error(`- ${error.message}`)
+        console.error(redColor, `- ${error.message}`)
       }
       console.error()
       console.error(redColor, '═══════════════════════════════');

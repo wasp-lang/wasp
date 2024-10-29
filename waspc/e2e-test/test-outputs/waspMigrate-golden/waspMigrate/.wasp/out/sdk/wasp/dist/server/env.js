@@ -6,7 +6,12 @@ const serverCommonSchema = z.object({
         required_error: 'DATABASE_URL is required',
     }),
     PG_BOSS_NEW_OPTIONS: z.string().optional(),
-    SKIP_EMAIL_VERIFICATION_IN_DEV: z.boolean().default(false),
+    SKIP_EMAIL_VERIFICATION_IN_DEV: z
+        .enum(['true', 'false'], {
+        message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
+    })
+        .transform((value) => value === 'true')
+        .default('false'),
 });
 const serverUrlSchema = z
     .string({
