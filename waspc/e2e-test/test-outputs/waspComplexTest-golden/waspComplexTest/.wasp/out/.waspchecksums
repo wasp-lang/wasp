@@ -200,7 +200,7 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "d94e8bee5fd8f6793b511652b9ee558e57f4913595763137a5385cd929648168"
+        "4c5835ad64352cc87a4a17e41fd70333bc0d1eedd7339d7ad3d3507cdb64038d"
     ],
     [
         [
@@ -226,9 +226,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/env.ts"
+        ],
+        "f630ded0392d5b60be93e1852f80ea8c75bc10262aee6fb106b6eb2561339362"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "2b3651e7040a63cfd6a271c2aa89f21cf01170e0abeb6c5ab74adde324852fe4"
+        "d5a83474d2db10e1ac90899a0e302503bf26b3ab5ab00c07b5f5ce0d9e6de2d4"
     ],
     [
         [
@@ -387,6 +394,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/env/index.ts"
+        ],
+        "cd4e86f3c0f1cacd868984f4103a47fe100037758adc8ba3adf1a5a9d6c1c880"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/ext-src/Main.css"
         ],
         "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
@@ -487,7 +501,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "6fdae74af8f40e1e3287c93d6af2a7ebe9140b1995b6511d2bb4a0c002ab8d48"
+        "27e50b464aa1785f4651f4229f509fd2d71ed19076e341c4f3fafb98b11955c0"
     ],
     [
         [
@@ -548,13 +562,6 @@
     [
         [
             "file",
-            "../out/sdk/wasp/server/auth/oauth/env.ts"
-        ],
-        "50416a8c284fdbb3952e21e1617da2270b99dba717023babc7c32f5b12a63a32"
-    ],
-    [
-        [
-            "file",
             "../out/sdk/wasp/server/auth/oauth/index.ts"
         ],
         "bc8cf4d3b89018a68704d30bc3183bbd58461c9db0796f603f3e13179d604630"
@@ -571,14 +578,14 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/provider.ts"
         ],
-        "2a2015d905a2ceddb45ff1034b283b242df153ddf2cabd05fddd4746365622df"
+        "f286a5c5f04b197bc5cf21711722b6265887dae1782a26e41124606616c27122"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/auth/oauth/providers/google.ts"
         ],
-        "2a30b51f7be3a627d652e164669b01832345763597aa1e0badf7d321ccdc3bdb"
+        "42fe943be534df3df054480df3c3672742159a5f9d48a5a2bb0cb0a3500168e7"
     ],
     [
         [
@@ -599,7 +606,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "7222022fceced6be8ce57e8fd06ea6dfe2100de5984d7a9bc752ed4d9ba6f4ef"
+        "ee59e87efd7cf4904b33d15cde4ef65994f156a3f7fb634942a6414c3505bcf7"
     ],
     [
         [
@@ -655,14 +662,21 @@
             "file",
             "../out/sdk/wasp/server/email/index.ts"
         ],
-        "7fc9cea5624d921d9cd2397767522282e3f1a8a0013806f8d3e721560526b177"
+        "7f5d5dc724dcb623047b39800a55e1eca2e03984f0f0ee996949ff6846f4e97c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/env.ts"
+        ],
+        "593c28a9be1dc1382c6dd36a1f93b960dc60142e9309c5d45cb8d4fedb7fd727"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "51c3e0802764f72b88f6daaf148dba514ae817e233a40cc9b92ec91784f71f98"
+        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
     ],
     [
         [
@@ -683,7 +697,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "4c405b3cf98a4cea0ee906a46e4676ebe7ce08c1652c1b502403a93ebbbf943a"
+        "6ffb60e3dd86ebf2f83248d18e3d647018b3d583233c64259559221fe9d2c882"
     ],
     [
         [
@@ -809,7 +823,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
     ],
     [
         [
@@ -837,7 +851,7 @@
             "file",
             "Dockerfile"
         ],
-        "db2dae70d212749a7e758117e55f00968f84974d8307dc7d33154bf1429486c2"
+        "3adb787bfea53c4b0a04c73992cba82163fa0b2217169c822a754e54511cee64"
     ],
     [
         [
@@ -886,7 +900,7 @@
             "file",
             "server/package.json"
         ],
-        "00ae054bb5597a45cc4e5277f88d24f4399fccabaa3614bf6ea89424fcd23480"
+        "ddda728300aaca5ccbd8342479cede7930cd5841c01f048415da8172314a1e0a"
     ],
     [
         [
@@ -894,13 +908,6 @@
             "server/rollup.config.js"
         ],
         "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
-    ],
-    [
-        [
-            "file",
-            "server/scripts/validate-env.mjs"
-        ],
-        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [
@@ -949,7 +956,7 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "7fb6658564e8af442d0f0b5874879e6788e91e89d98a8265621dd323135f5916"
+        "d3550ba07c6685f033962a47b326609f3a15ab5456638b9a4cf6fbb84379044c"
     ],
     [
         [

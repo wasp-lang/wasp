@@ -10,6 +10,7 @@ waspMigrate/.wasp/out/installedNpmDepsLog.json
 waspMigrate/.wasp/out/sdk/wasp/api/events.ts
 waspMigrate/.wasp/out/sdk/wasp/api/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/config.ts
+waspMigrate/.wasp/out/sdk/wasp/client/env.ts
 waspMigrate/.wasp/out/sdk/wasp/client/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -39,6 +40,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/api/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/config.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/config.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/config.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/client/env.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/client/env.js
+waspMigrate/.wasp/out/sdk/wasp/dist/client/env.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -102,6 +106,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/dev/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/entities/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/entities/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/entities/index.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/env/index.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/env/index.js
+waspMigrate/.wasp/out/sdk/wasp/dist/env/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -123,6 +130,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/server/config.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/dbClient.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/dbClient.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/dbClient.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/server/env.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/server/env.js
+waspMigrate/.wasp/out/sdk/wasp/dist/server/env.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/index.js.map
@@ -166,6 +176,7 @@ waspMigrate/.wasp/out/sdk/wasp/dist/universal/validators.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspMigrate/.wasp/out/sdk/wasp/entities/index.ts
+waspMigrate/.wasp/out/sdk/wasp/env/index.ts
 waspMigrate/.wasp/out/sdk/wasp/ext-src/Main.css
 waspMigrate/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
@@ -178,6 +189,7 @@ waspMigrate/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspMigrate/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspMigrate/.wasp/out/sdk/wasp/server/config.ts
 waspMigrate/.wasp/out/sdk/wasp/server/dbClient.ts
+waspMigrate/.wasp/out/sdk/wasp/server/env.ts
 waspMigrate/.wasp/out/sdk/wasp/server/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/middleware/globalMiddleware.ts
 waspMigrate/.wasp/out/sdk/wasp/server/middleware/index.ts
@@ -200,7 +212,6 @@ waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
 waspMigrate/.wasp/out/server/package.json
 waspMigrate/.wasp/out/server/rollup.config.js
-waspMigrate/.wasp/out/server/scripts/validate-env.mjs
 waspMigrate/.wasp/out/server/src/app.js
 waspMigrate/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspMigrate/.wasp/out/server/src/middleware/index.ts

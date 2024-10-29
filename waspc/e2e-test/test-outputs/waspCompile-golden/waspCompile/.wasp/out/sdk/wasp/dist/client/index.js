@@ -9,4 +9,6 @@ export var HttpMethod;
 })(HttpMethod || (HttpMethod = {}));
 // PUBLIC API
 export { config } from './config';
+// PUBLIC API
+export { env } from './env.js';
 //# sourceMappingURL=index.js.map

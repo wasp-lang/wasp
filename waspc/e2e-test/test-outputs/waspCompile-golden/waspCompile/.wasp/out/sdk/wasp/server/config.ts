@@ -1,8 +1,7 @@
 import merge from 'lodash.merge'
 
-import { stripTrailingSlash } from "../universal/url.js";
-
-const nodeEnv = process.env.NODE_ENV ?? 'development'
+import { env } from './env.js'
+import { stripTrailingSlash } from '../universal/url.js'
 
 // TODO:
 //   - Use dotenv library to consume env vars from a file.
@@ -33,41 +32,36 @@ const config: {
   production: EnvConfig,
 } = {
   all: {
-    env: nodeEnv,
-    isDevelopment: nodeEnv === 'development',
-    port: process.env.PORT ? parseInt(process.env.PORT) : 3001,
-    databaseUrl: process.env.DATABASE_URL,
+    env: env.NODE_ENV,
+    isDevelopment: env.NODE_ENV === 'development',
+    port: env.PORT,
+    databaseUrl: env.DATABASE_URL,
     allowedCORSOrigins: [],
   },
   development: getDevelopmentConfig(),
   production: getProductionConfig(),
 }
 
-const resolvedConfig: Config = merge(config.all, config[nodeEnv])
+const resolvedConfig: Config = merge(config.all, config[env.NODE_ENV])
 // PUBLIC API
 export default resolvedConfig
 
 function getDevelopmentConfig(): EnvConfig {
-  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL ?? 'http://localhost:3000/');
-  const serverUrl = stripTrailingSlash(process.env.WASP_SERVER_URL ?? 'http://localhost:3001');
+  const frontendUrl = stripTrailingSlash(env.WASP_WEB_CLIENT_URL);
+  const serverUrl = stripTrailingSlash(env.WASP_SERVER_URL);
   return {
-    // @ts-ignore
     frontendUrl,
-    // @ts-ignore
     serverUrl,
     allowedCORSOrigins: '*',
   }
 }
 
 function getProductionConfig(): EnvConfig {
-  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL);
-  const serverUrl = stripTrailingSlash(process.env.WASP_SERVER_URL);
+  const frontendUrl = stripTrailingSlash(env.WASP_WEB_CLIENT_URL);
+  const serverUrl = stripTrailingSlash(env.WASP_SERVER_URL);
   return {
-    // @ts-ignore
     frontendUrl,
-    // @ts-ignore
     serverUrl,
-    // @ts-ignore
     allowedCORSOrigins: [frontendUrl],
   }
 }

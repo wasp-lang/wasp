@@ -37,6 +37,7 @@ waspComplexTest/.wasp/out/sdk/wasp/client/config.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/operationsHelpers.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/tasks.ts
+waspComplexTest/.wasp/out/sdk/wasp/client/env.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -155,6 +156,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/env.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/env.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/env.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -224,6 +228,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/dev/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/entities/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/entities/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/entities/index.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/env/index.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/env/index.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/env/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -278,9 +285,6 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/hooks.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/index.js.map
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/env.d.ts
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/env.js
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/env.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/auth/oauth/index.js.map
@@ -326,6 +330,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/email/core/types.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/email/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/email/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/email/index.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/env.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/env.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/server/env.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/index.js.map
@@ -393,6 +400,7 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/universal/validators.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspComplexTest/.wasp/out/sdk/wasp/entities/index.ts
+waspComplexTest/.wasp/out/sdk/wasp/env/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/Main.css
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/auth/hooks.ts
@@ -416,7 +424,6 @@ waspComplexTest/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/api/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/hooks.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/index.ts
-waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/env.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/oneTimeCode.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/oauth/provider.ts
@@ -432,6 +439,7 @@ waspComplexTest/.wasp/out/sdk/wasp/server/email/core/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/email/core/providers/sendgrid.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/email/core/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/email/index.ts
+waspComplexTest/.wasp/out/sdk/wasp/server/env.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/jobs/core/job.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/index.ts
@@ -462,7 +470,6 @@ waspComplexTest/.wasp/out/server/README.md
 waspComplexTest/.wasp/out/server/nodemon.json
 waspComplexTest/.wasp/out/server/package.json
 waspComplexTest/.wasp/out/server/rollup.config.js
-waspComplexTest/.wasp/out/server/scripts/validate-env.mjs
 waspComplexTest/.wasp/out/server/src/actions/mySpecialAction.ts
 waspComplexTest/.wasp/out/server/src/app.js
 waspComplexTest/.wasp/out/server/src/auth/hooks.ts

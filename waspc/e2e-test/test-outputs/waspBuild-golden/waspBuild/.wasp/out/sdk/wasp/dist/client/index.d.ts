@@ -9,3 +9,4 @@ export type Route = {
     path: string;
 };
 export { config, ClientConfig } from './config';
+export { env } from './env.js';

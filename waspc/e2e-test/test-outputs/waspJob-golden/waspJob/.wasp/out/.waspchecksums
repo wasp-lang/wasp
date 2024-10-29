@@ -18,14 +18,21 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "d94e8bee5fd8f6793b511652b9ee558e57f4913595763137a5385cd929648168"
+        "4c5835ad64352cc87a4a17e41fd70333bc0d1eedd7339d7ad3d3507cdb64038d"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env.ts"
+        ],
+        "f630ded0392d5b60be93e1852f80ea8c75bc10262aee6fb106b6eb2561339362"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "2b3651e7040a63cfd6a271c2aa89f21cf01170e0abeb6c5ab74adde324852fe4"
+        "d5a83474d2db10e1ac90899a0e302503bf26b3ab5ab00c07b5f5ce0d9e6de2d4"
     ],
     [
         [
@@ -170,6 +177,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/env/index.ts"
+        ],
+        "cd4e86f3c0f1cacd868984f4103a47fe100037758adc8ba3adf1a5a9d6c1c880"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/ext-src/Main.css"
         ],
         "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
@@ -207,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "c8e81e8cf56626b9051ba9bd6abc9ad7b3c41419f4b710c28b90382264396402"
+        "657fd7af5d76fbb099b945cae4f34fa4fab061d3606b1ad1d03e81ee0d59535f"
     ],
     [
         [
@@ -249,7 +263,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "5dd35660e0969defaa3c180179919f4922ab7bc041746872dff7f2280c1872ae"
+        "dd528b5db722210a5781f39c4d410024211f31964383bcc708a2611bd8d9d195"
     ],
     [
         [
@@ -261,9 +275,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/server/env.ts"
+        ],
+        "b6195fe1bead580b7e4009586a55066196c496f085e68505bafd767f7b0048cf"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "51c3e0802764f72b88f6daaf148dba514ae817e233a40cc9b92ec91784f71f98"
+        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
     ],
     [
         [
@@ -284,7 +305,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "4c405b3cf98a4cea0ee906a46e4676ebe7ce08c1652c1b502403a93ebbbf943a"
+        "6ffb60e3dd86ebf2f83248d18e3d647018b3d583233c64259559221fe9d2c882"
     ],
     [
         [
@@ -403,7 +424,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
     ],
     [
         [
@@ -431,7 +452,7 @@
             "file",
             "Dockerfile"
         ],
-        "8851d4e81582d58921a5646dcf063b31dbf8ce9a46f3d4710360d2047dc644b5"
+        "c7525922516652d1be259b7f1bf3a242e0ce1d3516c190aa0c28de57fe3d41de"
     ],
     [
         [
@@ -480,7 +501,7 @@
             "file",
             "server/package.json"
         ],
-        "a4eb7e59ac5309fc5c39ccd7e19f4fdc7a9a568a3b393f62358ef6a6065d65c3"
+        "eaaa1e16e4962f38deb7220a7439a26b920ed7f852890242d084b4cebc63b7c3"
     ],
     [
         [
@@ -488,13 +509,6 @@
             "server/rollup.config.js"
         ],
         "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
-    ],
-    [
-        [
-            "file",
-            "server/scripts/validate-env.mjs"
-        ],
-        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [
