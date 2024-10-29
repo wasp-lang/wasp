@@ -18,7 +18,7 @@ export function HiddenLLMHelper() {
     })
     .map((doc) => ({
       title: doc.id,
-      href: doc.path.endsWith('/') ? doc.path.slice(0, -1) : doc.path,
+      path: removeTrailingSlash(doc.path),
     }))
 
   return (
@@ -29,11 +29,20 @@ export function HiddenLLMHelper() {
       </p>
       {allLinks.map((l) => (
         <p>
-          <a key={l.href} href={`https://wasp-lang.dev${l.href}`}>
+          <a key={l.path} href={concatWaspUrl(l.path)}>
             {l.title}
           </a>
         </p>
       ))}
     </div>
   )
+}
+
+function removeTrailingSlash(path: string) {
+  return path.endsWith('/') ? path.slice(0, -1) : path
+}
+
+function concatWaspUrl(path: string) {
+  const baseUrl = 'https://wasp-lang.dev'
+  return path.startsWith('/') ? baseUrl.concat(path) : baseUrl.concat('/', path)
 }
