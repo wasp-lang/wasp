@@ -66,7 +66,6 @@ import Wasp.Generator.WebAppGenerator.Common
     reactRouterVersion,
     reactVersion,
   )
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
@@ -100,7 +99,7 @@ genSdk spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|dev/index.ts|],
-      genClientConfigFile,
+      genFileCopy [relfile|client/config.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -249,17 +248,8 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "defaultServerPort" .= Server.defaultServerPort
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
-
-genClientConfigFile :: Generator FileDraft
-genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
-  where
-    relConfigFilePath = [relfile|client/config.ts|]
-    tmplData = object ["defaultServerUrl" .= Server.defaultDevServerUrl]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.

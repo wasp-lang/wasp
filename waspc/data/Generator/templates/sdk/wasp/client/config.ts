@@ -1,4 +1,3 @@
-{{={= =}=}}
 import { stripTrailingSlash } from '../universal/url.js'
 import { env } from './env.js'
 
