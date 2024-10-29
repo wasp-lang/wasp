@@ -227,6 +227,8 @@ getIndexTs spec =
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
 
+-- TODO: see if this is still needed after introducing the Zod
+-- validation for the env vars.
 genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =
   return

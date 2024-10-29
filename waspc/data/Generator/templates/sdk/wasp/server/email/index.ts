@@ -1,4 +1,5 @@
 {{={= =}=}}
+import { env } from '../env.js';
 import { initEmailSender } from "./core/index.js";
 import { EmailSender } from "./core/types.js";
 
@@ -7,25 +8,24 @@ import { EmailSender } from "./core/types.js";
 {=# isSmtpProviderUsed =}
 const emailProvider = {
     type: "smtp",
-    host: process.env.SMTP_HOST!,
-    // @ts-ignore
-    port: parseInt(process.env.SMTP_PORT, 10),
-    username: process.env.SMTP_USERNAME!,
-    password: process.env.SMTP_PASSWORD!,
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    username: env.SMTP_USERNAME,
+    password: env.SMTP_PASSWORD,
 } as const;
 {=/ isSmtpProviderUsed =}
 {=# isSendGridProviderUsed =}
 const emailProvider = {
   type: "sendgrid",
-  apiKey: process.env.SENDGRID_API_KEY!,
+  apiKey: env.SENDGRID_API_KEY,
 } as const;
 {=/ isSendGridProviderUsed =}
 {=# isMailgunProviderUsed =}
 const emailProvider = {
   type: "mailgun",
-  apiKey: process.env.MAILGUN_API_KEY!,
-  domain: process.env.MAILGUN_DOMAIN!,
-  apiUrl: process.env.MAILGUN_API_URL!,
+  apiKey: env.MAILGUN_API_KEY,
+  domain: env.MAILGUN_DOMAIN,
+  apiUrl: env.MAILGUN_API_URL,
 } as const;
 {=/ isMailgunProviderUsed =}
 {=# isDummyProviderUsed =}

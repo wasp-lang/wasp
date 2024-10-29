@@ -1,5 +1,6 @@
 import PgBoss from 'pg-boss'
-import { config } from 'wasp/server'
+import { env } from '../../../env.js'
+import { config } from '../../../index.js'
 
 const boss = createPgBoss()
 
@@ -9,9 +10,9 @@ function createPgBoss() {
   }
 
   // Add an escape hatch for advanced configuration of pg-boss to overwrite our defaults.
-  if (process.env.PG_BOSS_NEW_OPTIONS) {
+  if (env.PG_BOSS_NEW_OPTIONS) {
     try {
-      pgBossNewOptions = JSON.parse(process.env.PG_BOSS_NEW_OPTIONS)
+      pgBossNewOptions = JSON.parse(env.PG_BOSS_NEW_OPTIONS)
     } catch {
       console.error(
         'Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!'

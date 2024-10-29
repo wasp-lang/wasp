@@ -11,6 +11,7 @@ import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth/email";
 import { handleRejection } from "wasp/server/utils";
+import { env } from "wasp/server";
 
 {=# userSignupFields.isDefined =}
 {=& userSignupFields.importStatement =}
@@ -70,7 +71,7 @@ const config: ProviderConfig = {
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
             {=# isDevelopment =}
-            isEmailAutoVerified: process.env.SKIP_EMAIL_VERIFICATION_IN_DEV === 'true',
+            isEmailAutoVerified: env.SKIP_EMAIL_VERIFICATION_IN_DEV,
             {=/ isDevelopment =}
             {=^ isDevelopment =}
             isEmailAutoVerified: false,

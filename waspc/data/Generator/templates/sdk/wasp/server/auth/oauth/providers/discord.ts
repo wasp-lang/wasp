@@ -1,17 +1,12 @@
 {{={= =}=}}
-import { Discord  } from "arctic";
+import { Discord  } from 'arctic';
 
-import { defineProvider } from "../provider.js";
-import { ensureEnvVarsForProvider } from "../env.js";
-import { getRedirectUriForCallback } from "../redirect.js";
+import { defineProvider } from '../provider.js';
+import { getRedirectUriForCallback } from '../redirect.js';
+import { env } from '../../../env.js';
 
-const id = "{= providerId =}";
-const displayName = "{= displayName =}";
-
-const env = ensureEnvVarsForProvider(
-  ["DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET"],
-  displayName
-);
+const id = '{= providerId =}';
+const displayName = '{= displayName =}';
 
 const oAuthClient = new Discord(
   env.DISCORD_CLIENT_ID,
@@ -23,6 +18,5 @@ const oAuthClient = new Discord(
 export const discord = defineProvider({
   id,
   displayName,
-  env,
   oAuthClient,
 });

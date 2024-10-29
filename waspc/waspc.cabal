@@ -281,6 +281,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
+    Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.ExternalConfig.Common
     Wasp.Generator.ExternalConfig.PackageJson

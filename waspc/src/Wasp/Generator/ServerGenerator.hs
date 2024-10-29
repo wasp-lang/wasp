@@ -75,7 +75,6 @@ genServer spec =
     <++> genSrcDir spec
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genEnvValidationScript
     <++> genApis spec
     <++> genCrud spec
   where
@@ -251,12 +250,6 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
-genEnvValidationScript :: Generator [FileDraft]
-genEnvValidationScript =
-  return
-    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
-    ]
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =
