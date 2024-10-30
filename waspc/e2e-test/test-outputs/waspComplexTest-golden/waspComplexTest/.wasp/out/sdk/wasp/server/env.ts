@@ -2,7 +2,9 @@ import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/index.js'
 
-const serverCommonSchema = z.object({
+const userServerEnvSchema = z.object({})
+
+const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string({
     required_error: 'DATABASE_URL is required',
@@ -65,6 +67,7 @@ const serverProdSchema = z.object({
   JWT_SECRET: jwtTokenSchema,
 })
 
+const serverCommonSchema = waspServerCommonSchema.merge(userServerEnvSchema)
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverDevSchema.merge(serverCommonSchema),
   serverProdSchema.merge(serverCommonSchema)
