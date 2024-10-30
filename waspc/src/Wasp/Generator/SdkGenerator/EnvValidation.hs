@@ -29,7 +29,8 @@ genEnvValidation spec =
   sequence
     [ genServerEnv spec,
       genClientEnv spec,
-      genFileCopy [relfile|env/index.ts|]
+      genFileCopy [relfile|env/index.ts|],
+      genFileCopy [relfile|env/validation.ts|]
     ]
   where
     genFileCopy = return . C.mkTmplFd

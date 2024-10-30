@@ -1,7 +1,7 @@
 {{={= =}=}}
 import * as z from 'zod'
 
-import { ensureEnvSchema } from '../env/index.js'
+import { ensureEnvSchema } from '../env/validation.js'
 
 {=# envValidationFn.isDefined =}
 {=& envValidationFn.importStatement =}
