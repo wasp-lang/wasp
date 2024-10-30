@@ -231,6 +231,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/entities/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/env/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/env/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/env/index.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/env/validation.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/env/validation.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/env/validation.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -401,6 +404,7 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspComplexTest/.wasp/out/sdk/wasp/entities/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/env/index.ts
+waspComplexTest/.wasp/out/sdk/wasp/env/validation.ts
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/Main.css
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspComplexTest/.wasp/out/sdk/wasp/ext-src/auth/hooks.ts

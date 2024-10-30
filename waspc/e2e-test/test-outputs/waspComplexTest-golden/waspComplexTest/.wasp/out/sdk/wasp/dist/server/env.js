@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { ensureEnvSchema } from '../env/index.js';
+import { ensureEnvSchema } from '../env/validation.js';
 const userServerEnvSchema = z.object({});
 const waspServerCommonSchema = z.object({
     PORT: z.coerce.number().default(3001),

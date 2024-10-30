@@ -109,6 +109,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/entities/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/env/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/env/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/env/index.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/env/validation.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/env/validation.js
+waspMigrate/.wasp/out/sdk/wasp/dist/env/validation.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -177,6 +180,7 @@ waspMigrate/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspMigrate/.wasp/out/sdk/wasp/entities/index.ts
 waspMigrate/.wasp/out/sdk/wasp/env/index.ts
+waspMigrate/.wasp/out/sdk/wasp/env/validation.ts
 waspMigrate/.wasp/out/sdk/wasp/ext-src/Main.css
 waspMigrate/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
