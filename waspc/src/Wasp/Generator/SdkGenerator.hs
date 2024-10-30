@@ -196,7 +196,6 @@ npmDepsForSdk spec =
             ("express", Server.expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
-            ("lodash.merge", "^4.6.2"),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
