@@ -14,7 +14,7 @@ let someResource: string | undefined = undefined
 
 export const getSomeResource = () => someResource
 
-const setup: ServerSetupFn = async ({ app }) => {
+export const setup: ServerSetupFn = async ({ app }) => {
   addCustomRoute(app)
 
   sayHi()
@@ -34,6 +34,8 @@ const setup: ServerSetupFn = async ({ app }) => {
     'submittedJob.pgBoss.details()',
     await submittedJob.pgBoss.details()
   )
+
+  console.log('Env var MY_ENV_VAR:', env.MY_ENV_VAR)
 }
 
 function addCustomRoute(app: Application) {
@@ -52,5 +54,3 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   )
   return middlewareConfig
 }
-
-export default setup
