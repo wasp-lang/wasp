@@ -271,6 +271,17 @@ If you follow the instructions above, Netlify will use `netlify.toml` file that 
 If you instead use another method of deployment to Netlify, e.g. do it via CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
 
 It is recommended to deploy through the Netlify CLI in Github Actions. The first deploy can be through the website or manually to get a `NETLIFY_SITE_ID`, the following deploys can then be automatic.
+:::
+
+:::note
+Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment (e.g., Fly.io or Heroku).
+:::
+
+### Deploying through Github Actions
+
+To enable automatic deployment of the frontend whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
+
+Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
 
 <details>
 <summary>Example Github Action (Updated for 0.15.0)</summary>
@@ -327,32 +338,12 @@ jobs:
 <details>
 <summary>How do I get the Environment Variables?</summary>
 
-- **`NETLIFY_AUTH_TOKEN`**: This is the token that allows GitHub Actions to authenticate with your Netlify account. You can generate this from the **Netlify User Settings**:
-  - Go to your [Netlify User Settings Page](https://app.netlify.com/user/settings).
-  - Scroll down to **Personal Access Tokens**.
-  - Click on **New Access Token** to create a new token.
-  
-- **`NETLIFY_SITE_ID`**: This is the unique identifier for your Netlify site. You can obtain this from the **Site Settings** of your site in the Netlify dashboard:
-  - Go to your **Netlify dashboard**.
-  - Click on the specific site you want to deploy.
-  - Go to **Site Settings** → **General** → **Site Information** → **Site ID**.
+- **`NETLIFY_AUTH_TOKEN` & `NETLIFY_SITE_ID`**: They can be configured through Netlify.
 
 - **`WASP_SERVER_URL`**: This is the link that points to your backend and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
-After obtaining the environment variables, you need to store these values securely in GitHub Secrets. To add these:
-
-1. Go to your **GitHub repository**.
-2. Navigate to **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
-3. Add the following secrets:
-   - `NETLIFY_AUTH_TOKEN`
-   - `NETLIFY_SITE_ID`
-   - `WASP_SERVER_URL`
+After obtaining the environment variables, you need to store these values securely in GitHub Secrets.
 </details>
-:::
-
-:::note
-Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment (e.g., Fly.io or Heroku).
-:::
 
 ## Railway (server, client and database)
 
