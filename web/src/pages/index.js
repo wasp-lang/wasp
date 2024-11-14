@@ -59,13 +59,6 @@ const Index = () => {
           content="Develop full-stack web apps without boilerplate."
         />
         <meta property="twitter:image" content={coverPhotoAbsoluteUrl} />
-        {/* Using Cloudflare Workers to proxy the analytics script */}
-        <script
-          defer
-          data-domain="wasp-lang.dev"
-          data-api="/waspara/wasp/event"
-          src="/waspara/wasp/script.js"
-        ></script>
       </Head>
       <Nav />
       <div className="min-h-screen">
