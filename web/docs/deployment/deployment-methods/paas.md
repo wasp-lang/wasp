@@ -1,5 +1,5 @@
 ---
-title: Deploying Manually
+title: Platform as a Service (PaaS)
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
