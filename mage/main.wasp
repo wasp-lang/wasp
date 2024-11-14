@@ -12,7 +12,7 @@ app waspAi {
     "<meta name=\"twitter:image:width\" content=\"800\" />",
     "<meta name=\"twitter:image:height\" content=\"400\" />",
     "<meta name=\"twitter:card\" content=\"summary_large_image\" />",
-    "<script defer data-domain=\"usemage.ai\" src=\"https://plausible.apps.twoducks.dev/js/script.js\"></script>",
+    "<script defer data-domain=\"usemage.ai\" data-api=\"/waspara/wasp/event\" src=\"/waspara/wasp/script.js\"></script>",
   ],
   client: {
     rootComponent: import { RootComponent } from "@src/client/RootComponent.jsx",
