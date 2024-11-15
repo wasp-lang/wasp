@@ -5,29 +5,36 @@ where
 
 import Control.Lens
 import Control.Monad (unless, when)
-import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwError)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (Object, Value (..), eitherDecode, encode, (.=))
+import Data.Aeson (Value (..))
 import Data.Aeson.Lens
-import Data.Aeson.Types (object)
 import qualified Data.HashMap.Strict as HM
-import Data.Maybe (fromJust)
-import Data.Text (Text, isInfixOf)
-import StrongPath (Abs, Dir, File, Path', castRel, (</>))
+import Data.Text (isInfixOf)
+import StrongPath (Abs, Dir, Path', castRel, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
-import qualified Wasp.Generator
+import qualified Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, packageJsonInWaspProjectDir, packageLockJsonInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Project.Common
+  ( CompileError,
+    CompileWarning,
+    WaspProjectDir,
+    buildDirInDotWaspDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+    packageJsonInWaspProjectDir,
+    packageLockJsonInWaspProjectDir,
+    srcDirInWaspProjectDir,
+  )
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
-import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Json (updateJsonFile)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -66,21 +73,22 @@ build = do
     throwError $
       CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found."
 
-  liftIO $ copyUserFilesNecessaryForBuild waspProjectDir buildDir
-
-  cliSendMessageC $
-    Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
+  liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
+    Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
+    Right () ->
+      cliSendMessageC $
+        Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
   where
-    -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
-    -- we're copying all files and folders necessary for the build into the .wasp/build directory.
-    -- We chose this approach for 0.12.0 (instead of building from the project root) because:
-    --   - The build context remains small (~1.5 MB vs ~900 MB).
-    --   - We don't risk copying possible secrets from the project root into the build context.
-    --   - The commands for building the project stay the same as before
-    --     0.12.0, which is good for both us (e.g., for fly deployment) and our
-    --     users  (no changes in CI/CD scripts).
-    -- For more details, read the issue linked above.
-    copyUserFilesNecessaryForBuild waspProjectDir buildDir = runExceptT $ do
+    prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
+      -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
+      -- we're copying all files and folders necessary for the build into the .wasp/build directory.
+      -- We chose this approach for 0.12.0 (instead of building from the project root) because:
+      --   - The build context remains small (~1.5 MB vs ~900 MB).
+      --   - We don't risk copying possible secrets from the project root into the build context.
+      --   - The commands for building the project stay the same as before
+      --     0.12.0, which is good for both us (e.g., for fly deployment) and our
+      --     users  (no changes in CI/CD scripts).
+      -- For more details, read the issue linked above.
       liftIO $
         copyDirectory
           (waspProjectDir </> srcDirInWaspProjectDir)
@@ -91,50 +99,39 @@ build = do
           (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir)
           (buildDir </> sdkRootDirInGeneratedCodeDir)
 
+      let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
+      let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
+
       liftIO $
         copyFile
           (waspProjectDir </> packageJsonInWaspProjectDir)
-          (buildDir </> castRel packageJsonInWaspProjectDir)
-
-      ExceptT $
-        updateJsonFile
-          removeWaspConfigDevDependency
-          (buildDir </> castRel packageJsonInWaspProjectDir)
+          packageJsonInBuildDir
 
       liftIO $
         copyFile
           (waspProjectDir </> packageLockJsonInWaspProjectDir)
-          (buildDir </> castRel packageLockJsonInWaspProjectDir)
+          packageLockJsonInBuildDir
 
-      ExceptT $
-        updateJsonFile
-          removeAllMentionsOfWaspConfig
-          (buildDir </> castRel packageLockJsonInWaspProjectDir)
+      -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
+      -- We should remove this code once we implement a proper solution.
+      ExceptT $ updateJsonFile removeWaspConfigDevDependency packageJsonInBuildDir
+      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfig packageLockJsonInBuildDir
 
-removeAllMentionsOfWaspConfig :: Object -> Object
-removeAllMentionsOfWaspConfig packageLockJsonObject =
-  packageLockJsonObject
-    & at "packages" . _Just . _Object %~ HM.filterWithKey packageNameDoesntMentionWaspConfig
-    & at "packages" . _Just . _Object . at "" . _Just . _Object %~ removeWaspConfigDevDependency
-  where
-    packageNameDoesntMentionWaspConfig package _ = not ("wasp-config" `isInfixOf` package)
+    removeAllMentionsOfWaspConfig :: Value -> Value
+    removeAllMentionsOfWaspConfig packageLockJsonObject =
+      packageLockJsonObject
+        & key "packages" . _Object %~ HM.filterWithKey packageNameDoesntMentionWaspConfig
+        & key "packages" . key "" %~ removeWaspConfigDevDependency
+      where
+        packageNameDoesntMentionWaspConfig package _ = not ("wasp-config" `isInfixOf` package)
 
-removeWaspConfigDevDependency :: Object -> Object
-removeWaspConfigDevDependency original =
-  original & at "devDependencies" . _Just . _Object . at "wasp-config" .~ Nothing
-
-updateJsonFile :: (Object -> Object) -> Path' Abs (File a) -> IO (Either String ())
-updateJsonFile updateFn jsonFilePath = runExceptT $ do
-  jsonContent :: Object <- ExceptT $ eitherDecode <$> IOUtil.readFileBytes jsonFilePath
-  let updatedContent = updateFn jsonContent
-  liftIO $ writeJsonValue jsonFilePath (Object updatedContent)
-
-writeJsonValue :: Path' Abs (File f) -> Value -> IO ()
-writeJsonValue file = IOUtil.writeFileBytes file . encode
+    removeWaspConfigDevDependency :: Value -> Value
+    removeWaspConfigDevDependency original =
+      original & key "devDependencies" . _Object . at "wasp-config" .~ Nothing
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Generator.Common.ProjectRootDir) ->
   IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
