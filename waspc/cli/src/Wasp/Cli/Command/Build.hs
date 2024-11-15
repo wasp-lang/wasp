@@ -120,10 +120,10 @@ build = do
     removeAllMentionsOfWaspConfig :: Value -> Value
     removeAllMentionsOfWaspConfig packageLockJsonObject =
       packageLockJsonObject
-        & key "packages" . _Object %~ HM.filterWithKey packageNameDoesntMentionWaspConfig
         & key "packages" . key "" %~ removeWaspConfigDevDependency
-      where
-        packageNameDoesntMentionWaspConfig package _ = not ("wasp-config" `isInfixOf` package)
+        & key "packages" . _Object
+          %~ HM.filterWithKey
+            (\packageKey _ -> not ("wasp-config" `isInfixOf` packageKey))
 
     removeWaspConfigDevDependency :: Value -> Value
     removeWaspConfigDevDependency original =
