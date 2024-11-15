@@ -3,10 +3,17 @@ module Wasp.Cli.Command.Build
   )
 where
 
+import Control.Lens
 import Control.Monad (unless, when)
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (Abs, Dir, Path', castRel, (</>))
+import Data.Aeson (Object, Value (..), eitherDecode, encode, (.=))
+import Data.Aeson.Lens
+import Data.Aeson.Types (object)
+import qualified Data.HashMap.Strict as HM
+import Data.Maybe (fromJust)
+import Data.Text (Text, isInfixOf)
+import StrongPath (Abs, Dir, File, Path', castRel, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -20,6 +27,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, packageJsonInWaspProjectDir, packageLockJsonInWaspProjectDir, srcDirInWaspProjectDir)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
+import qualified Wasp.Util.IO as IOUtil
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -72,22 +80,57 @@ build = do
     --     0.12.0, which is good for both us (e.g., for fly deployment) and our
     --     users  (no changes in CI/CD scripts).
     -- For more details, read the issue linked above.
-    copyUserFilesNecessaryForBuild waspProjectDir buildDir = do
-      copyDirectory
-        (waspProjectDir </> srcDirInWaspProjectDir)
-        (buildDir </> castRel srcDirInWaspProjectDir)
+    copyUserFilesNecessaryForBuild waspProjectDir buildDir = runExceptT $ do
+      liftIO $
+        copyDirectory
+          (waspProjectDir </> srcDirInWaspProjectDir)
+          (buildDir </> castRel srcDirInWaspProjectDir)
 
-      copyDirectory
-        (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir)
-        (buildDir </> sdkRootDirInGeneratedCodeDir)
+      liftIO $
+        copyDirectory
+          (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir)
+          (buildDir </> sdkRootDirInGeneratedCodeDir)
 
-      copyFile
-        (waspProjectDir </> packageJsonInWaspProjectDir)
-        (buildDir </> castRel packageJsonInWaspProjectDir)
+      liftIO $
+        copyFile
+          (waspProjectDir </> packageJsonInWaspProjectDir)
+          (buildDir </> castRel packageJsonInWaspProjectDir)
 
-      copyFile
-        (waspProjectDir </> packageLockJsonInWaspProjectDir)
-        (buildDir </> castRel packageLockJsonInWaspProjectDir)
+      ExceptT $
+        updateJsonFile
+          removeWaspConfigDevDependency
+          (buildDir </> castRel packageJsonInWaspProjectDir)
+
+      liftIO $
+        copyFile
+          (waspProjectDir </> packageLockJsonInWaspProjectDir)
+          (buildDir </> castRel packageLockJsonInWaspProjectDir)
+
+      ExceptT $
+        updateJsonFile
+          removeAllMentionsOfWaspConfig
+          (buildDir </> castRel packageLockJsonInWaspProjectDir)
+
+removeAllMentionsOfWaspConfig :: Object -> Object
+removeAllMentionsOfWaspConfig packageLockJsonObject =
+  packageLockJsonObject
+    & at "packages" . _Just . _Object %~ HM.filterWithKey packageNameDoesntMentionWaspConfig
+    & at "packages" . _Just . _Object . at "" . _Just . _Object %~ removeWaspConfigDevDependency
+  where
+    packageNameDoesntMentionWaspConfig package _ = not ("wasp-config" `isInfixOf` package)
+
+removeWaspConfigDevDependency :: Object -> Object
+removeWaspConfigDevDependency original =
+  original & at "devDependencies" . _Just . _Object . at "wasp-config" .~ Nothing
+
+updateJsonFile :: (Object -> Object) -> Path' Abs (File a) -> IO (Either String ())
+updateJsonFile updateFn jsonFilePath = runExceptT $ do
+  jsonContent :: Object <- ExceptT $ eitherDecode <$> IOUtil.readFileBytes jsonFilePath
+  let updatedContent = updateFn jsonContent
+  liftIO $ writeJsonValue jsonFilePath (Object updatedContent)
+
+writeJsonValue :: Path' Abs (File f) -> Value -> IO ()
+writeJsonValue file = IOUtil.writeFileBytes file . encode
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

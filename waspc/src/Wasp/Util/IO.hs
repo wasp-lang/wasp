@@ -18,6 +18,7 @@ module Wasp.Util.IO
     isDirectoryEmpty,
     writeFileFromText,
     readFileBytes,
+    writeFileBytes,
   )
 where
 
@@ -114,6 +115,9 @@ readFileStrict = T.IO.readFile . SP.toFilePath
 
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile
+
+writeFileBytes :: Path' Abs (File f) -> B.ByteString -> IO ()
+writeFileBytes = B.writeFile . SP.fromAbsFile
 
 writeFileFromText :: Path' Abs (File f) -> Text -> IO ()
 writeFileFromText = T.IO.writeFile . SP.fromAbsFile
