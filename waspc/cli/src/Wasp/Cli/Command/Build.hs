@@ -18,7 +18,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
-import qualified Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
@@ -131,7 +131,7 @@ build = do
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Generator.Common.ProjectRootDir) ->
+  Path' Abs (Dir ProjectRootDir) ->
   IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
