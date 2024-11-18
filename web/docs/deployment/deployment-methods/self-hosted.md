@@ -44,7 +44,7 @@ In this setup, you install Docker on your server, set up the server env variable
 
 </details>
 
-You can find our guide on how to deploy to a VPS with Docker and Caddy [here](https://gist.github.com/infomiho/80f3f50346566e39db56c5e57fefa1fe).
+Read our [full guide](https://gist.github.com/infomiho/80f3f50346566e39db56c5e57fefa1fe) on deploying Wasp apps to your VPS.
 
 ### Coolify
 
@@ -62,7 +62,7 @@ You can find our guide on how to deploy to a VPS with Docker and Caddy [here](ht
 
 </details>
 
-You can find our guide on how to deploy your Wasp app with Coolify [here](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524).
+Read our [full guide](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524) on deploying Wasp apps with Coolify.
 
 ### CapRover
 
@@ -80,4 +80,4 @@ You can find our guide on how to deploy your Wasp app with Coolify [here](https:
 
 </details>
 
-You can find our guide on how to deploy your Wasp app with CapRover [here](https://gist.github.com/infomiho/a853e2f92aff6d52e9120b8974887464)
+Read our [full guide](https://gist.github.com/infomiho/a853e2f92aff6d52e9120b8974887464) on deploying Wasp apps with CapRover.
