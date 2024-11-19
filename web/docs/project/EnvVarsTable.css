@@ -1,0 +1,28 @@
+table.env-vars-table {
+  display: table;
+  /* width: 100%; */
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+table.env-vars-table tbody tr td:first-child {
+  width: 200px;
+}
+
+table.env-vars-table thead th {
+  text-align: left;
+}
+
+.env-var-type {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 700;
+}
+
+.env-var-default {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: var(--ifm-color-secondary-contrast-foreground);
+}

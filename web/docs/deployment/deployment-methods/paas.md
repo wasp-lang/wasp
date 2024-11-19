@@ -56,37 +56,8 @@ You'll have to [switch to PostgreSQL](../../data-model/backends#migrating-from-s
 There's a Dockerfile that defines an image for building the server in the `.wasp/build` directory.
 
 To run the server in production, deploy this Docker image to a hosting provider and ensure the required environment variables on the provider are correctly set up (the mechanism of setting these up is specific per provider).
-All necessary environment variables are listed in the next section.
 
-#### Environment Variables
-
-Here are the environment variables your server will be looking for:
-
-- `DATABASE_URL` <Required />
-
-  The URL of the PostgreSQL database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
-
-- `WASP_WEB_CLIENT_URL` <Required />
-
-  The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
-  The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
-
-- `WASP_SERVER_URL` <Required />
-
-  The URL where the server is running (e.g., `https://<app-name>.fly.dev`).
-  The server needs it to properly redirect users when logging in with OAuth providers like Google or GitHub.
-
-- `JWT_SECRET` (<Required /> if using Wasp Auth)
-
-  You only need this environment variable if you're using Wasp's `auth` features.
-  Set it to a random string at least 32 characters long (you can use an [online generator](https://djecrety.ir/)).
-
-- `PORT`
-
-  The server's HTTP port number. This is where the server listens for requests (default: `3001`).
-
-
-<AddExternalAuthEnvVarsReminder />
+Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up in your production environment.
 
 While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
 
@@ -95,8 +66,6 @@ While these are the general instructions on deploying the server anywhere, we al
 <BuildingTheWebClient />
 
 The command above will build the web client and put it in the `build/` directory in the `.wasp/build/web-app/`.
-
-This is also the moment to provide any additional env vars for the client code, next to `REACT_APP_API_URL`. Check the [env vars docs](../../project/env-vars#client-env-vars-1) for more details.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/build/web-app/build/`.
 
