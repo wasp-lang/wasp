@@ -3,7 +3,9 @@ const lightCodeTheme = require('prism-react-renderer/themes/github')
 const autoImportTabs = require('./src/remark/auto-import-tabs')
 const fileExtSwitcher = require('./src/remark/file-ext-switcher')
 
-const includeCurrentVersion = process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
+const includeCurrentVersion =
+  process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
+const isProduction = process.env.NODE_ENV === 'production'
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
@@ -213,7 +215,7 @@ module.exports = {
       },
     ],
   ],
-  scripts: ['/scripts/posthog.js', '/js/fix-multiple-trailing-slashes.js'],
+  scripts: getScripts(),
   plugins: [
     'plugin-image-zoom',
     async function myPlugin(context, options) {
@@ -297,4 +299,22 @@ module.exports = {
       },
     ],
   ],
+}
+
+function getScripts() {
+  const scripts = [
+    '/scripts/posthog.js',
+    '/js/fix-multiple-trailing-slashes.js',
+  ]
+
+  if (isProduction) {
+    // Using Cloudflare Workers to proxy the analytics script
+    scripts.push({
+      src: '/waspara/wasp/script.js',
+      defer: true,
+      'data-domain': 'wasp-lang.dev',
+      'data-api': '/waspara/wasp/event',
+    })
+  }
+  return scripts
 }
