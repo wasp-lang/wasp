@@ -236,7 +236,6 @@ wasp deploy fly deploy
 `deploy` pushes your client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
-
 ```shell
 wasp deploy fly deploy
 ```
@@ -248,8 +247,6 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
 Make sure to add your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../project/env-vars#client-env-vars-1).
-
-Then you can run `npm run deploy` to deploy your app.
 
 ### `cmd`
 
@@ -293,6 +290,8 @@ Please note, you should do this for **every deployment**, not just the first tim
   }
 }
 ```
+
+Then you can run `npm run deploy` to deploy your app.
 
 ### Fly.io Regions
 
