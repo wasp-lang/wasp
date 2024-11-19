@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.2
+
+### 🐞 Bug fixes
+
+- Fixed build step for apps that use Wasp's new TS config.
+
 ## 0.15.1
 
 ### 🐞 Bug fixes
