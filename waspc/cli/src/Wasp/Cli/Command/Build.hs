@@ -10,8 +10,10 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value (..))
 import Data.Aeson.Lens
 import qualified Data.HashMap.Strict as HM
-import Data.Text (isInfixOf)
+import Data.List (isSuffixOf)
+import Data.Text (Text, unpack)
 import StrongPath (Abs, Dir, Path', castRel, (</>))
+import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -75,16 +77,17 @@ build = do
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
-    Right () ->
-      cliSendMessageC $
-        Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
+    Right () -> return ()
+
+  cliSendMessageC $
+    Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
-      -- we're copying all files and folders necessary for the build into the .wasp/build directory.
+      -- we're copying all files and folders necessary for Docker build into the .wasp/build directory.
       -- We chose this approach for 0.12.0 (instead of building from the project root) because:
-      --   - The build context remains small (~1.5 MB vs ~900 MB).
-      --   - We don't risk copying possible secrets from the project root into the build context.
+      --   - The Docker build context remains small (~1.5 MB vs ~900 MB).
+      --   - We don't risk copying possible secrets from the project root into Docker's build context.
       --   - The commands for building the project stay the same as before
       --     0.12.0, which is good for both us (e.g., for fly deployment) and our
       --     users  (no changes in CI/CD scripts).
@@ -114,19 +117,32 @@ build = do
 
       -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
       -- We should remove this code once we implement a proper solution.
-      ExceptT $ updateJsonFile removeWaspConfigDevDependency packageJsonInBuildDir
-      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfig packageLockJsonInBuildDir
+      ExceptT $ updateJsonFile removeWaspConfigFromDevDependenciesArray packageJsonInBuildDir
+      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonInBuildDir
 
-    removeAllMentionsOfWaspConfig :: Value -> Value
-    removeAllMentionsOfWaspConfig packageLockJsonObject =
+    removeAllMentionsOfWaspConfigInPackageLockJson :: Value -> Value
+    removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonObject =
+      -- We want to:
+      --   1. Remove the `wasp-config` dev dependency from the root package in package-lock.json.
+      --   This is at `packageLock["packages"][""]["wasp-config"]`.
+      --   2. Remove all package location entries for the `wasp-config` package
+      --   (i.e., entries whose location keys end in `/wasp-config`).
+      --   Example locations include:
+      --      packageLock["packages"]["../../data/packages/wasp-config"]
+      --      packageLock["packages"]["node_modules/wasp-config"]
+      --      packageLock["packages"]["/home/filip/../wasp-config"]
       packageLockJsonObject
-        & key "packages" . key "" %~ removeWaspConfigDevDependency
+        & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
         & key "packages" . _Object
           %~ HM.filterWithKey
-            (\packageKey _ -> not ("wasp-config" `isInfixOf` packageKey))
+            (\packageLocation _ -> not $ isWaspConfigPackageLocation packageLocation)
 
-    removeWaspConfigDevDependency :: Value -> Value
-    removeWaspConfigDevDependency original =
+    isWaspConfigPackageLocation :: Text -> Bool
+    isWaspConfigPackageLocation packageLocation =
+      (FP.pathSeparator : "wasp-config") `isSuffixOf` unpack packageLocation
+
+    removeWaspConfigFromDevDependenciesArray :: Value -> Value
+    removeWaspConfigFromDevDependenciesArray original =
       original & key "devDependencies" . _Object . at "wasp-config" .~ Nothing
 
 buildIO ::

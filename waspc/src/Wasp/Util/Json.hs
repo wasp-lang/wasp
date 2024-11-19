@@ -7,7 +7,6 @@ where
 import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON, Value (..), eitherDecode, encode)
-import Data.Aeson.Types (Object)
 import StrongPath (Abs, File, Path')
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
@@ -29,8 +28,7 @@ parseJsonWithComments jsonStr = do
 updateJsonFile :: (Value -> Value) -> Path' Abs (File a) -> IO (Either String ())
 updateJsonFile updateFn jsonFilePath = runExceptT $ do
   jsonContent <- ExceptT $ eitherDecode <$> IOUtil.readFileBytes jsonFilePath
-  let updatedContent = updateFn jsonContent
-  liftIO $ writeJsonValue jsonFilePath updatedContent
+  liftIO $ writeJsonValue jsonFilePath $ updateFn jsonContent
 
 writeJsonValue :: Path' Abs (File f) -> Value -> IO ()
 writeJsonValue file = IOUtil.writeFileBytes file . encode
