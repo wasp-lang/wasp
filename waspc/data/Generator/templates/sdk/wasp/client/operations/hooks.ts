@@ -29,7 +29,9 @@ export function useQuery<Input, Output>(
     // todo: The full queryCacheKey is constructed in two places, both here and
     // inside the Query. See https://github.com/wasp-lang/wasp/issues/2017
     queryKey: makeQueryCacheKey(query, queryFnArgs),
-    queryFn: () => query(queryFnArgs),
+    // FIXME: query fns don't handle the `undefined` case correctly
+    // https://github.com/wasp-lang/wasp/issues/2017
+    queryFn: () => query(queryFnArgs as Input),
     ...options,
   })
 }

@@ -6,7 +6,7 @@ import {
   findAuthIdentity,
   deleteUserByAuthId,
   doFakeWork,
-  deserializeAndSanitizeProviderData,
+  getProviderDataWithPassword,
   sanitizeAndSerializeProviderData,
   rethrowPossibleAuthError,
 } from 'wasp/auth/utils'
@@ -74,7 +74,7 @@ export function getSignupRoute({
      *     address unavailable for later account creation (by real owner).
      */
     if (existingAuthIdentity) {
-      const providerData = deserializeAndSanitizeProviderData<'email'>(
+      const providerData = getProviderDataWithPassword<'email'>(
         existingAuthIdentity.providerData,
       )
 

@@ -5,11 +5,10 @@ import { EmailSender } from "./core/types.js";
 // TODO: We need to validate all the env variables
 // For now, we are letting the runtime throw if they are not provided
 {=# isSmtpProviderUsed =}
-const emailProvider = {
+const emailProvider = { 
     type: "smtp",
     host: process.env.SMTP_HOST!,
-    // @ts-ignore
-    port: parseInt(process.env.SMTP_PORT, 10),
+    port: parseInt(process.env.SMTP_PORT!, 10),
     username: process.env.SMTP_USERNAME!,
     password: process.env.SMTP_PASSWORD!,
 } as const;

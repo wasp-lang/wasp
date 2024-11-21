@@ -7,7 +7,7 @@ import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
-  deserializeAndSanitizeProviderData,
+  getProviderDataWithPassword,
 } from 'wasp/auth/utils'
 import { createSession } from 'wasp/auth/session'
 import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
@@ -24,7 +24,7 @@ export default handleRejection(async (req, res) => {
   }
 
   try {
-    const providerData = deserializeAndSanitizeProviderData<'username'>(authIdentity.providerData)
+    const providerData = getProviderDataWithPassword<'username'>(authIdentity.providerData)
 
     await verifyPassword(providerData.hashedPassword, fields.password)
   } catch(e) {
