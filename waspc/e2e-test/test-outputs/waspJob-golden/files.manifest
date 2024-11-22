@@ -177,6 +177,9 @@ waspJob/.wasp/out/sdk/wasp/dist/server/types/index.js.map
 waspJob/.wasp/out/sdk/wasp/dist/server/utils.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/server/utils.js
 waspJob/.wasp/out/sdk/wasp/dist/server/utils.js.map
+waspJob/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/universal/predicates.js
+waspJob/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
 waspJob/.wasp/out/sdk/wasp/dist/universal/types.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/universal/types.js
 waspJob/.wasp/out/sdk/wasp/dist/universal/types.js.map
@@ -219,6 +222,7 @@ waspJob/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspJob/.wasp/out/sdk/wasp/server/types/index.ts
 waspJob/.wasp/out/sdk/wasp/server/utils.ts
 waspJob/.wasp/out/sdk/wasp/tsconfig.json
+waspJob/.wasp/out/sdk/wasp/universal/predicates.ts
 waspJob/.wasp/out/sdk/wasp/universal/types.ts
 waspJob/.wasp/out/sdk/wasp/universal/url.ts
 waspJob/.wasp/out/sdk/wasp/universal/validators.ts

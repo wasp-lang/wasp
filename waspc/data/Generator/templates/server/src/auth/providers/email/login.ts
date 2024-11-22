@@ -35,6 +35,10 @@ export function getLoginRoute() {
         }
     
         const auth = await findAuthWithUserBy({ id: authIdentity.authId })
+
+        if (auth === null) {
+            throw createInvalidCredentialsError()
+        }
         
         await onBeforeLoginHook({
             req,

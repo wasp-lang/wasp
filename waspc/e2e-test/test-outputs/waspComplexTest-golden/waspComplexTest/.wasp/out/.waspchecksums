@@ -158,21 +158,21 @@
             "file",
             "../out/sdk/wasp/auth/user.ts"
         ],
-        "3ee6cce8da66fecb60d93f3421e6777f81acc71418efa4859b6ec136c56a0291"
+        "def17b8f5c4602736fefb2aec8e3773cd368851509211fd1a470ff71b827dc2d"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "eb606db2f6cd5f2b31583e5f388fba933e4b91b941e32608626e405885b8feae"
+        "20de550aadce243134c0633dc6b499853067acafb750ddb35d99b8cd90b4b81c"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/validation.ts"
         ],
-        "4be4e64c1bcd4a42f563268d40f85cb7eac75a57a278e802f906904059211590"
+        "73863c3650235aa0c284f77d9c4282d9edf1fa5a8b1fe38a24a199c1f8292bd3"
     ],
     [
         [
@@ -249,7 +249,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "d531dfb7f13631303e0c440595dfe305ffd5c08e0df1b6e937aa0c35228bd799"
+        "35e28cee08ba7be84337a0c171ff13c4711be9e6455a707b64e273fbed08a2d1"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/core.ts"
         ],
-        "24e54be1a709bb7d385eb585df02e861e07d21ba3059fc124a5883be620f96fe"
+        "7f842b7add5a2949a49981dac64dd5951457eb5b9d3c555f25f6e4f11c04f3b4"
     ],
     [
         [
@@ -536,7 +536,7 @@
             "file",
             "../out/sdk/wasp/server/auth/hooks.ts"
         ],
-        "e41d9184b54d725d7564d2eeaf1210b809dbbcd0c55e2ada6613096acd745c6a"
+        "3137bb3403d809e0e295604e20ac1221f56512bda873272bb7a49efd385e2108"
     ],
     [
         [
@@ -800,6 +800,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/universal/predicates.ts"
+        ],
+        "baa4148fdf4995cfc154a81bc494e9e8077635d4db50958d5b59837d1b8ed691"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
         "be0d749bf9ae2f44ca2c281e0fb65c4d30c1d07e375ba38407e6c4fa1f05cc87"
@@ -984,7 +991,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "0798bdc8635f62e693d7bb4df5ab5ee4ec08a59b43cee3ce14094fd9ae19c89e"
+        "c9ad77f70a0cfc66c79783e09a2cce9849e4bf03712b5c0b53ef1b73295c230c"
     ],
     [
         [

@@ -35,6 +35,10 @@ export default handleRejection(async (req, res) => {
     id: authIdentity.authId
   }) 
 
+  if (auth === null) {
+    throw createInvalidCredentialsError()
+  }
+
   await onBeforeLoginHook({
       req,
       providerId,

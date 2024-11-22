@@ -152,6 +152,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/server/types/index.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/utils.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/server/utils.js
 waspCompile/.wasp/out/sdk/wasp/dist/server/utils.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/universal/predicates.js
+waspCompile/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/universal/types.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/universal/types.js
 waspCompile/.wasp/out/sdk/wasp/dist/universal/types.js.map
@@ -186,6 +189,7 @@ waspCompile/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspCompile/.wasp/out/sdk/wasp/server/types/index.ts
 waspCompile/.wasp/out/sdk/wasp/server/utils.ts
 waspCompile/.wasp/out/sdk/wasp/tsconfig.json
+waspCompile/.wasp/out/sdk/wasp/universal/predicates.ts
 waspCompile/.wasp/out/sdk/wasp/universal/types.ts
 waspCompile/.wasp/out/sdk/wasp/universal/url.ts
 waspCompile/.wasp/out/sdk/wasp/universal/validators.ts

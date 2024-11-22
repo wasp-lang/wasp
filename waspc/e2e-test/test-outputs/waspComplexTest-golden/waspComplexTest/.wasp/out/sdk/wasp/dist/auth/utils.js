@@ -64,7 +64,14 @@ export async function updateAuthIdentityProviderData(providerId, existingProvide
 }
 // PRIVATE API
 export async function findAuthWithUserBy(where) {
-    return prisma.auth.findFirst({ where, include: { user: true } });
+    const result = await prisma.auth.findFirst({ where, include: { user: true } });
+    if (result === null) {
+        return null;
+    }
+    if (result.user === null) {
+        return null;
+    }
+    return result;
 }
 // PUBLIC API
 export async function createUser(providerId, serializedProviderData, userFields) {

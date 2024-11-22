@@ -123,15 +123,31 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   });
 }
 
-type FindAuthWithUserResult = Auth & {
-  user: User | null
+// PRIVATE API
+export type FindAuthWithUserResult = Auth & {
+  user: User
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.AuthWhereInput
 ): Promise<FindAuthWithUserResult | null> {
-  return prisma.auth.findFirst({ where, include: { user: true }});
+  const result = await prisma.auth.findFirst({ where, include: { user: true }});
+
+  if (result === null) {
+    return null;
+  }
+
+  if (result.user === null) {
+    return null;
+  }
+
+  return result as FindAuthWithUserResult;
+}
+
+// PUBLIC API
+export type CreateUserResult = User & {
+  auth: Auth | null
 }
 
 // PUBLIC API
@@ -139,9 +155,7 @@ export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
-): Promise<User & {
-  auth: Auth | null
-}> {
+): Promise<CreateUserResult> {
   return prisma.user.create({
     data: {
       // Using any here to prevent type errors when userFields are not

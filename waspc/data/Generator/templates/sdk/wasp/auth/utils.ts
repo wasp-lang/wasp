@@ -124,15 +124,31 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   });
 }
 
-type FindAuthWithUserResult = {= authEntityUpper =} & {
-  {= userFieldOnAuthEntityName =}: {= userEntityUpper =} | null
+// PRIVATE API
+export type FindAuthWithUserResult = {= authEntityUpper =} & {
+  {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.{= authEntityUpper =}WhereInput
 ): Promise<FindAuthWithUserResult | null> {
-  return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+  const result = await prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+
+  if (result === null) {
+    return null;
+  }
+
+  if (result.user === null) {
+    return null;
+  }
+
+  return result as FindAuthWithUserResult;
+}
+
+// PUBLIC API
+export type CreateUserResult = {= userEntityUpper =} & {
+  auth: {= authEntityUpper =} | null
 }
 
 // PUBLIC API
@@ -140,9 +156,7 @@ export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
-): Promise<{= userEntityUpper =} & {
-  auth: {= authEntityUpper =} | null
-}> {
+): Promise<CreateUserResult> {
   return prisma.{= userEntityLower =}.create({
     data: {
       // Using any here to prevent type errors when userFields are not
