@@ -71,9 +71,10 @@ export const toggleAllTasks: ToggleAllTasks = async (_args, context) => {
     throw new HttpError(401)
   }
 
+  const userId = context.user.id
   const whereIsDone = (isDone: boolean) => ({
     isDone,
-    user: { id: context.user!.id },
+    user: { id: userId },
   })
   const Task = context.entities.Task
   const notDoneTasksCount = await Task.count({ where: whereIsDone(false) })
