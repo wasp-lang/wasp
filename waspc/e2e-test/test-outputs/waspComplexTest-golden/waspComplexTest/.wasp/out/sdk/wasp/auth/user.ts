@@ -35,6 +35,7 @@ export type { AuthUserData, AuthUser } from '../server/auth/user.js'
 // PRIVATE API (used in SDK and server)
 export function makeAuthUserIfPossible(user: null): null
 export function makeAuthUserIfPossible(user: AuthUserData): AuthUser
+export function makeAuthUserIfPossible(user: AuthUserData | null): AuthUser | null
 export function makeAuthUserIfPossible(
   user: AuthUserData | null,
 ): AuthUser | null {

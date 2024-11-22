@@ -151,21 +151,21 @@
             "file",
             "../out/sdk/wasp/auth/useAuth.ts"
         ],
-        "5ff11b4558cec86679d232e9fe793534a01f89c82abdfe04476ee293eade5ea5"
+        "d215bb817de2f9dc2a4d1fa45fdb3f81048ba0552eecec922b853592c19a56ac"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/user.ts"
         ],
-        "5f7f80400b7219cce7d04f5f54dfe388e919e29d40a482bf4ef29fb69dc07d5e"
+        "3ee6cce8da66fecb60d93f3421e6777f81acc71418efa4859b6ec136c56a0291"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "74ed8da86a3c6511eddef0c11477de35547c078610aa100fce6afba57f078411"
+        "eb606db2f6cd5f2b31583e5f388fba933e4b91b941e32608626e405885b8feae"
     ],
     [
         [
@@ -249,7 +249,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "f2931d9a078f46f256942d66234969945273b4f964793b69ab4d096c72b40588"
+        "d531dfb7f13631303e0c440595dfe305ffd5c08e0df1b6e937aa0c35228bd799"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "../out/sdk/wasp/client/operations/rpc.ts"
         ],
-        "92916b01c4d6127ea72c93367111dab5bcaad885c0a48420f6a0d40779e953d0"
+        "08f30fe4e31a691a225949ccd4d638cffe78bf2f4f2a76feb70133d4d9a5ba94"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "../out/sdk/wasp/server/auth/index.ts"
         ],
-        "9f932aba0d2ca6d1d2ff6fd826d238da3719b7676e7b42e97430af6f86fd03e2"
+        "9ccc0956cbeaad977d9e3fb33ac4aebd4a6d364166902214cc8fc8e15c76dab7"
     ],
     [
         [
@@ -592,7 +592,7 @@
             "file",
             "../out/sdk/wasp/server/auth/user.ts"
         ],
-        "bc415fd61fe7333ffe30d850bd07b4eae823a6e7b70321f03d0d881808d1a412"
+        "ad863cca8d6b65c43e71d03855cc7edc104177cee43cd88db3e23112948c770d"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "d73017a9d9f91ca3241a1d67b8a2ba27e6a4a253bf4a834c3b00f73c9076b0ed"
+        "19de68ae9a461b6e3455271aa7ff439827d2a6292a301a9ed61a24d912ac1773"
     ],
     [
         [
@@ -711,14 +711,14 @@
             "file",
             "../out/sdk/wasp/server/jobs/mySpecialJob.ts"
         ],
-        "0793ab9418cb95b0f30267206e438acd0f8124d29f618b0dd70ec76de06c2da5"
+        "d8aa9dcdb2d2e0202951925c7e2c51a9832dadefb1106f305c24457cc1392d34"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/jobs/returnHelloJob.ts"
         ],
-        "8d83803a263c8aa6ebf583d02713d0feabbde8cc256766374940257f4dddc96e"
+        "89fa4d76de6480949e9bfd2363dead22b07c821baa108da90a51dffd72f0ba54"
     ],
     [
         [

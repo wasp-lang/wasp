@@ -52,7 +52,7 @@ export async function findAuthIdentity(providerId) {
 export async function updateAuthIdentityProviderData(providerId, existingProviderData, providerDataUpdates) {
     // We are doing the sanitization here only on updates to avoid
     // hashing the password multiple times.
-    const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+    const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
     const newProviderData = Object.assign(Object.assign({}, existingProviderData), sanitizedProviderDataUpdates);
     const serializedProviderData = await serializeProviderData(newProviderData);
     return prisma.authIdentity.update({
@@ -163,26 +163,31 @@ export async function validateAndGetUserFields(data, userSignupFields) {
     return result;
 }
 // PUBLIC API
-export function deserializeAndSanitizeProviderData(providerData, { shouldRemovePasswordField = false } = {}) {
+export function getProviderData(providerData) {
+    return sanitizeProviderData(getProviderDataWithPassword(providerData));
+}
+// PUBLIC API
+export function getProviderDataWithPassword(providerData) {
     // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-    let data = JSON.parse(providerData);
-    if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
-        // TODO: we are removing the password from the runtime data, but we are not
-        // signaling that in the type system. The return type of this function should
-        // be different when `shouldRemovePasswordField` is true.
-        // @ts-ignore
-        delete data.hashedPassword;
+    return JSON.parse(providerData);
+}
+function sanitizeProviderData(providerData) {
+    if (providerDataHasPasswordField(providerData)) {
+        const { hashedPassword } = providerData, rest = __rest(providerData, ["hashedPassword"]);
+        return rest;
     }
-    return data;
+    else {
+        return providerData;
+    }
 }
 // PUBLIC API
 export async function sanitizeAndSerializeProviderData(providerData) {
-    return serializeProviderData(await sanitizeProviderData(providerData));
+    return serializeProviderData(await ensurePasswordIsHashed(providerData));
 }
 function serializeProviderData(providerData) {
     return JSON.stringify(providerData);
 }
-async function sanitizeProviderData(providerData) {
+async function ensurePasswordIsHashed(providerData) {
     const data = Object.assign({}, providerData);
     if (providerDataHasPasswordField(data)) {
         data.hashedPassword = await hashPassword(data.hashedPassword);

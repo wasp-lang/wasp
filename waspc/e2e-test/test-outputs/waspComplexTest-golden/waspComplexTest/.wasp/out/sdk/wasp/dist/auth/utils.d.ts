@@ -76,9 +76,8 @@ export declare function rethrowPossibleAuthError(e: unknown): void;
 export declare function validateAndGetUserFields(data: {
     [key: string]: unknown;
 }, userSignupFields?: UserSignupFields): Promise<Record<string, any>>;
-export declare function deserializeAndSanitizeProviderData<PN extends ProviderName>(providerData: string, { shouldRemovePasswordField }?: {
-    shouldRemovePasswordField?: boolean;
-}): PossibleProviderData[PN];
+export declare function getProviderData<PN extends ProviderName>(providerData: string): Omit<PossibleProviderData[PN], 'hashedPassword'>;
+export declare function getProviderDataWithPassword<PN extends ProviderName>(providerData: string): PossibleProviderData[PN];
 export declare function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<string>;
 export declare function createInvalidCredentialsError(message?: string): HttpError;
 export {};
