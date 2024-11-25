@@ -41,7 +41,7 @@ export async function resetPassword(
     return res.json({ success: true });
 };
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
     ensureTokenIsPresent(args);
     ensurePasswordIsPresent(args);
     ensureValidPassword(args);

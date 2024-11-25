@@ -58,7 +58,7 @@ export default handleRejection(async (req, res) => {
   })
 })
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
   ensureValidUsername(args);
   ensurePasswordIsPresent(args);
 }

@@ -60,7 +60,7 @@ export function getLoginRoute() {
     };
 }
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
     ensureValidEmail(args);
     ensurePasswordIsPresent(args);
 }

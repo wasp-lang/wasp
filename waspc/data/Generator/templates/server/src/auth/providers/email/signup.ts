@@ -156,7 +156,7 @@ export function getSignupRoute({
   }
 }
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
   ensureValidEmail(args)
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
