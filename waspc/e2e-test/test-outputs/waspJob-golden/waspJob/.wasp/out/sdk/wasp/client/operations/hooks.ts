@@ -142,7 +142,7 @@ type InternalOptimisticUpdateDefinition<ActionInput, CachedData> = {
  * the current state of the cache and returns the desired (new) state of the
  * cache.
  */
-type SpecificUpdateQuery<CachedData> = (oldData: CachedData) => CachedData;
+type SpecificUpdateQuery<CachedData> = (oldData: CachedData | undefined) => CachedData;
 
 /**
  * A specific, "instantiated" optimistic update definition which contains a
@@ -208,14 +208,12 @@ function makeOptimisticUpdateMutationFn<Input, Output, CachedData>(
     CachedData
   >[]
 ): typeof actionFn {
-  return (function performActionWithOptimisticUpdates(item?: Input) {
+  return (function performActionWithOptimisticUpdates(item: Input) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       (generalDefinition) =>
-        // @ts-ignore
         getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
     );
     return (actionFn as InternalAction<Input, Output>).internal(
-      // @ts-ignore
       item,
       specificOptimisticUpdateDefinitions
     );
@@ -265,16 +263,14 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
     );
 
     // We're using a Map to correctly serialize query keys that contain objects.
-    const previousData = new Map();
+    const previousData: Map<QueryKey, CachedData | undefined> = new Map();
     specificOptimisticUpdateDefinitions.forEach(({ queryKey, updateQuery }) => {
       // Snapshot the currently cached value.
-      // @ts-ignore
-      const previousDataForQuery: CachedData =
+      const previousDataForQuery: CachedData | undefined =
         queryClient.getQueryData(queryKey);
 
       // Attempt to optimistically update the cache using the new value.
       try {
-        // @ts-ignore
         queryClient.setQueryData(queryKey, updateQuery);
       } catch (e) {
         console.error(

@@ -10,6 +10,7 @@ export {
   getProviderDataWithPassword,
   findAuthIdentity,
   createUser,
+  type CreateUserResult,
   type ProviderId,
   type ProviderName,
   type EmailProviderData,

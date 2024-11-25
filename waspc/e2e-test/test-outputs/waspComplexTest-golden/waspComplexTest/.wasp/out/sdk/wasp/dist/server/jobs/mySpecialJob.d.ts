@@ -11,7 +11,7 @@ export declare const mySpecialJob: {
         options: Parameters<import("pg-boss")["schedule"]>[3];
         args?: NonNullable<Parameters<import("pg-boss")["schedule"]>[2]>;
     } | null;
-    delay(startAfter: number | string | Date): any;
+    delay(startAfter: number | string | Date): /*elided*/ any;
     submit(jobArgs: JSONObject, jobOptions?: Parameters<import("pg-boss")["send"]>[2]): Promise<{
         readonly pgBoss: {
             readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;

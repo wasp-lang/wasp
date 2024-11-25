@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "4befb2006798d467ef8da00588404cef0ca9e50c3a313296111bae1282550069"
+        "2625c4c99d8925586320492a69923c487764868f4461430672b09587408c0d08"
     ],
     [
         [
@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "20de550aadce243134c0633dc6b499853067acafb750ddb35d99b8cd90b4b81c"
+        "ceed4ab4ea541402f329e480db98cce0478a00a5aec75e9071c7dd4457893010"
     ],
     [
         [
@@ -249,7 +249,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "35e28cee08ba7be84337a0c171ff13c4711be9e6455a707b64e273fbed08a2d1"
+        "3c326183d9dcb2bcf14b747ffc66b19e4773642d05f3f84d401e3d54b843eeca"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "../out/sdk/wasp/server/auth/index.ts"
         ],
-        "9ccc0956cbeaad977d9e3fb33ac4aebd4a6d364166902214cc8fc8e15c76dab7"
+        "6daa9ed1d7ad0875bd5772a440de2fd229e9cd1bf3f44bde548eff467a68116d"
     ],
     [
         [

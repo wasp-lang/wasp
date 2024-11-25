@@ -71,7 +71,7 @@ export async function findAuthWithUserBy(where) {
     if (result.user === null) {
         return null;
     }
-    return result;
+    return Object.assign(Object.assign({}, result), { user: result.user });
 }
 // PUBLIC API
 export async function createUser(providerId, serializedProviderData, userFields) {
