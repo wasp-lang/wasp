@@ -286,7 +286,7 @@ export function getProviderDataWithPassword<PN extends ProviderName>(
   providerData: string,
 ): PossibleProviderData[PN] {
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-  return JSON.parse(providerData) as PossibleProviderData[PN];
+  return JSON.parse(providerData);
 }
 
 function sanitizeProviderData<PN extends ProviderName>(
