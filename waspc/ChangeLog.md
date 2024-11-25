@@ -10,6 +10,12 @@
 
 - Enabled strict null checks for the Wasp SDK which means that some of the return types are more precise now e.g. you'll need to check if some value is `null` before using it.
 
+## 0.15.2
+
+### 🐞 Bug fixes
+
+- Fixed build step for apps that use Wasp's new TS config.
+
 ## 0.15.1
 
 ### 🐞 Bug fixes
