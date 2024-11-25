@@ -143,7 +143,7 @@ export async function findAuthWithUserBy(
     return null;
   }
 
-  return result as FindAuthWithUserResult;
+  return { ...result, user: result.user };
 }
 
 // PUBLIC API
