@@ -6,13 +6,13 @@ const entities = {
 }
 
 // PUBLIC API
-export type MySpecialJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>
+export type SimpleJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>
 
 const jobSchedule = null
 
 // PUBLIC API
-export const mySpecialJob = createJobDefinition({
-  jobName: 'mySpecialJob',
+export const simpleJob = createJobDefinition({
+  jobName: 'simpleJob',
   defaultJobOptions: {},
   jobSchedule,
   entities,

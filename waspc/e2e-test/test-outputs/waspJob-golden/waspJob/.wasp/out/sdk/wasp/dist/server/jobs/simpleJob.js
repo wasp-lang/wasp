@@ -2,10 +2,10 @@ import { createJobDefinition } from 'wasp/server/jobs/core/pgBoss';
 const entities = {};
 const jobSchedule = null;
 // PUBLIC API
-export const mySpecialJob = createJobDefinition({
-    jobName: 'mySpecialJob',
+export const simpleJob = createJobDefinition({
+    jobName: 'simpleJob',
     defaultJobOptions: {},
     jobSchedule,
     entities,
 });
-//# sourceMappingURL=mySpecialJob.js.map
+//# sourceMappingURL=simpleJob.js.map

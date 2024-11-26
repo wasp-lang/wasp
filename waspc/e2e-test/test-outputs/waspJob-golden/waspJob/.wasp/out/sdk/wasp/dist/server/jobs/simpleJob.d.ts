@@ -1,8 +1,8 @@
 import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization';
 import { type JobFn } from 'wasp/server/jobs/core/pgBoss';
 declare const entities: {};
-export type MySpecialJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
-export declare const mySpecialJob: {
+export type SimpleJob<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
+export declare const simpleJob: {
     readonly defaultJobOptions: Parameters<import("pg-boss")["send"]>[2];
     readonly startAfter: number | string | Date | undefined;
     readonly entities: {};
