@@ -169,6 +169,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/server/types/index.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/utils.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/utils.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/utils.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/universal/predicates.js
+waspMigrate/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/types.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/types.js
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/types.js.map
@@ -206,6 +209,7 @@ waspMigrate/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspMigrate/.wasp/out/sdk/wasp/server/types/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/utils.ts
 waspMigrate/.wasp/out/sdk/wasp/tsconfig.json
+waspMigrate/.wasp/out/sdk/wasp/universal/predicates.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/types.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/url.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/validators.ts

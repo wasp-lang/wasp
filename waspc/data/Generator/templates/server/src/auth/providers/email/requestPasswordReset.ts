@@ -3,7 +3,7 @@ import {
     createProviderId,
     findAuthIdentity,
     doFakeWork,
-    deserializeAndSanitizeProviderData,
+    getProviderDataWithPassword,
 } from 'wasp/auth/utils';
 import {
     createPasswordResetLink,
@@ -46,7 +46,7 @@ export function getRequestPasswordResetRoute({
             return res.json({ success: true });
         }
 
-        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+        const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
         const { isResendAllowed, timeLeft } = isEmailResendAllowed(providerData, 'passwordResetSentAt');
         if (!isResendAllowed) {
             throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);

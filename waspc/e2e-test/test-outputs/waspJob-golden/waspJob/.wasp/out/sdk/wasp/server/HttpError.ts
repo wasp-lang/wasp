@@ -2,8 +2,8 @@ export class HttpError extends Error {
   public statusCode: number
   public data: unknown
 
-  constructor (statusCode: number, message?: string, data?: Record<string, unknown>, ...params: any[]) {
-    super(message, ...params)
+  constructor (statusCode: number, message?: string, data?: Record<string, unknown>, options?: ErrorOptions) {
+    super(message, options)
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, HttpError)

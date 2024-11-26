@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "f2931d9a078f46f256942d66234969945273b4f964793b69ab4d096c72b40588"
+        "159fe1152a1847ae16d588a87f9662e2f8cb1352318f1784eb57950ebbce17af"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/ext-src/server/jobs/bar.js"
         ],
-        "2e126f35b3a3e9a289e0dcfd8707fe903c6a053e0cf85899fb5f686d77dd3eb5"
+        "83c606a3eee7608155cdb2c2a20a38f851a82987e060ce25b196b467092c4740"
     ],
     [
         [
@@ -242,7 +242,7 @@
             "file",
             "../out/sdk/wasp/server/HttpError.ts"
         ],
-        "5db03b580bebb72a8fbe9ff3b4f7abdf01e9d0eee4a3feabba20983d5c5c56b4"
+        "f375fb45eeb16381b8cc575503db302c005ddaa1b35d837ca0ea043fe8ec6ccb"
     ],
     [
         [
@@ -319,7 +319,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "d73017a9d9f91ca3241a1d67b8a2ba27e6a4a253bf4a834c3b00f73c9076b0ed"
+        "19de68ae9a461b6e3455271aa7ff439827d2a6292a301a9ed61a24d912ac1773"
     ],
     [
         [
@@ -333,14 +333,28 @@
             "file",
             "../out/sdk/wasp/server/jobs/index.ts"
         ],
-        "f044a976b9e09e5b070d7d09649e72eb5955171d7061507dabac53504f8dd8af"
+        "ab50c7f50161cbd18c01dff6ddbd4ce1ab2671333a46770f9bba6ef1f7055c12"
     ],
     [
         [
             "file",
-            "../out/sdk/wasp/server/jobs/mySpecialJob.ts"
+            "../out/sdk/wasp/server/jobs/scheduleJob.ts"
         ],
-        "0793ab9418cb95b0f30267206e438acd0f8124d29f618b0dd70ec76de06c2da5"
+        "c06df4ce13bd786dc74f94e608168cb373aadee3e53e9ac4b6890e519d7c412e"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/jobs/scheduledJobWithArgs.ts"
+        ],
+        "c63177d281969bfa38280f9506a97b2504efb01bd169944dd5db9781d509c9ba"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/server/jobs/simpleJob.ts"
+        ],
+        "01ffbece6976912c847a61c9ada1017a6375d6ec2b169d44b25240aa1004892e"
     ],
     [
         [
@@ -418,6 +432,13 @@
             "../out/sdk/wasp/tsconfig.json"
         ],
         "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/universal/predicates.ts"
+        ],
+        "baa4148fdf4995cfc154a81bc494e9e8077635d4db50958d5b59837d1b8ed691"
     ],
     [
         [
@@ -529,14 +550,28 @@
             "file",
             "server/src/jobs/core/allJobs.ts"
         ],
-        "777c5e9c0c5026689df46e542fbf325b76774db020f962c33f2c8c9168f2c776"
+        "c9ee40f162ae5532395e356be936a3bfc78207b6e0fae5f8a3e68b06b726fb48"
     ],
     [
         [
             "file",
-            "server/src/jobs/mySpecialJob.ts"
+            "server/src/jobs/scheduleJob.ts"
         ],
-        "a93521d6cb34ea3e5b22fea6b8adaf2e00919f2f9460f189ef3b046a87f8c4b0"
+        "438d536219e2d04c558b1a00ec8ac81d27f0fd65f727c57a13f08dcbe384035d"
+    ],
+    [
+        [
+            "file",
+            "server/src/jobs/scheduledJobWithArgs.ts"
+        ],
+        "a2978ed4d5f06710a1865b93e2e9ee18b938147e1b353598efe2bc4dc0c3aed1"
+    ],
+    [
+        [
+            "file",
+            "server/src/jobs/simpleJob.ts"
+        ],
+        "24e0374af6a063332747aff2f3811823f4184ab95fa6dfb6513d868714dd2fcf"
     ],
     [
         [

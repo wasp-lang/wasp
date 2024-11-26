@@ -9,8 +9,8 @@ export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
 type JobSchedule = {
   cron: Parameters<PgBoss['schedule']>[1]
-  args: Parameters<PgBoss['schedule']>[2]
   options: Parameters<PgBoss['schedule']>[3]
+  args?: NonNullable<Parameters<PgBoss['schedule']>[2]>
 }
 
 // PRIVATE API

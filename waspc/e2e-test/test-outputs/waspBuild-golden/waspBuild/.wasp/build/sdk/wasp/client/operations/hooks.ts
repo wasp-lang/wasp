@@ -28,8 +28,12 @@ export function useQuery<Input, Output>(
   return rqUseQuery({
     // todo: The full queryCacheKey is constructed in two places, both here and
     // inside the Query. See https://github.com/wasp-lang/wasp/issues/2017
-    queryKey: makeQueryCacheKey(query, queryFnArgs),
-    queryFn: () => query(queryFnArgs),
+    // FIXME: query fns don't handle the `undefined` case correctly
+    // https://github.com/wasp-lang/wasp/issues/2017
+    queryKey: makeQueryCacheKey(query, (queryFnArgs as Input)),
+    // FIXME: query fns don't handle the `undefined` case correctly
+    // https://github.com/wasp-lang/wasp/issues/2017
+    queryFn: () => query(queryFnArgs as Input),
     ...options,
   })
 }
@@ -138,7 +142,7 @@ type InternalOptimisticUpdateDefinition<ActionInput, CachedData> = {
  * the current state of the cache and returns the desired (new) state of the
  * cache.
  */
-type SpecificUpdateQuery<CachedData> = (oldData: CachedData) => CachedData;
+type SpecificUpdateQuery<CachedData> = (oldData: CachedData | undefined) => CachedData;
 
 /**
  * A specific, "instantiated" optimistic update definition which contains a
@@ -204,7 +208,7 @@ function makeOptimisticUpdateMutationFn<Input, Output, CachedData>(
     CachedData
   >[]
 ): typeof actionFn {
-  return (function performActionWithOptimisticUpdates(item?: Input) {
+  return (function performActionWithOptimisticUpdates(item: Input) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       (generalDefinition) =>
         // @ts-ignore
@@ -261,11 +265,10 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
     );
 
     // We're using a Map to correctly serialize query keys that contain objects.
-    const previousData = new Map();
+    const previousData: Map<QueryKey, CachedData | undefined> = new Map();
     specificOptimisticUpdateDefinitions.forEach(({ queryKey, updateQuery }) => {
       // Snapshot the currently cached value.
-      // @ts-ignore
-      const previousDataForQuery: CachedData =
+      const previousDataForQuery: CachedData | undefined =
         queryClient.getQueryData(queryKey);
 
       // Attempt to optimistically update the cache using the new value.

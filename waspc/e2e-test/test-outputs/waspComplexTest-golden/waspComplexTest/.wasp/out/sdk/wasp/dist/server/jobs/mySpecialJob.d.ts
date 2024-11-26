@@ -8,10 +8,10 @@ export declare const mySpecialJob: {
     readonly entities: {};
     readonly jobSchedule: {
         cron: Parameters<import("pg-boss")["schedule"]>[1];
-        args: Parameters<import("pg-boss")["schedule"]>[2];
         options: Parameters<import("pg-boss")["schedule"]>[3];
+        args?: NonNullable<Parameters<import("pg-boss")["schedule"]>[2]>;
     } | null;
-    delay(startAfter: number | string | Date): any;
+    delay(startAfter: number | string | Date): /*elided*/ any;
     submit(jobArgs: JSONObject, jobOptions?: Parameters<import("pg-boss")["send"]>[2]): Promise<{
         readonly pgBoss: {
             readonly cancel: () => ReturnType<import("pg-boss")["cancel"]>;

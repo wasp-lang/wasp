@@ -329,7 +329,8 @@ genUniversalDir =
   return
     [ C.mkTmplFd [relfile|universal/url.ts|],
       C.mkTmplFd [relfile|universal/types.ts|],
-      C.mkTmplFd [relfile|universal/validators.ts|]
+      C.mkTmplFd [relfile|universal/validators.ts|],
+      C.mkTmplFd [relfile|universal/predicates.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft

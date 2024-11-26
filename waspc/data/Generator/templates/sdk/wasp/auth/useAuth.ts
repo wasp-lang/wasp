@@ -23,8 +23,6 @@ function createUserGetter(): Query<void, AuthUser | null> {
     try {
       const response = await api.get(getMeRoute.path)
       const userData = superjsonDeserialize<AuthUserData | null>(response.data)
-      // TODO: figure out why overloading is not working
-      // @ts-ignore
       return makeAuthUserIfPossible(userData)
     } catch (error) {
       if (error.response?.status === 401) {

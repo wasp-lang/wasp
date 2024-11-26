@@ -109,7 +109,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
 ): Promise<AuthIdentity> {
   // We are doing the sanitization here only on updates to avoid
   // hashing the password multiple times.
-  const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+  const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
   const newProviderData = {
     ...existingProviderData,
     ...sanitizedProviderDataUpdates,
@@ -123,15 +123,31 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   });
 }
 
-type FindAuthWithUserResult = Auth & {
-  user: User | null
+// PRIVATE API
+export type FindAuthWithUserResult = Auth & {
+  user: User
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.AuthWhereInput
 ): Promise<FindAuthWithUserResult | null> {
-  return prisma.auth.findFirst({ where, include: { user: true }});
+  const result = await prisma.auth.findFirst({ where, include: { user: true }});
+
+  if (result === null) {
+    return null;
+  }
+
+  if (result.user === null) {
+    return null;
+  }
+
+  return { ...result, user: result.user };
+}
+
+// PUBLIC API
+export type CreateUserResult = User & {
+  auth: Auth | null
 }
 
 // PUBLIC API
@@ -139,9 +155,7 @@ export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
-): Promise<User & {
-  auth: Auth | null
-}> {
+): Promise<CreateUserResult> {
   return prisma.user.create({
     data: {
       // Using any here to prevent type errors when userFields are not
@@ -260,22 +274,29 @@ export async function validateAndGetUserFields(
 }
 
 // PUBLIC API
-export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
+export function getProviderData<PN extends ProviderName>(
   providerData: string,
-  { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
+):  Omit<PossibleProviderData[PN], 'hashedPassword'> {
+  return sanitizeProviderData(getProviderDataWithPassword(providerData));
+}
+
+// PUBLIC API
+export function getProviderDataWithPassword<PN extends ProviderName>(
+  providerData: string,
 ): PossibleProviderData[PN] {
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-  let data = JSON.parse(providerData) as PossibleProviderData[PN];
+  return JSON.parse(providerData);
+}
 
-  if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
-    // TODO: we are removing the password from the runtime data, but we are not
-    // signaling that in the type system. The return type of this function should
-    // be different when `shouldRemovePasswordField` is true.
-    // @ts-ignore
-    delete data.hashedPassword;
+function sanitizeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): Omit<PossibleProviderData[PN], 'hashedPassword'> {
+  if (providerDataHasPasswordField(providerData)) {
+    const { hashedPassword, ...rest } = providerData;
+    return rest;
+  } else {
+    return providerData;
   }
-
-  return data;
 }
 
 // PUBLIC API
@@ -283,7 +304,7 @@ export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
 ): Promise<string> {
   return serializeProviderData(
-    await sanitizeProviderData(providerData)
+    await ensurePasswordIsHashed(providerData)
   );
 }
 
@@ -291,7 +312,7 @@ function serializeProviderData<PN extends ProviderName>(providerData: PossiblePr
   return JSON.stringify(providerData);
 }
 
-async function sanitizeProviderData<PN extends ProviderName>(
+async function ensurePasswordIsHashed<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
 ): Promise<PossibleProviderData[PN]> {
   const data = {

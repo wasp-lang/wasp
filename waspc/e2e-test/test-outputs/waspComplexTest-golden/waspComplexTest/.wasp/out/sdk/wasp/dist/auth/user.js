@@ -1,3 +1,4 @@
+import { isNotNull } from '../universal/predicates.js';
 /**
  * We split the user.ts code into two files to avoid some server-only
  * code (Oslo's hashing functions) being imported on the client.
@@ -25,7 +26,7 @@ export function makeAuthUserIfPossible(user) {
 }
 function makeAuthUser(data) {
     return Object.assign(Object.assign({}, data), { getFirstProviderUserId: () => {
-            const identities = Object.values(data.identities).filter(Boolean);
+            const identities = Object.values(data.identities).filter(isNotNull);
             return identities.length > 0 ? identities[0].id : null;
         } });
 }
