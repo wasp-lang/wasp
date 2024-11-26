@@ -151,7 +151,7 @@
             "file",
             "../out/sdk/wasp/auth/useAuth.ts"
         ],
-        "5ff11b4558cec86679d232e9fe793534a01f89c82abdfe04476ee293eade5ea5"
+        "d215bb817de2f9dc2a4d1fa45fdb3f81048ba0552eecec922b853592c19a56ac"
     ],
     [
         [
@@ -256,7 +256,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "159fe1152a1847ae16d588a87f9662e2f8cb1352318f1784eb57950ebbce17af"
+        "3c326183d9dcb2bcf14b747ffc66b19e4773642d05f3f84d401e3d54b843eeca"
     ],
     [
         [
@@ -291,7 +291,7 @@
             "file",
             "../out/sdk/wasp/client/operations/queries/core.ts"
         ],
-        "24e54be1a709bb7d385eb585df02e861e07d21ba3059fc124a5883be620f96fe"
+        "7f842b7add5a2949a49981dac64dd5951457eb5b9d3c555f25f6e4f11c04f3b4"
     ],
     [
         [
@@ -312,7 +312,7 @@
             "file",
             "../out/sdk/wasp/client/operations/rpc.ts"
         ],
-        "92916b01c4d6127ea72c93367111dab5bcaad885c0a48420f6a0d40779e953d0"
+        "08f30fe4e31a691a225949ccd4d638cffe78bf2f4f2a76feb70133d4d9a5ba94"
     ],
     [
         [

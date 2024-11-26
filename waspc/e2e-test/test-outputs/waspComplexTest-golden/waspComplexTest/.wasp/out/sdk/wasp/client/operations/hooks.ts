@@ -211,11 +211,9 @@ function makeOptimisticUpdateMutationFn<Input, Output, CachedData>(
   return (function performActionWithOptimisticUpdates(item: Input) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       (generalDefinition) =>
-        // @ts-ignore
         getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
     );
     return (actionFn as InternalAction<Input, Output>).internal(
-      // @ts-ignore
       item,
       specificOptimisticUpdateDefinitions
     );
@@ -273,7 +271,6 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
 
       // Attempt to optimistically update the cache using the new value.
       try {
-        // @ts-ignore
         queryClient.setQueryData(queryKey, updateQuery);
       } catch (e) {
         console.error(
