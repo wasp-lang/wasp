@@ -17,8 +17,6 @@ function createUserGetter() {
         try {
             const response = await api.get(getMeRoute.path);
             const userData = superjsonDeserialize(response.data);
-            // TODO: figure out why overloading is not working
-            // @ts-ignore
             return makeAuthUserIfPossible(userData);
         }
         catch (error) {
