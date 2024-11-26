@@ -16,25 +16,64 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 
 waspJob :: GoldenTest
 waspJob = do
-  let jobDecl =
-        " job mySpecialJob { \n\
-        \   executor: PgBoss, \n\
-        \   perform: { \n\
-        \     fn: import { foo } from \"@src/server/jobs/bar.js\"  \n\
-        \   } \n\
-        \ } \n"
+  let simpleJobDecl =
+        unlines
+          [ "job simpleJob {",
+            "  executor: PgBoss,",
+            "  perform: {",
+            "    fn: import { foo } from \"@src/server/jobs/bar.js\"",
+            "  },",
+            "}"
+          ]
+
+  let scheduledJobDecl =
+        unlines
+          [ "job scheduleJob {",
+            "  executor: PgBoss,",
+            "  perform: {",
+            "    fn: import { foo } from \"@src/server/jobs/bar.js\"",
+            "  },",
+            "  schedule: {",
+            "    cron: \"0 * * * *\",",
+            "    executorOptions: {",
+            "      pgBoss: {=json { \"retryLimit\": 2 } json=}",
+            "    }",
+            "  }",
+            "}"
+          ]
+
+  let scheduledJobWithArgsDecl =
+        unlines
+          [ "job scheduledJobWithArgs {",
+            "  executor: PgBoss,",
+            "  perform: {",
+            "    fn: import { foo } from \"@src/server/jobs/bar.js\"",
+            "  },",
+            "  schedule: {",
+            "    cron: \"0 * * * *\",",
+            "    args: {=json { \"foo\": \"bar\" } json=},",
+            "    executorOptions: {",
+            "      pgBoss: {=json { \"retryLimit\": 2 } json=}",
+            "    }",
+            "  }",
+            "}"
+          ]
 
   let jobFile =
-        " export const foo = async (args) => { \n\
-        \   return 1 \n\
-        \ } \n"
+        unlines
+          [ "export const foo = async (args) => {",
+            "  return 1",
+            "}"
+          ]
 
   makeGoldenTest "waspJob" $
     sequence
       [ waspCliNew,
         cdIntoCurrentProject,
         setDbToPSQL,
-        appendToWaspFile jobDecl,
+        appendToWaspFile simpleJobDecl,
+        appendToWaspFile scheduledJobDecl,
+        appendToWaspFile scheduledJobWithArgsDecl,
         createFile jobFile "./src/server/jobs" "bar.js"
       ]
       <++> addServerEnvFile

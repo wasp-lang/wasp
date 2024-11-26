@@ -6,8 +6,8 @@ import type { JobFn } from 'wasp/server/jobs/core/pgBoss';
 export declare const PG_BOSS_EXECUTOR_NAME: unique symbol;
 type JobSchedule = {
     cron: Parameters<PgBoss['schedule']>[1];
-    args: Parameters<PgBoss['schedule']>[2];
     options: Parameters<PgBoss['schedule']>[3];
+    args?: NonNullable<Parameters<PgBoss['schedule']>[2]>;
 };
 /**
  * Creates an instance of PgBossJob which contains all of the necessary

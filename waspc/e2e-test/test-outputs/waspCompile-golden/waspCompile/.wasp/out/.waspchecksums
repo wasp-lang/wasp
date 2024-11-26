@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "f2931d9a078f46f256942d66234969945273b4f964793b69ab4d096c72b40588"
+        "159fe1152a1847ae16d588a87f9662e2f8cb1352318f1784eb57950ebbce17af"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "../out/sdk/wasp/server/HttpError.ts"
         ],
-        "5db03b580bebb72a8fbe9ff3b4f7abdf01e9d0eee4a3feabba20983d5c5c56b4"
+        "f375fb45eeb16381b8cc575503db302c005ddaa1b35d837ca0ea043fe8ec6ccb"
     ],
     [
         [
@@ -355,6 +355,13 @@
             "../out/sdk/wasp/tsconfig.json"
         ],
         "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/universal/predicates.ts"
+        ],
+        "baa4148fdf4995cfc154a81bc494e9e8077635d4db50958d5b59837d1b8ed691"
     ],
     [
         [

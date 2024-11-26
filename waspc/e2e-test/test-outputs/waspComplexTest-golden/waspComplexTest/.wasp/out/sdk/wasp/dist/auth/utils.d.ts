@@ -61,13 +61,14 @@ export declare function findAuthIdentity(providerId: ProviderId): Promise<AuthId
  * **not to be hashed**.
  */
 export declare function updateAuthIdentityProviderData<PN extends ProviderName>(providerId: ProviderId, existingProviderData: PossibleProviderData[PN], providerDataUpdates: Partial<PossibleProviderData[PN]>): Promise<AuthIdentity>;
-type FindAuthWithUserResult = Auth & {
-    user: User | null;
+export type FindAuthWithUserResult = Auth & {
+    user: User;
 };
 export declare function findAuthWithUserBy(where: Prisma.AuthWhereInput): Promise<FindAuthWithUserResult | null>;
-export declare function createUser(providerId: ProviderId, serializedProviderData?: string, userFields?: PossibleUserFields): Promise<User & {
+export type CreateUserResult = User & {
     auth: Auth | null;
-}>;
+};
+export declare function createUser(providerId: ProviderId, serializedProviderData?: string, userFields?: PossibleUserFields): Promise<CreateUserResult>;
 export declare function deleteUserByAuthId(authId: string): Promise<{
     count: number;
 }>;
@@ -76,9 +77,7 @@ export declare function rethrowPossibleAuthError(e: unknown): void;
 export declare function validateAndGetUserFields(data: {
     [key: string]: unknown;
 }, userSignupFields?: UserSignupFields): Promise<Record<string, any>>;
-export declare function deserializeAndSanitizeProviderData<PN extends ProviderName>(providerData: string, { shouldRemovePasswordField }?: {
-    shouldRemovePasswordField?: boolean;
-}): PossibleProviderData[PN];
+export declare function getProviderData<PN extends ProviderName>(providerData: string): Omit<PossibleProviderData[PN], 'hashedPassword'>;
+export declare function getProviderDataWithPassword<PN extends ProviderName>(providerData: string): PossibleProviderData[PN];
 export declare function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<string>;
 export declare function createInvalidCredentialsError(message?: string): HttpError;
-export {};

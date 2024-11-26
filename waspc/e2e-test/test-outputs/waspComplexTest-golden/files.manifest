@@ -390,6 +390,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/types/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/utils.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/utils.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/utils.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/universal/predicates.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/types.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/types.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/types.js.map
@@ -460,6 +463,7 @@ waspComplexTest/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/types/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/utils.ts
 waspComplexTest/.wasp/out/sdk/wasp/tsconfig.json
+waspComplexTest/.wasp/out/sdk/wasp/universal/predicates.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/url.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/validators.ts

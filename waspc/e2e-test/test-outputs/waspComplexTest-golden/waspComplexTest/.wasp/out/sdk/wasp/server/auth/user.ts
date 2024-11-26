@@ -5,7 +5,7 @@ import {
 } from '../../entities/index.js'
 import {
   type PossibleProviderData,
-  deserializeAndSanitizeProviderData
+  getProviderData,
 } from '../../auth/utils.js'
 import { type ProviderName } from '../_types/index.js'
 import { Expand } from '../../universal/types.js'
@@ -94,9 +94,7 @@ function getProviderInfo<PN extends ProviderName>(
     return null
   }
   return {
-    ...deserializeAndSanitizeProviderData<PN>(identity.providerData, {
-      shouldRemovePasswordField: true,
-    }),
+    ...getProviderData<PN>(identity.providerData),
     id: identity.providerUserId,
   }
 }

@@ -1,6 +1,6 @@
 export class HttpError extends Error {
-    constructor(statusCode, message, data, ...params) {
-        super(message, ...params);
+    constructor(statusCode, message, data, options) {
+        super(message, options);
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, HttpError);
         }
