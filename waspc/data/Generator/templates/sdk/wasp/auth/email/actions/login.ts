@@ -8,6 +8,6 @@ export async function login(data: { email: string; password: string }): Promise<
         const response = await api.post('{= loginPath =}', data);
         await initSession(response.data.sessionId);
     } catch (e) {
-        handleApiError(e);
+        throw handleApiError(e);
     }
 }

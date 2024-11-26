@@ -29,6 +29,6 @@ function getRedirectUriForError(error) {
     return new URL(`${config.frontendUrl}${clientOAuthCallbackPath}?error=${error}`);
 }
 function isHttpErrorWithExtraMessage(error) {
-    return error.data && typeof error.data.message === 'string';
+    return !!error.data && typeof error.data.message === 'string';
 }
 //# sourceMappingURL=redirect.js.map

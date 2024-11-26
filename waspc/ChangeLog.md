@@ -1,5 +1,15 @@
 # Changelog
 
+## Next
+
+### ⚠️ Breaking Changes
+
+- Renamed and split `deserializeAndSanitizeProviderData` to `getProviderData` and `getProviderDataWithPassword` so it's more explicit if the resulting data will contain the hashed password or not.
+
+### 🔧 Small improvements
+
+- Enabled strict null checks for the Wasp SDK which means that some of the return types are more precise now e.g. you'll need to check if some value is `null` before using it.
+
 ## 0.15.2
 
 ### 🐞 Bug fixes
@@ -78,7 +88,6 @@ To learn more about this feature and how to activate it, check out the [Wasp TS 
 
 There are some breaking changes with React Router 6 which will require you to update your code.
 Also, the new version of Prisma may cause breaking changes depending on how you're using it.
-
 
 Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15 .
 

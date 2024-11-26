@@ -9,3 +9,4 @@ export declare function getFirstProviderUserId(user?: UserEntityWithAuth): strin
 export type { AuthUserData, AuthUser } from '../server/auth/user.js';
 export declare function makeAuthUserIfPossible(user: null): null;
 export declare function makeAuthUserIfPossible(user: AuthUserData): AuthUser;
+export declare function makeAuthUserIfPossible(user: AuthUserData | null): AuthUser | null;

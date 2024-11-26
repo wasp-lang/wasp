@@ -4,6 +4,7 @@ import type {
   AuthUser,
   UserEntityWithAuth,
 } from '../server/auth/user.js'
+import { isNotNull } from '../universal/predicates.js'
 
 /**
  * We split the user.ts code into two files to avoid some server-only
@@ -35,6 +36,7 @@ export type { AuthUserData, AuthUser } from '../server/auth/user.js'
 // PRIVATE API (used in SDK and server)
 export function makeAuthUserIfPossible(user: null): null
 export function makeAuthUserIfPossible(user: AuthUserData): AuthUser
+export function makeAuthUserIfPossible(user: AuthUserData | null): AuthUser | null
 export function makeAuthUserIfPossible(
   user: AuthUserData | null,
 ): AuthUser | null {
@@ -45,13 +47,13 @@ function makeAuthUser(data: AuthUserData): AuthUser {
   return {
     ...data,
     getFirstProviderUserId: () => {
-      const identities = Object.values(data.identities).filter(Boolean);
+      const identities = Object.values(data.identities).filter(isNotNull);
       return identities.length > 0 ? identities[0].id : null;
     },
   };
 }
 
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): UserEntityWithAuth['auth']['identities'][number] | null {
+function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): NonNullable<UserEntityWithAuth['auth']>['identities'][number] | null {
   if (!user.auth) {
     return null;
   }

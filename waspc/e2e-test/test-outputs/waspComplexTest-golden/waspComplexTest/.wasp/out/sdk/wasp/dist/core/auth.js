@@ -1,6 +1,6 @@
 import { handleRejection } from 'wasp/server/utils';
 import { getSessionAndUserFromBearerToken } from 'wasp/auth/session';
-import { throwInvalidCredentialsError } from 'wasp/auth/utils';
+import { createInvalidCredentialsError } from 'wasp/auth/utils';
 /**
  * Auth middleware
  *
@@ -25,7 +25,7 @@ const auth = handleRejection(async (req, res, next) => {
     }
     const sessionAndUser = await getSessionAndUserFromBearerToken(req);
     if (sessionAndUser === null) {
-        throwInvalidCredentialsError();
+        throw createInvalidCredentialsError();
     }
     req.sessionId = sessionAndUser.session.id;
     req.user = sessionAndUser.user;

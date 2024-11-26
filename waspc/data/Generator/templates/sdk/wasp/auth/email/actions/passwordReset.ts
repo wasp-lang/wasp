@@ -7,7 +7,7 @@ export async function requestPasswordReset(data: { email: string; }): Promise<{ 
         const response = await api.post('{= requestPasswordResetPath =}', data);
         return response.data;
     } catch (e) {
-        handleApiError(e);
+        throw handleApiError(e);
     }
 }
 
@@ -17,6 +17,6 @@ export async function resetPassword(data: { token: string; password: string; }):
         const response = await api.post('{= resetPasswordPath =}', data);
         return response.data;
     } catch (e) {
-        handleApiError(e);
+        throw handleApiError(e);
     }
 }

@@ -6,7 +6,7 @@ const EMAIL_FIELD = 'email';
 const TOKEN_FIELD = 'token';
 
 // PUBLIC API
-export function ensureValidEmail(args: unknown): void {
+export function ensureValidEmail(args: object): void {
   validate(args, [
     { validates: EMAIL_FIELD, message: 'email must be present', validator: email => !!email },
     { validates: EMAIL_FIELD, message: 'email must be a valid email', validator: email => isValidEmail(email) },
@@ -14,21 +14,21 @@ export function ensureValidEmail(args: unknown): void {
 }
 
 // PUBLIC API
-export function ensureValidUsername(args: unknown): void {
+export function ensureValidUsername(args: object): void {
   validate(args, [
     { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username }
   ]);
 }
 
 // PUBLIC API
-export function ensurePasswordIsPresent(args: unknown): void {
+export function ensurePasswordIsPresent(args: object): void {
   validate(args, [
     { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
   ]);
 }
 
 // PUBLIC API
-export function ensureValidPassword(args: unknown): void {
+export function ensureValidPassword(args: object): void {
   validate(args, [
     { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => isMinLength(password, 8) },
     { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => containsNumber(password) },
@@ -36,7 +36,7 @@ export function ensureValidPassword(args: unknown): void {
 }
 
 // PUBLIC API
-export function ensureTokenIsPresent(args: unknown): void {
+export function ensureTokenIsPresent(args: object): void {
   validate(args, [
     { validates: TOKEN_FIELD, message: 'token must be present', validator: token => !!token },
   ]);
@@ -47,7 +47,7 @@ export function throwValidationError(message: string): void {
   throw new HttpError(422, 'Validation failed', { message })
 }
 
-function validate(args: unknown, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
+function validate(args: object, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
   for (const { validates, message, validator } of validators) {
     if (!validator(args[validates])) {
       throwValidationError(message);
