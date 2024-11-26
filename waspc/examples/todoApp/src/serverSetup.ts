@@ -2,7 +2,6 @@ import { type Application } from 'express'
 import { mySpecialJob } from 'wasp/server/jobs'
 import {
   config,
-  env,
   type MiddlewareConfigFn,
   type ServerSetupFn,
 } from 'wasp/server'

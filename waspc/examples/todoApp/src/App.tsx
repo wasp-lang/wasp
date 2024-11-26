@@ -3,7 +3,6 @@ import { useSocket } from 'wasp/client/webSocket'
 import { Link } from 'wasp/client/router'
 import { logout, useAuth } from 'wasp/client/auth'
 import { useQuery, getDate } from 'wasp/client/operations'
-import { env } from 'wasp/client'
 
 import './Main.css'
 import { getName } from './user'
