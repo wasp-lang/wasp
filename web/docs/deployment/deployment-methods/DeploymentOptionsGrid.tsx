@@ -9,9 +9,14 @@ export function DeploymentOptionsGrid() {
       linkToDocs: '/docs/advanced/deployment/cli',
     },
     {
-      title: 'Deploying Manually',
-      description: 'Build the app and deploy it manually',
-      linkToDocs: '/docs/advanced/deployment/manually',
+      title: 'Deploying with PaaS',
+      description: 'Deploy your app manually to some PaaS',
+      linkToDocs: '/docs/deployment/deployment-methods/paas',
+    },
+    {
+      title: 'Self-hosting',
+      description: 'Deploy your app to your own server',
+      linkToDocs: '/docs/deployment/deployment-methods/self-hosted',
     },
   ]
   return (

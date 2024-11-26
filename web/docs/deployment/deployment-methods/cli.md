@@ -1,5 +1,5 @@
 ---
-title: Deploying with the Wasp CLI
+title: Wasp CLI
 ---
 
 import { Required } from '@site/src/components/Tag';
