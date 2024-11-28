@@ -7,6 +7,8 @@ export class App {
   #userSpec: UserSpec;
 
   // NOTE: Using a non-public symbol gives us a pacakge-private property.
+  // It's not that important to hide it from the users, but we still don't want
+  // user's IDE to suggest it during autocompletion.
   [GET_USER_SPEC]() {
     return this.#userSpec
   }
@@ -96,13 +98,13 @@ export type AppConfig = Pick<AppSpec.App, 'title' | 'wasp' | 'head'>
 
 export type ExtImport =
   | {
-      import: string
-      from: AppSpec.ExtImport['path']
-    }
+    import: string
+    from: AppSpec.ExtImport['path']
+  }
   | {
-      importDefault: string
-      from: AppSpec.ExtImport['path']
-    }
+    importDefault: string
+    from: AppSpec.ExtImport['path']
+  }
 
 export type ServerConfig = {
   setupFn?: ExtImport

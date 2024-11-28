@@ -23,6 +23,8 @@ import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
 import qualified Wasp.Node.Version as NodeVersion
 
+-- | This are the globally installed packages waspc runs directly from 
+-- their global installation path.
 data RunnablePackage
   = DeployPackage
   | TsInspectPackage
@@ -36,6 +38,9 @@ data RunnablePackage
     PrismaPackage
   | WaspStudioPackage
 
+-- | This are the globally installed packages waspc installs into
+-- the user's project using `npm`. They are used/run from inside the project's
+-- node_modules.
 data InstallablePackage = WaspConfigPackage
 
 data PackagesDir
@@ -69,8 +74,6 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- If the package does not have its dependencies installed yet (for example,
 -- when the package is run for the first time after installing Wasp), we install
 -- the dependencies.
--- TODO: How would it not have npm dependencies installed if we always to it in
--- install_packages_to_data_dir.sh?
 getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
   NodeVersion.getAndCheckUserNodeVersion >>= \case

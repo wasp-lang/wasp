@@ -1,5 +1,5 @@
-/** This module is a mirror implementation of AppSpec Decls in TypeScript.
- * The original implemention is in Haskell (waspc).
+/** This module is a mirror implementation of FromJSON for AppSpec Decls in
+ * TypeScript. The original implemention is in Haskell (waspc).
  *
  * IMPORTANT: Do not change this file without updating the AppSpec in waspc.
  */
@@ -119,7 +119,6 @@ export type CrudOperationOptions = {
 }
 
 export type Wasp = {
-  // TODO: Check semver in export type system?
   version: string
 }
 
@@ -166,7 +165,6 @@ export type EmailSender = {
   defaultFrom?: EmailFromField
 }
 
-// TODO: duplication
 export type EmailProvider = 'SMTP' | 'SendGrid' | 'Mailgun' | 'Dummy'
 
 export type EmailFromField = {
