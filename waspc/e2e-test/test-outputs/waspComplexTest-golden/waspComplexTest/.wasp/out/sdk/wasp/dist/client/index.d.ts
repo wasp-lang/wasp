@@ -8,5 +8,5 @@ export type Route = {
     method: HttpMethod;
     path: string;
 };
-export { config, ClientConfig } from './config';
+export { config, ClientConfig } from './config.js';
 export { env } from './env.js';

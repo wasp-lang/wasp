@@ -63,5 +63,6 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
     serverDevSchema.merge(serverCommonSchema),
     serverProdSchema.merge(serverCommonSchema)
 ]);
+// PUBLIC API
 export const env = ensureEnvSchema(process.env, serverEnvSchema);
 //# sourceMappingURL=env.js.map

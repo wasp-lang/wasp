@@ -14,4 +14,5 @@ const waspClientEnvSchema = z.object({
 
 const clientEnvSchema = waspClientEnvSchema.merge(userClientEnvSchema)
 
+// PUBLIC API
 export const env = ensureEnvSchema(import.meta.env, clientEnvSchema)
