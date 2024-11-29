@@ -65,15 +65,49 @@ You can use Wasp's built in [client tests](../project/testing.md) support to tes
 2. Run the client tests with `wasp test client run`.
 3. Run the server tests with your testing framework.
 
-## Building the app as a Docker images
+## Continuous Deployment using Docker
 
-The easiest way to continuously deploy your app is to build it as a Docker image. This way you can easily deploy the same image to different environments (dev, staging, production).
+The most common way to package your app for deployment is using Docker images. This way you can easily deploy the same image to different environments (staging, production, etc.).
 
 **To build the app as a Docker image**, you'll need to:
 1. Install Docker in the CI environment.
 2. Build the app with `wasp build`.
-3. Build the server app with its `Dockerfile` and push it to a Docker registry.
-4. Build the client app with a `Dockerfile` and push it to a Docker registry.
-5. Notify your deployment provider to deploy the new image.
+3. Build the Docker image and push it to a Docker registry:
+    - for our server app
+    - for our client app
+4. Notify your deployment provider to deploy the new image.
 
-TODO: We'll take a look at our Coolify deployment example in the [deployment](../deployment) section. Talk about the Github Action. Talk about GHCR and Docker Hub.
+:::info What is a Docker Registry?
+
+Docker Registry is a place where you can store your Docker images and then your deployment provider can pull them from there. The most common Docker Registry is the [Docker Hub](https://hub.docker.com/), but you can also use other registries like the [Github Container Registry (GHCR)](https://docs.github.com/en/packages/guides/about-github-container-registry).
+
+:::
+
+### Example deployment
+
+We'll take a look at our Coolify deployment example in the [deployment](./deployment-methods/self-hosted.md#coolify) section. We are using Github Actions to build the Docker images and their Github Container Registry (GHCR) to store them.
+
+Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide:
+1. First, we **authenticate with the Github Container Registry (GHCR)**.
+
+  We are using the `docker/login-action` action to authenticate with the GHCR.
+
+2. Then, we **prepare the Docker image metadata** for later use.
+
+  We are using the `docker/metadata-action` action to prepare some extra info that we'll use later in the deployment process.
+
+3. Next, we **build the Wasp app** with `wasp build`.
+
+  This gives our server and the client app in the `.wasp/build` folder.
+
+4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
+
+  We use the `Dockerfile` in the `.wasp/build` directory to build and push the server Docker image using the `docker/build-push-action` action.
+
+5. Next, we create a `Dockerfile` for our client and then **package the client app** into a Docker image and **push it to the GHCR**.
+
+  We create a `Dockerfile` that uses a simple Go static server to serve the client app. We again use the `docker/build-push-action` action to build and push the client Docker image.
+
+6. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
+
+And now you can open the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide and see the full deployment process.
