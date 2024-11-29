@@ -10,16 +10,19 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
     return schema.parse(data)
   } catch (e) {
     if (e instanceof z.ZodError) {
-      console.error()
-      console.error(redColor, '╔═════════════════════════════╗');
-      console.error(redColor, '║ Env vars validation failed  ║');
-      console.error(redColor, '╚═════════════════════════════╝');
-      console.error()
+      const errorOutput = [
+        '',
+        '╔═════════════════════════════╗',
+        '║ Env vars validation failed  ║',
+        '╚═════════════════════════════╝',
+        '',
+      ]
       for (const error of e.errors) {
-        console.error(redColor, `- ${error.message}`)
+         errorOutput.push(`- ${error.message}`)
       }
-      console.error()
-      console.error(redColor, '═══════════════════════════════');
+      errorOutput.push('')
+      errorOutput.push('═══════════════════════════════')
+      console.error(redColor, errorOutput.join('\n'))
       throw new Error('Error parsing environment variables')
     } else {
       throw e
