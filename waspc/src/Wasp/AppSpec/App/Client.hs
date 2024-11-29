@@ -16,6 +16,7 @@ data Client = Client
   { setupFn :: Maybe ExtImport,
     rootComponent :: Maybe ExtImport,
     -- We expect the base dir to start with a slash e.g. /client
-    baseDir :: Maybe String
+    baseDir :: Maybe String,
+    envValidationFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
