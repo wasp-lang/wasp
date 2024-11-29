@@ -1,7 +1,7 @@
 {{={= =}=}}
 import * as z from 'zod'
 
-// PRIVATE API (SDK, Vite config)
+// PRIVATE API (sdk, Vite config)
 export const clientEnvSchema = z.object({
   REACT_APP_API_URL: z
     .string()

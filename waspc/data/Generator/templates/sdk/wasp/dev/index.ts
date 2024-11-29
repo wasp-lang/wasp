@@ -15,5 +15,3 @@ import { join as joinPaths } from 'path'
 export function resolveProjectPath(path: string): string {
   return joinPaths('../../../', path)
 }
-
-export { ensureEnvSchema } from '../env/index.js'
