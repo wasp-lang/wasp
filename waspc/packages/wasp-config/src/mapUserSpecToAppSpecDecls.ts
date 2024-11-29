@@ -3,7 +3,7 @@
 import * as AppSpec from './appSpec.js'
 import * as User from './userApi.js'
 
-export function mapUserSpecToDecls(
+export function mapUserSpecToAppSpecDecls(
   spec: User.UserSpec,
   entityNames: string[]
 ): AppSpec.Decl[] {
@@ -132,12 +132,11 @@ function mapOperationConfig(
   config: User.ActionConfig | User.QueryConfig,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Action | AppSpec.Query {
-  // TODO: How to make sure I've destructured everything?
   const { fn, entities, auth } = config
   return {
     fn: mapExtImport(fn),
-    ...(entities && { entities: entities.map(parseEntityRef) }),
-    auth: auth,
+    entities: entities && entities.map(parseEntityRef),
+    auth,
   }
 }
 
@@ -151,7 +150,6 @@ function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
       path: extImport.from,
     }
   } else {
-    const _exhaustiveCheck: never = extImport
     throw new Error(
       'Invalid ExtImport: neither `import` nor `importDefault` is defined'
     )
@@ -166,9 +164,9 @@ function mapApiConfig(
   return {
     fn: mapExtImport(fn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
-    ...(entities && { entities: entities.map(parseEntityRef) }),
-    httpRoute: httpRoute,
-    auth: auth,
+    entities: entities && entities.map(parseEntityRef),
+    httpRoute,
+    auth,
   }
 }
 
@@ -228,9 +226,10 @@ function mapAuth(
   return {
     userEntity: parseEntityRef(userEntity),
     // TODO: Abstract away this pattern
-    ...(externalAuthEntity && {
-      externalAuthEntity: parseEntityRef(externalAuthEntity),
-    }),
+    externalAuthEntity:
+      externalAuthEntity === undefined
+        ? undefined
+        : parseEntityRef(externalAuthEntity),
     methods: mapAuthMethods(methods, parseRouteRef),
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,
@@ -270,7 +269,7 @@ function mapUsernameAndPassword(
   }
 }
 
-export function mapExternalAuth(
+function mapExternalAuth(
   externalAuth: User.ExternalAuthConfig
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth
@@ -281,14 +280,21 @@ export function mapExternalAuth(
 }
 
 function mapEmailAuth(
-  email: User.EmailAuthConfig,
+  emailConfig: User.EmailAuthConfig,
   parseRouteRef: RefParser<'Route'>
 ): AppSpec.EmailAuthConfig {
-  const { userSignupFields, fromField, emailVerification, passwordReset } =
-    email
+  const {
+    userSignupFields,
+    fromField: { name, email },
+    emailVerification,
+    passwordReset,
+  } = emailConfig
   return {
     userSignupFields: userSignupFields && mapExtImport(userSignupFields),
-    fromField,
+    fromField: {
+      name,
+      email,
+    },
     emailVerification: mapEmailVerification(emailVerification, parseRouteRef),
     passwordReset: mapPasswordReset(passwordReset, parseRouteRef),
   }
@@ -305,7 +311,7 @@ function mapEmailVerification(
   }
 }
 
-export function mapPasswordReset(
+function mapPasswordReset(
   passwordReset: User.PasswordResetConfig,
   parseRouteRef: RefParser<'Route'>
 ): AppSpec.PasswordResetConfig {
@@ -326,25 +332,30 @@ function mapDb(db: User.DbConfig): AppSpec.Db {
 function mapEmailSender(
   emailSender: User.EmailSenderConfig
 ): AppSpec.EmailSender {
-  return emailSender
+  const { provider, defaultFrom } = emailSender
+  return {
+    provider,
+    defaultFrom: defaultFrom && {
+      name: defaultFrom.name,
+      email: defaultFrom.email,
+    },
+  }
 }
 
 function mapServer(server: User.ServerConfig): AppSpec.Server {
   const { setupFn, middlewareConfigFn } = server
   return {
-    ...(setupFn && { setupFn: mapExtImport(setupFn) }),
-    ...(middlewareConfigFn && {
-      middlewareConfigFn: mapExtImport(middlewareConfigFn),
-    }),
+    setupFn: setupFn && mapExtImport(setupFn),
+    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
   }
 }
 
 function mapClient(client: User.ClientConfig): AppSpec.Client {
   const { setupFn, rootComponent, baseDir } = client
   return {
-    ...(setupFn && { setupFn: mapExtImport(setupFn) }),
-    ...(rootComponent && { rootComponent: mapExtImport(rootComponent) }),
-    ...(baseDir && { baseDir }),
+    setupFn: setupFn && mapExtImport(setupFn),
+    rootComponent: rootComponent && mapExtImport(rootComponent),
+    baseDir,
   }
 }
 
@@ -362,10 +373,10 @@ function mapJob(
 ): AppSpec.Job {
   const { executor, perform, schedule, entities } = job
   return {
-    executor: executor,
+    executor,
     perform: mapPerform(perform),
     schedule: schedule && mapSchedule(schedule),
-    ...(entities && { entities: entities.map(parseEntityRef) }),
+    entities: entities && entities.map(parseEntityRef),
   }
 }
 
@@ -381,7 +392,7 @@ function mapPerform(perform: User.Perform): AppSpec.Perform {
   const { fn, executorOptions } = perform
   return {
     fn: mapExtImport(fn),
-    ...(executorOptions && { executorOptions }),
+    executorOptions,
   }
 }
 

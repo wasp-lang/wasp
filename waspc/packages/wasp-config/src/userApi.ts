@@ -15,7 +15,7 @@ export class App {
 
   constructor(name: string, config: AppConfig) {
     this.#userSpec = {
-      app: { name, config: config },
+      app: { name, config },
       actions: new Map(),
       apiNamespaces: new Map(),
       apis: new Map(),
@@ -92,9 +92,11 @@ export class App {
   }
 }
 
-export type WaspConfig = AppSpec.Wasp
-
-export type AppConfig = Pick<AppSpec.App, 'title' | 'wasp' | 'head'>
+export type AppConfig = {
+  title: string
+  wasp: AppSpec.Wasp
+  head?: string[]
+}
 
 export type ExtImport =
   | {
@@ -205,7 +207,10 @@ export type QueryConfig = {
   auth?: boolean
 }
 
-export type EmailSenderConfig = AppSpec.EmailSender
+export type EmailSenderConfig = {
+  provider: AppSpec.EmailProvider
+  defaultFrom?: EmailFromField
+}
 
 export type AuthConfig = {
   userEntity: string
