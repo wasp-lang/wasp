@@ -24,7 +24,8 @@ genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
   sequence
     [ genServerEnv spec,
-      genClientEnv,
+      genClientEnvSchema,
+      genFileCopy [relfile|client/env.ts|],
       genFileCopy [relfile|env/index.ts|]
     ]
   where
@@ -49,10 +50,10 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     maybeEmailSender = AS.App.emailSender app
     app = snd $ getApp spec
 
-genClientEnv :: Generator FileDraft
-genClientEnv = return $ C.mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema :: Generator FileDraft
+genClientEnvSchema = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|client/env.ts|]
+    tmplPath = [relfile|client/env/schema.ts|]
     tmplData = object ["defaultServerUrl" .= Server.defaultDevServerUrl]
 
 depsRequiredByEnvValidation :: [AS.Dependency.Dependency]

@@ -108,6 +108,7 @@
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js",
       "./client": "./dist/client/index.js",
+      "./client/env/schema": "./dist/client/env/schema.js",
       "./dev": "./dist/dev/index.js",
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}

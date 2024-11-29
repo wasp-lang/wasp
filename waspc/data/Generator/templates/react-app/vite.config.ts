@@ -1,8 +1,11 @@
 {{={= =}=}}
 /// <reference types="vitest" />
-import { mergeConfig } from "vite";
+import { mergeConfig, type Plugin, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
+
+import { ensureEnvSchema } from 'wasp/dev'
+import { clientEnvSchema } from 'wasp/client/env/schema'
 
 {=# customViteConfig.isDefined =}
 // Ignoring the TS error because we are importing a file outside of TS root dir.
@@ -16,7 +19,10 @@ const _waspUserProvidedConfig = {};
 
 const defaultViteConfig = {
   base: "{= baseDir =}",
-  plugins: [react()],
+  plugins: [
+    react(),
+    validateEnv(),
+  ],
   optimizeDeps: {
     exclude: ['wasp']
   },
@@ -53,3 +59,13 @@ export default mergeConfig(
   defaultViteConfig,
   _waspUserProvidedConfig
 );
+
+function validateEnv(): Plugin {
+  return {
+    name: 'wasp-validate-env',
+    config: (config) => {
+      const env = loadEnv(config.mode, process.cwd(), config.envPrefix)
+      ensureEnvSchema(env, clientEnvSchema)
+    },
+  };
+}
