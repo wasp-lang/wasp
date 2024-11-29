@@ -11,4 +11,5 @@ const clientEnvSchema = z.object({
     .default('{= defaultServerUrl =}')
 })
 
+// PUBLIC API
 export const env = ensureEnvSchema(import.meta.env, clientEnvSchema)

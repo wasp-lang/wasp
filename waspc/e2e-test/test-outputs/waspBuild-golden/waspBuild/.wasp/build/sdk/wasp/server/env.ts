@@ -58,4 +58,5 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverProdSchema.merge(serverCommonSchema)
 ])
 
+// PUBLIC API
 export const env = ensureEnvSchema(process.env, serverEnvSchema)

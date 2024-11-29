@@ -10,4 +10,5 @@ const clientEnvSchema = z.object({
     .default('http://localhost:3001')
 })
 
+// PUBLIC API
 export const env = ensureEnvSchema(import.meta.env, clientEnvSchema)
