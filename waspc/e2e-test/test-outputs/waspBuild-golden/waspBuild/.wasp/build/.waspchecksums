@@ -32,7 +32,7 @@
             "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "d5a83474d2db10e1ac90899a0e302503bf26b3ab5ab00c07b5f5ce0d9e6de2d4"
+        "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "84a5ba04975efaade7e14b8a58d962bfa234b502d3993d3edf73cf7db85e3e42"
+        "70b04edbb7f6c4a3617de54badaea6e4cb9f431fe8e6df26ab4e4690edebcbfd"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "Dockerfile"
         ],
-        "c7525922516652d1be259b7f1bf3a242e0ce1d3516c190aa0c28de57fe3d41de"
+        "20694e4dd2e7d96d8752ee3d792d4d8b63c46d7a4505c5312923a749146604b7"
     ],
     [
         [
@@ -557,7 +557,7 @@
             "file",
             "web-app/package.json"
         ],
-        "b9902749188431ba59e788a2e734086cf745bae9b7f7813f17ec90e2a3510daa"
+        "6eaf4967aa33a30abe5779f11067ceec7666c1e6060fb306ee1dc432fa7784dd"
     ],
     [
         [
@@ -579,13 +579,6 @@
             "web-app/public/manifest.json"
         ],
         "696886c4dd2bb66df380e2a9ebf07d54fe39b25af968aeea090ed6fb528d402e"
-    ],
-    [
-        [
-            "file",
-            "web-app/scripts/validate-env.mjs"
-        ],
-        "a9a3a7eb6bc3ead49d8e3850a70737c93c789098beb3b40196bf145fd38893cd"
     ],
     [
         [

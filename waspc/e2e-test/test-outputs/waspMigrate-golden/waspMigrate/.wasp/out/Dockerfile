@@ -52,7 +52,7 @@ WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages
 # necessary for migrating the database.
 COPY --from=server-builder /app/node_modules ./node_modules
-# Copying the SDK because 'validate-env.mjs' executes independent of the bundle
+# Copying the SDK because the server bundle doesn't bundle the SDK
 # and references the 'wasp' package.
 COPY --from=server-builder /app/.wasp/out/sdk .wasp/out/sdk
 # Copying 'server/node_modules' because we require dotenv package to
