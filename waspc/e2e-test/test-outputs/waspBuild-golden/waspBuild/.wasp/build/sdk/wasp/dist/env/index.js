@@ -1,5 +1,6 @@
 import * as z from 'zod';
 const redColor = '\x1b[31m';
+// PRIVATE API (SDK, Vite config)
 export function ensureEnvSchema(data, schema) {
     try {
         return schema.parse(data);
