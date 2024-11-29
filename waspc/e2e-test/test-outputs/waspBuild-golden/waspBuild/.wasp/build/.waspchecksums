@@ -25,7 +25,14 @@
             "file",
             "../out/sdk/wasp/client/env.ts"
         ],
-        "cff5bac505653ea7c09e0a981582fd7d894549594b00cb07b86509074df0268f"
+        "1b6b65c500f28977a14163878d73b53d900e0dfe44abc1ff663bc46f81dfc33e"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env/schema.ts"
+        ],
+        "02448805f48d0f750f82594a702b2a83d57a127173eab8c58f8fa925cbf74ca1"
     ],
     [
         [
@@ -179,7 +186,7 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "70b04edbb7f6c4a3617de54badaea6e4cb9f431fe8e6df26ab4e4690edebcbfd"
+        "936d4774b243ae7f1fc42866f450f35909031bc7bb8067fff7b7d5fe14815b95"
     ],
     [
         [
@@ -214,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "9f8844eca690b66c914179693b7f7beedef8b7c8fe2016d9d7353d474cea3d56"
+        "8c99121b7e9e68b1edca56f8c9247038bf65b0f8203ed9a6bbbcad725f81e039"
     ],
     [
         [
@@ -562,6 +569,13 @@
     [
         [
             "file",
+            "web-app/plugins/validateEnv.ts"
+        ],
+        "32a2187cfa251fcf5292996247d702b757d5213d9466a9f5a5fb528cd5256da7"
+    ],
+    [
+        [
+            "file",
             "web-app/public/.gitkeep"
         ],
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -669,13 +683,13 @@
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "30fed1f6aa4710deb690d1ae47628066f34afda7b633f0c696fafcda9e2dbc1e"
+        "16dc8bf734e2d166de87eed707410124eff01a54e52782808776e64806d96bc0"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "64256d93d81f6192f419e836ed4484f0e8c1e28f018bfb3213851608200594ac"
+        "07e935f0ee6a82371f33d91e59ffc07437837a5c055822ef065b3352ecf611b7"
     ]
 ]

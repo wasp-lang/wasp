@@ -71,6 +71,8 @@ genWebApp spec = do
       genNpmrc,
       genGitignore,
       genIndexHtml spec,
+      -- Vite plugins
+      genFileCopy [relfile|plugins/validateEnv.ts|],
       genViteConfig spec
     ]
     <++> genSrcDir spec
