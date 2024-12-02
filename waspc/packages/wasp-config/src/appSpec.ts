@@ -4,17 +4,25 @@
  * IMPORTANT: Do not change this file without updating the AppSpec in waspc.
  */
 
-export type Decl =
-  | { declType: 'App'; declName: string; declValue: App }
-  | { declType: 'Page'; declName: string; declValue: Page }
-  | { declType: 'Route'; declName: string; declValue: Route }
-  | { declType: 'Query'; declName: string; declValue: Query }
-  | { declType: 'Action'; declName: string; declValue: Action }
-  | { declType: 'App'; declName: string; declValue: App }
-  | { declType: 'Job'; declName: string; declValue: Job }
-  | { declType: 'Api'; declName: string; declValue: Api }
-  | { declType: 'ApiNamespace'; declName: string; declValue: ApiNamespace }
-  | { declType: 'Crud'; declName: string; declValue: Crud }
+export type Decl = {
+  [Type in keyof DeclTypeToValue]: {
+    declType: Type
+    declName: string
+    declValue: DeclTypeToValue[Type]
+  }
+}[keyof DeclTypeToValue]
+
+export type DeclTypeToValue = {
+  App: App
+  Page: Page
+  Route: Route
+  Query: Query
+  Action: Action
+  Job: Job
+  Api: Api
+  ApiNamespace: ApiNamespace
+  Crud: Crud
+}
 
 export type GetDeclForType<T extends Decl['declType']> = Extract<
   Decl,
