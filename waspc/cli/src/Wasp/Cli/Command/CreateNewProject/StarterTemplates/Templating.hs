@@ -52,7 +52,6 @@ replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
           ("__waspProjectName__", show projectName),
           ("__waspVersion__", defaultWaspVersionBounds)
         ]
-  -- TODO: We do this in all files, but not all files have all placeholders
   updateFileContentWith (replacePlaceholders waspTemplateReplacements) file
   where
     updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()

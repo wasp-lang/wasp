@@ -1,6 +1,5 @@
 module Wasp.Generator.NpmInstall
-  ( installProjectNpmDependencies,
-    installNpmDependenciesWithInstallRecord,
+  ( installNpmDependenciesWithInstallRecord,
   )
 where
 
