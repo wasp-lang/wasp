@@ -16,6 +16,11 @@ export type Decl =
   | { declType: 'ApiNamespace'; declName: string; declValue: ApiNamespace }
   | { declType: 'Crud'; declName: string; declValue: Crud }
 
+export type GetDeclForType<T extends Decl['declType']> = Extract<
+  Decl,
+  { declType: T }
+>
+
 // NOTE: Entities are defined in the schema.prisma file, but they can still be
 // referenced.
 export type DeclType = Decl['declType'] | 'Entity'
@@ -218,7 +223,7 @@ export type WebSocket = {
  * spec). This would be the correct mapping code:
  * ```
  * const { foo, bar } = userConfig
- * const decl: SomeDecl = { 
+ * const decl: SomeDecl = {
  *   foo: mapForAppSpec(foo),
  *   bar: mapForAppSpec(bar)
  * }
@@ -227,7 +232,7 @@ export type WebSocket = {
  * in `userConfig`:
  * ```
  * const { foo } = userConfig
- * const decl: SomeDecl = { 
+ * const decl: SomeDecl = {
  *   foo: mapForAppSpec(foo),
  * }
  * ```

@@ -22,36 +22,43 @@ export function mapUserSpecToAppSpecDecls(
     routes,
     server,
     websocket,
+    cruds,
   } = spec
 
   const pageNames = Array.from(pages.keys())
   const routeNames = Array.from(routes.keys())
+
   const parseEntityRef = makeRefParser('Entity', entityNames)
   const parsePageRef = makeRefParser('Page', pageNames)
   const parseRouteRef = makeRefParser('Route', routeNames)
 
-  // TODO: Try to build the entire object at once
-  const decls: AppSpec.Decl[] = []
+  const pageDecls = mapToDecls(pages, 'Page', mapPage)
+  const routeDecls = mapToDecls(routes, 'Route', (routeConfig) =>
+    mapRoute(routeConfig, parsePageRef)
+  )
+  const actionDecls = mapToDecls(actions, 'Action', (actionConfig) =>
+    mapOperationConfig(actionConfig, parseEntityRef)
+  )
+  const queryDecls = mapToDecls(queries, 'Query', (queryConfig) =>
+    mapOperationConfig(queryConfig, parseEntityRef)
+  )
+  const apiDecls = mapToDecls(apis, 'Api', (apiConfig) =>
+    mapApiConfig(apiConfig, parseEntityRef)
+  )
+  const jobDecls = mapToDecls(jobs, 'Job', (jobConfig) =>
+    mapJob(jobConfig, parseEntityRef)
+  )
+  const apiNamespaceDecls = mapToDecls(
+    apiNamespaces,
+    'ApiNamespace',
+    mapApiNamespace
+  )
+  const crudDecls = mapToDecls(cruds, 'Crud', (crudConfig) =>
+    mapCrud(crudConfig, parseEntityRef)
+  )
 
-  // TODO: Find a way to make sure you've covered everything in compile time
-  for (const [pageName, pageConfig] of pages.entries()) {
-    decls.push({
-      declType: 'Page',
-      declName: pageName,
-      declValue: mapPage(pageConfig),
-    })
-  }
-
-  for (const [routeName, routeConfig] of routes.entries()) {
-    decls.push({
-      declType: 'Route',
-      declName: routeName,
-      declValue: mapRoute(routeConfig, parsePageRef),
-    })
-  }
-
-  decls.push({
-    declType: 'App',
+  const appDecl = {
+    declType: 'App' as const,
     declName: app.name,
     declValue: mapApp(
       app.config,
@@ -64,60 +71,39 @@ export function mapUserSpecToAppSpecDecls(
       emailSender,
       websocket
     ),
+  }
+
+  return makeDeclsArray({
+    App: [appDecl],
+    Page: pageDecls,
+    Route: routeDecls,
+    Action: actionDecls,
+    Query: queryDecls,
+    Api: apiDecls,
+    Job: jobDecls,
+    ApiNamespace: apiNamespaceDecls,
+    Crud: crudDecls,
   })
+}
 
-  for (const [actionName, actionConfig] of actions.entries()) {
-    decls.push({
-      declType: 'Action',
-      declName: actionName,
-      declValue: mapOperationConfig(actionConfig, parseEntityRef),
-    })
-  }
+function makeDeclsArray(decls: {
+  [Type in AppSpec.Decl['declType']]: AppSpec.GetDeclForType<Type>[]
+}): AppSpec.Decl[] {
+  return Object.values(decls).flatMap((decl) => [...decl])
+}
 
-  for (const [queryName, queryConfig] of queries.entries()) {
-    decls.push({
-      declType: 'Query',
-      declName: queryName,
-      declValue: mapOperationConfig(queryConfig, parseEntityRef),
-    })
-  }
-
-  for (const [apiName, apiConfig] of apis.entries()) {
-    decls.push({
-      declType: 'Api',
-      declName: apiName,
-      declValue: mapApiConfig(apiConfig, parseEntityRef),
-    })
-  }
-
-  for (const [jobName, jobConfig] of jobs.entries()) {
-    decls.push({
-      declType: 'Job',
-      declName: jobName,
-      declValue: mapJob(jobConfig, parseEntityRef),
-    })
-  }
-
-  for (const [
-    apiNamespaceName,
-    apiNamespaceConfig,
-  ] of apiNamespaces.entries()) {
-    decls.push({
-      declType: 'ApiNamespace',
-      declName: apiNamespaceName,
-      declValue: mapApiNamespace(apiNamespaceConfig),
-    })
-  }
-
-  for (const [crudName, crudConfig] of spec.cruds.entries()) {
-    decls.push({
-      declType: 'Crud',
-      declName: crudName,
-      declValue: mapCrud(crudConfig, parseEntityRef),
-    })
-  }
-
-  return decls
+function mapToDecls<T, const DeclType extends AppSpec.Decl['declType']>(
+  configs: Map<string, T>,
+  type: DeclType,
+  configToDeclValue: (
+    config: T
+  ) => AppSpec.GetDeclForType<DeclType>['declValue']
+) {
+  return [...configs].map(([name, config]) => ({
+    declType: type,
+    declName: name,
+    declValue: configToDeclValue(config),
+  }))
 }
 
 function mapOperationConfig(
