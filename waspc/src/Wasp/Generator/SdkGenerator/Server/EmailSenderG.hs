@@ -1,9 +1,11 @@
-module Wasp.Generator.SdkGenerator.Server.EmailSenderG where
+module Wasp.Generator.SdkGenerator.Server.EmailSenderG
+  ( genNewEmailSenderApi,
+    depsRequiredByEmail,
+  )
+where
 
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe, isJust, maybeToList)
-import qualified Data.Text
 import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -11,6 +13,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.EmailSender (EmailSender)
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
@@ -32,7 +35,7 @@ genIndex :: EmailSender -> Generator FileDraft
 genIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|server/email/index.ts|]
-    tmplData = getEmailProvidersJson email
+    tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
 genCore email =
@@ -47,7 +50,7 @@ genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|server/email/core/index.ts|]
-    tmplData = getEmailProvidersJson email
+    tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
 genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
@@ -94,14 +97,6 @@ depsRequiredByEmail spec = maybeToList maybeNpmDepedency
     maybeProvider :: Maybe Providers.EmailSenderProvider
     maybeProvider = getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
     maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
-
-getEmailProvidersJson :: EmailSender -> Aeson.Value
-getEmailProvidersJson email =
-  object [isEnabledKey .= True]
-  where
-    provider :: Providers.EmailSenderProvider
-    provider = getEmailSenderProvider email
-    isEnabledKey = Data.Text.pack $ Providers.isEnabledKey provider
 
 getEmailSenderProvider :: EmailSender -> Providers.EmailSenderProvider
 getEmailSenderProvider email = case AS.EmailSender.provider email of
