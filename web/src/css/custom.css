@@ -152,3 +152,10 @@
   height: 100%;
   border: 0;
 }
+
+/***** HowItWorks *****/
+.featureTitle {
+  line-height: 1.73;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}

@@ -9,7 +9,7 @@ const Feature = ({ title, description, url }) => (
     <div className="lg:mt-5">
       <dt>
         <h4 className="mb-4">
-          <span className="rounded bg-yellow-500/25 px-2 py-1 text-neutral-700">
+          <span className="rounded bg-yellow-500/25 px-2 py-1 text-neutral-700 featureTitle">
             {title}
           </span>
         </h4>
@@ -79,7 +79,7 @@ const HowItWorks = () => {
               />
 
               <Feature
-                title="Arrivederci boilerplate"
+                title="Goodbye boilerplate"
                 description="Write only the code that matters, let Wasp handle the rest."
                 url="https://www.youtube.com/watch?v=x5nsBbLvKnU"
               />
