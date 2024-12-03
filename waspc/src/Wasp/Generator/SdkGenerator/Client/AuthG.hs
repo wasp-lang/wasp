@@ -30,6 +30,7 @@ genNewClientAuth spec =
         <++> genAuthGoogle auth
         <++> genAuthKeycloak auth
         <++> genAuthGitHub auth
+        <++> genAuthTwitter auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -85,6 +86,12 @@ genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGitHub auth =
   if AS.Auth.isGitHubAuthEnabled auth
     then sequence [genFileCopy [relfile|client/auth/github.ts|]]
+    else return []
+
+genAuthTwitter :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthTwitter auth =
+  if AS.Auth.isTwitterAuthEnabled auth
+    then sequence [genFileCopy [relfile|client/auth/twitter.ts|]]
     else return []
 
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> Generator FileDraft
