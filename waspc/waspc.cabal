@@ -511,6 +511,7 @@ library cli-lib
     , fsnotify
     , http-conduit
     , optparse-applicative ^>=0.17.0.0
+    , parsec ^>= 3.1.14
     , path
     , path-io
     , pretty-simple ^>= 4.1.2.0

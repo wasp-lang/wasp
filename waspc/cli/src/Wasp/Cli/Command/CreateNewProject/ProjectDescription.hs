@@ -9,6 +9,7 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
 where
 
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Aeson.Encoding as P
 import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
@@ -25,9 +26,11 @@ import Wasp.Cli.Command.CreateNewProject.Common
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( StarterTemplate,
     defaultStarterTemplate,
-    findTemplateByString,
+    findTemplateByName,
+    obtainTemplateByIdOrThrow,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
+import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
@@ -49,6 +52,8 @@ data NewProjectAppName = NewProjectAppName String
 instance Show NewProjectAppName where
   show (NewProjectAppName name) = name
 
+-- TODO: Rename "available" to "embedded" templates?
+
 {-
   There are two ways of getting the project description:
   1. From CLI arguments
@@ -65,29 +70,29 @@ instance Show NewProjectAppName where
     - Template name is required, we ask the user to choose from available templates.
 -}
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates =
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateId = templateIdArg} starterTemplates =
   case projectNameArg of
-    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplates
-    Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplates
+    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateIdArg starterTemplates
+    Nothing -> obtainNewProjectDescriptionInteractively templateIdArg starterTemplates
 
 obtainNewProjectDescriptionFromCliArgs :: String -> Maybe String -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemplates =
+obtainNewProjectDescriptionFromCliArgs projectName templateIdArg availableTemplates =
   obtainNewProjectDescriptionFromProjectNameAndTemplateArg
     projectName
-    templateNameArg
+    templateIdArg
     availableTemplates
     (return defaultStarterTemplate)
 
 obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
+obtainNewProjectDescriptionInteractively templateIdArg availableTemplates = do
   projectName <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
   obtainNewProjectDescriptionFromProjectNameAndTemplateArg
     projectName
-    templateNameArg
+    templateIdArg
     availableTemplates
-    (liftIO askForTemplateName)
+    (liftIO askForTemplate)
   where
-    askForTemplateName = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
+    askForTemplate = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
 
 -- Common logic
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
@@ -96,15 +101,11 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
   [StarterTemplate] ->
   Command StarterTemplate ->
   Command NewProjectDescription
-obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNameArg availableTemplates obtainTemplateWhenNoArg = do
+obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateIdArg availableTemplates obtainTemplateWhenNoArg = do
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  selectedTemplate <- maybe obtainTemplateWhenNoArg findTemplateOrThrow templateNameArg
+  -- TODO: So here I pass availableTemplates to obtainTemplateByIdOrThrow but I could just reference them directly from there?
+  selectedTemplate <- maybe obtainTemplateWhenNoArg (obtainTemplateByIdOrThrow availableTemplates) templateIdArg
   mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
-  where
-    findTemplateOrThrow :: String -> Command StarterTemplate
-    findTemplateOrThrow templateName =
-      findTemplateByString availableTemplates templateName
-        & maybe throwInvalidTemplateNameUsedError return
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do

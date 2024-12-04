@@ -4,17 +4,26 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( getStarterTemplates,
     StarterTemplate (..),
     DirBasedTemplateMetadata (..),
-    findTemplateByString,
+    findTemplateByName,
     defaultStarterTemplate,
     readWaspProjectSkeletonFiles,
     getTemplateStartingInstructions,
+    obtainTemplateByIdOrThrow,
   )
 where
 
+import Control.Arrow (left)
 import Data.Foldable (find)
+import Data.Function ((&))
+import Data.List (isPrefixOf)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', System, parseRelDir, parseRelDirP, reldir, (</>))
 import qualified System.FilePath as FP
+import qualified System.FilePath.Posix as FP.Posix
+import qualified Text.Parsec as P
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.CreateNewProject.Common (throwInvalidTemplateNameUsedError)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
@@ -50,6 +59,7 @@ instance Interactive.IsOption StarterTemplate where
   showOptionDescription AiGeneratedStarterTemplate =
     Just "🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)"
 
+-- TODO: This doesn't seem to be documented well, what is this first String? Maybe project path? Why is it not strong path then?
 type StartingInstructionsBuilder = String -> String
 
 {- HLINT ignore getTemplateStartingInstructions "Redundant $" -}
@@ -102,7 +112,7 @@ basicStarterTemplate =
 
 openSaasStarterTemplate :: StarterTemplate
 openSaasStarterTemplate =
-  simpleGhRepoTemplate
+  simpleWaspGhRepoTemplate
     ("open-saas", [reldir|template|])
     ( "saas",
       "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
@@ -137,7 +147,7 @@ openSaasStarterTemplate =
 
 todoTsStarterTemplate :: StarterTemplate
 todoTsStarterTemplate =
-  simpleGhRepoTemplate
+  simpleWaspGhRepoTemplate
     ("starters", [reldir|todo-ts|])
     ( "todo-ts",
       "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety."
@@ -167,7 +177,7 @@ styleText = id
 
 embeddingsStarterTemplate :: StarterTemplate
 embeddingsStarterTemplate =
-  simpleGhRepoTemplate
+  simpleWaspGhRepoTemplate
     ("starters", [reldir|embeddings|])
     ( "embeddings",
       "Comes with code for generating vector embeddings and performing vector similarity search."
@@ -201,8 +211,8 @@ embeddingsStarterTemplate =
           ]
     )
 
-simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
-simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =
+simpleWaspGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
+simpleWaspGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =
   GhRepoStarterTemplate
     ( GhRepo.GithubRepoRef
         { GhRepo._repoOwner = waspGhOrgName,
@@ -228,11 +238,71 @@ waspGhOrgName = "wasp-lang"
 waspVersionTemplateGitTag :: String
 waspVersionTemplateGitTag = "wasp-v0.15-template"
 
-findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
-findTemplateByString templates query = find ((== query) . show) templates
+-- TODO: I don't like that we are relying on Show here for search.
+--   Either name should reflect that, or we shouldn't use Show but name directly or id or something.
+findTemplateByName :: [StarterTemplate] -> String -> Maybe StarterTemplate
+findTemplateByName templates templateName = find ((== templateName) . show) templates
 
 readWaspProjectSkeletonFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readWaspProjectSkeletonFiles = do
   skeletonFilesDir <- (</> [reldir|Cli/templates/skeleton|]) <$> Data.getAbsDataDirPath
   skeletonFilePaths <- listDirectoryDeep skeletonFilesDir
   mapM (\path -> (path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths
+
+-- TODO: tests, docs.
+
+data StarterTemplateId
+  = GhRepoTemplateUri !GhRepo.GithubRepoOwner !GhRepo.GithubRepoName !(Maybe (Path' Rel' Dir'))
+  | EmbeddedTemplateName !String
+
+parseTemplateId :: String -> Either String StarterTemplateId
+parseTemplateId = \case
+  templateId
+    | ghRepoTemplateIdPrefix `isPrefixOf` templateId ->
+        -- TODO: Do something with the parse error message or just let it through as I do now?
+        parseGhRepoTemplateUri templateId & left show
+  templateId ->
+    pure $ EmbeddedTemplateName templateId
+  where
+    -- Parses following format: github:<org_name>/<repo_name>[/<path_to_template_dir>] .
+    parseGhRepoTemplateUri :: String -> Either P.ParseError StarterTemplateId
+    parseGhRepoTemplateUri = P.parse parser ""
+      where
+        parser = do
+          _ <- P.string ghRepoTemplateIdPrefix
+          repoOwner <- P.many1 (P.noneOf [FP.Posix.pathSeparator])
+          repoName <- P.many1 (P.noneOf [FP.Posix.pathSeparator])
+          maybeTmplDirStrongPath <-
+            P.optionMaybe (P.char FP.Posix.pathSeparator >> P.many1 P.anyChar) >>= \case
+              Nothing -> pure Nothing
+              -- NOTE: Even though parseRelDir returns System Path, it is able to parse both Posix and System
+              --   separators, which enables us to use it here even though we expect Posix.
+              Just tmplDirFilePath -> either (fail . show) (pure . Just) $ parseRelDir tmplDirFilePath
+          return $ GhRepoTemplateUri repoOwner repoName maybeTmplDirStrongPath
+
+    ghRepoTemplateIdPrefix :: String
+    ghRepoTemplateIdPrefix = "github:"
+
+obtainTemplateByIdOrThrow :: [StarterTemplate] -> String -> Command StarterTemplate
+obtainTemplateByIdOrThrow availableTemplates templateId =
+  -- TODO: Refactor/rename throwInvalidTemplateNameUsedError? Yeah or probably just make another error function here, that is better suited for the situation (which is failed parsing of the template id.
+  (parseTemplateId templateId & either (const throwInvalidTemplateNameUsedError) pure) >>= \case
+    EmbeddedTemplateName templateName ->
+      findTemplateByName availableTemplates templateName
+        & maybe throwInvalidTemplateNameUsedError pure
+    GhRepoTemplateUri repoOwner repoName maybeTmplDirPath ->
+      return $
+        GhRepoStarterTemplate
+          (GhRepo.GithubRepoRef repoOwner repoName waspVersionTemplateGitTag)
+          ( DirBasedTemplateMetadata
+              { _name = repoName,
+                _description = "Template from Github repo " <> repoOwner <> "/" <> repoName,
+                _path = maybeTmplDirPath & fromMaybe [reldir|.|],
+                _buildStartingInstructions = \projectDirName ->
+                  unlines
+                    -- TODO: Improve next line, repoName in projectDirName doesn't make much sense.
+                    [ styleText $ "Created new project from template " <> repoName <> " in " <> projectDirName <> " !",
+                      styleText $ "Check github.com/" <> repoOwner <> "/" <> repoName <> " for starting instructions."
+                    ]
+              }
+          )

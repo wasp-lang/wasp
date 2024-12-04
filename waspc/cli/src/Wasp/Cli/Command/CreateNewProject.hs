@@ -31,8 +31,7 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either Common.throwProjectCreationError return
-  let starterTemplates = getStarterTemplates
-
+  let starterTemplates = getStarterTemplates -- TODO: Why do we inject this here and not access it directly from where we need it?
   newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplates
 
   createProjectOnDisk newProjectDescription
