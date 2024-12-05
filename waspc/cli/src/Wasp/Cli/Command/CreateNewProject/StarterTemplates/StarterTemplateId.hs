@@ -24,11 +24,11 @@ data StarterTemplateId
 
 -- TODO: Comment (explain it will try to find it in featured templates or construct it based on id).
 getStarterTemplateByIdOrThrow :: [ST.StarterTemplate] -> String -> Command ST.StarterTemplate
-getStarterTemplateByIdOrThrow availableTemplates templateId =
+getStarterTemplateByIdOrThrow featuredTemplates templateId =
   -- TODO: Refactor/rename throwInvalidTemplateNameUsedError? Yeah or probably just make another error function here, that is better suited for the situation (which is failed parsing of the template id.
   (parseStarterTemplateId templateId & either (const throwInvalidTemplateNameUsedError) pure) >>= \case
     EmbeddedTemplateName templateName ->
-      findTemplateByName availableTemplates templateName
+      findTemplateByName featuredTemplates templateName
         & maybe throwInvalidTemplateNameUsedError pure
     GhRepoTemplateUri repoOwner repoName maybeTmplDirPath ->
       return $

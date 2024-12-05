@@ -58,7 +58,7 @@ createProjectOnDisk
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
 printGettingStartedInstructionsForProject projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absWaspProjectDir projectDescription
-  let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
+  let instructions = getTemplateStartingInstructions (_template projectDescription) projectDirName
   putStrLn $ Term.applyStyles [Term.Green] $ "Created new Wasp app in ./" ++ projectDirName ++ " directory!"
   putStrLn ""
   putStrLn instructions

@@ -49,14 +49,17 @@ instance Interactive.IsOption StarterTemplate where
   showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription (AiGeneratedStarterTemplate metadata) = Just $ _tmplDescription metadata
 
--- TODO: This doesn't seem to be documented well, what is this first String? Maybe project path? Why is it not strong path then?
-type StartingInstructionsBuilder = String -> String
-
--- | Returns instructions for running the newly created (from the template) Wasp project.
+-- | Function that returns instructions for running the newly created (from the template) Wasp project.
 -- Instructions assume that user is positioned right next to the just created project directory,
 -- whose name is provided via projectDirName.
-getTemplateStartingInstructions :: String -> StarterTemplate -> String
-getTemplateStartingInstructions projectDirName = \case
-  GhRepoStarterTemplate _ metadata -> _buildStartingInstructions metadata projectDirName
-  LocalStarterTemplate metadata -> _buildStartingInstructions metadata projectDirName
-  AiGeneratedStarterTemplate metadata -> _tmplBuildStartingInstructions metadata projectDirName
+type StartingInstructionsBuilder = ProjectDirName -> StartingInstructions
+
+type ProjectDirName = String
+
+type StartingInstructions = String
+
+getTemplateStartingInstructions :: StarterTemplate -> StartingInstructionsBuilder
+getTemplateStartingInstructions = \case
+  GhRepoStarterTemplate _ metadata -> _buildStartingInstructions metadata
+  LocalStarterTemplate metadata -> _buildStartingInstructions metadata
+  AiGeneratedStarterTemplate metadata -> _tmplBuildStartingInstructions metadata
