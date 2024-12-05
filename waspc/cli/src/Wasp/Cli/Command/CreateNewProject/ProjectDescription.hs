@@ -96,7 +96,11 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
   Command NewProjectDescription
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateIdArg featuredTemplates getStarterTemplateWhenNoArg = do
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  selectedTemplate <- maybe getStarterTemplateWhenNoArg (getStarterTemplateByIdOrThrow featuredTemplates) templateIdArg
+  selectedTemplate <-
+    maybe
+      getStarterTemplateWhenNoArg
+      (either throwProjectCreationError pure . getStarterTemplateByIdOrThrow featuredTemplates)
+      templateIdArg
   mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))

@@ -7,6 +7,7 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplateId
 where
 
 import Control.Arrow (left)
+import Control.Monad.Except (MonadError, throwError)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.List (intercalate, isPrefixOf)
@@ -14,14 +15,13 @@ import Data.Maybe (fromMaybe)
 import StrongPath (Dir', Path', Rel', parseRelDir, reldir)
 import qualified System.FilePath.Posix as FP.Posix
 import qualified Text.Parsec as P
-import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Common (styleText, waspVersionTemplateGitTag)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate (getTemplateName)
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate as ST
 import qualified Wasp.Cli.GithubRepo as GhRepo
 
 -- | A way to uniquely reference a specific Wasp starter template.
+-- It is how users specify which starter template they want to use.
 data StarterTemplateId
   = -- | References one of the featured templates (templates that we know about here in Wasp CLI) by its name.
     FeaturedTemplateName !String
@@ -51,8 +51,7 @@ getStarterTemplateIdTypeDescription = \case
 
 -- | Given a template id (as string), it will obtain the information on the template that this id references.
 -- It will throw if the id is invalid (can't be parsed, or information on the template can't be obtain based on it).
--- TODO: Use MonadThrow?
-getStarterTemplateByIdOrThrow :: [ST.StarterTemplate] -> String -> Command ST.StarterTemplate
+getStarterTemplateByIdOrThrow :: (MonadError String m) => [ST.StarterTemplate] -> String -> m ST.StarterTemplate
 getStarterTemplateByIdOrThrow featuredTemplates templateIdString =
   (parseStarterTemplateId templateIdString & either throwTemplateIdParsingError pure) >>= \case
     FeaturedTemplateName templateName ->
@@ -66,21 +65,19 @@ getStarterTemplateByIdOrThrow featuredTemplates templateIdString =
               { ST._name = repoName,
                 ST._description = "Template from Github repo " <> repoOwner <> "/" <> repoName,
                 ST._path = maybeTmplDirPath & fromMaybe [reldir|.|],
-                ST._buildStartingInstructions = \projectDirName ->
+                ST._buildStartingInstructions = \_ ->
                   unlines
-                    -- TODO: Improve next line, repoName in projectDirName doesn't make much sense.
-                    [ styleText $ "Created new project from template " <> repoName <> " in " <> projectDirName <> " !",
-                      styleText $ "Check github.com/" <> repoOwner <> "/" <> repoName <> " for starting instructions."
+                    [ styleText $ "Check https://github.com/" <> repoOwner <> "/" <> repoName <> " for starting instructions."
                     ]
               }
           )
   where
     throwTemplateIdParsingError errorMsg =
-      throwProjectCreationError $
+      throwError $
         "Failed to parse template id: " <> errorMsg <> "\n" <> expectedInputMessage
 
     throwInvalidTemplateNameUsedError templateName =
-      throwProjectCreationError $
+      throwError $
         "There is no featured template with name " <> templateName <> ".\n" <> expectedInputMessage
 
     expectedInputMessage =
