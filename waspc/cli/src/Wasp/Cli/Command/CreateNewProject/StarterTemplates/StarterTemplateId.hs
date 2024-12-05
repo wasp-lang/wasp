@@ -61,11 +61,11 @@ getStarterTemplateByIdOrThrow featuredTemplates templateIdString =
       return $
         ST.GhRepoStarterTemplate
           (GhRepo.GithubRepoRef repoOwner repoName waspVersionTemplateGitTag)
-          ( ST.DirBasedTemplateMetadata
-              { ST._name = repoName,
-                ST._description = "Template from Github repo " <> repoOwner <> "/" <> repoName,
-                ST._path = maybeTmplDirPath & fromMaybe [reldir|.|],
-                ST._buildStartingInstructions = \_ ->
+          (maybeTmplDirPath & fromMaybe [reldir|.|])
+          ( ST.TemplateMetadata
+              { ST._tmplName = repoName,
+                ST._tmplDescription = "Template from Github repo " <> repoOwner <> "/" <> repoName,
+                ST._tmplBuildStartingInstructions = \_ ->
                   unlines
                     [ styleText $ "Check https://github.com/" <> repoOwner <> "/" <> repoName <> " for starting instructions."
                     ]

@@ -25,12 +25,11 @@ defaultStarterTemplate = basicStarterTemplate
 {- HLINT ignore basicStarterTemplate "Redundant $" -}
 basicStarterTemplate :: ST.StarterTemplate
 basicStarterTemplate =
-  ST.LocalStarterTemplate $
-    ST.DirBasedTemplateMetadata
-      { ST._path = [reldir|basic|],
-        ST._name = "basic",
-        ST._description = "Simple starter template with a single page.",
-        ST._buildStartingInstructions = \projectDirName ->
+  ST.LocalStarterTemplate [reldir|basic|] $
+    ST.TemplateMetadata
+      { ST._tmplName = "basic",
+        ST._tmplDescription = "Simple starter template with a single page.",
+        ST._tmplBuildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
               styleCode $ "    cd " <> projectDirName,
@@ -153,11 +152,11 @@ makeSimpleWaspGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDe
           GhRepo._repoReferenceName = waspVersionTemplateGitTag
         }
     )
-    ( ST.DirBasedTemplateMetadata
-        { _name = tmplDisplayName,
-          _description = tmplDescription,
-          _path = tmplPathInRepo,
-          _buildStartingInstructions = buildStartingInstructions
+    tmplPathInRepo
+    ( ST.TemplateMetadata
+        { _tmplName = tmplDisplayName,
+          _tmplDescription = tmplDescription,
+          _tmplBuildStartingInstructions = buildStartingInstructions
         }
     )
 
