@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 module Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplateId
   ( getStarterTemplateByIdOrThrow,
     findTemplateByName,
@@ -15,6 +17,7 @@ import qualified Text.Parsec as P
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Common (styleText, waspVersionTemplateGitTag)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate (getTemplateName)
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate as ST
 import qualified Wasp.Cli.GithubRepo as GhRepo
 
@@ -27,12 +30,15 @@ data StarterTemplateId
     -- we can more simply reference by name.
     GhRepoTemplateUri !GhRepo.GithubRepoOwner !GhRepo.GithubRepoName !(Maybe (Path' Rel' Dir'))
 
+-- | This type allows us to reason about types of StarterTemplateIds without having their runtime values.
 data StarterTemplateIdType
   = IdTypeFeaturedTemplateName
   | IdTypeGhRepoTemplateUri
   deriving (Enum, Bounded)
 
--- TODO: Explain what is this type used for, and also ignore the warning about it not being used.
+-- | This function serves its purpose just by being defined, even if not used anywhere, because it
+-- ensures (via compiler warning) that we don't forget do update StarterTemplateIdType accordingly
+-- when we change StarterTemplateId (create, delete or modify data constructor).
 getStarterTemplateIdType :: StarterTemplateId -> StarterTemplateIdType
 getStarterTemplateIdType = \case
   FeaturedTemplateName {} -> IdTypeFeaturedTemplateName
@@ -45,6 +51,7 @@ getStarterTemplateIdTypeDescription = \case
 
 -- | Given a template id (as string), it will obtain the information on the template that this id references.
 -- It will throw if the id is invalid (can't be parsed, or information on the template can't be obtain based on it).
+-- TODO: Use MonadThrow?
 getStarterTemplateByIdOrThrow :: [ST.StarterTemplate] -> String -> Command ST.StarterTemplate
 getStarterTemplateByIdOrThrow featuredTemplates templateIdString =
   (parseStarterTemplateId templateIdString & either throwTemplateIdParsingError pure) >>= \case
@@ -76,10 +83,9 @@ getStarterTemplateByIdOrThrow featuredTemplates templateIdString =
       throwProjectCreationError $
         "There is no featured template with name " <> templateName <> ".\n" <> expectedInputMessage
 
-    -- TODO: Use getTemplateName here instead of `show`.
     expectedInputMessage =
       "Expected " <> intercalate " or " (getStarterTemplateIdTypeDescription <$> [minBound .. maxBound]) <> "."
-        <> (" Valid featured template names are " <> intercalate ", " (show <$> featuredTemplates) <> ".")
+        <> (" Valid featured template names are " <> intercalate ", " (getTemplateName <$> featuredTemplates) <> ".")
 
 parseStarterTemplateId :: String -> Either String StarterTemplateId
 parseStarterTemplateId = \case
@@ -105,8 +111,5 @@ parseStarterTemplateId = \case
     ghRepoTemplateIdPrefix :: String
     ghRepoTemplateIdPrefix = "github:"
 
--- TODO: I don't like that we are relying on Show here for search.
---   Either name should reflect that, or we shouldn't use Show but name directly or id or something.
---   Yeah, I think we should go for implementing `getTemplateName` function.
 findTemplateByName :: [ST.StarterTemplate] -> String -> Maybe ST.StarterTemplate
-findTemplateByName templates templateName = find ((== templateName) . show) templates
+findTemplateByName templates templateName = find ((== templateName) . getTemplateName) templates

@@ -4,6 +4,7 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate
     TemplateMetadata (..),
     StartingInstructionsBuilder,
     getTemplateStartingInstructions,
+    getTemplateName,
   )
 where
 
@@ -37,13 +38,8 @@ data TemplateMetadata = TemplateMetadata
     _tmplBuildStartingInstructions :: !StartingInstructionsBuilder
   }
 
-instance Show StarterTemplate where
-  show (GhRepoStarterTemplate _ metadata) = _name metadata
-  show (LocalStarterTemplate metadata) = _name metadata
-  show (AiGeneratedStarterTemplate metadata) = _tmplName metadata
-
 instance Interactive.IsOption StarterTemplate where
-  showOption = show
+  showOption = getTemplateName
 
   showOptionDescription (GhRepoStarterTemplate _ metadata) = Just $ _description metadata
   showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
@@ -63,3 +59,9 @@ getTemplateStartingInstructions = \case
   GhRepoStarterTemplate _ metadata -> _buildStartingInstructions metadata
   LocalStarterTemplate metadata -> _buildStartingInstructions metadata
   AiGeneratedStarterTemplate metadata -> _tmplBuildStartingInstructions metadata
+
+getTemplateName :: StarterTemplate -> String
+getTemplateName = \case
+  GhRepoStarterTemplate _ metadata -> _name metadata
+  LocalStarterTemplate metadata -> _name metadata
+  AiGeneratedStarterTemplate metadata -> _tmplName metadata
