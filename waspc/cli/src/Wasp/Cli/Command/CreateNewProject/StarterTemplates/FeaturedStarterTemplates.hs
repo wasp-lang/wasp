@@ -1,7 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject.StarterTemplates.FeaturedStarterTemplates
   ( getFeaturedStarterTemplates,
     defaultStarterTemplate,
-    aiGeneratedStarterTemplate,
   )
 where
 
@@ -17,7 +16,7 @@ getFeaturedStarterTemplates =
     todoTsStarterTemplate,
     openSaasStarterTemplate,
     embeddingsStarterTemplate,
-    aiGeneratedStarterTemplate
+    waspAiGeneratedStarterTemplate
   ]
 
 defaultStarterTemplate :: ST.StarterTemplate
@@ -130,9 +129,9 @@ embeddingsStarterTemplate =
     )
 
 {- HLINT ignore aiGeneratedStarterTemplate "Redundant $" -}
-aiGeneratedStarterTemplate :: ST.StarterTemplate
-aiGeneratedStarterTemplate =
-  ST.AiGeneratedStarterTemplate $
+waspAiGeneratedStarterTemplate :: ST.StarterTemplate
+waspAiGeneratedStarterTemplate =
+  ST.AiGeneratedStarterTemplate ST.WaspAI $
     ST.TemplateMetadata
       { _tmplName = "ai-generated",
         _tmplDescription = "🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)",

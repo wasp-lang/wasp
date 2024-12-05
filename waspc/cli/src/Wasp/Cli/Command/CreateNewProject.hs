@@ -21,6 +21,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOn
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate
   ( DirBasedTemplateMetadata (_path),
     StarterTemplate (..),
+    WaspAppAiGenerator (WaspAI),
     getTemplateName,
     getTemplateStartingInstructions,
   )
@@ -52,8 +53,9 @@ createProjectOnDisk
         createProjectOnDiskFromGhRepoTemplate absWaspProjectDir projectName appName ghRepoRef $ _path metadata
       LocalStarterTemplate metadata ->
         liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
-      AiGeneratedStarterTemplate _metadata ->
-        AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
+      AiGeneratedStarterTemplate waspAppAiGenerator _metadata ->
+        case waspAppAiGenerator of
+          WaspAI -> AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
 -- | This function assumes that the project dir was created inside the current working directory.
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
