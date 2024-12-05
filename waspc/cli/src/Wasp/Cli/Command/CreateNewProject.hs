@@ -15,14 +15,14 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     obtainNewProjectDescription,
   )
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( DirBasedTemplateMetadata (_path),
-    StarterTemplate (..),
-    getStarterTemplates,
-    getTemplateStartingInstructions,
-  )
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.FeaturedStarterTemplates (getFeaturedStarterTemplates)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo (createProjectOnDiskFromGhRepoTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate
+  ( DirBasedTemplateMetadata (_path),
+    StarterTemplate (..),
+    getTemplateStartingInstructions,
+  )
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Terminal as Term
@@ -31,8 +31,8 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either Common.throwProjectCreationError return
-  let starterTemplates = getStarterTemplates -- TODO: Why do we inject this here and not access it directly from where we need it?
-  newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplates
+  let featuredStarterTemplates = getFeaturedStarterTemplates
+  newProjectDescription <- obtainNewProjectDescription newProjectArgs featuredStarterTemplates
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
@@ -51,7 +51,7 @@ createProjectOnDisk
         createProjectOnDiskFromGhRepoTemplate absWaspProjectDir projectName appName ghRepoRef $ _path metadata
       LocalStarterTemplate metadata ->
         liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
-      AiGeneratedStarterTemplate ->
+      AiGeneratedStarterTemplate _metadata ->
         AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
 -- | This function assumes that the project dir was created inside the current working directory.

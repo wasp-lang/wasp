@@ -23,11 +23,11 @@ import Wasp.Cli.Command.CreateNewProject.Common
   ( throwInvalidTemplateNameUsedError,
     throwProjectCreationError,
   )
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplate,
-    defaultStarterTemplate,
-    findTemplateByName,
-    obtainTemplateByIdOrThrow,
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.FeaturedStarterTemplates (defaultStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate (StarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplateId
+  ( findTemplateByName,
+    getStarterTemplateByIdOrThrow,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.GithubRepo as GhRepo
@@ -101,10 +101,9 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
   [StarterTemplate] ->
   Command StarterTemplate ->
   Command NewProjectDescription
-obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateIdArg availableTemplates obtainTemplateWhenNoArg = do
+obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateIdArg availableTemplates getStarterTemplateWhenNoArg = do
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  -- TODO: So here I pass availableTemplates to obtainTemplateByIdOrThrow but I could just reference them directly from there?
-  selectedTemplate <- maybe obtainTemplateWhenNoArg (obtainTemplateByIdOrThrow availableTemplates) templateIdArg
+  selectedTemplate <- maybe getStarterTemplateWhenNoArg (getStarterTemplateByIdOrThrow availableTemplates) templateIdArg
   mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))

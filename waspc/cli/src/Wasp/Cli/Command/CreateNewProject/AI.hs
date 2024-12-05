@@ -38,7 +38,7 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
     obtainAvailableProjectDirPath,
     parseWaspProjectNameIntoAppName,
   )
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Skeleton (readWaspProjectSkeletonFiles)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util as U
