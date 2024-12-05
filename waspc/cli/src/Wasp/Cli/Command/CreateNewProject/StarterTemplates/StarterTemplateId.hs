@@ -20,6 +20,9 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate (getTe
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate as ST
 import qualified Wasp.Cli.GithubRepo as GhRepo
 
+-- TODO: Update CLI instructions.
+-- TODO: Add specifing of a third-party template under interactive choosing of template.
+
 -- | A way to uniquely reference a specific Wasp starter template.
 -- It is how users specify which starter template they want to use.
 data StarterTemplateId
@@ -47,7 +50,7 @@ getStarterTemplateIdType = \case
 getStarterTemplateIdTypeDescription :: StarterTemplateIdType -> String
 getStarterTemplateIdTypeDescription = \case
   IdTypeFeaturedTemplateName -> "a featured template name (e.g. \"saas\")"
-  IdTypeGhRepoTemplateUri -> "a github URI (github:<owner>/<repo>[/some/dir])"
+  IdTypeGhRepoTemplateUri -> "a github URI (github:<repo_owner>/<repo_name>[/dir/to/template])"
 
 -- | Given a template id (as string), it will obtain the information on the template that this id references.
 -- It will throw if the id is invalid (can't be parsed, or information on the template can't be obtain based on it).
@@ -78,11 +81,13 @@ getStarterTemplateByIdOrThrow featuredTemplates templateIdString =
 
     throwInvalidTemplateNameUsedError templateName =
       throwError $
-        "There is no featured template with name " <> templateName <> ".\n" <> expectedInputMessage
+        "There is no featured template with name " <> wrapInQuotes templateName <> ".\n" <> expectedInputMessage
 
     expectedInputMessage =
       "Expected " <> intercalate " or " (getStarterTemplateIdTypeDescription <$> [minBound .. maxBound]) <> "."
-        <> (" Valid featured template names are " <> intercalate ", " (getTemplateName <$> featuredTemplates) <> ".")
+        <> ("\nValid featured template names are " <> intercalate ", " (wrapInQuotes . getTemplateName <$> featuredTemplates) <> ".")
+
+    wrapInQuotes str = "\"" <> str <> "\""
 
 parseStarterTemplateId :: String -> Either String StarterTemplateId
 parseStarterTemplateId = \case
@@ -96,6 +101,7 @@ parseStarterTemplateId = \case
         parser = do
           _ <- P.string ghRepoTemplateIdPrefix
           repoOwner <- P.many1 (P.noneOf [FP.Posix.pathSeparator])
+          _ <- P.char FP.Posix.pathSeparator
           repoName <- P.many1 (P.noneOf [FP.Posix.pathSeparator])
           maybeTmplDirStrongPath <-
             P.optionMaybe (P.char FP.Posix.pathSeparator >> P.many1 P.anyChar) >>= \case
