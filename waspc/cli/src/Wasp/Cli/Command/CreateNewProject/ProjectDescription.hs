@@ -8,7 +8,6 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   )
 where
 
-import Control.Monad.Error (MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
@@ -79,7 +78,7 @@ obtainNewProjectDescriptionFromCliArgs projectName templateIdArg featuredTemplat
     featuredTemplates
     (return defaultStarterTemplate)
 
-data StarterTemplateMenuChoice = FeaturedStarterTemplate StarterTemplate | CommunityTemplate
+data StarterTemplateMenuChoice = FeaturedStarterTemplate !StarterTemplate | CommunityTemplate
 
 instance IsOption StarterTemplateMenuChoice where
   showOption (FeaturedStarterTemplate tmpl) = showOption tmpl
