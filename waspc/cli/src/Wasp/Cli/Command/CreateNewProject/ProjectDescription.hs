@@ -8,9 +8,11 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   )
 where
 
+import Control.Monad.Error (MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
+import Data.Maybe (fromJust)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
@@ -26,6 +28,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplateId
   ( getStarterTemplateByIdOrThrow,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
+import Wasp.Cli.Interactive (IsOption (..))
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
@@ -76,6 +79,14 @@ obtainNewProjectDescriptionFromCliArgs projectName templateIdArg featuredTemplat
     featuredTemplates
     (return defaultStarterTemplate)
 
+data StarterTemplateMenuChoice = FeaturedStarterTemplate StarterTemplate | CommunityTemplate
+
+instance IsOption StarterTemplateMenuChoice where
+  showOption (FeaturedStarterTemplate tmpl) = showOption tmpl
+  showOption CommunityTemplate = "community template"
+  showOptionDescription (FeaturedStarterTemplate tmpl) = showOptionDescription tmpl
+  showOptionDescription CommunityTemplate = Just "Check our list of community-made templates at https://wasp-lang.dev/docs/project/starter-templates#community-templates"
+
 obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescriptionInteractively templateIdArg featuredTemplates = do
   projectName <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
@@ -83,9 +94,17 @@ obtainNewProjectDescriptionInteractively templateIdArg featuredTemplates = do
     projectName
     templateIdArg
     featuredTemplates
-    (liftIO askForTemplate)
+    askForTemplate
   where
-    askForTemplate = Interactive.askToChoose "Choose a starter template" $ fromList featuredTemplates
+    askForTemplate =
+      liftIO
+        ( Interactive.askToChoose
+            "Choose a starter template"
+            (fromList $ (FeaturedStarterTemplate <$> featuredTemplates) ++ [CommunityTemplate])
+        )
+        >>= \case
+          FeaturedStarterTemplate tmpl -> pure tmpl
+          CommunityTemplate -> throwProjectCreationError $ "Project creation aborted. " <> fromJust (showOptionDescription CommunityTemplate) <> " and follow the instructions of a specific template."
 
 -- Common logic
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::

@@ -2,9 +2,9 @@
 title: Starter Templates
 ---
 
-We created a few starter templates to help you get started with Wasp. Check out the list [below](#available-templates).
+When creating a new Wasp app, you can choose one of the starter templates to help you get started with your app faster!
 
-## Using a Template
+## Picking a Template
 
 Run `wasp new` to run the interactive mode for creating a new Wasp project.
 
@@ -35,9 +35,11 @@ To run your new app, do:
     wasp db start
 ```
 
-## Available Templates
+Alternatively, to programatically create a new project from a specific template, you can run `wasp new MyFirstProject -t <template-id>`.
 
-When you have a good idea for a new product, you don't want to waste your time on setting up common things like authentication, database, etc. That's why we created a few starter templates to help you get started with Wasp.
+## Official Templates
+
+Official templates are maintained by the Wasp team and are normally updated with every major release of Wasp.
 
 ### OpenSaaS.sh template
 
@@ -82,8 +84,23 @@ wasp new <project-name> -t todo-ts
 ### AI Generated Starter 🤖
 
 Using the same tech as used on https://usemage.ai/, Wasp generates your custom starter template based on your
-project description. It will automatically generate your data model, auth, queries, actions and React pages. 
+project description. It will automatically generate your data model, auth, queries, actions and React pages.
 
 _You will need to provide your own OpenAI API key to be able to use this template._
 
 **Features:** Generated using OpenAI's GPT models, Auth (username/password), Queries, Actions, Pages, Full-stack Type Safety
+
+
+## Community templates #{community-templates}
+
+Below follows a list of Wasp starter templates (those that we know about) created by our awesome community!
+
+:::note
+Wasp Team doesn't guarantee the quality or safety of the community provided templates, it is up to you to check and verify their code.
+:::
+
+- [**Roke**](https://github.com/wardbox/roke) (https://roke.dev): A Wasp starter with sensible defaults.  
+  Preconfigured shadcn/ui components, motion animation presets, helper scripts for common tasks, ...
+
+If you would like your template to be added to the list of community templates, or update your existing template listing, please make a PR with changes to this page.
+

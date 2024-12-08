@@ -20,9 +20,6 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate (getTe
 import qualified Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate as ST
 import qualified Wasp.Cli.GithubRepo as GhRepo
 
--- TODO: Update CLI instructions.
--- TODO: Add specifing of a third-party template under interactive choosing of template.
-
 -- | A way to uniquely reference a specific Wasp starter template.
 -- It is how users specify which starter template they want to use.
 data StarterTemplateId
