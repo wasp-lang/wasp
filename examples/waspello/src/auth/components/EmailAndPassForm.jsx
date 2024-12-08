@@ -7,7 +7,7 @@ const inputFieldClasses = `
   transition ease-out duration-200
   h-10 px-2 text-sm placeholder:text-neutral-500
 `
-const EmailAndPassForm = ({ title, userField, passField, setUser, setPass, handleSignup }) => (
+const EmailAndPassForm = ({ title, submitButtonLabel, userField, passField, setUser, setPass, handleSignup }) => (
     <div className='w-full text-center'>
         <h2 className='text-base font-bold text-neutral-600'>
           {title}
@@ -34,7 +34,7 @@ const EmailAndPassForm = ({ title, userField, passField, setUser, setPass, handl
             hover:bg-yellow-400
           `}
           type='submit'
-          value='Sign up'
+          value={submitButtonLabel}
         />
       </form>
     </div>

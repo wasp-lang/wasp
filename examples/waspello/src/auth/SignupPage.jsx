@@ -41,6 +41,7 @@ const SignupPage = (props) => {
 
         <EmailAndPassForm
           title='Sign up for your account'
+          submitButtonLabel='Sign up'
           userField={usernameFieldVal}
           passField={passwordFieldVal}
           setUser={setUsernameFieldVal}
