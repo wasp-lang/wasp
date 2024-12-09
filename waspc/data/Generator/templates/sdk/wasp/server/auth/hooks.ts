@@ -146,5 +146,8 @@ export type OAuthData = {
   {=# enabledProviders.isKeycloakAuthEnabled =}
   | { providerName: 'keycloak'; tokens: import('arctic').KeycloakTokens }
   {=/ enabledProviders.isKeycloakAuthEnabled =}
+  {=# enabledProviders.isTwitterAuthEnabled =}
+  | { providerName: 'twitter'; tokens: import('arctic').TwitterTokens }
+  {=/ enabledProviders.isTwitterAuthEnabled =}
   | never
 )
