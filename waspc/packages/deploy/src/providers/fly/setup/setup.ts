@@ -85,6 +85,7 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
 	await $`flyctl launch --no-deploy ${launchArgs}`;
 
 	const minMachinesOptionRegex = /min_machines_running = 0/g;
+	const internalPortOptionRegex = /internal_port = \d+/g;
 
 	if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
 		await question(`\n⚠️  There was a possible issue setting up your server app.
@@ -107,6 +108,24 @@ Contact the Wasp Team at our Discord server if you need help with this: https://
 Press any key to continue or Ctrl+C to cancel.`);
 	} else {
 		replaceLineInLocalToml(minMachinesOptionRegex, 'min_machines_running = 1');
+	}
+
+	if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
+		await question(`\n⚠️  There was an issue setting up your server app.
+We tried modifying your server fly.toml to set ${boldText(
+		'internal_port = 8080',
+	)}, but couldn't find the option ${boldText(
+	'internal_port',
+)} in the fly.toml.
+
+This means your server app might not be accessible.
+
+Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX
+
+Press any key to continue or Ctrl+C to cancel.`);
+	} else {
+		// the default fly.toml assumes port 8080 (or 3000, depending on flyctl version).
+		replaceLineInLocalToml(internalPortOptionRegex, 'internal_port = 8080');
 	}
 
 	copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
