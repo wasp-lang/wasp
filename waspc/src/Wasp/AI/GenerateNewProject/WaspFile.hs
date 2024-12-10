@@ -24,7 +24,7 @@ import qualified Wasp.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.AI.GenerateNewProject.Plan (Plan)
 import Wasp.AI.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 import Wasp.Analyzer.Parser.Ctx (Ctx (..))
-import Wasp.Project.Analyze (analyzeWaspFileContent)
+import Wasp.Project.WaspFile (analyzeWaspFileContent)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Util.Aeson as Utils.Aeson
 

@@ -365,10 +365,10 @@ library
     Wasp.Project.Analyze
     Wasp.Project.Common
     Wasp.Project.Db
-    Wasp.Project.Db.Migrations
     Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
+    Wasp.Project.Db.Migrations
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
@@ -377,6 +377,7 @@ library
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
+    Wasp.Project.WaspFile
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common
