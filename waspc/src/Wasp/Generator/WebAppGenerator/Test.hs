@@ -5,8 +5,8 @@ where
 
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as J
+import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 

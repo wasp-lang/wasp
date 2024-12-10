@@ -1,4 +1,4 @@
-module Wasp.Generator.Job.IO
+module Wasp.Job.IO
   ( readJobMessagesAndPrintThemPrefixed,
     printJobMessage,
     printJobMsgsUntilExitReceived,
@@ -11,9 +11,9 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush)
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Common (getJobMessageContent, getJobMessageOutHandle)
-import Wasp.Generator.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
+import qualified Wasp.Job as J
+import Wasp.Job.Common (getJobMessageContent, getJobMessageOutHandle)
+import Wasp.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
 
 printJobMsgsUntilExitReceived :: Chan J.JobMessage -> IO ()
 printJobMsgsUntilExitReceived chan = do

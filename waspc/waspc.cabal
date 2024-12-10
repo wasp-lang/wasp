@@ -293,11 +293,6 @@ library
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
-    Wasp.Generator.Job
-    Wasp.Generator.Job.Common
-    Wasp.Generator.Job.IO
-    Wasp.Generator.Job.IO.PrefixedWriter
-    Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
@@ -357,6 +352,11 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
+    Wasp.Job
+    Wasp.Job.Common
+    Wasp.Job.IO
+    Wasp.Job.IO.PrefixedWriter
+    Wasp.Job.Process
     Wasp.Message
     Wasp.Node.Version
     Wasp.NpmDependency

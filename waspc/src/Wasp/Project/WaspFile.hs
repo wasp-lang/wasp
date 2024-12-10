@@ -32,9 +32,9 @@ import Wasp.Analyzer.Parser.Ctx (Ctx)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import Wasp.Error (showCompilerErrorForTerminal)
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as J
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common
   ( CompileError,
     WaspFilePath (..),
