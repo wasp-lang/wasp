@@ -7,13 +7,14 @@ import StrongPath.Types (File)
 import Wasp.Analyzer.Parser.Ctx (Ctx, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
+import Wasp.Project.Common (WaspLangFile)
 import Wasp.Util (indent, insertAt, leftPad)
 import qualified Wasp.Util.Terminal as T
 
 -- | Transforms compiler error (error with parse context) into an informative, pretty String that
 -- can be printed directly into the terminal. It uses terminal features like escape codes
 -- (colors, styling, ...).
-showCompilerErrorForTerminal :: (Path' Abs (File f), String) -> (String, Ctx) -> String
+showCompilerErrorForTerminal :: (Path' Abs (File WaspLangFile), String) -> (String, Ctx) -> String
 showCompilerErrorForTerminal (waspFilePath, waspFileContent) (errMsg, errCtx) =
   let srcRegion = getCtxRgn errCtx
    in intercalate
