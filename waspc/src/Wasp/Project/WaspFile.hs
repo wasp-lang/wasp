@@ -117,9 +117,23 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
       ( runNodeCommandAsJob
           waspProjectDir
           "npx"
+          -- We're using tsc to compile the *.wasp.ts file into a JS file.
+          --
+          -- The compilation rules mostly come from tsconfig.wasp.json but also
+          -- include several overrides:
+          --   - We don't keep all the rules in tsconfig.wasp.json because it
+          --   would give users a way to break things.
+          --   - We don't keep all the rules here (inline) because users would
+          --   suffer bad DX (no IDE support in *.wasp.ts file).
           [ "tsc",
             "-p",
             fromAbsFile (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
+            -- The tsconfig.wasp.json file has the noEmit flag on.
+            -- The file only exists IDE support, and we don't want users to
+            -- accidentally chage the outDir.
+            --
+            -- Here, to actually generate the JS file in the desired location,
+            -- we must turn off the noEmit flag and specify the outDir.
             "--noEmit",
             "false",
             "--outDir",
@@ -133,6 +147,8 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
     ExitSuccess -> Right absCompiledWaspJsFile
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
+    -- We know this will be the output JS file's location because it's how TSC
+    -- works (assuming we've specified the outDir, which we did).
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
     compiledWaspJsFileInDotWaspDir =
       castFile $
