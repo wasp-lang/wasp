@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Wasp.Generator.Job.Process
+module Wasp.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
     runNodeCommandAsJobWithExtraEnv,
@@ -21,7 +21,7 @@ import System.Exit (ExitCode (..))
 import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
-import qualified Wasp.Generator.Job as J
+import qualified Wasp.Job as J
 import qualified Wasp.Node.Version as NodeVersion
 
 -- TODO:

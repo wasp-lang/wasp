@@ -9,8 +9,8 @@ import Control.Concurrent.Extra (threadDelay)
 import Control.Monad (void)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (ProjectRootDir)
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import qualified Wasp.Job as J
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.ServerGenerator.Start (startServer)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 

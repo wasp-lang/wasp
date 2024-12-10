@@ -1,7 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TupleSections #-}
 
-module Wasp.Generator.Job.IO.PrefixedWriter
+module Wasp.Job.IO.PrefixedWriter
   ( printJobMessagePrefixed,
     runPrefixedWriter,
     PrefixedWriter,
@@ -17,9 +17,9 @@ import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush, stderr)
-import Wasp.Generator.Job (JobType)
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Common (getJobMessageContent, getJobMessageOutHandle)
+import Wasp.Job (JobType)
+import qualified Wasp.Job as J
+import Wasp.Job.Common (getJobMessageContent, getJobMessageOutHandle)
 import qualified Wasp.Util.Terminal as Term
 
 -- |

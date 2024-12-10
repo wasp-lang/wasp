@@ -34,9 +34,7 @@ instance FromJSON ExtImport where
     nameStr <- o .: "name"
     pathStr <- o .: "path"
     extImportName <- parseExtImportName kindStr nameStr
-    extImportPath <- case parseExtImportPath pathStr of
-      Right path' -> pure path'
-      Left err -> fail err
+    extImportPath <- either fail pure $ parseExtImportPath pathStr
     return $ ExtImport extImportName extImportPath
     where
       parseExtImportName kindStr nameStr = case kindStr of

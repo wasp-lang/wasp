@@ -88,7 +88,6 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
 packageJsonInWaspProjectDir = [relfile|package.json|]
 
--- TODO: The entire tsconfig story is very fragile
 getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 getSrcTsConfigInWaspProjectDir = \case
   WaspTs _ -> srcTsConfigInWaspTsProject
