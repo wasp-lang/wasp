@@ -26,7 +26,6 @@ Feel free to [open a
 PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/advanced/deployment/manually.md)
 if you'd like to write one yourself :)
 
-
 ## Deploying a Wasp App
 
 Deploying a Wasp app comes down to the following:
@@ -55,38 +54,9 @@ You'll have to [switch to PostgreSQL](../../data-model/backends#migrating-from-s
 
 There's a Dockerfile that defines an image for building the server in the `.wasp/build` directory.
 
-To run the server in production, deploy this Docker image to a hosting provider and ensure the required environment variables on the provider are correctly set up (the mechanism of setting these up is specific per provider).
-All necessary environment variables are listed in the next section.
+To run the server in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
 
-#### Environment Variables
-
-Here are the environment variables your server will be looking for:
-
-- `DATABASE_URL` <Required />
-
-  The URL of the PostgreSQL database you want your app to use (e.g., `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
-
-- `WASP_WEB_CLIENT_URL` <Required />
-
-  The URL where you plan to deploy your frontend app is running (e.g., `https://<app-name>.netlify.app`).
-  The server needs to know about it to properly configure Same-Origin Policy (CORS) headers.
-
-- `WASP_SERVER_URL` <Required />
-
-  The URL where the server is running (e.g., `https://<app-name>.fly.dev`).
-  The server needs it to properly redirect users when logging in with OAuth providers like Google or GitHub.
-
-- `JWT_SECRET` (<Required /> if using Wasp Auth)
-
-  You only need this environment variable if you're using Wasp's `auth` features.
-  Set it to a random string at least 32 characters long (you can use an [online generator](https://djecrety.ir/)).
-
-- `PORT`
-
-  The server's HTTP port number. This is where the server listens for requests (default: `3001`).
-
-
-<AddExternalAuthEnvVarsReminder />
+Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your server.
 
 While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
 
@@ -95,8 +65,6 @@ While these are the general instructions on deploying the server anywhere, we al
 <BuildingTheWebClient />
 
 The command above will build the web client and put it in the `build/` directory in the `.wasp/build/web-app/`.
-
-This is also the moment to provide any additional env vars for the client code, next to `REACT_APP_API_URL`. Check the [env vars docs](../../project/env-vars#client-env-vars-1) for more details.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/build/web-app/build/`.
 
@@ -225,11 +193,11 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 1. Copy the `fly.toml` file to a versioned directory, like your Wasp project dir.
 
-  From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
+From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
 
 1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after.
 
-  When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
@@ -333,6 +301,7 @@ jobs:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 ```
+
 </details>
 
 <details>
@@ -343,6 +312,7 @@ jobs:
 - **`WASP_SERVER_URL`**: This is the link that points to your backend and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
 After obtaining the environment variables, you need to store these values securely in GitHub Secrets.
+
 </details>
 
 ## Railway (server, client and database)
@@ -358,9 +328,9 @@ To get started, follow these steps:
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
 2. Create a [Railway](https://railway.app/) account
 
-  :::tip Free Tier
-  Sign up with your GitHub account to be eligible for the free tier
-  :::
+:::tip Free Tier
+Sign up with your GitHub account to be eligible for the free tier
+:::
 
 3. Install the [Railway CLI](https://docs.railway.app/develop/cli#installation)
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -393,15 +363,15 @@ Let's deploy our server first:
 
 1. Move into your app's `.wasp/build/` directory:
 
-  ```shell
-  cd .wasp/build
-  ```
+```shell
+cd .wasp/build
+```
 
 2. Link your app build to your newly created Railway project:
 
-  ```shell
-  railway link
-  ```
+```shell
+railway link
+```
 
 3. Go into the Railway dashboard and set up the required env variables:
 
@@ -428,21 +398,21 @@ Railway will now locate the Dockerfile and deploy your server 👍
 
 1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
 
-  ```shell
-  cd web-app
-  ```
+```shell
+cd web-app
+```
 
 2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
 
-  ```shell
-  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-  ```
+```shell
+npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+```
 
 3. Next, we want to link this specific frontend directory to our project as well:
 
-  ```shell
-  railway link
-  ```
+```shell
+railway link
+```
 
 4. We need to configure Railway's static hosting for our client.
 
