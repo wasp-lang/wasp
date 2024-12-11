@@ -29,6 +29,7 @@ import { env } from 'wasp/client'
 
 console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -37,6 +38,7 @@ import { env } from 'wasp/client'
 
 console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
+
 </TabItem>
 </Tabs>
 
@@ -65,6 +67,7 @@ import { env } from 'wasp/server'
 
 console.log(env.SOME_VAR_NAME)
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -73,6 +76,7 @@ import { env } from 'wasp/server'
 
 console.log(env.SOME_VAR_NAME)
 ```
+
 </TabItem>
 </Tabs>
 
@@ -84,8 +88,8 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 <EnvVarsTable>
     <EnvVar name="DATABASE_URL" type="String" isRequired={true} note="The URL of the PostgreSQL database you want your app to use." />
-    <EnvVar name="WASP_WEB_CLIENT_URL" type="URL" isRequired={true} note="Used as your client URL. The server needs to know about it to properly configure Same-Origin Policy (CORS) headers." />
-    <EnvVar name="WASP_SERVER_URL" type="URL" isRequired={true} note="Used as your server URL. The server needs it to properly redirect users when logging in with OAuth providers like Google or GitHub." />
+    <EnvVar name="WASP_WEB_CLIENT_URL" type="URL" isRequired={true} note="Server uses this value as your client URL in various features e.g. linking to your app in e-mails." />
+    <EnvVar name="WASP_SERVER_URL" type="URL" isRequired={true} note="Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub." />
     <EnvVar name="JWT_SECRET" type="String" isRequired={true} note={
       <span>Needed to generate secure tokens. <a href="https://jwtsecret.com/generate" target="_blank" rel="noreferrer">Generate</a> a random string at least 32 characters long.
       </span>
@@ -108,11 +112,9 @@ If you are using `SMTP` as your email sender, you need to provide the following 
 
 If you are using `SendGrid` as your email sender, you need to provide the following environment variables:
 
-
 <EnvVarsTable>
     <EnvVar name="SENDGRID_API_KEY" type="String" isRequired={true} note="The SendGrid API key." />
 </EnvVarsTable>
-
 
 #### Mailgun Email Sender
 
@@ -126,15 +128,25 @@ If you are using `Mailgun` as your email sender, you need to provide the followi
     } />
 </EnvVarsTable>
 
-#### Auth
+#### OAuth Providers
 
-You can use this env while developing to skip email verification. This is useful when you are testing the email sending functionality in development:
+If you are using OAuth, you need to provide the following environment variables:
 
-<!-- TODO: this not really Boolean, it's really a string that accepts "true" as only true value -->
 <EnvVarsTable>
-    <EnvVar name="SKIP_EMAIL_VERIFICATION_IN_DEV" type="Boolean" isRequired={false} defaultValue="false" note="If set to true, automatically sets user emails as verified in development." />
+    <EnvVar name="<PROVIDER_NAME>_CLIENT_ID" type="String" isRequired={true} note="The client ID provided by the OAuth provider." />
+    <EnvVar name="<PROVIDER_NAME>_CLIENT_SECRET" type="String" isRequired={true} note="The client secret provided by the OAuth provider." />
 </EnvVarsTable>
 
+<small>
+
+\* `<PROVIDER_NAME>` is the uppercase name of the provider you are using. For example, if you are using Google OAuth, you need to provide the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
+</small>
+
+If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to provide one extra environment variable:
+
+<EnvVarsTable>
+    <EnvVar name="KEYCLOAK_REALM_URL" type="URL" isRequired={true} note="The URL of the Keycloak realm." />
+</EnvVarsTable>
 
 #### Jobs
 
@@ -144,27 +156,19 @@ You can use this env while developing to skip email verification. This is useful
     } />
 </EnvVarsTable>
 
-#### OAuth Configuration
+#### Development
 
-If you are using OAuth, you need to provide the following environment variables:
+We provide some helper env variables in development:
 
+<!-- TODO: this not really Boolean, it's really a string that accepts "true" as only true value -->
 <EnvVarsTable>
-    <EnvVar name="<PROVIDER_NAME>_CLIENT_ID" type="String" isRequired={true} note="The client ID provided by the OAuth provider." />
-    <EnvVar name="<PROVIDER_NAME>_CLIENT_SECRET" type="String" isRequired={true} note="The client secret provided by the OAuth provider." />
-</EnvVarsTable>
-
- `<PROVIDER_NAME>` is the uppercase name of the provider you are using. For example, if you are using Google OAuth, you need to provide the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
-
-If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to provide one extra environment variable:
-
-
-<EnvVarsTable>
-    <EnvVar name="KEYCLOAK_REALM_URL" type="URL" isRequired={true} note="The URL of the Keycloak realm." />
+    <EnvVar name="SKIP_EMAIL_VERIFICATION_IN_DEV" type="Boolean" isRequired={false} defaultValue="false" note="If set to true, automatically sets user emails as verified in development." />
 </EnvVarsTable>
 
 ## Defining Env Vars in Development
 
 During development (`wasp start`), there are two ways to provide env vars to your Wasp project:
+
 1. Using `.env` files. **(recommended)**
 2. Using shell. (useful for overrides)
 
@@ -175,27 +179,31 @@ During development (`wasp start`), there are two ways to provide env vars to you
 This is the recommended method for providing env vars to your Wasp project during development.
 
 In the root of your Wasp project you can create two distinct files:
- - `.env.server` for env vars that will be provided to the server.
+
+- `.env.server` for env vars that will be provided to the server.
+
+Variables are defined in these files in the form of `NAME=VALUE`, for example:
+
+```shell title=".env.server"
+DATABASE_URL=postgresql://localhost:5432
+SOME_VAR_NAME=somevalue
+```
+
+- `.env.client` for env vars that will be provided to the client.
 
   Variables are defined in these files in the form of `NAME=VALUE`, for example:
-  ```shell title=".env.server"
-  DATABASE_URL=postgresql://localhost:5432
-  SOME_VAR_NAME=somevalue
+
+  ```shell title=".env.client"
+  REACT_APP_SOME_VAR_NAME=somevalue
   ```
 
- - `.env.client` for env vars that will be provided to the client.
-
-    Variables are defined in these files in the form of `NAME=VALUE`, for example:
-    ```shell title=".env.client"
-    REACT_APP_SOME_VAR_NAME=somevalue
-    ```
-
-    <ClientEnvVarsNote />
+   <ClientEnvVarsNote />
 
 `.env.server` should not be committed to version control as it can contain secrets, while `.env.client` can be versioned as it must not contain any secrets.
 By default, in the `.gitignore` file that comes with a new Wasp app, we ignore all dotenv files.
 
 ### 2. Using Shell
+
 If you set environment variables in the shell where you run your Wasp commands (e.g., `wasp start`), Wasp will recognize them.
 
 You can set environment variables in the `.profile` or a similar file, which will set them permanently, or you can set them temporarily by defining them at the start of a command (`SOME_VAR_NAME=SOMEVALUE wasp start`).
@@ -208,7 +216,7 @@ Defining environment variables in this way can be cumbersome even for a single p
 
 Defining env variables in production will depend on where you are deploying your Wasp project. In general, you will define them via mechanisms that your hosting provider provides.
 
-We'll talk about how to define env vars for each deployment option in the [deployment section](../deployment/env-vars.md).
+We talk about how to define env vars for each deployment option in the [deployment section](../deployment/env-vars.md).
 
 ## Custom Env Var Validations
 
@@ -228,6 +236,7 @@ import { env } from 'wasp/client'
 
 console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -236,10 +245,11 @@ import { env } from 'wasp/client'
 
 console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
+
 </TabItem>
 </Tabs>
 
-The `env` object is a validated object that Wasp provides to access client env vars. 
+The `env` object is a validated object that Wasp provides to access client env vars.
 
 You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code, but it's not recommended because it's not validated and can lead to runtime errors if the env var is not defined.
 
@@ -257,6 +267,7 @@ import { env } from 'wasp/server'
 
 console.log(env.SOME_SECRET)
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
@@ -265,10 +276,11 @@ import { env } from 'wasp/server'
 
 console.log(env.SOME_SECRET)
 ```
+
 </TabItem>
 </Tabs>
 
-The `env` object is a validated object that Wasp provides to access server env vars. 
+The `env` object is a validated object that Wasp provides to access server env vars.
 
 You can use `process.env.SOME_SECRET` directly in your code, but it's not recommended because it's not validated and can lead to runtime errors if the env var is not defined.
 
