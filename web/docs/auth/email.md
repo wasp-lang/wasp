@@ -623,7 +623,7 @@ import {
   ensureValidEmail,
   createProviderId,
   sanitizeAndSerializeProviderData,
-  deserializeAndSanitizeProviderData,
+  getProviderData,
   findAuthIdentity,
   createUser,
   createEmailVerificationLink,
@@ -640,7 +640,7 @@ export const signup = async (args, _context) => {
     const existingAuthIdentity = await findAuthIdentity(providerId)
 
     if (existingAuthIdentity) {
-      const providerData = deserializeAndSanitizeProviderData(existingAuthIdentity.providerData)
+      const providerData = getProviderData(existingAuthIdentity.providerData)
       // Your custom code here
     } else {
       // sanitizeAndSerializeProviderData will hash the user's password
@@ -716,7 +716,7 @@ import {
   ensureValidEmail,
   createProviderId,
   sanitizeAndSerializeProviderData,
-  deserializeAndSanitizeProviderData,
+  getProviderData,
   findAuthIdentity,
   createUser,
   createEmailVerificationLink,
@@ -746,7 +746,7 @@ export const signup: CustomSignup<
     const existingAuthIdentity = await findAuthIdentity(providerId)
 
     if (existingAuthIdentity) {
-      const providerData = deserializeAndSanitizeProviderData<'email'>(
+      const providerData = getProviderData<'email'>(
         existingAuthIdentity.providerData
       )
       // Your custom code here

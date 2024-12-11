@@ -9,7 +9,13 @@ export declare function removeLocalUserData(): void;
  * standard format to be further used by the client. It is also assumed that given API
  * error has been formatted as implemented by HttpError on the server.
  */
-export declare function handleApiError(error: AxiosError<{
+export declare function handleApiError<T extends AxiosError<{
     message?: string;
     data?: unknown;
-}>): void;
+}>>(error: T): T | WaspHttpError;
+declare class WaspHttpError extends Error {
+    statusCode: number;
+    data: unknown;
+    constructor(statusCode: number, message: string, data: unknown);
+}
+export {};

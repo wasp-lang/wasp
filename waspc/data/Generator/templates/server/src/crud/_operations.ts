@@ -2,7 +2,7 @@
 import { prisma } from 'wasp/server'
 
 {=# isAuthEnabled =}
-import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/auth/utils'
 {=/ isAuthEnabled =}
 import type {
   {=# crud.operations.GetAll =}
@@ -175,7 +175,7 @@ export async function deleteFn(args, context) {
 function throwIfNotAuthenticated (context) {
   {=# isAuthEnabled =}
   if (!context.user) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
   {=/ isAuthEnabled =}
   {=^ isAuthEnabled =}

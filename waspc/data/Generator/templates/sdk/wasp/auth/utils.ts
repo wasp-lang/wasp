@@ -110,7 +110,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
 ): Promise<{= authIdentityEntityUpper =}> {
   // We are doing the sanitization here only on updates to avoid
   // hashing the password multiple times.
-  const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+  const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
   const newProviderData = {
     ...existingProviderData,
     ...sanitizedProviderDataUpdates,
@@ -124,15 +124,31 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   });
 }
 
-type FindAuthWithUserResult = {= authEntityUpper =} & {
+// PRIVATE API
+export type FindAuthWithUserResult = {= authEntityUpper =} & {
   {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
   where: Prisma.{= authEntityUpper =}WhereInput
-): Promise<FindAuthWithUserResult> {
-  return prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+): Promise<FindAuthWithUserResult | null> {
+  const result = await prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+
+  if (result === null) {
+    return null;
+  }
+
+  if (result.user === null) {
+    return null;
+  }
+
+  return { ...result, user: result.user };
+}
+
+// PUBLIC API
+export type CreateUserResult = {= userEntityUpper =} & {
+  auth: {= authEntityUpper =} | null
 }
 
 // PUBLIC API
@@ -140,9 +156,7 @@ export async function createUser(
   providerId: ProviderId,
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
-): Promise<{= userEntityUpper =} & {
-  auth: {= authEntityUpper =}
-}> {
+): Promise<CreateUserResult> {
   return prisma.{= userEntityLower =}.create({
     data: {
       // Using any here to prevent type errors when userFields are not
@@ -261,18 +275,29 @@ export async function validateAndGetUserFields(
 }
 
 // PUBLIC API
-export function deserializeAndSanitizeProviderData<PN extends ProviderName>(
+export function getProviderData<PN extends ProviderName>(
   providerData: string,
-  { shouldRemovePasswordField = false }: { shouldRemovePasswordField?: boolean } = {},
+):  Omit<PossibleProviderData[PN], 'hashedPassword'> {
+  return sanitizeProviderData(getProviderDataWithPassword(providerData));
+}
+
+// PUBLIC API
+export function getProviderDataWithPassword<PN extends ProviderName>(
+  providerData: string,
 ): PossibleProviderData[PN] {
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-  let data = JSON.parse(providerData) as PossibleProviderData[PN];
+  return JSON.parse(providerData);
+}
 
-  if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
-    delete data.hashedPassword;
+function sanitizeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): Omit<PossibleProviderData[PN], 'hashedPassword'> {
+  if (providerDataHasPasswordField(providerData)) {
+    const { hashedPassword, ...rest } = providerData;
+    return rest;
+  } else {
+    return providerData;
   }
-
-  return data;
 }
 
 // PUBLIC API
@@ -280,7 +305,7 @@ export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
 ): Promise<string> {
   return serializeProviderData(
-    await sanitizeProviderData(providerData)
+    await ensurePasswordIsHashed(providerData)
   );
 }
 
@@ -288,7 +313,7 @@ function serializeProviderData<PN extends ProviderName>(providerData: PossiblePr
   return JSON.stringify(providerData);
 }
 
-async function sanitizeProviderData<PN extends ProviderName>(
+async function ensurePasswordIsHashed<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
 ): Promise<PossibleProviderData[PN]> {
   const data = {
@@ -309,6 +334,6 @@ function providerDataHasPasswordField(
 }
 
 // PRIVATE API
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
+export function createInvalidCredentialsError(message?: string): HttpError {
+  return new HttpError(401, 'Invalid credentials', { message })
 }

@@ -153,6 +153,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/server/types/index.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/utils.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/server/utils.js
 waspBuild/.wasp/build/sdk/wasp/dist/server/utils.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js
+waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/universal/types.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/universal/types.js
 waspBuild/.wasp/build/sdk/wasp/dist/universal/types.js.map
@@ -187,6 +190,7 @@ waspBuild/.wasp/build/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/build/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/utils.ts
 waspBuild/.wasp/build/sdk/wasp/tsconfig.json
+waspBuild/.wasp/build/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/build/sdk/wasp/universal/types.ts
 waspBuild/.wasp/build/sdk/wasp/universal/url.ts
 waspBuild/.wasp/build/sdk/wasp/universal/validators.ts
@@ -382,6 +386,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/server/types/index.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/utils.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/server/utils.js
 waspBuild/.wasp/out/sdk/wasp/dist/server/utils.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js
+waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/universal/types.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/universal/types.js
 waspBuild/.wasp/out/sdk/wasp/dist/universal/types.js.map
@@ -416,6 +423,7 @@ waspBuild/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/out/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/utils.ts
 waspBuild/.wasp/out/sdk/wasp/tsconfig.json
+waspBuild/.wasp/out/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/out/sdk/wasp/universal/types.ts
 waspBuild/.wasp/out/sdk/wasp/universal/url.ts
 waspBuild/.wasp/out/sdk/wasp/universal/validators.ts

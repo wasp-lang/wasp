@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/auth/utils'
 import type {
   GetAllQueryResolved,
   GetQueryResolved,
@@ -54,6 +54,6 @@ export async function createFn(args, context) {
 
 function throwIfNotAuthenticated (context) {
   if (!context.user) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
 }

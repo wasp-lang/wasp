@@ -3,7 +3,7 @@ import {
     createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
-    deserializeAndSanitizeProviderData,
+    getProviderDataWithPassword,
 } from 'wasp/auth/utils';
 import { validateJWT } from 'wasp/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
@@ -28,7 +28,7 @@ export async function resetPassword(
         throw new HttpError(400, "Password reset failed, invalid token");
     }
     
-    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
 
     await updateAuthIdentityProviderData(providerId, providerData, {
         // The act of resetting the password verifies the email
@@ -41,7 +41,7 @@ export async function resetPassword(
     return res.json({ success: true });
 };
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
     ensureTokenIsPresent(args);
     ensurePasswordIsPresent(args);
     ensureValidPassword(args);

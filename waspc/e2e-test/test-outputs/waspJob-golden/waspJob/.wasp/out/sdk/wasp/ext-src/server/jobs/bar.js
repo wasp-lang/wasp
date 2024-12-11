@@ -1,4 +1,4 @@
- export const foo = async (args) => { 
-   return 1 
- } 
+export const foo = async (args) => {
+  return 1
+}
 

@@ -71,20 +71,34 @@ genJob (jobName, job) =
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
           -- This is why we must get a text representation of the object, either by
           -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
-          "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
+          "jobSchedule" .= getJobScheduleData (J.schedule job),
           "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions)
         ]
 
     jobExecutorImportPath = getJobExecutorImportPath (J.executor job)
 
     maybeJobPerformOptions = J.performExecutorOptionsJson job
-    jobScheduleTmplData s =
-      object
-        [ "cron" .= J.cron s,
-          "args" .= J.args s,
-          "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
-        ]
-    maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
+
+    getJobScheduleData =
+      maybe
+        (object ["isDefined" .= False])
+        ( \schedule ->
+            object
+              [ "isDefined" .= True,
+                "cron" .= J.cron schedule,
+                "args" .= getJobScheduleArgs (J.args schedule),
+                "options" .= getJobSchduleOptions (J.scheduleExecutorOptionsJson job)
+              ]
+        )
+    getJobScheduleArgs =
+      maybe
+        (object ["isDefined" .= False])
+        (\args -> object ["isDefined" .= True, "json" .= Aeson.Text.encodeToLazyText args])
+
+    getJobSchduleOptions =
+      maybe
+        (object ["isDefined" .= False])
+        (\options -> object ["isDefined" .= True, "json" .= Aeson.Text.encodeToLazyText options])
 
 -- | We are importing relevant functions and types per executor e.g. JobFn or registerJob,
 -- this functions maps the executor to the import path from SDK.
