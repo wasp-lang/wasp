@@ -36,7 +36,7 @@ export function registerJob({ job, jobFn }) {
         // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
         if (job.jobSchedule) {
             const options = Object.assign(Object.assign({}, job.defaultJobOptions), job.jobSchedule.options);
-            await boss.schedule(job.jobName, job.jobSchedule.cron, job.jobSchedule.args || null, options);
+            await boss.schedule(job.jobName, job.jobSchedule.cron, job.jobSchedule.args, options);
         }
     });
 }

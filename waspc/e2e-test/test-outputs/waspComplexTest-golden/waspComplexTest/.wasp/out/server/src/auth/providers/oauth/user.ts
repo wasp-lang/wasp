@@ -84,6 +84,10 @@ async function getAuthIdFromProviderDetails({
     // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
     const auth = await findAuthWithUserBy({ id: authId })
 
+    if (auth === null) {
+        throw new Error('Auth entity not found while trying to log in with OAuth')
+    }
+
     // NOTE: We are calling login hooks here even though we didn't log in the user yet.
     // It's because we have access to the OAuth tokens here and we want to pass them to the hooks.
     // We could have stored the tokens temporarily and called the hooks after the session is created,

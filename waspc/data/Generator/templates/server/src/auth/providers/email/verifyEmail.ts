@@ -3,7 +3,7 @@ import {
     createProviderId,
     findAuthIdentity,
     updateAuthIdentityProviderData,
-    deserializeAndSanitizeProviderData,
+    getProviderDataWithPassword,
 } from 'wasp/auth/utils';
 import { validateJWT } from 'wasp/auth/jwt'
 import { HttpError } from 'wasp/server';
@@ -25,7 +25,7 @@ export async function verifyEmail(
         throw new HttpError(400, "Email verification failed, invalid token");
     }
 
-    const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
 
     await updateAuthIdentityProviderData(providerId, providerData, {
         isEmailVerified: true,

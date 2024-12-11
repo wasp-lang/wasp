@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/auth/utils'
 import { handleRejection } from 'wasp/server/utils'
 import { verifyPassword } from 'wasp/auth/password'
 
@@ -7,7 +7,7 @@ import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
-  deserializeAndSanitizeProviderData,
+  getProviderDataWithPassword,
 } from 'wasp/auth/utils'
 import { createSession } from 'wasp/auth/session'
 import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
@@ -20,20 +20,24 @@ export default handleRejection(async (req, res) => {
   const providerId = createProviderId('username', fields.username)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
 
   try {
-    const providerData = deserializeAndSanitizeProviderData<'username'>(authIdentity.providerData)
+    const providerData = getProviderDataWithPassword<'username'>(authIdentity.providerData)
 
     await verifyPassword(providerData.hashedPassword, fields.password)
   } catch(e) {
-    throwInvalidCredentialsError()
+    throw createInvalidCredentialsError()
   }
 
   const auth = await findAuthWithUserBy({
     id: authIdentity.authId
   }) 
+
+  if (auth === null) {
+    throw createInvalidCredentialsError()
+  }
 
   await onBeforeLoginHook({
       req,
@@ -54,7 +58,7 @@ export default handleRejection(async (req, res) => {
   })
 })
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
   ensureValidUsername(args);
   ensurePasswordIsPresent(args);
 }

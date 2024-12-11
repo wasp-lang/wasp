@@ -9,6 +9,6 @@ export async function verifyEmail(data: {
     const response = await api.post('{= verifyEmailPath =}', data)
     return response.data
   } catch (e) {
-    handleApiError(e)
+    throw handleApiError(e)
   }
 }
