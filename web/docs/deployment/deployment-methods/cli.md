@@ -64,6 +64,7 @@ The basename is used to create all three app tiers, resulting in three separate 
 - `my-wasp-app-db`
 
 You'll notice that Wasp creates two new files in your project root directory:
+
 - `fly-server.toml`
 - `fly-client.toml`
 
@@ -118,7 +119,7 @@ That's it, your app should be available at `https://mycoolapp.com`! 🎉
 
 #### Adding a `www` Subdomain
 
-If you'd like to also access your app at `https://www.mycoolapp.com`, you can generate certs for the `www` subdomain. 
+If you'd like to also access your app at `https://www.mycoolapp.com`, you can generate certs for the `www` subdomain.
 
 ```shell
 wasp deploy fly cmd --context client certs create www.mycoolapp.com
@@ -127,17 +128,17 @@ wasp deploy fly cmd --context client certs create www.mycoolapp.com
 Once you do that, you will need to add another DNS record for your domain. It should be a CNAME record for `www` with the value of your root domain.
 Here's an example:
 
-| Type  | Name | Value                | TTL  |
-|-------|------|----------------------|------|
-| CNAME | www  | mycoolapp.com   | 3600 |
+| Type  | Name | Value         | TTL  |
+| ----- | ---- | ------------- | ---- |
+| CNAME | www  | mycoolapp.com | 3600 |
 
-With the CNAME record (Canonical name), you are assigning the `www` subdomain as an alias to the root domain. 
+With the CNAME record (Canonical name), you are assigning the `www` subdomain as an alias to the root domain.
 
-Your app should now be available both at the root domain  `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`.
+Your app should now be available both at the root domain `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`.
 
 :::caution CORS Configuration
 
-Using both www and non-www domains will require you to update your CORS configuration to allow both domains. You'll need to provide [custom CORS configuration](https://gist.github.com/infomiho/5ca98e5e2161df4ea78f76fc858d3ca2) in your server app to allow requests from both domains.
+Using the `www` and `non-www` domains at the same time will require you to update your CORS configuration to allow both domains. You'll need to provide [custom CORS configuration](https://gist.github.com/infomiho/5ca98e5e2161df4ea78f76fc858d3ca2) in your server app to allow requests from both domains.
 
 :::
 
@@ -167,6 +168,7 @@ wasp deploy fly deploy
 ```
 
 #### Environment Variables
+
 ##### Server
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
@@ -236,6 +238,7 @@ wasp deploy fly deploy
 `deploy` pushes your client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
+
 ```shell
 wasp deploy fly deploy
 ```
@@ -257,12 +260,15 @@ wasp deploy fly cmd secrets list --context server
 ```
 
 ### Environment Variables
+
 #### Server Secrets
 
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
+
 1. initially in the `launch` command with the [`--server-secret` option](#environment-variables),  
-or  
+   or
 2. after the app has already been deployed by using the `secrets set` command:
+
 ```
 wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
 ```
@@ -275,7 +281,7 @@ If you've added any [client-side environment variables](../../project/env-vars#c
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
 ```
 
-or 
+or
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
