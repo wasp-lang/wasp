@@ -235,6 +235,10 @@ button.open-add-list {
   border-radius: 3px;
 }
 
+.list--dragging {
+  transform: rotate(2deg);
+}
+
 .list-header {
   display: flex;
   align-items: center;
@@ -418,6 +422,10 @@ textarea.card-composer-textarea {
   margin-bottom: 8px;
   padding: 6px 8px 2px;
   box-shadow: 0 1px 0 rgb(9 30 66 / 25%);
+}
+
+.list-card--dragging {
+  transform: rotate(4deg);
 }
 
 .list-card-title {

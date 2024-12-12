@@ -248,7 +248,7 @@ const List = ({ list, index, cards }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <div className='list'>
+          <div className={`list ${snapshot.isDragging && 'list--dragging'}`}>
             <div className='list-header'>
             {isHeaderTargetShown ? (
                 <div
@@ -331,12 +331,13 @@ const Card = ({ card, index }) => {
       index={index}
     >
       {(provided, snapshot) => (
-        <div className='list-card'
-          ref={provided.innerRef}
+        <div ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <span className='list-card-title'>{ card.title }</span>
+          <div className={`list-card ${snapshot.isDragging && 'list-card--dragging'}`}>
+            <span className='list-card-title'>{card.title}</span>
+          </div>
         </div>
       )}
     </Draggable>
