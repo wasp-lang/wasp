@@ -1,10 +1,14 @@
 # Changelog
 
-## Next
+## [WIP] 0.16.0
 
 ### ⚠️ Breaking Changes
 
 - Renamed and split `deserializeAndSanitizeProviderData` to `getProviderData` and `getProviderDataWithPassword` so it's more explicit if the resulting data will contain the hashed password or not.
+
+### 🎉 New Features and improvements
+
+- Added support for third-party starter templates via `wasp new -t github:<repo_owner>/<repo_name>[/dir/to/template]`.
 
 ### 🔧 Small improvements
 

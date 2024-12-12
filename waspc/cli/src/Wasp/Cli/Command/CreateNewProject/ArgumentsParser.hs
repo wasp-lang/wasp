@@ -10,7 +10,7 @@ import Wasp.Cli.Command.Call (Arguments)
 
 data NewProjectArgs = NewProjectArgs
   { _projectName :: Maybe String,
-    _templateName :: Maybe String
+    _templateId :: Maybe String
   }
 
 parseNewProjectArgs :: Arguments -> Either String NewProjectArgs
@@ -33,7 +33,7 @@ parseNewProjectArgs newArgs = parserResultToEither $ execParserPure defaultPrefs
       Opt.strOption $
         Opt.long "template"
           <> Opt.short 't'
-          <> Opt.metavar "TEMPLATE_NAME"
+          <> Opt.metavar "TEMPLATE"
           <> Opt.help "Template to use for the new project"
 
     parserResultToEither :: Opt.ParserResult NewProjectArgs -> Either String NewProjectArgs
