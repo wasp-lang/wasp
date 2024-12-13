@@ -38,6 +38,7 @@ const LoginPage = (props) => {
       <div className="auth-form-container">
         <EmailAndPassForm
           title='Log in with your account'
+          submitButtonLabel='Log in'
           userField={usernameFieldVal}
           passField={passwordFieldVal}
           setUser={setUsernameFieldVal}
