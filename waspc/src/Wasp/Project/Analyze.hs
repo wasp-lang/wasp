@@ -26,6 +26,7 @@ import StrongPath
     fromAbsFile,
     fromRelFile,
     relfile,
+    reldir,
     (</>),
   )
 import System.Exit (ExitCode (..))
@@ -77,21 +78,25 @@ analyzeWaspProject ::
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 analyzeWaspProject waspDir options = do
-  waspFilePathOrError <- left (: []) <$> findWaspFile waspDir
+  dirResult <- waspDirExists waspDir
+  case dirResult of
+    Left err -> return (Left [err], [])
+    Right _ -> do
+      waspFilePathOrError <- left (: []) <$> findWaspFile waspDir
 
-  case waspFilePathOrError of
-    Left err -> return (Left err, [])
-    Right waspFilePath ->
-      analyzePrismaSchema waspDir >>= \case
-        (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
-        -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
-        (Right prismaSchemaAst, _) ->
-          analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
-            Left errors -> return (Left errors, [])
-            Right declarations ->
-              EC.analyzeExternalConfigs waspDir (getSrcTsConfigInWaspProjectDir waspFilePath) >>= \case
+      case waspFilePathOrError of
+        Left err -> return (Left err, [])
+        Right waspFilePath ->
+          analyzePrismaSchema waspDir >>= \case
+            (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
+            -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
+            (Right prismaSchemaAst, _) ->
+              analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
                 Left errors -> return (Left errors, [])
-                Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
+                Right declarations ->
+                  EC.analyzeExternalConfigs waspDir (getSrcTsConfigInWaspProjectDir waspFilePath) >>= \case
+                    Left errors -> return (Left errors, [])
+                    Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
 
 data CompiledWaspJsFile
 
@@ -244,6 +249,15 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
           }
 
   return $ runValidation ASV.validateAppSpec appSpec
+
+  
+waspDirExists :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs (Dir WaspProjectDir)))
+waspDirExists waspDir = do
+  let waspDotWaspPath = waspDir </> [relfile|.wasp|]
+  isFile <- IOUtil.doesFileExist waspDotWaspPath
+  if isFile
+    then return $ Left "The path to the Wasp project is a file, but it should be a directory."
+    else return $ Right waspDir
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
 findWaspFile waspDir = do
