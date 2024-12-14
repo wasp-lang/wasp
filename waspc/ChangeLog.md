@@ -91,6 +91,8 @@ Read more about breaking changes in the migration guide: https://wasp-lang.dev/d
 
 Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
 
+- Improved the error message when the user has a top level *.wasp* file.
+
 ## 0.15.2
 
 ### 🐞 Bug fixes
