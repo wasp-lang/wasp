@@ -10,6 +10,8 @@
 
 - Enabled strict null checks for the Wasp SDK which means that some of the return types are more precise now e.g. you'll need to check if some value is `null` before using it.
 
+- Improved the error message when the user has a top level *.wasp* file.
+
 ## 0.15.2
 
 ### 🐞 Bug fixes
