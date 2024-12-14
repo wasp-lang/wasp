@@ -39,6 +39,8 @@ the project. The best way to install it is via
 is a convenient way of installing and selecting versions of `cabal`, `hls` and
 `ghc`.
 
+:warning: If you are on a Mac, we still recommend you use the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as the initial setup will be easier, and you won't have to worry about setting the correct environment variables.
+
 In [cabal.project](cabal.project) we're explicitly saying what compiler version
 to build Wasp with.
 
@@ -46,9 +48,7 @@ to build Wasp with.
 with-compiler: ghc-x.y.z
 ```
 
-Ensure that you have this [ghc
-version](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/intro.html#ghc-version-numbering-policy)
-installed.
+Please ensure that you have this ghc version installed.
 
 ### Repo
 
@@ -69,7 +69,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 :warning: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
-:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars in your `~/.zshrc`.
+:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars, however some times you may need to setup your env vars manually. If this happens, and you installed llvm with Homebre, you should add the following to your shell rc file (e.g. `~/.bashrc` or `~/.zshrc`): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
 
 ### Test
 
