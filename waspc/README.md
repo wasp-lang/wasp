@@ -69,7 +69,9 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 :warning: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
-:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars, however some times you may need to setup your env vars manually. If this happens, and you installed llvm with Homebre, you should add the following to your shell rc file (e.g. `~/.bashrc` or `~/.zshrc`): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
+:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
+
+:warning: If the llvm error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. *~/.bashrc* or *~/.zshrc*): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
 
 ### Test
 
