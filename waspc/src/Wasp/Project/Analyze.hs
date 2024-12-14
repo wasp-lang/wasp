@@ -7,7 +7,6 @@ module Wasp.Project.Analyze
   )
 where
 
-import qualified System.FilePath as FP
 import Control.Arrow (ArrowChoice (left))
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
