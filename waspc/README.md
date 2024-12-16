@@ -39,7 +39,7 @@ the project. The best way to install it is via
 is a convenient way of installing and selecting versions of `cabal`, `hls` and
 `ghc`.
 
-:warning: If you are on a Mac, we still recommend you use the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as the initial setup will be easier, and you won't have to worry about setting the correct environment variables.
+:warning: On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
 
 In [cabal.project](cabal.project) we're explicitly saying what compiler version
 to build Wasp with.
