@@ -60,13 +60,15 @@ On your server:
    - We usually run the database in Docker on the same server, but you can run the database directly on the server.
    - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
 6. Build the **client app** into static files.
-   - Build the client in the `.wasp/build/web-app` directory.
+   - Wasp outputs the client app in the `.wasp/build/web-app` directory.
+   <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
+   - You should [build the client app](/deployment/deployment-methods/paas.md#3-deploying-the-web-client-frontend) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
    - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.
-8. Point your **domains** to your server's IP address.
+8. Point your **domain(s)** to your server's IP address.
    - We recommend setting `myapp.com` for the client and `api.myapp.com` for the server.
-   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure that you set up the env variables for the client and the server URLs correctly.
+   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure your [env variables](../env-vars.md) are using these client and server URLs.
 
 Check out one of our step-by-step guides for more details:
 
