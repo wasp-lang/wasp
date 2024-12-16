@@ -12,16 +12,14 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
     if (e instanceof z.ZodError) {
       const errorOutput = [
         '',
-        '╔═════════════════════════════╗',
-        '║ Env vars validation failed  ║',
-        '╚═════════════════════════════╝',
-        '',
+        '|══ Env vars validation failed ══',
+        '|',
       ]
       for (const error of e.errors) {
-         errorOutput.push(`- ${error.message}`)
+         errorOutput.push(`| - ${error.message}`)
       }
-      errorOutput.push('')
-      errorOutput.push('═══════════════════════════════')
+      errorOutput.push('|')
+      errorOutput.push('|════════════════════════════════')
       console.error(redColor, errorOutput.join('\n'))
       throw new Error('Error parsing environment variables')
     } else {

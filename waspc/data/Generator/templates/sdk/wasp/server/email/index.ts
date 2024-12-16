@@ -3,9 +3,7 @@ import { env } from '../env.js';
 import { initEmailSender } from "./core/index.js";
 import { EmailSender } from "./core/types.js";
 
-// TODO: We need to validate all the env variables
-// For now, we are letting the runtime throw if they are not provided
-{=# isSmtpProviderUsed =}
+{=# isSmtpProviderEnabled =}
 const emailProvider = { 
     type: "smtp",
     host: env.SMTP_HOST,
@@ -13,26 +11,26 @@ const emailProvider = {
     username: env.SMTP_USERNAME,
     password: env.SMTP_PASSWORD,
 } as const;
-{=/ isSmtpProviderUsed =}
-{=# isSendGridProviderUsed =}
+{=/ isSmtpProviderEnabled =}
+{=# isSendGridProviderEnabled =}
 const emailProvider = {
   type: "sendgrid",
   apiKey: env.SENDGRID_API_KEY,
 } as const;
-{=/ isSendGridProviderUsed =}
-{=# isMailgunProviderUsed =}
+{=/ isSendGridProviderEnabled =}
+{=# isMailgunProviderEnabled =}
 const emailProvider = {
   type: "mailgun",
   apiKey: env.MAILGUN_API_KEY,
   domain: env.MAILGUN_DOMAIN,
   apiUrl: env.MAILGUN_API_URL,
 } as const;
-{=/ isMailgunProviderUsed =}
-{=# isDummyProviderUsed =}
+{=/ isMailgunProviderEnabled =}
+{=# isDummyProviderEnabled =}
 const emailProvider = {
   type: "dummy",
 } as const;
-{=/ isDummyProviderUsed =}
+{=/ isDummyProviderEnabled =}
 
 // PUBLIC API
 export const emailSender: EmailSender = initEmailSender(emailProvider);

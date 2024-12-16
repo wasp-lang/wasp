@@ -42,7 +42,7 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "defaultServerUrl" .= Server.defaultDevServerUrl,
           "defaultServerPort" .= Server.defaultServerPort,
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
-          "isEmailSenderUsed" .= isJust maybeEmailSender,
+          "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender)
         ]
     maybeAuth = AS.App.auth app

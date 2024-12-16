@@ -32,7 +32,7 @@ const jwtTokenSchema = z
     required_error: 'JWT_SECRET is required',
 });
 // In development, we provide default values for some environment variables
-// to make the development process easier
+// to make the development process easier.
 const serverDevSchema = z.object({
     NODE_ENV: z.literal('development'),
     WASP_SERVER_URL: serverUrlSchema
