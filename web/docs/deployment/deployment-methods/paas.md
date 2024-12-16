@@ -26,7 +26,6 @@ Feel free to [open a
 PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/advanced/deployment/manually.md)
 if you'd like to write one yourself :)
 
-
 ## Deploying a Wasp App
 
 Deploying a Wasp app comes down to the following:
@@ -60,6 +59,8 @@ All necessary environment variables are listed in the next section.
 
 #### Environment Variables
 
+<!-- TOPIC: env vars -->
+
 Here are the environment variables your server will be looking for:
 
 - `DATABASE_URL` <Required />
@@ -85,7 +86,6 @@ Here are the environment variables your server will be looking for:
 
   The server's HTTP port number. This is where the server listens for requests (default: `3001`).
 
-
 <AddExternalAuthEnvVarsReminder />
 
 While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
@@ -101,6 +101,8 @@ This is also the moment to provide any additional env vars for the client code, 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/build/web-app/build/`.
 
 ### 4. Deploying the Database
+
+<!-- TOPIC: database -->
 
 Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
 
@@ -180,6 +182,8 @@ Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
 cp fly.toml ../../
 ```
 
+<!-- TOPIC: env vars -->
+
 Next, add a few more environment variables for the server code.
 
 ```bash
@@ -225,11 +229,11 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 1. Copy the `fly.toml` file to a versioned directory, like your Wasp project dir.
 
-  From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
+From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
 
 1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after.
 
-  When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
@@ -278,6 +282,8 @@ Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in 
 :::
 
 ### Deploying through Github Actions
+
+<!-- TOPIC: CD -->
 
 To enable automatic deployment of the frontend whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
@@ -333,6 +339,7 @@ jobs:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 ```
+
 </details>
 
 <details>
@@ -343,6 +350,7 @@ jobs:
 - **`WASP_SERVER_URL`**: This is the link that points to your backend and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
 After obtaining the environment variables, you need to store these values securely in GitHub Secrets.
+
 </details>
 
 ## Railway (server, client and database)
@@ -358,9 +366,9 @@ To get started, follow these steps:
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
 2. Create a [Railway](https://railway.app/) account
 
-  :::tip Free Tier
-  Sign up with your GitHub account to be eligible for the free tier
-  :::
+:::tip Free Tier
+Sign up with your GitHub account to be eligible for the free tier
+:::
 
 3. Install the [Railway CLI](https://docs.railway.app/develop/cli#installation)
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -393,15 +401,17 @@ Let's deploy our server first:
 
 1. Move into your app's `.wasp/build/` directory:
 
-  ```shell
-  cd .wasp/build
-  ```
+```shell
+cd .wasp/build
+```
 
 2. Link your app build to your newly created Railway project:
 
-  ```shell
-  railway link
-  ```
+```shell
+railway link
+```
+
+<!-- TOPIC: env vars -->
 
 3. Go into the Railway dashboard and set up the required env variables:
 
@@ -428,21 +438,23 @@ Railway will now locate the Dockerfile and deploy your server 👍
 
 1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
 
-  ```shell
-  cd web-app
-  ```
+```shell
+cd web-app
+```
 
 2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
 
-  ```shell
-  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-  ```
+```shell
+npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+```
 
 3. Next, we want to link this specific frontend directory to our project as well:
 
-  ```shell
-  railway link
-  ```
+```shell
+railway link
+```
+
+<!-- TOPIC: client deployment -->
 
 4. We need to configure Railway's static hosting for our client.
 
@@ -588,6 +600,8 @@ Heroku does not offer a free plan anymore and `mini` is their cheapest database 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
 The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET`, `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` env vars:
+
+<!-- TOPIC: env vars -->
 
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
