@@ -82,7 +82,7 @@ Check out one of our step-by-step guides for more details:
 
 1. Install [Coolify](https://coolify.io/) on your server.
 2. Create your **Coolify apps** (client, server, and database).
-   - We are running the database with Coolify on the same server, but you can run the database directly on your server on the server or use a managed database service.
+   - You can run the database with Coolify on the same server, but you can run the database directly on your server on the server or use a managed database service.
 3. In Coolify, set up the **server app env variables**.
    - You can set up the env variables in the Coolify UI, check out which [env variables are required](../env-vars.md).
 4. Set up some sort of **CI/CD** (for example [Github Actions](https://github.com/features/actions)) to:
@@ -104,7 +104,8 @@ Check out one of our step-by-step guides for more details:
 #### Overview of the steps
 
 1. Install [CapRover](https://caprover.com/) on your server.
-2. Create your CapRover apps (client, server, and db).
+2. Create your CapRover apps (client, server, and database).
+   - You can run the database with CapRover on the same server, but you can run the database directly on your server on the server or use a managed database service.
 3. Set up the server env variables.
    - You can set up the env variables in the CapRover UI, check out which [env variables are required](../env-vars.md).
 4. Set up some sort of **CI/CD** (for example [Github Actions](https://github.com/features/actions)) to:
