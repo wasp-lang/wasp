@@ -52,7 +52,7 @@ export async function findAuthIdentity(providerId) {
 export async function updateAuthIdentityProviderData(providerId, existingProviderData, providerDataUpdates) {
     // We are doing the sanitization here only on updates to avoid
     // hashing the password multiple times.
-    const sanitizedProviderDataUpdates = await sanitizeProviderData(providerDataUpdates);
+    const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
     const newProviderData = Object.assign(Object.assign({}, existingProviderData), sanitizedProviderDataUpdates);
     const serializedProviderData = await serializeProviderData(newProviderData);
     return prisma.authIdentity.update({
@@ -64,7 +64,14 @@ export async function updateAuthIdentityProviderData(providerId, existingProvide
 }
 // PRIVATE API
 export async function findAuthWithUserBy(where) {
-    return prisma.auth.findFirst({ where, include: { user: true } });
+    const result = await prisma.auth.findFirst({ where, include: { user: true } });
+    if (result === null) {
+        return null;
+    }
+    if (result.user === null) {
+        return null;
+    }
+    return Object.assign(Object.assign({}, result), { user: result.user });
 }
 // PUBLIC API
 export async function createUser(providerId, serializedProviderData, userFields) {
@@ -163,22 +170,31 @@ export async function validateAndGetUserFields(data, userSignupFields) {
     return result;
 }
 // PUBLIC API
-export function deserializeAndSanitizeProviderData(providerData, { shouldRemovePasswordField = false } = {}) {
+export function getProviderData(providerData) {
+    return sanitizeProviderData(getProviderDataWithPassword(providerData));
+}
+// PUBLIC API
+export function getProviderDataWithPassword(providerData) {
     // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-    let data = JSON.parse(providerData);
-    if (providerDataHasPasswordField(data) && shouldRemovePasswordField) {
-        delete data.hashedPassword;
+    return JSON.parse(providerData);
+}
+function sanitizeProviderData(providerData) {
+    if (providerDataHasPasswordField(providerData)) {
+        const { hashedPassword } = providerData, rest = __rest(providerData, ["hashedPassword"]);
+        return rest;
     }
-    return data;
+    else {
+        return providerData;
+    }
 }
 // PUBLIC API
 export async function sanitizeAndSerializeProviderData(providerData) {
-    return serializeProviderData(await sanitizeProviderData(providerData));
+    return serializeProviderData(await ensurePasswordIsHashed(providerData));
 }
 function serializeProviderData(providerData) {
     return JSON.stringify(providerData);
 }
-async function sanitizeProviderData(providerData) {
+async function ensurePasswordIsHashed(providerData) {
     const data = Object.assign({}, providerData);
     if (providerDataHasPasswordField(data)) {
         data.hashedPassword = await hashPassword(data.hashedPassword);
@@ -189,7 +205,7 @@ function providerDataHasPasswordField(providerData) {
     return 'hashedPassword' in providerData;
 }
 // PRIVATE API
-export function throwInvalidCredentialsError(message) {
-    throw new HttpError(401, 'Invalid credentials', { message });
+export function createInvalidCredentialsError(message) {
+    return new HttpError(401, 'Invalid credentials', { message });
 }
 //# sourceMappingURL=utils.js.map

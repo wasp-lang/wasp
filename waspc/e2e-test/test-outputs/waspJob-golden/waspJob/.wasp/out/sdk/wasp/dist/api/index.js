@@ -79,11 +79,11 @@ export function handleApiError(error) {
         //   That would require copying HttpError code to web-app also and using it here.
         const responseJson = (_a = error.response) === null || _a === void 0 ? void 0 : _a.data;
         const responseStatusCode = error.response.status;
-        throw new WaspHttpError(responseStatusCode, (_b = responseJson === null || responseJson === void 0 ? void 0 : responseJson.message) !== null && _b !== void 0 ? _b : error.message, responseJson);
+        return new WaspHttpError(responseStatusCode, (_b = responseJson === null || responseJson === void 0 ? void 0 : responseJson.message) !== null && _b !== void 0 ? _b : error.message, responseJson);
     }
     else {
         // If any other error, we just propagate it.
-        throw error;
+        return error;
     }
 }
 class WaspHttpError extends Error {

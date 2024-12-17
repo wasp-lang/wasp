@@ -410,7 +410,7 @@ import {
   createProviderId,
   findAuthIdentity,
   updateAuthIdentityProviderData,
-  deserializeAndSanitizeProviderData,
+  getProviderDataWithPassword,
 } from 'wasp/server/auth';
 
 export const updatePassword = async (args, context) => {
@@ -420,7 +420,7 @@ export const updatePassword = async (args, context) => {
       throw new HttpError(400, "Unknown user")
   }
   
-  const providerData = deserializeAndSanitizeProviderData(authIdentity.providerData)
+  const providerData = getProviderDataWithPassword(authIdentity.providerData)
 
   // Updates the password and hashes it automatically.
   await updateAuthIdentityProviderData(providerId, providerData, {
@@ -437,7 +437,7 @@ import {
   createProviderId,
   findAuthIdentity,
   updateAuthIdentityProviderData,
-  deserializeAndSanitizeProviderData,
+  getProviderDataWithPassword,
 } from 'wasp/server/auth';
 import { type UpdatePassword } from 'wasp/server/operations'
 
@@ -451,7 +451,7 @@ export const updatePassword: UpdatePassword<
       throw new HttpError(400, "Unknown user")
   }
   
-  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
+  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData)
 
   // Updates the password and hashes it automatically.
   await updateAuthIdentityProviderData(providerId, providerData, {

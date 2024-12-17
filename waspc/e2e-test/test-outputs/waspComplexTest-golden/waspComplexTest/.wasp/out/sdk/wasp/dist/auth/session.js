@@ -1,5 +1,5 @@
 import { auth } from "./lucia.js";
-import { throwInvalidCredentialsError } from "./utils.js";
+import { createInvalidCredentialsError } from "./utils.js";
 import { prisma } from 'wasp/server';
 import { createAuthUserData } from "../server/auth/user.js";
 // PRIVATE API
@@ -43,7 +43,7 @@ async function getAuthUserData(userId) {
         }
     });
     if (!user) {
-        throwInvalidCredentialsError();
+        throw createInvalidCredentialsError();
     }
     return createAuthUserData(user);
 }

@@ -15,7 +15,7 @@ export async function callOperation(operationRoute: OperationRoute, args: any) {
     const response = await api.post(operationRoute.path, superjsonArgs)
     return superjsonDeserialize(response.data)
   } catch (error) {
-    handleApiError(error)
+    throw handleApiError(error)
   }
 }
 

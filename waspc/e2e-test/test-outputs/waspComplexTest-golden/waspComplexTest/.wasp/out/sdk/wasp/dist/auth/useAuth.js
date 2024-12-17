@@ -24,7 +24,7 @@ function createUserGetter() {
                 return null;
             }
             else {
-                handleApiError(error);
+                throw handleApiError(error);
             }
         }
     };

@@ -4,18 +4,18 @@ import './DeploymentOptionsGrid.css'
 export function DeploymentOptionsGrid() {
   const deploymentMethods = [
     {
-      title: 'Using Wasp CLI',
+      title: 'Wasp CLI',
       description: 'One command deployment & redeployment',
       linkToDocs: '/docs/advanced/deployment/cli',
     },
     {
-      title: 'Deploying with PaaS',
-      description: 'Deploy your app manually to some PaaS',
+      title: 'Platform as a Service (PaaS)',
+      description: 'Deploy your app manually to the cloud',
       linkToDocs: '/docs/deployment/deployment-methods/paas',
     },
     {
       title: 'Self-hosting',
-      description: 'Deploy your app to your own server',
+      description: 'Use your own servers to host your app',
       linkToDocs: '/docs/deployment/deployment-methods/self-hosted',
     },
   ]

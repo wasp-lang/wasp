@@ -9,6 +9,6 @@ export default async function login(username: string, password: string): Promise
 
     await initSession(response.data.sessionId)
   } catch (error) {
-    handleApiError(error)
+    throw handleApiError(error)
   }
 }
