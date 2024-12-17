@@ -4,7 +4,15 @@ import './EnvVarsTable.css'
 // @ts-ignore
 import { Required, Optional } from '@site/src/components/Tag'
 
-export function EnvVarsTable({ children }: { children: React.ReactNode }) {
+type EnvVar = {
+  name: string
+  type: 'URL' | 'string' | 'number' | 'boolean'
+  isRequired?: boolean
+  note: React.ReactNode
+  defaultValue?: string
+}
+
+export function EnvVarsTable({ envVars }: { envVars: EnvVar[] }) {
   return (
     <table className="env-vars-table">
       <thead>
@@ -14,24 +22,22 @@ export function EnvVarsTable({ children }: { children: React.ReactNode }) {
           <th>Notes</th>
         </tr>
       </thead>
-      <tbody>{children}</tbody>
+      <tbody>
+        {envVars.map((envVar) => (
+          <EnvVarRow key={envVar.name} {...envVar} />
+        ))}
+      </tbody>
     </table>
   )
 }
 
-export function EnvVar({
+function EnvVarRow({
   name,
   type,
   isRequired = false,
   note,
   defaultValue,
-}: {
-  name: string
-  type: 'URL' | 'string' | 'number' | 'boolean'
-  isRequired?: boolean
-  note: string
-  defaultValue?: string
-}) {
+}: EnvVar) {
   const requiredQualifier = isRequired ? <Required /> : <Optional />
   return (
     <tr>
