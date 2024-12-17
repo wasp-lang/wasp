@@ -5,7 +5,7 @@ title: Self-Hosted
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 import { GuideLink } from './GuideLink.tsx'
 
-If you have your server or you rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than using a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
+If you have your server or rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
 
 ## What you'll need
 
@@ -13,7 +13,7 @@ To successfully self-host your Wasp app, you need to have the following:
 
 - A server with a public IP address.
   - There are many cloud providers you can use to rent a server. Some popular ones are [AWS](https://aws.amazon.com/ec2/), [DigitalOcean](https://www.digitalocean.com/), [OVH](https://www.ovhcloud.com/en/vps/), and [Hetzner](https://www.hetzner.com/cloud/).
-- A domain name, for example `myapp.com` (needed for HTTPS support).
+- A domain name, for example, `myapp.com` (needed for HTTPS support).
 
 ## Self-hosting steps
 
@@ -32,13 +32,13 @@ To self-host your Wasp app, you need to follow these general steps:
 
 <ImgWithCaption
   source="/img/deploying/self-hosting.png"
-  alt="One of possible self-hosting setups"
+  alt="One of many possible self-hosting setups"
   caption="One of possible self-hosting setups"
 />
 
 ## Deployment methods
 
-We'll explore a few methods you can use to self-host your Wasp app. The first method is the most straightforward: you manually set up everything on your server. The other two methods require you to install and configure a self-hosted PaaS on your server, and then use that to deploy apps to it.
+We'll explore a few methods you can use to self-host your Wasp app. The first method is the most straightforward: you manually set up everything on your server. The other two methods require you to install and configure a self-hosted PaaS on your server and then use that to deploy apps to it.
 
 ### Simple setup
 
@@ -54,8 +54,8 @@ On your server:
 3. Build your app with **`wasp build`**.
 4. Build and run the **server app**.
    - Wasp gives you a `Dockerfile` in the `.wasp/build` directory that you can use to build and run the server app.
-   - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the set up in the `Dockerfile`.
-   - When you run the server app with Docker, you need to set up the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
+   - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
+   - When you run the server app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
 5. Start the **database** on the server or use a managed database service.
    - We usually run the database in Docker on the same server, but you can run the database directly on the server.
    - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
@@ -82,7 +82,7 @@ Check out one of our step-by-step guides for more details:
 
 1. Install [Coolify](https://coolify.io/) on your server.
 2. Create your **Coolify apps** (client, server, and database).
-   - You can run the database with Coolify on the same server, but you can run the database directly on your server on the server or use a managed database service.
+   - You can run the database with Coolify on the same server, but you can run the database directly on your server or use a managed database service.
 3. In Coolify, set up the **server app env variables**.
    - You can set up the env variables in the Coolify UI, check out which [env variables are required](../env-vars.md).
 4. Set up some sort of **CI/CD** (for example [Github Actions](https://github.com/features/actions)) to:
@@ -105,7 +105,7 @@ Check out one of our step-by-step guides for more details:
 
 1. Install [CapRover](https://caprover.com/) on your server.
 2. Create your CapRover apps (client, server, and database).
-   - You can run the database with CapRover on the same server, but you can run the database directly on your server on the server or use a managed database service.
+   - You can run the database with CapRover on the same server, but you can run the database directly on your server or use a managed database service.
 3. Set up the server env variables.
    - You can set up the env variables in the CapRover UI, check out which [env variables are required](../env-vars.md).
 4. Set up some sort of **CI/CD** (for example [Github Actions](https://github.com/features/actions)) to:
