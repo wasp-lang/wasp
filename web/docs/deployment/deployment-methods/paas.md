@@ -70,6 +70,8 @@ Since the result of building is just a bunch of static files, you can now deploy
 
 ### 4. Deploying the Database
 
+<!-- TOPIC: database -->
+
 Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
 
 ## Different Providers
@@ -147,6 +149,8 @@ Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
 ```shell
 cp fly.toml ../../
 ```
+
+<!-- TOPIC: env vars -->
 
 Next, add a few more environment variables for the server code.
 
@@ -246,6 +250,8 @@ Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in 
 :::
 
 ### Deploying through Github Actions
+
+<!-- TOPIC: CD -->
 
 To enable automatic deployment of the frontend whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
@@ -373,6 +379,8 @@ cd .wasp/build
 railway link
 ```
 
+<!-- TOPIC: env vars -->
+
 3. Go into the Railway dashboard and set up the required env variables:
 
    Open the `Settings` and go to the `Variables` tab:
@@ -413,6 +421,8 @@ npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```shell
 railway link
 ```
+
+<!-- TOPIC: client deployment -->
 
 4. We need to configure Railway's static hosting for our client.
 
@@ -558,6 +568,8 @@ Heroku does not offer a free plan anymore and `mini` is their cheapest database 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
 The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET`, `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` env vars:
+
+<!-- TOPIC: env vars -->
 
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
