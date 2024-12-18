@@ -20,25 +20,25 @@ const EmailAndPassForm = (props) => {
   } = props
 
   return (
-    <div className="w-full text-center">
-      <h2 className="text-base font-bold text-neutral-600">{title}</h2>
-      <form onSubmit={handleSignup} className="block flex flex-col">
+    <div className='w-full text-center'>
+      <h2 className='text-base font-bold text-neutral-600'>{title}</h2>
+      <form onSubmit={handleSignup} className='block flex flex-col'>
         <input
           className={inputFieldClasses + ' mt-5'}
-          type="text"
-          placeholder="Enter email address"
+          type='text'
+          placeholder='Enter email address'
           value={userField}
           onChange={(e) => setUser(e.target.value)}
         />
         <input
           className={inputFieldClasses + ' mt-4'}
-          type="password"
-          placeholder="Enter password"
+          type='password'
+          placeholder='Enter password'
           value={passField}
           onChange={(e) => setPass(e.target.value)}
         />
         {errorMessage && (
-          <div className="w-full text-center mt-4 border border-red-500 bg-red-100 text-red-700 rounded px-2 py-1">
+          <div className='w-full text-center mt-4 border border-red-500 bg-red-100 text-red-700 rounded px-2 py-1'>
             {errorMessage}
           </div>
         )}
@@ -48,7 +48,7 @@ const EmailAndPassForm = (props) => {
             text-white text-sm font-bold
             hover:bg-yellow-400
           `}
-          type="submit"
+          type='submit'
           value={submitButtonLabel}
         />
       </form>
