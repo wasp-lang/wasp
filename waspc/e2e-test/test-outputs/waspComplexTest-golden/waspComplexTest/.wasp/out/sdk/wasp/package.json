@@ -59,6 +59,7 @@
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",
     "./entities": "./dist/entities/index.js",
+    "./env": "./dist/env/index.js",
     "./ext-src/*": "./dist/ext-src/*.js",
     "./operations": "./dist/operations/index.js",
     "./operations/*": "./dist/operations/*",

@@ -228,7 +228,7 @@
             "file",
             "../out/sdk/wasp/client/env.ts"
         ],
-        "cff5bac505653ea7c09e0a981582fd7d894549594b00cb07b86509074df0268f"
+        "b3eb8999d900b25a048d0763dcb952e0dd074deae15a0fac0c5e5af8e570fa19"
     ],
     [
         [
@@ -396,6 +396,13 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
+        "09dd147645577ca385b0f55c2fd99b2fed6ab2dc68c5fbe19b544693bffdb274"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/env/validation.ts"
+        ],
         "fcab80a538acd0bceab22bf4b24e7f1e0fb25912ab1b682bdfcd3863ec54515f"
     ],
     [
@@ -501,7 +508,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "e9daaa0fd911e4211651d99935e3191bbc17f33d1c5f8e5e9960fef5a2b0497f"
+        "f481b1b2cb68f26b7496bfcc92dfd80958fb01b013853f9fd1a36672a117acd8"
     ],
     [
         [
@@ -669,7 +676,7 @@
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "ad91f66ec149845c523a23009fd525fd0bcb09160e47ebc4e5f5b6d9010c570e"
+        "194a13a6d540ed74192f2537694739b2b2e87e9aea1bbd388ff253c066d7fcbb"
     ],
     [
         [
@@ -697,7 +704,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "6ffb60e3dd86ebf2f83248d18e3d647018b3d583233c64259559221fe9d2c882"
+        "44ea6eb19cb4e283e24b4d3da1105539ef81cd36dfeb71d9fa5695f0b0c15b34"
     ],
     [
         [
