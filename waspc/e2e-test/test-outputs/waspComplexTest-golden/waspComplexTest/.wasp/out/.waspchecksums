@@ -403,7 +403,7 @@
             "file",
             "../out/sdk/wasp/env/validation.ts"
         ],
-        "70b04edbb7f6c4a3617de54badaea6e4cb9f431fe8e6df26ab4e4690edebcbfd"
+        "fcab80a538acd0bceab22bf4b24e7f1e0fb25912ab1b682bdfcd3863ec54515f"
     ],
     [
         [
@@ -669,14 +669,14 @@
             "file",
             "../out/sdk/wasp/server/email/index.ts"
         ],
-        "7f5d5dc724dcb623047b39800a55e1eca2e03984f0f0ee996949ff6846f4e97c"
+        "199b8d91048f446e0491964c9dfe0e946875a19b9a5757aa7e600880d6f52f98"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "0047fa15c377f74f67b5b393300de0a554c865739714e59ee0ec5399fb23d64a"
+        "194a13a6d540ed74192f2537694739b2b2e87e9aea1bbd388ff253c066d7fcbb"
     ],
     [
         [

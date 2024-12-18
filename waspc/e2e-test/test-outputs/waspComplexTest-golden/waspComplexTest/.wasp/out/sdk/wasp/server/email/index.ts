@@ -2,8 +2,6 @@ import { env } from '../env.js';
 import { initEmailSender } from "./core/index.js";
 import { EmailSender } from "./core/types.js";
 
-// TODO: We need to validate all the env variables
-// For now, we are letting the runtime throw if they are not provided
 const emailProvider = {
   type: "sendgrid",
   apiKey: env.SENDGRID_API_KEY,
