@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.15.2
+version:        0.16.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -511,6 +511,7 @@ library cli-lib
     , fsnotify
     , http-conduit
     , optparse-applicative ^>=0.17.0.0
+    , parsec ^>= 3.1.14
     , path
     , path-io
     , pretty-simple ^>= 4.1.2.0
@@ -545,9 +546,13 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Common
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.FeaturedStarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Skeleton
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplateId
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
