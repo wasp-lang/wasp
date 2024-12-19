@@ -15,19 +15,29 @@ const LoginPage = (props) => {
 
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleLogin = async (event) => {
     event.preventDefault()
+    setErrorMessage('')
+
     try {
-      await login (usernameFieldVal, passwordFieldVal)
+      await login(usernameFieldVal, passwordFieldVal)
 
       setUsernameFieldVal('')
       setPasswordFieldVal('')
 
       navigate('/')
     } catch (err) {
-      console.log(err)
-      window.alert(err)
+      if (err.statusCode == 422) {
+        const errorMessage = err?.data?.data?.message || 'Invalid request'
+        setErrorMessage(errorMessage)
+      } else if (err.statusCode == 401) {
+        const errorMessage = err?.data?.message || 'Unauthorized'
+        setErrorMessage(errorMessage)
+      } else {
+        setErrorMessage('An error occurred. Please try again later.')
+      }
     }
   }
 
@@ -36,6 +46,7 @@ const LoginPage = (props) => {
       <img alt="Waspello" className="main-logo" src={mainLogo} />
 
       <div className="auth-form-container">
+
         <EmailAndPassForm
           title='Log in with your account'
           submitButtonLabel='Log in'
@@ -43,6 +54,7 @@ const LoginPage = (props) => {
           passField={passwordFieldVal}
           setUser={setUsernameFieldVal}
           setPass={setPasswordFieldVal}
+          errorMessage={errorMessage}
           handleSignup={handleLogin}
         />
 
