@@ -11,14 +11,14 @@ The command automates the manual deployment process and is the recommended way o
 
 Wasp supports automated deployment to the following providers:
 
-- [Fly.io](#flyio) - they offer 5$ free credit each month
-- Railway (coming soon, track it here [#1157](https://github.com/wasp-lang/wasp/pull/1157))
+- [Fly.io](#flyio)
+- Railway (track it here [#1157](https://github.com/wasp-lang/wasp/pull/1157))
 
 ## Fly.io
 
 ### Prerequisites
 
-Fly provides [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a new account is free), but all plans require you to add your credit card information before you can proceed. If you don't, the deployment will fail.
+Fly requires you to add your credit card information before you can deploy your apps. If you don't, the deployment will fail.
 
 You can add the required credit card information on the [account's billing page](https://fly.io/dashboard/personal/billing).
 
@@ -33,6 +33,10 @@ Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) 
 ```shell
 wasp deploy fly launch my-wasp-app mia
 ```
+
+:::caution Unique Name
+Your app name (e.g. `my-wasp-app`) must be unique across all of Fly or deployment will fail.
+:::
 
 :::caution Specifying Org
 If your account is a member of more than one organization on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names(slugs) of your organizations by running `fly orgs list`.
@@ -52,10 +56,6 @@ wasp deploy fly deploy
 ```
 
 The commands above use the app basename `my-wasp-app` and deploy it to the _Miami, Florida (US) region_ (called `mia`). Read more about Fly.io regions [here](#flyio-regions).
-
-:::caution Unique Name
-Your app name must be unique across all of Fly or deployment will fail.
-:::
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -117,7 +117,7 @@ We need to do this to keep our CORS configuration up to date.
 
 That's it, your app should be available at `https://mycoolapp.com`! 🎉
 
-#### Adding www Subdomain
+#### Adding a `www` Subdomain
 
 If you'd like to also access your app at `https://www.mycoolapp.com`, you can generate certs for the `www` subdomain.
 
@@ -134,7 +134,13 @@ Here's an example:
 
 With the CNAME record (Canonical name), you are assigning the `www` subdomain as an alias to the root domain.
 
-Your app should now be available both at the root domain `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`! 🎉
+Your app should now be available both at the root domain `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`.
+
+:::caution CORS Configuration
+
+Using the `www` and `non-www` domains at the same time will require you to update your CORS configuration to allow both domains. You'll need to provide [custom CORS configuration](https://gist.github.com/infomiho/5ca98e5e2161df4ea78f76fc858d3ca2) in your server app to allow requests from both domains.
+
+:::
 
 ## API Reference
 
@@ -243,7 +249,7 @@ If you've added any [client-side environment variables](../../project/env-vars#c
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
-Make sure to add your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../project/env-vars#client-env-vars-1)!
+Make sure to add your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../project/env-vars#client-env-vars-1).
 
 ### `cmd`
 
@@ -281,7 +287,17 @@ or
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
-Please note, you should do this for every deployment, not just the first time you set up the variables!
+Please note, you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
+
+```json title="package.json"
+{
+  "scripts": {
+    "deploy": "REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy"
+  }
+}
+```
+
+Then you can run `npm run deploy` to deploy your app.
 
 ### Fly.io Regions
 
