@@ -11,8 +11,8 @@ If you would like to make your first contribution, here is a handy checklist we 
 - [ ] Read [Quick overview](#quick-overview).
 - [ ] Compile the project successfully and get todoApp example running (follow [Basics](#basics)).
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
-- [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediatelly propose a plan of action and ask questions.
-      If you can't find a suitable issue for you, reach out to us on Discord and we can try to find smth for you together.
+- [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediately propose a plan of action and ask questions.
+      If you can't find a suitable issue for you, reach out to us on Discord and we can try to find something for you together.
 - [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) and [Branching and merging strategy](#branching-and-merging-strategy) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
 
 ## Quick overview
@@ -21,7 +21,7 @@ Wasp compiler is implemented in Haskell, but you will also see a lot of Javascri
 
 You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
 
-Main result of building the project is `wasp` executable (also reffered to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
+Main result of building the project is `wasp` executable (also referred to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
 
 `wasp` executable takes `.wasp` files and `ext/` dir as input and generates a web app from them.
 
@@ -123,7 +123,7 @@ NOTE: Reload page if blank.
    Rinse and repeat.
 4. Run `cabal test` to confirm that the project's unit and integration tests are passing (both new and old).
 5. For easily testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app. Check its README for more details (including how to run it).
-6. There is also `headless-test/examples/todoApp`, that comes equiped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
+6. There is also `headless-test/examples/todoApp`, that comes equipped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
 8. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR.
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
@@ -140,7 +140,7 @@ In order to better support a wider range of developer operating systems, we have
 If the feature you are implementing is complex, be it due to its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
 It is a great way to share the idea you have with others while also getting help and feedback.
 
-To create one, make a PR that adds a markdown document under `wasp/docs/design-docs`, and in that markdown document explain the thinking behind and choice made when deciding how to implement a feature.
+To create one, make a PR that adds a markdown document under `wasp/docs/design-docs`, and in that markdown document explain the thinking behind and choices made when deciding how to implement a feature.
 
 Others will comment on your design doc, and once it has gone through needed iterations and is approved, you can start with the implementation of the feature (in a separate PR).
 

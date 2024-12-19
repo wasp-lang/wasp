@@ -43,7 +43,7 @@ The solution that people suggested was an async function that returns an object 
 ### Advanced
   - Instead of returning an object that will be added to `context`, function could return a function that modifies the `context`.
     This gives more control to dev, but it can also lead to them messing up `context`.
-  - Function could take arguments which expose certain parts of the server and therefore give the dev an ooportunity to affect certain parts of the app.
+  - Function could take arguments which expose certain parts of the server and therefore give the dev an opportunity to affect certain parts of the app.
     For example, they could modify the expressJS router. Or they would get access to Prisma.
     This again can be problematic as if gives developer space to mess things up.
   - Function could return not just object to be added to `context`, but also other things that modify how Wasp works.
