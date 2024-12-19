@@ -25,8 +25,8 @@ import StrongPath
     fromAbsDir,
     fromAbsFile,
     fromRelFile,
-    relfile,
     reldir,
+    relfile,
     (</>),
   )
 import System.Exit (ExitCode (..))
@@ -250,7 +250,6 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
 
   return $ runValidation ASV.validateAppSpec appSpec
 
-  
 waspDirExists :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs (Dir WaspProjectDir)))
 waspDirExists waspDir = do
   let waspDotWaspPath = waspDir </> [relfile|.wasp|]
