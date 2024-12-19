@@ -58,6 +58,10 @@ import qualified Wasp.SemanticVersion as SV
 -- describing the web app specification with all the details needed to generate it.
 -- It is standalone and de-coupled from other parts of the compiler and knows nothing about them,
 -- instead other parts are using it: Analyzer produces AppSpec while Generator consumes it.
+--
+-- IMPORTANT: Do not change this data structure without updating the AppSpec in
+-- packages/wasp-config/src/appSpec.ts. That module is a TypeScript mirror
+-- implementation of AppSpec's FromJSON.
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
