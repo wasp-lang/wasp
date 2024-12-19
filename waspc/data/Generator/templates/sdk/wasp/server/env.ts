@@ -9,8 +9,8 @@ const serverCommonSchema = z.object({
     required_error: '{= databaseUrlEnvVarName =} is required',
   }),
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
-  {=# isEmailSenderUsed =}
-  {=# enabledEmailSenders.isSmtpProviderUsed =}
+  {=# isEmailSenderEnabled =}
+  {=# enabledEmailSenders.isSmtpProviderEnabled =}
   SMTP_HOST: z.string({
     required_error: 'SMTP_HOST is required',
   }),
@@ -24,13 +24,13 @@ const serverCommonSchema = z.object({
   SMTP_PASSWORD: z.string({
     required_error: 'SMTP_PASSWORD is required',
   }),
-  {=/ enabledEmailSenders.isSmtpProviderUsed =}
-  {=# enabledEmailSenders.isSendGridProviderUsed =}
+  {=/ enabledEmailSenders.isSmtpProviderEnabled =}
+  {=# enabledEmailSenders.isSendGridProviderEnabled =}
   SENDGRID_API_KEY: z.string({
     required_error: 'SENDGRID_API_KEY is required',
   }),
-  {=/ enabledEmailSenders.isSendGridProviderUsed =}
-  {=# enabledEmailSenders.isMailgunProviderUsed =}
+  {=/ enabledEmailSenders.isSendGridProviderEnabled =}
+  {=# enabledEmailSenders.isMailgunProviderEnabled =}
   MAILGUN_API_KEY: z.string({
     required_error: 'MAILGUN_API_KEY is required',
   }),
@@ -38,8 +38,8 @@ const serverCommonSchema = z.object({
     required_error: 'MAILGUN_DOMAIN is required',
   }),
   MAILGUN_API_URL: z.string().optional(),
-  {=/ enabledEmailSenders.isMailgunProviderUsed =}
-  {=/ isEmailSenderUsed =}
+  {=/ enabledEmailSenders.isMailgunProviderEnabled =}
+  {=/ isEmailSenderEnabled =}
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {
       message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
@@ -111,7 +111,7 @@ const jwtTokenSchema = z
   })
 
 // In development, we provide default values for some environment variables
-// to make the development process easier
+// to make the development process easier.
 const serverDevSchema = z.object({
   NODE_ENV: z.literal('development'),
   WASP_SERVER_URL: serverUrlSchema

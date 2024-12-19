@@ -14,10 +14,10 @@ getEnabledEmailProvidersJson emailSender =
       <$> providersKeyAndName
   where
     providersKeyAndName =
-      [ ("isSmtpProviderUsed", AS.App.EmailSender.SMTP),
-        ("isSendGridProviderUsed", AS.App.EmailSender.SendGrid),
-        ("isMailgunProviderUsed", AS.App.EmailSender.Mailgun),
-        ("isDummyProviderUsed", AS.App.EmailSender.Dummy)
+      [ ("isSmtpProviderEnabled", AS.App.EmailSender.SMTP),
+        ("isSendGridProviderEnabled", AS.App.EmailSender.SendGrid),
+        ("isMailgunProviderEnabled", AS.App.EmailSender.Mailgun),
+        ("isDummyProviderEnabled", AS.App.EmailSender.Dummy)
       ]
     makeProviderJson (key, name) = key .= (enabledEmailSenderName == name)
     enabledEmailSenderName = AS.App.EmailSender.provider emailSender

@@ -403,7 +403,7 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "936d4774b243ae7f1fc42866f450f35909031bc7bb8067fff7b7d5fe14815b95"
+        "b665c70a17dcfefeff8e0ca540d8497b5462195f2f5952b265274d62d8520b8f"
     ],
     [
         [
@@ -669,14 +669,14 @@
             "file",
             "../out/sdk/wasp/server/email/index.ts"
         ],
-        "7f5d5dc724dcb623047b39800a55e1eca2e03984f0f0ee996949ff6846f4e97c"
+        "199b8d91048f446e0491964c9dfe0e946875a19b9a5757aa7e600880d6f52f98"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "4ec937a314bf8cf7bd0f451334745b2c3ba29e6168047e94d7c791c150301598"
+        "ad91f66ec149845c523a23009fd525fd0bcb09160e47ebc4e5f5b6d9010c570e"
     ],
     [
         [
