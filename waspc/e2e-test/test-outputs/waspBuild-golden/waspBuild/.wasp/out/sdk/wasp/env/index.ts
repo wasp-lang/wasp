@@ -2,6 +2,7 @@ import * as z from 'zod'
 
 const redColor = '\x1b[31m'
 
+// PRIVATE API (SDK, Vite config)
 export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   data: unknown,
   schema: Schema

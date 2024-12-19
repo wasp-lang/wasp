@@ -11,6 +11,7 @@ waspMigrate/.wasp/out/sdk/wasp/api/events.ts
 waspMigrate/.wasp/out/sdk/wasp/api/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/config.ts
 waspMigrate/.wasp/out/sdk/wasp/client/env.ts
+waspMigrate/.wasp/out/sdk/wasp/client/env/schema.ts
 waspMigrate/.wasp/out/sdk/wasp/client/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspMigrate/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -43,6 +44,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/env.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/env.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/env.js.map
+waspMigrate/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/client/env/schema.js
+waspMigrate/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -231,6 +235,7 @@ waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/index.html
 waspMigrate/.wasp/out/web-app/netlify.toml
 waspMigrate/.wasp/out/web-app/package.json
+waspMigrate/.wasp/out/web-app/plugins/validateEnv.ts
 waspMigrate/.wasp/out/web-app/public/.gitkeep
 waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/manifest.json
