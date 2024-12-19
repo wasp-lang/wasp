@@ -48,7 +48,7 @@ There are two main solutions:
   2. Seeding script
 
 *** Database snapshots
-Database snapshots sound relatively straight forward to implement, also easy for devs to create.
+Database snapshots sound relatively straightforward to implement, also easy for devs to create.
 So they could use the app itself, or =db studio=, or some richer postgresql client, or their own scripts,
 to put db into a certain state, and then they can do snapshot and there you go.
 What is not great is that data can easily become out of sync with how app currently works,

@@ -301,7 +301,7 @@ Let's deploy our server first:
    Open the `Settings` and go to the `Variables` tab:
 
    - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-   - add `WASP_WEB_CLIENT_URL` - enter the the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
+   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`)
    - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
