@@ -27,7 +27,7 @@ The fact that so many libraries and frameworks exist in 2023, and that **the bes
 
 <!--truncate-->
 
-For example, according the the [StateOfJS](https://2022.stateofjs.com/en-US/libraries/front-end-frameworks/) survey, there were 5 Front-end Frameworks with good retention in 2018, now there are 11 in 2022. That’s a 120% increase in a matter of 4 years, and that’s not even taking into account the hot meta-frameworks like NextJS, SvelteKit, or Astro!
+For example, according the [StateOfJS](https://2022.stateofjs.com/en-US/libraries/front-end-frameworks/) survey, there were 5 Front-end Frameworks with good retention in 2018, now there are 11 in 2022. That’s a 120% increase in a matter of 4 years, and that’s not even taking into account the hot meta-frameworks like NextJS, SvelteKit, or Astro!
 
 <br/>
 <ImgWithCaption

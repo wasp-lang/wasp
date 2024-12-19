@@ -205,7 +205,7 @@ wasp deploy fly deploy
 
 ### `cmd`
 
-If want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
+If you want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
 
 ```shell
 wasp deploy fly cmd secrets list --context server

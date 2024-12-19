@@ -607,7 +607,7 @@ import { getFoo } from 'wasp/client/operations'
 import { getFoo } from 'wasp/server/operations'
 ```
 
-On the the client, the Query expects
+On the client, the Query expects
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">

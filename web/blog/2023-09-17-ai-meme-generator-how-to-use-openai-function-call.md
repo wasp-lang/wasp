@@ -1093,7 +1093,7 @@ export const editMeme: EditMeme<EditMemeArgs, Meme> = async ({ id, text0, text1 
 };
 ```
 
-As you can see, this function expects the `id` of the already existing meme, along with the new `text` boxes. That’s because we’re letting the user manually input/edit the text that GPT generated, rather than making another request the the OpenAI API.
+As you can see, this function expects the `id` of the already existing meme, along with the new `text` boxes. That’s because we’re letting the user manually input/edit the text that GPT generated, rather than making another request the OpenAI API.
 
 Next, we look for that specific meme in our database, and if we don’t find it we throw an error (`findUniqueOrThrow`).
 
