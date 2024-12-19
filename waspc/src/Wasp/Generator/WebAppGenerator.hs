@@ -76,7 +76,6 @@ genWebApp spec = do
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
-    <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -138,8 +137,6 @@ npmDepsForWasp _spec =
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@vitejs/plugin-react", "^4.2.1"),
-            -- NOTE: used in the validate-env.mjs script
-            ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^2.0.0")
@@ -226,12 +223,6 @@ getIndexTs spec =
 
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
-
-genEnvValidationScript :: Generator [FileDraft]
-genEnvValidationScript =
-  return
-    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
-    ]
 
 -- todo(filip): Take care of this as well
 genViteConfig :: AppSpec -> Generator FileDraft
