@@ -16,15 +16,15 @@ import System.Exit (ExitCode (..))
 import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Job (Job, JobMessage, JobType)
-import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
+import Wasp.Job (Job, JobMessage, JobType)
+import qualified Wasp.Job as J
+import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.Util.IO as IOUitl
 

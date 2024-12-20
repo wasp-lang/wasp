@@ -23,7 +23,7 @@ import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
 import qualified Wasp.Node.Version as NodeVersion
 
--- | This are the globally installed packages waspc runs directly from 
+-- | This are the globally installed packages waspc runs directly from
 -- their global installation path.
 data RunnablePackage
   = DeployPackage

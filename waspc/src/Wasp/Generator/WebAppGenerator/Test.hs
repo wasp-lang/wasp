@@ -5,9 +5,9 @@ where
 
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJob)
-import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job

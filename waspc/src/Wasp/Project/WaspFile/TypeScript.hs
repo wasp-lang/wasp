@@ -35,6 +35,7 @@ import Wasp.Project.Common
     WaspTsFile,
     dotWaspDirInWaspProjectDir,
   )
+import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Util (orElse)
 import Wasp.Util.Aeson (encodeToString)
@@ -70,9 +71,26 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
       ( runNodeCommandAsJob
           waspProjectDir
           "npx"
+          -- We're using tsc to compile the *.wasp.ts file into a JS file.
+          --
+          -- The tsconfig.wasp.json is configured to give our users with the
+          -- best possible IDE support while coding the *.wasp.ts file.
+          --
+          -- When we actually want to compile the *.wasp.ts file, we must
+          -- override some of those rules.
+          --
+          -- Tehnically, some overrides could have been specified
+          -- in the tsconfig.wasp.json file, but we decided to keep them here
+          -- because it helps users avoid accidentally breaking things.
           [ "tsc",
             "-p",
             fromAbsFile (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
+            -- The tsconfig.wasp.json file has the noEmit flag on.
+            -- The file only exists IDE support, and we don't want users to
+            -- accidentally chage the outDir.
+            --
+            -- Here, to actually generate the JS file in the desired location,
+            -- we must turn off the noEmit flag and specify the outDir.
             "--noEmit",
             "false",
             "--outDir",
@@ -86,6 +104,8 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
     ExitSuccess -> Right absCompiledWaspJsFile
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
+    -- We know this will be the output JS file's location because it's how TSC
+    -- works (assuming we've specified the outDir, which we did).
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
     compiledWaspJsFileInDotWaspDir =
       castFile $
@@ -126,7 +146,7 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
-    allowedEntityNames = Psl.Schema.getModelNames prismaSchemaAst
+    allowedEntityNames = Psl.Schema.Model.getName <$> Psl.Schema.getModels prismaSchemaAst
 
 readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
