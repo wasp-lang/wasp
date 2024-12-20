@@ -164,18 +164,16 @@ analyze prismaSchemaAst =
     >=> (wrapAnalyzerError TypeError . typeCheck stdTypes)
     >=> (wrapAnalyzerError EvaluationError . evaluate stdTypes)
 
--- | When writing main.wasp.ts, TypeScript should know about all the available
--- entities.
--- Since Wasp's AST includes entity declarations, the easiest way to get a list
--- of all entities defined in the Prisma Schema is by:
---   1. Creating an AST with (and only with) the declarations for the Prisma
---   schema Entities.
---   2. Type-checking that AST and returning the result.
--- This gives us a list of entity declarations we can then forward to
--- TypeScript (which then validates the user config only uses existing
--- entities).
 getEntityDecls :: Psl.Schema.Schema -> Either [AnalyzeError] [Decl]
 getEntityDecls schema =
+  -- Since Wasp's AST includes entity declarations, the easiest way to get a list
+  -- of all entities defined in the Prisma Schema is by:
+  --   1. Creating an AST with (and only with) the declarations for the Prisma
+  --   schema Entities.
+  --   2. Type-checking that AST and returning the result.
+  -- This gives us a list of entity declarations we can then forward to
+  -- TypeScript (which then validates the user config only uses existing
+  -- entities).
   wrapAnalyzerError TypeError (typeCheck stdTypes astWithEntitiesOnly)
     >>= (wrapAnalyzerError EvaluationError . evaluate stdTypes)
   where

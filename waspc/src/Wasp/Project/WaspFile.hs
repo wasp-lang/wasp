@@ -86,7 +86,7 @@ analyzeWaspTsFile ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: I'm not yet sure where tsconfig.node.json location should come from
+  -- TODO: I'm not yet sure where tsconfig.wasp.json location should come from
   -- because we also need that knowledge when generating a TS SDK project.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
   declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
@@ -160,6 +160,9 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
           [ "wasp-config",
             fromAbsFile absCompiledMainWaspJsFile,
             fromAbsFile absDeclsOutputFile,
+            -- When the user is coding main.wasp.ts, TypeScript must know about
+            -- all the available entities to warn the user if they use an
+            -- entity that doesn't exist.
             encodeToString allowedEntityNames
           ]
           J.Wasp
