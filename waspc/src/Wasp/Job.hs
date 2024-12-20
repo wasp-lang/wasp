@@ -1,4 +1,4 @@
-module Wasp.Generator.Job
+module Wasp.Job
   ( Job,
     JobMessage (..),
     JobMessageData (..),

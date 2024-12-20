@@ -8,9 +8,9 @@ import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as J
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
 
 -- | Prepares the project for using Wasp's TypeScript SDK.

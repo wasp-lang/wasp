@@ -1,4 +1,4 @@
-module Wasp.Generator.Job.Common
+module Wasp.Job.Common
   ( getJobMessageOutHandle,
     getJobMessageContent,
   )
@@ -7,7 +7,7 @@ where
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
 import System.IO (Handle, stderr, stdout)
-import qualified Wasp.Generator.Job as J
+import qualified Wasp.Job as J
 
 getJobMessageOutHandle :: J.JobMessage -> Handle
 getJobMessageOutHandle jobMsg = case J._data jobMsg of
