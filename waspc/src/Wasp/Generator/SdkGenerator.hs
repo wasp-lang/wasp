@@ -37,9 +37,6 @@ import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
-import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -66,6 +63,9 @@ import Wasp.Generator.WebAppGenerator.Common
     reactVersion,
   )
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Job as J
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
