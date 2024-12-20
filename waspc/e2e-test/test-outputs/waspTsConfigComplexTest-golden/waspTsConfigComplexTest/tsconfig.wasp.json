@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+
+    // linting
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    "module": "NodeNext",
+    "noEmit": true,
+
+    "lib": ["ES2023"],
+  },
+  "include": ["main.wasp.ts"]
+}
