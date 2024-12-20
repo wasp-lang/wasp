@@ -1,1 +1,2 @@
-export declare function stripTrailingSlash(url?: string): string | undefined;
+export declare function stripTrailingSlash(url: string): string;
+export declare function stripTrailingSlash(url: undefined): undefined;

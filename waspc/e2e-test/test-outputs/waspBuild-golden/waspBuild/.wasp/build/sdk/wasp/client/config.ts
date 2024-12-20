@@ -1,6 +1,7 @@
 import { stripTrailingSlash } from '../universal/url.js'
+import { env } from './env.js'
 
-const apiUrl = stripTrailingSlash(import.meta.env.REACT_APP_API_URL) || 'http://localhost:3001';
+const apiUrl = stripTrailingSlash(env.REACT_APP_API_URL)
 
 // PUBLIC API
 export type ClientConfig = {
