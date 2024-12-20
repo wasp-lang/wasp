@@ -378,6 +378,8 @@ library
     Wasp.Project.Studio
     Wasp.Project.Vite
     Wasp.Project.WaspFile
+    Wasp.Project.WaspFile.TypeScript
+    Wasp.Project.WaspFile.WaspLang
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common

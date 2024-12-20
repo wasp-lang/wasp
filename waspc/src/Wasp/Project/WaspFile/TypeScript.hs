@@ -1,58 +1,50 @@
-module Wasp.Project.WaspFile
-  ( findWaspFile,
-    analyzeWaspFile,
+module Wasp.Project.WaspFile.TypeScript
+  ( analyzeWaspTsFile,
   )
 where
 
-import Data.List (find, isSuffixOf)
+import Control.Arrow (left)
+import Control.Concurrent (newChan)
+import Control.Concurrent.Async (concurrently)
+import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
+import qualified Data.Aeson as Aeson
 import StrongPath
   ( Abs,
     Dir,
+    File,
+    File',
     Path',
+    Rel,
+    basename,
     castFile,
     fromAbsDir,
-    fromRelFile,
+    fromAbsFile,
+    relfile,
     (</>),
   )
+import System.Exit (ExitCode (..))
+import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
+import qualified Wasp.Job as J
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common
   ( CompileError,
-    WaspFilePath (..),
     WaspProjectDir,
+    WaspTsFile,
+    dotWaspDirInWaspProjectDir,
   )
+import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Util (orElse)
+import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.StrongPath (replaceRelExtension)
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
-findWaspFile waspDir = do
-  files <- fst <$> IOUtil.listDirectory waspDir
-  return $ case (findWaspTsFile files, findWaspLangFile files) of
-    (Just _, Just _) -> Left bothFilesFoundMessage
-    (Nothing, Nothing) -> Left fileNotFoundMessage
-    (Just waspTsFile, Nothing) -> Right waspTsFile
-    (Nothing, Just waspLangFile) -> Right waspLangFile
-  where
-    findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.ts" files
-    findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    findFileThatEndsWith suffix files =
-      castFile
-        . (waspDir </>)
-        <$> find ((suffix `isSuffixOf`) . fromRelFile) files
+data CompiledWaspJsFile
 
-    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
-    bothFilesFoundMessage =
-      "Found both *.wasp and *.wasp.ts files in the project directory. "
-        ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
-
-analyzeWaspFile ::
-  Path' Abs (Dir WaspProjectDir) ->
-  Psl.Schema.Schema ->
-  WaspFilePath ->
-  IO (Either [CompileError] [AS.Decl])
-analyzeWaspFile waspDir prismaSchemaAst = \case
-  WaspLang waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
-  WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
+data AppSpecDeclsJsonFile
 
 analyzeWaspTsFile ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -65,18 +57,6 @@ analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
   declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
-
-analyzeWaspLangFile :: Psl.Schema.Schema -> Path' Abs (File WaspLangFile) -> IO (Either [CompileError] [AS.Decl])
-analyzeWaspLangFile prismaSchemaAst waspFilePath = do
-  waspFileContent <- IOUtil.readFile waspFilePath
-  left (map $ showCompilerErrorForTerminal (waspFilePath, waspFileContent))
-    <$> analyzeWaspFileContent prismaSchemaAst waspFileContent
-
-analyzeWaspFileContent :: Psl.Schema.Schema -> String -> IO (Either [(String, Ctx)] [AS.Decl])
-analyzeWaspFileContent prismaSchemaAst =
-  return
-    . left (map Analyzer.getErrorMessageAndCtx)
-    . Analyzer.analyze prismaSchemaAst
 
 compileWaspTsFile ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -91,9 +71,26 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
       ( runNodeCommandAsJob
           waspProjectDir
           "npx"
+          -- We're using tsc to compile the *.wasp.ts file into a JS file.
+          --
+          -- The tsconfig.wasp.json is configured to give our users with the
+          -- best possible IDE support while coding the *.wasp.ts file.
+          --
+          -- When we actually want to compile the *.wasp.ts file, we must
+          -- override some of those rules.
+          --
+          -- Tehnically, some overrides could have been specified
+          -- in the tsconfig.wasp.json file, but we decided to keep them here
+          -- because it helps users avoid accidentally breaking things.
           [ "tsc",
             "-p",
             fromAbsFile (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
+            -- The tsconfig.wasp.json file has the noEmit flag on.
+            -- The file only exists IDE support, and we don't want users to
+            -- accidentally chage the outDir.
+            --
+            -- Here, to actually generate the JS file in the desired location,
+            -- we must turn off the noEmit flag and specify the outDir.
             "--noEmit",
             "false",
             "--outDir",
@@ -107,6 +104,8 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
     ExitSuccess -> Right absCompiledWaspJsFile
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
+    -- We know this will be the output JS file's location because it's how TSC
+    -- works (assuming we've specified the outDir, which we did).
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
     compiledWaspJsFileInDotWaspDir =
       castFile $
@@ -147,7 +146,7 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
-    allowedEntityNames = Psl.Schema.getModelNames prismaSchemaAst
+    allowedEntityNames = Psl.Schema.Model.getName <$> Psl.Schema.getModels prismaSchemaAst
 
 readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
