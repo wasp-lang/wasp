@@ -11,7 +11,7 @@ for package in $(ls "$dir/../packages"); do
   if [[ -d "$package_dir" ]]; then
     # We're only installing the dependencines here to verify that the build
     # works, that's why the node_modules folder is removed immediately after.
-    # The real dependency installatino happens in Haskell.
+    # The real dependency installation happens in Haskell.
     echo "Installing $package ($package_dir)"
     cd "$package_dir"
     npm install
