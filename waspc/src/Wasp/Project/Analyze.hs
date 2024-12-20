@@ -13,6 +13,7 @@ import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
+import Data.Maybe (fromMaybe)
 import StrongPath
   ( Abs,
     Dir,
@@ -140,9 +141,11 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
   where
     outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
     absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
-    compiledWaspJsFileInDotWaspDir = castFile $ case replaceRelExtension (basename waspFilePath) ".js" of
-      Just path -> path
-      Nothing -> error $ "Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ "."
+    compiledWaspJsFileInDotWaspDir =
+      castFile $
+        fromMaybe
+          (error $ "Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ ".")
+          (replaceRelExtension (basename waspFilePath) ".js")
 
 executeMainWaspJsFileAndGetDeclsFile ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -257,6 +260,7 @@ findWaspFile waspDir = do
     findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.ts" files
     findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
     findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . fromRelFile) files
+
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
     bothFilesFoundMessage =
       "Found both *.wasp and *.wasp.ts files in the project directory. "
