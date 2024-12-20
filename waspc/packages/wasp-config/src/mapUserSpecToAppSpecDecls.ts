@@ -92,7 +92,7 @@ function makeDeclsArray(decls: {
   return Object.values(decls).flatMap((decl) => [...decl])
 }
 
-function mapToDecls<T, const DeclType extends AppSpec.Decl['declType']>(
+function mapToDecls<T, DeclType extends AppSpec.Decl['declType']>(
   configs: Map<string, T>,
   type: DeclType,
   configToDeclValue: (
