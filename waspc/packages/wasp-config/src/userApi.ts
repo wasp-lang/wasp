@@ -6,7 +6,7 @@ import { GET_USER_SPEC } from './_private.js'
 export class App {
   #userSpec: UserSpec;
 
-  // NOTE: Using a non-public symbol gives us a pacakge-private property.
+  // NOTE: Using a non-public symbol gives us a package-private property.
   // It's not that important to hide it from the users, but we still don't want
   // user's IDE to suggest it during autocompletion.
   [GET_USER_SPEC]() {
@@ -100,13 +100,13 @@ export type AppConfig = {
 
 export type ExtImport =
   | {
-    import: string
-    from: AppSpec.ExtImport['path']
-  }
+      import: string
+      from: AppSpec.ExtImport['path']
+    }
   | {
-    importDefault: string
-    from: AppSpec.ExtImport['path']
-  }
+      importDefault: string
+      from: AppSpec.ExtImport['path']
+    }
 
 export type ServerConfig = {
   setupFn?: ExtImport

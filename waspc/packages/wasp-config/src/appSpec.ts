@@ -221,11 +221,12 @@ export type WebSocket = {
 }
 
 /**
- * We want to explicitly set all optional (Maybe) AppSpec fields to `undefined`
- * (instead of using an optional field with a questionmark).
+ * We use this type for fields that are optional (Maybe) in AppSpec.
+ * We do this instead of `someField?:` because we want TypeScript to force us
+ * to explicitly set the field to `undefined`.
  *
- * Doing so doesn't change any functionality and ensures (at compile-time) we
- * don't forget to include an existing optional field in a declaration object.
+ * This way, if the AppSpec changes on the Haskell side, we won't forget to
+ * implement a proper mapping in TypeScript.
  *
  * For example, let's say `bar` is optional (both for the user and for the app
  * spec). This would be the correct mapping code:
