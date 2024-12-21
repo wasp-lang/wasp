@@ -97,3 +97,16 @@ export function KeycloakPill() {
     </Pill>
   )
 }
+
+export function TwitterPill() {
+  return (
+    <Pill
+      style={{
+        backgroundColor: 'var(--auth-pills-twitter)',
+      }}
+      linkToPage="/docs/auth/social-auth/twitter"
+    >
+      Twitter
+    </Pill>
+  )
+}
