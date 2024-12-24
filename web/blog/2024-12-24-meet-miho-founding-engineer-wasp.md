@@ -27,7 +27,7 @@ Also, I really became a one-star scuba diver recently!
 
 In my previous company Superbet, I worked on a client in Vue.js for sports betting. I started as an individual contributor, became a tech lead and eventually started a team that worked on cross platform tooling. That’s one of the things that prompted me to contribute to open source tools like [Directus](https://github.com/directus/directus) and I really enjoyed doing that. 
 
-I realized that like working on dev tooling, helping other devs to do their job easier. I liked the open source community vibe and thought “it would be awesome to be a part of it!”. Being in the web development for over 10 years and knowing the complexity behind it made Wasp stand out to me. Working on open source dev tooling that made web dev 10x easier? Nice! This made Wasp really a perfect fit for me. Luckily, it turned out that guys at Wasp liked me back 🙂
+I realized that like working on dev tooling, helping other devs to do their job easier. I liked the open source community vibe and thought “it would be awesome to be a part of it!”. Being in the web development for over 10 years and knowing the complexity behind it made Wasp stand out to me. Working on open source dev tooling that made web dev 10x easier? Nice! This made [Wasp](https://wasp-lang.dev/) really a perfect fit for me. Luckily, it turned out that guys at Wasp liked me back 🙂
 
 ### What is your favorite language?
 
@@ -64,4 +64,4 @@ Build stuff. But own the whole process, the product, the design, the deployment 
 
 ### Lastly, where can people find or connect with you online?
 
-Here’s my pretty slow paced blog; [https://ilakovac.com/](https://ilakovac.com/) and my more up to date Twitter [https://x.com/infomiho](https://x.com/infomiho).
+Here’s my pretty slow paced [blog](https://ilakovac.com/) and my more up to date [Twitter](https://x.com/infomiho).
