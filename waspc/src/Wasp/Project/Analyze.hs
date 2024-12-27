@@ -6,6 +6,11 @@ module Wasp.Project.Analyze
 where
 
 import Control.Arrow (ArrowChoice (left))
+import Control.Concurrent (newChan)
+import Control.Concurrent.Async (concurrently)
+import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
+import qualified Data.Aeson as Aeson
+import Data.List (any, find, isSuffixOf)
 import StrongPath
   ( Abs,
     Dir,
@@ -124,18 +129,22 @@ findWaspFile waspDir = do
     else do
       files <- fst <$> IOUtil.listDirectory waspDir
       return $ case (findWaspTsFile files, findWaspLangFile files) of
-        (Just _, Just _) -> Left bothFilesFoundMessage
-        (Nothing, Nothing) -> Left fileNotFoundMessage
-        (Just waspTsFile, Nothing) -> Right waspTsFile
-        (Nothing, Just waspLangFile) -> Right waspLangFile
+        (tsFiles, langFiles)
+          | not (null tsFiles) && not (null langFiles) -> Left bothFilesFoundMessage
+          | null tsFiles && null langFiles -> Left fileNotFoundMessage
+          | [waspTsFile] <- tsFiles, null langFiles -> Right waspTsFile
+          | null tsFiles, [waspLangFile] <- langFiles -> Right waspLangFile
+          | otherwise -> Left multipleFilesFoundMessage
   where
-    findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.ts" files
-    findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> find ((suffix `isSuffixOf`) . fromRelFile) files
+    findWaspTsFile files = map (WaspTs) (findFileThatEndsWith ".wasp.ts" files)
+    findWaspLangFile files = map (WaspLang) (findFileThatEndsWith ".wasp" files)
+    findFileThatEndsWith suffix files = map (castFile . (waspDir </>)) (findFilesThatEndWith suffix files)
+    findFilesThatEndWith suffix files = filter ((suffix `isSuffixOf`) . fromRelFile) files
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
     bothFilesFoundMessage =
       "Found both *.wasp and *.wasp.ts files in the project directory. "
         ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
+    multipleFilesFoundMessage = "Found multiple *.wasp or *.wasp.ts files in the project directory. Please keep only one."
 
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do
