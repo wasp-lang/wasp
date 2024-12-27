@@ -136,9 +136,9 @@ findWaspFile waspDir = do
           | null tsFiles, [waspLangFile] <- langFiles -> Right waspLangFile
           | otherwise -> Left multipleFilesFoundMessage
   where
-    findWaspTsFile files = map (WaspTs) (findFileThatEndsWith ".wasp.ts" files)
-    findWaspLangFile files = map (WaspLang) (findFileThatEndsWith ".wasp" files)
-    findFileThatEndsWith suffix files = map (castFile . (waspDir </>)) (findFilesThatEndWith suffix files)
+    findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.ts" files
+    findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
+    findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> findFilesThatEndWith suffix files
     findFilesThatEndWith suffix files = filter ((suffix `isSuffixOf`) . fromRelFile) files
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
     bothFilesFoundMessage =
