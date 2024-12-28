@@ -18,7 +18,7 @@ Wasp supports automated deployment to the following providers:
 
 ### Prerequisites
 
-Fly provides [free allowances](https://fly.io/docs/about/pricing/#plans) for up to 3 VMs (so deploying a Wasp app to a new account is free), but all plans require you to add your credit card information before you can proceed. If you don't, the deployment will fail.
+Fly [discontinued](https://fly.io/docs/about/pricing/#discontinued-plans) to provide free allowances in October 2024. Prices are usage based and can be [estimated here](https://fly.io/calculator). All plans require you to add your credit card information before you can proceed. If you don't, the deployment will fail.
 
 You can add the required credit card information on the [account's billing page](https://fly.io/dashboard/personal/billing).
 
