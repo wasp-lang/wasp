@@ -403,7 +403,7 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "b665c70a17dcfefeff8e0ca540d8497b5462195f2f5952b265274d62d8520b8f"
+        "6ffc0eb58649803f6c384ad6126b7110cdc9ac09387047a8041e6c47afcb9469"
     ],
     [
         [
@@ -1208,7 +1208,7 @@
             "file",
             "web-app/plugins/validateEnv.ts"
         ],
-        "32a2187cfa251fcf5292996247d702b757d5213d9466a9f5a5fb528cd5256da7"
+        "392c735a3406cd73224a89cad42d634fee51baa22641aa9cf1fac6693887411c"
     ],
     [
         [
