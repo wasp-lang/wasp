@@ -1,7 +1,7 @@
 ```ts
 const emailIdentity = user.identities.email
 
-// Email address the the user used to sign up, e.g. "fluffyllama@app.com".
+// Email address the user used to sign up, e.g. "fluffyllama@app.com".
 emailIdentity.id
 
 // `true` if the user has verified their email address.

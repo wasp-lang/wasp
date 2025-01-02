@@ -16,20 +16,27 @@ const SignupPage = (props) => {
 
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleSignup = async (event) => {
     event.preventDefault()
+    setErrorMessage('')
+
     try {
       await signup({ username: usernameFieldVal, password: passwordFieldVal })
-      await login (usernameFieldVal, passwordFieldVal)
+      await login(usernameFieldVal, passwordFieldVal)
 
       setUsernameFieldVal('')
       setPasswordFieldVal('')
 
       navigate('/')
     } catch (err) {
-      console.log(err)
-      window.alert(err)
+      if (err.statusCode == 422) {
+        const errorMessage = err?.data?.data?.message || 'Invalid request'
+        setErrorMessage(errorMessage)
+      } else {
+        setErrorMessage('An error occurred. Please try again later.')
+      }
     }
   }
 
@@ -41,10 +48,12 @@ const SignupPage = (props) => {
 
         <EmailAndPassForm
           title='Sign up for your account'
+          submitButtonLabel='Sign up'
           userField={usernameFieldVal}
           passField={passwordFieldVal}
           setUser={setUsernameFieldVal}
           setPass={setPasswordFieldVal}
+          errorMessage={errorMessage}
           handleSignup={handleSignup}
         />
 

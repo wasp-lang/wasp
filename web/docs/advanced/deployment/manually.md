@@ -265,9 +265,85 @@ netlify deploy --prod
 
 That is it! Your client should be live at `https://<app-name>.netlify.app` ✨
 
+:::caution Redirecting URLs toward `index.html`
+If you follow the instructions above, Netlify will use `netlify.toml` file that Wasp generates by default in `.wasp/build/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is SPA.
+
+If you instead use another method of deployment to Netlify, e.g. do it via CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
+
+It is recommended to deploy through the Netlify CLI in Github Actions. The first deploy can be through the website or manually to get a `NETLIFY_SITE_ID`, the following deploys can then be automatic.
+:::
+
 :::note
 Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment (e.g., Fly.io or Heroku).
 :::
+
+### Deploying through Github Actions
+
+To enable automatic deployment of the frontend whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
+
+Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
+
+<details>
+<summary>Example Github Action (Updated for 0.15.0)</summary>
+
+```
+name: Deploy Client to Netlify
+
+on:
+  push:
+    branches:
+      - main  # Deploy on every push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Docker setup
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Wasp
+        run: curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.15.0 # Change to your Wasp version
+
+      - name: Wasp Build
+        run: cd ./app && wasp build
+
+      - name: Install dependencies and build Vite project
+        run: |
+          cd ./app/.wasp/build/web-app
+          npm install
+          REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+
+      - name: Deploy to Netlify
+        run: |
+          cd ./app/.wasp/build/web-app
+          npm install -g netlify-cli
+          netlify deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID
+
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+```
+</details>
+
+<details>
+<summary>How do I get the Environment Variables?</summary>
+
+- **`NETLIFY_AUTH_TOKEN` & `NETLIFY_SITE_ID`**: They can be configured through Netlify.
+
+- **`WASP_SERVER_URL`**: This is the link that points to your backend and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
+
+After obtaining the environment variables, you need to store these values securely in GitHub Secrets.
+</details>
 
 ## Railway (server, client and database)
 

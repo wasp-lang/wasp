@@ -58,7 +58,7 @@ You can now write this:
 
 ```typescript
 
-improt { App } from 'wasp-config'
+import { App } from 'wasp-config'
 
 const app = new App('TodoApp', {
   wasp: {
@@ -1621,7 +1621,7 @@ Make sure to update your Wasp VSCode extension to get the benefits of Wasp Langu
 ### [NEW FEATURE] Optimistic updates via useAction hook
 
 We added `useAction` hook to our JS API, which allows you to specify optimistic update details for an Action.
-This means that, if you have a good idea of how an Action will affect the state on the client, you can perform those changes immediatelly upon its call (instead of waiting for Action to finish), by modifying what specific Queries currently return.
+This means that, if you have a good idea of how an Action will affect the state on the client, you can perform those changes immediately upon its call (instead of waiting for Action to finish), by modifying what specific Queries currently return.
 Once Action is actually done, related Queries will be unvalidated as usual and therefore fetch the real result, but in the meantime the changes you specified via optimistic updates will be visible.
 
 This is great for apps where there is a lot of interactivity and you want the UI to update instantly with your changes, even as they are still being saved to the server.
@@ -1648,7 +1648,7 @@ Check out https://wasp-lang.dev/docs/language/features#the-useaction-hook for mo
 
 ### Upgraded Prisma to latest version (13.15.2)
 
-Among various other things, this brins support for OpenSSL3. So if you couldn't run Wasp on your operating system due to Prisma not supporting OpenSSL3, those days are over!
+Among various other things, this brings support for OpenSSL3. So if you couldn't run Wasp on your operating system due to Prisma not supporting OpenSSL3, those days are over!
 
 ---
 
@@ -1682,8 +1682,8 @@ To run Jobs, you don't need any additional infrastructure at the moment, just a 
 ### BREAKING CHANGES
 
 - Wasp now requires latest LTS version of NodeJS
-  - We had a bit of issues with being too relaxed on the version of NodeJS that can be used with Wasp so we thightened it up a bit.
-    We also added a more thorough check in Wasp for it, that will warn you very explicitely if you are using the wrong version of Node.
+  - We had a bit of issues with being too relaxed on the version of NodeJS that can be used with Wasp so we tightened it up a bit.
+    We also added a more thorough check in Wasp for it, that will warn you very explicitly if you are using the wrong version of Node.
 - Updated react-query to v3
   - This brings some new features from react query while also laying the foundation for the further features we are building on top of it in Wasp (coming soon!).
 - Updated python to python3 in Dockerfile generated upon `wasp build`.
