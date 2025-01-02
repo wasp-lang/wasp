@@ -9,6 +9,7 @@
   <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE"><img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp"></a>
   <a href="https://github.com/wasp-lang/wasp/releases/latest"><img alt="latest release" src="https://img.shields.io/github/v/release/wasp-lang/wasp"/></a>
   <a href="https://discord.gg/rzdnErX"><img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/></a>
+  <a href="https://gurubase.io/g/wasp"><img alt="Gurubase" src="https://img.shields.io/badge/Gurubase-Ask%20Wasp%20Guru-006BFF"/></a>
 </p>
 
 ---
