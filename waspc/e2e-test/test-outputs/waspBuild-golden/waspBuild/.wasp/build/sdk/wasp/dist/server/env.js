@@ -27,10 +27,6 @@ const clientUrlSchema = z
     .url({
     message: 'WASP_WEB_CLIENT_URL must be a valid URL',
 });
-const jwtTokenSchema = z
-    .string({
-    required_error: 'JWT_SECRET is required',
-});
 // In development, we provide default values for some environment variables
 // to make the development process easier.
 const serverDevSchema = z.object({
@@ -51,4 +47,7 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
 ]);
 // PUBLIC API
 export const env = ensureEnvSchema(process.env, serverEnvSchema);
+function getRequiredEnvVarErrorMessage(featureName, envVarName) {
+    return `${envVarName} is required when using ${featureName}`;
+}
 //# sourceMappingURL=env.js.map
