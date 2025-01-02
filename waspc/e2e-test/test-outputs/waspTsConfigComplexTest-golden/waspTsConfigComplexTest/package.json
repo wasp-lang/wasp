@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "wasp": "file:.wasp/out/sdk/wasp"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.37",
+    "prisma": "5.19.1",
+    "typescript": "^5.1.0",
+    "vite": "^4.3.9",
+    "wasp-config": "file:../../../../../../../../.local/share/wasp-lang/0.15.0/data/packages/wasp-config"
+  },
+  "name": "waspComplexTest",
+  "react-redux": "^7.1.3",
+  "redux": "^4.0.5",
+  "type": "module"
+}
