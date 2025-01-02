@@ -36,12 +36,12 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
-import Wasp.Generator.Job.IO
+import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
+import Wasp.Job.IO
   ( collectJobTextOutputUntilExitReceived,
     printJobMsgsUntilExitReceived,
     readJobMessagesAndPrintThemPrefixed,
   )
-import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
