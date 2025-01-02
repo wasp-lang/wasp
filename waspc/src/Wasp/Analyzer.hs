@@ -171,9 +171,6 @@ getEntityDecls schema =
   --   1. Creating an AST with (and only with) the declarations for the Prisma
   --   schema Entities.
   --   2. Type-checking that AST and returning the result.
-  -- This gives us a list of entity declarations we can then forward to
-  -- TypeScript (which then validates the user config only uses existing
-  -- entities).
   wrapAnalyzerError TypeError (typeCheck stdTypes astWithEntitiesOnly)
     >>= (wrapAnalyzerError EvaluationError . evaluate stdTypes)
   where
