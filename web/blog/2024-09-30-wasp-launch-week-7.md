@@ -57,7 +57,7 @@ Let's take a look together at the nice things that v0.15 brings us:
 
 As mentioned above, we got to keep up with the trends! Here's what's new:
 - **Upgraded Prisma to v5** - no major interface changes, but brings a lot of performance improvements which also make Wasp faster by default 🏎️
-- **React Router is now at v6** - v6 has been around for a while (you can see the the main changes from v5 [here](https://blog.saeloun.com/2021/12/02/new-features-in-react-router-6/)) and it made the code even more compact and elegant.
+- **React Router is now at v6** - v6 has been around for a while (you can see the main changes from v5 [here](https://blog.saeloun.com/2021/12/02/new-features-in-react-router-6/)) and it made the code even more compact and elegant.
 - **We cleaned up and bumped a lot of other dependencies** - including Express.js on which we base Wasp’s API layer and our type-safe RPC.
 
 ## #2: TS SDK early preview 🤩 - give it a spin and let us know what you think!

@@ -99,7 +99,7 @@ This code does not compile, because compiler can't match type of `ys` with the r
 Why though, when they are both `[a]`? Well, that is because that is not the same `a`!
 Try changing `ys :: [a]` to `ys :: [b]` and you will get the exact same error,
 because it is exactly the same code -> `a` in `ys :: [a]` and `a` in `f :: [a] -> [a]` are different `a`s and there is no connection between them.
-`a` in `ys :: [a]` stands for "any type", not for "that type that is reffered to with `a` in the type signature above".
+`a` in `ys :: [a]` stands for "any type", not for "that type that is referred to with `a` in the type signature above".
 
 This is where `ScopedTypeVariables` comes in:
 ```hs

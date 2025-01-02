@@ -292,7 +292,7 @@ The Job declaration has the following fields:
     type Input = { name: string; }
     type Output = { tasks: Task[]; }
 
-    export const foo: MySpecialJob<Input, Output> = async (args, context) => {
+    export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
       console.log(`Hello ${name}!`)
       const tasks = await context.entities.Task.findMany({})
       return { tasks }
