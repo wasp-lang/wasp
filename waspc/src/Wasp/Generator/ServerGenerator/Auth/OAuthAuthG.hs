@@ -25,6 +25,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    twitterAuthProvider,
   )
 import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
@@ -45,6 +46,7 @@ genOAuthAuth auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
+        <++> genOAuthProvider twitterAuthProvider (AS.Auth.twitter . AS.Auth.methods $ auth)
   | otherwise = return []
 
 genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]

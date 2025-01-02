@@ -14,7 +14,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider)
+import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, twitterAuthProvider)
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
     clientOAuthCallbackPath,
@@ -43,6 +43,7 @@ genOAuth auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
+        <++> genOAuthProvider twitterAuthProvider (AS.Auth.twitter . AS.Auth.methods $ auth)
   | otherwise = return []
   where
     genFileCopy = return . C.mkTmplFd

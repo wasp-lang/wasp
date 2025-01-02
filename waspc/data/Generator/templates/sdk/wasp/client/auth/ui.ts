@@ -20,6 +20,9 @@ export { SignInButton as KeycloakSignInButton } from '../../auth/helpers/Keycloa
 {=# isGitHubAuthEnabled =}
 export { SignInButton as GitHubSignInButton } from '../../auth/helpers/GitHub'
 {=/ isGitHubAuthEnabled =}
+{=# isTwitterAuthEnabled =}
+export { SignInButton as TwitterSignInButton } from '../../auth/helpers/Twitter'
+{=/ isTwitterAuthEnabled =}
 export {
   FormError,
   FormInput,

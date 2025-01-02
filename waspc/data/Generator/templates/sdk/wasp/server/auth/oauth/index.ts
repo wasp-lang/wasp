@@ -15,6 +15,10 @@ export { github } from './providers/github.js';
 // PUBLIC API
 export { keycloak } from './providers/keycloak.js';
 {=/ enabledProviders.isKeycloakAuthEnabled =}
+{=# enabledProviders.isTwitterAuthEnabled =}
+// PUBLIC API
+export { twitter } from './providers/twitter.js';
+{=/ enabledProviders.isTwitterAuthEnabled =}
 
 // PRIVATE API
 export {
