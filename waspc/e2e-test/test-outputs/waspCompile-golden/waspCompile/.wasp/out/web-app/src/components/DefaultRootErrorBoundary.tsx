@@ -7,7 +7,10 @@ export function DefaultRootErrorBoundary() {
   console.error(error)
   return (
     <FullPageWrapper>
-      <div>There was an error rendering this page. Check the browser console for more information.</div>
+      <div>
+        There was an error rendering this page. Check the browser console for
+        more information.
+      </div>
     </FullPageWrapper>
   )
 }

@@ -1,10 +1,11 @@
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
-} from "express";
-import { parseCookies } from "oslo/cookie";
+} from 'express';
+import { parseCookies } from 'oslo/cookie';
 
-import type { ProviderConfig } from "wasp/auth/providers/types";
+import type { ProviderConfig } from 'wasp/auth/providers/types';
+import { config } from 'wasp/server';
 
 import type { OAuthStateFieldName } from './state';
 
@@ -17,8 +18,7 @@ export function setOAuthCookieValue(
   const cookieName = `${provider.id}_${fieldName}`;
   res.cookie(cookieName, value, {
     httpOnly: true,
-    // TODO: use server config to determine if secure
-    secure: process.env.NODE_ENV === "production",
+    secure: !config.isDevelopment,
     path: "/",
     maxAge: 60 * 60 * 1000, // 1 hour
   });

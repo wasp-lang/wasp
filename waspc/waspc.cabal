@@ -281,6 +281,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
+    Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.ExternalConfig.Common
     Wasp.Generator.ExternalConfig.PackageJson
@@ -312,6 +313,7 @@ library
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG

@@ -1,17 +1,12 @@
 {{={= =}=}}
-import { Keycloak  } from "arctic";
+import { Keycloak  } from 'arctic';
 
-import { ensureEnvVarsForProvider } from "../env.js";
-import { getRedirectUriForCallback } from "../redirect.js";
-import { defineProvider } from "../provider.js";
+import { getRedirectUriForCallback } from '../redirect.js';
+import { defineProvider } from '../provider.js';
+import { env } from '../../../env.js';
 
-const id = "{= providerId =}";
-const displayName = "{= displayName =}";
-
-const env = ensureEnvVarsForProvider(
-  ["KEYCLOAK_REALM_URL", "KEYCLOAK_CLIENT_ID", "KEYCLOAK_CLIENT_SECRET"],
-  displayName,
-);
+const id = '{= providerId =}';
+const displayName = '{= displayName =}';
 
 const oAuthClient = new Keycloak(
   env.KEYCLOAK_REALM_URL,
@@ -24,6 +19,5 @@ const oAuthClient = new Keycloak(
 export const keycloak = defineProvider({
   id,
   displayName,
-  env,
   oAuthClient,
 });
