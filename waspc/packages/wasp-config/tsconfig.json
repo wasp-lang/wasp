@@ -20,6 +20,5 @@
     "declaration": true,
     "lib": ["es2022"]
   },
-   // better structure in output
   "include": ["src"],
 }

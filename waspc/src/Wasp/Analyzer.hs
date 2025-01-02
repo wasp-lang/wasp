@@ -166,6 +166,11 @@ analyze prismaSchemaAst =
 
 getEntityDecls :: Psl.Schema.Schema -> Either [AnalyzeError] [Decl]
 getEntityDecls schema =
+  -- Since Wasp's AST includes entity declarations, the easiest way to get a list
+  -- of all entities defined in the Prisma Schema is by:
+  --   1. Creating an AST with (and only with) the declarations for the Prisma
+  --   schema Entities.
+  --   2. Type-checking that AST and returning the result.
   wrapAnalyzerError TypeError (typeCheck stdTypes astWithEntitiesOnly)
     >>= (wrapAnalyzerError EvaluationError . evaluate stdTypes)
   where

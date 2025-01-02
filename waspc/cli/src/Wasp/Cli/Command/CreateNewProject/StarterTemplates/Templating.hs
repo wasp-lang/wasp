@@ -10,9 +10,10 @@ import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
-import Wasp.Project.Analyze (WaspFilePath (..), findWaspFile)
+import Wasp.Project.Analyze (WaspFilePath (..))
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
+import Wasp.Project.WaspFile (findWaspFile)
 import qualified Wasp.Util.IO as IOUtil
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
@@ -52,7 +53,6 @@ replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
           ("__waspProjectName__", show projectName),
           ("__waspVersion__", defaultWaspVersionBounds)
         ]
-  -- TODO: We do this in all files, but not all files have all placeholders
   updateFileContentWith (replacePlaceholders waspTemplateReplacements) file
   where
     updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()

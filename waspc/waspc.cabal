@@ -294,11 +294,6 @@ library
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
-    Wasp.Generator.Job
-    Wasp.Generator.Job.Common
-    Wasp.Generator.Job.IO
-    Wasp.Generator.Job.IO.PrefixedWriter
-    Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
@@ -359,6 +354,11 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
+    Wasp.Job
+    Wasp.Job.Common
+    Wasp.Job.IO
+    Wasp.Job.IO.PrefixedWriter
+    Wasp.Job.Process
     Wasp.Message
     Wasp.Node.Version
     Wasp.NpmDependency
@@ -367,10 +367,10 @@ library
     Wasp.Project.Analyze
     Wasp.Project.Common
     Wasp.Project.Db
-    Wasp.Project.Db.Migrations
     Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
+    Wasp.Project.Db.Migrations
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
@@ -379,6 +379,9 @@ library
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
+    Wasp.Project.WaspFile
+    Wasp.Project.WaspFile.TypeScript
+    Wasp.Project.WaspFile.WaspLang
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common

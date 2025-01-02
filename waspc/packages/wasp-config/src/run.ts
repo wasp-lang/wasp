@@ -2,51 +2,70 @@
 import { writeFileSync } from 'fs'
 import { App } from './userApi.js'
 import { Decl } from './appSpec.js'
-import { mapUserSpecToDecls } from './mappers.js'
+import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
 import { GET_USER_SPEC } from './_private.js'
-import { exit } from 'process'
 
 main()
 
 async function main() {
-  const { mainWaspJs, outputFile, entityNames } = parseProcessArguments(
-    process.argv
-  )
+  const {
+    mainWaspJs,
+    outputFile: declsJsonOutputFile,
+    entityNames,
+  } = parseProcessArgsOrThrow(process.argv)
 
-  const app = await importApp(mainWaspJs)
-  const spec = analyzeApp(app, entityNames)
-
-  writeFileSync(outputFile, serialize(spec))
-}
-
-async function importApp(mainWaspJs: string): Promise<App> {
-  const app: unknown = (await import(mainWaspJs)).default
-  if (!app) {
-    console.error(
-      'Could not load your app config. Make sure your *.wasp.ts file includes a default export of the app.'
-    )
-    exit(1)
+  const result = await getAppDefinitionOrError(mainWaspJs)
+  if (result.status === 'error') {
+    console.error(result.error)
+    process.exit(1)
   }
-  if (!isApp(app)) {
-    console.error(
-      'The default export of your *.wasp.ts file must be an instance of App.'
-    )
-    console.error('Make sure you export an object created with new App(...).')
-    exit(1)
-  }
-  return app
+  const { value: appDefinition } = result
+
+  const decls = analyzeAppDefinition(appDefinition, entityNames)
+  const declsJson = getDeclsJson(decls)
+
+  writeFileSync(declsJsonOutputFile, declsJson)
 }
 
-function isApp(app: unknown): app is App {
-  return app instanceof App
+async function getAppDefinitionOrError(
+  mainWaspJs: string
+): Promise<Result<App, string>> {
+  const usersDefaultExport: unknown = (await import(mainWaspJs)).default
+  return getValidAppOrError(usersDefaultExport)
 }
 
-function analyzeApp(app: App, entityNames: string[]): Decl[] {
+function analyzeAppDefinition(app: App, entityNames: string[]): Decl[] {
   const userSpec = app[GET_USER_SPEC]()
-  return mapUserSpecToDecls(userSpec, entityNames)
+  return mapUserSpecToAppSpecDecls(userSpec, entityNames)
 }
 
-function parseProcessArguments(args: string[]): {
+function getDeclsJson(appConfig: Decl[]): string {
+  return JSON.stringify(appConfig)
+}
+
+function getValidAppOrError(app: unknown): Result<App, string> {
+  if (!app) {
+    return {
+      status: 'error',
+      error:
+        'Could not load your app config. ' +
+        'Make sure your *.wasp.ts file includes a default export of the app.',
+    }
+  }
+
+  if (!(app instanceof App)) {
+    return {
+      status: 'error',
+      error:
+        'The default export of your *.wasp.ts file must be an instance of App. ' +
+        'Make sure you export an object created with new App(...).',
+    }
+  }
+
+  return { status: 'ok', value: app }
+}
+
+function parseProcessArgsOrThrow(args: string[]): {
   mainWaspJs: string
   outputFile: string
   entityNames: string[]
@@ -68,7 +87,7 @@ function parseProcessArguments(args: string[]): {
     )
   }
 
-  const entityNames = parseEntityNamesJson(entityNamesJson)
+  const entityNames = getValidEntityNamesOrThrow(entityNamesJson)
 
   return {
     mainWaspJs,
@@ -77,7 +96,7 @@ function parseProcessArguments(args: string[]): {
   }
 }
 
-function parseEntityNamesJson(entitiesJson: string): string[] {
+function getValidEntityNamesOrThrow(entitiesJson: string): string[] {
   const entities = JSON.parse(entitiesJson)
   if (!Array.isArray(entities)) {
     throw new Error('The entities JSON must be an array of entity names.')
@@ -85,6 +104,6 @@ function parseEntityNamesJson(entitiesJson: string): string[] {
   return entities
 }
 
-function serialize(appConfig: Decl[]): string {
-  return JSON.stringify(appConfig)
-}
+type Result<Value, Error> =
+  | { status: 'ok'; value: Value }
+  | { status: 'error'; error: Error }

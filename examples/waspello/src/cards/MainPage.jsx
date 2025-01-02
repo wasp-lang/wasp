@@ -2,7 +2,7 @@ import React, { useState, useRef, useContext } from 'react'
 import { Plus, X, MoreHorizontal } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 import UserPageLayout from './UserPageLayout'
 
@@ -116,12 +116,12 @@ const MainPage = ({ user }) => {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                { listsSortedByPos && listIdToSortedCardsMap &&
-                    <Lists
-                      lists={listsSortedByPos}
-                      listIdToCardsMap={listIdToSortedCardsMap}
-                    />
-                  }
+                {listsSortedByPos && listIdToSortedCardsMap &&
+                  <Lists
+                    lists={listsSortedByPos}
+                    listIdToCardsMap={listIdToSortedCardsMap}
+                  />
+                }
                 {provided.placeholder}
                 <AddList />
               </div>
@@ -135,16 +135,16 @@ const MainPage = ({ user }) => {
 }
 
 const Lists = ({ lists, listIdToCardsMap }) => {
-    // TODO(matija): what if some of the props is empty? Although we make sure not to add it
-    // to DOM in that case.
+  // TODO(matija): what if some of the props is empty? Although we make sure not to add it
+  // to DOM in that case.
 
-    return lists.map((list, index) => {
-      return (
-        <List list={list} key={list.id} index={index}
-          cards={listIdToCardsMap[list.id]}
-        />
-      )
-    })
+  return lists.map((list, index) => {
+    return (
+      <List list={list} key={list.id} index={index}
+        cards={listIdToCardsMap[list.id]}
+      />
+    )
+  })
 }
 
 const List = ({ list, index, cards }) => {
@@ -200,7 +200,7 @@ const List = ({ list, index, cards }) => {
         <div className='popover-header'>
           <div className='popover-header-item'>
             <button className='popover-header-close-btn dark-hover fake-invisible-item'>
-              <X size={16}/>
+              <X size={16} />
             </button>
           </div>
           <span className='popover-header-title popover-header-item'>List&nbsp;actions</span>
@@ -209,7 +209,7 @@ const List = ({ list, index, cards }) => {
               className='popover-header-close-btn dark-hover'
               onClick={() => setIsPopoverOpen(false)}
             >
-              <X size={16}/>
+              <X size={16} />
             </button>
           </div>
         </div>
@@ -250,7 +250,7 @@ const List = ({ list, index, cards }) => {
         >
           <div className='list'>
             <div className='list-header'>
-            {isHeaderTargetShown ? (
+              {isHeaderTargetShown ? (
                 <div
                   className="list-header-target"
                   onClick={(e) => handleHeadingClicked(e)}
@@ -261,7 +261,7 @@ const List = ({ list, index, cards }) => {
               <textarea
                 className='list-header-name mod-list-name'
                 onBlur={(e) => handleListNameUpdated(list.id, e.target.value)}
-                defaultValue={ list.name }
+                defaultValue={list.name}
                 ref={textAreaRef}
               />
               <div className='list-header-extras'>
@@ -271,13 +271,13 @@ const List = ({ list, index, cards }) => {
                   positions={['bottom', 'right', 'left']}
                   align='start'
                   padding={6}
-                  content={<ListMenu/>}
+                  content={<ListMenu />}
                 >
                   <div
                     className='list-header-extras-menu dark-hover'
                     onClick={() => setIsPopoverOpen(!isPopoverOpen)}
                   >
-                    <MoreHorizontal size={16}/>
+                    <MoreHorizontal size={16} />
                   </div>
                 </Popover>
               </div>
@@ -293,7 +293,7 @@ const List = ({ list, index, cards }) => {
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  { cards && <Cards cards={cards} /> }
+                  {cards && <Cards cards={cards} />}
                   {provided.placeholder}
                 </div>
               )}
@@ -318,7 +318,7 @@ const List = ({ list, index, cards }) => {
 const Cards = ({ cards }) => {
   return (
     <div className='list-cards'>
-      { cards.map((card, index) => <Card card={card} key={card.id} index={index} />) }
+      {cards.map((card, index) => <Card card={card} key={card.id} index={index} />)}
     </div>
   )
 }
@@ -336,7 +336,7 @@ const Card = ({ card, index }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <span className='list-card-title'>{ card.title }</span>
+          <span className='list-card-title'>{card.title}</span>
         </div>
       )}
     </Draggable>
@@ -353,10 +353,10 @@ const AddList = () => {
         className='open-add-list'
         onClick={() => setIsInEditMode(true)}
       >
-          <div className='add-icon'>
-            <Plus size={16} strokeWidth={2} />
-          </div>
-          Add a list
+        <div className='add-icon'>
+          <Plus size={16} strokeWidth={2} />
+        </div>
+        Add a list
       </button>
     )
   }
@@ -389,7 +389,7 @@ const AddList = () => {
             className='list-cancel-edit'
             onClick={() => setIsInEditMode(false)}
           >
-            <X/>
+            <X />
           </div>
         </div>
       </form>
@@ -402,7 +402,7 @@ const AddList = () => {
         'add-list', 'list-wrapper', 'mod-add', { 'is-idle': !isInEditMode }
       )}
     >
-      { isInEditMode ? <AddListInput /> : <AddListButton /> }
+      {isInEditMode ? <AddListInput /> : <AddListButton />}
     </div>
   )
 }
@@ -465,7 +465,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
             className='card-cancel-edit'
             onClick={() => setIsInEditMode(false)}
           >
-            <X/>
+            <X />
           </div>
         </div>
       </form>
@@ -473,7 +473,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
   }
   return (
     <div>
-      { isInEditMode ? <AddCardInput listId={listId} /> : <AddCardButton /> }
+      {isInEditMode ? <AddCardInput listId={listId} /> : <AddCardButton />}
     </div>
   )
 }
