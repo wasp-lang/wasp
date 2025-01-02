@@ -63,7 +63,6 @@ import Wasp.Generator.WebAppGenerator.Common
     reactRouterVersion,
     reactVersion,
   )
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
