@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.15.1
+version:        0.15.2
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -505,6 +505,8 @@ library cli-lib
     , mtl
     , async
     , exceptions
+    , lens ^>=5.1
+    , lens-aeson ^>=1.1.3
     , cryptonite
     , fsnotify
     , http-conduit
@@ -521,6 +523,7 @@ library cli-lib
     , waspls
     , neat-interpolation
     , unliftio ^>= 0.2.20
+    , unordered-containers  ^>= 0.2.16
     , bytestring ^>= 0.10.12
     , tar ^>=0.5.1.1
     , zlib ^>=0.6.3.0

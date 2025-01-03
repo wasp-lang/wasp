@@ -35,3 +35,9 @@ export function Internal() {
 export function Required() {
   return <Tag color="#f59e0b">required</Tag>
 }
+
+// Used to mark something as optional e.g. optional
+// env vars.
+export function Optional() {
+  return <Tag color="#08c47e">optional</Tag>
+}

@@ -9,7 +9,7 @@ export async function callOperation(operationRoute, args) {
         return superjsonDeserialize(response.data);
     }
     catch (error) {
-        handleApiError(error);
+        throw handleApiError(error);
     }
 }
 // PRIVATE API

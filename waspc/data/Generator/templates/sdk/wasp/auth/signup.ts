@@ -5,6 +5,6 @@ export default async function signup(userFields: { username: string; password: s
   try {
     await api.post('{= signupPath =}', userFields)
   } catch (error) {
-    handleApiError(error)
+    throw handleApiError(error)
   }
 }

@@ -6,7 +6,7 @@ import {
   createProviderId,
   updateAuthIdentityProviderData,
   findAuthIdentity,
-  deserializeAndSanitizeProviderData,
+  getProviderDataWithPassword,
   type EmailProviderData,
 } from 'wasp/auth/utils';
 import { config as waspServerConfig } from 'wasp/server';
@@ -64,7 +64,12 @@ async function sendEmailAndSaveMetadata(
   // so the user can't send multiple requests while the email is being sent.
   const providerId = createProviderId("email", email);
   const authIdentity = await findAuthIdentity(providerId);
-  const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData);
+
+  if (!authIdentity) {
+    throw new Error(`User with email: ${email} not found.`);
+  }
+
+  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
   await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
 
   emailSender.send(content).catch((e) => {

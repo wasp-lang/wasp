@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { throwInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/auth/utils'
 import { verifyPassword } from 'wasp/auth/password'
 import {
     createProviderId,
     findAuthIdentity,
     findAuthWithUserBy,
-    deserializeAndSanitizeProviderData,
+    getProviderDataWithPassword,
 } from 'wasp/auth/utils'
 import { createSession } from 'wasp/auth/session'
 import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
@@ -22,19 +22,23 @@ export function getLoginRoute() {
         const providerId = createProviderId("email", fields.email)
         const authIdentity = await findAuthIdentity(providerId)
         if (!authIdentity) {
-            throwInvalidCredentialsError()
+            throw createInvalidCredentialsError()
         }
-        const providerData = deserializeAndSanitizeProviderData<'email'>(authIdentity.providerData)
+        const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData)
         if (!providerData.isEmailVerified) {
-            throwInvalidCredentialsError()
+            throw createInvalidCredentialsError()
         }
         try {
             await verifyPassword(providerData.hashedPassword, fields.password);
         } catch(e) {
-            throwInvalidCredentialsError()
+            throw createInvalidCredentialsError()
         }
     
         const auth = await findAuthWithUserBy({ id: authIdentity.authId })
+
+        if (auth === null) {
+            throw createInvalidCredentialsError()
+        }
         
         await onBeforeLoginHook({
             req,
@@ -56,7 +60,7 @@ export function getLoginRoute() {
     };
 }
 
-function ensureValidArgs(args: unknown): void {
+function ensureValidArgs(args: object): void {
     ensureValidEmail(args);
     ensurePasswordIsPresent(args);
 }

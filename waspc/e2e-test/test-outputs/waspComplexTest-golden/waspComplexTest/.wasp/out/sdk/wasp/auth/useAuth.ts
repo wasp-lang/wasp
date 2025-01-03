@@ -27,7 +27,7 @@ function createUserGetter(): Query<void, AuthUser | null> {
       if (error.response?.status === 401) {
         return null
       } else {
-        handleApiError(error)
+        throw handleApiError(error)
       }
     }
   }

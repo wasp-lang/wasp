@@ -9,7 +9,7 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-import { deserializeAndSanitizeProviderData } from '../../auth/utils.js';
+import { getProviderData, } from '../../auth/utils.js';
 // PRIVATE API
 export function createAuthUserData(user) {
     const { auth } = user, rest = __rest(user, ["auth"]);
@@ -27,9 +27,7 @@ function getProviderInfo(auth, providerName) {
     if (!identity) {
         return null;
     }
-    return Object.assign(Object.assign({}, deserializeAndSanitizeProviderData(identity.providerData, {
-        shouldRemovePasswordField: true,
-    })), { id: identity.providerUserId });
+    return Object.assign(Object.assign({}, getProviderData(identity.providerData)), { id: identity.providerUserId });
 }
 function getIdentity(auth, providerName) {
     var _a;
