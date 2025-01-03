@@ -12,7 +12,7 @@ export const userSignupFields = defineUserSignupFields({
       throw new Error('Address is required')
     }
     return data.address
-  }
+  },
   phone: (data) => data.phone,
 })
 ```

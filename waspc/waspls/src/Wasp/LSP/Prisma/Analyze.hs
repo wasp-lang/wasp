@@ -8,7 +8,8 @@ import Wasp.LSP.ServerMonads (ServerM, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.Project (WaspProjectDir)
 import Wasp.Project.Analyze (analyzePrismaSchema)
-import Wasp.Psl.Ast.Schema (getModelNames)
+import qualified Wasp.Psl.Ast.Model as Model
+import Wasp.Psl.Ast.Schema (getModels)
 
 analyzeAndSetPrismaSchema :: Path' Abs (Dir WaspProjectDir) -> ServerM ()
 analyzeAndSetPrismaSchema waspDir = do
@@ -18,7 +19,7 @@ analyzeAndSetPrismaSchema waspDir = do
       logOutput "warnings" $ show warnings
     (Right prismaSchemaAst, warnings) -> do
       logOutput "warnings" $ show warnings
-      logOutput "models" $ show $ getModelNames prismaSchemaAst
+      logOutput "models" $ show $ Model.getName <$> getModels prismaSchemaAst
       modify (State.prismaSchemaAst .~ prismaSchemaAst)
   where
     logOutput :: String -> String -> ServerM ()
