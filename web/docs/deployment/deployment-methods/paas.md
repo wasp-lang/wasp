@@ -90,7 +90,7 @@ We'll cover a few different deployment providers below:
 We will show how to deploy the server and provision a database for it on Fly.io.
 
 :::tip We automated this process for you
-If you want to do all of the work below with one command, you can use the [Wasp CLI](../../advanced/deployment/cli#flyio).
+If you want to do all of the work below with one command, you can use the [Wasp CLI](./cli.md#flyio).
 
 Wasp CLI deploys the server, deploys the client, and sets up a database.
 It also gives you a way to redeploy (update) your app with a single command.
@@ -535,7 +535,7 @@ Read more: https://devcenter.heroku.com/articles/connecting-heroku-postgres#conn
 
 Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
 
-Make sure you are logged in with Netlify CLI. You can check if you are logged in with `netlify status`, and if you are not, you can log in with `netlify login`.
+Make sure you are logged in with Netlify CLI. You can check if you are logged in with `npx netlify-cli status`, and if you are not, you can log in with `npx netlify-cli login`.
 
 First, make sure you have [built the Wasp app](#1-generating-deployable-code). We'll build the client web app next.
 
@@ -549,7 +549,7 @@ npx netlify-cli deploy
 
 <small>
 
-Carefully follow the instructions i.e. do you want to create a new app or use an existing one, the team under which your app will reside etc.
+Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc.
 
 </small>
 
@@ -562,15 +562,15 @@ npx netlify-cli deploy --prod
 That is it! Your client should be live at `https://<app-name>.netlify.app`.
 
 :::note
-Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
+Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
 :::caution Redirecting URLs toward `index.html`
-If you follow the instructions above, Netlify will use `netlify.toml` file that Wasp generates by default in `.wasp/build/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
+If you follow the instructions above, the Netlify CLI will use `netlify.toml` file that Wasp generates by default in `.wasp/build/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
 
-If you instead use another method of deployment to Netlify, e.g. do it via CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
+If you instead use another method of deployment to Netlify, for example doing it using CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
 
-It is recommended to deploy through the Netlify CLI in Github Actions. The first deploy can be through the website or manually to get a `NETLIFY_SITE_ID`, the following deploys can then be automatic.
+We recommend to deploy using the Netlify CLI in Github Actions. You can find an example Github Action configuration below.
 :::
 
 ### Deploying through Github Actions
@@ -670,7 +670,7 @@ Carefully follow the instructions i.e. do you want to create a new app or use an
 That is it! Your client should be live at `https://<app-name>.pages.dev`.
 
 :::note
-Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
+Make sure you set the `https://<app-name>.pages.dev` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
 :::info Redirecting URLs toward `index.html`
