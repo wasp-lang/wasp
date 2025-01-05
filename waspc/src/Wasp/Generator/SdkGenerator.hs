@@ -196,7 +196,8 @@ npmDepsForSdk spec =
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
             ("lodash.merge", "^4.6.2"),
-            ("react-router-dom", show reactRouterVersion),
+            ("react-router", "^7.1.1"),
+            ("@react-router/node", "^7.1.1"),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]

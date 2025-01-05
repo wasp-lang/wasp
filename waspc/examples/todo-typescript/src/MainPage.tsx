@@ -10,7 +10,7 @@ import {
 import waspLogo from './waspLogo.png'
 import type { Task } from 'wasp/entities'
 import { AuthUser, getFirstProviderUserId } from 'wasp/auth'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Tasks } from 'wasp/client/crud'
 // import login from 'wasp/auth/login'
 // import signup from 'wasp/auth/signup'

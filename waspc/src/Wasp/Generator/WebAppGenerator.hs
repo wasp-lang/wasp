@@ -67,10 +67,13 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|netlify.toml|],
+      genFileCopy [relfile|react-router.config.ts|],
+      genFileCopy [relfile|src/routes.ts|],
+      genFileCopy [relfile|src/catchall.tsx|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      genIndexHtml spec,
+      genRootTsx spec,
       genViteConfig spec
     ]
     <++> genSrcDir spec
@@ -128,7 +131,8 @@ npmDepsForWasp _spec =
             -- React and ReactDOM versions should always match.
             ("react-dom", show reactVersion),
             ("@tanstack/react-query", show reactQueryVersion),
-            ("react-router-dom", show reactRouterVersion)
+            ("@react-router/node", "^7.1.1")
+            -- ("react-router-dom", show reactRouterVersion)
           ],
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -142,7 +146,8 @@ npmDepsForWasp _spec =
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^2.0.0")
+            ("@tsconfig/vite-react", "^2.0.0"),
+            ("@react-router/dev", "^7.1.1")
           ]
     }
 
@@ -172,15 +177,15 @@ genPublicDir spec =
     checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
     existingDstPaths = map FD.getDstPath extPublicFileDrafts
 
-genIndexHtml :: AppSpec -> Generator FileDraft
-genIndexHtml spec =
+genRootTsx :: AppSpec -> Generator FileDraft
+genRootTsx spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|index.html|])
+      (C.asTmplFile [relfile|src/root.tsx|])
       targetPath
       (Just templateData)
   where
-    targetPath = [relfile|index.html|]
+    targetPath = [relfile|src/root.tsx|]
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
@@ -213,8 +218,8 @@ getIndexTs :: AppSpec -> Generator FileDraft
 getIndexTs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/index.tsx|])
-      (C.asWebAppFile [relfile|src/index.tsx|])
+      (C.asTmplFile [relfile|src/entry.client.tsx|])
+      (C.asWebAppFile [relfile|src/entry.client.tsx|])
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,

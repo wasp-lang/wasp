@@ -44,7 +44,7 @@ function createLocalStorageDataStore(prefix: string): DataStore {
 export const storage = createLocalStorageDataStore('wasp')
 
 function ensureLocalStorageIsAvailable(): void {
-  if (!window.localStorage) {
+  if (!window || !window.localStorage) {
     throw new Error('Local storage is not available.')
   }
 }

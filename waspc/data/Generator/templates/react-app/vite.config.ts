@@ -1,7 +1,7 @@
 {{={= =}=}}
 /// <reference types="vitest" />
 import { mergeConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { reactRouter } from "@react-router/dev/vite";
 import { defaultExclude } from "vitest/config"
 
 {=# customViteConfig.isDefined =}
@@ -16,7 +16,7 @@ const _waspUserProvidedConfig = {};
 
 const defaultViteConfig = {
   base: "{= baseDir =}",
-  plugins: [react()],
+  plugins: [reactRouter()],
   optimizeDeps: {
     exclude: ['wasp']
   },
