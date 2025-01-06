@@ -120,32 +120,6 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
 
   return $ runValidation ASV.validateAppSpec appSpec
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
-findWaspFile waspDir = do
-  let dotWaspPath = waspDir </> [relfile|.wasp|]
-  isFile <- IOUtil.doesFileExist dotWaspPath
-  if isFile
-    then return $ Left "Invalid file name for the .wasp file. Please rename it to [something].wasp."
-    else do
-      files <- fst <$> IOUtil.listDirectory waspDir
-      return $ case (findWaspTsFile files, findWaspLangFile files) of
-        (tsFiles, langFiles)
-          | not (null tsFiles) && not (null langFiles) -> Left bothFilesFoundMessage
-          | null tsFiles && null langFiles -> Left fileNotFoundMessage
-          | [waspTsFile] <- tsFiles, null langFiles -> Right waspTsFile
-          | null tsFiles, [waspLangFile] <- langFiles -> Right waspLangFile
-          | otherwise -> Left multipleFilesFoundMessage
-  where
-    findWaspTsFile files = WaspTs <$> findFileThatEndsWith ".wasp.ts" files
-    findWaspLangFile files = WaspLang <$> findFileThatEndsWith ".wasp" files
-    findFileThatEndsWith suffix files = castFile . (waspDir </>) <$> findFilesThatEndWith suffix files
-    findFilesThatEndWith suffix files = filter ((suffix `isSuffixOf`) . fromRelFile) files
-    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
-    bothFilesFoundMessage =
-      "Found both *.wasp and *.wasp.ts files in the project directory. "
-        ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
-    multipleFilesFoundMessage = "Found multiple *.wasp or *.wasp.ts files in the project directory. Please keep only one."
-
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do
   findPrismaSchemaFile waspProjectDir >>= \case
