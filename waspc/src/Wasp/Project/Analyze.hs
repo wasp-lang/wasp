@@ -6,24 +6,13 @@ module Wasp.Project.Analyze
 where
 
 import Control.Arrow (ArrowChoice (left))
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (ExceptT (..), liftEither, runExceptT)
-import qualified Data.Aeson as Aeson
-import Data.List (any, find, isSuffixOf)
 import StrongPath
   ( Abs,
     Dir,
     File',
     Path',
     fromAbsDir,
-    fromAbsFile,
-    fromRelFile,
-    reldir,
-    relfile,
-    (</>),
   )
-import qualified System.FilePath as FP
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
