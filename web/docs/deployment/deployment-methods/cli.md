@@ -18,7 +18,7 @@ Wasp supports automated deployment to the following providers:
 
 ### Prerequisites
 
-Fly requires you to add your credit card information before you can deploy your apps. If you don't, the deployment will fail.
+Fly requires you to add your credit card information before you can deploy your apps. If you don't, the deployment will fail. Prices are usage based and can be [estimated here](https://fly.io/calculator).
 
 You can add the required credit card information on the [account's billing page](https://fly.io/dashboard/personal/billing).
 
