@@ -417,19 +417,13 @@ When you make updates and need to redeploy:
 
 ## Heroku <Server /> <Database /> {#heroku}
 
-We will show how to deploy the server and provision a database for it on Heroku.
-
-:::note
-Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
-
-As such, we recommend using an alternative provider like [Fly.io](#flyio) for your first apps.
-:::
+We will show how to deploy the server and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
 
 You will need Heroku account, `heroku` [CLI](https://devcenter.heroku.com/articles/heroku-cli) and `docker` CLI installed to follow these instructions.
 
 Make sure you are logged in with `heroku` CLI. You can check if you are logged in with `heroku whoami`, and if you are not, you can log in with `heroku login`.
 
-### Set Up a Heroku App
+### Set up a Heroku app
 
 :::info
 You need to do this only once per Wasp app.
@@ -444,11 +438,12 @@ heroku create <app-name>
 Unless you have an external PostgreSQL database that you want to use, let's create a new database on Heroku and attach it to our app:
 
 ```
-heroku addons:create --app <app-name> heroku-postgresql:mini
+heroku addons:create --app <app-name> heroku-postgresql:essential-0
 ```
 
 :::caution
-Heroku does not offer a free plan anymore and `mini` is their cheapest database instance - it costs $5/mo.
+
+We are using the `essential-0` database instance. It's the cheapest database instance Heroku offers and it costs $5/mo.
 :::
 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
@@ -467,7 +462,7 @@ heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
 :::
 
-### Deploy to a Heroku App
+### Deploy the Heroku app
 
 After you have [built the app](#1-generating-deployable-code), position yourself in `.wasp/build/` directory:
 
@@ -483,26 +478,20 @@ Log in to Heroku Container Registry:
 heroku container:login
 ```
 
-Build the docker image and push it to Heroku:
+Set your app's stack to `container` so we can deploy our app as a Docker container:
+
+```shell
+heroku stack:set container --app <app-name>
+```
+
+Build the Docker image and push it to Heroku:
 
 ```shell
 heroku container:push --app <app-name> web
 ```
 
 App is still not deployed at this point.
-This step might take some time, especially the very first time, since there are no cached docker layers.
-
-:::note Note for Apple Silicon Users
-Apple Silicon users need to build a non-Arm image, so the above step will not work at this time. Instead of `heroku container:push`, users instead should:
-
-```shell
-docker buildx build --platform linux/amd64 -t <app-name> .
-docker tag <app-name> registry.heroku.com/<app-name>/web
-docker push registry.heroku.com/<app-name>/web
-```
-
-You are now ready to proceed to the next step.
-:::
+This step might take some time, especially the very first time, since there are no cached Docker layers.
 
 Deploy the pushed image and restart the app:
 
