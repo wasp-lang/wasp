@@ -67,6 +67,7 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|netlify.toml|],
+      genFileCopy [relfile|vite/detectServerImports.ts|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,

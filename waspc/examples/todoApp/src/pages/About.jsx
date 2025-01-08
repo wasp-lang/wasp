@@ -1,5 +1,7 @@
 import { Link } from "wasp/client/router";
 
+import { HttpError } from "wasp/server"
+
 import React from 'react'
 
 const About = () => {
