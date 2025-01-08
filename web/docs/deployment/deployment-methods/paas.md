@@ -15,11 +15,11 @@ After going through the general steps that apply to all deployments, you can
 follow step-by-step guides for deploying your Wasp app to the most popular
 providers:
 
-- [Fly.io](#flyio--)
-- [Railway](#railway---)
-- [Heroku](#heroku--)
-- [Netlify](#netlify-)
-- [Cloudflare](#cloudflare-)
+- [Fly.io](#flyio)
+- [Railway](#railway)
+- [Heroku](#heroku)
+- [Netlify](#netlify)
+- [Cloudflare](#cloudflare)
 
 No worries, you can still deploy your app if your desired provider isn't on the
 list - it just means we don't yet have a step-by-step guide for you to follow.
@@ -85,7 +85,7 @@ We'll cover a few different deployment providers below:
 - Netlify <Client />
 - Cloudflare <Client />
 
-## Fly.io <Server /> <Database />
+## Fly.io <Server /> <Database /> {#flyio}
 
 We will show how to deploy the server and provision a database for it on Fly.io.
 
@@ -207,7 +207,7 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
-## Railway <Server /> <Client /> <Database />
+## Railway <Server /> <Client /> <Database /> {#railway}
 
 We will show how to deploy the client, the server, and provision a database on Railway.
 
@@ -415,7 +415,7 @@ When you make updates and need to redeploy:
 - run `railway up` in the `.wasp/build` directory (server)
 - repeat all the steps in the `.wasp/build/web-app` directory (client)
 
-## Heroku <Server /> <Database />
+## Heroku <Server /> <Database /> {#heroku}
 
 We will show how to deploy the server and provision a database for it on Heroku.
 
@@ -531,7 +531,7 @@ If you wish to deploy an app leveraging [Jobs](../../advanced/jobs) that use `pg
 Read more: https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 :::
 
-## Netlify <Client />
+## Netlify <Client /> {#netlify}
 
 Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
 
@@ -641,7 +641,7 @@ After getting the environment variables, you need to set these in GitHub Reposit
 
 </details>
 
-## Cloudflare <Client />
+## Cloudflare <Client /> {#cloudflare}
 
 [Cloudflare](https://www.cloudflare.com/) is a cloud services provider that offers a variety of services, including free static hosting with Cloudflare Pages. You will need a Cloudflare account to follow these instructions.
 
