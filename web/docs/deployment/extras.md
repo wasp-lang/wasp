@@ -16,12 +16,12 @@ It's usually a two-step process, and it's the same for both the client and the s
 
 1. Set up the **DNS records** for the domain.
 
-   This will depend on your hosting provider. You can usually do this by adding an `A` record in your DNS settings that points to the app's IPv4. Often you set the `AAAA` record for IPv6 as well. Some hosting providers ask you to set the `CNAME` record instead of the `A` and `AAAA` records.
+   This will depend on your hosting provider. You can usually do this by adding an `A` record in your DNS settings that points to the app's IPv4 address. You often set the `AAAA` record for IPv6 address as well. Some hosting providers ask you to set the `CNAME` record instead of the `A` and `AAAA` records.
 
-   :::note Using Wasp CLI?
+:::note Using Wasp CLI?
 
-   Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using-a-custom-domain-for-your-app) if you are using Wasp CLI to deploy your app.
-   :::
+Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using-a-custom-domain-for-your-app) if you are using Wasp CLI to deploy your app.
+:::
 
 2. Set up the **environment variables** for the app.
 
@@ -38,14 +38,14 @@ It's usually a two-step process, and it's the same for both the client and the s
 
     <small>
 
-   Find out more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
+   Learn more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
    </small>
 
 ### DDoS protection and CDN recommendations
 
 When deploying your Wasp app, you might want to consider using a Content Delivery Network (CDN) and DDoS protection service to improve the performance and security of your app:
 
-1. **Content Delivery Network (CDN)** is a network of servers distributed around the world that cache static assets like images, CSS, and JavaScript files.
+1. **Content Delivery Network (CDN)** is a network of servers distributed worldwide that caches static assets like images, CSS, and JavaScript files.
 
    Using a CDN in front of your **client** can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times.
 
@@ -61,6 +61,6 @@ There are other CDN providers like [Fastly](https://www.fastly.com/), [Bunny](ht
 
 As we mentioned in the [introduction](./intro.md) section, what we call **Wasp apps** are three separate pieces: the client, the server, and the database.
 
-For the server, we are using Node.js and the battle tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well maintained.
+For the server, we are using Node.js and the battle-tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well-maintained.
 
 Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
