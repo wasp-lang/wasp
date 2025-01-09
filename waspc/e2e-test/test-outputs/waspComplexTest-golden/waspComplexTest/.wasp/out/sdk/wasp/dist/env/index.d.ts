@@ -1,3 +1,3 @@
 import * as z from 'zod';
-export type EnvValidationFn = () => z.ZodObject<any>;
+export declare function defineEnvValidationSchema<Schema extends z.ZodObject<any>>(schema: Schema): Schema;
 export { ensureEnvSchema } from './validation.js';

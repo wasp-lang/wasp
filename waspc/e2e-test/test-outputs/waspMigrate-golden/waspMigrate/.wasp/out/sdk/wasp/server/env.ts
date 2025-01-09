@@ -51,7 +51,7 @@ const serverProdSchema = z.object({
   WASP_WEB_CLIENT_URL: clientUrlSchema,
 })
 
-const serverCommonSchema = waspServerCommonSchema.merge(userServerEnvSchema)
+const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverDevSchema.merge(serverCommonSchema),
   serverProdSchema.merge(serverCommonSchema)

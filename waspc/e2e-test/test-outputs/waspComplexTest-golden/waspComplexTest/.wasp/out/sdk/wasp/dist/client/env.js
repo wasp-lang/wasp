@@ -8,7 +8,7 @@ const waspClientEnvSchema = z.object({
     })
         .default('http://localhost:3001')
 });
-const clientEnvSchema = waspClientEnvSchema.merge(userClientEnvSchema);
+const clientEnvSchema = userClientEnvSchema.merge(waspClientEnvSchema);
 // PUBLIC API
 export const env = ensureEnvSchema(import.meta.env, clientEnvSchema);
 //# sourceMappingURL=env.js.map
