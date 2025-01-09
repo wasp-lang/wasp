@@ -2,7 +2,7 @@
 title: Env Variables
 ---
 
-import ClientEnvVarsNote from './\_ClientEnvVarsNote.md'
+import ClientEnvVarsNote from './\_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 
 **Environment variables** are used to configure projects based on the context in which they run. This allows them to exhibit different behaviors in different environments, such as development, staging, or production.
