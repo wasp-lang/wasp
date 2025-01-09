@@ -241,7 +241,11 @@ module.exports = {
           },
           {
             from: '/docs/deploying',
-            to: '/docs/advanced/deployment/overview',
+            to: '/docs/deployment/intro',
+          },
+          {
+            from: '/docs/advanced/deployment/overview',
+            to: '/docs/deployment/intro',
           },
           {
             from: '/docs/guides/username-password',

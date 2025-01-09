@@ -104,7 +104,7 @@ const Features = () => {
         <Feature
           Icon={Send}
           title="Simple Deployment"
-          url="/docs/advanced/deployment/overview"
+          url="/docs/deployment/intro"
           description={`
             Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
           `}

@@ -6,7 +6,7 @@ export function DeploymentOptionsGrid() {
     {
       title: 'Wasp CLI',
       description: 'One command deployment & redeployment',
-      linkToDocs: '/docs/advanced/deployment/cli',
+      linkToDocs: '/docs/deployment/deployment-methods/cli',
     },
     {
       title: 'Platform as a Service (PaaS)',
