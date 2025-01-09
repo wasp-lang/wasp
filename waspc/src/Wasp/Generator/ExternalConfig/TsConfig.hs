@@ -44,7 +44,7 @@ validateSrcTsConfig tsConfig =
       validateRequiredFieldInCompilerOptions "lib" ["dom", "dom.iterable", "esnext"] T.lib,
       validateRequiredFieldInCompilerOptions "allowJs" True T.allowJs,
       validateRequiredFieldInCompilerOptions "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] T.typeRoots,
-      validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" T.outDir
+      validateRequiredFieldInCompilerOptions "outDir" ".wasp/out/user" T.outDir
     ]
   where
     validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case fieldValue of
