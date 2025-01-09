@@ -71,6 +71,11 @@ data-files:
   packages/studio/dist/**/*.css
   packages/studio/package.json
   packages/studio/package-lock.json
+  packages/wasp-config/dist/**/*.js
+  packages/wasp-config/dist/**/*.d.ts
+  packages/wasp-config/dist/**/*.map
+  packages/wasp-config/package.json
+  packages/wasp-config/package-lock.json
 data-dir: data/
 
 source-repository head
