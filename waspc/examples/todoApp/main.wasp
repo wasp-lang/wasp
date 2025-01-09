@@ -54,12 +54,12 @@ app todoApp {
   server: {
     setupFn: import { setup } from "@src/serverSetup",
     middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup",
-    envValidationFn: import { serverEnvValidationFn } from "@src/env",
+    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
   },
   client: {
     rootComponent: import { App } from "@src/App",
     setupFn: import { setup } from "@src/clientSetup",
-    envValidationFn: import { clientEnvValidationFn } from "@src/env",
+    envValidationSchema: import { clientEnvValidationSchema } from "@src/env",
   },
   db: {
     seeds: [

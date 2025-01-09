@@ -17,6 +17,6 @@ data Client = Client
     rootComponent :: Maybe ExtImport,
     -- We expect the base dir to start with a slash e.g. /client
     baseDir :: Maybe String,
-    envValidationFn :: Maybe ExtImport
+    envValidationSchema :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON)

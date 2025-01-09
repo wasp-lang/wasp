@@ -3,13 +3,13 @@ import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
 
-{=# envValidationFn.isDefined =}
-{=& envValidationFn.importStatement =}
-const userServerEnvSchema = {= envValidationFn.importIdentifier =}()
-{=/ envValidationFn.isDefined =}
-{=^ envValidationFn.isDefined =}
+{=# envValidationSchema.isDefined =}
+{=& envValidationSchema.importStatement =}
+const userServerEnvSchema = {= envValidationSchema.importIdentifier =}
+{=/ envValidationSchema.isDefined =}
+{=^ envValidationSchema.isDefined =}
 const userServerEnvSchema = z.object({})
-{=/ envValidationFn.isDefined =}
+{=/ envValidationSchema.isDefined =}
 
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default({= defaultServerPort =}),
@@ -143,7 +143,7 @@ const serverProdSchema = z.object({
   {=/ isAuthEnabled =}
 })
 
-const serverCommonSchema = waspServerCommonSchema.merge(userServerEnvSchema)
+const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverDevSchema.merge(serverCommonSchema),
   serverProdSchema.merge(serverCommonSchema)

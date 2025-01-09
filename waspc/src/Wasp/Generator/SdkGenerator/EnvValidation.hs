@@ -49,11 +49,11 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationFn" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationFn)
+          "envValidationSchema" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationSchema)
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
-    maybeEnvValidationFn = AS.App.server app >>= AS.App.Server.envValidationFn
+    maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
 genClientEnv :: AppSpec -> Generator FileDraft
@@ -63,9 +63,9 @@ genClientEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "envValidationFn" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationFn)
+          "envValidationSchema" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationSchema)
         ]
-    maybeEnvValidationFn = AS.App.client app >>= AS.App.Client.envValidationFn
+    maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
 
 depsRequiredByEnvValidation :: [AS.Dependency.Dependency]

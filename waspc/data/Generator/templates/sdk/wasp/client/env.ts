@@ -3,13 +3,13 @@ import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
 
-{=# envValidationFn.isDefined =}
-{=& envValidationFn.importStatement =}
-const userClientEnvSchema = {= envValidationFn.importIdentifier =}()
-{=/ envValidationFn.isDefined =}
-{=^ envValidationFn.isDefined =}
+{=# envValidationSchema.isDefined =}
+{=& envValidationSchema.importStatement =}
+const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
+{=/ envValidationSchema.isDefined =}
+{=^ envValidationSchema.isDefined =}
 const userClientEnvSchema = z.object({})
-{=/ envValidationFn.isDefined =}
+{=/ envValidationSchema.isDefined =}
 
 const waspClientEnvSchema = z.object({
   REACT_APP_API_URL: z
@@ -19,7 +19,7 @@ const waspClientEnvSchema = z.object({
     .default('{= defaultServerUrl =}')
 })
 
-const clientEnvSchema = waspClientEnvSchema.merge(userClientEnvSchema)
+const clientEnvSchema = userClientEnvSchema.merge(waspClientEnvSchema)
 
 // PUBLIC API
 export const env = ensureEnvSchema(import.meta.env, clientEnvSchema)

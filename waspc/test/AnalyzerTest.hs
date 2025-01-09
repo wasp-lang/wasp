@@ -165,7 +165,7 @@ spec_Analyzer = do
                                   (ExtImportField "setupServer")
                                   (fromJust $ SP.parseRelFileP "bar.js"),
                             Server.middlewareConfigFn = Nothing,
-                            Server.envValidationFn = Nothing
+                            Server.envValidationSchema = Nothing
                           },
                     App.client =
                       Just
@@ -177,7 +177,7 @@ spec_Analyzer = do
                               Just $
                                 ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx"),
                             Client.baseDir = Just "/",
-                            Client.envValidationFn = Nothing
+                            Client.envValidationSchema = Nothing
                           },
                     App.db =
                       Just

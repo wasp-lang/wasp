@@ -41,7 +41,6 @@ data-files:
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.mjs
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css

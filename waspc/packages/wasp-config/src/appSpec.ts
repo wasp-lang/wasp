@@ -203,12 +203,14 @@ export type Ref<T extends DeclType> = {
 export type Server = {
   setupFn: Optional<ExtImport>
   middlewareConfigFn: Optional<ExtImport>
+  envValidationSchema: Optional<ExtImport>
 }
 
 export type Client = {
   setupFn: Optional<ExtImport>
   rootComponent: Optional<ExtImport>
   baseDir: Optional<`/${string}`>
+  envValidationSchema: Optional<ExtImport>
 }
 
 export type Db = {
