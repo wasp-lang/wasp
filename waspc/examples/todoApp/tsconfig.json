@@ -6,6 +6,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "composite": true,
     "target": "esnext",
     // We're bundling all code in the end so this is the most appropriate option,
     // it's also important for autocomplete to work properly.
@@ -20,6 +21,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "skipLibCheck": true,
     "allowJs": true,
     "typeRoots": [
       // This is needed to properly support Vitest testing with jest-dom matchers.
@@ -36,6 +38,15 @@
     // compilation, the following directory doesn't exist. We need to specify
     // it to prevent this error:
     // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
-    "outDir": ".wasp/phantom"
-  }
+    // "outDir": ".wasp/out/user"
+    "outDir": ".wasp/out/user",
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@components/*": ["src/components/*"],
+    //   "@util": ["src/util.js"],
+    // }
+  },
+  "include": [
+    "src"
+  ]
 }
