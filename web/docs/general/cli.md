@@ -114,13 +114,13 @@ Newsletter: https://wasp-lang.dev/#signup
     ✅ --- Deleted the node_modules/ directory. ---------------------------------------
     ```
 
- - `wasp build` generates the complete web app code, which is ready for [deployment](../advanced/deployment/overview). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
+ - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
 
  - `wasp deploy` makes it easy to get your app hosted on the web.
  
   Currently, Wasp offers support for [Fly.io](https://fly.io). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
   
-  Read more about automatic deployment [here](../advanced/deployment/cli).
+  Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
 
  - `wasp telemetry` displays the status of [telemetry](https://wasp-lang.dev/docs/telemetry).
 

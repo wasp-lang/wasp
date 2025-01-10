@@ -7,7 +7,7 @@ Whenever you start a Wasp app, you are starting two processes.
 
     During development, this is a dev server with hot reloading. In production,
     it's a simple process that serves pre-built static files with environment variables
-    embedded during the build (details depend on [how you deploy it](/advanced/deployment/overview.md)).
+    embedded during the build (details depend on [how you deploy it](../deployment/intro.md)).
 
  - **The server process** - An Express server that implements your app's backend.
  
@@ -18,7 +18,7 @@ Whenever you start a Wasp app, you are starting two processes.
 
 Check [the introduction](/introduction/introduction.md) for a more in-depth explanation of Wasp's runtime architecture.
 
-You can configure both processes through environment variables. See [the deployment instructions](/advanced/deployment/manually.md#environment-variables) for a full list of supported variables.
+You can configure both processes through environment variables. See [the deployment instructions](../project/env-vars.md) for a full list of supported variables.
 
 Wasp gives you runtime access to the processes' configurations through **configuration objects**.
 
