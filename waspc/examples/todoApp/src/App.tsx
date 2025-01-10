@@ -3,6 +3,7 @@ import { useSocket } from 'wasp/client/webSocket'
 import { Link } from 'wasp/client/router'
 import { logout, useAuth } from 'wasp/client/auth'
 import { useQuery, getDate } from 'wasp/client/operations'
+import { env } from 'wasp/client'
 
 import './Main.css'
 import { getName } from './user'
@@ -16,10 +17,7 @@ export function App() {
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
 
-  // TODO: enable users to define their own client env vars
-  const appName = import.meta.env.REACT_APP_NAME
-    ? import.meta.env.REACT_APP_NAME
-    : 'TODO App'
+  const appName = env.REACT_APP_NAME
 
   return (
     <div className="app border-spacing-2 p-4">

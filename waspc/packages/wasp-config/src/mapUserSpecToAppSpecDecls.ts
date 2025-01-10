@@ -329,19 +329,21 @@ function mapEmailSender(
 }
 
 function mapServer(server: User.ServerConfig): AppSpec.Server {
-  const { setupFn, middlewareConfigFn } = server
+  const { setupFn, middlewareConfigFn, envValidationSchema } = server
   return {
     setupFn: setupFn && mapExtImport(setupFn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    envValidationSchema: envValidationSchema && mapExtImport(envValidationSchema),
   }
 }
 
 function mapClient(client: User.ClientConfig): AppSpec.Client {
-  const { setupFn, rootComponent, baseDir } = client
+  const { setupFn, rootComponent, baseDir, envValidationSchema } = client
   return {
     setupFn: setupFn && mapExtImport(setupFn),
     rootComponent: rootComponent && mapExtImport(rootComponent),
     baseDir,
+    envValidationSchema: envValidationSchema && mapExtImport(envValidationSchema),
   }
 }
 

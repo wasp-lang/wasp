@@ -105,6 +105,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/entities/index.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/env/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/env/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/env/index.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/env/validation.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/env/validation.js
+waspCompile/.wasp/out/sdk/wasp/dist/env/validation.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspCompile/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -176,6 +179,7 @@ waspCompile/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspCompile/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspCompile/.wasp/out/sdk/wasp/entities/index.ts
 waspCompile/.wasp/out/sdk/wasp/env/index.ts
+waspCompile/.wasp/out/sdk/wasp/env/validation.ts
 waspCompile/.wasp/out/sdk/wasp/ext-src/Main.css
 waspCompile/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspCompile/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
