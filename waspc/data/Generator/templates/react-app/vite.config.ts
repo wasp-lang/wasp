@@ -3,7 +3,7 @@
 import { mergeConfig } from "vite";
 import { reactRouter } from "@react-router/dev/vite";
 import { defaultExclude } from "vitest/config"
-
+import { reactRouterDevtools } from "react-router-devtools";
 {=# customViteConfig.isDefined =}
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore
@@ -16,7 +16,7 @@ const _waspUserProvidedConfig = {};
 
 const defaultViteConfig = {
   base: "{= baseDir =}",
-  plugins: [reactRouter()],
+  plugins: [reactRouterDevtools(), reactRouter()],
   optimizeDeps: {
     exclude: ['wasp']
   },

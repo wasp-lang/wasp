@@ -147,6 +147,8 @@ npmDepsForWasp _spec =
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^2.0.0"),
+            -- NOTE: You can remove this if you don't want to use the React Router DevTools
+            ("react-router-devtools", "^1.1.0"),
             ("@react-router/dev", "^7.1.1")
           ]
     }

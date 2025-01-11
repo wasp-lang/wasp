@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { DefaultRootErrorBoundary } from "./components/DefaultRootErrorBoundary";
 
 export function Layout({
   children,
@@ -35,6 +36,9 @@ export function Layout({
   );
 }
 
+
 export default function Root() {
   return <Outlet />;
 }
+
+export const ErrorBoundary = DefaultRootErrorBoundary
