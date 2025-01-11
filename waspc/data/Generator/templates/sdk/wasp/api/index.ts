@@ -11,7 +11,7 @@ export const api: AxiosInstance = axios.create({
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
-let waspAppAuthSessionId: string | undefined = undefined // storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
+let waspAppAuthSessionId: string | undefined = typeof window !== "undefined" ? storage.get(WASP_APP_AUTH_SESSION_ID_NAME) : undefined
 
 // PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
@@ -39,37 +39,39 @@ export function removeLocalUserData(): void {
   apiEventsEmitter.emit('sessionId.clear')
 }
 
-// api.interceptors.request.use((request) => {
-//   const sessionId = getSessionId()
-//   if (sessionId) {
-//     request.headers['Authorization'] = `Bearer ${sessionId}`
-//   }
-//   return request
-// })
+api.interceptors.request.use((request) => {
+  const sessionId = getSessionId()
+  if (sessionId) {
+    request.headers['Authorization'] = `Bearer ${sessionId}`
+  }
+  return request
+})
 
-// api.interceptors.response.use(undefined, (error) => {
-//   if (error.response?.status === 401) {
-//     clearSessionId()
-//   }
-//   return Promise.reject(error)
-// })
+api.interceptors.response.use(undefined, (error) => {
+  if (error.response?.status === 401) {
+    clearSessionId()
+  }
+  return Promise.reject(error)
+})
 
 // This handler will run on other tabs (not the active one calling API functions),
 // and will ensure they know about auth session ID changes.
 // Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
 // "Note: This won't work on the same page that is making the changes — it is really a way
 // for other pages on the domain using the storage to sync any changes that are made."
-// window.addEventListener('storage', (event) => {
-//   if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
-//     if (!!event.newValue) {
-//       waspAppAuthSessionId = event.newValue
-//       apiEventsEmitter.emit('sessionId.set')
-//     } else {
-//       waspAppAuthSessionId = undefined
-//       apiEventsEmitter.emit('sessionId.clear')
-//     }
-//   }
-// })
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+      if (!!event.newValue) {
+        waspAppAuthSessionId = event.newValue
+        apiEventsEmitter.emit('sessionId.set')
+      } else {
+        waspAppAuthSessionId = undefined
+        apiEventsEmitter.emit('sessionId.clear')
+      }
+    }
+  })
+}
 
 // PRIVATE API (sdk)
 /**
