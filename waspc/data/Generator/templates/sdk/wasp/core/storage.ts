@@ -6,7 +6,7 @@ export type DataStore = {
   clear(): void
 }
 
-function createLocalStorageDataStore(prefix: string): DataStore {
+function createStorageDataStore(prefix: string): DataStore {
   function getPrefixedKey(key: string): string {
     return `${prefix}:${key}`
   }
@@ -14,12 +14,12 @@ function createLocalStorageDataStore(prefix: string): DataStore {
   return {
     getPrefixedKey,
     set(key, value) {
-      ensureLocalStorageIsAvailable()
-      localStorage.setItem(getPrefixedKey(key), JSON.stringify(value))
+      const storage =getStorage()
+      storage?.setItem(getPrefixedKey(key), JSON.stringify(value))
     },
     get(key) {
-      ensureLocalStorageIsAvailable()
-      const value = localStorage.getItem(getPrefixedKey(key))
+      const storage = getStorage()
+      const value = storage?.getItem(getPrefixedKey(key))
       try {
         return value ? JSON.parse(value) : undefined
       } catch (e: any) {
@@ -27,24 +27,29 @@ function createLocalStorageDataStore(prefix: string): DataStore {
       }
     },
     remove(key) {
-      ensureLocalStorageIsAvailable()
-      localStorage.removeItem(getPrefixedKey(key))
+      const storage = getStorage()
+      storage?.removeItem(getPrefixedKey(key))
     },
     clear() {
-      ensureLocalStorageIsAvailable()
-      Object.keys(localStorage).forEach((key) => {
+      const storage = getStorage()
+      if(!storage) {
+        return
+      }
+      Object.keys(storage).forEach((key) => {
         if (key.startsWith(prefix)) {
-          localStorage.removeItem(key)
+          storage.removeItem(key)
         }
       })
     },
   }
 }
 
-export const storage = createLocalStorageDataStore('wasp')
+export const storage = createStorageDataStore('wasp')
 
-function ensureLocalStorageIsAvailable(): void {
-  if (typeof window === 'undefined' || !window.localStorage) {
-    throw new Error('Local storage is not available.')
+// TODO: Make this function work in the server context as well.
+function getStorage(): Storage | undefined {
+  if (typeof localStorage === 'undefined') {
+    return undefined
   }
+  return localStorage
 }

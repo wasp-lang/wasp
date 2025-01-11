@@ -11,7 +11,7 @@ export const api: AxiosInstance = axios.create({
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
-let waspAppAuthSessionId: string | undefined = typeof window !== "undefined" ? storage.get(WASP_APP_AUTH_SESSION_ID_NAME) : undefined
+let waspAppAuthSessionId: string | undefined = storage.get(WASP_APP_AUTH_SESSION_ID_NAME)
 
 // PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
