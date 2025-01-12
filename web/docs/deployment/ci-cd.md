@@ -138,4 +138,4 @@ Wasp's client app is a single page application (SPA) which you build into static
 
 <!-- TOOD: update links below -->
 
-Check out our instructions for deploying the client app to [Netlify](#) or [Cloudflare](#) where you can check out the example deployment using Github Actions.
+Check out our instructions for deploying the client app to [Netlify](./deployment-methods/paas.md#netlify) or [Cloudflare](./deployment-methods/paas.md#cloudflare) where you can check out the example deployment using Github Actions.
