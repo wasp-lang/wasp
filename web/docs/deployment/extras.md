@@ -8,7 +8,7 @@ In this section, we will cover some additional topics that are important for dep
 
 If you want to set up a custom domain for your Wasp app, you can do it for both the client and the server.
 
-You point users to visit your client app, so setting up the custom domain for the client is the impactful part. Setting up a custom domain for the server is optional, but it can be useful if you'd like to hide the actual server domain from the users.
+The important part is setting up the custom domain for the client - that's what your users visit from their browsers. Setting up a custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
 
 #### How to do it?
 
@@ -27,16 +27,34 @@ Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using
 
    You need to set the environment variables so Wasp configures the app correctly (for example, for CORS to work correctly).
 
-   **For the client**, you need to set the `REACT_APP_API_URL` environment variable to the **server domain** when [building the client](./env-vars.md#client-env-vars).
+   #### Client domain env vars
+
+   When [building the client](./env-vars.md#client-env-vars), set `REACT_APP_API_URL` to point to your server domain:
+
+   ```bash
+   REACT_APP_API_URL=https://api.myapp.com
+   ```
 
    <small>
 
-   Find out more about client env variables in the [env vars section](../project/env-vars.md#client-general-configuration).
+   Learn more about client configuration in the [env vars section](../project/env-vars.md#client-general-configuration).
    </small>
 
-   **For the server**, you need to set the `WASP_WEB_CLIENT_URL` environment variable to the **client domain** and `WASP_SERVER_URL` to the **server domain**. Read how you set these up in the [server env vars section](./env-vars.md#server-env-vars).
+   #### Server domain env vars
 
-    <small>
+   For the server, you need to [configure two variables](./env-vars.md#server-env-vars):
+
+   - `WASP_WEB_CLIENT_URL`: Your client app's domain
+   - `WASP_SERVER_URL`: Your server domain
+
+   <br/>
+
+   ```bash
+   WASP_WEB_CLIENT_URL=https://myapp.com
+   WASP_SERVER_URL=https://server.myapp.com
+   ```
+
+   <small>
 
    Learn more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
    </small>
