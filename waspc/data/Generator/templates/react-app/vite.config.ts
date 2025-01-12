@@ -1,7 +1,6 @@
 {{={= =}=}}
 /// <reference types="vitest" />
 import { mergeConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
 
 {=# customViteConfig.isDefined =}
@@ -14,9 +13,10 @@ const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
 const _waspUserProvidedConfig = {};
 {=/ customViteConfig.isDefined =}
 
+// Plugins should not be defined here due to conflicts, see https://github.com/vitejs/vite/issues/16479
+// All plugins should always be defined within base templates and a migration path should be provided.
 const defaultViteConfig = {
   base: "{= baseDir =}",
-  plugins: [react()],
   optimizeDeps: {
     exclude: ['wasp']
   },
