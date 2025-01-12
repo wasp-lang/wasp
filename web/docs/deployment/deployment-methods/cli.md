@@ -110,7 +110,7 @@ You can validate your ownership of mycoolapp.com by:
 wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
 
-  <small>
+<small>
 
 We need to do this to keep our CORS configuration up to date.
 </small>
