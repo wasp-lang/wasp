@@ -53,7 +53,7 @@ Here are the client env vars that Wasp defines:
 These are some general env variables used for various Wasp features:
 
 <EnvVarsTable envVars={[
-  { name: "REACT_APP_API_URL", type: "URL", isRequired: false, defaultValue: "http://localhost:3001", note: "The client uses this as the server URL." }
+{ name: "REACT_APP_API_URL", type: "URL", isRequired: false, defaultValue: "http://localhost:3001", note: "The client uses this as the server URL." }
 ]} />
 
 ## Server Env Vars
@@ -91,11 +91,11 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 These are some general env variables used for various Wasp features:
 
 <EnvVarsTable envVars={[
-  { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
-  { name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: "Server uses this value as your client URL in various features e.g. linking to your app in e-mails." },
-  { name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: "Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub." },
-  { name: "JWT_SECRET", type: "String", isRequired: true, note: <span>Needed to generate secure tokens. <a href="https://jwtsecret.com/generate" target="_blank" rel="noreferrer">Generate</a> a random string at least 32 characters long.</span> },
-  { name: "PORT", type: "Integer", isRequired: false, defaultValue: "3001", note: "This is where the server listens for requests." }
+{ name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
+{ name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: "Server uses this value as your client URL in various features e.g. linking to your app in e-mails." },
+{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: "Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub." },
+{ name: "JWT_SECRET", type: "String", isRequired: true, note: <span>Needed to generate secure tokens. <a href="https://jwtsecret.com/generate" target="_blank" rel="noreferrer">Generate</a> a random string at least 32 characters long.</span> },
+{ name: "PORT", type: "Integer", isRequired: false, defaultValue: "3001", note: "This is where the server listens for requests." }
 ]} />
 
 #### SMTP Email Sender
@@ -103,10 +103,10 @@ These are some general env variables used for various Wasp features:
 If you are using `SMTP` as your email sender, you need to provide the following environment variables:
 
 <EnvVarsTable envVars={[
-  { name: "SMTP_HOST", type: "String", isRequired: true, note: "The SMTP server host." },
-  { name: "SMTP_PORT", type: "Integer", isRequired: true, note: "The SMTP server port." },
-  { name: "SMTP_USERNAME", type: "String", isRequired: true, note: "The SMTP server username." },
-  { name: "SMTP_PASSWORD", type: "String", isRequired: true, note: "The SMTP server password." }
+{ name: "SMTP_HOST", type: "String", isRequired: true, note: "The SMTP server host." },
+{ name: "SMTP_PORT", type: "Integer", isRequired: true, note: "The SMTP server port." },
+{ name: "SMTP_USERNAME", type: "String", isRequired: true, note: "The SMTP server username." },
+{ name: "SMTP_PASSWORD", type: "String", isRequired: true, note: "The SMTP server password." }
 ]} />
 
 #### SendGrid Email Sender
@@ -114,7 +114,7 @@ If you are using `SMTP` as your email sender, you need to provide the following 
 If you are using `SendGrid` as your email sender, you need to provide the following environment variables:
 
 <EnvVarsTable envVars={[
-  { name: "SENDGRID_API_KEY", type: "String", isRequired: true, note: "The SendGrid API key." }
+{ name: "SENDGRID_API_KEY", type: "String", isRequired: true, note: "The SendGrid API key." }
 ]} />
 
 #### Mailgun Email Sender
@@ -122,9 +122,9 @@ If you are using `SendGrid` as your email sender, you need to provide the follow
 If you are using `Mailgun` as your email sender, you need to provide the following environment variables:
 
 <EnvVarsTable envVars={[
-  { name: "MAILGUN_API_KEY", type: "String", isRequired: true, note: "The Mailgun API key." },
-  { name: "MAILGUN_DOMAIN", type: "String", isRequired: true, note: "The Mailgun domain." },
-  { name: "MAILGUN_API_URL", type: "URL", isRequired: false, note: <span>Useful if you want to use the EU API endpoint (<code>https://api.eu.mailgun.net</code>).</span> }
+{ name: "MAILGUN_API_KEY", type: "String", isRequired: true, note: "The Mailgun API key." },
+{ name: "MAILGUN_DOMAIN", type: "String", isRequired: true, note: "The Mailgun domain." },
+{ name: "MAILGUN_API_URL", type: "URL", isRequired: false, note: <span>Useful if you want to use the EU API endpoint (<code>https://api.eu.mailgun.net</code>).</span> }
 ]} />
 
 #### OAuth Providers
@@ -132,8 +132,8 @@ If you are using `Mailgun` as your email sender, you need to provide the followi
 If you are using OAuth, you need to provide the following environment variables:
 
 <EnvVarsTable envVars={[
-  { name: "<PROVIDER_NAME>_CLIENT_ID", type: "String", isRequired: true, note: "The client ID provided by the OAuth provider." },
-  { name: "<PROVIDER_NAME>_CLIENT_SECRET", type: "String", isRequired: true, note: "The client secret provided by the OAuth provider." }
+{ name: "<PROVIDER_NAME>_CLIENT_ID", type: "String", isRequired: true, note: "The client ID provided by the OAuth provider." },
+{ name: "<PROVIDER_NAME>_CLIENT_SECRET", type: "String", isRequired: true, note: "The client secret provided by the OAuth provider." }
 ]} />
 
 <small>
@@ -144,13 +144,13 @@ If you are using OAuth, you need to provide the following environment variables:
 If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to provide one extra environment variable:
 
 <EnvVarsTable envVars={[
-  { name: "KEYCLOAK_REALM_URL", type: "URL", isRequired: true, note: "The URL of the Keycloak realm." }
+{ name: "KEYCLOAK_REALM_URL", type: "URL", isRequired: true, note: "The URL of the Keycloak realm." }
 ]} />
 
 #### Jobs
 
 <EnvVarsTable envVars={[
-  { name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs#declaring-jobs">custom config</a> for PgBoss.</span> }
+{ name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs#declaring-jobs">custom config</a> for PgBoss.</span> }
 ]} />
 
 #### Development
@@ -158,8 +158,9 @@ If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to pro
 We provide some helper env variables in development:
 
 <!-- TODO: this not really Boolean, it's really a string that accepts "true" as only true value -->
+
 <EnvVarsTable envVars={[
-  { name: "SKIP_EMAIL_VERIFICATION_IN_DEV", type: "Boolean", isRequired: false, defaultValue: "false", note: "If set to true, automatically sets user emails as verified in development." }
+{ name: "SKIP_EMAIL_VERIFICATION_IN_DEV", type: "Boolean", isRequired: false, defaultValue: "false", note: "If set to true, automatically sets user emails as verified in development." }
 ]} />
 
 ## Defining Env Vars in Development
@@ -217,7 +218,80 @@ We talk about how to define env vars for each deployment option in the [deployme
 
 ## Custom Env Var Validations
 
-TODO: when the Zod validation PRs are merged, describe how users can define their own validations.
+If your code requires some custom env variables, you might want to ensure that they are defined and have the correct values. You can define your env vars validation by defining a [Zod object schema](https://zod.dev/) and importing it in the `main.wasp` file.
+
+:::info What is Zod?
+
+[Zod](https://zod.dev/) is a library that enables you to define what you expect from your data. For example, you can use Zod to define that a string should be an email address, or that a number should be between 0 and 100.
+
+:::
+
+This is how you can define a custom env var validation schema for the client and the server:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/env.js"
+import * as z from 'zod'
+
+export const serverEnvValidationSchema = z.object({
+  STRIPE_API_KEY: z.string({
+    required_error: 'STRIPE_API_KEY is required.',
+  }),
+})
+
+export const clientEnvValidationSchema = z.object({
+  REACT_APP_NAME: z.string().default('TODO App'),
+})
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/env.ts"
+import * as z from 'zod'
+
+import { defineEnvValidationSchema } from 'wasp/env'
+
+export const serverEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
+
+export const clientEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    REACT_APP_NAME: z.string().default('TODO App'),
+  })
+)
+```
+
+</TabItem>
+</Tabs>
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  client: {
+    envValidationSchema: import { clientEnvValidationSchema } from "@src/env",
+  },
+  server: {
+    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
+  },
+}
+```
+
+Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object on the server and the `import.meta.env` object on the client.
+
+This means you can use the `env` object to access **your env vars** like this:
+
+```ts
+import { env } from 'wasp/server/env'
+
+const stripeApiKey: string = env.STRIPE_API_KEY
+```
 
 ## API Reference
 
