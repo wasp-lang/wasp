@@ -49,6 +49,9 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
     {=# enabledProviders.isGitHubAuthEnabled =}
     github: Expand<UserFacingProviderData<'github'>> | null
     {=/ enabledProviders.isGitHubAuthEnabled =}
+    {=# enabledProviders.isTwitterAuthEnabled =}
+    twitter: Expand<UserFacingProviderData<'twitter'>> | null
+    {=/ enabledProviders.isTwitterAuthEnabled =}
   },
 }
 
@@ -111,6 +114,9 @@ This should never happen, but it did which means there is a bug in the code.`)
     {=# enabledProviders.isGitHubAuthEnabled =}
     github: getProviderInfo<'github'>({= authFieldOnUserEntityName =}, 'github'),
     {=/ enabledProviders.isGitHubAuthEnabled =}
+    {=# enabledProviders.isTwitterAuthEnabled =}
+    twitter: getProviderInfo<'twitter'>({= authFieldOnUserEntityName =}, 'twitter'),
+    {=/ enabledProviders.isTwitterAuthEnabled =}
   }
   return {
     ...rest,

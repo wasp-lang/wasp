@@ -118,6 +118,7 @@ spec_AppSpecValid = do
                       AS.Auth.google = Nothing,
                       AS.Auth.gitHub = Nothing,
                       AS.Auth.keycloak = Nothing,
+                      AS.Auth.twitter = Nothing,
                       AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
@@ -209,7 +210,7 @@ spec_AppSpecValid = do
                 }
 
         it "returns no error if app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, twitter = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
 
         it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
           ASV.validateAppSpec
@@ -224,13 +225,14 @@ spec_AppSpecValid = do
                       google = Nothing,
                       keycloak = Nothing,
                       gitHub = Nothing,
+                      twitter = Nothing,
                       email = Nothing
                     }
                 )
                 validUserEntity
             )
             `shouldBe` []
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, twitter = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
 
         it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
           ASV.validateAppSpec
@@ -245,6 +247,7 @@ spec_AppSpecValid = do
                       google = Nothing,
                       keycloak = Nothing,
                       gitHub = Nothing,
+                      twitter = Nothing,
                       email = Just emailAuthConfig
                     }
                 )
@@ -331,7 +334,7 @@ spec_AppSpecValid = do
                               Just
                                 AS.Auth.Auth
                                   { AS.Auth.methods =
-                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing},
+                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, twitter = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",

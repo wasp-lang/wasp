@@ -33,6 +33,11 @@ export function AuthMethodsGrid() {
       description: 'Users sign in with their Discord account',
       linkToDocs: '/docs/auth/social-auth/discord',
     },
+    {
+      title: 'Twitter',
+      description: 'Users sign in with their Twitter account',
+      linkToDocs: '/docs/auth/social-auth/twitter',
+    },
   ]
   return (
     <>

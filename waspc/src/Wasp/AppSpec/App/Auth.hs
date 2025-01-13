@@ -16,6 +16,7 @@ module Wasp.AppSpec.App.Auth
     isKeycloakAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
+    isTwitterAuthEnabled,
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
@@ -53,6 +54,7 @@ data AuthMethods = AuthMethods
     google :: Maybe ExternalAuthConfig,
     gitHub :: Maybe ExternalAuthConfig,
     keycloak :: Maybe ExternalAuthConfig,
+    twitter :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
@@ -87,7 +89,8 @@ isExternalAuthEnabled auth =
     [ isDiscordAuthEnabled,
       isGoogleAuthEnabled,
       isGitHubAuthEnabled,
-      isKeycloakAuthEnabled
+      isKeycloakAuthEnabled,
+      isTwitterAuthEnabled
     ]
 
 isDiscordAuthEnabled :: Auth -> Bool
@@ -101,6 +104,9 @@ isKeycloakAuthEnabled = isJust . keycloak . methods
 
 isGitHubAuthEnabled :: Auth -> Bool
 isGitHubAuthEnabled = isJust . gitHub . methods
+
+isTwitterAuthEnabled :: Auth -> Bool
+isTwitterAuthEnabled = isJust . twitter . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
