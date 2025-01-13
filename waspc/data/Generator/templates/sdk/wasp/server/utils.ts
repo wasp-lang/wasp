@@ -1,11 +1,18 @@
 {{={= =}=}}
-import { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'express'
+import type { ParamsDictionary, Query } from 'express-serve-static-core'
 
 {=# isAuthEnabled =}
 import { type AuthUserData } from './auth/user.js'
 {=/ isAuthEnabled =}
 
-type RequestWithExtraFields = Request & {
+type RequestWithExtraFields<
+  P = ParamsDictionary,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = Query,
+  Locals extends Record<string, any> = Record<string, any>,
+> = Request<P, ResBody, ReqBody, ReqQuery, Locals> & {
   {=# isAuthEnabled =}
   user: AuthUserData | null;
   sessionId: string | null;
@@ -19,14 +26,20 @@ type RequestWithExtraFields = Request & {
  *   if given middleware returns promise, reject of that promise will be correctly handled,
  *   meaning that error will be forwarded to next().
  */
-export const handleRejection = (
+export const handleRejection = <
+  P = ParamsDictionary,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = Query,
+  Locals extends Record<string, any> = Record<string, any>,
+>(
   middleware: (
-    req: RequestWithExtraFields,
+    req: RequestWithExtraFields<P, ResBody, ReqBody, ReqQuery, Locals>,
     res: Response,
     next: NextFunction
   ) => any
 ) =>
-async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
+async (req: RequestWithExtraFields<P, ResBody, ReqBody, ReqQuery, Locals>, res: Response, next: NextFunction) => {
   try {
     await middleware(req, res, next)
   } catch (error) {

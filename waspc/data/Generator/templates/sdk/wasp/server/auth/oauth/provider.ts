@@ -1,4 +1,5 @@
 import { OAuth2Provider, OAuth2ProviderWithPKCE } from "arctic";
+import { type ProviderName } from "../../../auth/utils.js";
 
 export function defineProvider<
   OAuthClient extends OAuth2Provider | OAuth2ProviderWithPKCE,
@@ -9,7 +10,7 @@ export function defineProvider<
   env,
   oAuthClient,
 }: {
-  id: string;
+  id: ProviderName;
   displayName: string;
   env: Env;
   oAuthClient: OAuthClient;
