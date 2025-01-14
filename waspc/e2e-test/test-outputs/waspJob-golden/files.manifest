@@ -279,6 +279,7 @@ waspJob/.wasp/out/web-app/src/vite-env.d.ts
 waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.node.json
 waspJob/.wasp/out/web-app/vite.config.ts
+waspJob/.wasp/out/web-app/vite/detectServerImports.ts
 waspJob/.waspignore
 waspJob/.wasproot
 waspJob/main.wasp

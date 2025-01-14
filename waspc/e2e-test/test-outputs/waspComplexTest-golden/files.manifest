@@ -526,6 +526,7 @@ waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts
 waspComplexTest/.wasp/out/web-app/tsconfig.json
 waspComplexTest/.wasp/out/web-app/tsconfig.node.json
 waspComplexTest/.wasp/out/web-app/vite.config.ts
+waspComplexTest/.wasp/out/web-app/vite/detectServerImports.ts
 waspComplexTest/.waspignore
 waspComplexTest/.wasproot
 waspComplexTest/main.wasp

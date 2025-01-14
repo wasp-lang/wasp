@@ -234,6 +234,7 @@ waspCompile/.wasp/out/web-app/src/vite-env.d.ts
 waspCompile/.wasp/out/web-app/tsconfig.json
 waspCompile/.wasp/out/web-app/tsconfig.node.json
 waspCompile/.wasp/out/web-app/vite.config.ts
+waspCompile/.wasp/out/web-app/vite/detectServerImports.ts
 waspCompile/.waspignore
 waspCompile/.wasproot
 waspCompile/main.wasp

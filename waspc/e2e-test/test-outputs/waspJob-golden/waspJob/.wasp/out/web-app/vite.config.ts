@@ -2,6 +2,7 @@
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
+import { detectServerImports } from "./vite/detectServerImports"
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore
@@ -10,7 +11,10 @@ const _waspUserProvidedConfig = customViteConfig
 
 const defaultViteConfig = {
   base: "/",
-  plugins: [react()],
+  plugins: [
+    react(),
+    detectServerImports(),
+  ],
   optimizeDeps: {
     exclude: ['wasp']
   },
