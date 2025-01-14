@@ -3,7 +3,7 @@ import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
 
-import { validateEnv } from "./plugins/validateEnv.js";
+import { validateEnv } from "./vite/validateEnv.js";
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore

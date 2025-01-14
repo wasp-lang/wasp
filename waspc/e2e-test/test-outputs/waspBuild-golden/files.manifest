@@ -238,7 +238,6 @@ waspBuild/.wasp/build/web-app/README.md
 waspBuild/.wasp/build/web-app/index.html
 waspBuild/.wasp/build/web-app/netlify.toml
 waspBuild/.wasp/build/web-app/package.json
-waspBuild/.wasp/build/web-app/plugins/validateEnv.ts
 waspBuild/.wasp/build/web-app/public/.gitkeep
 waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/manifest.json
@@ -256,6 +255,7 @@ waspBuild/.wasp/build/web-app/src/vite-env.d.ts
 waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.node.json
 waspBuild/.wasp/build/web-app/vite.config.ts
+waspBuild/.wasp/build/web-app/vite/validateEnv.ts
 waspBuild/.wasp/out/sdk/wasp/api/events.ts
 waspBuild/.wasp/out/sdk/wasp/api/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/config.ts

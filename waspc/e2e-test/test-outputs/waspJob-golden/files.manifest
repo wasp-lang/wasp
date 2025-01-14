@@ -280,7 +280,6 @@ waspJob/.wasp/out/web-app/README.md
 waspJob/.wasp/out/web-app/index.html
 waspJob/.wasp/out/web-app/netlify.toml
 waspJob/.wasp/out/web-app/package.json
-waspJob/.wasp/out/web-app/plugins/validateEnv.ts
 waspJob/.wasp/out/web-app/public/.gitkeep
 waspJob/.wasp/out/web-app/public/favicon.ico
 waspJob/.wasp/out/web-app/public/manifest.json
@@ -298,6 +297,7 @@ waspJob/.wasp/out/web-app/src/vite-env.d.ts
 waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.node.json
 waspJob/.wasp/out/web-app/vite.config.ts
+waspJob/.wasp/out/web-app/vite/validateEnv.ts
 waspJob/.waspignore
 waspJob/.wasproot
 waspJob/main.wasp

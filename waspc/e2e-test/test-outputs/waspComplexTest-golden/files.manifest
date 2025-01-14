@@ -521,7 +521,6 @@ waspComplexTest/.wasp/out/web-app/README.md
 waspComplexTest/.wasp/out/web-app/index.html
 waspComplexTest/.wasp/out/web-app/netlify.toml
 waspComplexTest/.wasp/out/web-app/package.json
-waspComplexTest/.wasp/out/web-app/plugins/validateEnv.ts
 waspComplexTest/.wasp/out/web-app/public/.gitkeep
 waspComplexTest/.wasp/out/web-app/public/favicon.ico
 waspComplexTest/.wasp/out/web-app/public/manifest.json
@@ -541,6 +540,7 @@ waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts
 waspComplexTest/.wasp/out/web-app/tsconfig.json
 waspComplexTest/.wasp/out/web-app/tsconfig.node.json
 waspComplexTest/.wasp/out/web-app/vite.config.ts
+waspComplexTest/.wasp/out/web-app/vite/validateEnv.ts
 waspComplexTest/.waspignore
 waspComplexTest/.wasproot
 waspComplexTest/main.wasp

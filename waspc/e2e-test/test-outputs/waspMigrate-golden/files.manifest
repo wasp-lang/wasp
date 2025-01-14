@@ -239,7 +239,6 @@ waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/index.html
 waspMigrate/.wasp/out/web-app/netlify.toml
 waspMigrate/.wasp/out/web-app/package.json
-waspMigrate/.wasp/out/web-app/plugins/validateEnv.ts
 waspMigrate/.wasp/out/web-app/public/.gitkeep
 waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/manifest.json
@@ -257,6 +256,7 @@ waspMigrate/.wasp/out/web-app/src/vite-env.d.ts
 waspMigrate/.wasp/out/web-app/tsconfig.json
 waspMigrate/.wasp/out/web-app/tsconfig.node.json
 waspMigrate/.wasp/out/web-app/vite.config.ts
+waspMigrate/.wasp/out/web-app/vite/validateEnv.ts
 waspMigrate/.waspignore
 waspMigrate/.wasproot
 waspMigrate/main.wasp
