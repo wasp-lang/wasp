@@ -4,7 +4,9 @@
   "dependencies": {
     "color-hash": "2.0.1",
     "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-markdown": "6.0.1",
+    "react-router-dom": "^6.26.2",
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
