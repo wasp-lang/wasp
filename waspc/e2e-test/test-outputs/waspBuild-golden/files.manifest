@@ -110,6 +110,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/entities/index.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/env/index.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/env/index.js
 waspBuild/.wasp/build/sdk/wasp/dist/env/index.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/env/validation.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/env/validation.js
+waspBuild/.wasp/build/sdk/wasp/dist/env/validation.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/ext-src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -181,6 +184,7 @@ waspBuild/.wasp/build/sdk/wasp/dist/universal/validators.js
 waspBuild/.wasp/build/sdk/wasp/dist/universal/validators.js.map
 waspBuild/.wasp/build/sdk/wasp/entities/index.ts
 waspBuild/.wasp/build/sdk/wasp/env/index.ts
+waspBuild/.wasp/build/sdk/wasp/env/validation.ts
 waspBuild/.wasp/build/sdk/wasp/ext-src/Main.css
 waspBuild/.wasp/build/sdk/wasp/ext-src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/ext-src/vite-env.d.ts
@@ -358,6 +362,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/entities/index.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/env/index.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/env/index.js
 waspBuild/.wasp/out/sdk/wasp/dist/env/index.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/env/validation.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/env/validation.js
+waspBuild/.wasp/out/sdk/wasp/dist/env/validation.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
@@ -429,6 +436,7 @@ waspBuild/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspBuild/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspBuild/.wasp/out/sdk/wasp/entities/index.ts
 waspBuild/.wasp/out/sdk/wasp/env/index.ts
+waspBuild/.wasp/out/sdk/wasp/env/validation.ts
 waspBuild/.wasp/out/sdk/wasp/ext-src/Main.css
 waspBuild/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts

@@ -2,18 +2,22 @@
 title: Env Variables
 ---
 
+import ClientEnvVarsNote from './\_clientEnvVarsNote.md'
+import { EnvVarsTable, EnvVar } from './EnvVarsTable'
+
 **Environment variables** are used to configure projects based on the context in which they run. This allows them to exhibit different behaviors in different environments, such as development, staging, or production.
 
-For instance, _during development_, you may want your project to connect to a local development database running on your machine, but _in production_, you may prefer it to connect to the production database. Similarly, in development, you may want to use a test Stripe account, while in production, your app should use a real Stripe account.
+For instance, _during development_, you may want your project to connect to a local development database running on your machine, but _in production_, you want it to connect to the production database. Similarly, in development, you may want to use a test Stripe account, while in production, your app should use a real Stripe account.
 
 While some env vars are required by Wasp, such as the database connection or secrets for social auth, you can also define your env vars for any other useful purposes, and then access them in the code.
 
-In Wasp, you can use environment variables in both the client and the server code.
+Let's go over the available env vars in Wasp, how to define them, and how to use them in your project.
+
 ## Client Env Vars
 
-Client environment variables are embedded into the client code during the build and shipping process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys -> you can provide those to server instead).
+Client environment variables are injected into the client Javascript code during the build process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys, you should store secrets in the server env variables).
 
-To enable Wasp to pick them up, client env vars must be prefixed with `REACT_APP_`, for example: `REACT_APP_SOME_VAR_NAME=...`.
+<ClientEnvVarsNote />
 
 You can read them from the client code like this:
 
@@ -21,46 +25,147 @@ You can read them from the client code like this:
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/App.js"
-console.log(import.meta.env.REACT_APP_SOME_VAR_NAME)
+import { env } from 'wasp/client'
+
+console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/App.ts"
-console.log(import.meta.env.REACT_APP_SOME_VAR_NAME)
+import { env } from 'wasp/client'
+
+console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
+
 </TabItem>
 </Tabs>
 
+Read more about the `env` object in the [API reference](#client-env-vars-1).
 
-Check below on how to define them.
+### Wasp Client Env Vars
 
+Here are the client env vars that Wasp defines:
+
+#### General Configuration
+
+These are some general env variables used for various Wasp features:
+
+<EnvVarsTable envVars={[
+  { name: "REACT_APP_API_URL", type: "URL", isRequired: false, defaultValue: "http://localhost:3001", note: "The client uses this as the server URL." }
+]} />
 
 ## Server Env Vars
 
-In server environment variables, you can store secret values (e.g. secret API keys) since they are not publicly readable. You can define them without any special prefix, such as `SOME_VAR_NAME=...`.
+You can store secret values (e.g. secret API keys) in the server env variables since they are not publicly readable. You can define them without any special prefix, such as `SOME_VAR_NAME=...`.
 
 You can read the env vars from server code like this:
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
 ```js
-console.log(process.env.SOME_VAR_NAME)
+import { env } from 'wasp/server'
+
+console.log(env.SOME_VAR_NAME)
 ```
+
 </TabItem>
 <TabItem value="ts" label="TypeScript">
 
 ```ts
-console.log(process.env.SOME_VAR_NAME)
+import { env } from 'wasp/server'
+
+console.log(env.SOME_VAR_NAME)
 ```
+
 </TabItem>
 </Tabs>
 
-Check below on how to define them.
+Read more about the `env` object in the [API reference](#server-env-vars-1).
+
+### Wasp Server Env Vars
+
+#### General Configuration
+
+These are some general env variables used for various Wasp features:
+
+<EnvVarsTable envVars={[
+  { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
+  { name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: "Server uses this value as your client URL in various features e.g. linking to your app in e-mails." },
+  { name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: "Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub." },
+  { name: "JWT_SECRET", type: "String", isRequired: true, note: <span>Needed to generate secure tokens. <a href="https://jwtsecret.com/generate" target="_blank" rel="noreferrer">Generate</a> a random string at least 32 characters long.</span> },
+  { name: "PORT", type: "Integer", isRequired: false, defaultValue: "3001", note: "This is where the server listens for requests." }
+]} />
+
+#### SMTP Email Sender
+
+If you are using `SMTP` as your email sender, you need to provide the following environment variables:
+
+<EnvVarsTable envVars={[
+  { name: "SMTP_HOST", type: "String", isRequired: true, note: "The SMTP server host." },
+  { name: "SMTP_PORT", type: "Integer", isRequired: true, note: "The SMTP server port." },
+  { name: "SMTP_USERNAME", type: "String", isRequired: true, note: "The SMTP server username." },
+  { name: "SMTP_PASSWORD", type: "String", isRequired: true, note: "The SMTP server password." }
+]} />
+
+#### SendGrid Email Sender
+
+If you are using `SendGrid` as your email sender, you need to provide the following environment variables:
+
+<EnvVarsTable envVars={[
+  { name: "SENDGRID_API_KEY", type: "String", isRequired: true, note: "The SendGrid API key." }
+]} />
+
+#### Mailgun Email Sender
+
+If you are using `Mailgun` as your email sender, you need to provide the following environment variables:
+
+<EnvVarsTable envVars={[
+  { name: "MAILGUN_API_KEY", type: "String", isRequired: true, note: "The Mailgun API key." },
+  { name: "MAILGUN_DOMAIN", type: "String", isRequired: true, note: "The Mailgun domain." },
+  { name: "MAILGUN_API_URL", type: "URL", isRequired: false, note: <span>Useful if you want to use the EU API endpoint (<code>https://api.eu.mailgun.net</code>).</span> }
+]} />
+
+#### OAuth Providers
+
+If you are using OAuth, you need to provide the following environment variables:
+
+<EnvVarsTable envVars={[
+  { name: "<PROVIDER_NAME>_CLIENT_ID", type: "String", isRequired: true, note: "The client ID provided by the OAuth provider." },
+  { name: "<PROVIDER_NAME>_CLIENT_SECRET", type: "String", isRequired: true, note: "The client secret provided by the OAuth provider." }
+]} />
+
+<small>
+
+\* `<PROVIDER_NAME>` is the uppercase name of the provider you are using. For example, if you are using Google OAuth, you need to provide the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
+</small>
+
+If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to provide one extra environment variable:
+
+<EnvVarsTable envVars={[
+  { name: "KEYCLOAK_REALM_URL", type: "URL", isRequired: true, note: "The URL of the Keycloak realm." }
+]} />
+
+#### Jobs
+
+<EnvVarsTable envVars={[
+  { name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs#declaring-jobs">custom config</a> for PgBoss.</span> }
+]} />
+
+#### Development
+
+We provide some helper env variables in development:
+
+<!-- TODO: this not really Boolean, it's really a string that accepts "true" as only true value -->
+<EnvVarsTable envVars={[
+  { name: "SKIP_EMAIL_VERIFICATION_IN_DEV", type: "Boolean", isRequired: false, defaultValue: "false", note: "If set to true, automatically sets user emails as verified in development." }
+]} />
 
 ## Defining Env Vars in Development
 
 During development (`wasp start`), there are two ways to provide env vars to your Wasp project:
+
 1. Using `.env` files. **(recommended)**
 2. Using shell. (useful for overrides)
 
@@ -71,29 +176,31 @@ During development (`wasp start`), there are two ways to provide env vars to you
 This is the recommended method for providing env vars to your Wasp project during development.
 
 In the root of your Wasp project you can create two distinct files:
- - `.env.server` for env vars that will be provided to the server.
+
+- `.env.server` for env vars that will be provided to the server.
+
+Variables are defined in these files in the form of `NAME=VALUE`, for example:
+
+```shell title=".env.server"
+DATABASE_URL=postgresql://localhost:5432
+SOME_VAR_NAME=somevalue
+```
+
+- `.env.client` for env vars that will be provided to the client.
 
   Variables are defined in these files in the form of `NAME=VALUE`, for example:
-  ```shell title=".env.server"
-  DATABASE_URL=postgresql://localhost:5432
-  SOME_VAR_NAME=somevalue
+
+  ```shell title=".env.client"
+  REACT_APP_SOME_VAR_NAME=somevalue
   ```
 
- - `.env.client` for env vars that will be provided to the client.
-
-    Variables are defined in these files in the form of `NAME=VALUE`, for example:
-    ```shell title=".env.client"
-    REACT_APP_SOME_VAR_NAME=somevalue
-    ```
+   <ClientEnvVarsNote />
 
 `.env.server` should not be committed to version control as it can contain secrets, while `.env.client` can be versioned as it must not contain any secrets.
 By default, in the `.gitignore` file that comes with a new Wasp app, we ignore all dotenv files.
 
-:::info Dotenv files
-  `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [dotenv npm package](https://www.npmjs.com/package/dotenv).
-:::
-
 ### 2. Using Shell
+
 If you set environment variables in the shell where you run your Wasp commands (e.g., `wasp start`), Wasp will recognize them.
 
 You can set environment variables in the `.profile` or a similar file, which will set them permanently, or you can set them temporarily by defining them at the start of a command (`SOME_VAR_NAME=SOMEVALUE wasp start`).
@@ -104,43 +211,74 @@ Defining environment variables in this way can be cumbersome even for a single p
 
 ## Defining Env Vars in Production
 
-While in development, we had the option of using `.env.client` and `.env.server` files which made it easy to define and manage env vars.
-However, for production, `.env.client` and `.env.server` files will be ignored, and we need to provide env vars differently.
+Defining env variables in production will depend on where you are deploying your Wasp project. In general, you will define them via mechanisms that your hosting provider provides.
 
-![Env vars usage in development and production](/img/env/prod_dev_fade_2.svg)
+We talk about how to define env vars for each deployment option in the [deployment section](../deployment/env-vars.md).
+
+## Custom Env Var Validations
+
+TODO: when the Zod validation PRs are merged, describe how users can define their own validations.
+
+## API Reference
 
 ### Client Env Vars
 
-Client env vars are embedded into the client code during the build process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
+Access client env vars in your client code using the `env` object like this:
 
-When building for production `.env.client` will be ignored, since it is meant to be used only during development.
-Instead, you should provide the production client env vars directly to the build command that turns client code into static files:
-```shell
-REACT_APP_SOME_VAR_NAME=somevalue REACT_APP_SOME_OTHER_VAR_NAME=someothervalue npm run build
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/App.js"
+import { env } from 'wasp/client'
+
+console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
 
-Check the [deployment docs](../advanced/deployment/manually#3-deploying-the-web-client-frontend) for more details.
+</TabItem>
+<TabItem value="ts" label="TypeScript">
 
-Also, notice that you can't and shouldn't provide env vars to the client code by setting them on the hosting provider where you deployed them (unlike server env vars, where this is how you should do it). Your client code will ignore those, as at that point client code is just static files.
+```ts title="src/App.ts"
+import { env } from 'wasp/client'
 
-:::info How it works
-What happens behind the scenes is that Wasp will replace all occurrences of `import.meta.env.REACT_APP_SOME_VAR_NAME` in your client code with the env var value you provided. This is done during the build process, so the value is embedded into the static files produced from the client code.
+console.log(env.REACT_APP_SOME_VAR_NAME)
+```
 
-Read more about it in Vite's [docs](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
-:::
+</TabItem>
+</Tabs>
+
+The `env` object is a validated object that Wasp provides to access client env vars.
+
+You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code, but it's not recommended because it's not validated and can lead to runtime errors if the env var is not defined.
+
+<!-- TODO: when the Zod validation PRs are merged, describe how users can define their own validations -->
 
 ### Server Env Vars
 
-When building for production `.env.server` will be ignored, since it is meant to be used only during development.
+Access server env vars in your server code using the `env` object like this:
 
-You can provide production env vars to your server code in production by defining them and making them available on the server where your server code is running.
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
-Setting this up will highly depend on where you are deploying your Wasp project, but in general it comes down to defining the env vars via mechanisms that your hosting provider provides.
+```js title="src/App.js"
+import { env } from 'wasp/server'
 
-For example, if you deploy your project to [Fly](https://fly.io), you can define them using the `flyctl` CLI tool:
-
-```shell
-flyctl secrets set SOME_VAR_NAME=somevalue
+console.log(env.SOME_SECRET)
 ```
 
-You can read a lot more details in the [deployment section](../advanced/deployment/manually) of the docs. We go into detail on how to define env vars for each deployment option.
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/App.ts"
+import { env } from 'wasp/server'
+
+console.log(env.SOME_SECRET)
+```
+
+</TabItem>
+</Tabs>
+
+The `env` object is a validated object that Wasp provides to access server env vars.
+
+You can use `process.env.SOME_SECRET` directly in your code, but it's not recommended because it's not validated and can lead to runtime errors if the env var is not defined.
+
+<!-- TODO: when the Zod validation PRs are merged, describe how users can define their own validations -->

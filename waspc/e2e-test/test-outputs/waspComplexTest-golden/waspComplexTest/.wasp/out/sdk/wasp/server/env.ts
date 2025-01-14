@@ -1,15 +1,17 @@
 import * as z from 'zod'
 
-import { ensureEnvSchema } from '../env/index.js'
+import { ensureEnvSchema } from '../env/validation.js'
 
-const serverCommonSchema = z.object({
+const userServerEnvSchema = z.object({})
+
+const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string({
     required_error: 'DATABASE_URL is required',
   }),
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
   SENDGRID_API_KEY: z.string({
-    required_error: 'SENDGRID_API_KEY is required',
+    required_error: getRequiredEnvVarErrorMessage('SendGrid email sender', 'SENDGRID_API_KEY'),
   }),
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {
@@ -18,10 +20,10 @@ const serverCommonSchema = z.object({
     .transform((value) => value === 'true')
     .default('false'),
   GOOGLE_CLIENT_ID: z.string({
-    required_error: 'GOOGLE_CLIENT_ID is required',
+    required_error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_ID'),
   }),
   GOOGLE_CLIENT_SECRET: z.string({
-    required_error: 'GOOGLE_CLIENT_SECRET is required',
+    required_error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_SECRET'),
   }),
 })
 
@@ -65,6 +67,7 @@ const serverProdSchema = z.object({
   JWT_SECRET: jwtTokenSchema,
 })
 
+const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverDevSchema.merge(serverCommonSchema),
   serverProdSchema.merge(serverCommonSchema)
@@ -72,3 +75,7 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
 
 // PUBLIC API
 export const env = ensureEnvSchema(process.env, serverEnvSchema)
+
+function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
+  return `${envVarName} is required when using ${featureName}`
+}

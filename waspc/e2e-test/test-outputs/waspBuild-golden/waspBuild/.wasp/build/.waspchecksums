@@ -25,7 +25,7 @@
             "file",
             "../out/sdk/wasp/client/env.ts"
         ],
-        "1b6b65c500f28977a14163878d73b53d900e0dfe44abc1ff663bc46f81dfc33e"
+        "50f9ee2fff3ae9ec553b0c6ad6a61168a0fa68b045e11ee8fd9b4291636d6676"
     ],
     [
         [
@@ -186,7 +186,14 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "6ffc0eb58649803f6c384ad6126b7110cdc9ac09387047a8041e6c47afcb9469"
+        "875e82e9d726611c8d94717d13b436666ae949b79a79cad9273bcbfc8e9ff888"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/env/validation.ts"
+        ],
+        "64dd871a6398b2fafdb5a8c53d580674c260acc4062fedb57cdb6962edfb9673"
     ],
     [
         [
@@ -221,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "8c99121b7e9e68b1edca56f8c9247038bf65b0f8203ed9a6bbbcad725f81e039"
+        "6d03cb05d7b61ce911cd6d1d14c96125f538943e0d489e930ed98994dcb3e420"
     ],
     [
         [
@@ -235,7 +242,7 @@
             "file",
             "../out/sdk/wasp/server/HttpError.ts"
         ],
-        "f375fb45eeb16381b8cc575503db302c005ddaa1b35d837ca0ea043fe8ec6ccb"
+        "9c1b2449d8e9d68470c6014054a3c3074069a104ddb291b9089c30d624a2d9d9"
     ],
     [
         [
@@ -277,7 +284,7 @@
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "296b8542526667093f7cc34d12d0aba6593a04b8abbeb0c036141cbe5bdf4da2"
+        "f3cab17868417ffd4432dc4efecde72ccaaf099a79ddc9194835f3608d123b63"
     ],
     [
         [
@@ -494,7 +501,7 @@
             "file",
             "server/src/polyfill.ts"
         ],
-        "1149661e0aa7228b184bb2c04ac63232a6523b09b33829db6977f79daba3fd8d"
+        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
     ],
     [
         [
@@ -599,7 +606,7 @@
             "file",
             "web-app/src/components/DefaultRootErrorBoundary.tsx"
         ],
-        "4a141a28ca7aed9daddd75c156f7bae5eec50f3e5a85b6a43a28fa2648f34c44"
+        "73bbe8a2eb141e523c6b8169c0831e594b4ab6c7207f107d6d20c1561b44373a"
     ],
     [
         [

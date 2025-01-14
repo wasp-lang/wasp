@@ -1,8 +1,10 @@
 import * as z from 'zod'
 
-import { ensureEnvSchema } from '../env/index.js'
+import { ensureEnvSchema } from '../env/validation.js'
 
-const serverCommonSchema = z.object({
+const userServerEnvSchema = z.object({})
+
+const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string({
     required_error: 'DATABASE_URL is required',
@@ -32,10 +34,6 @@ const clientUrlSchema = z
     message: 'WASP_WEB_CLIENT_URL must be a valid URL',
   })
 
-const jwtTokenSchema = z
-  .string({
-    required_error: 'JWT_SECRET is required',
-  })
 
 // In development, we provide default values for some environment variables
 // to make the development process easier.
@@ -53,6 +51,7 @@ const serverProdSchema = z.object({
   WASP_WEB_CLIENT_URL: clientUrlSchema,
 })
 
+const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverDevSchema.merge(serverCommonSchema),
   serverProdSchema.merge(serverCommonSchema)
@@ -60,3 +59,7 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
 
 // PUBLIC API
 export const env = ensureEnvSchema(process.env, serverEnvSchema)
+
+function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
+  return `${envVarName} is required when using ${featureName}`
+}

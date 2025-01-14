@@ -9,6 +9,9 @@ dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 for package in $(ls "$dir/../packages"); do
   package_dir="$dir/../packages/$package"
   if [[ -d "$package_dir" ]]; then
+    # We're only installing the dependencies here to verify that the build
+    # works, that's why the node_modules folder is removed immediately after.
+    # The real dependency installation happens in Haskell.
     echo "Installing $package ($package_dir)"
     cd "$package_dir"
     npm install

@@ -6,14 +6,16 @@ import { GET_USER_SPEC } from './_private.js'
 export class App {
   #userSpec: UserSpec;
 
-  // NOTE: Using a non-public symbol gives us a pacakge-private property.
+  // NOTE: Using a non-public symbol gives us a package-private property.
+  // It's not that important to hide it from the users, but we still don't want
+  // user's IDE to suggest it during autocompletion.
   [GET_USER_SPEC]() {
     return this.#userSpec
   }
 
   constructor(name: string, config: AppConfig) {
     this.#userSpec = {
-      app: { name, config: config },
+      app: { name, config },
       actions: new Map(),
       apiNamespaces: new Map(),
       apis: new Map(),
@@ -90,9 +92,11 @@ export class App {
   }
 }
 
-export type WaspConfig = AppSpec.Wasp
-
-export type AppConfig = Pick<AppSpec.App, 'title' | 'wasp' | 'head'>
+export type AppConfig = {
+  title: string
+  wasp: AppSpec.Wasp
+  head?: string[]
+}
 
 export type ExtImport =
   | {
@@ -107,6 +111,7 @@ export type ExtImport =
 export type ServerConfig = {
   setupFn?: ExtImport
   middlewareConfigFn?: ExtImport
+  envValidationSchema?: ExtImport
 }
 
 export type PageConfig = {
@@ -123,6 +128,7 @@ export type ClientConfig = {
   rootComponent?: ExtImport
   setupFn?: ExtImport
   baseDir?: `/${string}`
+  envValidationSchema?: ExtImport
 }
 
 export type DbConfig = {
@@ -203,7 +209,10 @@ export type QueryConfig = {
   auth?: boolean
 }
 
-export type EmailSenderConfig = AppSpec.EmailSender
+export type EmailSenderConfig = {
+  provider: AppSpec.EmailProvider
+  defaultFrom?: EmailFromField
+}
 
 export type AuthConfig = {
   userEntity: string

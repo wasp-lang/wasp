@@ -7,7 +7,6 @@ module Wasp.Psl.Ast.Schema
     getEnums,
     getDatasources,
     getGenerators,
-    getModelNames,
   )
 where
 
@@ -15,7 +14,6 @@ import Wasp.Psl.Ast.ConfigBlock (ConfigBlock)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Enum (Enum)
 import Wasp.Psl.Ast.Model (Model)
-import qualified Wasp.Psl.Ast.Model as Model
 import Wasp.Psl.Ast.Type (Type)
 import Wasp.Psl.Ast.View (View)
 import Prelude hiding (Enum)
@@ -51,6 +49,3 @@ getGenerators schema = [generator | generator@((Psl.ConfigBlock.ConfigBlock Psl.
 
 getConfigBlocks :: Schema -> [ConfigBlock]
 getConfigBlocks (Schema blocks) = [configBlock | ConfigBlock configBlock <- blocks]
-
-getModelNames :: Schema -> [String]
-getModelNames schema = map Model.getName $ getModels schema
