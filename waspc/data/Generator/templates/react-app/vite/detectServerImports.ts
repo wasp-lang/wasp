@@ -1,4 +1,7 @@
+{{={= =}=}}
 import { type Plugin } from "vite";
+
+const waspProjectDirAbsPath = "{= waspProjectDirAbsPath =}";
 
 export function detectServerImports(): Plugin {
   return {
@@ -41,14 +44,13 @@ function* getImportsFromCode(code: string): Generator<Import> {
 }
 
 function getServerImportErrorMessage(imp: Import, filePath: string): string {
-  return  `Client module ${getRelativeFilePath(filePath)} imports server specific module ${imp.moduleName}:
+  return  `Client module "${getRelativeFilePath(filePath)}" imports server code:
 
 ${imp.importStatement}
 
-This is not allowed in the client code.`
+This is not supported in the client code.`;
 }
 
-// TODO: implement this with Wasp project dir passed to template.
 function getRelativeFilePath(filePath: string): string {
-  return filePath;
+  return filePath.replace(waspProjectDirAbsPath, "");
 }

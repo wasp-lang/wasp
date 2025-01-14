@@ -67,12 +67,12 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|netlify.toml|],
-      genFileCopy [relfile|vite/detectServerImports.ts|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
       genIndexHtml spec,
-      genViteConfig spec
+      genViteConfig spec,
+      genDetectServerImportsVitePlugin spec
     ]
     <++> genSrcDir spec
     <++> genPublicDir spec
@@ -273,3 +273,11 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
                 SP.fromRelDir (Project.dotWaspDirInWaspProjectDir </> Project.generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
         importName = JsImportModule "customViteConfig"
+
+genDetectServerImportsVitePlugin :: AppSpec -> Generator FileDraft
+genDetectServerImportsVitePlugin spec = return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = C.asTmplFile [relfile|vite/detectServerImports.ts|]
+    tmplData = object ["waspProjectDirAbsPath" .= waspProjectDirAbsPath]
+
+    waspProjectDirAbsPath = SP.fromAbsDir $ AS.waspProjectDir spec
