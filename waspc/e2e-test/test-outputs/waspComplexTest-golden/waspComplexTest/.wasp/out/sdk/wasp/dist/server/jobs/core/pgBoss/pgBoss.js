@@ -1,14 +1,14 @@
 import PgBoss from 'pg-boss';
-import { config } from 'wasp/server';
+import { config, env } from '../../../index.js';
 const boss = createPgBoss();
 function createPgBoss() {
     let pgBossNewOptions = {
         connectionString: config.databaseUrl,
     };
     // Add an escape hatch for advanced configuration of pg-boss to overwrite our defaults.
-    if (process.env.PG_BOSS_NEW_OPTIONS) {
+    if (env.PG_BOSS_NEW_OPTIONS) {
         try {
-            pgBossNewOptions = JSON.parse(process.env.PG_BOSS_NEW_OPTIONS);
+            pgBossNewOptions = JSON.parse(env.PG_BOSS_NEW_OPTIONS);
         }
         catch (_a) {
             console.error('Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!');

@@ -111,6 +111,7 @@ export type ExtImport =
 export type ServerConfig = {
   setupFn?: ExtImport
   middlewareConfigFn?: ExtImport
+  envValidationSchema?: ExtImport
 }
 
 export type PageConfig = {
@@ -127,6 +128,7 @@ export type ClientConfig = {
   rootComponent?: ExtImport
   setupFn?: ExtImport
   baseDir?: `/${string}`
+  envValidationSchema?: ExtImport
 }
 
 export type DbConfig = {

@@ -35,7 +35,6 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|env.ts|],
           genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|],
           genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|provider.ts|]
         ]

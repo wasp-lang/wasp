@@ -10,6 +10,8 @@ export { type ServerSetupFn } from './types/index.js'
 export { HttpError } from './HttpError.js'
 // PUBLIC API
 export { MiddlewareConfigFn } from './middleware/index.js'
+// PUBLIC API
+export { env } from './env.js'
 
 // PUBLIC API
 export type DbSeedFn = (prisma: PrismaClient) => Promise<void>
