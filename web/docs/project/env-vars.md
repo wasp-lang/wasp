@@ -399,7 +399,7 @@ const analyticsId: string = env.REACT_APP_ANALYTICS_ID
 </TabItem>
 </Tabs>
 
-You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code, but it's not recommended because it's not validated and can lead to runtime errors if the env var is not defined.
+You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this. `import.meta.env` isn't validated and missing env vars can cause runtime errors.
 
 ### Server Env Vars
 
