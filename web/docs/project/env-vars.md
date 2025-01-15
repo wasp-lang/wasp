@@ -234,15 +234,21 @@ Let's look at an example of defining env vars validation:
 ```js title="src/env.js"
 import * as z from 'zod'
 
-export const serverEnvValidationSchema = z.object({
-  STRIPE_API_KEY: z.string({
-    required_error: 'STRIPE_API_KEY is required.',
-  }),
-})
+import { defineEnvValidationSchema } from 'wasp/env'
 
-export const clientEnvValidationSchema = z.object({
-  REACT_APP_NAME: z.string().default('TODO App'),
-})
+export const serverEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
+
+export const clientEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    REACT_APP_NAME: z.string().default('TODO App'),
+  })
+)
 ```
 
 </TabItem>
@@ -313,11 +319,15 @@ You can define your client env vars validation like this:
 ```js title="src/env.js"
 import * as z from 'zod'
 
-export const envValidationSchema = z.object({
-  REACT_APP_ANALYTICS_ID: z.string({
-    required_error: 'REACT_APP_ANALYTICS_ID is required.',
-  }),
-})
+import { defineEnvValidationSchema } from 'wasp/env'
+
+export const envValidationSchema = defineEnvValidationSchema(
+  z.object({
+    REACT_APP_ANALYTICS_ID: z.string({
+      required_error: 'REACT_APP_ANALYTICS_ID is required.',
+    }),
+  })
+)
 ```
 
 </TabItem>
@@ -400,11 +410,15 @@ You can define your env vars validation like this:
 ```js title="src/env.js"
 import * as z from 'zod'
 
-export const envValidationSchema = z.object({
-  STRIPE_API_KEY: z.string({
-    required_error: 'STRIPE_API_KEY is required.',
-  }),
-})
+import { defineEnvValidationSchema } from 'wasp/env'
+
+export const envValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
 ```
 
 </TabItem>
