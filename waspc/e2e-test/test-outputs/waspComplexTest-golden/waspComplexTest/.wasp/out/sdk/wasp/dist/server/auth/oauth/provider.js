@@ -1,8 +1,7 @@
-export function defineProvider({ id, displayName, env, oAuthClient, }) {
+export function defineProvider({ id, displayName, oAuthClient, }) {
     return {
         id,
         displayName,
-        env,
         oAuthClient,
     };
 }

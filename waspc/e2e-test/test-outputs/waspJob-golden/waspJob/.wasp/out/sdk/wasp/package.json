@@ -8,7 +8,6 @@
     "axios": "^1.4.0",
     "express": "~4.21.0",
     "jsdom": "^21.1.1",
-    "lodash.merge": "^4.6.2",
     "mitt": "3.0.0",
     "msw": "^1.1.0",
     "pg-boss": "^8.4.2",
@@ -17,7 +16,8 @@
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^6.26.2",
     "superjson": "^2.2.1",
-    "vitest": "^1.2.1"
+    "vitest": "^1.2.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@tsconfig/node18": "latest",
@@ -52,6 +52,7 @@
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",
     "./entities": "./dist/entities/index.js",
+    "./env": "./dist/env/index.js",
     "./ext-src/*": "./dist/ext-src/*.js",
     "./operations": "./dist/operations/index.js",
     "./operations/*": "./dist/operations/*",

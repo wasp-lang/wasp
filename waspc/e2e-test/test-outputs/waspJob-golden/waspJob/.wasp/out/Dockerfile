@@ -50,15 +50,15 @@ WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages
 # necessary for migrating the database.
 COPY --from=server-builder /app/node_modules ./node_modules
-# Copying the SDK because 'validate-env.mjs' executes independent of the bundle
+# Copying the SDK because the server bundle doesn't bundle the SDK
 # and references the 'wasp' package.
 COPY --from=server-builder /app/.wasp/out/sdk .wasp/out/sdk
-# Copying 'server/node_modules' because 'validate-env.mjs' executes independent
-# of the bundle and references the dotenv package.
+# Copying 'server/node_modules' because we require dotenv package to
+# load environment variables
+# TODO: replace dotenv with native Node.js environment variable loading
 COPY --from=server-builder /app/.wasp/build/server/node_modules .wasp/build/server/node_modules
 COPY --from=server-builder /app/.wasp/build/server/bundle .wasp/build/server/bundle
 COPY --from=server-builder /app/.wasp/build/server/package*.json .wasp/build/server/
-COPY --from=server-builder /app/.wasp/build/server/scripts .wasp/build/server/scripts
 COPY db/ .wasp/build/db/
 EXPOSE ${PORT}
 WORKDIR /app/.wasp/build/server
