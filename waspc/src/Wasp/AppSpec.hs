@@ -48,6 +48,7 @@ import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.PackageJson (PackageJson)
+import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
@@ -69,6 +70,7 @@ data AppSpec = AppSpec
     prismaSchema :: Psl.Schema.Schema,
     -- | The contents of the package.json file found in the root directory of the wasp project.
     packageJson :: PackageJson,
+    tsConfig :: TsConfig,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     -- | List of external code files (they are referenced/used in the declarations).

@@ -174,5 +174,5 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
     }
   where
     importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> SP.castRel extImportPath
-    extCodeDirP = fromJust $ SP.relDirToPosix C.extCodeDirInSdkRootDir
+    extCodeDirP = fromJust $ SP.relDirToPosix C.extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName

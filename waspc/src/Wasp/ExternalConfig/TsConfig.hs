@@ -14,6 +14,7 @@ import Data.Aeson
     parseJSON,
   )
 import qualified Data.Aeson as Aeson
+import Data.Map (Map)
 import GHC.Generics (Generic)
 
 data TsConfig = TsConfig
@@ -31,7 +32,9 @@ data CompilerOptions = CompilerOptions
     lib :: !(Maybe [String]),
     allowJs :: !(Maybe Bool),
     typeRoots :: !(Maybe [String]),
-    outDir :: !(Maybe String)
+    outDir :: !(Maybe String),
+    baseUrl :: !(Maybe String),
+    paths :: !(Maybe (Map String [String]))
   }
   deriving (Show, Generic)
 

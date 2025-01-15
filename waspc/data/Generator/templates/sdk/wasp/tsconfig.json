@@ -43,6 +43,12 @@
     // While this is great, we still want to dig deeper at some point to understand
     // better why Vite HMR misbehaves when the SDK is recompiled: https://github.com/wasp-lang/wasp/issues/1934 
     "incremental": true,
+    "baseUrl": "{= baseUrl =}",
+    "paths": {
+      {=# paths =}
+        "{= key =}": [{=# value =}"{= . =}"{=/ value =}],
+      {=/ paths =}
+    }
     // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
     // "paths": {
     //   "@wasp/*": [

@@ -13,7 +13,9 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
+import qualified Data.Map as M
 import Data.Maybe (isJust, mapMaybe)
+import qualified Data.Text as T
 import StrongPath
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -26,6 +28,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
+import qualified Wasp.ExternalConfig.TsConfig as TC
 import Wasp.Generator.Common
   ( ProjectRootDir,
     makeJsonWithEntityData,
@@ -101,7 +104,7 @@ genSdk spec =
       genFileCopy [relfile|dev/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
-      genTsConfigJson,
+      genTsConfigJson spec,
       genServerUtils spec,
       genPackageJson spec,
       genDbClient spec
@@ -260,17 +263,27 @@ genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.
-genTsConfigJson :: Generator FileDraft
-genTsConfigJson = do
+genTsConfigJson :: AppSpec -> Generator FileDraft
+genTsConfigJson spec = do
   return $
     C.mkTmplFdWithDstAndData
       [relfile|tsconfig.json|]
       [relfile|tsconfig.json|]
       ( Just $
           object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
+              "baseUrl" .= baseUrl,
+              "paths" .= paths
             ]
       )
+  where
+    baseUrl = TC.baseUrl $ TC.compilerOptions $ AS.tsConfig spec
+    paths =
+      fmap (map pathEntryToObject . M.toList)
+        . TC.paths
+        . TC.compilerOptions
+        $ AS.tsConfig spec
+    pathEntryToObject (key, value) = object ["key" .= T.pack key, "value" .= value]
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
