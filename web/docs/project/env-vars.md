@@ -222,7 +222,10 @@ If your code requires some environment variables, you usually want to ensure tha
 
 :::info What is Zod?
 
-[Zod](https://zod.dev/) is a library that lets you define what you expect from your data. For example, you can use Zod to define that a value should be a string that's a valid email address or that a value should be a number between 0 and 100.
+[Zod](https://zod.dev/) is a library that lets you define what you expect from your data. For example, you can use Zod to define that:
+- A value should be a string that's a valid email address.
+- A value should be a number between 0 and 100.
+- etc.
 
 :::
 
