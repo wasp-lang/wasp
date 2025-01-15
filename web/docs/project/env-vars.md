@@ -223,9 +223,10 @@ If your code requires some environment variables, you usually want to ensure tha
 :::info What is Zod?
 
 [Zod](https://zod.dev/) is a library that lets you define what you expect from your data. For example, you can use Zod to define that:
+
 - A value should be a string that's a valid email address.
 - A value should be a number between 0 and 100.
-- etc.
+- ... and much more.
 
 :::
 
@@ -277,7 +278,7 @@ export const clientEnvValidationSchema = defineEnvValidationSchema(
 )
 ```
 
-The defineEnvValidationSchema` function ensures your Zod schema is type-checked.
+The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 </TabItem>
 </Tabs>
@@ -294,21 +295,21 @@ app myApp {
 }
 ```
 
-We defined schemas for both the client and the server env vars and told Wasp to use them. Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object on the server and the `import.meta.env` object on the client.
+You defined schemas for both the client and the server env vars and told Wasp to use them. Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object on the server and the `import.meta.env` object on the client.
 
 This means you can use the `env` object to access **your env vars** like this:
 
 ```ts title="src/stripe.ts"
 import { env } from 'wasp/server'
 
-const stripeApiKey: string = env.STRIPE_API_KEY
+const stripeApiKey = env.STRIPE_API_KEY
 ```
 
 Read more about the env object in the [API Reference](#api-reference).
 
 ## API Reference
 
-There are **Wasp-defined** and **user-defined** env vars. Wasp has built-in validation for its env vars and you can define your own validation for your env vars.
+There are **Wasp-defined** and **user-defined** env vars. Wasp already comes with built-in validation for Wasp-defined env vars. For your env vars, you can define your own validation.
 
 ### Client Env Vars
 
@@ -350,7 +351,7 @@ export const envValidationSchema = defineEnvValidationSchema(
 )
 ```
 
-We are using the `defineEnvValidationSchema` helper to get type-checking for the Zod schema.
+The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 </TabItem>
 </Tabs>
@@ -390,16 +391,16 @@ const analyticsId = env.REACT_APP_ANALYTICS_ID
 import { env } from 'wasp/client'
 
 // Wasp-defined
-const apiUrl: string = env.REACT_APP_API_URL
+const apiUrl = env.REACT_APP_API_URL
 
 // User-defined
-const analyticsId: string = env.REACT_APP_ANALYTICS_ID
+const analyticsId = env.REACT_APP_ANALYTICS_ID
 ```
 
 </TabItem>
 </Tabs>
 
-You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this. `import.meta.env` isn't validated and missing env vars can cause runtime errors.
+You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this since `import.meta.env` isn't validated and missing env vars can cause runtime errors.
 
 ### Server Env Vars
 
@@ -441,7 +442,7 @@ export const envValidationSchema = defineEnvValidationSchema(
 )
 ```
 
-We are using the `defineEnvValidationSchema` helper to get type-checking for the Zod schema.
+The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 </TabItem>
 </Tabs>
@@ -481,13 +482,13 @@ const stripeApiKey = env.STRIPE_API_KEY
 import { env } from 'wasp/server'
 
 // Wasp-defined
-const serverUrl: string = env.WASP_SERVER_URL
+const serverUrl = env.WASP_SERVER_URL
 
 // User-defined
-const stripeApiKey: string = env.STRIPE_API_KEY
+const stripeApiKey = env.STRIPE_API_KEY
 ```
 
 </TabItem>
 </Tabs>
 
-You can use `process.env.SOME_SECRET` directly in your code, but it's not recommended because it's not validated and can lead to runtime errors if the env var is not defined.
+You can use `process.env.SOME_SECRET` directly in your code. We don't recommend this since `process.env` isn't validated and missing env vars can cause runtime errors.
