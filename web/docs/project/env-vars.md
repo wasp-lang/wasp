@@ -274,7 +274,7 @@ export const clientEnvValidationSchema = defineEnvValidationSchema(
 )
 ```
 
-We are using the `defineEnvValidationSchema` helper to get type-checking for the Zod schema.
+The defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 </TabItem>
 </Tabs>
