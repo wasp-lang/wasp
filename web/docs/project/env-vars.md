@@ -229,7 +229,7 @@ If your code requires some environment variables, you usually want to ensure tha
 
 :::
 
-Let's look at an example of defining env vars validation:
+Take a look at an example of defining env vars validation:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
