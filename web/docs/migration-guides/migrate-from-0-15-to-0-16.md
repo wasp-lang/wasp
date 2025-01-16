@@ -4,7 +4,40 @@ title: Migration from 0.15.X to 0.16.X
 
 ## What's new in 0.16.0?
 
-TODO: write this part
+### Env variables validation with Zod
+
+Wasp now uses Zod to validate environment variables, allowing it to fail faster if something is misconfigured. This means you’ll get more relevant error messages when running your app with incorrect env variables.
+
+You can also use Zod to validate your own environment variables. Here’s an example:
+
+```ts
+// src/env.ts
+import * as z from 'zod'
+
+import { defineEnvValidationSchema } from 'wasp/env'
+
+export const serverEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
+
+// main.wasp
+app myApp {
+  ...
+  server: {
+    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
+  },
+}
+```
+
+Read more about it in the [env variables](../project/env-vars.md#custom-env-var-validations) section of the docs.
+
+### `tsconfig.json` alises work
+
+TODO: @sodic
 
 ## How to migrate?
 
@@ -25,7 +58,18 @@ app MyApp {
 
 ### 2. Update the `package.json` file
 
-TODO: write this part
+Make sure to explicitly add `react-dom` and `react-router-dom` to your `package.json` file:
+
+```json
+{
+  "dependencies": {
+    // highlight-start
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.26.2"
+    // highlight-end
+  }
+}
+```
 
 That's it!
 
