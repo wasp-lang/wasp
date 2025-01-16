@@ -139,6 +139,7 @@ npmDepsForWasp _spec =
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@vitejs/plugin-react", "^4.2.1"),
+            ("vite-tsconfig-paths", "^5.1.4"),
             -- NOTE: used in the validate-env.mjs script
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig

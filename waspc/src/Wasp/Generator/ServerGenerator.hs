@@ -13,10 +13,12 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
+import qualified Data.Map as M
 import Data.Maybe
   ( isJust,
     maybeToList,
   )
+import qualified Data.Text as T
 import StrongPath
   ( Dir,
     File',
@@ -36,6 +38,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
+import qualified Wasp.ExternalConfig.TsConfig as TC
 import Wasp.Generator.Common
   ( ServerRootDir,
     superjsonVersion,
@@ -167,7 +170,9 @@ npmDepsForWasp spec =
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/cors", "^2.8.5"),
             ("rollup", "^4.9.6"),
-            ("rollup-plugin-esbuild", "^6.1.1")
+            ("rollup-plugin-esbuild", "^6.1.1"),
+            ("@rollup/plugin-node-resolve", "^16.0.0"),
+            ("@rollup/plugin-alias", "^5.1.1")
           ]
     }
   where
@@ -297,6 +302,13 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
+    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined, "baseUrl" .= baseUrl, "paths" .= paths]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+    baseUrl = TC.baseUrl $ TC.compilerOptions $ AS.tsConfig spec
+    paths =
+      fmap (map pathEntryToObject . M.toList)
+        . TC.paths
+        . TC.compilerOptions
+        $ AS.tsConfig spec
+    pathEntryToObject (key, value) = object ["key" .= T.pack key, "value" .= value]
