@@ -76,7 +76,7 @@ validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
       unwords
         [ "Invalid value for the",
           "\"" ++ show fullyQualifiedFieldName ++ "\"",
-          "field in tsconfig.json, expected value:",
+          "field in tsconfig.json, you must set it to:",
           showAsJsValue expected ++ "."
         ]
 
@@ -91,6 +91,6 @@ validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
       unwords
         [ "The",
           "\"" ++ show fullyQualifiedFieldName ++ "\"",
-          "field is missing in tsconfig.json, expected value:",
+          "field is missing in tsconfig.json, you must set it to:",
           showAsJsValue expected ++ "."
         ]

@@ -45,6 +45,15 @@ data CompilerOptions = CompilerOptions
   }
   deriving (Show, Generic)
 
+instance FromJSON CompilerOptions where
+  parseJSON =
+    genericParseJSON $
+      Aeson.defaultOptions {Aeson.fieldLabelModifier = modifyFieldLabel}
+    where
+      -- "module" is a reserved keyword in Haskell, so we use "_module" instead.
+      modifyFieldLabel "_module" = "module"
+      modifyFieldLabel other = other
+
 data ImportPathMapping
   = ImportPathMapping (Map String String)
   deriving (Show, Generic, ToJSON)
@@ -70,12 +79,3 @@ instance FromJSON ImportPathMapping where
         "One or more paths point to no multiple lookup locations: "
           ++ show ((fmap . fmap) toList locations)
           ++ ". Wasp only supports one-on-one path mappings."
-
-instance FromJSON CompilerOptions where
-  parseJSON =
-    genericParseJSON $
-      Aeson.defaultOptions {Aeson.fieldLabelModifier = modifyFieldLabel}
-    where
-      -- "module" is a reserved keyword in Haskell, so we use "_module" instead.
-      modifyFieldLabel "_module" = "module"
-      modifyFieldLabel other = other
