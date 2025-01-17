@@ -18,6 +18,7 @@ import Data.Aeson
     withObject,
   )
 import qualified Data.Aeson as Aeson
+import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
 import Data.Map (Map)
 import qualified Data.Map as M
 import GHC.Generics (Generic)
@@ -49,16 +50,26 @@ data ImportPathMapping
   deriving (Show, Generic, ToJSON)
 
 instance FromJSON ImportPathMapping where
-  parseJSON = withObject "PathMappings" $ \object ->
-    ImportPathMapping . M.mapWithKey getOnlyLocationOrFail <$> parseJSON (Object object)
+  parseJSON = withObject "PathMappings" $ \object -> do
+    originalMappings <- parseJSON (Object object)
+
+    let nonEmptyMappings = M.mapMaybe nonEmpty originalMappings
+    let (invalidMappings, validMappings) = M.mapEither getOnlyLookupLocationOrError nonEmptyMappings
+
+    case M.toList invalidMappings of
+      [] -> return $ ImportPathMapping validMappings
+      invalid -> fail $ makeMultipleLocationsErrorMsg invalid
     where
-      getOnlyLocationOrFail path = \case
-        [lookupLocation] -> lookupLocation
-        [] -> fail "Found empty lookup array value for path '" ++ path ++ "' in tsconfig.json"
-        (_ : _) ->
-          fail "Found multiple lookup locations for path '"
-            ++ path
-            ++ "' in tsconfig.json. Wasp only supports one-to-one path mappings"
+      getOnlyLookupLocationOrError :: NonEmpty String -> Either (NonEmpty String) String
+      getOnlyLookupLocationOrError = \case
+        lookupLocation :| [] -> Right lookupLocation
+        locations@(_ :| _) -> Left locations
+
+      makeMultipleLocationsErrorMsg :: [(String, NonEmpty String)] -> String
+      makeMultipleLocationsErrorMsg locations =
+        "One or more paths point to no multiple lookup locations: "
+          ++ show ((fmap . fmap) toList locations)
+          ++ ". Wasp only supports one-on-one path mappings."
 
 instance FromJSON CompilerOptions where
   parseJSON =

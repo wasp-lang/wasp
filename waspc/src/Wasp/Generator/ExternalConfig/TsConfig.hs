@@ -67,10 +67,10 @@ validateFieldIsUnset fullyQualifiedFieldName fieldValue =
 validateFieldValue :: (Eq a, IsJavascriptValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
 validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
   case (expectedValue, actualValue) of
-    (Just expected, Just actual) -> [makeInvalidValueErrorMessage expected | actual /= expected]
     (Nothing, Nothing) -> []
+    (Just expected, Just actual) -> [makeInvalidValueErrorMessage expected | actual /= expected]
     (Just expected, Nothing) -> [makeMissingFieldErrorMessage expected]
-    (Nothing, Just _) -> [setFieldErrorMessage]
+    (Nothing, Just _) -> [fieldMustBeUnsetErrorMessage]
   where
     makeInvalidValueErrorMessage expected =
       unwords
@@ -80,11 +80,11 @@ validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
           showAsJsValue expected ++ "."
         ]
 
-    setFieldErrorMessage =
+    fieldMustBeUnsetErrorMessage =
       unwords
         [ "The",
           "\"" ++ show fullyQualifiedFieldName ++ "\"",
-          "should be unset"
+          "field in tsconfig.json must be unset."
         ]
 
     makeMissingFieldErrorMessage expected =
