@@ -48,6 +48,7 @@ import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.PathAlias (createRollupAliasesTemplateData)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import Wasp.Generator.ServerGenerator.Common (expressTypesVersion, expressVersionStr)
@@ -302,13 +303,6 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined, "baseUrl" .= baseUrl, "paths" .= paths]
-
+    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined, "aliases" .= aliases]
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
-    baseUrl = TC.baseUrl $ TC.compilerOptions $ AS.tsConfig spec
-    paths =
-      fmap (map pathEntryToObject . M.toList)
-        . TC.paths
-        . TC.compilerOptions
-        $ AS.tsConfig spec
-    pathEntryToObject (key, value) = object ["key" .= T.pack key, "value" .= value]
+    aliases = createRollupAliasesTemplateData . TC.paths . TC.compilerOptions $ AS.tsConfig spec

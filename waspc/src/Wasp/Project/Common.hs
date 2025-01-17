@@ -25,6 +25,7 @@ module Wasp.Project.Common
     getSrcTsConfigInWaspProjectDir,
     srcTsConfigInWaspLangProject,
     srcTsConfigInWaspTsProject,
+    waspProjectDirFromSrcDir,
   )
 where
 
@@ -107,6 +108,10 @@ prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
 
 srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 srcDirInWaspProjectDir = [reldir|src|]
+
+-- TODO: find a better way to define this
+waspProjectDirFromSrcDir :: Path' (Rel SourceExternalCodeDir) (Dir WaspProjectDir)
+waspProjectDirFromSrcDir = [reldir|../|]
 
 extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
 extPublicDirInWaspProjectDir = [reldir|public|]

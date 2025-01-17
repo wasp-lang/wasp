@@ -18,10 +18,6 @@ import { WebSocketProvider } from 'wasp/client/webSocket/WebSocketProvider'
 {=/ areWebSocketsUsed =}
 
 
-const anyFn = (x) => x + x // implicit any, must error
-anyFn(1)
-const x = "Jako dobar" // unused local, must error
-
 startApp()
 
 async function startApp() {

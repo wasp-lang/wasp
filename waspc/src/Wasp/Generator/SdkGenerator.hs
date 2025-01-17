@@ -13,9 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import qualified Data.Map as M
 import Data.Maybe (isJust, mapMaybe)
-import qualified Data.Text as T
 import StrongPath
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -42,6 +40,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.PathAlias (importPathMappingsToTsConfigChunk)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
@@ -272,18 +271,9 @@ genTsConfigJson spec = do
       ( Just $
           object
             [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
-              "baseUrl" .= baseUrl,
-              "paths" .= paths
+              "paths" .= importPathMappingsToTsConfigChunk (TC.paths $ TC.compilerOptions $ AS.tsConfig spec)
             ]
       )
-  where
-    baseUrl = TC.baseUrl $ TC.compilerOptions $ AS.tsConfig spec
-    paths =
-      fmap (map pathEntryToObject . M.toList)
-        . TC.paths
-        . TC.compilerOptions
-        $ AS.tsConfig spec
-    pathEntryToObject (key, value) = object ["key" .= T.pack key, "value" .= value]
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
