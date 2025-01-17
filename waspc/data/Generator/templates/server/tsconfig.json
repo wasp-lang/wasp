@@ -4,6 +4,14 @@
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
+
+    // This property currently doesn't matter because we haven't been running
+    // TSC on server code since https://github.com/wasp-lang/wasp/pull/1714.
+    //
+    // When we start running TSC again (after we fix all current errors and
+    // make project references work for the TS config), then I believe the
+    // correct configuration is "rootDir": "." (the project reference should
+    // take care of the user code), but we should double-check.
     "rootDir": ".",
     // Overriding this because we want to use top-level await
     "module": "esnext",

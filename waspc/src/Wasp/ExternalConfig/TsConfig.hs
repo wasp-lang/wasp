@@ -25,6 +25,7 @@ data TsConfig = TsConfig
 data CompilerOptions = CompilerOptions
   { _module :: !(Maybe String),
     target :: !(Maybe String),
+    composite :: !(Maybe Bool),
     moduleResolution :: !(Maybe String),
     jsx :: !(Maybe String),
     strict :: !(Maybe Bool),
