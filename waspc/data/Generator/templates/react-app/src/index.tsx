@@ -17,7 +17,6 @@ import {
 import { WebSocketProvider } from 'wasp/client/webSocket/WebSocketProvider'
 {=/ areWebSocketsUsed =}
 
-
 startApp()
 
 async function startApp() {
