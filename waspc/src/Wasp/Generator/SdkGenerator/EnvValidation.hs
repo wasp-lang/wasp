@@ -27,11 +27,13 @@ import qualified Wasp.Project.Db as Db
 genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
   sequence
-    [ genServerEnv spec,
-      genClientEnvSchema,
-      genClientEnv spec,
-      genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|]
+    [ genFileCopy [relfile|env/index.ts|],
+      genFileCopy [relfile|env/validation.ts|],
+      -- Server env
+      genServerEnv spec,
+      -- Client env
+      genClientEnvSchema spec,
+      genFileCopy [relfile|client/env.ts|]
     ]
   where
     genFileCopy = return . C.mkTmplFd
@@ -57,17 +59,15 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
-genClientEnvSchema :: Generator FileDraft
-genClientEnvSchema = return $ C.mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema :: AppSpec -> Generator FileDraft
+genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
-    tmplData = object ["defaultServerUrl" .= Server.defaultDevServerUrl]
-
-genClientEnv :: AppSpec -> Generator FileDraft
-genClientEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = [relfile|client/env.ts|]
-    tmplData = object ["envValidationSchema" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationSchema)]
+    tmplData =
+      object
+        [ "defaultServerUrl" .= Server.defaultDevServerUrl,
+          "envValidationSchema" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationSchema)
+        ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
 
