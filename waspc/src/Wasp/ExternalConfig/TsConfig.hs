@@ -5,7 +5,7 @@
 module Wasp.ExternalConfig.TsConfig
   ( TsConfig (..),
     CompilerOptions (..),
-    PathMappings (..),
+    ImportPathMapping (..),
   )
 where
 
@@ -40,20 +40,19 @@ data CompilerOptions = CompilerOptions
     typeRoots :: !(Maybe [String]),
     outDir :: !(Maybe String),
     baseUrl :: !(Maybe String),
-    paths :: !(Maybe PathMappings)
+    paths :: !(Maybe ImportPathMapping)
   }
   deriving (Show, Generic)
 
-data PathMappings
-  = PathMappings (Map String String)
+data ImportPathMapping
+  = ImportPathMapping (Map String String)
   deriving (Show, Generic, ToJSON)
 
-instance FromJSON PathMappings where
-  parseJSON = withObject "PathMappings" $ \object -> do
-    mappings :: Map String [String] <- parseJSON (Object object)
-    return $ PathMappings $ M.mapWithKey safeHead mappings
+instance FromJSON ImportPathMapping where
+  parseJSON = withObject "PathMappings" $ \object ->
+    ImportPathMapping . M.mapWithKey getOnlyLocationOrFail <$> parseJSON (Object object)
     where
-      safeHead path = \case
+      getOnlyLocationOrFail path = \case
         [lookupLocation] -> lookupLocation
         [] -> fail "Found empty lookup array value for path '" ++ path ++ "' in tsconfig.json"
         (_ : _) ->

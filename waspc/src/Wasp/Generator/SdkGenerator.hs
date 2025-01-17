@@ -38,9 +38,9 @@ import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.ImportPathAlias (createTsConfigPathsTemplateData)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.PathAlias (importPathMappingsToTsConfigChunk)
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
@@ -271,7 +271,7 @@ genTsConfigJson spec = do
       ( Just $
           object
             [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
-              "paths" .= importPathMappingsToTsConfigChunk (TC.paths $ TC.compilerOptions $ AS.tsConfig spec)
+              "paths" .= createTsConfigPathsTemplateData (TC.paths $ TC.compilerOptions $ AS.tsConfig spec)
             ]
       )
 

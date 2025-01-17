@@ -43,7 +43,11 @@
     // While this is great, we still want to dig deeper at some point to understand
     // better why Vite HMR misbehaves when the SDK is recompiled: https://github.com/wasp-lang/wasp/issues/1934 
     "incremental": true,
-    "paths": {=& paths =},
+    "paths": {
+      {=# paths =}
+        "{= path =}": ["{= lookupLocation =}"],
+      {=/ paths =}
+    }
   },
   "include": [
     "."

@@ -299,7 +299,7 @@ library
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
-    Wasp.Generator.PathAlias
+    Wasp.Generator.ImportPathAlias
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG

@@ -13,12 +13,10 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
-import qualified Data.Map as M
 import Data.Maybe
   ( isJust,
     maybeToList,
   )
-import qualified Data.Text as T
 import StrongPath
   ( Dir,
     File',
@@ -46,9 +44,9 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import Wasp.Generator.ImportPathAlias (createRollupAliasesTemplateData)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.PathAlias (createRollupAliasesTemplateData)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import Wasp.Generator.ServerGenerator.Common (expressTypesVersion, expressVersionStr)
