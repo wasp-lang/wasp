@@ -1,6 +1,5 @@
 import { type Plugin } from "vite";
-
-const waspProjectDirAbsPath = "/Users/ilakovac/dev/wasp/waspc/e2e-test/test-outputs/waspMigrate-current/waspMigrate/";
+import path from "path";
 
 export function detectServerImports(): Plugin {
   return {
@@ -50,6 +49,18 @@ ${imp.importStatement}
 This is not supported in the client code.`;
 }
 
+const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd();
+
 function getRelativeFilePath(filePath: string): string {
   return filePath.replace(waspProjectDirAbsPath, "");
+}
+
+// We are not passing the waspProjectDir path from Haskell because
+// our e2e tests stop working. Becuase we need to absolute path of the
+// Wasp project directory, it contains things like the username of the
+// user running the tests, which is different on different machines.
+function getWaspProjectDirAbsPathFromCwd(): string {
+  const webAppDirAbsPath = process.cwd();
+  const waspProjectDirAbsPath = path.join(webAppDirAbsPath, "../../../");
+  return waspProjectDirAbsPath;
 }
