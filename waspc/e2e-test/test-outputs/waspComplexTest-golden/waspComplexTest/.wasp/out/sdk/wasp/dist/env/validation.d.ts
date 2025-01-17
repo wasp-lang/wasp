@@ -1,10 +1,10 @@
 import * as z from 'zod';
 export declare function ensureEnvSchema<Schema extends z.ZodTypeAny>(data: unknown, schema: Schema): z.infer<Schema>;
-export type SchemaParsingResult<Data> = {
+export type EnvValidationResult<Env> = {
     type: 'error';
     message: string;
 } | {
     type: 'success';
-    data: Data;
+    env: Env;
 };
-export declare function getValidatedDataOrError<Schema extends z.ZodTypeAny>(data: unknown, schema: Schema): SchemaParsingResult<z.infer<Schema>>;
+export declare function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(env: unknown, schema: Schema): EnvValidationResult<z.infer<Schema>>;

@@ -1,46 +1,50 @@
-import { type Plugin, loadEnv } from "vite";
+import { type Plugin, loadEnv } from 'vite'
 
-import { getValidatedDataOrError, type SchemaParsingResult } from 'wasp/env'
+import {
+  getValidatedEnvOrError,
+  type EnvValidationResult,
+} from 'wasp/env/validation'
 import { clientEnvSchema } from 'wasp/client/env/schema'
 
-const RED_COLOR = '\x1b[31m'
+const redColor = '\x1b[31m'
 
 export function validateEnv(): Plugin {
-  let _validationResult: SchemaParsingResult = null
+  let validationResult: EnvValidationResult<unknown> | null = null
   return {
     name: 'wasp-validate-env',
     configResolved: (config) => {
       const env = loadEnv(config.mode, process.cwd(), config.envPrefix)
 
-      _validationResult = getValidatedDataOrError(env, clientEnvSchema)
+      validationResult = getValidatedEnvOrError(env, clientEnvSchema)
 
-      if (_validationResult.type !== 'error') {
-        return;
+      if (validationResult.type !== 'error') {
+        return
       }
 
       if (config.command !== 'build') {
-        return;
+        return
       }
-      
-      console.error(`${RED_COLOR}${_validationResult.message}`)
+
+      console.error(`${redColor}${validationResult.message}`)
       // Exit early if we are in build mode, because we can't show the error in the browser.
       process.exit(1)
     },
     configureServer: (server) => {
-      if (_validationResult.type !== 'error') {
-        return;
+      if (validationResult === null || validationResult.type !== 'error') {
+        return
       }
 
       // Send the error to the browser.
-      server.ws.on('connection', (ws) => {
+      const message = validationResult.message
+      server.ws.on('connection', () => {
         server.ws.send({
           type: 'error',
           err: {
-            message: _validationResult.message,
-            stack: ""
-          }
+            message,
+            stack: '',
+          },
         })
       })
-    }
-  };
+    },
+  }
 }

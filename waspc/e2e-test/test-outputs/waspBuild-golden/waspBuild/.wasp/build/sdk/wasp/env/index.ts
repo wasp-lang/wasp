@@ -7,9 +7,3 @@ export function defineEnvValidationSchema<Schema extends z.ZodObject<any>>(
   return schema
 }
 
-// PRIVATE API (SDK, Vite config)
-export {
-  getValidatedDataOrError,
-  ensureEnvSchema,
-  type SchemaParsingResult,
-} from './validation.js'

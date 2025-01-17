@@ -2,24 +2,24 @@ import * as z from 'zod';
 const redColor = '\x1b[31m';
 // PRIVATE API (SDK, Vite config)
 export function ensureEnvSchema(data, schema) {
-    const result = getValidatedDataOrError(data, schema);
+    const result = getValidatedEnvOrError(data, schema);
     switch (result.type) {
         case 'error':
             console.error(`${redColor}${result.message}`);
             throw new Error('Error parsing environment variables');
         case 'success':
-            return result.data;
+            return result.env;
         default:
             result;
     }
 }
 // PRIVATE API (SDK, Vite config)
-export function getValidatedDataOrError(data, schema) {
+export function getValidatedEnvOrError(env, schema) {
     try {
-        const validatedData = schema.parse(data);
+        const validatedEnv = schema.parse(env);
         return {
             type: 'success',
-            data: validatedData,
+            env: validatedEnv,
         };
     }
     catch (e) {

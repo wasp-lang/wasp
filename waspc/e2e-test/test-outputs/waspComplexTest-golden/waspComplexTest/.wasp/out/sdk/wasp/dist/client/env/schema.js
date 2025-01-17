@@ -1,6 +1,6 @@
 import * as z from 'zod';
-// PRIVATE API (sdk, Vite config)
-export const clientEnvSchema = z.object({
+const userClientEnvSchema = z.object({});
+const waspClientEnvSchema = z.object({
     REACT_APP_API_URL: z
         .string()
         .url({
@@ -8,4 +8,6 @@ export const clientEnvSchema = z.object({
     })
         .default('http://localhost:3001'),
 });
+// PRIVATE API (sdk, Vite config)
+export const clientEnvSchema = userClientEnvSchema.merge(waspClientEnvSchema);
 //# sourceMappingURL=schema.js.map

@@ -7,37 +7,37 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   data: unknown,
   schema: Schema
 ): z.infer<Schema> {
-  const result = getValidatedDataOrError(data, schema)
+  const result = getValidatedEnvOrError(data, schema)
   switch (result.type) {
     case 'error':
       console.error(`${redColor}${result.message}`)
       throw new Error('Error parsing environment variables')
     case 'success':
-      return result.data
+      return result.env
     default:
       result satisfies never;
   }
 }
 
 // PRIVATE API (Vite config)
-export type SchemaParsingResult<Data> = {
+export type EnvValidationResult<Env> = {
   type: 'error',
   message: string,
 } | {
   type: 'success',
-  data: Data,
+  env: Env,
 }
 
 // PRIVATE API (SDK, Vite config)
-export function getValidatedDataOrError<Schema extends z.ZodTypeAny>(
-  data: unknown,
+export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
+  env: unknown,
   schema: Schema
-): SchemaParsingResult<z.infer<Schema>> {
+): EnvValidationResult<z.infer<Schema>> {
   try {
-    const validatedData = schema.parse(data)
+    const validatedEnv = schema.parse(env)
     return {
       type: 'success',
-      data: validatedData,
+      env: validatedEnv,
     }
   } catch (e) {
     if (e instanceof z.ZodError) {
