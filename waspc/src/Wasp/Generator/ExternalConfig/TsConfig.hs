@@ -25,7 +25,7 @@ instance JsonValue Bool where
 -- | Represents a fully qualified field name in a JSON object.
 -- For example, for the field "module" in the "compilerOptions" object,
 -- the fully qualified field name would be "compilerOptions.module".
-data FullyQualifiedFieldName = FieldName [String]
+data FullyQualifiedFieldName = FieldName FieldPath
 
 type FieldPath = [String]
 
