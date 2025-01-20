@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.16.0"
+    version: "^0.15.0"
   },
   title: "ToDo App",
   // head: [],
@@ -52,14 +52,12 @@ app todoApp {
     onAfterLogin: import { onAfterLogin } from "@src/auth/hooks.js",
   },
   server: {
-    setupFn: import { setup } from "@src/serverSetup",
+    setupFn: import setup from "@src/serverSetup",
     middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup",
-    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
   },
   client: {
     rootComponent: import { App } from "@src/App",
-    setupFn: import { setup } from "@src/clientSetup",
-    envValidationSchema: import { clientEnvValidationSchema } from "@src/env",
+    setupFn: import setup from "@src/clientSetup"
   },
   db: {
     seeds: [
