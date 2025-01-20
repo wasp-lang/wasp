@@ -41,7 +41,6 @@ data-files:
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.mjs
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css
@@ -72,6 +71,11 @@ data-files:
   packages/studio/dist/**/*.css
   packages/studio/package.json
   packages/studio/package-lock.json
+  packages/wasp-config/dist/**/*.js
+  packages/wasp-config/dist/**/*.d.ts
+  packages/wasp-config/dist/**/*.map
+  packages/wasp-config/package.json
+  packages/wasp-config/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -281,6 +285,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
+    Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.ExternalConfig.Common
     Wasp.Generator.ExternalConfig.PackageJson
@@ -313,6 +318,7 @@ library
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG

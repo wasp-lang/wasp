@@ -15,10 +15,7 @@ import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe AS.Dependency.Dependency,
-    setupFnFile :: Path' (Rel ProvidersDir) File',
-    -- We have to use explicit boolean keys in templates (e.g. "isSMTPProviderEnabled") so each
-    -- provider provides its own key which we pass to the template.
-    isEnabledKey :: String
+    setupFnFile :: Path' (Rel ProvidersDir) File'
   }
   deriving (Show, Eq)
 
@@ -31,8 +28,7 @@ smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
-      setupFnFile = [relfile|smtp.ts|],
-      isEnabledKey = "isSmtpProviderUsed"
+      setupFnFile = [relfile|smtp.ts|]
     }
   where
     nodeMailerVersionRange :: SV.Range
@@ -45,8 +41,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
-      setupFnFile = [relfile|sendgrid.ts|],
-      isEnabledKey = "isSendGridProviderUsed"
+      setupFnFile = [relfile|sendgrid.ts|]
     }
   where
     sendGridVersionRange :: SV.Range
@@ -59,8 +54,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
-      setupFnFile = [relfile|mailgun.ts|],
-      isEnabledKey = "isMailgunProviderUsed"
+      setupFnFile = [relfile|mailgun.ts|]
     }
   where
     mailgunVersionRange :: SV.Range
@@ -73,6 +67,5 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
-      setupFnFile = [relfile|dummy.ts|],
-      isEnabledKey = "isDummyProviderUsed"
+      setupFnFile = [relfile|dummy.ts|]
     }

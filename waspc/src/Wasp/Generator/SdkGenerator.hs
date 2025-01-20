@@ -48,6 +48,7 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -64,7 +65,6 @@ import Wasp.Generator.WebAppGenerator.Common
     reactRouterVersion,
     reactVersion,
   )
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -101,7 +101,7 @@ genSdk spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|dev/index.ts|],
-      genClientConfigFile,
+      genFileCopy [relfile|client/config.ts|],
       genServerConfigFile spec,
       genTsConfigJson spec,
       genServerUtils spec,
@@ -127,6 +127,7 @@ genSdk spec =
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
+    <++> genEnvValidation spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -197,7 +198,6 @@ npmDepsForSdk spec =
             ("express", Server.expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
-            ("lodash.merge", "^4.6.2"),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
@@ -219,7 +219,8 @@ npmDepsForSdk spec =
           -- These deps need to be installed in the SDK becasue when we run client tests,
           -- we are running them from the project root dir and PostCSS and Tailwind
           -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
-          ++ depsRequiredByTailwind spec,
+          ++ depsRequiredByTailwind spec
+          ++ depsRequiredByEnvValidation,
       N.devDependencies =
         AS.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
@@ -248,17 +249,8 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "defaultServerPort" .= Server.defaultServerPort
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
-
-genClientConfigFile :: Generator FileDraft
-genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
-  where
-    relConfigFilePath = [relfile|client/config.ts|]
-    tmplData = object ["defaultServerUrl" .= Server.defaultDevServerUrl]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.
