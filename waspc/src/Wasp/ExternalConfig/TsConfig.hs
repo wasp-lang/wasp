@@ -67,15 +67,15 @@ instance FromJSON ImportPathMapping where
 
     case M.toList invalidMappings of
       [] -> return $ ImportPathMapping validMappings
-      invalid -> fail $ makeMultipleLocationsErrorMsg invalid
+      invalidEntries -> fail $ makeMultipleLocationsErrorMsg invalidEntries
     where
       getOnlyLookupLocationOrError :: NonEmpty String -> Either (NonEmpty String) String
       getOnlyLookupLocationOrError = \case
         lookupLocation :| [] -> Right lookupLocation
-        locations@(_ :| _) -> Left locations
+        locations -> Left locations
 
       makeMultipleLocationsErrorMsg :: [(String, NonEmpty String)] -> String
       makeMultipleLocationsErrorMsg locations =
-        "One or more paths point to no multiple lookup locations: "
-          ++ show ((fmap . fmap) toList locations)
-          ++ ". Wasp only supports one-on-one path mappings."
+        "One or more paths point to multiple lookup locations: "
+          <> show (fmap (fmap toList) locations)
+          <> ". Wasp only supports one-on-one path mappings."

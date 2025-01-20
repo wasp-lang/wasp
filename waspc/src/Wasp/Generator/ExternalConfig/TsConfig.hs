@@ -9,23 +9,23 @@ import Data.List (intercalate)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 
-class IsJavascriptValue a where
+class JsonValue a where
   showAsJsValue :: a -> String
 
-instance IsJavascriptValue String where
+instance JsonValue String where
   showAsJsValue = show
 
-instance IsJavascriptValue [String] where
+instance JsonValue [String] where
   showAsJsValue = show
 
-instance IsJavascriptValue Bool where
+instance JsonValue Bool where
   showAsJsValue True = "true"
   showAsJsValue False = "false"
 
 -- | Represents a fully qualified field name in a JSON object.
 -- For example, for the field "module" in the "compilerOptions" object,
 -- the fully qualified field name would be "compilerOptions.module".
-data FullyQualifiedFieldName = FieldName FieldPath
+data FullyQualifiedFieldName = FieldName [String]
 
 type FieldPath = [String]
 
@@ -56,15 +56,14 @@ validateCompilerOptions compilerOptions =
     validateRequiredFieldInCompilerOptions relativeFieldName getFieldValue =
       validateRequiredField (FieldName ["compilerOptions", relativeFieldName]) (getFieldValue compilerOptions)
 
-validateRequiredField :: (Eq a, IsJavascriptValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [String]
+validateRequiredField :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [String]
 validateRequiredField fullyQualifiedFieldName fieldValue expectedValue =
   validateFieldValue fullyQualifiedFieldName (Just expectedValue) fieldValue
 
-validateFieldIsUnset :: (Eq a, IsJavascriptValue a) => FullyQualifiedFieldName -> Maybe a -> [String]
-validateFieldIsUnset fullyQualifiedFieldName fieldValue =
-  validateFieldValue fullyQualifiedFieldName Nothing fieldValue
+validateFieldIsUnset :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> [String]
+validateFieldIsUnset fullyQualifiedFieldName = validateFieldValue fullyQualifiedFieldName Nothing
 
-validateFieldValue :: (Eq a, IsJavascriptValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
+validateFieldValue :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
 validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
   case (expectedValue, actualValue) of
     (Nothing, Nothing) -> []
