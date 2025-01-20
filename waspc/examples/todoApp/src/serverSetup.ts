@@ -5,7 +5,7 @@ import {
   type MiddlewareConfigFn,
   type ServerSetupFn,
 } from 'wasp/server'
-import { sayHi } from './util.js'
+import { sayHi } from '@util'
 import cors from 'cors'
 import './testTypes/operations/server.js'
 

@@ -6,7 +6,6 @@ import {
   type OptimisticUpdateDefinition,
   createTask,
   updateTaskIsDone,
-  deleteCompletedTasks,
   toggleAllTasks,
   useQuery,
   getTasks,
@@ -16,8 +15,8 @@ import {
 } from 'wasp/client/operations'
 
 import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
-
-type NonEmptyArray<T> = [T, ...T[]]
+import { NonEmptyArray } from '@util'
+import { Footer } from '@components/Footer'
 
 export function areThereAnyTasks(
   tasks: Task[] | undefined
@@ -54,34 +53,6 @@ const Todo = () => {
             <Footer tasks={tasks} />
           </>
         )}
-      </div>
-    </div>
-  )
-}
-
-const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
-  const numCompletedTasks = tasks.filter((t) => t.isDone).length
-  const numUncompletedTasks = tasks.filter((t) => !t.isDone).length
-
-  const handleDeleteCompletedTasks = async () => {
-    try {
-      await deleteCompletedTasks()
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  return (
-    <div className="flex justify-between">
-      <div>{numUncompletedTasks} items left</div>
-
-      <div>
-        <button
-          className={'btn btn-red ' + (numCompletedTasks > 0 ? '' : 'hidden')}
-          onClick={handleDeleteCompletedTasks}
-        >
-          Delete completed
-        </button>
       </div>
     </div>
   )
