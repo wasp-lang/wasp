@@ -18,14 +18,21 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "d94e8bee5fd8f6793b511652b9ee558e57f4913595763137a5385cd929648168"
+        "4c5835ad64352cc87a4a17e41fd70333bc0d1eedd7339d7ad3d3507cdb64038d"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env.ts"
+        ],
+        "2a3602d40b299fbfa1a6275fe67828d5653d9f3265ba8204b75178aa41dcbae0"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "2b3651e7040a63cfd6a271c2aa89f21cf01170e0abeb6c5ab74adde324852fe4"
+        "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
     ],
     [
         [
@@ -170,6 +177,20 @@
     [
         [
             "file",
+            "../out/sdk/wasp/env/index.ts"
+        ],
+        "d92b4832e9d4249ae5b1f00c0f9760d6841aa44bc199550414793a1d57a6845e"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/env/validation.ts"
+        ],
+        "e22b2fb8931275d3b1bd3176cbdbf753d22fc61887ded0e93cd8febf1b97d260"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/ext-src/Main.css"
         ],
         "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
@@ -207,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "c8e81e8cf56626b9051ba9bd6abc9ad7b3c41419f4b710c28b90382264396402"
+        "489fe48bafdb9893ee52621efcdefee11132f532ff07c22c9cca41fcb09ae6f3"
     ],
     [
         [
@@ -221,7 +242,7 @@
             "file",
             "../out/sdk/wasp/server/HttpError.ts"
         ],
-        "f375fb45eeb16381b8cc575503db302c005ddaa1b35d837ca0ea043fe8ec6ccb"
+        "9c1b2449d8e9d68470c6014054a3c3074069a104ddb291b9089c30d624a2d9d9"
     ],
     [
         [
@@ -249,7 +270,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "5dd35660e0969defaa3c180179919f4922ab7bc041746872dff7f2280c1872ae"
+        "8431eaf0332cdbdd2f36b4c232b4b6b65fd19bad58fe51922f5b2662f22fc8ad"
     ],
     [
         [
@@ -261,9 +282,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/server/env.ts"
+        ],
+        "f3cab17868417ffd4432dc4efecde72ccaaf099a79ddc9194835f3608d123b63"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "51c3e0802764f72b88f6daaf148dba514ae817e233a40cc9b92ec91784f71f98"
+        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
     ],
     [
         [
@@ -284,7 +312,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "4c405b3cf98a4cea0ee906a46e4676ebe7ce08c1652c1b502403a93ebbbf943a"
+        "44ea6eb19cb4e283e24b4d3da1105539ef81cd36dfeb71d9fa5695f0b0c15b34"
     ],
     [
         [
@@ -424,7 +452,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
     ],
     [
         [
@@ -452,7 +480,7 @@
             "file",
             "Dockerfile"
         ],
-        "8851d4e81582d58921a5646dcf063b31dbf8ce9a46f3d4710360d2047dc644b5"
+        "20694e4dd2e7d96d8752ee3d792d4d8b63c46d7a4505c5312923a749146604b7"
     ],
     [
         [
@@ -501,7 +529,7 @@
             "file",
             "server/package.json"
         ],
-        "a4eb7e59ac5309fc5c39ccd7e19f4fdc7a9a568a3b393f62358ef6a6065d65c3"
+        "eaaa1e16e4962f38deb7220a7439a26b920ed7f852890242d084b4cebc63b7c3"
     ],
     [
         [
@@ -509,13 +537,6 @@
             "server/rollup.config.js"
         ],
         "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
-    ],
-    [
-        [
-            "file",
-            "server/scripts/validate-env.mjs"
-        ],
-        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [
@@ -578,7 +599,7 @@
             "file",
             "server/src/polyfill.ts"
         ],
-        "1149661e0aa7228b184bb2c04ac63232a6523b09b33829db6977f79daba3fd8d"
+        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
     ],
     [
         [
@@ -655,7 +676,7 @@
             "file",
             "web-app/package.json"
         ],
-        "b1c4b91445cf4f3c434893a5dfbffac3da58dff66ee823efbd9b5244b914d043"
+        "961707cbde48e25403472b7604ee342e7064b06447307efdedce1098147c14c1"
     ],
     [
         [
@@ -681,16 +702,9 @@
     [
         [
             "file",
-            "web-app/scripts/validate-env.mjs"
-        ],
-        "a9a3a7eb6bc3ead49d8e3850a70737c93c789098beb3b40196bf145fd38893cd"
-    ],
-    [
-        [
-            "file",
             "web-app/src/components/DefaultRootErrorBoundary.tsx"
         ],
-        "4a141a28ca7aed9daddd75c156f7bae5eec50f3e5a85b6a43a28fa2648f34c44"
+        "73bbe8a2eb141e523c6b8169c0831e594b4ab6c7207f107d6d20c1561b44373a"
     ],
     [
         [

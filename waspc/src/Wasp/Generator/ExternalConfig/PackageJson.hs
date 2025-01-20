@@ -7,7 +7,7 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.Common (prismaVersion)
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
-import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion)
+import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactVersion)
 
 validatePackageJson :: P.PackageJson -> [ErrorMsg]
 validatePackageJson packageJson =
@@ -16,7 +16,9 @@ validatePackageJson packageJson =
       validate ("prisma", show prismaVersion) IsListedAsDevWithExactVersion,
       -- Installing the wrong version of "react-router-dom" can make users believe that they
       -- can use features that are not available in the version that Wasp supports.
-      validate ("react-router-dom", show reactRouterVersion) HasExactVersionIfListed
+      validate ("react-router-dom", show reactRouterVersion) IsListedWithExactVersion,
+      validate ("react", show reactVersion) IsListedWithExactVersion,
+      validate ("react-dom", show reactVersion) IsListedWithExactVersion
     ]
   where
     validate = validateDep packageJson

@@ -1,16 +1,11 @@
 {{={= =}=}}
-import { GitHub  } from "arctic";
+import { GitHub  } from 'arctic';
 
-import { ensureEnvVarsForProvider } from "../env.js";
-import { defineProvider } from "../provider.js";
+import { defineProvider } from '../provider.js';
+import { env } from '../../../env.js';
 
-const id = "{= providerId =}";
-const displayName = "{= displayName =}";
-
-const env = ensureEnvVarsForProvider(
-  ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"],
-  displayName
-);
+const id = '{= providerId =}';
+const displayName = '{= displayName =}';
 
 const oAuthClient = new GitHub(
   env.GITHUB_CLIENT_ID,
@@ -21,6 +16,5 @@ const oAuthClient = new GitHub(
 export const github = defineProvider({
   id,
   displayName,
-  env,
   oAuthClient,
 });

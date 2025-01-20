@@ -18,14 +18,21 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "d94e8bee5fd8f6793b511652b9ee558e57f4913595763137a5385cd929648168"
+        "4c5835ad64352cc87a4a17e41fd70333bc0d1eedd7339d7ad3d3507cdb64038d"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env.ts"
+        ],
+        "2a3602d40b299fbfa1a6275fe67828d5653d9f3265ba8204b75178aa41dcbae0"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/client/index.ts"
         ],
-        "2b3651e7040a63cfd6a271c2aa89f21cf01170e0abeb6c5ab74adde324852fe4"
+        "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
     ],
     [
         [
@@ -170,6 +177,20 @@
     [
         [
             "file",
+            "../out/sdk/wasp/env/index.ts"
+        ],
+        "d92b4832e9d4249ae5b1f00c0f9760d6841aa44bc199550414793a1d57a6845e"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/env/validation.ts"
+        ],
+        "e22b2fb8931275d3b1bd3176cbdbf753d22fc61887ded0e93cd8febf1b97d260"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/ext-src/Main.css"
         ],
         "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
@@ -200,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "6f1afd30c951e1f49740256440cd626c9cb521cf0822d93d2d2a5d63d8719d7b"
+        "b991fb5ade61a662dea3f21bf09aa30379f30ea76204a369c0800b1413256a64"
     ],
     [
         [
@@ -214,7 +235,7 @@
             "file",
             "../out/sdk/wasp/server/HttpError.ts"
         ],
-        "f375fb45eeb16381b8cc575503db302c005ddaa1b35d837ca0ea043fe8ec6ccb"
+        "9c1b2449d8e9d68470c6014054a3c3074069a104ddb291b9089c30d624a2d9d9"
     ],
     [
         [
@@ -242,7 +263,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "5dd35660e0969defaa3c180179919f4922ab7bc041746872dff7f2280c1872ae"
+        "8431eaf0332cdbdd2f36b4c232b4b6b65fd19bad58fe51922f5b2662f22fc8ad"
     ],
     [
         [
@@ -254,9 +275,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/server/env.ts"
+        ],
+        "f3cab17868417ffd4432dc4efecde72ccaaf099a79ddc9194835f3608d123b63"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "51c3e0802764f72b88f6daaf148dba514ae817e233a40cc9b92ec91784f71f98"
+        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
     ],
     [
         [
@@ -354,7 +382,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
     ],
     [
         [
@@ -382,7 +410,7 @@
             "file",
             "Dockerfile"
         ],
-        "db2dae70d212749a7e758117e55f00968f84974d8307dc7d33154bf1429486c2"
+        "94b45c62cbed2fcb04c69643da5047c27c5eb0acb78b7c164d083a5c30e7c1d1"
     ],
     [
         [
@@ -431,7 +459,7 @@
             "file",
             "server/package.json"
         ],
-        "00ae054bb5597a45cc4e5277f88d24f4399fccabaa3614bf6ea89424fcd23480"
+        "ddda728300aaca5ccbd8342479cede7930cd5841c01f048415da8172314a1e0a"
     ],
     [
         [
@@ -439,13 +467,6 @@
             "server/rollup.config.js"
         ],
         "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
-    ],
-    [
-        [
-            "file",
-            "server/scripts/validate-env.mjs"
-        ],
-        "100177b4326ccab7362eff378315d532ad1cc17cd28d1ed5978cb167fd627746"
     ],
     [
         [
@@ -480,7 +501,7 @@
             "file",
             "server/src/polyfill.ts"
         ],
-        "1149661e0aa7228b184bb2c04ac63232a6523b09b33829db6977f79daba3fd8d"
+        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
     ],
     [
         [
@@ -557,7 +578,7 @@
             "file",
             "web-app/package.json"
         ],
-        "cf272e5e3a4f18f4585575830f29133d931635f20899f7816ca4126579879f98"
+        "5ad3b71ea4267ee540ac1eb134ca61adf85869cb8ac86471e880725c3206b528"
     ],
     [
         [
@@ -583,16 +604,9 @@
     [
         [
             "file",
-            "web-app/scripts/validate-env.mjs"
-        ],
-        "a9a3a7eb6bc3ead49d8e3850a70737c93c789098beb3b40196bf145fd38893cd"
-    ],
-    [
-        [
-            "file",
             "web-app/src/components/DefaultRootErrorBoundary.tsx"
         ],
-        "4a141a28ca7aed9daddd75c156f7bae5eec50f3e5a85b6a43a28fa2648f34c44"
+        "73bbe8a2eb141e523c6b8169c0831e594b4ab6c7207f107d6d20c1561b44373a"
     ],
     [
         [

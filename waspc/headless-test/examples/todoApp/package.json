@@ -1,10 +1,12 @@
 {
   "name": "todo-app",
   "dependencies": {
-    "react": "^18.2.0",
-    "wasp": "file:.wasp/out/sdk/wasp",
     "@tailwindcss/forms": "^0.5.3",
-    "@tailwindcss/typography": "^0.5.7"
+    "@tailwindcss/typography": "^0.5.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.26.2",
+    "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
     "@types/cors": "^2.8.5",
