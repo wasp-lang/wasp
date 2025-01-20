@@ -99,9 +99,6 @@ waspBuild/.wasp/build/sdk/wasp/dist/dev/index.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/entities/index.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/entities/index.js
 waspBuild/.wasp/build/sdk/wasp/dist/entities/index.js.map
-waspBuild/.wasp/build/sdk/wasp/dist/ext-src/MainPage.d.ts
-waspBuild/.wasp/build/sdk/wasp/dist/ext-src/MainPage.jsx
-waspBuild/.wasp/build/sdk/wasp/dist/ext-src/MainPage.jsx.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/HttpError.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/server/HttpError.js
 waspBuild/.wasp/build/sdk/wasp/dist/server/HttpError.js.map
@@ -153,6 +150,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/server/types/index.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/utils.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/server/utils.js
 waspBuild/.wasp/build/sdk/wasp/dist/server/utils.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.jsx
+waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.jsx.map
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js.map
@@ -166,10 +166,6 @@ waspBuild/.wasp/build/sdk/wasp/dist/universal/validators.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/universal/validators.js
 waspBuild/.wasp/build/sdk/wasp/dist/universal/validators.js.map
 waspBuild/.wasp/build/sdk/wasp/entities/index.ts
-waspBuild/.wasp/build/sdk/wasp/ext-src/Main.css
-waspBuild/.wasp/build/sdk/wasp/ext-src/MainPage.jsx
-waspBuild/.wasp/build/sdk/wasp/ext-src/vite-env.d.ts
-waspBuild/.wasp/build/sdk/wasp/ext-src/waspLogo.png
 waspBuild/.wasp/build/sdk/wasp/package.json
 waspBuild/.wasp/build/sdk/wasp/prisma-runtime-library.d.ts
 waspBuild/.wasp/build/sdk/wasp/server/HttpError.ts
@@ -189,6 +185,10 @@ waspBuild/.wasp/build/sdk/wasp/server/operations/queries/types.ts
 waspBuild/.wasp/build/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/build/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/utils.ts
+waspBuild/.wasp/build/sdk/wasp/src/Main.css
+waspBuild/.wasp/build/sdk/wasp/src/MainPage.jsx
+waspBuild/.wasp/build/sdk/wasp/src/vite-env.d.ts
+waspBuild/.wasp/build/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/build/sdk/wasp/tsconfig.json
 waspBuild/.wasp/build/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/build/sdk/wasp/universal/types.ts
@@ -234,6 +234,7 @@ waspBuild/.wasp/build/web-app/src/router.tsx
 waspBuild/.wasp/build/web-app/src/test/vitest/setup.ts
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasp/build/web-app/src/vite-env.d.ts
+waspBuild/.wasp/build/web-app/tsconfig.app.json
 waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.node.json
 waspBuild/.wasp/build/web-app/vite.config.ts
@@ -332,9 +333,6 @@ waspBuild/.wasp/out/sdk/wasp/dist/dev/index.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/entities/index.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/entities/index.js
 waspBuild/.wasp/out/sdk/wasp/dist/entities/index.js.map
-waspBuild/.wasp/out/sdk/wasp/dist/ext-src/MainPage.d.ts
-waspBuild/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx
-waspBuild/.wasp/out/sdk/wasp/dist/ext-src/MainPage.jsx.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/server/HttpError.js
 waspBuild/.wasp/out/sdk/wasp/dist/server/HttpError.js.map
@@ -386,6 +384,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/server/types/index.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/utils.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/server/utils.js
 waspBuild/.wasp/out/sdk/wasp/dist/server/utils.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.jsx
+waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.jsx.map
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -399,10 +400,6 @@ waspBuild/.wasp/out/sdk/wasp/dist/universal/validators.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/universal/validators.js
 waspBuild/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 waspBuild/.wasp/out/sdk/wasp/entities/index.ts
-waspBuild/.wasp/out/sdk/wasp/ext-src/Main.css
-waspBuild/.wasp/out/sdk/wasp/ext-src/MainPage.jsx
-waspBuild/.wasp/out/sdk/wasp/ext-src/vite-env.d.ts
-waspBuild/.wasp/out/sdk/wasp/ext-src/waspLogo.png
 waspBuild/.wasp/out/sdk/wasp/package.json
 waspBuild/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspBuild/.wasp/out/sdk/wasp/server/HttpError.ts
@@ -422,6 +419,10 @@ waspBuild/.wasp/out/sdk/wasp/server/operations/queries/types.ts
 waspBuild/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/out/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/utils.ts
+waspBuild/.wasp/out/sdk/wasp/src/Main.css
+waspBuild/.wasp/out/sdk/wasp/src/MainPage.jsx
+waspBuild/.wasp/out/sdk/wasp/src/vite-env.d.ts
+waspBuild/.wasp/out/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/out/sdk/wasp/tsconfig.json
 waspBuild/.wasp/out/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/out/sdk/wasp/universal/types.ts

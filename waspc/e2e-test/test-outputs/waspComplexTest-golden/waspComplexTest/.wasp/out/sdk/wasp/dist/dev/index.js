@@ -10,6 +10,7 @@ import { join as joinPaths } from 'path';
  * .wasp/out/web-app directory. This function resolves a project root dir path
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
+// TODO: The relative path should come from Haskell
 export function resolveProjectPath(path) {
     return joinPaths('../../../', path);
 }

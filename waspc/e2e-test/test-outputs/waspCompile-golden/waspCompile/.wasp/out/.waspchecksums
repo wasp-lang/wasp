@@ -158,7 +158,7 @@
             "file",
             "../out/sdk/wasp/dev/index.ts"
         ],
-        "1c15a2858ffe39f3ef83e53705cb25b00f09e895c04cf1a354210b5babdde895"
+        "69968efb6c0f00422c86df7d09f7738da86a6ff042380f1ca19f927df7c343d6"
     ],
     [
         [
@@ -170,37 +170,9 @@
     [
         [
             "file",
-            "../out/sdk/wasp/ext-src/Main.css"
-        ],
-        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/MainPage.jsx"
-        ],
-        "bd452ce5b469d3b48e69705daaa07e339d9d0e9d88a99a74c2ace9fa6d6299e7"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/vite-env.d.ts"
-        ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
-    ],
-    [
-        [
-            "file",
             "../out/sdk/wasp/package.json"
         ],
-        "6f1afd30c951e1f49740256440cd626c9cb521cf0822d93d2d2a5d63d8719d7b"
+        "6b5c1bfe7e20c4bde21ed48b066c094ffb19b283cef7f899f5b1fefaa959fdc3"
     ],
     [
         [
@@ -331,9 +303,37 @@
     [
         [
             "file",
+            "../out/sdk/wasp/src/Main.css"
+        ],
+        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/MainPage.jsx"
+        ],
+        "bd452ce5b469d3b48e69705daaa07e339d9d0e9d88a99a74c2ace9fa6d6299e7"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/vite-env.d.ts"
+        ],
+        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/waspLogo.png"
+        ],
+        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
+        "d5009648f204f4b45690bfd796b0a4f7f319818b74b560724cecf349567bdeee"
     ],
     [
         [
@@ -431,14 +431,14 @@
             "file",
             "server/package.json"
         ],
-        "a4eb7e59ac5309fc5c39ccd7e19f4fdc7a9a568a3b393f62358ef6a6065d65c3"
+        "94fdef3f5335fb80b0f92018e4c83ef947fa54baf43b6e0d8c003d7154d8e9db"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
+        "f5f5db92778a5964183044bc3c232f5b5486f55e04b35e16a2094171f9f023c9"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "bc6ba637ac3b2e0cbe9a8d01311fa87c7ba9394148246925c6ff9d562b59e6d1"
+        "622813a50faf658cd240456ce60406209b8f2c2d15669fcf83ad9566750d67e1"
     ],
     [
         [
@@ -557,7 +557,7 @@
             "file",
             "web-app/package.json"
         ],
-        "e7ed7bc4ce966c2fb9b8fff9844d9602efcabce0eda274ffa0d77204525bd0b6"
+        "765c0055d010e85fa9a573efb7b19f2a8c87102fe8f6f914b18232cf25eb32fe"
     ],
     [
         [
@@ -667,22 +667,29 @@
     [
         [
             "file",
+            "web-app/tsconfig.app.json"
+        ],
+        "5262d9e2187938464703a1a414250eb137478e4a7004a95a0a47c26b63313522"
+    ],
+    [
+        [
+            "file",
             "web-app/tsconfig.json"
         ],
-        "dfeee6d883ed2504c149c64b24ca939c0ad4812b78bfdced7293a386a008effd"
+        "0f84a09c31c7cca7d2bed4fac04c3da0ce54b0996ab80b2b54f1a6a53e6fd139"
     ],
     [
         [
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "30fed1f6aa4710deb690d1ae47628066f34afda7b633f0c696fafcda9e2dbc1e"
+        "ed42a259d45429569d3c5182e40e008b4c2bffd9c49a643019e8542035d21b7c"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "64256d93d81f6192f419e836ed4484f0e8c1e28f018bfb3213851608200594ac"
+        "34f2bfb41c7aa635ed1bedea960f03b3e7e8194de2ecba440a3ce06510335762"
     ]
 ]

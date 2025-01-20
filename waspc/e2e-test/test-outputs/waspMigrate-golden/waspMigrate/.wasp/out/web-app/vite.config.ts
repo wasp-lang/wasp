@@ -2,6 +2,9 @@
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
+import { resolveProjectPath } from "wasp/dev"
+import tsconfigPaths from 'vite-tsconfig-paths'
+
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore
@@ -10,7 +13,12 @@ const _waspUserProvidedConfig = customViteConfig
 
 const defaultViteConfig = {
   base: "/",
-  plugins: [react()],
+  plugins: [
+    tsconfigPaths({
+      projects: ["./", resolveProjectPath("./")]
+    }),
+    react()
+  ],
   optimizeDeps: {
     exclude: ['wasp']
   },

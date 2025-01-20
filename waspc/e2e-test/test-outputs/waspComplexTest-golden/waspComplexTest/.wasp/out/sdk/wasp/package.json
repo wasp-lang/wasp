@@ -59,7 +59,6 @@
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",
     "./entities": "./dist/entities/index.js",
-    "./ext-src/*": "./dist/ext-src/*.js",
     "./operations": "./dist/operations/index.js",
     "./operations/*": "./dist/operations/*",
     "./server": "./dist/server/index.js",
@@ -84,6 +83,7 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
+    "./src/*": "./dist/src/*.js",
     "./universal/types": "./dist/universal/types.js",
     "./universal/url": "./dist/universal/url.js",
     "./universal/validators": "./dist/universal/validators.js"
