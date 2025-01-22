@@ -50,6 +50,6 @@ export default defineConfig({
     // Wait for the backend to start
     url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 180 * 1000,
   },
 })
