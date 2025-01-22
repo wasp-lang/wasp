@@ -178,7 +178,7 @@ jobs:
           npm ci
 
       - name: Headless - Setup the Wasp app runner
-        id: headless-install-dependencies
+        id: headless-setup-wasp-app-runner
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd ../headless-tests-runner
