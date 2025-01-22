@@ -221,6 +221,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd ../examples/todo-typescript
+          npm ci
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test --config headless-tests/
 
