@@ -17,10 +17,17 @@ const argv = yargs(hideBin(process.argv))
     description: "Name of the application (used for DB container name)",
     demandOption: true,
   })
+  .option("db-type", {
+    type: "choices",
+    choices: ["sqlite", "postgres"],
+    description: "Database type",
+    default: "postgres",
+  })
   .parse();
 
 const pathToApp = argv["app-path"];
 const appName = argv["app-name"];
+const isPostgresUsed = argv["db-type"] === "postgres";
 const children = [];
 const POSTGRES_CONFIG = {
   port: 5432,
@@ -255,10 +262,10 @@ async function setupEnvFiles() {
   });
 }
 
-function spawn({ name, cmd, args, extraEnv = {} }) {
+function spawn({ name, cmd, args, cwd, extraEnv = {} }) {
   return new Promise((resolve, reject) => {
     const spawnOptions = {
-      cwd: pathToApp,
+      cwd,
       env: { ...process.env, ...extraEnv },
       stdio: ["ignore", "pipe", "pipe"],
     };
@@ -299,35 +306,58 @@ function spawn({ name, cmd, args, extraEnv = {} }) {
   });
 }
 
+async function installWaspCli() {
+  log("install-wasp-cli", "info", "Installing Wasp CLI globally...");
+
+  console.log(path.join(process.cwd(), "../waspc"));
+
+  await spawn({
+    name: "install-wasp-cli",
+    cmd: "cabal",
+    args: ["install", "--overwrite-policy=always"],
+    cwd: path.join(__dirname, "../waspc"),
+  });
+}
+
 async function main() {
   try {
     log("setup", "info", `Starting application: ${appName}`);
 
     await checkDependencies();
-    const DATABASE_URL = await ensurePostgresContainer();
 
-    log("runApp", "info", `Using DATABASE_URL: ${DATABASE_URL}`);
-    log(
-      "runApp",
-      "info",
-      `Using DB container: ${POSTGRES_CONFIG.containerName}`
-    );
+    let extraEnv = {};
+
+    if (isPostgresUsed) {
+      const DATABASE_URL = await ensurePostgresContainer();
+
+      log("runApp", "info", `Using DATABASE_URL: ${DATABASE_URL}`);
+      log(
+        "runApp",
+        "info",
+        `Using DB container: ${POSTGRES_CONFIG.containerName}`
+      );
+      extraEnv = { DATABASE_URL };
+    }
 
     // Add environment file setup
     await setupEnvFiles();
 
+    await installWaspCli();
+
     await spawn({
       name: "migrate-db",
-      cmd: "cabal",
-      args: ["run", "wasp-cli", "db", "migrate-dev"],
-      extraEnv: { DATABASE_URL },
+      cmd: "wasp-cli",
+      args: ["db", "migrate-dev"],
+      cwd: pathToApp,
+      extraEnv,
     });
 
     await spawn({
       name: "start-app",
-      cmd: "cabal",
-      args: ["run", "wasp-cli", "start"],
-      extraEnv: { DATABASE_URL },
+      cmd: "wasp-cli",
+      args: ["start"],
+      cwd: pathToApp,
+      extraEnv,
     });
   } catch (error) {
     log("main", "error", `Fatal error: ${error.message}`);
