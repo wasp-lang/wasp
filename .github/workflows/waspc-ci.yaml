@@ -215,7 +215,7 @@ jobs:
         run: |
           cd examples/todoApp
           # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver npx playwright test
+          DEBUG=pw:webserver npx playwright test --config headless-tests/
 
       - name: Run e2e tests
         run: cabal test e2e-test
