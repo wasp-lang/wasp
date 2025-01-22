@@ -1,3 +1,4 @@
+{{={= =}=}}
 {
   "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
@@ -14,7 +15,6 @@
     "src"
   ],
   "references": [
-    // TODO: It would be better to inject this knowledge from Haskell.
-    { "path": "../../../tsconfig.json" }
+    { "path": "{= srcTsConfigPath =}" }
   ]
 }

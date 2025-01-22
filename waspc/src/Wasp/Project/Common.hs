@@ -25,13 +25,14 @@ module Wasp.Project.Common
     getSrcTsConfigInWaspProjectDir,
     srcTsConfigInWaspLangProject,
     srcTsConfigInWaspTsProject,
+    waspProjectDirFromAppComponentDir,
   )
 where
 
 import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
-import qualified Wasp.Generator.Common
+import qualified Wasp.Generator.Common as Generator
 
 type CompileError = String
 
@@ -65,24 +66,28 @@ nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: Hm this has different name than it has in Generator.
-generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)
+generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Generator.ProjectRootDir)
 generatedCodeDirInDotWaspDir = [reldir|out|]
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
-buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)
+buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Generator.ProjectRootDir)
 buildDirInDotWaspDir = [reldir|build|]
+
+-- Todo: find a better way to define this
+waspProjectDirFromAppComponentDir :: Generator.AppComponentRootDir d => Path' (Rel d) (Dir WaspProjectDir)
+waspProjectDirFromAppComponentDir = [reldir|../../../|]
 
 -- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,
 -- @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@., which are the three functions just above.
 -- Also, it assumes @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@ have same depth.
 -- If any of those change significantly (their depth), this path should be adjusted.
-waspProjectDirFromProjectRootDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) (Dir WaspProjectDir)
+waspProjectDirFromProjectRootDir :: Path' (Rel Generator.ProjectRootDir) (Dir WaspProjectDir)
 waspProjectDirFromProjectRootDir = [reldir|../../|]
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 
-dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
+dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Generator.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
