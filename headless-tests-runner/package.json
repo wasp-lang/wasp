@@ -1,0 +1,10 @@
+{
+  "name": "headless-tests-runner",
+  "dependencies": {
+    "linebyline": "^1.3.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7"
+  }
+}
