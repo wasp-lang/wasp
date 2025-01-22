@@ -177,6 +177,13 @@ jobs:
           cd ../headless-tests-runner
           npm ci
 
+      - name: Headless - Install Dependencies
+        id: headless-install-dependencies
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd examples/todoApp
+          npm ci
+
       - name: Headless - Store Playwright's Version
         id: headless-store-playwright-version
         if: matrix.os == 'ubuntu-20.04'
@@ -192,13 +199,6 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: Headless - Install Dependencies
-        id: headless-install-dependencies
-        if: matrix.os == 'ubuntu-20.04'
-        run: |
-          cd examples/todoApp
-          npm ci
 
       - name: Headless - Setup Playwright
         id: headless-setup-playwright
