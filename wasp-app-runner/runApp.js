@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const cp = require("child_process");
 const readline = require("linebyline");
 const yargs = require("yargs/yargs");

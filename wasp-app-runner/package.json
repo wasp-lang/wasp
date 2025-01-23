@@ -1,5 +1,8 @@
 {
-  "name": "headless-tests-runner",
+  "name": "wasp-app-runner",
+  "bin": {
+    "wasp-app-runner": "./runApp.js"
+  },
   "dependencies": {
     "linebyline": "^1.3.0",
     "yargs": "^17.7.2"

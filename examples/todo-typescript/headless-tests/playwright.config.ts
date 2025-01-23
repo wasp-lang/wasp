@@ -45,7 +45,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command:
-      "node ../../../headless-tests-runner/runApp.js --app-path=../ --app-name=examples-todo-typescript --db-type=sqlite",
+      "wasp-app-runner --app-path=../ --app-name=examples-todo-typescript --db-type=sqlite",
 
     // Wait for the backend to start
     url: "http://localhost:3001",

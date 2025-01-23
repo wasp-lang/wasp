@@ -44,8 +44,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command:
-      'node ../../../../headless-tests-runner/runApp.js --app-path=../ --app-name=waspc-todoApp',
+    command: 'wasp-app-runner --app-path=../ --app-name=waspc-todoApp',
 
     // Wait for the backend to start
     url: 'http://localhost:3001',
