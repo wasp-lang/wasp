@@ -14,6 +14,7 @@ import StrongPath
     fromAbsDir,
   )
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.ConfigFile as CF
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
@@ -51,6 +52,10 @@ analyzeWaspProject ::
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 analyzeWaspProject waspDir options = do
   waspFilePathOrError <- left (: []) <$> findWaspFile waspDir
+  configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
+
+  let isTailwindUsed = G.CF.isTailwindUsed configFiles
+
   case waspFilePathOrError of
     Left err -> return (Left err, [])
     Right waspFilePath ->
@@ -61,25 +66,25 @@ analyzeWaspProject waspDir options = do
           analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
             Right declarations ->
-              EC.analyzeExternalConfigs waspDir (getSrcTsConfigInWaspProjectDir waspFilePath) >>= \case
+              EC.analyzeExternalConfigs isTailwindUsed waspDir (getSrcTsConfigInWaspProjectDir waspFilePath) >>= \case
                 Left errors -> return (Left errors, [])
-                Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
+                Right externalConfigs -> constructAppSpec waspDir options externalConfigs configFiles prismaSchemaAst declarations
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   EC.ExternalConfigs ->
+  [CF.ConfigFileRelocator] ->
   Psl.Schema.Schema ->
   [AS.Decl] ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
+constructAppSpec waspDir options externalConfigs configFiles parsedPrismaSchema decls = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
 
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
-  configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir

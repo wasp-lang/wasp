@@ -10,6 +10,7 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toUpperFirst)
 
 data SdkRootDir
@@ -84,3 +85,6 @@ serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+tailwindCssVersion :: SV.ComparatorSet
+tailwindCssVersion = SV.backwardsCompatibleWith $ SV.Version 3 2 7

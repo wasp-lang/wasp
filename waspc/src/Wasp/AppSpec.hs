@@ -16,7 +16,6 @@ module Wasp.AppSpec
     getRoutes,
     getJobs,
     resolveRef,
-    doesConfigFileExist,
     asAbsWaspProjectDirFile,
     getApp,
     getApiNamespaces,
@@ -26,7 +25,7 @@ module Wasp.AppSpec
 where
 
 import Data.List (find)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
@@ -148,10 +147,6 @@ resolveRef spec ref =
     )
     $ find ((== refName ref) . fst) $
       getDecls spec
-
-doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
-doesConfigFileExist spec file =
-  isJust $ find ((==) file . _pathInWaspProjectDir) (configFiles spec)
 
 asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
 asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file

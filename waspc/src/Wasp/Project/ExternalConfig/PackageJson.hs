@@ -18,11 +18,11 @@ import Wasp.Project.Common
   )
 import qualified Wasp.Util.IO as IOUtil
 
-analyzePackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] P.PackageJson)
-analyzePackageJsonFile waspProjectDir = runExceptT $ do
+analyzePackageJsonFile :: Bool -> Path' Abs (Dir WaspProjectDir) -> IO (Either [String] P.PackageJson)
+analyzePackageJsonFile isTailwindUsed waspProjectDir = runExceptT $ do
   packageJsonFile <- ExceptT findPackageJsonFileOrError
   packageJson <- ExceptT $ readPackageJsonFile packageJsonFile
-  case validatePackageJson packageJson of
+  case validatePackageJson isTailwindUsed packageJson of
     [] -> return packageJson
     errors -> throwError errors
   where

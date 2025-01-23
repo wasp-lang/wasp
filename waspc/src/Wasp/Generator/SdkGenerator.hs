@@ -44,6 +44,7 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Common (tailwindCssVersion)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
@@ -279,10 +280,10 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if G.CF.isTailwindUsed spec
+  if G.CF.isTailwindUsed $ AS.configFiles spec
     then
       AS.Dependency.fromList
-        [ ("tailwindcss", "^3.2.7"),
+        [ ("tailwindcss", show tailwindCssVersion),
           ("postcss", "^8.4.21"),
           ("autoprefixer", "^10.4.13")
         ]

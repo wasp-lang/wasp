@@ -23,11 +23,12 @@ data ExternalConfigs = ExternalConfigs
   deriving (Show)
 
 analyzeExternalConfigs ::
+  Bool ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Either [CompileError] ExternalConfigs)
-analyzeExternalConfigs waspDir srcTsConfigFile = runExceptT $ do
-  packageJsonContent <- ExceptT $ analyzePackageJsonFile waspDir
+analyzeExternalConfigs isTailwindUsed waspDir srcTsConfigFile = runExceptT $ do
+  packageJsonContent <- ExceptT $ analyzePackageJsonFile isTailwindUsed waspDir
   tsConfigContent <- ExceptT $ analyzeSrcTsConfigFile waspDir srcTsConfigFile
 
   return $
