@@ -5,6 +5,8 @@ import { hideBin } from "yargs/helpers";
 import { join } from "path";
 import { existsSync, copyFileSync } from "fs";
 
+const __dirname = new URL(".", import.meta.url).pathname;
+
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
   .option("app-path", {
@@ -309,13 +311,13 @@ function spawn({ name, cmd, args, cwd, extraEnv = {} }) {
 async function installWaspCli() {
   log("install-wasp-cli", "info", "Installing Wasp CLI globally...");
 
-  console.log(join(process.cwd(), "../waspc"));
+  const waspcDirFromSrc = "../../waspc";
 
   await spawn({
     name: "install-wasp-cli",
     cmd: "cabal",
     args: ["install", "--overwrite-policy=always"],
-    cwd: join(__dirname, "../waspc"),
+    cwd: join(__dirname, waspcDirFromSrc),
   });
 }
 
