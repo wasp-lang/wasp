@@ -1,7 +1,8 @@
 {
   "name": "wasp-app-runner",
+  "type": "module",
   "bin": {
-    "wasp-app-runner": "./runApp.js"
+    "wasp-app-runner": "./bin/index.js"
   },
   "dependencies": {
     "linebyline": "^1.3.0",

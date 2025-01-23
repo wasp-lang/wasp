@@ -1,17 +1,19 @@
 # Wasp Application Runner
 
-A robust script to manage your Wasp application with PostgreSQL integration, including automated database setup and migrations.
+A robust script to run your Wasp application with PostgreSQL, including automated database setup and migrations.
 
 ## Installation
 
-```
+```bash
 npm install
+# Installs wasp-app-runner globally
+npm install -g
 ```
 
 ## Usage
 
 ```
-node run-app.js --app-path <path-to-app> --app-name <app-name>
+node ./src/index.js --app-path <path-to-app> --app-name <app-name>
 ```
 
 ### Arguments Table
@@ -20,6 +22,7 @@ node run-app.js --app-path <path-to-app> --app-name <app-name>
 | ------------ | --------------------------------------- | --------------- |
 | `--app-path` | Path to your Wasp application directory | `./my-wasp-app` |
 | `--app-name` | Unique name for your application        | `myapp`         |
+| `--db-type`  | Choices: `postgres`, `sqlite`           | `postgres`      |
 
 ### Example Command
 
@@ -52,11 +55,3 @@ The script automatically sets:
 ```
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
 ```
-
-## Workflow Steps
-
-1. Dependency verification
-2. PostgreSQL container setup
-3. Database readiness checks
-4. Migration execution
-5. Application startup

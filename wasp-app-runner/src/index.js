@@ -1,11 +1,9 @@
-#!/usr/bin/env node
-
-const cp = require("child_process");
-const readline = require("linebyline");
-const yargs = require("yargs/yargs");
-const { hideBin } = require("yargs/helpers");
-const path = require("path");
-const fs = require("fs");
+import { exec, spawn as _spawn } from "child_process";
+import readline from "linebyline";
+import yargs from "yargs/yargs";
+import { hideBin } from "yargs/helpers";
+import { join } from "path";
+import { existsSync, copyFileSync } from "fs";
 
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
@@ -96,7 +94,7 @@ async function checkDependencies() {
 
 function commandExists(command) {
   return new Promise((resolve) => {
-    cp.exec(`command -v ${command}`, (error) => {
+    exec(`command -v ${command}`, (error) => {
       resolve(!error);
     });
   });
@@ -145,7 +143,7 @@ async function ensurePostgresContainer() {
 
 async function dockerContainerExists(containerName) {
   return new Promise((resolve) => {
-    const proc = cp.spawn("docker", [
+    const proc = _spawn("docker", [
       "inspect",
       "--format={{.Name}}",
       containerName,
@@ -159,7 +157,7 @@ async function dockerContainerExists(containerName) {
 
 async function dockerContainerIsRunning(containerName) {
   return new Promise((resolve) => {
-    const proc = cp.spawn("docker", [
+    const proc = _spawn("docker", [
       "inspect",
       "--format={{.State.Running}}",
       containerName,
@@ -173,7 +171,7 @@ async function dockerContainerIsRunning(containerName) {
 
 async function dockerStartContainer(containerName) {
   return new Promise((resolve, reject) => {
-    const proc = cp.spawn("docker", ["start", containerName]);
+    const proc = _spawn("docker", ["start", containerName]);
 
     proc.on("close", (code) => {
       if (code === 0) {
@@ -199,7 +197,7 @@ async function dockerCreateContainer(containerName, port, password, image) {
       image,
     ];
 
-    const proc = cp.spawn("docker", args);
+    const proc = _spawn("docker", args);
 
     proc.on("close", (code) => {
       if (code === 0) {
@@ -223,7 +221,7 @@ async function waitForPostgresReady() {
     );
 
     const success = await new Promise((resolve) => {
-      const proc = cp.spawn("docker", [
+      const proc = _spawn("docker", [
         "exec",
         containerName,
         "pg_isready",
@@ -252,12 +250,12 @@ async function setupEnvFiles() {
   ];
 
   envFiles.forEach(({ headless, target }) => {
-    const headlessPath = path.join(pathToApp, headless);
-    const targetPath = path.join(pathToApp, target);
+    const headlessPath = join(pathToApp, headless);
+    const targetPath = join(pathToApp, target);
 
-    if (fs.existsSync(headlessPath)) {
+    if (existsSync(headlessPath)) {
       log("setup", "info", `Copying ${headless} to ${target}`);
-      fs.copyFileSync(headlessPath, targetPath);
+      copyFileSync(headlessPath, targetPath);
     } else {
       log("setup", "warn", `Headless env file not found: ${headless}`);
     }
@@ -274,7 +272,7 @@ function spawn({ name, cmd, args, cwd, extraEnv = {} }) {
 
     log(name, "info", `Spawning: ${cmd} ${args.join(" ")}`);
 
-    const proc = cp.spawn(cmd, args, spawnOptions);
+    const proc = _spawn(cmd, args, spawnOptions);
     children.push(proc);
 
     // Process output handling
@@ -311,13 +309,13 @@ function spawn({ name, cmd, args, cwd, extraEnv = {} }) {
 async function installWaspCli() {
   log("install-wasp-cli", "info", "Installing Wasp CLI globally...");
 
-  console.log(path.join(process.cwd(), "../waspc"));
+  console.log(join(process.cwd(), "../waspc"));
 
   await spawn({
     name: "install-wasp-cli",
     cmd: "cabal",
     args: ["install", "--overwrite-policy=always"],
-    cwd: path.join(__dirname, "../waspc"),
+    cwd: join(__dirname, "../waspc"),
   });
 }
 
