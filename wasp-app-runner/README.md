@@ -39,7 +39,7 @@ The script automatically sets up environment files if headless versions exist:
 
 This allows you to commit template files with default values while keeping actual credentials out of source control. **Note:** it will override any locally modified `.env.client` or `.env.server` files.
 
-## Configuration Details
+## Postgres Configuration
 
 - Port: 5432
 - Password: `devpass`
@@ -48,9 +48,7 @@ This allows you to commit template files with default values while keeping actua
 - Health check retries: 10
 - Health check delay: 2000ms
 
-## Environment Variables
-
-The script automatically sets:
+If Postgres is used, the script automatically sets:
 
 ```
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
