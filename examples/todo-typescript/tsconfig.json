@@ -10,6 +10,7 @@
 // Full TypeScript configurability is coming very soon :)
 {
   "compilerOptions": {
+    "module": "esnext",
     // Needed because this is used as a project reference.
     "composite": true,
     "target": "esnext",
