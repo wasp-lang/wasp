@@ -13,16 +13,17 @@ npm install -g
 ## Usage
 
 ```
-node ./src/index.js --app-path <path-to-app> --app-name <app-name>
+node ./src/index.js --app-path <path-to-app> --app-name <app-name> [--db-type <db-type>] [--skip-cli-install <true/false>]
 ```
 
 ### Arguments Table
 
-| Argument     | Description                             | Example         |
-| ------------ | --------------------------------------- | --------------- |
-| `--app-path` | Path to your Wasp application directory | `./my-wasp-app` |
-| `--app-name` | Unique name for your application        | `myapp`         |
-| `--db-type`  | Choices: `postgres`, `sqlite`           | `postgres`      |
+| Argument             | Description                             | Example         |
+| -------------------- | --------------------------------------- | --------------- |
+| `--app-path`         | Path to your Wasp application directory | `./my-wasp-app` |
+| `--app-name`         | Unique name for your application        | `myapp`         |
+| `--db-type`          | Choices: `postgres`, `sqlite`           | `postgres`      |
+| `--skip-cli-install` | Skip installing Wasp CLI                | `true`          |
 
 ### Example Command
 
@@ -48,7 +49,7 @@ This allows you to commit template files with default values while keeping actua
 - Health check retries: 10
 - Health check delay: 2000ms
 
-If Postgres is used, the script automatically sets:
+If Postgres is used, the script automatically sets the `DATABASE_URL` env variable for the `wasp start` command:
 
 ```
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres

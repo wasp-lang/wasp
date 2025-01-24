@@ -177,7 +177,7 @@ jobs:
           cd ../wasp-app-runner
           npm ci
           # Installs the wasp-app-runner globally so that it can be used in the tests
-          npm install -g
+          npm run install:global
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
