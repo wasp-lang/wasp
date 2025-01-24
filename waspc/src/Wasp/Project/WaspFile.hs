@@ -42,7 +42,7 @@ findWaspFile waspDir = do
         . (waspDir </>)
         <$> find ((suffix `isSuffixOf`) . fromRelFile) files
 
-    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the " ++ fromAbsDir waspDir ++ " directory"
+    fileNotFoundMessage = "Couldn't find a *.wasp or a *.wasp.ts file in directory " ++ fromAbsDir waspDir ++ " ."
     bothFilesFoundMessage =
       "Found both *.wasp and *.wasp.ts files in the project directory. "
         ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."

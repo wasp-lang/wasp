@@ -12,6 +12,7 @@ import Data.Maybe (fromJust)
 import qualified FilePath.Extra as FP.Extra
 import StrongPath
   ( Dir,
+    File,
     File',
     Path,
     Path',
@@ -56,7 +57,7 @@ import Wasp.JsImport
     makeJsImport,
   )
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (SrcTsConfigFile, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Common as Project
 import Wasp.Util ((<++>))
 
@@ -65,7 +66,7 @@ genWebApp spec = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
-      genFileCopy [relfile|tsconfig.app.json|],
+      genAppTsConfigJson spec,
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
@@ -79,6 +80,21 @@ genWebApp spec = do
     <++> genDotEnv spec
   where
     genFileCopy = return . C.mkTmplFd
+
+genAppTsConfigJson :: AppSpec -> Generator FileDraft
+genAppTsConfigJson spec = do
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|tsconfig.app.json|])
+      (C.asWebAppFile [relfile|tsconfig.app.json|])
+      ( Just $
+          object
+            [ "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
+            ]
+      )
+  where
+    srcTsConfigPath :: Path' (Rel C.WebAppRootDir) (File SrcTsConfigFile) =
+      waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
