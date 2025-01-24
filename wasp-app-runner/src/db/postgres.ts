@@ -8,7 +8,7 @@ import { Options } from "../cli.js";
 export const runAppWithPostgres: RunAppWithDbFn = async (options, runApp) => {
   const DATABASE_URL = await ensurePostgresContainer(options);
 
-  log("runApp", "info", `Using DATABASE_URL: ${DATABASE_URL}`);
+  log("postgres", "info", `Using DATABASE_URL: ${DATABASE_URL}`);
 
   await runApp({
     extraEnv: { DATABASE_URL },
@@ -31,21 +31,12 @@ async function ensurePostgresContainer(options: Options) {
   const DATABASE_URL = `postgresql://postgres:${password}@localhost:${port}/postgres`;
 
   try {
-    // Validate application name format
-    const validNameRegex = /^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/;
-    if (!validNameRegex.test(options.appName)) {
-      throw new Error(
-        `Invalid app name: ${options.appName}. It should only contain alphanumeric characters, dots, underscores, and dashes, and must start with an alphanumeric character.`
-      );
-    }
+    log("postgres", "info", `Using DB container: ${containerName}`);
 
-    log("runApp", "info", `Using DB container: ${containerName}`);
-
-    // // Check if container exists
-    const exists = await dockerContainerExists(containerName);
+    const exists = await postgresContainerExists(containerName);
 
     if (exists) {
-      const isRunning = await dockerContainerIsRunning(containerName);
+      const isRunning = await postgresContainerIsRunning(containerName);
 
       if (isRunning) {
         log("postgres", "info", "Stopping existing PostgreSQL container...");
@@ -76,8 +67,10 @@ async function ensurePostgresContainer(options: Options) {
   }
 }
 
-async function dockerContainerExists(containerName: string): Promise<boolean> {
-  const { exitCode } = await processManager.spawnWithOutput({
+async function postgresContainerExists(
+  containerName: string
+): Promise<boolean> {
+  const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "check-container-exists",
     cmd: "docker",
     args: ["inspect", "--format={{.Name}}", containerName],
@@ -86,10 +79,10 @@ async function dockerContainerExists(containerName: string): Promise<boolean> {
   return exitCode === 0;
 }
 
-async function dockerContainerIsRunning(
+async function postgresContainerIsRunning(
   containerName: string
 ): Promise<boolean> {
-  const { exitCode, stdoutData } = await processManager.spawnWithOutput({
+  const { exitCode, stdoutData } = await processManager.spawnAndCollectStdout({
     name: "check-container-running",
     cmd: "docker",
     args: ["inspect", "--format={{.State.Running}}", containerName],
@@ -99,7 +92,7 @@ async function dockerContainerIsRunning(
 }
 
 async function stopPostgresContainer(containerName: string): Promise<boolean> {
-  const { exitCode } = await processManager.spawnWithOutput({
+  const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "stop-container",
     cmd: "docker",
     args: ["stop", containerName],
@@ -111,7 +104,7 @@ async function stopPostgresContainer(containerName: string): Promise<boolean> {
 async function deletePostgresContainer(
   containerName: string
 ): Promise<boolean> {
-  const { exitCode } = await processManager.spawnWithOutput({
+  const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "delete-container",
     cmd: "docker",
     args: ["rm", containerName],
@@ -126,7 +119,7 @@ async function runPostgresContainer(
   password: string,
   image: string
 ): Promise<void> {
-  const { exitCode } = await processManager.spawnWithOutput({
+  const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "create-postgres-container",
     cmd: "docker",
     args: [
@@ -157,7 +150,7 @@ async function waitForPostgresReady(options: Options) {
       `Checking PostgreSQL readiness (attempt ${i}/${healthCheckRetries})`
     );
 
-    const { exitCode } = await processManager.spawnWithOutput({
+    const { exitCode } = await processManager.spawnAndCollectStdout({
       name: "postgres-readiness-check",
       cmd: "docker",
       args: ["exec", containerName, "pg_isready", "-U", "postgres"],

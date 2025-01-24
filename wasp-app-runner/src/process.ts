@@ -90,7 +90,7 @@ function setupProcessManager() {
     });
   }
 
-  function spawnWithOutput({ cmd, args }: SpawnOptions): Promise<{
+  function spawnAndCollectStdout({ cmd, args }: SpawnOptions): Promise<{
     exitCode: number | null;
     stdoutData: string;
   }> {
@@ -112,6 +112,6 @@ function setupProcessManager() {
 
   return {
     spawnWithLog,
-    spawnWithOutput,
+    spawnAndCollectStdout,
   };
 }

@@ -14,11 +14,11 @@ export type RunAppWithDbFn = (
 export const dbTypes = ["sqlite", "postgres"] as const;
 export type DbType = (typeof dbTypes)[number];
 
-const dbChoiceToExecuteWithDbFn: Record<DbType, RunAppWithDbFn> = {
+const dbTypeToRunAppFn: Record<DbType, RunAppWithDbFn> = {
   sqlite: runAppWithSqlite,
   postgres: runAppWithPostgres,
 };
 
 export function executeWithDb(options: Options, fn: RunAppFn): Promise<void> {
-  return dbChoiceToExecuteWithDbFn[options.dbType](options, fn);
+  return dbTypeToRunAppFn[options.dbType](options, fn);
 }

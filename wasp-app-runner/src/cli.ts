@@ -25,6 +25,16 @@ const argv = yargs(hideBin(process.argv))
       description: "Skip installing Wasp CLI globally",
     },
   })
+  .check((argv) => {
+    const appName = argv["app-name"];
+    const validNameRegex = /^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/;
+    if (!validNameRegex.test(appName)) {
+      throw new Error(
+        `Invalid app name: ${appName}. It should only contain alphanumeric characters, dots, underscores, and dashes, and must start with an alphanumeric character.`
+      );
+    }
+    return true;
+  })
   .parseSync();
 
 export function getOptions() {
