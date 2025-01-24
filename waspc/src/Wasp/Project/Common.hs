@@ -32,7 +32,7 @@ where
 import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
-import qualified Wasp.Generator.Common as Generator
+import qualified Wasp.Generator.Common as G.Common
 
 type CompileError = String
 
@@ -65,29 +65,33 @@ nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
--- TODO: Hm this has different name than it has in Generator.
-generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Generator.ProjectRootDir)
+generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
+-- TODO: We sometimes call this directory "ProjectRootDir" and sometimes
+-- "GeneratedCodeDir". We should unify the naming (the latter is the beter
+-- name).
 generatedCodeDirInDotWaspDir = [reldir|out|]
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
-buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Generator.ProjectRootDir)
+buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
 buildDirInDotWaspDir = [reldir|build|]
 
--- Todo: find a better way to define this
-waspProjectDirFromAppComponentDir :: Generator.AppComponentRootDir d => Path' (Rel d) (Dir WaspProjectDir)
+-- TODO: This backwards relative path relies on multiple forward relative path
+-- definitions. We should find a better way to express it (e.g., by somehow
+-- calculating it from existing definitions)
+waspProjectDirFromAppComponentDir :: G.Common.AppComponentRootDir d => Path' (Rel d) (Dir WaspProjectDir)
 waspProjectDirFromAppComponentDir = [reldir|../../../|]
 
 -- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,
 -- @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@., which are the three functions just above.
 -- Also, it assumes @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@ have same depth.
 -- If any of those change significantly (their depth), this path should be adjusted.
-waspProjectDirFromProjectRootDir :: Path' (Rel Generator.ProjectRootDir) (Dir WaspProjectDir)
+waspProjectDirFromProjectRootDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
 waspProjectDirFromProjectRootDir = [reldir|../../|]
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 
-dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Generator.ProjectRootDir) File'
+dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
 packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
