@@ -298,13 +298,13 @@ library
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
+    Wasp.Generator.ImportPathAlias
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
-    Wasp.Generator.ImportPathAlias
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG

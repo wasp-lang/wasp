@@ -87,6 +87,7 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
 
   let packageJsonContent = EC._packageJson externalConfigs
   let tsConfigContent = EC._tsConfig externalConfigs
+      srcTsConfigPath = EC._srcTsConfigPath externalConfigs
 
   let appSpec =
         AS.AppSpec
@@ -104,7 +105,8 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
             AS.devDatabaseUrl = devDbUrl,
-            AS.customViteConfigPath = customViteConfigPath
+            AS.customViteConfigPath = customViteConfigPath,
+            AS.srcTsConfigPath = srcTsConfigPath
           }
 
   return $ runValidation ASV.validateAppSpec appSpec
