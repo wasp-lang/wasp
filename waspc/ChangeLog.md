@@ -33,10 +33,6 @@ app myApp {
 }
 ```
 
-#### tsconfig.json alises work
-
-TODO: @sodic
-
 ### Deployment docs upgrade
 
 Based on feedback from our Discord community, we’ve revamped our deployment docs to make it simpler to deploy your app to production. We focused on explaining key deployment concepts, regardless of the deployment method you choose. We’ve added guides on hosting Wasp apps on your own servers, for example, how to use Coolify and Caprover for self-hosting. The Env Variables section now includes a comprehensive list of all available Wasp env variables and provides clearer instructions on how to set them up in a deployed app.
@@ -46,7 +42,28 @@ Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/in
 ### ⚠️ Breaking Changes
 
 - Renamed and split `deserializeAndSanitizeProviderData` to `getProviderData` and `getProviderDataWithPassword` so it's more explicit if the resulting data will contain the hashed password or not.
-- You need to include `react-dom` and `react-router-dom` as deps in your `package.json` file. This ensures `npm` doesn't accidentally install React 19, which is not yet supported by Wasp.
+- You need to include `react-dom` and `react-router-dom` as deps in your `package.json` file. This ensures `npm` doesn't accidentally install React 19, which is not yet supported by Wasp:
+  ```json
+  {
+    // ...
+    "dependencies": {
+      // ...
+      "react-dom": "^18.2.0",
+      "react-router-dom": "^6.26.2"
+    }
+  }
+  ```
+- Wasp now internally works with project references, so you'll have to update your `tsconfig.json` (Wasp will validate your `tsconfig.json` and warn you if you forget this):
+  ```json
+  {
+    "compilerOptions": {
+      // ...
+      "composite": true,
+      "skipLibCheck": true,
+      "outDir": ".wasp/out/user"
+    }
+  }
+  ```
 
 Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-15-to-0-16
 
