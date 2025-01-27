@@ -53,7 +53,7 @@ Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/in
     }
   }
   ```
-- Wasp now internally works with project references, so you'll have to update your `tsconfig.json` (Wasp will validate your `tsconfig.json` and warn you if you forget this):
+- Wasp now internally works with project references, so you'll have to update your `tsconfig.json` (Wasp will validate your `tsconfig.json` and warn you if you forget this). Here are all the properties you must set or change:
   ```json
   {
     "compilerOptions": {
@@ -61,7 +61,10 @@ Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/in
       "composite": true,
       "skipLibCheck": true,
       "outDir": ".wasp/out/user"
-    }
+    },
+    "include": [
+      "src"
+    ]
   }
   ```
 

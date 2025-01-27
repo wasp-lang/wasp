@@ -35,10 +35,6 @@ app myApp {
 
 Read more about it in the [env variables](../project/env-vars.md#custom-env-var-validations) section of the docs.
 
-### `tsconfig.json` alises work
-
-TODO: @sodic
-
 ## How to migrate?
 
 To migrate your Wasp app from 0.15.X to 0.16.X, follow these steps:
@@ -70,6 +66,26 @@ Make sure to explicitly add `react-dom` and `react-router-dom` to your `package.
   }
 }
 ```
+### 3. Update the `tsconfig.json` file
+Wasp now internally works with TypeScript project references, so you'll have to
+update your `tsconfig.json` (Wasp will validate your `tsconfig.json` and warn
+you if you forget something). Here are all the properties you must change:
+
+  ```json
+  {
+    "compilerOptions": {
+      // ...
+      "composite": true,
+      "skipLibCheck": true,
+      "outDir": ".wasp/out/user"
+    },
+    "include": [
+      "src"
+    ]
+  }
+  ```
+
+### 4. Enjoy your updated Wasp app
 
 That's it!
 
