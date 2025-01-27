@@ -17,7 +17,8 @@ import qualified Data.Aeson as Aeson
 import GHC.Generics (Generic)
 
 data TsConfig = TsConfig
-  { compilerOptions :: !CompilerOptions
+  { compilerOptions :: !CompilerOptions,
+    include :: !(Maybe [String])
   }
   deriving (Show, Generic, FromJSON)
 
@@ -25,6 +26,7 @@ data CompilerOptions = CompilerOptions
   { _module :: !(Maybe String),
     target :: !(Maybe String),
     composite :: !(Maybe Bool),
+    skipLibCheck :: !(Maybe Bool),
     moduleResolution :: !(Maybe String),
     jsx :: !(Maybe String),
     strict :: !(Maybe Bool),

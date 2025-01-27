@@ -34,7 +34,8 @@ instance Show FullyQualifiedFieldName where
 
 validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
 validateSrcTsConfig tsConfig =
-  validateCompilerOptions (T.compilerOptions tsConfig)
+  validateRequiredField (FieldName ["include"]) (T.include tsConfig) ["src"]
+    ++ validateCompilerOptions (T.compilerOptions tsConfig)
 
 validateCompilerOptions :: T.CompilerOptions -> [ErrorMsg]
 validateCompilerOptions compilerOptions =
@@ -49,7 +50,8 @@ validateCompilerOptions compilerOptions =
       validateRequiredFieldInCompilerOptions "allowJs" T.allowJs True,
       validateRequiredFieldInCompilerOptions "typeRoots" T.typeRoots ["node_modules/@testing-library", "node_modules/@types"],
       validateRequiredFieldInCompilerOptions "outDir" T.outDir ".wasp/out/user",
-      validateRequiredFieldInCompilerOptions "composite" T.composite True
+      validateRequiredFieldInCompilerOptions "composite" T.composite True,
+      validateRequiredFieldInCompilerOptions "skipLibCheck" T.skipLibCheck True
     ]
   where
     validateRequiredFieldInCompilerOptions relativeFieldName getFieldValue =
