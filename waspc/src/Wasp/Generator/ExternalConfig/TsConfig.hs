@@ -44,7 +44,9 @@ validateSrcTsConfig tsConfig =
       validateRequiredFieldInCompilerOptions "lib" ["dom", "dom.iterable", "esnext"] T.lib,
       validateRequiredFieldInCompilerOptions "allowJs" True T.allowJs,
       validateRequiredFieldInCompilerOptions "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] T.typeRoots,
-      validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" T.outDir
+      validateRequiredFieldInCompilerOptions "outDir" ".wasp/out/user" T.outDir,
+      validateRequiredFieldInCompilerOptions "composite" True T.composite,
+      anyValueIsFine (FieldName ["compilerOptions", "skipLibCheck"])
     ]
   where
     validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case fieldValue of
@@ -61,6 +63,9 @@ validateSrcTsConfig tsConfig =
               "field is missing in tsconfig.json, expected value:",
               showAsJsValue expectedValue ++ "."
             ]
+
+    anyValueIsFine :: FullyQualifiedFieldName -> [String]
+    anyValueIsFine = const []
 
     validateFieldValue :: (Eq value, IsJavascriptValue value) => FullyQualifiedFieldName -> value -> value -> [String]
     validateFieldValue fullyQualifiedFieldName expectedValue actualValue =

@@ -627,7 +627,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "bc6ba637ac3b2e0cbe9a8d01311fa87c7ba9394148246925c6ff9d562b59e6d1"
+        "622813a50faf658cd240456ce60406209b8f2c2d15669fcf83ad9566750d67e1"
     ],
     [
         [
@@ -779,16 +779,23 @@
     [
         [
             "file",
+            "web-app/tsconfig.app.json"
+        ],
+        "3569d142426c6c6aa5992f71dab7f4f1099483fbe2a552ea4c1beeed3df3c317"
+    ],
+    [
+        [
+            "file",
             "web-app/tsconfig.json"
         ],
-        "dfeee6d883ed2504c149c64b24ca939c0ad4812b78bfdced7293a386a008effd"
+        "0f84a09c31c7cca7d2bed4fac04c3da0ce54b0996ab80b2b54f1a6a53e6fd139"
     ],
     [
         [
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "30fed1f6aa4710deb690d1ae47628066f34afda7b633f0c696fafcda9e2dbc1e"
+        "ed42a259d45429569d3c5182e40e008b4c2bffd9c49a643019e8542035d21b7c"
     ],
     [
         [
