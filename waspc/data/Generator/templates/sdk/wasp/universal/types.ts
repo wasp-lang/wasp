@@ -39,8 +39,10 @@ export type Tail<T extends [unknown, ...unknown[]]> = T extends [unknown, ...inf
 export type IfAny<Value, Then, Else> = 0 extends (1 & Value) ? Then : Else;
 
 // If users use JS to define their operations and destructure object arguments,
-// our TS helper types have issues with inferring types due to this TS bug:
-// https://github.com/microsoft/TypeScript/issues/52768
+// Wasp's TS helper types can't infer correct types due to this TS bug:
+// https://github.com/microsoft/TypeScript/issues/52768 
+// The bug breaks the built-in `Parameters` helper, so we introduce a custom version
+// that works with Wasp's TS helper types like `EntityMapFor`.
 export type _Parameters<T extends (...args: any) => any> = T extends (
   firstParam: infer FirstParam,
   ...rest: infer Rest
