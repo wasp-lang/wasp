@@ -9,9 +9,9 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
+import Data.Maybe (fromJust)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
@@ -19,15 +19,15 @@ import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
 import Wasp.Cli.Command.CreateNewProject.Common
-  ( throwInvalidTemplateNameUsedError,
-    throwProjectCreationError,
+  ( throwProjectCreationError,
   )
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplate,
-    defaultStarterTemplate,
-    findTemplateByString,
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.FeaturedStarterTemplates (defaultStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplate (StarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.StarterTemplateId
+  ( getStarterTemplateByIdOrThrow,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
+import Wasp.Cli.Interactive (IsOption (..))
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
@@ -62,32 +62,48 @@ instance Show NewProjectAppName where
      wasp new
 
     - Project name is required.
-    - Template name is required, we ask the user to choose from available templates.
+    - Template name is required, we ask the user to choose from featured templates.
 -}
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates =
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateId = templateIdArg} starterTemplates =
   case projectNameArg of
-    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplates
-    Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplates
+    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateIdArg starterTemplates
+    Nothing -> obtainNewProjectDescriptionInteractively templateIdArg starterTemplates
 
 obtainNewProjectDescriptionFromCliArgs :: String -> Maybe String -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemplates =
+obtainNewProjectDescriptionFromCliArgs projectName templateIdArg featuredTemplates =
   obtainNewProjectDescriptionFromProjectNameAndTemplateArg
     projectName
-    templateNameArg
-    availableTemplates
+    templateIdArg
+    featuredTemplates
     (return defaultStarterTemplate)
 
+data StarterTemplateMenuChoice = FeaturedStarterTemplate !StarterTemplate | CommunityTemplate
+
+instance IsOption StarterTemplateMenuChoice where
+  showOption (FeaturedStarterTemplate tmpl) = showOption tmpl
+  showOption CommunityTemplate = "community template"
+  showOptionDescription (FeaturedStarterTemplate tmpl) = showOptionDescription tmpl
+  showOptionDescription CommunityTemplate = Just "Check our list of community-made templates at https://wasp-lang.dev/docs/project/starter-templates#community-templates"
+
 obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
+obtainNewProjectDescriptionInteractively templateIdArg featuredTemplates = do
   projectName <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
   obtainNewProjectDescriptionFromProjectNameAndTemplateArg
     projectName
-    templateNameArg
-    availableTemplates
-    (liftIO askForTemplateName)
+    templateIdArg
+    featuredTemplates
+    askForTemplate
   where
-    askForTemplateName = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
+    askForTemplate =
+      liftIO
+        ( Interactive.askToChoose
+            "Choose a starter template"
+            (fromList $ (FeaturedStarterTemplate <$> featuredTemplates) ++ [CommunityTemplate])
+        )
+        >>= \case
+          FeaturedStarterTemplate tmpl -> pure tmpl
+          CommunityTemplate -> throwProjectCreationError $ "Project creation aborted. " <> fromJust (showOptionDescription CommunityTemplate) <> " and follow the instructions of a specific template."
 
 -- Common logic
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
@@ -96,15 +112,14 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
   [StarterTemplate] ->
   Command StarterTemplate ->
   Command NewProjectDescription
-obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNameArg availableTemplates obtainTemplateWhenNoArg = do
+obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateIdArg featuredTemplates getStarterTemplateWhenNoArg = do
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  selectedTemplate <- maybe obtainTemplateWhenNoArg findTemplateOrThrow templateNameArg
+  selectedTemplate <-
+    maybe
+      getStarterTemplateWhenNoArg
+      (either throwProjectCreationError pure . getStarterTemplateByIdOrThrow featuredTemplates)
+      templateIdArg
   mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
-  where
-    findTemplateOrThrow :: String -> Command StarterTemplate
-    findTemplateOrThrow templateName =
-      findTemplateByString availableTemplates templateName
-        & maybe throwInvalidTemplateNameUsedError return
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do
