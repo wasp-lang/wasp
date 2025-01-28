@@ -52,6 +52,11 @@ app MyApp {
 }
 ```
 
+#### 1.1 Additional step for Wasp TS Config users
+If you're using [Wasp's new TS config](../general/wasp-ts-config.md), you must
+also rerun the `wasp ts-setup` command in your project. This command updates
+the path for the `wasp-config` package in your `package.json`.
+
 ### 2. Update the `package.json` file
 
 Make sure to explicitly add `react-dom` and `react-router-dom` to your `package.json` file:
@@ -85,7 +90,9 @@ you if you forget something). Here are all the properties you must change:
   }
   ```
 
+
 ### 4. Enjoy your updated Wasp app
+
 
 That's it!
 
