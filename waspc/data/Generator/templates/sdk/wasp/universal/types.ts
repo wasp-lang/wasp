@@ -37,3 +37,13 @@ export type Tail<T extends [unknown, ...unknown[]]> = T extends [unknown, ...inf
 
 // Source: https://stackoverflow.com/a/55541672
 export type IfAny<Value, Then, Else> = 0 extends (1 & Value) ? Then : Else;
+
+// If users use JS to define their operations and destructure object arguments,
+// our TS helper types have issues with inferring types due to this TS bug:
+// https://github.com/microsoft/TypeScript/issues/52768
+export type _Parameters<T extends (...args: any) => any> = T extends (
+  firstParam: infer FirstParam,
+  ...rest: infer Rest
+) => any
+  ? [FirstParam, ...Rest]
+  : Parameters<T>;
