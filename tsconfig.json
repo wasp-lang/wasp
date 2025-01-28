@@ -5,6 +5,7 @@
 // compiler. Proper TS compiler configuration in Wasp is coming soon :)
 {
   "compilerOptions": {
+    "composite": true,
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -30,6 +31,6 @@
     // compilation, the following directory doesn't exist. We need to specify
     // it to prevent this error:
     // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
-    "outDir": ".wasp/phantom"
+    "outDir": ".wasp/out/user"
   }
 }

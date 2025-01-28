@@ -9,18 +9,14 @@ import {
   type GetDocuments,
 } from "wasp/server/operations";
 
-import { prisma, HttpError } from "wasp/server";
+import { prisma, HttpError, env } from "wasp/server";
 // @ts-ignore
 import { toSql } from "pgvector/utils";
 import openai from "openai";
 import { getContent, getLinksToScrape } from "./scrape.js";
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY env var is not set");
-}
-
 const api = new openai.OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: env.OPENAI_API_KEY,
 });
 
 type EmbedDocumentInput = {
