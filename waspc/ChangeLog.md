@@ -79,7 +79,7 @@ Read more about breaking changes in the migration guide: https://wasp-lang.dev/d
 - Enabled strict null checks for the Wasp SDK which means that some of the return types are more precise now e.g. you'll need to check if some value is `null` before using it.
 - Documentation improvements and fixes.
 
-Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka
+Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
 
 ## 0.15.2
 
