@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tag } from '../../../src/components/Tag'
+import { Tag } from '@site/src/components/Tag'
 
 // Used to mark something as related to the server
 export function Server() {
