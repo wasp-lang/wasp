@@ -29,7 +29,7 @@ module.exports = {
     announcementBar: {
       id: 'LW7',
       content:
-        '<b>Wasp v0.15 is here!</b> 🐝 <a href="/blog/2024/09/30/wasp-launch-week-7">See what\'s new ⚙️</a>',
+        '<b>Wasp v0.16 is here!</b> 🐝 <a href="/blog/2025/01/09/wasp-launch-week-8">See what\'s new ⚙️</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
