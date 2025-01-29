@@ -24,8 +24,8 @@ function setupProcessManager() {
     }
   }
 
-  const cleanExit = (signal: string) => {
-    log("shutdown", "warn", `Received ${signal}. Cleaning up...`);
+  const cleanExit = (reason: string) => {
+    log("shutdown", "warn", `Received ${reason}. Cleaning up...`);
     children.forEach((child) => {
       if (!child.killed) {
         child.kill();
