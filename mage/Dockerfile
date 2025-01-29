@@ -1,8 +1,5 @@
-# NOTE: Why do we specify alpine version here?
-#   Because if not, we had situations where it would use the different version
-#   locally and on Github CI. This way we ensure exact version is used,
-#   and also have control over updating it (instead of update surprising us).
-FROM node:18.18.0-alpine3.17 AS node
+# For Mage we are using the Debian Node.js image
+FROM node:18 AS node
 
 
 # We split Dockerfile into base, server-builder and server-production.
@@ -14,17 +11,13 @@ FROM node:18.18.0-alpine3.17 AS node
 
 
 FROM node AS base
-RUN apk --no-cache -U upgrade # To ensure any potential security patches are applied.
+RUN apt update && apt upgrade -y # To ensure any potential security patches are applied.
 
 
 # Todo: The 'server-builder' image stays on disk under <none>:<none> and is
 # relatively large (~900 MB), should we remove it? Or is it useful for future
 # builds?
 FROM base AS server-builder
-# Building the Docker image on Apple's Silicon Mac fails without python3 (the build
-# throws `node-gyp` errors when it tries to compile native deps. Installing
-# `python3` fixes the issue.
-RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
 # Since the framwork code in /.wasp/build/server imports the user code in /src
 # using relative imports, we must mirror the same directory structure in the
@@ -45,9 +38,6 @@ RUN cd .wasp/build/server && npm run bundle
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-# In case they want to use python3 in their app.
-RUN apk add --no-cache python3
-# Custom addition
 RUN curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.16.0
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
