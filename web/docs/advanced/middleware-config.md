@@ -88,7 +88,6 @@ app todoApp {
   // ...
 
   server: {
-    setupFn: import setup from "@src/serverSetup",
     middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup"
   },
 }
@@ -113,7 +112,6 @@ app todoApp {
   // ...
 
   server: {
-    setupFn: import setup from "@src/serverSetup",
     middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup"
   },
 }

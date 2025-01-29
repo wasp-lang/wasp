@@ -1,14 +1,85 @@
 # Changelog
 
-## Next
+## 0.16.0
+
+### 🎉 New Features and improvements
+
+#### Env variables validation with Zod
+
+Wasp now uses Zod to validate environment variables, allowing it to fail faster if something is misconfigured. This means you’ll get more relevant error messages when running your app with incorrect env variables.
+
+You can also use Zod to validate your own environment variables. Here’s an example:
+
+```ts
+// src/env.ts
+import * as z from 'zod'
+
+import { defineEnvValidationSchema } from 'wasp/env'
+
+export const serverEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
+
+// main.wasp
+app myApp {
+  ...
+  server: {
+    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
+  },
+}
+```
+
+### Deployment docs upgrade
+
+Based on feedback from our Discord community, we’ve revamped our deployment docs to make it simpler to deploy your app to production. We focused on explaining key deployment concepts, regardless of the deployment method you choose. We’ve added guides on hosting Wasp apps on your own servers, for example, how to use Coolify and Caprover for self-hosting. The Env Variables section now includes a comprehensive list of all available Wasp env variables and provides clearer instructions on how to set them up in a deployed app.
+
+Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/intro
 
 ### ⚠️ Breaking Changes
 
 - Renamed and split `deserializeAndSanitizeProviderData` to `getProviderData` and `getProviderDataWithPassword` so it's more explicit if the resulting data will contain the hashed password or not.
+- You need to include `react-dom` and `react-router-dom` as deps in your `package.json` file. This ensures `npm` doesn't accidentally install React 19, which is not yet supported by Wasp:
+  ```json
+  {
+    // ...
+    "dependencies": {
+      // ...
+      "react-dom": "^18.2.0",
+      "react-router-dom": "^6.26.2"
+    }
+  }
+  ```
+- Wasp now internally works with project references, so you'll have to update your `tsconfig.json` (Wasp will validate your `tsconfig.json` and warn you if you forget this). Here are all the properties you must set or change:
+  ```json
+  {
+    "compilerOptions": {
+      // ...
+      "composite": true,
+      "skipLibCheck": true,
+      "outDir": ".wasp/out/user"
+    },
+    "include": [
+      "src"
+    ]
+  }
+  ```
+
+Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-15-to-0-16
+
+### 🐞 Bug fixes
+
+- We fixed Fly deployment using the Wasp CLI where the server app `PORT` was set incorrectly.
 
 ### 🔧 Small improvements
 
 - Enabled strict null checks for the Wasp SDK which means that some of the return types are more precise now e.g. you'll need to check if some value is `null` before using it.
+- Documentation improvements and fixes.
+
+Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
 
 ## 0.15.2
 
@@ -57,29 +128,28 @@ page MainPage {
 You can now write this:
 
 ```typescript
+import { App } from "wasp-config";
 
-import { App } from 'wasp-config'
-
-const app = new App('TodoApp', {
+const app = new App("TodoApp", {
   wasp: {
-    version: '^0.15.0',
+    version: "^0.15.0",
   },
-  title: 'TodoApp',
-})
+  title: "TodoApp",
+});
 
 app.auth({
-  userEntity: 'User',
+  userEntity: "User",
   methods: {
-    usernameAndPassword: {}
+    usernameAndPassword: {},
   },
-  onAuthFailedRedirectTo: '/login',
-})
+  onAuthFailedRedirectTo: "/login",
+});
 
-const mainPage = app.page('MainPage', {
+const mainPage = app.page("MainPage", {
   authRequired: true,
-  component: { import: 'MainPage', from: '@src/MainPage' },
-})
-app.route('RootRoute', { path: '/', to: mainPage })
+  component: { import: "MainPage", from: "@src/MainPage" },
+});
+app.route("RootRoute", { path: "/", to: mainPage });
 ```
 
 To learn more about this feature and how to activate it, check out the [Wasp TS config docs](https://wasp-lang.dev/docs/general/wasp-ts-config).

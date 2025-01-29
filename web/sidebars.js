@@ -161,6 +161,7 @@ module.exports = {
       collapsed: true,
       collapsible: true,
       items: [
+        'migration-guides/migrate-from-0-15-to-0-16',
         'migration-guides/migrate-from-0-14-to-0-15',
         'migration-guides/migrate-from-0-13-to-0-14',
         'migration-guides/migrate-from-0-12-to-0-13',
