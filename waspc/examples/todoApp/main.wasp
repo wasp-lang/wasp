@@ -333,6 +333,12 @@ action boolToVoidAuth {
   entities: [Task]
 }
 
+action jsActionWithArgs {
+  fn: import { jsActionWithArgs } from "@src/testTypes/operations/jsDefinitions",
+  auth: true,
+  entities: [Task]
+}
+
 // Crud
 
 crud Tasks {

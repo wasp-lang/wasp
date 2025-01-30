@@ -1,6 +1,6 @@
 app waspAi {
   wasp: {
-    version: "^0.13.0"
+    version: "^0.16.0"
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
@@ -16,9 +16,6 @@ app waspAi {
   ],
   client: {
     rootComponent: import { RootComponent } from "@src/client/RootComponent.jsx",
-  },
-  db: {
-    system: PostgreSQL,
   },
   auth: {
     userEntity: User,
@@ -130,62 +127,6 @@ query getNumProjects {
     Project
   ]
 }
-
-entity User {=psl
-  id Int @id @default(autoincrement())
-
-  email String?
-  username String?
-
-  projects Project[]
-psl=}
-
-entity Project {=psl
-  id String @id @default(uuid())
-  name String
-  description String
-  primaryColor String @default("sky")
-  authMethod String @default("usernameAndPassword")
-  creativityLevel String @default("balanced")
-  createdAt DateTime @default(now())
-  status String @default("pending")
-  referrer String @default("unknown")
-  zipDownloadedAt DateTime?
-  userId Int?
-  user User? @relation(fields: [userId], references: [id])
-  files File[]
-  logs Log[]
-  feedbacks Feedback[]
-psl=}
-
-entity Feedback {=psl
-  id String @id @default(uuid())
-  score Int
-  message String
-  createdAt DateTime @default(now())
-
-  projectId String
-  project Project @relation(fields: [projectId], references: [id])
-psl=}
-
-entity File {=psl
-  id String @id @default(uuid())
-  name String
-  content String
-  createdAt DateTime @default(now())
-  projectId String
-  project Project @relation(fields: [projectId], references: [id])
-
-  @@index([name, projectId])
-psl=}
-
-entity Log {=psl
-  id String @id @default(uuid())
-  content String
-  createdAt DateTime @default(now())
-  projectId String
-  project Project @relation(fields: [projectId], references: [id])
-psl=}
 
 job checkPendingAppsJob {
   executor: PgBoss,

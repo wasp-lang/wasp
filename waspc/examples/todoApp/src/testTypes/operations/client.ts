@@ -18,6 +18,7 @@ import {
   getAnyNoAuth,
   getAnyToNumberSpecified,
   getAnythingNoAuth,
+  jsActionWithArgs,
 } from 'wasp/client/operations'
 
 import {
@@ -81,5 +82,6 @@ type TestCases = [
       QueryMetadata & ((args?: any) => Promise<number>)
     >
   >,
-  Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>
+  Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>,
+  Expect<Equal<typeof jsActionWithArgs, (args?: any) => Promise<void>>>
 ]

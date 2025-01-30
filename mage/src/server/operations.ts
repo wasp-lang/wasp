@@ -18,6 +18,7 @@ import {
 import { getNowInUTC } from "./utils.js";
 import type { Prisma } from "@prisma/client";
 import { generateLast24HoursData, generateLast30DaysData } from "./stats.js";
+import { AuthUser } from "wasp/auth";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -150,11 +151,7 @@ export const getAppGenerationResult = (async (args, context) => {
 }>;
 
 export const getFeedback = (async (args, context) => {
-  // TODO(matija): extract this, since it's used at multiple locations?
-  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
-  if (!context.user || !emailsWhitelist.includes(context.user.email)) {
-    throw new HttpError(401, "Only admins can access stats.");
-  }
+  ensureAdmin(context.user);
 
   const feedbackEntries = await context.entities.Feedback.findMany({
     orderBy: {
@@ -176,10 +173,7 @@ export const getFeedback = (async (args, context) => {
 }) satisfies GetFeedback<{}>;
 
 export const getProjects = (async (_args, context) => {
-  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
-  if (!context.user || !emailsWhitelist.includes(context.user.email)) {
-    throw new HttpError(401, "Only admins can access stats.");
-  }
+  ensureAdmin(context.user);
 
   const { Project } = context.entities;
 
@@ -234,10 +228,7 @@ export const getProjects = (async (_args, context) => {
 }) satisfies GetProjects<{}>;
 
 export const getStats = (async (args, context) => {
-  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
-  if (!context.user || !emailsWhitelist.includes(context.user.email)) {
-    throw new HttpError(401, "Only admins can access stats.");
-  }
+  ensureAdmin(context.user);
 
   const { Project } = context.entities;
 
@@ -371,3 +362,10 @@ export const deleteMyself: DeleteMyself<void, User> = async (args, context) => {
     throw new HttpError(500, "Error deleting user");
   }
 };
+
+function ensureAdmin(user: AuthUser | undefined) {
+  const emailsWhitelist = process.env.ADMIN_EMAILS_WHITELIST?.split(",") || [];
+  if (!user || !user.email || !emailsWhitelist.includes(user.email)) {
+    throw new HttpError(401, "Only admins can access this page.");
+  }
+}

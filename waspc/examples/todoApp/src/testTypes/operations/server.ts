@@ -16,6 +16,7 @@ import {
   type TestingAction,
   getAnyAuth,
   getAnyToNumberSpecified,
+  jsActionWithArgs,
 } from 'wasp/server/operations'
 
 import {
@@ -120,6 +121,15 @@ type TestCases = [
     Equal<
       typeof getAnyToNumberSpecified,
       (args: any, ctx: { user: AuthUser }) => Promise<number>
+    >
+  >,
+  // TODO: update this test to include a function that destructures
+  // the `args` object. This currently fails with functions imported
+  // from JavaScript files.
+  Expect<
+    Equal<
+      typeof jsActionWithArgs,
+      (args: any, ctx: { user: AuthUser }) => Promise<void>
     >
   >
 ]

@@ -1,0 +1,29 @@
+.deployment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.deployment-method-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-pagination-nav-border-radius);
+  padding: 1.5rem;
+  transition: all 0.1s ease-in-out;
+}
+.deployment-method-box:hover {
+  border-color: var(--ifm-pagination-nav-color-hover);
+}
+.deployment-method-box h3 {
+  margin: 0;
+  color: var(--ifm-link-color);
+}
+.deployment-method-box p {
+  margin: 0;
+  color: var(--ifm-color-secondary-contrast-foreground);
+}
+.deployment-methods-info {
+  color: var(--ifm-color-secondary-contrast-foreground);
+}

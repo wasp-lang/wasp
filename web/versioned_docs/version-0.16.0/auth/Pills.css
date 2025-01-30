@@ -1,0 +1,19 @@
+:root {
+  --auth-pills-color: #333;
+  --auth-pills-email: #e0f2fe;
+  --auth-pills-discord: #d3d6f2;
+  --auth-pills-github: #f1f5f9;
+  --auth-pills-google: #ecfccb;
+  --auth-pills-keycloak: #d0ebf5;
+  --auth-pills-username-and-pass: #fce7f3;
+}
+
+:root[data-theme='dark'] {
+  --auth-pills-color: #fff;
+  --auth-pills-email: #0c4a6e;
+  --auth-pills-discord: #2f3670;
+  --auth-pills-github: #334155;
+  --auth-pills-google: #365314;
+  --auth-pills-keycloak: #2d5866;
+  --auth-pills-username-and-pass: #831843;
+}

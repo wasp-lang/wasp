@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
 
 import { useAuth, GitHubSignInButton } from "wasp/client/auth";
@@ -17,7 +17,9 @@ import { readReferrerFromLocalStorage } from "../storage";
 const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
-  const [appPrimaryColor, setAppPrimaryColor] = useState(validProjectBrandColors.find((color) => color.name === "sky"));
+  const [appPrimaryColor, setAppPrimaryColor] = useState(
+    validProjectBrandColors.find((color) => color.name === "sky")
+  );
 
   const [isAskForStarsModalOpen, setIsAskForStarsModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -25,7 +27,7 @@ const MainPage = () => {
     status: "idle",
     message: "Waiting for instructions",
   });
-  const history = useHistory();
+  const navigate = useNavigate();
   const { data: user } = useAuth();
   const { data: userProjects } = useQuery(getProjectsByUser, {}, { enabled: !!user });
 
@@ -89,9 +91,15 @@ const MainPage = () => {
       if (appDetails) {
         setAppName(appDetails.appName);
         setAppDesc(appDetails.appDesc);
-        setAppPrimaryColor(validProjectBrandColors.find((color) => color.name === appDetails.appPrimaryColor));
-        setAppAuthMethod(availableAuthMethods.find((method) => method.value === appDetails.appAuthMethod));
-        setCreativityLevel(availableCreativityLevels.find((level) => level.value === appDetails.appCreativityLevel));
+        setAppPrimaryColor(
+          validProjectBrandColors.find((color) => color.name === appDetails.appPrimaryColor)
+        );
+        setAppAuthMethod(
+          availableAuthMethods.find((method) => method.value === appDetails.appAuthMethod)
+        );
+        setCreativityLevel(
+          availableCreativityLevels.find((level) => level.value === appDetails.appCreativityLevel)
+        );
         localStorage.removeItem("appDetails");
       }
     } catch (error) {
@@ -115,7 +123,7 @@ const MainPage = () => {
     } catch (error) {
       console.error(error);
     }
-    
+
     if (!user) {
       setIsLoginModalOpen(true);
       return;
@@ -135,7 +143,7 @@ const MainPage = () => {
         appAuthMethod: appAuthMethod.value,
         appCreativityLevel: creativityLevel.value,
       });
-      history.push(`/result/${appId}`);
+      navigate(`/result/${appId}`);
     } catch (e) {
       setCurrentStatus({
         status: "error",
@@ -205,19 +213,31 @@ The simpler and more specific the app is, the better the generated app will be."
               <label htmlFor="appPrimaryColor" className="text-slate-700 block mb-2">
                 App brand color
               </label>
-              <MyDropdown value={appPrimaryColor} onChange={setAppPrimaryColor} options={validProjectBrandColors} />
+              <MyDropdown
+                value={appPrimaryColor}
+                onChange={setAppPrimaryColor}
+                options={validProjectBrandColors}
+              />
             </div>
             <div>
               <label htmlFor="creativityLevel" className="text-slate-700 block mb-2">
                 Creativity level
               </label>
-              <MyDropdown value={creativityLevel} onChange={setCreativityLevel} options={availableCreativityLevels} />
+              <MyDropdown
+                value={creativityLevel}
+                onChange={setCreativityLevel}
+                options={availableCreativityLevels}
+              />
             </div>
             <div>
               <label htmlFor="appAuthMethod" className="text-slate-700 block mb-2">
                 Auth method
               </label>
-              <MyDropdown value={appAuthMethod} onChange={setAppAuthMethod} options={availableAuthMethods} />
+              <MyDropdown
+                value={appAuthMethod}
+                onChange={setAppAuthMethod}
+                options={availableAuthMethods}
+              />
             </div>
           </div>
         </div>
@@ -272,11 +292,15 @@ export function AskForStarsModal({ isOpen, setIsOpen }) {
 
 export function LoginModal({ isOpen, setIsOpen }) {
   return (
-    <MyDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title={<span>Sign in to your GitHub account</span>}>
+    <MyDialog
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      title={<span>Sign in to your GitHub account</span>}
+    >
       <div className="mt-6 space-y-5 ">
         <p className="text-base leading-relaxed text-center text-gray-500">
-          This tool is completely <span className="font-semibold">free</span>.<br /> Just sign in with your GitHub
-          Account.
+          This tool is completely <span className="font-semibold">free</span>.<br /> Just sign in
+          with your GitHub Account.
         </p>
         <GitHubSignInButton />
       </div>

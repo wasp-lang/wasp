@@ -1,4 +1,4 @@
-import { IfAny, _Awaited, _ReturnType } from '../../universal/types';
+import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types';
 import { _Entity, UnauthenticatedOperationDefinition, Payload } from '../_types';
 /**
  * Constructs the unauthenticated operation's server-side API type from its
@@ -39,5 +39,5 @@ type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinit
  *
  * @template OperationDefinition The type of the operation's definition.
  */
-type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> = Parameters<OperationDefinition>[1]["entities"];
+type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> = _Parameters<OperationDefinition>[1]["entities"];
 export {};

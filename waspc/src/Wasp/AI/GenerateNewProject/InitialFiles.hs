@@ -150,7 +150,10 @@ generatePackageJson newProjectDetails =
         "type": "module",
         "dependencies": {
           "wasp": "file:.wasp/out/sdk/wasp",
-          "react": "^18.2.0"
+          "react": "^18.2.0",
+          "react-dom": "^18.2.0",
+          "react-router-dom": "^6.26.2",
+          "tailwindcss": "^3.2.7"
         },
         "devDependencies": {
           "typescript": "^5.1.0",

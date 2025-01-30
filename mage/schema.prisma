@@ -1,0 +1,64 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  email    String?
+  username String?
+
+  projects Project[]
+}
+
+model Project {
+  id              String     @id @default(uuid())
+  name            String
+  description     String
+  primaryColor    String     @default("sky")
+  authMethod      String     @default("usernameAndPassword")
+  creativityLevel String     @default("balanced")
+  createdAt       DateTime   @default(now())
+  status          String     @default("pending")
+  referrer        String     @default("unknown")
+  zipDownloadedAt DateTime?
+  userId          Int?
+  user            User?      @relation(fields: [userId], references: [id])
+  files           File[]
+  logs            Log[]
+  feedbacks       Feedback[]
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  score     Int
+  message   String
+  createdAt DateTime @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+model File {
+  id        String   @id @default(uuid())
+  name      String
+  content   String
+  createdAt DateTime @default(now())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@index([name, projectId])
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+}
