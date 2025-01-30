@@ -1,13 +1,15 @@
 {
+  "version": "0.0.3",
   "name": "wasp-app-runner",
   "type": "module",
   "bin": {
-    "wasp-app-runner": "./bin/index.js"
+    "wasp-app-runner": "bin/index.js"
   },
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node ./dist/index.js",
-    "install:global": "npm run build && npm install -g"
+    "install:global": "npm run build && npm install -g",
+    "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
     "typescript": "^5.7.3",

@@ -2,34 +2,23 @@
 
 A robust script to run your Wasp application with PostgreSQL, including automated database setup and migrations.
 
-## Installation
-
-```bash
-npm install
-# Installs wasp-app-runner globally
-npm install -g
-```
-
 ## Usage
 
 ```
-node ./src/index.js --app-path <path-to-app> --app-name <app-name> [--db-type <db-type>] [--skip-cli-install <true/false>]
+npx wasp-app-runner --app-path <path-to-app> --app-name <app-name> [--db-type <db-type>] [--skip-cli-install <true/false>]
 ```
+
+This runs the package without installing it globally.
 
 ### Arguments Table
 
-| Argument             | Description                             | Example         |
-| -------------------- | --------------------------------------- | --------------- |
-| `--app-path`         | Path to your Wasp application directory | `./my-wasp-app` |
-| `--app-name`         | Unique name for your application        | `myapp`         |
-| `--db-type`          | Choices: `postgres`, `sqlite`           | `postgres`      |
-| `--skip-cli-install` | Skip installing Wasp CLI                | `true`          |
-
-### Example Command
-
-```
-node run-app.js --app-path ~/projects/my-wasp-app --app-name awesome-app
-```
+| Argument             | Description                                        | Example         |
+| -------------------- | -------------------------------------------------- | --------------- |
+| `--app-path`         | Path to your Wasp application directory            | `./my-wasp-app` |
+| `--app-name`         | Unique name for your application                   | `myapp`         |
+| `--db-type`          | Choices: `postgres`, `sqlite`, default: `postgres` | `postgres`      |
+| `--skip-cli-install` | Skip installing Wasp CLI                           | `true`          |
+| `--wasp-cli-cmd`     | Wasp CLI command, default: `wasp-cli`              | `wasp`          |
 
 ## Environment File Handling
 
@@ -53,4 +42,18 @@ If Postgres is used, the script automatically sets the `DATABASE_URL` env variab
 
 ```
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
+```
+
+## Development
+
+```bash
+npm install
+# Installs wasp-app-runner globally from the local directory
+npm install -g
+```
+
+You can also run the script directly:
+
+```bash
+node ./src/index.js --app-path <path-to-app> --app-name <app-name> [--db-type <db-type>] [--skip-cli-install <true/false>] [--]
 ```

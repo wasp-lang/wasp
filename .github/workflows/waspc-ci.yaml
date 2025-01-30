@@ -170,6 +170,8 @@ jobs:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
+      # TODO: remove this once we start publishing the wasp-app-runner
+      # as a npm package
       - name: Headless - Setup the Wasp app runner
         id: headless-setup-wasp-app-runner
         if: matrix.os == 'ubuntu-20.04'
@@ -215,15 +217,6 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd examples/todoApp
-          # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver npx playwright test --config headless-tests/
-
-      - name: Headless - Run Playwright Tests 2
-        id: headless-run-playwright-tests-2
-        if: matrix.os == 'ubuntu-20.04'
-        run: |
-          cd ../examples/todo-typescript
-          npm ci
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test --config headless-tests/
 

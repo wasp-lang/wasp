@@ -34,7 +34,7 @@ async function main() {
     await executeWithDb(options, async ({ extraEnv }) => {
       await processManager.spawnWithLog({
         name: "migrate-db",
-        cmd: "wasp-cli",
+        cmd: options.waspCliCmd,
         args: ["db", "migrate-dev"],
         cwd: options.pathToApp,
         extraEnv,
@@ -42,7 +42,7 @@ async function main() {
 
       await processManager.spawnWithLog({
         name: "start-app",
-        cmd: "wasp-cli",
+        cmd: options.waspCliCmd,
         args: ["start"],
         cwd: options.pathToApp,
         extraEnv,

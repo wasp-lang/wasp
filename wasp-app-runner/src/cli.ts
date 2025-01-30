@@ -24,6 +24,11 @@ const argv = yargs(hideBin(process.argv))
       default: false,
       description: "Skip installing Wasp CLI globally",
     },
+    "wasp-cli-cmd": {
+      type: "string",
+      description: "Command to use for Wasp CLI",
+      default: "wasp-cli",
+    },
   })
   .check((argv) => {
     const appName = argv["app-name"];
@@ -43,6 +48,7 @@ export function getOptions() {
     appName: argv["app-name"],
     dbType: argv["db-type"] as DbType,
     skipCliInstall: argv["skip-cli-install"],
+    waspCliCmd: argv["wasp-cli-cmd"],
   };
 }
 
