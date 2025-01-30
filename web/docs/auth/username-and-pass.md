@@ -45,7 +45,7 @@ Let's start with adding the following to our `main.wasp` file:
 ```wasp title="main.wasp" {11}
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -66,7 +66,7 @@ app myApp {
 ```wasp title="main.wasp"  {11}
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -624,7 +624,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -649,7 +649,7 @@ model User {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -681,7 +681,7 @@ model User {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -703,7 +703,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {

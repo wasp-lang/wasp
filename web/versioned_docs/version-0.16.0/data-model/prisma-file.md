@@ -66,7 +66,7 @@ Finally, Prisma models become Wasp Entities which can be then used in the `main.
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
 }

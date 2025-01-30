@@ -43,7 +43,7 @@ Let's start by properly configuring the Auth object:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -68,7 +68,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -276,7 +276,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -296,7 +296,7 @@ app myApp {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -374,7 +374,7 @@ For an up to date info about the data received from GitHub, please refer to the 
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -421,7 +421,7 @@ export function getConfig() {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -489,7 +489,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
@@ -513,7 +513,7 @@ app myApp {
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "My App",
   auth: {
