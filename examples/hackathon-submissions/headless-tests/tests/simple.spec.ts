@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("test", async ({ page }) => {
+test("create a new hackathon submission", async ({ page }) => {
   await page.goto("/");
   await page
     .getByRole("textbox", { name: "Project Name *" })
