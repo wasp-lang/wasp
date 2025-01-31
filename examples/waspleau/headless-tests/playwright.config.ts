@@ -44,8 +44,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command:
-      "wasp-app-runner --app-path=../ --app-name=examples-hackathon-submissions",
+    command: "wasp-app-runner --app-path=../ --app-name=examples-waspleau",
 
     // Wait for the backend to start
     url: "http://localhost:3001",
