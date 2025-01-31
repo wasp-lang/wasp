@@ -1,6 +1,9 @@
 export const submitProject = async (project, context) => {
   const newProject = context.entities.Submission.create({
-    data: project,
+    data: {
+      ...project,
+      approved: process.env.HEADLESS_TESTING ? true : false,
+    },
   });
 
   return newProject;
@@ -12,7 +15,7 @@ export const getProjects = async (_args, context) => {
       approved: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 };
