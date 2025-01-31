@@ -17,7 +17,7 @@ export const getText: StreamingText = async (req, res, context) => {
     }
     counter++
     // Wait for 1 second.
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 500))
   }
   // End the response.
   res.end()
