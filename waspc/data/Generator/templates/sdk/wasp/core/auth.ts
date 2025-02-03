@@ -11,7 +11,7 @@ import {
 {=^ isCookieAuthEnabled =}
 import { getSessionAndUserFromBearerToken } from 'wasp/auth/session'
 {=/ isCookieAuthEnabled =}
-import { createInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError, verifyRequestOrigin } from 'wasp/auth/utils'
 
 /**
  * Auth middleware
@@ -24,7 +24,8 @@ import { createInvalidCredentialsError } from 'wasp/auth/utils'
  * - If the request is not authenticated, it throws an error.
  * 
  * cookieEnabled: true (session cookie) -
- * We can immediately jump in and validate the session cookie.
+ * CSRF protection
+ * We can then validate the session cookie.
  * 
  * cookieEnabled: false (JWT local storage) -
  * If the request includes an `Authorization` header it will try to authenticate the request,
@@ -33,6 +34,16 @@ import { createInvalidCredentialsError } from 'wasp/auth/utils'
  */
 const auth = handleRejection(async (req, res, next) => {
   {=# isCookieAuthEnabled =}
+  // CSRF protection
+  if (req.method !== "GET") {
+    const originHeader = req.headers.origin ?? null
+    const hostHeader = [req.headers["x-forwarded-host"], req.headers.host].flat().filter(Boolean) as string[];
+    if (!originHeader || !hostHeader || !verifyRequestOrigin(originHeader, hostHeader)) {
+      return res.status(403).end()
+    }
+  }
+
+  // Session cookie auth checking
   const cookieHeader = req.headers.cookie ?? ''
   if (!cookieHeader) {
     req.sessionId = null

@@ -1,6 +1,7 @@
 {{={= =}=}}
 import { hashPassword } from './password.js'
 import { prisma, HttpError } from 'wasp/server'
+import { config } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
   type {= userEntityUpper =},
@@ -336,4 +337,20 @@ function providerDataHasPasswordField(
 // PRIVATE API
 export function createInvalidCredentialsError(message?: string): HttpError {
   return new HttpError(401, 'Invalid credentials', { message })
+}
+
+export function verifyRequestOrigin(origin: string, allowedHosts: string[] = []): boolean {
+  try {
+    const originUrl = new URL(origin)
+    const allowedOrigins = [...config.allowedOrigins, ...allowedHosts].map((host) => {
+      try {
+        return new URL(host).host
+      } catch {
+        return host
+      }
+    })
+    return allowedOrigins.some((host) => originUrl.host === host)
+  } catch (error) {
+    return false
+  }
 }

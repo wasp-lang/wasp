@@ -17,6 +17,10 @@ const waspServerCommonSchema = z.object({
     required_error: '{= databaseUrlEnvVarName =} is required',
   }),
   {=# isCookieAuthEnabled =}
+  ALLOWED_ORIGINS: z
+    .string()
+    .transform((val) => val.split(',').map((origin) => origin.trim()))
+    .default('{= defaultClientUrl =}'),
   WASP_API_PREFIX: z
     .string()
     .min(1, { message: 'WASP_API_PREFIX cannot be empty.' })

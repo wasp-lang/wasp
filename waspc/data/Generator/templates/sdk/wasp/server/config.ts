@@ -13,6 +13,7 @@ type Config = {
   serverUrl: string;
   cookieEnabled: boolean;
   {=# isCookieAuthEnabled =}
+  allowedOrigins: string[];
   apiPrefix: string;
   cookieName: string;
   cookieExpires: boolean;
@@ -32,6 +33,7 @@ type Config = {
 const frontendUrl = stripTrailingSlash(env.WASP_WEB_CLIENT_URL)
 const serverUrl = stripTrailingSlash(env.WASP_SERVER_URL)
 {=# isCookieAuthEnabled =}
+const allowedOrigins = env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
 const apiPrefix = stripTrailingSlash(env.WASP_API_PREFIX)
 const cookieName = env.COOKIE_NAME
 const cookieExpires = env.COOKIE_EXPIRES
@@ -53,6 +55,7 @@ const config: Config = {
   allowedCORSOrigins,
   {=# isCookieAuthEnabled =}
   cookieEnabled: true,
+  allowedOrigins,
   apiPrefix,
   cookieName,
   cookieExpires,
