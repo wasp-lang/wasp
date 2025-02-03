@@ -9,6 +9,7 @@ import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
@@ -42,6 +43,7 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
+          "isCookieAuthEnabled" .= maybe False AS.Auth.isCookieAuthEnabled maybeAuth,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
           "defaultServerUrl" .= Server.defaultDevServerUrl,

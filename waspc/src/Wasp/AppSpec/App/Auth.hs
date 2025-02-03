@@ -16,6 +16,7 @@ module Wasp.AppSpec.App.Auth
     isKeycloakAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
+    isCookieAuthEnabled,
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
@@ -24,7 +25,7 @@ where
 
 import Data.Aeson (FromJSON)
 import Data.Data (Data)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, fromMaybe)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
 import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
@@ -43,7 +44,8 @@ data Auth = Auth
     onAfterSignup :: Maybe ExtImport,
     onBeforeOAuthRedirect :: Maybe ExtImport,
     onBeforeLogin :: Maybe ExtImport,
-    onAfterLogin :: Maybe ExtImport
+    onAfterLogin :: Maybe ExtImport,
+    cookieEnabled :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 
@@ -104,6 +106,9 @@ isGitHubAuthEnabled = isJust . gitHub . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
+
+isCookieAuthEnabled :: Auth -> Bool
+isCookieAuthEnabled = fromMaybe False . cookieEnabled
 
 -- These helper functions are used to avoid ambiguity when using the
 -- `userSignupFields` function (otherwise we need to use the DuplicateRecordFields

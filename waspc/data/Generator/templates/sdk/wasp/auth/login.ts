@@ -7,7 +7,9 @@ export default async function login(username: string, password: string): Promise
     const args = { username, password }
     const response = await api.post('{= loginPath =}', args)
 
+    {=^ isCookieAuthEnabled =}
     await initSession(response.data.sessionId)
+    {=/ isCookieAuthEnabled =}
   } catch (error) {
     throw handleApiError(error)
   }

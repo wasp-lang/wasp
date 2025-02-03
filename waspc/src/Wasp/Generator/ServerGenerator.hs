@@ -31,6 +31,7 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -259,9 +260,11 @@ genMiddleware spec =
       genOperationsMiddleware spec
     ]
   where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
     tmplData =
       object
-        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData
+        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData,
+          "isCookieAuthEnabled" .= maybe False AS.Auth.isCookieAuthEnabled maybeAuth
         ]
 
     globalMiddlewareConfigFnTmplData :: Aeson.Value

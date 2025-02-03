@@ -1,3 +1,4 @@
+{{={= =}=}}
 import axios, { type AxiosInstance, type AxiosError } from 'axios'
 
 import { config } from 'wasp/client'
@@ -40,10 +41,12 @@ export function removeLocalUserData(): void {
 }
 
 api.interceptors.request.use((request) => {
+  {=^ isCookieAuthEnabled =}
   const sessionId = getSessionId()
   if (sessionId) {
     request.headers['Authorization'] = `Bearer ${sessionId}`
   }
+  {=/ isCookieAuthEnabled =}
   return request
 })
 

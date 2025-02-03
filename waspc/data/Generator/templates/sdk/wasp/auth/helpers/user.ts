@@ -1,9 +1,12 @@
+{{={= =}=}}
 import { setSessionId } from 'wasp/client/api'
 import { invalidateAndRemoveQueries } from '../../client/operations/internal/resources.js'
 
 // PRIVATE API
 export async function initSession(sessionId: string): Promise<void> {
+    {=^ isCookieAuthEnabled =}
     setSessionId(sessionId)
+    {=/ isCookieAuthEnabled =}
     // We need to invalidate queries after login in order to get the correct user
     // data in the React components (using `useAuth`).
     // Redirects after login won't work properly without this.

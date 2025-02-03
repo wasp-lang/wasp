@@ -45,7 +45,7 @@ export default handleRejection(async (req, res) => {
       user: auth.user,
   })
 
-  const session = await createSession(auth.id)
+  const session = await createSession(auth.id, res)
 
   await onAfterLoginHook({
     req,

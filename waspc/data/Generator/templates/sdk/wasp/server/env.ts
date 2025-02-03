@@ -16,6 +16,39 @@ const waspServerCommonSchema = z.object({
   {= databaseUrlEnvVarName =}: z.string({
     required_error: '{= databaseUrlEnvVarName =} is required',
   }),
+  {=# isCookieAuthEnabled =}
+  WASP_API_PREFIX: z
+    .string()
+    .min(1, { message: 'WASP_API_PREFIX cannot be empty.' })
+    .refine((val) => val.startsWith('/'), {
+      message: `WASP_API_PREFIX must start with a '/' (e.g., '/api').`,
+    })
+    .default('/api'),
+  COOKIE_NAME: z
+    .string()
+    .min(1, { message: 'COOKIE_NAME cannot be empty.' })
+    .default('session'),
+  COOKIE_EXPIRES: z
+    .boolean()
+    .default(true),
+  COOKIE_SAME_SITE: z
+    .enum(['lax', 'strict', 'none'], {
+      errorMap: () => ({
+        message: 'COOKIE_SAME_SITE must be one of: lax, strict, or none.',
+      }),
+    })
+    .default('lax'),
+  COOKIE_PATH: z
+    .string()
+    .min(1, { message: 'COOKIE_PATH cannot be empty.' })
+    .default('/'),
+  SESSION_EXPIRES_IN_SECONDS: z
+    .string()
+    .refine((val) => !isNaN(Number(val)), {
+      message: 'SESSION_EXPIRES_IN_SECONDS must be a valid number',
+    })
+    .default('2592000'), // default to 30 days (in seconds)
+  {=/ isCookieAuthEnabled =}
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
   {=# isEmailSenderEnabled =}
   {=# enabledEmailSenders.isSmtpProviderEnabled =}
@@ -128,6 +161,11 @@ const serverDevSchema = z.object({
     .default('{= defaultServerUrl =}'),
   WASP_WEB_CLIENT_URL: clientUrlSchema
     .default('{= defaultClientUrl =}'),
+  {=# isCookieAuthEnabled =}
+  COOKIE_SECURE: z
+    .boolean()
+    .default(false),
+  {=/ isCookieAuthEnabled =}
   {=# isAuthEnabled =}
   JWT_SECRET: jwtTokenSchema
     .default('DEVJWTSECRET'),
@@ -138,6 +176,11 @@ const serverProdSchema = z.object({
   NODE_ENV: z.literal('production'),
   WASP_SERVER_URL: serverUrlSchema,
   WASP_WEB_CLIENT_URL: clientUrlSchema,
+  {=# isCookieAuthEnabled =}
+  COOKIE_SECURE: z
+    .boolean()
+    .default(true),
+  {=/ isCookieAuthEnabled =}
   {=# isAuthEnabled =}
   JWT_SECRET: jwtTokenSchema,
   {=/ isAuthEnabled =}

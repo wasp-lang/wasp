@@ -20,7 +20,7 @@ genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
       sequence
-        [ genLocalLoginAction,
+        [ genLocalLoginAction auth,
           genLocalSignupAction
         ]
   | otherwise = return []
@@ -32,7 +32,11 @@ genLocalSignupAction = return $ C.mkTmplFdWithData (SP.castRel [relfile|auth/sig
     tmplData = object ["signupPath" .= serverSignupUrl localAuthProvider]
 
 -- | Generates file with login function to be used by Wasp developer.
-genLocalLoginAction :: Generator FileDraft
-genLocalLoginAction = return $ C.mkTmplFdWithData (SP.castRel [relfile|auth/login.ts|]) tmplData
+genLocalLoginAction :: AS.Auth.Auth -> Generator FileDraft
+genLocalLoginAction auth = return $ C.mkTmplFdWithData (SP.castRel [relfile|auth/login.ts|]) tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
+    tmplData =
+      object
+        [ "loginPath" .= serverLoginUrl localAuthProvider,
+          "isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth
+        ]
