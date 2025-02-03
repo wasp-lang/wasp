@@ -16,16 +16,18 @@ import Wasp.Project.Common
     findFileInWaspProjectDir,
     packageJsonInWaspProjectDir,
   )
+import qualified Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext as ECC
 import qualified Wasp.Util.IO as IOUtil
 
-analyzePackageJsonFile :: Bool -> Path' Abs (Dir WaspProjectDir) -> IO (Either [String] P.PackageJson)
-analyzePackageJsonFile isTailwindUsed waspProjectDir = runExceptT $ do
+analyzePackageJsonFile :: ECC.ExternalConfigAnalysisContext -> IO (Either [String] P.PackageJson)
+analyzePackageJsonFile context = runExceptT $ do
   packageJsonFile <- ExceptT findPackageJsonFileOrError
   packageJson <- ExceptT $ readPackageJsonFile packageJsonFile
-  case validatePackageJson isTailwindUsed packageJson of
+  case validatePackageJson context packageJson of
     [] -> return packageJson
     errors -> throwError errors
   where
+    waspProjectDir = ECC._waspDir context
     findPackageJsonFileOrError = maybeToEither [fileNotFoundMessage] <$> findPackageJsonFile waspProjectDir
     fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspProjectDir ++ " directory"
 

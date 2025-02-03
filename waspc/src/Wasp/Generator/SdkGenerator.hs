@@ -32,7 +32,6 @@ import Wasp.Generator.Common
     prismaVersion,
     superjsonVersion,
   )
-import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -58,6 +57,7 @@ import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.Common
   ( axiosVersion,
     reactQueryVersion,
@@ -280,7 +280,7 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if G.CF.isTailwindUsed $ AS.configFiles spec
+  if TCF.isTailwindUsed $ AS.tailwindConfigFilesRelocators spec
     then
       AS.Dependency.fromList
         [ ("tailwindcss", show tailwindCssVersion),

@@ -1,6 +1,6 @@
-module Wasp.Generator.ConfigFile
+module Wasp.Generator.TailwindConfigFile
   ( isTailwindUsed,
-    configFileRelocationMap,
+    tailwindConfigRelocationMap,
   )
 where
 
@@ -37,8 +37,8 @@ isTailwindUsed configFileRelocators =
 
 -- Establishes the mapping of what config files to copy and where from/to.
 -- NOTE: In the future, we could allow devs to configure what files we look for and where we copy them.
-configFileRelocationMap :: ConfigFileRelocationMap
-configFileRelocationMap =
+tailwindConfigRelocationMap :: ConfigFileRelocationMap
+tailwindConfigRelocationMap =
   fromList
     [ (tailwindConfigFile, asProjectRootDirConfigFile tailwindConfigFile),
       (postcssConfigFile, asProjectRootDirConfigFile postcssConfigFile)

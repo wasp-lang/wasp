@@ -1,5 +1,5 @@
-module Wasp.Generator.ConfigFileGenerator
-  ( genConfigFiles,
+module Wasp.Generator.TailwindConfigFileGenerator
+  ( genTailwindConfigFiles,
   )
 where
 
@@ -10,9 +10,9 @@ import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 
 -- | Generates config file FileDrafts based on the source and destination in ConfigFileRelocator.
-genConfigFiles :: AppSpec -> Generator [FileDraft]
-genConfigFiles spec =
-  return $ makeCopyFileDraftForConfigFile <$> AS.configFiles spec
+genTailwindConfigFiles :: AppSpec -> Generator [FileDraft]
+genTailwindConfigFiles spec =
+  return $ makeCopyFileDraftForConfigFile <$> AS.tailwindConfigFilesRelocators spec
   where
     makeCopyFileDraftForConfigFile cf =
       createCopyFileDraft

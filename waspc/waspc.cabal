@@ -277,8 +277,8 @@ library
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
-    Wasp.Generator.ConfigFile
-    Wasp.Generator.ConfigFileGenerator
+    Wasp.Generator.TailwindConfigFile
+    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -378,6 +378,7 @@ library
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
+    Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext
     Wasp.Project.ExternalConfig.PackageJson
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles

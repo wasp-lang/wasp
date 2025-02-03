@@ -7,28 +7,28 @@ import Control.Arrow (left)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
-import StrongPath (Abs, Dir, File, Path', Rel, toFilePath)
+import StrongPath (Abs, File, Path', toFilePath)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.ExternalConfig.TsConfig (validateSrcTsConfig)
 import Wasp.Project.Common
-  ( SrcTsConfigFile,
-    WaspProjectDir,
-    findFileInWaspProjectDir,
+  ( findFileInWaspProjectDir,
   )
+import qualified Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext as ECC
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
 analyzeSrcTsConfigFile ::
-  Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
+  ECC.ExternalConfigAnalysisContext ->
   IO (Either [String] T.TsConfig)
-analyzeSrcTsConfigFile waspDir srcTsConfigFile = runExceptT $ do
+analyzeSrcTsConfigFile context = runExceptT $ do
   tsConfigFileContents <- ExceptT findTsConfigOrError
   srcTsConfigContents <- ExceptT $ left (: []) <$> readTsConfigFile tsConfigFileContents
   case validateSrcTsConfig srcTsConfigContents of
     [] -> return srcTsConfigContents
     errors -> throwError errors
   where
+    waspDir = ECC._waspDir context
+    srcTsConfigFile = ECC._srcTsConfigPath context
     findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findFileInWaspProjectDir waspDir srcTsConfigFile
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
 

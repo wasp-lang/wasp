@@ -8,10 +8,12 @@ import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.Common (prismaVersion)
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 import Wasp.Generator.SdkGenerator.Common (tailwindCssVersion)
+import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactVersion)
+import qualified Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext as ECC
 
-validatePackageJson :: Bool -> P.PackageJson -> [ErrorMsg]
-validatePackageJson isTailwindUsed packageJson =
+validatePackageJson :: ECC.ExternalConfigAnalysisContext -> P.PackageJson -> [ErrorMsg]
+validatePackageJson context packageJson =
   concat
     ( [ validate ("wasp", "file:.wasp/out/sdk/wasp") IsListedWithExactVersion,
         validate ("prisma", show prismaVersion) IsListedAsDevWithExactVersion,
@@ -29,6 +31,8 @@ validatePackageJson isTailwindUsed packageJson =
     tailwindValidations =
       [ validate ("tailwindcss", show tailwindCssVersion) IsListedWithExactVersion | isTailwindUsed
       ]
+
+    isTailwindUsed = TCF.isTailwindUsed $ ECC._tailwindConfigFilesRelocators context
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 
