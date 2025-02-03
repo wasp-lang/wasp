@@ -7,26 +7,22 @@ export const api = axios.create({
     baseURL: config.apiUrl,
 });
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId';
-let waspAppAuthSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
 // PRIVATE API (sdk)
 export function setSessionId(sessionId) {
-    waspAppAuthSessionId = sessionId;
     storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId);
     apiEventsEmitter.emit('sessionId.set');
 }
 // PRIVATE API (sdk)
 export function getSessionId() {
-    return waspAppAuthSessionId;
+    return storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
 }
 // PRIVATE API (sdk)
 export function clearSessionId() {
-    waspAppAuthSessionId = undefined;
     storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
     apiEventsEmitter.emit('sessionId.clear');
 }
 // PRIVATE API (sdk)
 export function removeLocalUserData() {
-    waspAppAuthSessionId = undefined;
     storage.clear();
     apiEventsEmitter.emit('sessionId.clear');
 }
@@ -52,11 +48,9 @@ api.interceptors.response.use(undefined, (error) => {
 window.addEventListener('storage', (event) => {
     if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
         if (!!event.newValue) {
-            waspAppAuthSessionId = event.newValue;
             apiEventsEmitter.emit('sessionId.set');
         }
         else {
-            waspAppAuthSessionId = undefined;
             apiEventsEmitter.emit('sessionId.clear');
         }
     }
