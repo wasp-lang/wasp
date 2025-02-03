@@ -91,6 +91,7 @@ constructAppSpec waspDir options externalConfigs configFiles parsedPrismaSchema 
   clientEnvVars <- readDotEnvClient waspDir
 
   let packageJsonContent = EC._packageJson externalConfigs
+      srcTsConfigPath = EC._srcTsConfigPath externalConfigs
 
   let appSpec =
         AS.AppSpec
@@ -107,7 +108,8 @@ constructAppSpec waspDir options externalConfigs configFiles parsedPrismaSchema 
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
             AS.devDatabaseUrl = devDbUrl,
-            AS.customViteConfigPath = customViteConfigPath
+            AS.customViteConfigPath = customViteConfigPath,
+            AS.srcTsConfigPath = srcTsConfigPath
           }
 
   return $ runValidation ASV.validateAppSpec appSpec
