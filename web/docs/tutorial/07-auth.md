@@ -38,7 +38,7 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 ```wasp title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.16.0"
+    version: "{latestWaspVersion}"
   },
   // highlight-start
   title: "TodoApp",

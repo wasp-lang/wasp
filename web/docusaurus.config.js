@@ -2,6 +2,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github')
 
 const autoImportTabs = require('./src/remark/auto-import-tabs')
 const fileExtSwitcher = require('./src/remark/file-ext-switcher')
+const searchAndReplace = require('./src/remark/search-and-replace')
 
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
@@ -161,7 +162,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           sidebarCollapsible: true,
           editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
-          remarkPlugins: [autoImportTabs, fileExtSwitcher],
+          remarkPlugins: [autoImportTabs, fileExtSwitcher, searchAndReplace],
 
           // ------ Configuration for multiple docs versions ------ //
 

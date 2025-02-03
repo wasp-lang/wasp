@@ -470,7 +470,7 @@ For example, you might set it to `User`:
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.16.0"
+    version: "{latestWaspVersion}"
   },
   title: "My App",
   auth: {

@@ -36,7 +36,7 @@ Here's what the full setup looks like:
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.16.0"
+    version: "{latestWaspVersion}"
   },
   title: "My App",
   auth: {
@@ -63,7 +63,7 @@ model User {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.16.0"
+    version: "{latestWaspVersion}"
   },
   title: "My App",
   auth: {
@@ -148,7 +148,7 @@ Declare an import under `app.auth.methods.google.userSignupFields` (the example 
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.16.0"
+    version: "{latestWaspVersion}"
   },
   title: "My App",
   auth: {
@@ -180,7 +180,7 @@ export const userSignupFields = {
 ```wasp title=main.wasp
 app myApp {
   wasp: {
-    version: "^0.16.0"
+    version: "{latestWaspVersion}"
   },
   title: "My App",
   auth: {
