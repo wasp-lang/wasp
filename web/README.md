@@ -98,5 +98,3 @@ Also, it might make sense to delete the previous version of docs if only bug fix
 We have a custom remark plugin that allows us to use `{latestWaspVersion}` in our code blocks, which will be replaced with the latest Wasp version in `versions.json` when the docs are built. This allows us to have the up to date Wasp version in the docs, without having to manually update it every time we release a new version of Wasp.
 
 Check the plugin [here](./src/remark//search-and-replace.js) for more info.
-
-Testing Cloudflare pages
