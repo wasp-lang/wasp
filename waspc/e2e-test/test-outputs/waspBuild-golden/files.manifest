@@ -252,6 +252,7 @@ waspBuild/.wasp/build/web-app/src/router.tsx
 waspBuild/.wasp/build/web-app/src/test/vitest/setup.ts
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasp/build/web-app/src/vite-env.d.ts
+waspBuild/.wasp/build/web-app/tsconfig.app.json
 waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.node.json
 waspBuild/.wasp/build/web-app/vite.config.ts

@@ -1,6 +1,6 @@
 import { BiSolidUser } from "react-icons/bi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BiSolidHome } from "react-icons/bi";
 
 import { Link } from "wasp/client/router";
@@ -27,7 +27,10 @@ export function Header({ children, currentStatus }) {
 
 export function FaqButton() {
   return (
-    <a href="#faq" className="flex items-center justify-center space-x-1 text-slate-500 hover:text-slate-600">
+    <a
+      href="#faq"
+      className="flex items-center justify-center space-x-1 text-slate-500 hover:text-slate-600"
+    >
       <span className="text-sm font-normal">Help</span>
       <RxQuestionMarkCircled className="text-base text-slate-600" />
     </a>
@@ -36,7 +39,7 @@ export function FaqButton() {
 
 export function ProfileButton({ setIsLoginModalOpen }) {
   const { data: user } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <button
@@ -45,7 +48,7 @@ export function ProfileButton({ setIsLoginModalOpen }) {
         if (!user) {
           setIsLoginModalOpen(true);
         } else {
-          history.push("/user");
+          navigate("/user");
         }
       }}
     >

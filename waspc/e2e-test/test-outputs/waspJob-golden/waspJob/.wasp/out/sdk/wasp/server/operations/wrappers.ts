@@ -1,4 +1,4 @@
-import { IfAny, _Awaited, _ReturnType } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
 import {
   _Entity,
@@ -95,4 +95,4 @@ type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinit
  * @template OperationDefinition The type of the operation's definition.
  */
 type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> =
-  Parameters<OperationDefinition>[1]["entities"]
+  _Parameters<OperationDefinition>[1]["entities"]
