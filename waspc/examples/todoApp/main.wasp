@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "ToDo App",
   // head: [],
@@ -324,6 +324,12 @@ action boolToVoidNoAuth {
 
 action boolToVoidAuth {
   fn: import { boolToVoidAuth } from "@src/testTypes/operations/definitions",
+  auth: true,
+  entities: [Task]
+}
+
+action jsActionWithArgs {
+  fn: import { jsActionWithArgs } from "@src/testTypes/operations/jsDefinitions",
   auth: true,
   entities: [Task]
 }

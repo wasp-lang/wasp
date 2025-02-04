@@ -43,7 +43,7 @@ const company = [
   },
   {
     text: 'Careers',
-    url: 'https://www.notion.so/wasp-lang/Founding-Engineer-at-Wasp-88a73838f7f04ab3aee1f8e1c1bee6dd',
+    url: 'https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672',
   },
   {
     text: 'Company',

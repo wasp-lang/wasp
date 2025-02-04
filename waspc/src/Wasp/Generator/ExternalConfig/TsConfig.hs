@@ -9,16 +9,16 @@ import Data.List (intercalate)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 
-class IsJavascriptValue a where
+class JsonValue a where
   showAsJsValue :: a -> String
 
-instance IsJavascriptValue String where
+instance JsonValue String where
   showAsJsValue = show
 
-instance IsJavascriptValue [String] where
+instance JsonValue [String] where
   showAsJsValue = show
 
-instance IsJavascriptValue Bool where
+instance JsonValue Bool where
   showAsJsValue True = "true"
   showAsJsValue False = "false"
 
@@ -34,44 +34,60 @@ instance Show FullyQualifiedFieldName where
 
 validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
 validateSrcTsConfig tsConfig =
+  validateRequiredField (FieldName ["include"]) (T.include tsConfig) ["src"]
+    ++ validateCompilerOptions (T.compilerOptions tsConfig)
+
+validateCompilerOptions :: T.CompilerOptions -> [ErrorMsg]
+validateCompilerOptions compilerOptions =
   concat
-    [ validateRequiredFieldInCompilerOptions "module" "esnext" T._module,
-      validateRequiredFieldInCompilerOptions "target" "esnext" T.target,
-      validateRequiredFieldInCompilerOptions "moduleResolution" "bundler" T.moduleResolution,
-      validateRequiredFieldInCompilerOptions "jsx" "preserve" T.jsx,
-      validateRequiredFieldInCompilerOptions "strict" True T.strict,
-      validateRequiredFieldInCompilerOptions "esModuleInterop" True T.esModuleInterop,
-      validateRequiredFieldInCompilerOptions "lib" ["dom", "dom.iterable", "esnext"] T.lib,
-      validateRequiredFieldInCompilerOptions "allowJs" True T.allowJs,
-      validateRequiredFieldInCompilerOptions "typeRoots" ["node_modules/@testing-library", "node_modules/@types"] T.typeRoots,
-      validateRequiredFieldInCompilerOptions "outDir" ".wasp/phantom" T.outDir
+    [ validateRequiredFieldInCompilerOptions "module" T._module "esnext",
+      validateRequiredFieldInCompilerOptions "target" T.target "esnext",
+      validateRequiredFieldInCompilerOptions "moduleResolution" T.moduleResolution "bundler",
+      validateRequiredFieldInCompilerOptions "jsx" T.jsx "preserve",
+      validateRequiredFieldInCompilerOptions "strict" T.strict True,
+      validateRequiredFieldInCompilerOptions "esModuleInterop" T.esModuleInterop True,
+      validateRequiredFieldInCompilerOptions "lib" T.lib ["dom", "dom.iterable", "esnext"],
+      validateRequiredFieldInCompilerOptions "allowJs" T.allowJs True,
+      validateRequiredFieldInCompilerOptions "typeRoots" T.typeRoots ["node_modules/@testing-library", "node_modules/@types"],
+      validateRequiredFieldInCompilerOptions "outDir" T.outDir ".wasp/out/user",
+      validateRequiredFieldInCompilerOptions "composite" T.composite True,
+      validateRequiredFieldInCompilerOptions "skipLibCheck" T.skipLibCheck True
     ]
   where
-    validateRequiredFieldInCompilerOptions fieldName expectedValue getFieldValue = case fieldValue of
-      Just actualValue -> validateFieldValue fullyQualifiedFieldName expectedValue actualValue
-      Nothing -> [missingFieldErrorMessage]
-      where
-        fieldValue = getFieldValue $ T.compilerOptions tsConfig
-        fullyQualifiedFieldName = FieldName ["compilerOptions", fieldName]
+    validateRequiredFieldInCompilerOptions relativeFieldName getFieldValue =
+      validateRequiredField (FieldName ["compilerOptions", relativeFieldName]) (getFieldValue compilerOptions)
 
-        missingFieldErrorMessage =
-          unwords
-            [ "The",
-              "\"" ++ show fullyQualifiedFieldName ++ "\"",
-              "field is missing in tsconfig.json, expected value:",
-              showAsJsValue expectedValue ++ "."
-            ]
+validateRequiredField :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [String]
+validateRequiredField fullyQualifiedFieldName fieldValue expectedValue =
+  validateFieldValue fullyQualifiedFieldName (Just expectedValue) fieldValue
 
-    validateFieldValue :: (Eq value, IsJavascriptValue value) => FullyQualifiedFieldName -> value -> value -> [String]
-    validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
-      if actualValue == expectedValue
-        then []
-        else [invalidValueErrorMessage]
-      where
-        invalidValueErrorMessage =
-          unwords
-            [ "Invalid value for the",
-              "\"" ++ show fullyQualifiedFieldName ++ "\"",
-              "field in tsconfig.json, expected value:",
-              showAsJsValue expectedValue ++ "."
-            ]
+validateFieldValue :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
+validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
+  case (expectedValue, actualValue) of
+    (Nothing, Nothing) -> []
+    (Just expected, Just actual) -> [makeInvalidValueErrorMessage expected | actual /= expected]
+    (Just expected, Nothing) -> [makeMissingFieldErrorMessage expected]
+    (Nothing, Just _) -> [fieldMustBeUnsetErrorMessage]
+  where
+    makeInvalidValueErrorMessage expected =
+      unwords
+        [ "Invalid value for the",
+          "\"" ++ show fullyQualifiedFieldName ++ "\"",
+          "field in tsconfig.json, you must set it to:",
+          showAsJsValue expected ++ "."
+        ]
+
+    fieldMustBeUnsetErrorMessage =
+      unwords
+        [ "The",
+          "\"" ++ show fullyQualifiedFieldName ++ "\"",
+          "field in tsconfig.json must be unset."
+        ]
+
+    makeMissingFieldErrorMessage expected =
+      unwords
+        [ "The",
+          "\"" ++ show fullyQualifiedFieldName ++ "\"",
+          "field is missing in tsconfig.json, you must set it to:",
+          showAsJsValue expected ++ "."
+        ]
