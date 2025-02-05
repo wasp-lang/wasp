@@ -3,13 +3,14 @@ module Main where
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
-import Control.Monad (void)
+import Control.Monad (void, when)
 import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
+import System.Directory (doesFileExist, removeFile)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
-import System.Exit (exitFailure)
+import System.Exit (exitFailure, exitSuccess)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -26,6 +27,7 @@ import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
+import qualified System.IO.Error as IOError
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
@@ -42,86 +44,60 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
+import qualified Wasp.Cli.Command.Version.VersionManagement as VersionManagement
+import qualified Wasp.Cli.Command.Version.Download as VersionDownload
+import qualified Wasp.Cli.Command.Version.Executor as VersionExecutor
+import qualified Wasp.Cli.Command.Version.Paths as VersionPaths
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
-  let commandCall = case args of
-        ("new" : newArgs) -> Command.Call.New newArgs
-        ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
-        ["start"] -> Command.Call.Start
-        ["start", "db"] -> Command.Call.StartDb
-        ["clean"] -> Command.Call.Clean
-        ["ts-setup"] -> Command.Call.TsSetup
-        ["compile"] -> Command.Call.Compile
-        ("db" : dbArgs) -> Command.Call.Db dbArgs
-        ["uninstall"] -> Command.Call.Uninstall
-        ["version"] -> Command.Call.Version
-        ["build"] -> Command.Call.Build
-        ["telemetry"] -> Command.Call.Telemetry
-        ["deps"] -> Command.Call.Deps
-        ["dockerfile"] -> Command.Call.Dockerfile
-        ["info"] -> Command.Call.Info
-        ["studio"] -> Command.Call.Studio
-        ["completion"] -> Command.Call.PrintBashCompletionInstruction
-        ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
-        ["completion:list"] -> Command.Call.BashCompletionListCommands
-        ("waspls" : _) -> Command.Call.WaspLS
-        ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
-        _unknownCommand -> Command.Call.Unknown args
+
+  let commandCall = parseCommand args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
-  -- Before calling any command, check that the node requirement is met. Node is
-  -- not needed for every command, but checking for every command was decided
-  -- to be more robust than trying to only check for commands that require it.
-  -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  NodeVersion.getAndCheckUserNodeVersion >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> do
-      cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
-      exitFailure
-    NodeVersion.VersionCheckSuccess -> pure ()
-
-  setDefaultCliEnvVars
-
   case commandCall of
-    Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.NewAi newAiArgs -> case newAiArgs of
-      ["--stdout", projectName, appDescription, projectConfigJson] ->
-        runCommand $
-          Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout
-            projectName
-            appDescription
-            projectConfigJson
-      [projectName, appDescription, projectConfigJson] ->
-        runCommand $
-          Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk
-            projectName
-            appDescription
-            projectConfigJson
-      _unknownCommand -> printWaspNewAiUsage
-    Command.Call.Start -> runCommand start
-    Command.Call.StartDb -> runCommand Command.Start.Db.start
-    Command.Call.Clean -> runCommand clean
-    Command.Call.TsSetup -> runCommand tsConfigSetup
-    Command.Call.Compile -> runCommand compile
-    Command.Call.Db dbArgs -> dbCli dbArgs
-    Command.Call.Version -> printVersion
-    Command.Call.Studio -> runCommand studio
-    Command.Call.Uninstall -> runCommand uninstall
-    Command.Call.Build -> runCommand build
-    Command.Call.Telemetry -> runCommand Telemetry.telemetry
-    Command.Call.Deps -> runCommand deps
-    Command.Call.Dockerfile -> runCommand printDockerfile
-    Command.Call.Info -> runCommand info
-    Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
-    Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
-    Command.Call.BashCompletionListCommands -> runCommand bashCompletion
-    Command.Call.Unknown _ -> printUsage
-    Command.Call.WaspLS -> runWaspLS
-    Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
-    Command.Call.Test testArgs -> runCommand $ test testArgs
+    -- early intercept for version
+    Command.Call.Version (Just "latest") True -> do
+      VersionDownload.forceInstallLatest
+      exitSuccess
+    Command.Call.Version (Just versionArg) True -> do
+      VersionDownload.forceInstallSpecific versionArg
+      exitSuccess
+    Command.Call.Version (Just versionArg) False -> do
+      putStrLn $ "Switching to version " ++ versionArg ++ "..."
+      VersionManagement.switchVersion versionArg
+      exitSuccess
+    Command.Call.Version Nothing _ -> do
+      currentVersion <- VersionManagement.getActiveVersion
+      putStrLn $
+        unlines
+          [ "Active Wasp version: " ++ currentVersion,
+            "",
+            "To switch to a different version of Wasp, use:",
+            "  wasp version <version>",
+            "",
+            "For example:",
+            "  wasp version 0.14.0    # Switch to version 0.14.0",
+            "  wasp version latest    # Switch to latest version",
+            "",
+            "Add the --force flag to hard install a specific version.",
+            "Check available versions at:",
+            "  https://github.com/wasp-lang/wasp/releases"
+          ]
+      exitSuccess
+
+    -- early intercept for update
+    Command.Call.Update True -> do
+      VersionDownload.forceInstallLatest
+      exitSuccess
+    Command.Call.Update False -> do
+      VersionDownload.updateWasp
+      exitSuccess
+
+    -- handle delegation
+    _ -> handleVersionDelegation args commandCall
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -129,12 +105,153 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   where
     threadDelaySeconds =
       let microsecondsInASecond = 1000000
-       in threadDelay . (* microsecondsInASecond)
+        in threadDelay . (* microsecondsInASecond)
 
     handleInternalErrors :: E.ErrorCall -> IO ()
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+handleVersionDelegation :: [String] -> Command.Call.Call -> IO ()
+handleVersionDelegation args commandCall = do
+    -- Ensure the version management system is initialized with error handling
+    ensureSystemResult <- E.try VersionManagement.ensureVersionSystem :: IO (Either IOError.IOError ())
+
+    case ensureSystemResult of
+      Left e -> do
+        putStrLn "Warning: Failed to initialize version management system."
+        putStrLn $ "Details: " ++ show e
+        putStrLn "Attempting to continue execution..."
+      Right _ -> pure () -- Continue normally if it succeeds
+
+    -- Try getting the active version
+    result <- E.try VersionManagement.getActiveVersion :: IO (Either IOError.IOError String)
+
+    case result of
+      Left e -> 
+        if IOError.isAlreadyInUseError e then do
+          putStrLn "Warning: Active version file is locked. Attempting to fix..."
+          releaseFile <- VersionPaths.getVersionFile "release"
+          activeFile <- VersionPaths.getVersionFile "active"
+
+          -- Attempt to remove locked files
+          E.catch (removeFile releaseFile) (\(_ :: IOError.IOError) -> pure ())
+          E.catch (removeFile activeFile) (\(_ :: IOError.IOError) -> pure ())
+
+          -- Retry getting the active version
+          retryResult <- E.try VersionManagement.getActiveVersion :: IO (Either IOError.IOError String)
+          case retryResult of
+            Left err -> do
+              putStrLn "Error: Failed to read active version even after cleanup."
+              putStrLn $ "Details: " ++ show err
+              exitFailure
+            Right activeVersion -> continueWithActiveVersion activeVersion
+        else do
+          putStrLn $ "Error: Unable to read active version due to: " ++ show e
+          exitFailure
+
+      Right activeVersion -> continueWithActiveVersion activeVersion
+
+  where
+    continueWithActiveVersion activeVersion = do
+      releaseFile <- VersionPaths.getVersionFile "release"
+      releaseExists <- doesFileExist releaseFile
+      releaseVersion <- if releaseExists then readFile releaseFile else return (show waspVersion)
+
+      when (activeVersion /= releaseVersion) $ do
+        VersionExecutor.executeWithVersion args
+        exitSuccess
+
+      -- Before calling any command, check that the node requirement is met. Node is
+      -- not needed for every command, but checking for every command was decided
+      -- to be more robust than trying to only check for commands that require it.
+      -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
+      NodeVersion.getAndCheckUserNodeVersion >>= \case
+        NodeVersion.VersionCheckFail errorMsg -> do
+          cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
+          exitFailure
+        NodeVersion.VersionCheckSuccess -> pure ()
+
+      setDefaultCliEnvVars
+      runNormalCommand commandCall
+
+parseCommand :: [String] -> Command.Call.Call
+parseCommand args = case args of
+  ("new" : newArgs) -> Command.Call.New newArgs
+  ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
+  ["start"] -> Command.Call.Start
+  ["start", "db"] -> Command.Call.StartDb
+  ["clean"] -> Command.Call.Clean
+  ["ts-setup"] -> Command.Call.TsSetup
+  ["compile"] -> Command.Call.Compile
+  ("db" : dbArgs) -> Command.Call.Db dbArgs
+  ["uninstall"] -> Command.Call.Uninstall
+  ["build"] -> Command.Call.Build
+  ["version", "latest", "--force"] -> Command.Call.Version (Just "latest") True
+  ["version", versionArg, "--force"] -> Command.Call.Version (Just versionArg) True
+  ["version", versionArg] -> Command.Call.Version (Just versionArg) False
+  ["version"] -> Command.Call.Version Nothing False
+  ["update", "--force"] -> Command.Call.Update True
+  ["update"] -> Command.Call.Update False
+  ["telemetry"] -> Command.Call.Telemetry
+  ["deps"] -> Command.Call.Deps
+  ["dockerfile"] -> Command.Call.Dockerfile
+  ["info"] -> Command.Call.Info
+  ["studio"] -> Command.Call.Studio
+  ["completion"] -> Command.Call.PrintBashCompletionInstruction
+  ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
+  ["completion:list"] -> Command.Call.BashCompletionListCommands
+  ("waspls" : _)  -> Command.Call.WaspLS
+  ("deploy" : ds) -> Command.Call.Deploy ds
+  ("test" : ts)   -> Command.Call.Test ts
+  ("secret" : secretArgs) -> Command.Call.Secret secretArgs
+  _ -> Command.Call.Unknown args
+
+
+runNormalCommand :: Command.Call.Call -> IO ()
+runNormalCommand commandCall = case commandCall of
+  Command.Call.New newArgs -> runCommand $ createNewProject newArgs
+  Command.Call.NewAi newAiArgs -> case newAiArgs of
+    ["--stdout", projectName, appDescription, projectConfigJson] ->
+      runCommand $
+        Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout
+          projectName
+          appDescription
+          projectConfigJson
+    [projectName, appDescription, projectConfigJson] ->
+      runCommand $
+        Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk
+          projectName
+          appDescription
+          projectConfigJson
+    _unknownCommand -> printWaspNewAiUsage
+  Command.Call.Start -> runCommand start
+  Command.Call.StartDb -> runCommand Command.Start.Db.start
+  Command.Call.Clean -> runCommand clean
+  Command.Call.TsSetup -> runCommand tsConfigSetup
+  Command.Call.Compile -> runCommand compile
+  Command.Call.Db dbArgs -> dbCli dbArgs
+  Command.Call.Studio -> runCommand studio
+  Command.Call.Uninstall -> runCommand uninstall
+  Command.Call.Build -> runCommand build
+  Command.Call.Telemetry -> runCommand Telemetry.telemetry
+  Command.Call.Deps -> runCommand deps
+  Command.Call.Dockerfile -> runCommand printDockerfile
+  Command.Call.Info -> runCommand info
+  Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
+  Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
+  Command.Call.BashCompletionListCommands -> runCommand bashCompletion
+  Command.Call.Unknown _ -> printUsage
+  Command.Call.WaspLS -> runWaspLS
+  Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
+  Command.Call.Test testArgs -> runCommand $ test testArgs
+  Command.Call.Version _ _ ->
+    error "runNormalCommand was called with Version, which should never happen."
+  Command.Call.Update _ ->
+    error "runNormalCommand was called with Update, which should never happen."
+  Command.Call.Secret secretArgs ->
+    putStrLn $ "Secret command for testing versions :) " ++ show secretArgs
+
 
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
@@ -169,7 +286,8 @@ printUsage =
               "      You can do the same thing with `wasp new` interactively.",
               "      Run `wasp new:ai` for more info.",
               "",
-        cmd   "    version               Prints current version of CLI.",
+        cmd   "    version               Prints currently activated version of CLI. Run `wasp version` for more info.",
+        cmd   "    update                Updates Wasp CLI to the latest version. Run `wasp update --force` to hard install the latest version.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
@@ -198,21 +316,6 @@ printUsage =
         Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp-lang.dev/#signup"
       ]
 {- ORMOLU_ENABLE -}
-
-printVersion :: IO ()
-printVersion = do
-  putStrLn $
-    unlines
-      [ show waspVersion,
-        "",
-        "If you wish to install/switch to the latest version of Wasp, do:",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-        "",
-        "If you want specific x.y.z version of Wasp, do:",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
-        "",
-        "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
-      ]
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
