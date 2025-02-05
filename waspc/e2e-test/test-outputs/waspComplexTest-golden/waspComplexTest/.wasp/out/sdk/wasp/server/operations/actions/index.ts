@@ -6,7 +6,7 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
 } from '../wrappers.js'
-import { foo as foo_ext } from 'wasp/src/server/actions/bar'
+import { foo as foo_ext } from 'wasp/ext-src/server/actions/bar'
 
 // PRIVATE API
 export type MySpecialAction_ext = typeof foo_ext

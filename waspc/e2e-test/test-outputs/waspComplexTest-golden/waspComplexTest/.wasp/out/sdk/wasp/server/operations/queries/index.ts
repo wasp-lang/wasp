@@ -6,7 +6,7 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
 } from '../wrappers.js'
-import { foo as foo_ext } from 'wasp/src/server/queries/bar'
+import { foo as foo_ext } from 'wasp/ext-src/server/queries/bar'
 
 // PRIVATE API
 export type MySpecialQuery_ext = typeof foo_ext
