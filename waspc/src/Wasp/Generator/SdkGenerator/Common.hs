@@ -63,7 +63,7 @@ sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
 
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
-extSrcDirInSdkRootDir = [reldir|ext-src|]
+extSrcDirInSdkRootDir = [reldir|src|]
 
 relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
 relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.fromRelDirP path
@@ -72,9 +72,6 @@ relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.f
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = [reldirP|wasp|] </> path
-
-extCodeDirInSdkRootDir :: Path' (Rel SdkRootDir) Dir'
-extCodeDirInSdkRootDir = [reldir|ext-src|]
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
