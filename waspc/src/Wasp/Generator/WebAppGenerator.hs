@@ -60,6 +60,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Common as Project
 import Wasp.Util ((<++>))
+import qualified Wasp.Util.StrongPath as SP
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
@@ -274,9 +275,12 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
 
         relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir Project.WaspProjectDir)
         relPathFromWebAppRootDirWaspProjectDir =
-          fromJust $
-            SP.parseRelDirP $
-              FP.Extra.reversePosixPath $
-                SP.fromRelDir (Project.dotWaspDirInWaspProjectDir </> Project.generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
+          SP.reversePosixPath $
+            fromJust $
+              SP.relDirToPosix
+                ( Project.dotWaspDirInWaspProjectDir
+                    </> Project.generatedCodeDirInDotWaspDir
+                    </> C.webAppRootDirInProjectRootDir
+                )
 
         importName = JsImportModule "customViteConfig"
