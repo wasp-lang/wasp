@@ -11,30 +11,25 @@ export const api: AxiosInstance = axios.create({
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
-let waspAppAuthSessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
-
 // PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
-  waspAppAuthSessionId = sessionId
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
   apiEventsEmitter.emit('sessionId.set')
 }
 
 // PRIVATE API (sdk)
 export function getSessionId(): string | undefined {
-  return waspAppAuthSessionId
+  return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
 }
 
 // PRIVATE API (sdk)
 export function clearSessionId(): void {
-  waspAppAuthSessionId = undefined
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
 export function removeLocalUserData(): void {
-  waspAppAuthSessionId = undefined
   storage.clear()
   apiEventsEmitter.emit('sessionId.clear')
 }
@@ -62,10 +57,8 @@ api.interceptors.response.use(undefined, (error) => {
 window.addEventListener('storage', (event) => {
   if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
     if (!!event.newValue) {
-      waspAppAuthSessionId = event.newValue
       apiEventsEmitter.emit('sessionId.set')
     } else {
-      waspAppAuthSessionId = undefined
       apiEventsEmitter.emit('sessionId.clear')
     }
   }

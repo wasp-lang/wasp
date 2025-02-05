@@ -11,7 +11,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "2c300f215d89a72dad5e7a766dd97a64aa85b19126c96708487201b9b08a94f9"
+        "4189f4c9a84f18751d1ef626e6dd0467f16f9a41eade2f9b6371d943fd828b92"
     ],
     [
         [
@@ -312,7 +312,7 @@
             "file",
             "../out/sdk/wasp/server/operations/wrappers.ts"
         ],
-        "8e38950b0929b8fbe662dd796c4c445285f91b37df3d40b83b4685347e5aa3aa"
+        "164b3c63d67a0898c8f15c2058a0dd95499db919564ad4860eb874d1772dc9d8"
     ],
     [
         [
@@ -375,7 +375,7 @@
             "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
-        "be0d749bf9ae2f44ca2c281e0fb65c4d30c1d07e375ba38407e6c4fa1f05cc87"
+        "a5c7a0300bf161b17e2cd8af4a7b51616b8c2dc7d469cd19fe2e8489ac572180"
     ],
     [
         [

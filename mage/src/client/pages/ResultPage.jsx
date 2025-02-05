@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RadioGroup } from "@headlessui/react";
 import {
   PiCopyDuotone,
@@ -57,7 +57,7 @@ export const ResultPage = () => {
     message: "Waiting",
   });
   const [currentFiles, setCurrentFiles] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isMobileFileBrowserOpen, setIsMobileFileBrowserOpen] = useState(false);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ export const ResultPage = () => {
         appCreativityLevel: project.creativityLevel,
       });
       alert("Okay, redirecting to the new attempt");
-      history.push(`/result/${appId}`);
+      navigate(`/result/${appId}`);
     } catch (e) {
       alert(e.message);
     }
@@ -478,7 +478,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
           the costs 😇
         </p>
         {numTokensSpent > 0 && (
-          <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
+          <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full leading-relaxed text-gray-500 text-sm">
             <tbody>
               <tr>
                 <td className="p-2 text-gray-600"> Number of tokens your app used: </td>
@@ -491,9 +491,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`~$${calcCostForGpt_4o(
-                    Number(numTokensSpent)
-                  )}`}</FormattedText>{" "}
+                  <FormattedText>{`~$${calcCostForGpt_4o(Number(numTokensSpent))}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (

@@ -34,7 +34,8 @@ instance Show FullyQualifiedFieldName where
 
 validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
 validateSrcTsConfig tsConfig =
-  validateCompilerOptions (T.compilerOptions tsConfig)
+  validateRequiredField (FieldName ["include"]) (T.include tsConfig) ["src"]
+    ++ validateCompilerOptions (T.compilerOptions tsConfig)
 
 validateCompilerOptions :: T.CompilerOptions -> [ErrorMsg]
 validateCompilerOptions compilerOptions =
@@ -50,7 +51,7 @@ validateCompilerOptions compilerOptions =
       validateRequiredFieldInCompilerOptions "typeRoots" T.typeRoots ["node_modules/@testing-library", "node_modules/@types"],
       validateRequiredFieldInCompilerOptions "outDir" T.outDir ".wasp/out/user",
       validateRequiredFieldInCompilerOptions "composite" T.composite True,
-      validateFieldIsUnset (FieldName ["compilerOptions", "baseUrl"]) (T.baseUrl compilerOptions)
+      validateRequiredFieldInCompilerOptions "skipLibCheck" T.skipLibCheck True
     ]
   where
     validateRequiredFieldInCompilerOptions relativeFieldName getFieldValue =
@@ -59,9 +60,6 @@ validateCompilerOptions compilerOptions =
 validateRequiredField :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [String]
 validateRequiredField fullyQualifiedFieldName fieldValue expectedValue =
   validateFieldValue fullyQualifiedFieldName (Just expectedValue) fieldValue
-
-validateFieldIsUnset :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> [String]
-validateFieldIsUnset fullyQualifiedFieldName = validateFieldValue fullyQualifiedFieldName Nothing
 
 validateFieldValue :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
 validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
