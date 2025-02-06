@@ -52,7 +52,9 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport serverExtDir
   where
-    -- filip: Instead of generating the ext-src folder with the user's code and referencing that, we reference user code directly.
-    -- This gives us proper error messages (with user's file names and line numbers).
-    -- It works great with Vite (Vite outputs absolute file paths), but less great on the server (TS outputs relative paths, resulting in ../../src/something)
+    -- NOTE: Instead of generating the `src` folder with the user's code and
+    -- referencing that, we reference user code directly. This gives us proper
+    -- error messages (with user's file names and line numbers). It works great
+    -- with Vite (Vite outputs absolute file paths), but less great on the
+    -- server (TS outputs relative paths, resulting in ../../src/something).
     serverExtDir = [reldirP|../../../../src|]
