@@ -1,58 +1,46 @@
-import { type Plugin } from "vite";
-import path from "path";
+import { type Plugin } from 'vite'
+import path from 'path'
 
 export function detectServerImports(): Plugin {
   return {
     name: 'wasp-detect-server-imports',
-    transform(code, filePath) {
-      const isInDotWaspFolder = filePath.includes("/.wasp/");
-
-      // We don't want to check for server imports in the Wasp 
-      // framework code.
-      if (isInDotWaspFolder) {
-        return;
+    enforce: 'pre',
+    resolveId(source, importer) {
+      if (!importer) {
+        return
       }
 
-      const imports = getImportsFromCode(code);
+      const relativeImporter = getRelativeFilePath(importer)
 
-      for (const imp of imports) {
-        if (imp.moduleName.startsWith("wasp/server")) {
-          throw new Error(getServerImportErrorMessage(imp, filePath));
-        }
+      // Check only for imports from src/ directory which
+      // contains the user's code.
+      if (!relativeImporter.startsWith('src/')) {
+        return
       }
+
+      ensureNoServerImports(source, relativeImporter)
     },
-  };
-}
-
-type Import = {
-  importStatement: string;
-  moduleName: string;
-}
-
-const importStatementRegex = /\s*import\s+(?:(?:[\w*\s{},]*)\s+from\s+)?(['"`])([^'"`]+)\1\s*/g;
-
-function* getImportsFromCode(code: string): Generator<Import> {
-  const matches = code.matchAll(importStatementRegex);
-  for (const match of matches) {
-    yield {
-      importStatement: match[0].trim(),
-      moduleName: match[2],
-    };
   }
 }
 
-function getServerImportErrorMessage(imp: Import, filePath: string): string {
-  return  `Client module "${getRelativeFilePath(filePath)}" imports server code:
+const serverImportChecks = [
+  (moduleName: string) => moduleName.startsWith('wasp/server'),
+]
 
-${imp.importStatement}
-
-This is not supported in the client code.`;
+function ensureNoServerImports(source: string, relativeImporter: string) {
+  for (const check of serverImportChecks) {
+    if (check(source)) {
+      throw new Error(
+        `Server module "${source}" is being imported in "${relativeImporter}" which is a client file. This is not supported.`
+      )
+    }
+  }
 }
 
-const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd();
+const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd()
 
 function getRelativeFilePath(filePath: string): string {
-  return filePath.replace(waspProjectDirAbsPath, "");
+  return filePath.replace(waspProjectDirAbsPath, '')
 }
 
 // We are not passing the waspProjectDir path from Haskell because
@@ -60,7 +48,7 @@ function getRelativeFilePath(filePath: string): string {
 // Wasp project directory, it contains things like the username of the
 // user running the tests, which is different on different machines.
 function getWaspProjectDirAbsPathFromCwd(): string {
-  const webAppDirAbsPath = process.cwd();
-  const waspProjectDirAbsPath = path.join(webAppDirAbsPath, "../../../");
-  return waspProjectDirAbsPath;
+  const webAppDirAbsPath = process.cwd()
+  const waspProjectDirAbsPath = path.join(webAppDirAbsPath, '../../../')
+  return waspProjectDirAbsPath
 }
