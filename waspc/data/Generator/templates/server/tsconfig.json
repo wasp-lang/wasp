@@ -30,6 +30,6 @@
     "src"
   ],
   "references": [
-    { "path": "../../../tsconfig.json" }
+    { "path": "{= srcTsConfigPath =}" }
   ]
 }
