@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
 
@@ -10,28 +11,30 @@ export function detectServerImports(): Plugin {
         return
       }
 
-      const relativeImporter = getRelativeFilePath(importer)
+      const importerRelativePath = getRelativeFilePath(importer)
 
       // Check only for imports from src/ directory which
       // contains the user's code.
-      if (!relativeImporter.startsWith('src/')) {
+      if (!importerRelativePath.startsWith('src/')) {
         return
       }
 
-      ensureNoServerImports(source, relativeImporter)
+      ensureNoServerImports(source, importerRelativePath)
     },
   }
 }
 
-const serverImportChecks = [
+type ImportCheckPredicate = (moduleName: string) => boolean
+
+const serverImportChecks: ImportCheckPredicate[] = [
   (moduleName: string) => moduleName.startsWith('wasp/server'),
 ]
 
-function ensureNoServerImports(source: string, relativeImporter: string) {
+function ensureNoServerImports(source: string, relativeImporter: string): void {
   for (const check of serverImportChecks) {
     if (check(source)) {
       throw new Error(
-        `Server module "${source}" is being imported in "${relativeImporter}" which is a client file. This is not supported.`
+        `Server code cannot be imported in the client code. Import from '${source}' in '${relativeImporter}' is not allowed.`
       )
     }
   }
@@ -40,7 +43,7 @@ function ensureNoServerImports(source: string, relativeImporter: string) {
 const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd()
 
 function getRelativeFilePath(filePath: string): string {
-  return filePath.replace(waspProjectDirAbsPath, '')
+  return path.relative(waspProjectDirAbsPath, filePath)
 }
 
 // We are not passing the waspProjectDir path from Haskell because
@@ -49,6 +52,6 @@ function getRelativeFilePath(filePath: string): string {
 // user running the tests, which is different on different machines.
 function getWaspProjectDirAbsPathFromCwd(): string {
   const webAppDirAbsPath = process.cwd()
-  const waspProjectDirAbsPath = path.join(webAppDirAbsPath, '../../../')
+  const waspProjectDirAbsPath = path.join(webAppDirAbsPath, '{= waspProjectDirFromWebAppDir =}')
   return waspProjectDirAbsPath
 }

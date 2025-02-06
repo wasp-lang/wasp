@@ -49,6 +49,7 @@ import Wasp.Generator.WebAppGenerator.Common
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import Wasp.Generator.WebAppGenerator.VitePlugins (genVitePlugins)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.JsImport
   ( JsImport,
@@ -73,13 +74,12 @@ genWebApp spec = do
       genNpmrc,
       genGitignore,
       genIndexHtml spec,
-      genViteConfig spec,
-      -- Vite plugins
-      genFileCopy [relfile|vite/detectServerImports.ts|]
+      genViteConfig spec
     ]
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
+    <++> genVitePlugins
   where
     genFileCopy = return . C.mkTmplFd
 

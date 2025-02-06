@@ -355,6 +355,7 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebAppGenerator.VitePlugins
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
