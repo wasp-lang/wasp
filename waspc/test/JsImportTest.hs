@@ -8,7 +8,7 @@ import Wasp.JsImport
 spec_JsImportTest :: Spec
 spec_JsImportTest = do
   describe "makeJsImport" $ do
-    it "makes JsImport with default import from a path" $ do
+    it "makes JsImport with a module import from a path" $ do
       makeJsImport testRelativeImportPath (JsImportModule "test")
         `shouldBe` JsImport
           { _path = testRelativeImportPath,
@@ -22,17 +22,24 @@ spec_JsImportTest = do
         `shouldBe` jsImport {_importAlias = Just "alias"}
   describe "getJsImportStmtAndIdentifier" $ do
     describe "generates import statement and identifier from" $ do
-      it "default import" $ do
+      it "module import" $ do
         getJsImportStmtAndIdentifier
           (makeJsImport testRelativeImportPath (JsImportModule "test"))
           `shouldBe` ("import test from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
-      it "default import with alias" $ do
+      it "module import with alias" $ do
         getJsImportStmtAndIdentifier
           ( applyJsImportAlias
               (Just "alias")
               (makeJsImport testRelativeImportPath (JsImportModule "test"))
           )
           `shouldBe` ("import alias from '" ++ generatedImportPathForRelativeImportPath ++ "'", "alias")
+      it "module import with homonymous alias" $ do
+        getJsImportStmtAndIdentifier
+          ( applyJsImportAlias
+              (Just "test")
+              (makeJsImport testRelativeImportPath (JsImportModule "test"))
+          )
+          `shouldBe` ("import test from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
       it "named import" $ do
         getJsImportStmtAndIdentifier
           (makeJsImport testRelativeImportPath (JsImportField "test"))
@@ -44,6 +51,14 @@ spec_JsImportTest = do
               (makeJsImport testRelativeImportPath (JsImportField "test"))
           )
           `shouldBe` ("import { test as alias } from '" ++ generatedImportPathForRelativeImportPath ++ "'", "alias")
+
+      it "named import with homonymous alias" $ do
+        getJsImportStmtAndIdentifier
+          ( applyJsImportAlias
+              (Just "test")
+              (makeJsImport testRelativeImportPath (JsImportField "test"))
+          )
+          `shouldBe` ("import { test } from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
       it "import from module" $ do
         getJsImportStmtAndIdentifier
           (makeJsImport testModuleImportPath (JsImportModule "test"))
