@@ -150,7 +150,7 @@ wasp new
 
 command to create a new Wasp application. I have chosen the basic template, but you are free to create a project of your choosing, e.g. [SaaS starter](https://github.com/wasp-lang/SaaS-Template-GPT) with GPT, Stripe and more preconfigured. As shown in the screenshot, we should change the current directory of our project to the proper one and then run our project with it.
 
-WSL symlinks will not work in Windows, so you need to go (in WSL) to 
+WSL symlinks will not work in Windows, so you need to go to 
 
 ```bash
  app/node_modules
@@ -162,7 +162,7 @@ and remove "wasp" symlink. Then under Windows you should execute
 mklink /J wasp "../.wasp/out/sdk/wasp" 
 ```
 
-which should bring it back. Now your IDE will recognize imports.
+which should bring it back fixed. Now your IDE will recognize imports.
 
 ```bash
 wasp start
