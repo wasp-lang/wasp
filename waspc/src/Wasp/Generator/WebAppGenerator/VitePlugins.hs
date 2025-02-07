@@ -7,7 +7,7 @@ import Wasp.Generator.Common (WebAppRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 
 genVitePlugins :: Generator [FileDraft]
 genVitePlugins = sequence [genDetectServerImportsPlugin]
@@ -17,7 +17,8 @@ genDetectServerImportsPlugin = return $ C.mkTmplFdWithData [relfile|vite/detectS
   where
     tmplData =
       object
-        [ "waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir
+        [ "waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir,
+          "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir
         ]
 
     waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)

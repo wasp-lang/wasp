@@ -2,6 +2,8 @@
 import { type Plugin } from 'vite'
 import path from 'path'
 
+const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd()
+
 export function detectServerImports(): Plugin {
   return {
     name: 'wasp-detect-server-imports',
@@ -11,11 +13,9 @@ export function detectServerImports(): Plugin {
         return
       }
 
-      const importerRelativePath = getRelativeFilePath(importer)
+      const importerRelativePath = getPathRelativeToWaspProjectDir(importer)
 
-      // Check only for imports from src/ directory which
-      // contains the user's code.
-      if (!importerRelativePath.startsWith('src/')) {
+      if (!isPathToUserCode(importerRelativePath)) {
         return
       }
 
@@ -30,26 +30,32 @@ const serverImportChecks: ImportCheckPredicate[] = [
   (moduleName: string) => moduleName.startsWith('wasp/server'),
 ]
 
-function ensureNoServerImports(source: string, relativeImporter: string): void {
+function ensureNoServerImports(source: string, relativeImporter: RelativePath): void {
   for (const check of serverImportChecks) {
     if (check(source)) {
       throw new Error(
-        `Server code cannot be imported in the client code. Import from '${source}' in '${relativeImporter}' is not allowed.`
+        `Server code cannot be imported in the client code. Import from "${source}" in "${relativeImporter.relativePath}" is not allowed.`
       )
     }
   }
 }
 
-const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd()
-
-function getRelativeFilePath(filePath: string): string {
-  return path.relative(waspProjectDirAbsPath, filePath)
+type RelativePath = {
+  relativePath: string
 }
 
-// We are not passing the waspProjectDir path from Haskell because
-// our e2e tests stop working. Becuase we need to absolute path of the
-// Wasp project directory, it contains things like the username of the
-// user running the tests, which is different on different machines.
+function getPathRelativeToWaspProjectDir(filePath: string): RelativePath {
+  return { relativePath: path.relative(waspProjectDirAbsPath, filePath) }
+}
+
+function isPathToUserCode(filePath: RelativePath): boolean {
+  return filePath.relativePath.startsWith('{= srcDirInWaspProjectDir =}')
+}
+
+// We can't pass the "waspProjectDir" path from Haskell because we need the absolute path:
+// e.g. /Users/{username}/dev/wasp/waspc/examples/todoApp
+// which contains machine specific info like the username which is different in the CI and locally.
+// This breaks our e2e tests in the CI because the path is different.
 function getWaspProjectDirAbsPathFromCwd(): string {
   const webAppDirAbsPath = process.cwd()
   const waspProjectDirAbsPath = path.join(webAppDirAbsPath, '{= waspProjectDirFromWebAppDir =}')
