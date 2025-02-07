@@ -1,8 +1,4 @@
-module Wasp.Generator.WebAppGenerator.Vite
-  ( genVite,
-    vitePlugins,
-  )
-where
+module Wasp.Generator.WebAppGenerator.Vite (genVite) where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
@@ -41,7 +37,10 @@ data WebAppVitePluginsDir
 
 genVite :: AppSpec -> Generator [FileDraft]
 genVite spec =
-  sequence [genViteConfig spec]
+  sequence
+    [ genViteConfig spec,
+      genViteTsconfigJson
+    ]
     <++> genVitePlugins
 
 vitePlugins :: [VitePlugin]
@@ -72,11 +71,12 @@ genDetectServerImportsPlugin tmplFile = return $ C.mkTmplFdWithData tmplFile tmp
 
     waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
 
--- todo(filip): Take care of this as well
+viteConfigTmplFile :: Path' (Rel WebAppTemplatesDir) File'
+viteConfigTmplFile = C.asTmplFile [relfile|vite.config.ts|]
+
 genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
+genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
   where
-    tmplFile = C.asTmplFile [relfile|vite.config.ts|]
     tmplData =
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
@@ -111,6 +111,19 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
                 SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
         importName = JsImportModule "customViteConfig"
+
+genViteTsconfigJson :: Generator FileDraft
+genViteTsconfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.vite.json|] tmplData
+  where
+    tmplData = object ["includePaths" .= includePaths]
+
+    includePaths =
+      [ SP.fromRelFile viteConfigTmplFile,
+        "./src/ext-src/vite.config.ts"
+      ]
+        ++ vitePluginPaths
+
+    vitePluginPaths = map (SP.fromRelFile . snd) vitePlugins
 
 vitePluginsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppVitePluginsDir)
 vitePluginsDirInWebAppDir = [reldir|vite|]

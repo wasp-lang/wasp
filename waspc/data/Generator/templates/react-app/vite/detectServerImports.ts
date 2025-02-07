@@ -29,7 +29,10 @@ const serverImportChecks: ImportCheckPredicate[] = [
   (moduleName: string) => moduleName.startsWith('wasp/server'),
 ]
 
-function ensureNoServerImports(source: string, relativeImporter: RelativePathToUserCode): void {
+function ensureNoServerImports(
+  source: string,
+  relativeImporter: RelativePathToUserCode
+): void {
   for (const check of serverImportChecks) {
     if (check(source)) {
       throw new Error(
@@ -41,9 +44,16 @@ function ensureNoServerImports(source: string, relativeImporter: RelativePathToU
 
 type RelativePathToUserCode = string & { _brand: 'relativePathToUserCode' }
 
-function parsePathToUserCode(importerPath: string): RelativePathToUserCode | null {
-  const importerPathRelativeToWaspProjectDir = path.relative(waspProjectDirAbsPath, importerPath)
-  return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}') ? importerPathRelativeToWaspProjectDir : null
+function parsePathToUserCode(
+  importerPath: string
+): RelativePathToUserCode | null {
+  const importerPathRelativeToWaspProjectDir = path.relative(
+    waspProjectDirAbsPath,
+    importerPath
+  )
+  return importerPathRelativeToWaspProjectDir.startsWith('src/')
+    ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
+    : null
 }
 
 // We can't pass the "waspProjectDir" path from Haskell because we need the absolute path:

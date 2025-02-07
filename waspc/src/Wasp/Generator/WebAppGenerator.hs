@@ -43,7 +43,7 @@ import Wasp.Generator.WebAppGenerator.Common
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
-import Wasp.Generator.WebAppGenerator.Vite (genVite, vitePlugins)
+import Wasp.Generator.WebAppGenerator.Vite (genVite)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
@@ -62,8 +62,7 @@ genWebApp spec = do
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      genIndexHtml spec,
-      genNodeTsConfigJson
+      genIndexHtml spec
     ]
     <++> genSrcDir spec
     <++> genPublicDir spec
@@ -231,12 +230,3 @@ getIndexTs spec =
 
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
-
-genNodeTsConfigJson :: Generator FileDraft
-genNodeTsConfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.node.json|] tmplData
-  where
-    tmplData = object ["includePaths" .= includePaths]
-
-    includePaths = ["vite.config.ts", "./src/ext-src/vite.config.ts"] ++ vitePluginPaths
-
-    vitePluginPaths = map (SP.fromRelFile . snd) vitePlugins
