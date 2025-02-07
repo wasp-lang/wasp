@@ -11,6 +11,7 @@ module Wasp.Util
     isCapitalized,
     toLowerFirst,
     toUpperFirst,
+    stripSuffixIfPresent,
     headSafe,
     second3,
     jsonSet,
@@ -54,6 +55,7 @@ import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
 import Data.List (group, intercalate, sort)
+import Data.List.Extra (stripSuffix)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
@@ -103,6 +105,10 @@ toUpperFirst = onFirst toUpper
 headSafe :: [a] -> Maybe a
 headSafe [] = Nothing
 headSafe xs = Just (head xs)
+
+stripSuffixIfPresent :: Eq a => [a] -> [a] -> [a]
+stripSuffixIfPresent suffix original =
+  fromMaybe original $ stripSuffix suffix original
 
 second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)

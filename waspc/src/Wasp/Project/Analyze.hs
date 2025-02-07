@@ -86,6 +86,7 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
   clientEnvVars <- readDotEnvClient waspDir
 
   let packageJsonContent = EC._packageJson externalConfigs
+  let tsConfigContent = EC._tsConfig externalConfigs
       srcTsConfigPath = EC._srcTsConfigPath externalConfigs
 
   let appSpec =
@@ -93,6 +94,7 @@ constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
           { AS.decls = decls,
             AS.prismaSchema = parsedPrismaSchema,
             AS.packageJson = packageJsonContent,
+            AS.tsConfig = tsConfigContent,
             AS.waspProjectDir = waspDir,
             AS.externalCodeFiles = externalCodeFiles,
             AS.externalPublicFiles = externalPublicFiles,

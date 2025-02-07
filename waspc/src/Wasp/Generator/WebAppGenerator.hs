@@ -154,6 +154,7 @@ npmDepsForWasp _spec =
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@vitejs/plugin-react", "^4.2.1"),
+            ("vite-tsconfig-paths", "^5.1.4"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^2.0.0")

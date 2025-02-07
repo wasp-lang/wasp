@@ -1,5 +1,7 @@
 {{={= =}=}}
 import esbuild from 'rollup-plugin-esbuild'
+import alias from '@rollup/plugin-alias';
+import resolve from '@rollup/plugin-node-resolve';
 
 export default [
   createBundle('src/server.ts', 'bundle/server.js'),
@@ -17,12 +19,20 @@ function createBundle(inputFilePath, outputFilePath) {
       sourcemap: true,
     },
     plugins: [
+      resolve(),
+      alias({
+        entries: [
+          {=# aliases =}
+          { find: '{= find =}', replacement: '{= replacement =}' },
+          {=/ aliases =}
+        ]
+      }),
       esbuild({
         target: 'esnext',
       }),
     ],
     // We don't want to bundle any of the node_module deps
     // as we want to keep them as external dependencies
-    external: (id) => !/^[./]/.test(id),
+    external: /node_modules/,
   }
 }

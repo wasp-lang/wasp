@@ -26,6 +26,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
+import qualified Wasp.ExternalConfig.TsConfig as TC
 import Wasp.Generator.Common
   ( ProjectRootDir,
     makeJsonWithEntityData,
@@ -37,6 +38,7 @@ import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.ImportPathAlias (createTsConfigPathsTemplateData)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -101,7 +103,7 @@ genSdk spec =
       genFileCopy [relfile|dev/index.ts|],
       genFileCopy [relfile|client/config.ts|],
       genServerConfigFile spec,
-      genTsConfigJson,
+      genTsConfigJson spec,
       genServerUtils spec,
       genPackageJson spec,
       genDbClient spec
@@ -252,15 +254,16 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
 -- ServerGenerator.
-genTsConfigJson :: Generator FileDraft
-genTsConfigJson = do
+genTsConfigJson :: AppSpec -> Generator FileDraft
+genTsConfigJson spec = do
   return $
     C.mkTmplFdWithDstAndData
       [relfile|tsconfig.json|]
       [relfile|tsconfig.json|]
       ( Just $
           object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
+              "paths" .= createTsConfigPathsTemplateData (TC.paths $ TC.compilerOptions $ AS.tsConfig spec)
             ]
       )
 

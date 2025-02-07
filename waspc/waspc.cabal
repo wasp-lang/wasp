@@ -298,6 +298,7 @@ library
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
+    Wasp.Generator.ImportPathAlias
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies

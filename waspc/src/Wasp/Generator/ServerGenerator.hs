@@ -36,6 +36,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
+import qualified Wasp.ExternalConfig.TsConfig as TC
 import Wasp.Generator.Common
   ( ServerRootDir,
     superjsonVersion,
@@ -43,6 +44,7 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import Wasp.Generator.ImportPathAlias (createRollupAliasesTemplateData)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
@@ -166,7 +168,9 @@ npmDepsForWasp spec =
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/cors", "^2.8.5"),
             ("rollup", "^4.9.6"),
-            ("rollup-plugin-esbuild", "^6.1.1")
+            ("rollup-plugin-esbuild", "^6.1.1"),
+            ("@rollup/plugin-node-resolve", "^16.0.0"),
+            ("@rollup/plugin-alias", "^5.1.1")
           ]
     }
   where
@@ -290,6 +294,6 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
-
+    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined, "aliases" .= aliases]
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+    aliases = createRollupAliasesTemplateData . TC.paths . TC.compilerOptions $ AS.tsConfig spec
