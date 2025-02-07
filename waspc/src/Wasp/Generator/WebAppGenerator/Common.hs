@@ -28,6 +28,7 @@ module Wasp.Generator.WebAppGenerator.Common
     reactQueryVersion,
     axiosVersion,
     reactVersion,
+    vitePluginsDirInWebAppDir,
   )
 where
 
@@ -62,6 +63,8 @@ data WebAppTemplatesSrcDir
 
 data WebAppStaticAssetsDir
 
+data WebAppVitePluginsDir
+
 instance GeneratedSrcDir WebAppSrcDir
 
 serverRootDirFromWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir ServerRootDir)
@@ -86,6 +89,9 @@ webAppSrcDirInWebAppRootDir = [reldir|src|]
 
 staticAssetsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppStaticAssetsDir)
 staticAssetsDirInWebAppDir = [reldir|public|]
+
+vitePluginsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppVitePluginsDir)
+vitePluginsDirInWebAppDir = [reldir|vite|]
 
 -- | Path to generated web app src/ directory, relative to the root directory of the whole generated project.
 webAppSrcDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WebAppSrcDir)

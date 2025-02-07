@@ -49,7 +49,7 @@ import Wasp.Generator.WebAppGenerator.Common
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
-import Wasp.Generator.WebAppGenerator.VitePlugins (genVitePlugins)
+import Wasp.Generator.WebAppGenerator.VitePlugins (genVitePlugins, vitePlugins)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.JsImport
   ( JsImport,
@@ -68,13 +68,13 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genAppTsConfigJson spec,
-      genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
       genIndexHtml spec,
-      genViteConfig spec
+      genViteConfig spec,
+      genNodeTsConfigJson
     ]
     <++> genSrcDir spec
     <++> genPublicDir spec
@@ -282,3 +282,12 @@ genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
                 SP.fromRelDir (Project.dotWaspDirInWaspProjectDir </> Project.generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
         importName = JsImportModule "customViteConfig"
+
+genNodeTsConfigJson :: Generator FileDraft
+genNodeTsConfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.node.json|] tmplData
+  where
+    tmplData = object ["includePaths" .= includePaths]
+
+    includePaths = ["vite.config.ts", "./src/ext-src/vite.config.ts"] ++ vitePluginPaths
+
+    vitePluginPaths = map (SP.fromRelFile . snd) vitePlugins
