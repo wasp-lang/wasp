@@ -12,7 +12,7 @@ import Wasp.JsImport as JI
 spec_GeneratorJsImportTest :: Spec
 spec_GeneratorJsImportTest = do
   describe "extImportToJsImport" $ do
-    let pathToExtCodeDir = [SP.reldirP|ext-src|] :: (Path Posix (Rel ServerSrcDir) (Dir GeneratedExternalCodeDir))
+    let pathToExtCodeDir = [SP.reldirP|src|] :: (Path Posix (Rel ServerSrcDir) (Dir GeneratedExternalCodeDir))
         pathFromImportLocationToExtCodeDir = [SP.reldirP|../|]
         extImport =
           ExtImport
@@ -22,7 +22,7 @@ spec_GeneratorJsImportTest = do
     it "makes a JsImport from ExtImport" $ do
       extImportToJsImport pathToExtCodeDir pathFromImportLocationToExtCodeDir extImport
         `shouldBe` JI.JsImport
-          { JI._path = JI.RelativeImportPath [SP.relfileP|../ext-src/folder/test.js|],
+          { JI._path = JI.RelativeImportPath [SP.relfileP|../src/folder/test.js|],
             JI._name = JsImportModule "test",
             JI._importAlias = Nothing
           }

@@ -50,9 +50,9 @@ spec_JsImportTest = do
           `shouldBe` ("import test from '" ++ generatedImportPathForModuleImportPath ++ "'", "test")
   where
     testRelativeImportPath :: JsImportPath
-    testRelativeImportPath = RelativeImportPath $ [SP.reldirP|ext-src|] </> [SP.relfileP|folder/test.js|]
+    testRelativeImportPath = RelativeImportPath $ [SP.reldirP|src|] </> [SP.relfileP|folder/test.js|]
 
-    generatedImportPathForRelativeImportPath = "./ext-src/folder/test.js"
+    generatedImportPathForRelativeImportPath = "./src/folder/test.js"
 
     testModuleImportPath :: JsImportPath
     testModuleImportPath = ModuleImportPath [SP.relfileP|wasp/server/api|]
