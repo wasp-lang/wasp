@@ -690,12 +690,12 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "0f84a09c31c7cca7d2bed4fac04c3da0ce54b0996ab80b2b54f1a6a53e6fd139"
+        "f5cc3ad419dd02d73079da1ec7fd282e09d9753594a2e08b8c4bb7a8c5b483d7"
     ],
     [
         [
             "file",
-            "web-app/tsconfig.node.json"
+            "web-app/tsconfig.vite.json"
         ],
         "bb2bf9acd6049cb78205f30d81de3ca3f105c8b881d1ab36cb68da033c59a7e8"
     ],
@@ -711,6 +711,6 @@
             "file",
             "web-app/vite/detectServerImports.ts"
         ],
-        "d3724c4ec970e8f5c39d5da60220bf52317134f55530c508ee469bef0d2cd811"
+        "f2b028d0bebc03da4413f85ac0ff1302f4f49c41261cfe24e1bc791096366f1e"
     ]
 ]
