@@ -577,6 +577,10 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
     Wasp.Cli.Command.TsConfigSetup
+    Wasp.Cli.Command.Version.Download
+    Wasp.Cli.Command.Version.Executor
+    Wasp.Cli.Command.Version.VersionManagement
+    Wasp.Cli.Command.Version.Paths
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common
@@ -594,6 +598,8 @@ executable wasp-cli
       base
     , async
     , waspc
+    , directory
+    , filepath
     , cli-lib
     , with-utf8 ^>= 1.0.2
   other-modules:

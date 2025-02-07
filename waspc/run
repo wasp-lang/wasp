@@ -19,7 +19,7 @@ RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
 BUILD_CMD="cabal build all"
-INSTALL_CMD="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh && cabal install --overwrite-policy=always"
+INSTALL_CMD="${SCRIPT_DIR}/tools/install_and_activate.sh"
 BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
 TEST_UNIT_CMD="cabal test waspc-test"
 TEST_CLI_CMD="cabal test cli-test"
@@ -66,7 +66,7 @@ print_usage () {
                     "Builds the project."
 
     print_usage_cmd "install" \
-                    "Installs the project locally using cabal (runs '${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh' and 'cabal install')."
+                    "Installs the project locally using cabal (${SCRIPT_DIR}/tools/install_and_activate.sh' manages pre- and post-installation tasks)."
     print_usage_cmd "test" \
                     "Executes all tests (unit + e2e + headless). Builds the project first if needed."
     print_usage_cmd "test:unit [pattern]" \
@@ -114,7 +114,13 @@ case $COMMAND in
         echo_and_eval "$BUILD_CMD"
         ;;
     install)
-        echo_and_eval "$INSTALL_CMD"
+        FORCE_FLAG=""
+        for arg in "${ARGS[@]}"; do
+          if [[ "$arg" == "--force" ]]; then
+            FORCE_FLAG="--force"
+          fi
+        done
+        echo_and_eval "$INSTALL_CMD $FORCE_FLAG"
         ;;
     ghcid)
         echo_and_eval "$GHCID_CMD"

@@ -11,7 +11,8 @@ data Call
   | Compile
   | Db Arguments -- db args
   | Build
-  | Version
+  | Version (Maybe String) Bool -- --force
+  | Update Bool -- --force
   | Telemetry
   | Deps
   | Dockerfile
@@ -21,6 +22,7 @@ data Call
   | GenerateBashCompletionScript
   | BashCompletionListCommands
   | WaspLS
+  | Secret Arguments -- testing versioning passthrough args
   | Deploy Arguments -- deploy cmd passthrough args
   | Test Arguments -- "client" | "server", then test cmd passthrough args
   | Unknown Arguments -- all args
