@@ -10,10 +10,6 @@ import { getName } from './user'
 // Necessary to trigger type tests.
 import './testTypes/operations/client'
 
-import { HttpError } from 'wasp/server'
-
-HttpError
-
 export function App() {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)

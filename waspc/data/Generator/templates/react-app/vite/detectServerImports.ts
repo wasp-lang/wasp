@@ -13,13 +13,12 @@ export function detectServerImports(): Plugin {
         return
       }
 
-      const importerRelativePath = getPathRelativeToWaspProjectDir(importer)
-
-      if (!isPathToUserCode(importerRelativePath)) {
+      const pathToUserCode = parsePathToUserCode(importer)
+      if (!pathToUserCode) {
         return
       }
 
-      ensureNoServerImports(source, importerRelativePath)
+      ensureNoServerImports(source, pathToUserCode)
     },
   }
 }
@@ -30,26 +29,21 @@ const serverImportChecks: ImportCheckPredicate[] = [
   (moduleName: string) => moduleName.startsWith('wasp/server'),
 ]
 
-function ensureNoServerImports(source: string, relativeImporter: RelativePath): void {
+function ensureNoServerImports(source: string, relativeImporter: RelativePathToUserCode): void {
   for (const check of serverImportChecks) {
     if (check(source)) {
       throw new Error(
-        `Server code cannot be imported in the client code. Import from "${source}" in "${relativeImporter.relativePath}" is not allowed.`
+        `Server code cannot be imported in the client code. Import from "${source}" in "${relativeImporter}" is not allowed.`
       )
     }
   }
 }
 
-type RelativePath = {
-  relativePath: string
-}
+type RelativePathToUserCode = string & { _brand: 'relativePathToUserCode' }
 
-function getPathRelativeToWaspProjectDir(filePath: string): RelativePath {
-  return { relativePath: path.relative(waspProjectDirAbsPath, filePath) }
-}
-
-function isPathToUserCode(filePath: RelativePath): boolean {
-  return filePath.relativePath.startsWith('{= srcDirInWaspProjectDir =}')
+function parsePathToUserCode(importerPath: string): RelativePathToUserCode | null {
+  const importerPathRelativeToWaspProjectDir = path.relative(waspProjectDirAbsPath, importerPath)
+  return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}') ? importerPathRelativeToWaspProjectDir : null
 }
 
 // We can't pass the "waspProjectDir" path from Haskell because we need the absolute path:
@@ -58,6 +52,5 @@ function isPathToUserCode(filePath: RelativePath): boolean {
 // This breaks our e2e tests in the CI because the path is different.
 function getWaspProjectDirAbsPathFromCwd(): string {
   const webAppDirAbsPath = process.cwd()
-  const waspProjectDirAbsPath = path.join(webAppDirAbsPath, '{= waspProjectDirFromWebAppDir =}')
-  return waspProjectDirAbsPath
+  return path.join(webAppDirAbsPath, '{= waspProjectDirFromWebAppDir =}')
 }

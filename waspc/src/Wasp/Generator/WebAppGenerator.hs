@@ -8,8 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromJust)
-import qualified FilePath.Extra as FP.Extra
 import StrongPath
   ( Dir,
     File,
@@ -23,7 +21,6 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
-import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -31,10 +28,9 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.Common (makeJsArrayFromHaskellList, typescriptVersion)
+import Wasp.Generator.Common (typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
-import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
@@ -43,23 +39,17 @@ import Wasp.Generator.WebAppGenerator.Common
     reactQueryVersion,
     reactRouterVersion,
     reactVersion,
-    webAppRootDirInProjectRootDir,
-    webAppSrcDirInWebAppRootDir,
   )
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
-import Wasp.Generator.WebAppGenerator.VitePlugins (genVitePlugins, vitePlugins)
+import Wasp.Generator.WebAppGenerator.Vite (genVite, vitePlugins)
 import qualified Wasp.Generator.WebSocket as AS.WS
-import Wasp.JsImport
-  ( JsImport,
-    JsImportName (JsImportModule),
-    JsImportPath (RelativeImportPath),
-    makeJsImport,
-  )
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, waspProjectDirFromAppComponentDir)
-import qualified Wasp.Project.Common as Project
+import Wasp.Project.Common
+  ( SrcTsConfigFile,
+    waspProjectDirFromAppComponentDir,
+  )
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -73,13 +63,12 @@ genWebApp spec = do
       genNpmrc,
       genGitignore,
       genIndexHtml spec,
-      genViteConfig spec,
       genNodeTsConfigJson
     ]
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
-    <++> genVitePlugins
+    <++> genVite spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -242,46 +231,6 @@ getIndexTs spec =
 
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
-
--- todo(filip): Take care of this as well
-genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = return $ C.mkTmplFdWithData tmplFile tmplData
-  where
-    tmplFile = C.asTmplFile [relfile|vite.config.ts|]
-    tmplData =
-      object
-        [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
-          "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
-          "defaultClientPort" .= C.defaultClientPort,
-          "vitest"
-            .= object
-              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
-              ]
-        ]
-    vitestSetupFiles =
-      [ SP.fromRelFile $
-          dotWaspDirInWaspProjectDir
-            </> generatedCodeDirInDotWaspDir
-            </> webAppRootDirInProjectRootDir
-            </> webAppSrcDirInWebAppRootDir
-            </> [relfile|test/vitest/setup.ts|]
-      ]
-
-    makeCustomViteConfigJsImport :: Path' (Rel Project.WaspProjectDir) File' -> JsImport
-    makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
-      where
-        importPath = SP.castRel $ C.toViteImportPath relPathToConfigInProjectDir
-        relPathToConfigInProjectDir = relPathFromWebAppRootDirWaspProjectDir </> (fromJust . SP.relFileToPosix $ pathToConfig)
-
-        relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir Project.WaspProjectDir)
-        relPathFromWebAppRootDirWaspProjectDir =
-          fromJust $
-            SP.parseRelDirP $
-              FP.Extra.reversePosixPath $
-                SP.fromRelDir (Project.dotWaspDirInWaspProjectDir </> Project.generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
-
-        importName = JsImportModule "customViteConfig"
 
 genNodeTsConfigJson :: Generator FileDraft
 genNodeTsConfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.node.json|] tmplData
