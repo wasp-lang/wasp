@@ -118,10 +118,7 @@ genViteTsconfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.vite.json|] 
     tmplData = object ["includePaths" .= includePaths]
 
     includePaths =
-      [ SP.fromRelFile viteConfigTmplFile,
-        "./src/ext-src/vite.config.ts"
-      ]
-        ++ vitePluginPaths
+      SP.fromRelFile viteConfigTmplFile : vitePluginPaths
 
     vitePluginPaths = map (SP.fromRelFile . snd) vitePlugins
 

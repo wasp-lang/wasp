@@ -9,7 +9,6 @@
   },
   "include": [
     "vite.config.ts",
-    "./src/ext-src/vite.config.ts",
     "vite/detectServerImports.ts",
   ]
 }
