@@ -1,7 +1,7 @@
 import { exit } from 'process';
 import { $, question } from 'zx';
 import { executeFlyCommand } from '../index.js';
-import { silence, isYes, waspSays, getCommandHelp } from './helpers.js';
+import { isYes, waspSays, getCommandHelp, silence } from '../../../helpers.js';
 
 export async function flyctlExists(): Promise<boolean> {
   try {

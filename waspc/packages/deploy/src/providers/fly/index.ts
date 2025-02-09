@@ -4,12 +4,10 @@ import { deploy as deployFn } from './deploy/deploy.js';
 import { createDb as createDbFn } from './createDb/createDb.js';
 import { cmd as cmdFn } from './cmd/cmd.js';
 import { launch as launchFn } from './launch/launch.js';
-import {
-  ensureWaspDirLooksRight,
-  ensureDirsInCmdAreAbsoluteAndPresent,
-} from './helpers/helpers.js';
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
 import { ContextOption } from './helpers/CommonOps.js';
+import { ensureWaspDirLooksRight } from '../../helpers.js';
+import { ensureDirsInFlyCmdAreAbsoluteAndPresent } from './helpers/helpers.js';
 
 class FlyCommand extends Command {
   addBasenameArgument(): this {
@@ -88,7 +86,7 @@ export function addFlyCommand(program: Command): void {
       .option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
       .option('--org <org>', 'Fly org to use (with commands that support it)')
       .hook('preAction', ensureFlyReady)
-      .hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)
+      .hook('preAction', ensureDirsInFlyCmdAreAbsoluteAndPresent)
       .hook('preAction', ensureWaspDirLooksRight);
   });
 

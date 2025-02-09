@@ -1,14 +1,22 @@
 import { exit } from 'process';
 import { LaunchOptions } from './LaunchOptions.js';
 import { DeployOptions } from '../deploy/DeployOptions.js';
-import { getCommandHelp, waspSays } from '../helpers/helpers.js';
 import { setup } from '../setup/setup.js';
 import { createDb } from '../createDb/createDb.js';
 import { deploy } from '../deploy/deploy.js';
-import { clientTomlExistsInProject, getTomlFilePaths, serverTomlExistsInProject } from '../helpers/tomlFileHelpers.js';
+import {
+  clientTomlExistsInProject,
+  getTomlFilePaths,
+  serverTomlExistsInProject,
+} from '../helpers/tomlFileHelpers.js';
 import { createFlyDbCommand, flyDeployCommand, flySetupCommand } from '../index.js';
+import { waspSays, getCommandHelp } from '../../../helpers.js';
 
-export async function launch(basename: string, region: string, options: LaunchOptions): Promise<void> {
+export async function launch(
+  basename: string,
+  region: string,
+  options: LaunchOptions
+): Promise<void> {
   waspSays('Launching your Wasp app to Fly.io!');
 
   const tomlFilePaths = getTomlFilePaths(options);
