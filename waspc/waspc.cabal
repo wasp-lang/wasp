@@ -11,6 +11,7 @@ description:    Please see the README on GitHub at <https://github.com/wasp-lang
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
 author:         Wasp Team
+-- TODO: update the email once we setup @wasp.sh email.
 maintainer:     team@wasp-lang.dev
 copyright:      Wasp, Inc.
 license:        MIT

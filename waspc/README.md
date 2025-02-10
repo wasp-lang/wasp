@@ -2,7 +2,7 @@
 
 This directory contains source code of the `wasp` compiler (aka `waspc`), and this README is aimed at the contributors to the project.
 
-If you are a Wasp user and not a contributor (yet :)), you might want to look into following resources instead ([**Project page**](https://wasp-lang.dev), [**Docs**](https://wasp-lang.dev/docs)).
+If you are a Wasp user and not a contributor (yet :)), you might want to look into following resources instead ([**Project page**](https://wasp.sh), [**Docs**](https://wasp.sh/docs)).
 
 ## First time contributor checklist
 
@@ -71,7 +71,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 :warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
 
-:warning: If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. *~/.bashrc* or *~/.zshrc*): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
+:warning: If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
 
 ### Test
 
@@ -131,7 +131,7 @@ NOTE: Reload page if blank.
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
 10. Work with reviewer(s) to get the PR approved.
-   Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
+    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
 11. Reviewer will merge the branch into `main`. Yay!
 
 NOTE: Why don't we use a cabal freeze file to lock our dependencies?
@@ -453,7 +453,7 @@ If doing this, steps are the following:
 
 ## Documentation
 
-External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog.
+External documentation, for users of Wasp, is hosted at https://wasp.sh/docs, and its source is available at [web/docs](/web/docs), next to the website and blog.
 
 ## Mage
 
