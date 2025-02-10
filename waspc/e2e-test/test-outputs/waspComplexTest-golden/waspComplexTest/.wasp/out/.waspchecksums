@@ -865,7 +865,7 @@
             "file",
             "Dockerfile"
         ],
-        "94b45c62cbed2fcb04c69643da5047c27c5eb0acb78b7c164d083a5c30e7c1d1"
+        "a4b36610850c08382feef47bcddfc6280e7c34b64459497d0f81227751525156"
     ],
     [
         [
@@ -914,14 +914,14 @@
             "file",
             "server/package.json"
         ],
-        "ddda728300aaca5ccbd8342479cede7930cd5841c01f048415da8172314a1e0a"
+        "4d72e95d0a9dc099f58fe6a5e80c677aabadac7c498c5a03b510db57126386c5"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
+        "3ebb3ad0b85eb393862b12bcf3b087bc852e768ea4fbcc5d90d4265f85fac7cb"
     ],
     [
         [
