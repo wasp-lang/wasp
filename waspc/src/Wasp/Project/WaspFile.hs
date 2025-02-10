@@ -32,7 +32,7 @@ findWaspFile waspDir = do
   let dotWaspPath = waspDir </> [relfile|.wasp|]
   isFile <- IOUtil.doesFileExist dotWaspPath
   if isFile
-    then return $ Left "Invalid file name for the .wasp file. Please rename it to [something].wasp."
+    then return $ Left "Your Wasp file can't be called just '.wasp'. Please rename it to [something].wasp."
     else do
       files <- fst <$> IOUtil.listDirectory waspDir
       return $ case (findWaspTsFile files, findWaspLangFile files) of
