@@ -16,19 +16,10 @@ import { getExistingProject, getServiceUrl } from '../helpers/railwayHelpers.js'
 export async function setup(baseName: string, options: SetupOptions): Promise<void> {
   waspSays('Setting up your Wasp app with Railway!');
 
-  const buildWasp = makeIdempotent(async () => {
-    if (options.skipBuild) {
-      return;
-    }
-
-    waspSays('Building your Wasp app...');
-    cd(options.waspProjectDir);
-    await $`${options.waspExe} build`;
-  });
+  // Railway CLI links projects to the current directory
+  cd(options.waspProjectDir);
 
   const deploymentInfo = createDeploymentInfo(baseName, options);
-
-  await buildWasp();
 
   const existingProject = await getExistingProject(options.railwayExe);
 
@@ -42,7 +33,27 @@ export async function setup(baseName: string, options: SetupOptions): Promise<vo
     waspSays(`Project with name ${baseName} already exists. Skipping project creation.`);
   } else {
     await setupProject(deploymentInfo);
+    // Check if the project was created successfully...
+    const newlyCreatedProject = await getExistingProject(options.railwayExe);
+    if (!newlyCreatedProject) {
+      waspSays('Project creation failed. Exiting...');
+      exit(1);
+    } else {
+      waspSays('Project created successfully!');
+    }
   }
+
+  const buildWasp = makeIdempotent(async () => {
+    if (options.skipBuild) {
+      return;
+    }
+
+    waspSays('Building your Wasp app...');
+    cd(options.waspProjectDir);
+    await $`${options.waspExe} build`;
+  });
+
+  await buildWasp();
 
   if (existingProject && existingProject.serviceNames.includes(deploymentInfo.dbName)) {
     waspSays('Postgres service already exists. Skipping database setup.');
@@ -87,15 +98,17 @@ async function setupServer({
 
   const randomString = crypto.randomBytes(32).toString('hex');
   // Making sure the client URL is available before setting up the server.
-  const _clientUrl = await getServiceUrl(options.railwayExe, clientName, clientAppPort);
+  await getServiceUrl(options.railwayExe, clientName, clientAppPort);
 
+  const clientUrl = `https://\${{${clientName}.RAILWAY_PUBLIC_DOMAIN}}`;
+  const serverUrl = 'https://${{RAILWAY_PUBLIC_DOMAIN}}';
   const addCmdArgs = [
     'add',
     ['--service', serverName],
     ['--variables', `PORT=${serverAppPort}`],
     ['--variables', `JWT_SECRET=${randomString}`],
-    ['--variables', 'WASP_SERVER_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}'],
-    ['--variables', `WASP_WEB_CLIENT_URL=\${{${clientName}.RAILWAY_PUBLIC_DOMAIN}}`],
+    ['--variables', `WASP_SERVER_URL=${serverUrl}`],
+    ['--variables', `WASP_WEB_CLIENT_URL=${clientUrl}`],
     ['--variables', `DATABASE_URL=\${{${dbName}.DATABASE_URL}}`],
     ...options.serverSecret.map((secret) => ['--variables', secret]),
   ].flat();

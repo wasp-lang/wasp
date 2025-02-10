@@ -77,7 +77,8 @@ export async function getExistingProject(railwayExe: string): Promise<{
       projectName: json.name,
       serviceNames: json.services.edges.map((edge: { node: { name: string } }) => edge.node.name),
     };
-  } catch {
+  } catch (e: unknown) {
+    console.error(e);
     return null;
   }
 }

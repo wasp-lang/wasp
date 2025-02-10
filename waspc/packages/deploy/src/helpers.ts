@@ -36,24 +36,24 @@ export function cdToClientBuildDir(waspProjectDir: string): void {
   cd(webAppBuildDir);
 }
 
-export function getServerArtefactsDir(waspProjectDir: string) {
+export function getServerArtefactsDir(waspProjectDir: string): string {
   return getServerBuildDir(waspProjectDir);
 }
 
-export function getWebAppArtefactsDir(waspProjectDir: string) {
+export function getWebAppArtefactsDir(waspProjectDir: string): string {
   const webAppBuildDir = getWebAppBuildDir(waspProjectDir);
   return path.join(webAppBuildDir, 'build');
 }
 
-function getWaspBuildDir(waspProjectDir: string) {
+function getWaspBuildDir(waspProjectDir: string): string {
   return path.join(waspProjectDir, '.wasp', 'build');
 }
 
-function getServerBuildDir(waspProjectDir: string) {
+function getServerBuildDir(waspProjectDir: string): string {
   return getWaspBuildDir(waspProjectDir);
 }
 
-function getWebAppBuildDir(waspProjectDir: string) {
+function getWebAppBuildDir(waspProjectDir: string): string {
   return path.join(getWaspBuildDir(waspProjectDir), 'web-app');
 }
 

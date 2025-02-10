@@ -12,10 +12,20 @@ import {
   getServerArtefactsDir,
 } from '../../../helpers.js';
 import { clientAppPort, serverAppPort } from '../helpers/ports.js';
-import { getServiceUrl } from '../helpers/railwayHelpers.js';
+import { getExistingProject, getServiceUrl } from '../helpers/railwayHelpers.js';
+import { exit } from 'process';
 
 // TODO: introduce a deployment.json file to store the deployment info so we can pick it up later
 export async function deploy(baseName: string, options: DeployOptions): Promise<void> {
+  // Railway CLI links projects to the current directory
+  cd(options.waspProjectDir);
+
+  const existingProject = await getExistingProject(options.railwayExe);
+  if (!existingProject) {
+    waspSays('No Railway project detected. Please run "wasp deploy railway setup" first.');
+    exit(1);
+  }
+
   waspSays('Deploying your Wasp app to Railway!');
 
   const buildWasp = makeIdempotent(async () => {
