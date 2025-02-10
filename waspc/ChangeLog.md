@@ -1,6 +1,18 @@
 # Changelog
 
-## 0.16.0
+## 0.16.1
+
+### 🎉 New Features and improvements
+
+- TypeScript error messages now match the user's directory structure ([#2486](https://github.com/wasp-lang/wasp/pull/2486)).
+- Wasp's WSL guide now includes up to date Docker post-installation steps ([#2452](https://github.com/wasp-lang/wasp/pull/2452)).
+
+### Bug fixes
+
+- Session ID is no longer removed when the user logs out from a different tab ([#2075](https://github.com/wasp-lang/wasp/issues/2075)).
+- Using operations on the server no longer breaks relative extensionless imports ([#2492](https://github.com/wasp-lang/wasp/issues/2492)).
+
+## 1.16.0
 
 ### 🎉 New Features and improvements
 
@@ -62,9 +74,7 @@ Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/in
       "skipLibCheck": true,
       "outDir": ".wasp/out/user"
     },
-    "include": [
-      "src"
-    ]
+    "include": ["src"]
   }
   ```
 
