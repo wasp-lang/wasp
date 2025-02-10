@@ -55,7 +55,7 @@ To use auth hooks, you must first declare them in the Wasp file:
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "{latestWaspVersion}"
   },
   auth: {
     userEntity: User,
@@ -77,7 +77,7 @@ app myApp {
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "{latestWaspVersion}"
   },
   auth: {
     userEntity: User,
@@ -583,7 +583,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "{latestWaspVersion}"
   },
   auth: {
     userEntity: User,
@@ -605,7 +605,7 @@ app myApp {
 ```wasp
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "{latestWaspVersion}"
   },
   auth: {
     userEntity: User,
