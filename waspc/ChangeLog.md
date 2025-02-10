@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.2
+
+### 🎉 New Features and improvements
+
+- Wasp has got a new https://wasp.sh domain! This migrates the wasp-lang.dev domain mentions to wasp.sh.
+
 ## 0.16.1
 
 ### 🎉 New Features and improvements
