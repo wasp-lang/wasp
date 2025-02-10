@@ -174,6 +174,28 @@ git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/bin/git
 
 This allows us to share our Git username and password. Anything set up in Windows will work in WSL (and vice-versa) and we can use Git inside WSL as we prefer (via VS Code GUI or via shell).
 
+### Docker post-installation steps
+
+If you are running a PostgreSQL database locally (especially if you are using OpenSaas), it is recommended to complete those post-install steps in WSL, based on the official [Docker](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user) guide. These work if you are experiencing an error similar to this: `docker: Error response from daemon: Ports are not available: .......`
+
+First, run
+
+```bash
+sudo groupadd docker
+```
+
+command to create the `docker` group in case it doesn't exist. If it exists, don't worry, just continue with next steps. After that, add your current user to docker group by running
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+where $USER is your username. After that, log out and log back in to apply the changes. Finally, run
+
+```bash
+su -s $USER
+```
+
 ## Conclusion
 
 Through our journey here, we have learned what WSL is, how it can be useful for enhancing our workflow with our Windows PC, but also how to set up your initial development environment on it. Microsoft has done a fantastic job with this tool and has really made Windows OS a much more approachable and viable option for all developers. We went through how to install the dev tools needed to kickstart development and how to get a handle on a basic dev workflow. Here are some important links if you want to dive deeper into the topic:
@@ -181,3 +203,7 @@ Through our journey here, we have learned what WSL is, how it can be useful for 
 - [https://github.com/microsoft/WSL](https://github.com/microsoft/WSL)
 - [https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)
 - [https://code.visualstudio.com/docs/remote/wsl](https://code.visualstudio.com/docs/remote/wsl)
+
+```
+
+```
