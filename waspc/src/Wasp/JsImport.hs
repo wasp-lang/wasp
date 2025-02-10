@@ -11,7 +11,6 @@ module Wasp.JsImport
     applyJsImportAlias,
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
-    getJsImportStmtAndIdentifierRaw,
   )
 where
 
@@ -71,42 +70,25 @@ applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
-  getJsImportStmtAndIdentifierRaw filePath importName maybeImportAlias
-  where
-    filePath = case importPath of
-      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
-      ModuleImportPath pathString -> SP.fromRelFileP pathString
-    normalizePath path = if ".." `isPrefixOf` path then path else "./" ++ path
-
--- todo(filip): attempt to simplify how we generate imports. I wanted to generate a
--- module import (e.g., '@ext-src/something') and couldn't do it. This is one of
--- the funtions I implemented while I was trying to pull it off.
-getJsImportStmtAndIdentifierRaw ::
-  FilePath ->
-  JsImportName ->
-  Maybe JsImportAlias ->
-  (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifierRaw importPath importName maybeImportAlias =
   (importStatement, importIdentifier)
   where
-    (importIdentifier, importClause) = jsImportIdentifierAndClause
-    importStatement = "import " ++ importClause ++ " from '" ++ importPath ++ "'"
+    importStatement = "import " ++ importClause ++ " from '" ++ pathString ++ "'"
+    (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
+    pathString = case importPath of
+      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
+      ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+    normalizePath path
+      | ".." `isPrefixOf` path = path
+      | otherwise = "./" ++ path
 
-    -- First part of import statement based on type of import and alias
-    -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
-    -- e.g. for import Name from "file.js" it returns ("Name", "Name")
-    jsImportIdentifierAndClause :: (JsImportIdentifier, JsImportClause)
-    jsImportIdentifierAndClause = case importName of
-      JsImportModule defaultImport -> getForDefault defaultImport maybeImportAlias
-      JsImportField namedImport -> getForNamed namedImport maybeImportAlias
-      where
-        getForDefault :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
-        getForDefault identifier Nothing = (identifier, identifier)
-        getForDefault _ (Just importAlias) = (importAlias, importAlias)
-
-        getForNamed :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
-        getForNamed identifier Nothing = (identifier, "{ " ++ identifier ++ " }")
-        getForNamed identifier (Just importAlias) = (importAlias, "{ " ++ resolvedIdentifier ++ " }")
-          where
-            resolvedIdentifier =
-              if identifier == importAlias then identifier else identifier ++ " as " ++ importAlias
+-- First part of import statement based on type of import and alias
+-- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
+-- e.g. for import Name from "file.js" it returns ("Name", "Name")
+getJsImportIdentifierAndClause :: JsImportName -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
+getJsImportIdentifierAndClause importName maybeImportAlias = case (importName, maybeImportAlias) of
+  (JsImportModule moduleName, Nothing) -> (moduleName, moduleName)
+  (JsImportModule _, Just alias) -> (alias, alias)
+  (JsImportField fieldName, Nothing) -> (fieldName, "{ " ++ fieldName ++ " }")
+  (JsImportField fieldName, Just alias)
+    | fieldName == alias -> (fieldName, "{ " ++ fieldName ++ " }")
+    | otherwise -> (alias, "{ " ++ fieldName ++ " as " ++ alias ++ " }")

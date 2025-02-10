@@ -173,7 +173,8 @@ npmDepsForWasp spec =
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/cors", "^2.8.5"),
             ("rollup", "^4.9.6"),
-            ("rollup-plugin-esbuild", "^6.1.1")
+            ("rollup-plugin-esbuild", "^6.1.1"),
+            ("@rollup/plugin-node-resolve", "^16.0.0")
           ]
     }
   where

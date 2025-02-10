@@ -9,7 +9,7 @@ const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    history.push('/blog/2024/09/30/wasp-launch-week-7')
+    history.push('/blog/2025/01/09/wasp-launch-week-8')
 
     // window.open('https://magic-app-generator.wasp-lang.dev/')
     //window.open('https://www.producthunt.com/posts/open-saas')
@@ -44,7 +44,7 @@ const Announcement = () => {
       >
         <span className="item-center flex gap-2 px-3">
           <span>
-            <b>🐝 Wasp v0.15 is here! 🐝</b>
+            <b>🐝 Wasp v0.16 is here! 🐝</b>
           </span>
         </span>
 

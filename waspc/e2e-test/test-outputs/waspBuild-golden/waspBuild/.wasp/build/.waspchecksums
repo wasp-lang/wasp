@@ -191,37 +191,9 @@
     [
         [
             "file",
-            "../out/sdk/wasp/ext-src/Main.css"
-        ],
-        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/MainPage.jsx"
-        ],
-        "bd452ce5b469d3b48e69705daaa07e339d9d0e9d88a99a74c2ace9fa6d6299e7"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/vite-env.d.ts"
-        ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
-    ],
-    [
-        [
-            "file",
             "../out/sdk/wasp/package.json"
         ],
-        "b991fb5ade61a662dea3f21bf09aa30379f30ea76204a369c0800b1413256a64"
+        "4f42d08a2d0a0f0ccfeeca7fecdd99e57b10ecdc8b9b0e374292114c3602f850"
     ],
     [
         [
@@ -359,6 +331,34 @@
     [
         [
             "file",
+            "../out/sdk/wasp/src/Main.css"
+        ],
+        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/MainPage.jsx"
+        ],
+        "bd452ce5b469d3b48e69705daaa07e339d9d0e9d88a99a74c2ace9fa6d6299e7"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/vite-env.d.ts"
+        ],
+        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/waspLogo.png"
+        ],
+        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
         "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
@@ -410,7 +410,7 @@
             "file",
             "Dockerfile"
         ],
-        "20694e4dd2e7d96d8752ee3d792d4d8b63c46d7a4505c5312923a749146604b7"
+        "7ce6a077005efa9ce351dff7fe4ca77252ebad497f65c93ea905b0723924a528"
     ],
     [
         [
@@ -452,14 +452,14 @@
             "file",
             "server/package.json"
         ],
-        "eaaa1e16e4962f38deb7220a7439a26b920ed7f852890242d084b4cebc63b7c3"
+        "4e00a2e103620cbc4a96f62181d6cb86fe4ec0703ad9d7534e57ff4462ade748"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
+        "3ebb3ad0b85eb393862b12bcf3b087bc852e768ea4fbcc5d90d4265f85fac7cb"
     ],
     [
         [
@@ -683,13 +683,13 @@
             "file",
             "web-app/tsconfig.node.json"
         ],
-        "ed42a259d45429569d3c5182e40e008b4c2bffd9c49a643019e8542035d21b7c"
+        "f795ffe562beb340337d217cf5e00ac44eced326e724b4fc30a92a787c247919"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "64256d93d81f6192f419e836ed4484f0e8c1e28f018bfb3213851608200594ac"
+        "7c1153a42980755044853a438a70a6bef62d7ca59d94a605fe9625b1d8581d2f"
     ]
 ]
