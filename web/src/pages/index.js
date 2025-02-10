@@ -45,7 +45,7 @@ const Index = () => {
       <Head>
         {/* opengraph / facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://wasp-lang.dev/" />
+        <meta property="og:url" content="https://wasp.sh/" />
         <meta
           property="og:description"
           content="Develop full-stack web apps without boilerplate."
@@ -53,7 +53,7 @@ const Index = () => {
         <meta property="og:image" content={coverPhotoAbsoluteUrl} />
         {/* twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://wasp-lang.dev/" />
+        <meta property="twitter:url" content="https://wasp.sh/" />
         <meta
           property="twitter:title"
           content="Develop full-stack web apps without boilerplate."
