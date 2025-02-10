@@ -6,6 +6,7 @@ import { defaultExclude } from "vitest/config"
 
 {=# customViteConfig.isDefined =}
 // Ignoring the TS error because we are importing a file outside of TS root dir.
+// @ts-ignore
 {=& customViteConfig.importStatement =}
 const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
 {=/ customViteConfig.isDefined =}
