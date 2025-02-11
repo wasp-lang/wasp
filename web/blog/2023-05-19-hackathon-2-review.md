@@ -8,7 +8,7 @@ tags: [fullstack, webdev, hackathon, startups]
 import ImgWithCaption from './components/ImgWithCaption'
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-To finalize [Wasp's Launch Week #2](https://wasp-lang.dev/blog/2023/04/11/wasp-launch-week-two), we held our second Hackathon. Just like the "Betathon" before it, it was an open hackathon where the only requirement was to build something cool with Wasp! 
+To finalize [Wasp's Launch Week #2](https://wasp.sh/blog/2023/04/11/wasp-launch-week-two), we held our second Hackathon. Just like the "Betathon" before it, it was an open hackathon where the only requirement was to build something cool with Wasp! 
 
 In this post, I’ll give a quick overview of:
 
@@ -110,7 +110,7 @@ Something new we did this time was hold a post-hackathon presentation event on D
 
 ## Promotion
 
-As of late, we've made an effort to promote exemplary apps built with Wasp, as well as create some of our own. This has been a great way to show off Wasp's capabilities, and has resulted in a noticeable increase in interest and traffic. Therefore, for the Hackathon, we let the organic interest in Wasp be the driver for the Hackathon, as we didn't do much promotion outside of our own channels, nor did we partner with any other sponsors this time. We simply announced the Hackathon and directed people to our [Hacakthon homepage](https://betathon.wasp-lang.dev) we created.
+As of late, we've made an effort to promote exemplary apps built with Wasp, as well as create some of our own. This has been a great way to show off Wasp's capabilities, and has resulted in a noticeable increase in interest and traffic. Therefore, for the Hackathon, we let the organic interest in Wasp be the driver for the Hackathon, as we didn't do much promotion outside of our own channels, nor did we partner with any other sponsors this time. We simply announced the Hackathon and directed people to our [Hacakthon homepage](https://betathon.wasp.sh) we created.
 
 The hackathon page is nice to have as a central spot for all the rules and relevant info. We also added a fun intro video using AI-generated narration of a possibly well-known actor 😎. Overall, the effort put into the homepage gives participants the feeling that they’re entering into a serious contest and committing to something of substance, while the light-heartedness of the promotion material lets them know that it's more about fun than serious prizes. But even in the abscence of big winnings, the quality of the submissions were suprisingly high. Intrinsic motivation, ftw! 🤩
 

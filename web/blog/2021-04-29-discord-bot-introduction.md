@@ -15,7 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </figure>
 </p>
 
-At [Wasp](https://wasp-lang.dev), we have a Discord server for our community, where we talk with people interested in and using Wasp - Waspeteers!
+At [Wasp](https://wasp.sh), we have a Discord server for our community, where we talk with people interested in and using Wasp - Waspeteers!
 
 In the beginning, we knew everybody in the community by their name, but as it started growing, we had a lot of people joining that never wrote anything, and the community started feeling less homey, less intimate.
 
@@ -215,7 +215,7 @@ and if you assign yourself a `Guest` role on the Discord server and then type `!
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we have updated our Deployment docs with new recommendations: https://wasp-lang.dev/docs/deploying
+As such, we have updated our Deployment docs with new recommendations: https://wasp.sh/docs/deploying
 :::
 
 While there are many ways to deploy the Discord bot, I will shortly describe how we did it via Heroku.

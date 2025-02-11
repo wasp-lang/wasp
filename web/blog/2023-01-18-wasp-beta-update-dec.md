@@ -122,7 +122,7 @@ Beta was great and it brought us to [2,234 stars](https://github.com/wasp-lang/w
     source="img/update-dec-23/gh-stars.png"
 />
 
-And if you haven't yet, please [star us on Github](https://wasp-lang.dev/docs)! Yes, we are shameless star beggars, but if you believe in the project and want to support it that's one of the best ways to do it (next to actually building something with Wasp - [go do that too](https://wasp-lang.dev/docs)! :D)
+And if you haven't yet, please [star us on Github](https://wasp.sh/docs)! Yes, we are shameless star beggars, but if you believe in the project and want to support it that's one of the best ways to do it (next to actually building something with Wasp - [go do that too](https://wasp.sh/docs)! :D)
 
 And before you leave, here's a photo of a squishy wasp (ok, it's a bumblebee, but you get it) proudly rocking Wasp swag 🤘 🐝 (yep, we got a bunch of these for the office, you can also see Martin the background :D)!
 

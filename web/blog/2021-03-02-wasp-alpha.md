@@ -20,7 +20,7 @@ Subject idea: Using domain specific language to do web development with no boile
   />
 </p>
 
-For the last year and a half, my twin brother and I have been working on [Wasp](https://wasp-lang.dev): a new programming language for developing full-stack web apps with less code.
+For the last year and a half, my twin brother and I have been working on [Wasp](https://wasp.sh): a new programming language for developing full-stack web apps with less code.
 
 Wasp is a **simple declarative language** that makes developing web apps easy while still allowing you to use the latest technologies like **React, Node.js, and Prisma**.
 
@@ -148,6 +148,6 @@ Also, Wasp wouldn't be tied to the specific technology but rather support multip
  - ⏳ support for different languages on the backend
  - ⏳ richer wasp language with better tooling 
 
-**You can check out our repo** at https://github.com/wasp-lang/wasp and **give it a try** at https://wasp-lang.dev/docs -> we are always looking for feedback and suggestions on how to shape Wasp!
+**You can check out our repo** at https://github.com/wasp-lang/wasp and **give it a try** at https://wasp.sh/docs -> we are always looking for feedback and suggestions on how to shape Wasp!
 
 We also have a **community** on [Discord](https://discord.com/invite/rzdnErX), where we chat about Wasp-related stuff - join us to see what we are up to, share your opinions or get help with your Wasp project.

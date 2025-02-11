@@ -57,7 +57,7 @@ For example:
 
 - Instead of declaring that “the founders are reflective, thoughtful, and persistent,” show them how so, like Sarah from Canny does by writing comprehensive year-in-review blog posts for [four years in a row](https://canny.io/blog/year-four-in-review/).
 - Instead of proclaiming that “the founders are humble and can have fun,” show them how so, like Michael from Fibery did by becoming a hero of [this hilarious page](https://fibery.io/remote). (No businessy founder would ever agree to make this public. Michael did.)
-- Instead of purporting that “the team is great” or “you’ll work alongside very smart people” (God, I hate that one!), show them who exactly those people are, as PostHog does [here](https://posthog.com/handbook/company/team) and Wasp does [here](https://wasp-lang.dev/blog/2021/12/21/shayne-intro) and [here](https://wasp-lang.dev/blog/2022/05/31/filip-intro).
+- Instead of purporting that “the team is great” or “you’ll work alongside very smart people” (God, I hate that one!), show them who exactly those people are, as PostHog does [here](https://posthog.com/handbook/company/team) and Wasp does [here](https://wasp.sh/blog/2021/12/21/shayne-intro) and [here](https://wasp.sh/blog/2022/05/31/filip-intro).
 
 In the rest of the post, I’ll go through the four broad reasons to join a startup one by one and show real-life examples of communicating them well. In the end, I will explain how these four reasons, communicated well, fuse into two compelling messages that will interest any candidate.
 
@@ -288,8 +288,8 @@ Finally, PostHog’s handbook offers two more sections where candidates can lear
 
 To help candidates understand who they will be working with, we at Wasp write a blog post about each new hire:
 
-- [Meet the team - Filip Sodić, Founding Engineer](https://wasp-lang.dev/blog/2022/05/31/filip-intro)
-- [Meet the team - Shayne Czyzewski, Founding Engineer](https://wasp-lang.dev/blog/2021/12/21/shayne-intro)
+- [Meet the team - Filip Sodić, Founding Engineer](https://wasp.sh/blog/2022/05/31/filip-intro)
+- [Meet the team - Shayne Czyzewski, Founding Engineer](https://wasp.sh/blog/2021/12/21/shayne-intro)
 
 The posts are brief enough to be read in one sitting. Yet, they are very informative. Basically, each post is an interview, presented as an article. We hope they give candidates a good idea of who they'll be spending half of their waking time with.
 
@@ -427,7 +427,7 @@ In summary, if Canny’s weapon of choice is the blog and Fibery’s is the webs
 
 Unlike Posthog, we at Wasp don’t (yet) have a dedicated Culture page. We are too small for that. But that doesn’t stop us from showing what working at Wasp feels like. We just use different tools.
 
-Our [Twitter](https://twitter.com/WaspLang), [blog](https://wasp-lang.dev/blog), and [monthly updates](https://us4.campaign-archive.com/home/?u=8139c7de74df98aa17054b235&id=f0c6ba5f1d) abound with memes, GIFs, and hilarious imagery. Plus, we write them in a humorous, lighthearted, easygoing style. By just scrolling through these things for a few minutes, candidates can understand that we aren’t some corporate bros. And if they like working on interesting things *while having fun*, they won’t help but feel an inkling to reach out.
+Our [Twitter](https://twitter.com/WaspLang), [blog](https://wasp.sh/blog), and [monthly updates](https://us4.campaign-archive.com/home/?u=8139c7de74df98aa17054b235&id=f0c6ba5f1d) abound with memes, GIFs, and hilarious imagery. Plus, we write them in a humorous, lighthearted, easygoing style. By just scrolling through these things for a few minutes, candidates can understand that we aren’t some corporate bros. And if they like working on interesting things *while having fun*, they won’t help but feel an inkling to reach out.
 
 <ImgWithCaption
     alt="A funny image from Wasp's blog post about GitHub Copilot"
@@ -553,9 +553,9 @@ Here’s the section titles:
 
 For each milestone, Matija and Martin (Wasp founders) write a blog post describing not only what they accomplished but also *how* they did it.
 
-For example, when Wasp got into YC, they didn’t just post the news on Twitter. They wrote a blog about [their journey to Y Combinator](https://wasp-lang.dev/blog/2021/02/23/journey-to-ycombinator). It got thousands of views.
+For example, when Wasp got into YC, they didn’t just post the news on Twitter. They wrote a blog about [their journey to Y Combinator](https://wasp.sh/blog/2021/02/23/journey-to-ycombinator). It got thousands of views.
 
-Same with fundraising. When Wasp closed a $1.5m seed, Matija documented and shared their fundraising learnings in [a blog post](https://wasp-lang.dev/blog/2021/11/22/fundraising-learnings). It ended up on the HN frontpage. (Incidentally, this post communicates something important about the founders. It takes persistence to run 250+ meetings in 98 days.)
+Same with fundraising. When Wasp closed a $1.5m seed, Matija documented and shared their fundraising learnings in [a blog post](https://wasp.sh/blog/2021/11/22/fundraising-learnings). It ended up on the HN frontpage. (Incidentally, this post communicates something important about the founders. It takes persistence to run 250+ meetings in 98 days.)
 
 <ImgWithCaption
     alt="A screenshot of Wasp's fundraising learnings blog post"

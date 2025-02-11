@@ -76,7 +76,7 @@ The final cool thing I want to highlight is Linux GUI apps. It is a very cool fe
 
 ## Getting started with development on WSL
 
-After hearing all about the cool features of WSL, let’s slowly get back on track with our tutorial. Next up is setting up our dev environment and starting our first app. I’ll be setting up a web dev environment and we’ll use [Wasp](https://wasp-lang.dev/) as an example.
+After hearing all about the cool features of WSL, let’s slowly get back on track with our tutorial. Next up is setting up our dev environment and starting our first app. I’ll be setting up a web dev environment and we’ll use [Wasp](https://wasp.sh/) as an example.
 
 If you aren’t familiar with it, Wasp is a Rails-like framework for React, Node.js, and Prisma. It’s a fast and easy way to develop and deploy your full-stack web apps. For our tutorial, Wasp is a perfect candidate, since it doesn’t support Windows development natively, but only through WSL as it requires a Unix environment.
 
@@ -101,7 +101,7 @@ After this, we have both Node.js and NVM set up in our system.
 Next up is installing Wasp on our Linux environment. Wasp installation is also pretty straightforward and easy. So just copy and paste this command:
 
 ```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 and wait for the installer to finish up its thing. Great! But, if you did your WSL setup from 0, you will notice the following warning underneath: It looks like '/home/boris/.local/bin' is not on your PATH! You will not be able to invoke wasp from the terminal by its name.

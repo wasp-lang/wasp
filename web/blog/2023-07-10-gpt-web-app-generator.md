@@ -18,7 +18,7 @@ This project started out as an experiment - we were interested if, given a short
 
 ## How it works
 
-All you have to do in order to use [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/) is **provide a short description of your app idea in plain English**. You can optionally select your app's brand color and the preferred authentication method (more methods coming soon).
+All you have to do in order to use [GPT Web App Generator](https://magic-app-generator.wasp.sh/) is **provide a short description of your app idea in plain English**. You can optionally select your app's brand color and the preferred authentication method (more methods coming soon).
 
 <ImgWithCaption
     source="img/gpt-wasp/how-it-works.gif"
@@ -34,7 +34,7 @@ See a full one-minute demo here:
 
 <br/>
 
-Check out [this blog post](https://wasp-lang.dev/blog/2023/07/17/how-we-built-gpt-web-app-generator) if you are interested in technical details of how implemented the Generator!
+Check out [this blog post](https://wasp.sh/blog/2023/07/17/how-we-built-gpt-web-app-generator) if you are interested in technical details of how implemented the Generator!
 
 ## The stack 📚
 
@@ -62,13 +62,13 @@ The generated apps are full-stack and consist of front-end, back-end and databas
     source="img/gpt-wasp/my-plants.png"
 />
 
-- See the generated code and run it yourself [here](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c)
+- See the generated code and run it yourself [here](https://magic-app-generator.wasp.sh/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c)
 
 This app does exactly what it says - makes sure that you water your plants on time! It comes with a fully functioning front-end, back-end and the database with `User` and `Plant` entities. It also features a [full-stack authentication](/blog/2023/04/12/auth-ui) (username & password) and a Tailwind-based design.
 
 The next step would be to add more advanced features, such as email reminders (via [Wasp email sending support](/docs/advanced/email)) when it is time to water your plant.
 
-You can see and download the [entire source code](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c) and add more features and deploy the app yourself!
+You can see and download the [entire source code](https://magic-app-generator.wasp.sh/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c) and add more features and deploy the app yourself!
 
 ### ToDo app - a classic ✅
 
@@ -76,11 +76,11 @@ You can see and download the [entire source code](https://magic-app-generator.wa
     source="img/gpt-wasp/todo-app.png"
 />
 
-- See the generated code and run it yourself [here](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f)
+- See the generated code and run it yourself [here](https://magic-app-generator.wasp.sh/result/07ed440a-3155-4969-b3f5-2031fb1f622f)
 
 What kind of a demo would this be if it didn't include a ToDo app? GPT Web App Generator successfully scaffolded it, along with all the basic functionality - creating and marking a task as done.
 
-With the foundations in place (full-stack code, authentication, Tailwind CSS design) you can [see & download the code here](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f) and try it yourself!
+With the foundations in place (full-stack code, authentication, Tailwind CSS design) you can [see & download the code here](https://magic-app-generator.wasp.sh/result/07ed440a-3155-4969-b3f5-2031fb1f622f) and try it yourself!
 
 ### Limitations
 

@@ -27,7 +27,7 @@ Also, I really became a one-star scuba diver recently!
 
 In my previous company, Superbet, I worked on the front end in Vue.js in the sports betting team. I started as an individual contributor, became a tech lead, and eventually started a team that worked on cross-platform tooling. That’s one of the things that prompted me to contribute to open source tools like [Directus](https://github.com/directus/directus), and I really enjoyed doing that. 
 
-I realized that I like working on dev tooling and helping other devs to do their job more easily. I liked the open-source community vibe and thought “It would be awesome to be a part of it!”. Being in web development for over 10 years and knowing the complexity behind it made Wasp stand out to me. Working on open source dev tooling that made web dev 10x easier? Nice! This made [Wasp](https://wasp-lang.dev/) a perfect fit for me. Luckily, it turned out that guys at Wasp liked me back 🙂
+I realized that I like working on dev tooling and helping other devs to do their job more easily. I liked the open-source community vibe and thought “It would be awesome to be a part of it!”. Being in web development for over 10 years and knowing the complexity behind it made Wasp stand out to me. Working on open source dev tooling that made web dev 10x easier? Nice! This made [Wasp](https://wasp.sh/) a perfect fit for me. Luckily, it turned out that guys at Wasp liked me back 🙂
 
 ### What is your favorite language?
 
@@ -46,7 +46,7 @@ I like the work that we did on moving away from Wasp’s custom entity syntax to
 When I was 11 years old, I started programming in a visual programming language called Logo. You write down commands and a small turtle draws things on the screen. I used to go to competitions in Logo. So you could say I was a competitive turtle user. By the time I was 14, blogs were a thing and I wanted to change some colors of my blog homepage, so I had to learn a bit of CSS. Or should I say, learn how to copy-paste some code and tweak it until it worked. I was always that kind of learner, playing around, messing things up, and then finally figuring it out.
 
 ![Miho at a conference](/img/miho-interview/miho.jpg "Miho at a conference")
-*Miho recently gave a talk at [ArmadaJS](https://wasp-lang.dev/blog/2024/12/11/armadajs-2024-a-conference-that-feels-like-home).*
+*Miho recently gave a talk at [ArmadaJS](https://wasp.sh/blog/2024/12/11/armadajs-2024-a-conference-that-feels-like-home).*
 
 ### Your dev setup?
 
