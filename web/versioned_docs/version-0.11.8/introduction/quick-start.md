@@ -17,7 +17,7 @@ Welcome, new Waspeteer 🐝!
 To install Wasp on Linux / OSX / WSL(Win), open your terminal and run: 
 
 ```shell
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
  ℹ️ Wasp requires Node.js and will warn you if it is missing: check below for [more details](#requirements).
@@ -46,7 +46,7 @@ Check [More Details](#more-details) section below if anything went wrong, or if 
  - [ ] 👉 **Check out the [Todo App tutorial](../tutorial/01-create.md), which will take you through all the core features of Wasp!** 👈
  - [ ] [Setup your editor](./editor-setup.md) for working with Wasp.
  - [ ] Join us on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
- - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp-lang.dev/#signup . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
+ - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp.sh/#signup . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
 
 ------
 
@@ -104,7 +104,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 Open your terminal and run:
 
 ```shell
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 :::note Running Wasp on Mac with Mx chip (arm64)
@@ -122,7 +122,7 @@ Once Rosetta is installed, you should be able to run Wasp without any issues.
 
 With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check it out [here](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 
-In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp-lang.dev/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
+In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
 :::caution
   If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
 :::

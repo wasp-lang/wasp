@@ -44,7 +44,7 @@ $ GIT_USER=<Your GitHub username> USE_SSH=true npm run deploy
 ```
 
 This command will build the website and push it to the `gh-pages` branch,
-which will get it deployed to https://wasp-lang.dev !
+which will get it deployed to https://wasp.sh !
 
 ### Multiple documentation versions
 

@@ -43,6 +43,6 @@ function removeTrailingSlash(path: string) {
 }
 
 function concatWaspUrl(path: string) {
-  const baseUrl = 'https://wasp-lang.dev'
+  const baseUrl = 'https://wasp.sh'
   return path.startsWith('/') ? baseUrl.concat(path) : baseUrl.concat('/', path)
 }

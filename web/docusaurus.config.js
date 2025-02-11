@@ -15,7 +15,7 @@ module.exports = {
     'A simple language for developing full-stack web apps with less code.',
   // url, baseUrl, organizationName, projectName and trailingSlash are set according to the
   // instructions in https://docusaurus.io/docs/deployment#deploying-to-github-pages .
-  url: 'https://wasp-lang.dev',
+  url: 'https://wasp.sh',
   baseUrl: '/', // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
   organizationName: 'wasp-lang', // Should be GitHub org/user name if hosted on Github Pages.
   projectName: 'wasp', // Should be repo name if hosted on Github Pages.
@@ -56,7 +56,7 @@ module.exports = {
       logo: {
         alt: 'Wasp logo',
         src: 'img/wasp-logo-eqpar-circle.png',
-        href: 'https://wasp-lang.dev/',
+        href: 'https://wasp.sh/',
         target: '_self',
       },
       items: [
@@ -317,7 +317,7 @@ function getScripts() {
     scripts.push({
       src: '/waspara/wasp/script.js',
       defer: true,
-      'data-domain': 'wasp-lang.dev',
+      'data-domain': 'wasp.sh',
       'data-api': '/waspara/wasp/event',
     })
   }
