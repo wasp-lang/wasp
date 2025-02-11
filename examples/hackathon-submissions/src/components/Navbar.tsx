@@ -32,7 +32,7 @@ const Navbar = () => {
 
   const Logo = () => (
     <div className='flex flex-shrink-0 items-center'>
-      <a href='https://www.wasp-lang.dev'>
+      <a href='https://www.wasp.sh'>
         <img src={waspLogo} width={35} height={35} alt='Wasp Logo' />
       </a>
       <span className='hidden md:block ml-3 font-semibold text-lg text-neutral-700'>

@@ -108,7 +108,7 @@ import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 --
 -- Such declaration type would be used in Wasp lang source somewhat like:
 -- @
--- user MyUser { name: "testUser", email: "testuser@wasp-lang.dev" }
+-- user MyUser { name: "testUser", email: "testuser@wasp.sh" }
 -- @
 --
 --

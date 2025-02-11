@@ -4,12 +4,12 @@ This directory contains the source code of Mage (aka "GPT Web App Generator" aka
 
 Mage is hosted at https://usemage.ai and you can use it there for free.
 
-You can learn more about it [here](https://wasp-lang.dev/blog/2023/07/10/gpt-web-app-generator) and [here](https://wasp-lang.dev/blog/2023/07/17/how-we-built-gpt-web-app-generator).
+You can learn more about it [here](https://wasp.sh/blog/2023/07/10/gpt-web-app-generator) and [here](https://wasp.sh/blog/2023/07/17/how-we-built-gpt-web-app-generator).
 
 ## Running locally
 
 Mage is really just a client / UI for calling "Wasp AI", which is AI logic that does all the heavy lifting, and is integrated into Wasp's CLI: `wasp`.
-So, if you want to generate Wasp apps via AI locally, on your machine, with your OpenAI keys and your choice of models/parameters, we recommend NOT running the Mage app locally, because it is not so easy, instead we recommend you to do it directly via `wasp` CLI, with `wasp new` or `wasp new:ai` commands. Check our docs on how to install `wasp` CLI: https://wasp-lang.dev/docs/quick-start#installation .
+So, if you want to generate Wasp apps via AI locally, on your machine, with your OpenAI keys and your choice of models/parameters, we recommend NOT running the Mage app locally, because it is not so easy, instead we recommend you to do it directly via `wasp` CLI, with `wasp new` or `wasp new:ai` commands. Check our docs on how to install `wasp` CLI: https://wasp.sh/docs/quick-start#installation .
 
 If you still want to run Mage web app locally for some specific reason, most likely because you want to contribute, you will need to do the following:
 

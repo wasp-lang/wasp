@@ -54,7 +54,6 @@
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
     "./env/validation": "./dist/env/validation.js",
-    "./ext-src/*": "./dist/ext-src/*.js",
     "./operations": "./dist/operations/index.js",
     "./operations/*": "./dist/operations/*",
     "./server": "./dist/server/index.js",
@@ -79,6 +78,7 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
+    "./src/*": "./dist/src/*.js",
     "./universal/types": "./dist/universal/types.js",
     "./universal/url": "./dist/universal/url.js",
     "./universal/validators": "./dist/universal/validators.js"

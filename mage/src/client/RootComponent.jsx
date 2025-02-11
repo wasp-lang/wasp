@@ -95,7 +95,7 @@ export function RootComponent() {
           <p className="text-center text-slate-800">
             This is an experiment by{" "}
             <a
-              href="https://wasp-lang.dev/"
+              href="https://wasp.sh/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sky-500 hover:text-sky-600"
