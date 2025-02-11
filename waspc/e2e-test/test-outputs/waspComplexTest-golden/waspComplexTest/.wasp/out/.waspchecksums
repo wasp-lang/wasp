@@ -256,7 +256,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "3c326183d9dcb2bcf14b747ffc66b19e4773642d05f3f84d401e3d54b843eeca"
+        "afb77720c5d690911c13a752996b93a8b0f5c8a02568ed59c45c1c401bb2b3fd"
     ],
     [
         [
@@ -697,7 +697,7 @@
             "file",
             "../out/sdk/wasp/server/operations/wrappers.ts"
         ],
-        "d9fa23a385c206ca7c48bbaa6c270c20c087f9497575c2e4d56c03297de4c36c"
+        "95ac9e8978719cb938f688572bedeabbd459b7f8ebeef4a0a01cb6ce08b54e52"
     ],
     [
         [
@@ -725,7 +725,7 @@
             "file",
             "../out/sdk/wasp/src/MainPage.jsx"
         ],
-        "bd452ce5b469d3b48e69705daaa07e339d9d0e9d88a99a74c2ace9fa6d6299e7"
+        "3ebb438164084ff90e72f3f081f6165fb8acc0d89076c3a6e225a26d76728a86"
     ],
     [
         [

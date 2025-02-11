@@ -12,7 +12,7 @@ spec_ValidateAst = do
   it "Returns an error when entities are used" $ do
     validateAndParseSource (waspSourceLines ++ entityDeclarationLines)
       `shouldBe` Left
-        ( "Entities can no longer be defined in the .wasp file. You should migrate your entities to the schema.prisma file. Read more: https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file",
+        ( "Entities can no longer be defined in the .wasp file. You should migrate your entities to the schema.prisma file. Read more: https://wasp.sh/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file",
           P.Ctx
             ( P.SourceRegion
                 (P.SourcePosition 34 1)

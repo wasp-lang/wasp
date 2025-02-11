@@ -55,7 +55,7 @@ export function useAction(actionFn, actionOptions) {
  *
  * @param publicOptimisticUpdateDefinition An optimistic update definition
  * object that's a part of the public API:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * https://wasp.sh/docs/language/features#the-useaction-hook.
  * @returns An internally-used optimistic update definition object.
  */
 function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
@@ -175,7 +175,7 @@ function getOptimisticUpdateDefinitionForSpecificItem(optimisticUpdateDefinition
  * Translates a Wasp query specifier to a query cache key used by React Query.
  *
  * @param querySpecifier A query specifier that's a part of the public API:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * https://wasp.sh/docs/language/features#the-useaction-hook.
  * @returns A cache key React Query internally uses for addressing queries.
  */
 function getRqQueryKeyFromSpecifier(querySpecifier) {

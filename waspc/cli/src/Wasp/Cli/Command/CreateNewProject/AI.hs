@@ -105,7 +105,7 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           "complex the app is. If there are some in your app, check out Wasp docs for help while",
           "fixing them, and also feel free to reach out to us on Discord! You can also try",
           "generating the app again to get different results (try playing with the creativity level).",
-          " - Wasp docs: https://wasp-lang.dev/docs",
+          " - Wasp docs: https://wasp.sh/docs",
           " - Our Discord: https://discord.gg/rzdnErX",
           "",
           "========"
