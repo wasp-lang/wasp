@@ -40,6 +40,7 @@ branch BUT IT DOES NOT deploy them automatically. We disabled automatic deployme
 because we want to time the docs deployment with the release of the new version of Wasp.
 
 How to deploy:
+
 0. Make sure you have the latest changes on the `release` branch.
 1. You will need to log into Cloudflare Dash (the credentials are in 1Password).
 2. Go to "Compute (Workers)" > "Workers & Pages".
