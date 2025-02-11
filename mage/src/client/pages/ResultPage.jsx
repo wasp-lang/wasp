@@ -556,7 +556,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             <br />
             App is implemented in{" "}
             <a
-              href="https://wasp-lang.dev"
+              href="https://wasp.sh"
               target="_blank"
               rel="noopener noreferrer"
               className="underline"
@@ -575,7 +575,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             <h2 className="font-bold flex items-center space-x-1">
               <span>1. Install Wasp CLI (Linux / Mac / Win+WSL)</span>
               <a
-                href="https://wasp-lang.dev/docs/quick-start#installation-1"
+                href="https://wasp.sh/docs/quick-start#installation-1"
                 target="blank"
                 rel="noopener noreferrer"
               >
@@ -585,7 +585,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               :
             </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
-              curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+              curl -sSL https://get.wasp.sh/installer.sh | sh
             </pre>
 
             <h2 className="font-bold mt-4">
@@ -641,7 +641,7 @@ function WarningAboutAI() {
               Since this is a GPT generated app, it might contain some mistakes, proportional to how
               complex the app is. If there are some in your app, check out{" "}
               <a
-                href="https://wasp-lang.dev/docs"
+                href="https://wasp.sh/docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"

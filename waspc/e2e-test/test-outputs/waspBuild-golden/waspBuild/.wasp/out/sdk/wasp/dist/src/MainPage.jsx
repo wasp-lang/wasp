@@ -16,7 +16,7 @@ export const MainPage = () => {
         </h3>
 
         <div className="buttons">
-          <a className="button button-filled" href="https://wasp-lang.dev/docs/tutorial/create" target="_blank" rel="noreferrer noopener">
+          <a className="button button-filled" href="https://wasp.sh/docs/tutorial/create" target="_blank" rel="noreferrer noopener">
             Take the Tutorial
           </a>
           <a className="button button-outline" href="https://discord.com/invite/rzdnErX" target="_blank" rel="noreferrer noopener">

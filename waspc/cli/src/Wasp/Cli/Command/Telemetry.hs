@@ -46,7 +46,7 @@ telemetry = do
         for_ maybeTimeOfLastSending $ \timeOfLastSending -> do
           cliSendMessageC $ Msg.Info $ "Last time telemetry data was sent for this project: " ++ show timeOfLastSending
 
-  cliSendMessageC $ Msg.Info "Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details."
+  cliSendMessageC $ Msg.Info "Our telemetry is anonymized and very limited in its scope: check https://wasp.sh/docs/telemetry for more details."
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.

@@ -20,7 +20,7 @@ export const MainPage = () => {
         <div className="buttons">
           <a
             className="button button-filled"
-            href="https://wasp-lang.dev/docs/tutorial/create"
+            href="https://wasp.sh/docs/tutorial/create"
             target="_blank"
             rel="noreferrer noopener"
           >

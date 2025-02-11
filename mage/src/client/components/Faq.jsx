@@ -3,10 +3,10 @@ import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 
 function l(title, overrideTitle) {
   const links = {
-    "Wasp": "https://wasp-lang.dev/",
+    "Wasp": "https://wasp.sh/",
     "web app": "https://github.com/wasp-lang/wasp/tree/main/mage",
     "GPT code agent": "https://github.com/wasp-lang/wasp/tree/main/waspc/src/Wasp/AI",
-    "blog post": "https://wasp-lang.dev/blog/2023/07/10/gpt-web-app-generator"
+    "blog post": "https://wasp.sh/blog/2023/07/10/gpt-web-app-generator"
   };
 
   return <a href={links[title]} className="underline decoration-2 decoration-yellow-500">{overrideTitle || title}</a>
