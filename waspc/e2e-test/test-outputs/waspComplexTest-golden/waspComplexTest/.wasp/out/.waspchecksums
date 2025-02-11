@@ -1327,20 +1327,27 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "0f84a09c31c7cca7d2bed4fac04c3da0ce54b0996ab80b2b54f1a6a53e6fd139"
+        "f5cc3ad419dd02d73079da1ec7fd282e09d9753594a2e08b8c4bb7a8c5b483d7"
     ],
     [
         [
             "file",
-            "web-app/tsconfig.node.json"
+            "web-app/tsconfig.vite.json"
         ],
-        "f795ffe562beb340337d217cf5e00ac44eced326e724b4fc30a92a787c247919"
+        "2eb9abbbd66ed061fae538b0c20f49301a8cb6d66c00d690f7b164078c5892e6"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "7c1153a42980755044853a438a70a6bef62d7ca59d94a605fe9625b1d8581d2f"
+        "d4b4a5e870d8ec46b22ac1a5b66e5266f7983db43b3c9c1b6faeec80ae984662"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/detectServerImports.ts"
+        ],
+        "9e8e2271fda2f769376b2c310987006c7b2f138e7749cdd608696f6a2982debd"
     ]
 ]
