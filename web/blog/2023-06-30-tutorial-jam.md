@@ -23,13 +23,13 @@ The Wasp Tutorial Jam is a contest where participants are required to create a t
 
 ## Wait, What’s Wasp?
 
-First of all, it’s sad that you’ve never heard of [Wasp](https://wasp-lang.dev).
+First of all, it’s sad that you’ve never heard of [Wasp](https://wasp.sh).
 
 ![https://media0.giphy.com/media/kr5PszPQawIRq/giphy.gif?cid=7941fdc6gwgjf866b0akslgciedh53jf9narttadkglvvcp0&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media0.giphy.com/media/kr5PszPQawIRq/giphy.gif?cid=7941fdc6gwgjf866b0akslgciedh53jf9narttadkglvvcp0&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
 Wasp is a unique fullstack framework for building React/NodeJS/Prisma/Tanstack Query apps.
 
-Because it’s based on a compiler, you write a simple config file, and Wasp can take care of generating the skeleton of your app for you (and regenerating when the config file changes). You can read more about [Wasp here](https://wasp-lang.dev)
+Because it’s based on a compiler, you write a simple config file, and Wasp can take care of generating the skeleton of your app for you (and regenerating when the config file changes). You can read more about [Wasp here](https://wasp.sh)
 
 ## Rules
 
@@ -58,7 +58,7 @@ The judging criteria for the Tutorial Jam will be based on:
 
 ## Templates & Tutorial Examples
 
-We have a whole repo of starter templates that you can use with Wasp by [installing wasp](https://wasp-lang.dev/docs/quick-start) and running `wasp new` in the command line. The interactive prompt will ask you what template you’d like to start with:
+We have a whole repo of starter templates that you can use with Wasp by [installing wasp](https://wasp.sh/docs/quick-start) and running `wasp new` in the command line. The interactive prompt will ask you what template you’d like to start with:
 
 ```bash
 [1] basic (default)

@@ -140,7 +140,7 @@ Getting close to the big 3,000! Huge thanks to all our contributors and stargaze
     caption="Almost 3,000 stars! 🐝 🚀"
 />
 
-And if you haven't yet, please [star us on Github](https://wasp-lang.dev/docs)! Yes, we are shameless star beggars, but if you believe in the project and want to support it that's one of the best ways to do it (next to actually building something with Wasp - [go do that too](https://wasp-lang.dev/docs)! :D)
+And if you haven't yet, please [star us on Github](https://wasp.sh/docs)! Yes, we are shameless star beggars, but if you believe in the project and want to support it that's one of the best ways to do it (next to actually building something with Wasp - [go do that too](https://wasp.sh/docs)! :D)
 
 ## That's a wrap! 🌯
 

@@ -89,7 +89,7 @@ model Customer {
 }
 ```
 
-To jumpstart our project, we’ll use a predefined [Wasp template](https://wasp-lang.dev/docs/project/starter-templates) with TypeScript, called **todo-ts**. This template comes with ready-made components and routing for authentication, including login and signup screens. It also offers a solid example of how CRUD operations work in Wasp, ideal if you’re new to the framework. Additionally, we’ll leverage the new Wasp TypeScript SDK to manage our configuration, as it provides extended flexibility for customization.
+To jumpstart our project, we’ll use a predefined [Wasp template](https://wasp.sh/docs/project/starter-templates) with TypeScript, called **todo-ts**. This template comes with ready-made components and routing for authentication, including login and signup screens. It also offers a solid example of how CRUD operations work in Wasp, ideal if you’re new to the framework. Additionally, we’ll leverage the new Wasp TypeScript SDK to manage our configuration, as it provides extended flexibility for customization.
 
 ### Finding this article useful?
 
