@@ -74,7 +74,7 @@ We are coming from the background of C++, algorithm competitions and applied alg
 
 With the funding secured, we can now fully focus on developing Wasp and the ecosystem around it. We can start planning for more [long-term features](https://github.com/wasp-lang/wasp/issues/109) that we couldn't fully commit to until now, and we can expand our team to move faster and bring more great people on board with new perspectives and enable them to fully employ their knowledge and creativity without any distractions.
 
-Our immediate focus is to bring Wasp to Beta and then 1.0 (see our high-level roadmap [here](https://wasp-lang.dev/#what-can-do)), while also building a strong foundation for our open source community. We believe community is the key to the success for Wasp and we will do everything in our power to make sure everybody feels welcome and has a fun and rewarding experience both building apps and contributing to the project. If you want to shape how millions of engineers develop the web apps of tomorrow, join our community and work with us!
+Our immediate focus is to bring Wasp to Beta and then 1.0 (see our high-level roadmap [here](https://wasp.sh/#what-can-do)), while also building a strong foundation for our open source community. We believe community is the key to the success for Wasp and we will do everything in our power to make sure everybody feels welcome and has a fun and rewarding experience both building apps and contributing to the project. If you want to shape how millions of engineers develop the web apps of tomorrow, join our community and work with us!
 
 Thank you for reading - we can't wait to see what you will build!
 

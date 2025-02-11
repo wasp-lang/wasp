@@ -17,7 +17,7 @@ A year later, and after a lot of hard work, I got offered a much better position
 
 ![https://dev-to-uploads.s3.amazonaws.com/uploads/articles/sf1fhsgwuurkre9a7drq.png](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/sf1fhsgwuurkre9a7drq.png)
 
-Today, I’m currently working as the founding Developer Relations Engineer for [Wasp](https://wasp-lang.dev) where I build things like [OpenSaaS.sh](http://opensaas.sh/),  a free, open-source SaaS starter template for React and NodeJS, along with Stripe, OpenAI, and AWS S3 integration. It’s based on what I learned from building my first profitable SaaS app, [CoverLetterGPT.xyz](http://coverlettergpt.xyz/), which currently has over 100 customers and makes ~$500 per month! Nothing crazy, but something I’m still proud of. 
+Today, I’m currently working as the founding Developer Relations Engineer for [Wasp](https://wasp.sh) where I build things like [OpenSaaS.sh](http://opensaas.sh/),  a free, open-source SaaS starter template for React and NodeJS, along with Stripe, OpenAI, and AWS S3 integration. It’s based on what I learned from building my first profitable SaaS app, [CoverLetterGPT.xyz](http://coverlettergpt.xyz/), which currently has over 100 customers and makes ~$500 per month! Nothing crazy, but something I’m still proud of. 
 
 And now that I’m currently in a developer-facing role, I often get asked by people in our community for tips on landing jobs in tech. With this in mind, and with these past experiences under my belt, I thought I’d write a comprehensive article that shares what I’ve learned and seen to be the most effective ways to do so. 
 
@@ -97,7 +97,7 @@ And if you’re having trouble thinking of things to build, sometimes just exper
 
 ---
 
-By the way, [Wasp](https://wasp-lang.dev) is a great way to easily build new apps that solve your unique problems. It’s also one of the quickest ways to build bespoke full-stack apps in React & NodeJS without having to write a bunch of boilerplate code for things like auth, routes, end-to-end typesafety, deployments and more. 
+By the way, [Wasp](https://wasp.sh) is a great way to easily build new apps that solve your unique problems. It’s also one of the quickest ways to build bespoke full-stack apps in React & NodeJS without having to write a bunch of boilerplate code for things like auth, routes, end-to-end typesafety, deployments and more. 
 
 As an example, check out this video below which shows you how easy it is to implement full-stack authentication across your entire app.
 

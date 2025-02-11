@@ -95,7 +95,7 @@ Personally, I’ve never organized a hackathon before, and this was Wasp’s fir
     caption="Our dedicated hackathon landing page w/ intro video & submission form"
 />
 
-With some good inspiration in hand, we set off to create a simple, easy-going Hackathon experience. We weren’t certain we’d get many participants, so we decided to make the process as open as possible: *two weeks to work on any project using Wasp, alone or in a team of up to 4 people, submitted on our [Betathon Homepage](https://betathon.wasp-lang.dev/) before the deadline*. That was it.
+With some good inspiration in hand, we set off to create a simple, easy-going Hackathon experience. We weren’t certain we’d get many participants, so we decided to make the process as open as possible: *two weeks to work on any project using Wasp, alone or in a team of up to 4 people, submitted on our [Betathon Homepage](https://betathon.wasp.sh/) before the deadline*. That was it.
 
 When you’re an early-stage startup, you can’t offer big cash prizes, so we asked Railway if they’d be interested in sponsoring some prizes, as we’re big fans of their deployment and hosting platform. Luckily, they agreed (thanks, Railway 🙏🚂). It was also a great match, since we already had the documentation for deploying Wasp apps to Railway on our website, making it an obvious choice for the participants to deploy their Hackathon apps with.
 
@@ -110,7 +110,7 @@ On top of that, we decided that a cool grand prize could be a Wasp-colored mecha
 
 ## Promotion
 
-For the Wasp Beta Launch Week, we were active and publicising Wasp on many platforms. We didn’t outright promote the hackathon on those platforms, but we were getting a lot of incoming interest to our Website and Discord, so we made noise about it there. We posted banners on the homepage, and made announcements on Discord and Twitter that directed people to a [Beta Hacakthon homepage](https://betathon.wasp-lang.dev) we created.
+For the Wasp Beta Launch Week, we were active and publicising Wasp on many platforms. We didn’t outright promote the hackathon on those platforms, but we were getting a lot of incoming interest to our Website and Discord, so we made noise about it there. We posted banners on the homepage, and made announcements on Discord and Twitter that directed people to a [Beta Hacakthon homepage](https://betathon.wasp.sh) we created.
 
 The homepage was nice to have as a central spot for all the rules and relevant info. We also added a fun intro video to give the hackathon a more personal touch. I also think the effort put into making an intro video gives participants the feeling that they’re entering into a serious contest and committing to something of substance.
 

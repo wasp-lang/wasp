@@ -13,7 +13,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 If you’ve just built your SaaS web app and deployed it on a production server, you might be running into email deliverability issues. Transactional or marketing emails might not be landing in your users' inboxes. Don’t panic! This is a pretty common problem, especially for apps that run on newly registered domains.
 
-We have seen a lot of [Wasp](https://wasp-lang.dev/) users facing similar challenges, thinking their toolkit was to blame. In our Discord community, we regularly help users who’ve just launched their first app with Wasp, and we've seen this issue pop up frequently. The bad news: your users and their email servers pulled a Gandalf move on you. The good news: no worries, this is something you can fix!
+We have seen a lot of [Wasp](https://wasp.sh/) users facing similar challenges, thinking their toolkit was to blame. In our Discord community, we regularly help users who’ve just launched their first app with Wasp, and we've seen this issue pop up frequently. The bad news: your users and their email servers pulled a Gandalf move on you. The good news: no worries, this is something you can fix!
 
 ![Gandalf saying you shall not pass](https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
@@ -41,7 +41,7 @@ Read more about these records and how to add them to your DNS servers [here](htt
 
 ## 3. **Use professional email sending tools**
 
-Instead of sending emails directly from your own server, consider using a third-party email service that specializes in this area. Tools like **SendGrid** or **Mailgun** have built-in features to help ensure your emails make it to the inbox. Wasp helps you to [add them to your stack](https://wasp-lang.dev/docs/advanced/email) with minimal configuration needed on your end.
+Instead of sending emails directly from your own server, consider using a third-party email service that specializes in this area. Tools like **SendGrid** or **Mailgun** have built-in features to help ensure your emails make it to the inbox. Wasp helps you to [add them to your stack](https://wasp.sh/docs/advanced/email) with minimal configuration needed on your end.
 
 They monitor and improve your domain reputation, manage bounces, and handle email authentication out-of-the-box. We’d recommend you to offload sending emails to them, so that you can focus on the core aspects of your business.
 
@@ -66,6 +66,6 @@ What you write matters too. Emails are poorly written are more likely to be mark
 
 ![you can do this gif](https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
-We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp-lang.dev/docs/advanced/email#using-the-mailgun-provider), Wasp supports some out of the box. 
+We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp.sh/docs/advanced/email#using-the-mailgun-provider), Wasp supports some out of the box. 
 
 You can monitor the performance over time, and improve your approach with every batch of emails. It’s not about getting everything perfect from the start, but about making the right decisions before you start onboarding your users.
