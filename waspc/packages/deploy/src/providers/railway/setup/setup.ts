@@ -21,12 +21,15 @@ export async function setup(baseName: string, options: SetupOptions): Promise<vo
 
   const deploymentInfo = createDeploymentInfo(baseName, options);
 
+  // TODO: existing project in this dir, but what if we are in the CI? Then this check won't work.
+  // We should provide a way for user to say: "use this existing project" and we run "railway link"
+  // instead of "railway init".
   const existingProject = await getExistingProject(options.railwayExe);
 
   // If the existing project name is different from the base name, we can't proceed.
   if (existingProject && existingProject.projectName !== baseName) {
     waspSays(
-      `Project with a different name already exists: ${existingProject.projectName}. Run "railway unlink" to unlink it.`,
+      `Project with a different name already linked to this directory: ${existingProject.projectName}. Run "railway unlink" to unlink it.`,
     );
     exit(1);
   } else if (existingProject) {

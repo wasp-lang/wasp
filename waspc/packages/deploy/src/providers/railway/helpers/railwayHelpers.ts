@@ -1,5 +1,5 @@
 import { exit } from 'process';
-import { $, question } from 'zx';
+import { $, ProcessOutput, question } from 'zx';
 import { isYes, waspSays } from '../../../helpers.js';
 import { Command } from 'commander';
 
@@ -69,16 +69,20 @@ export async function getExistingProject(railwayExe: string): Promise<{
   projectName: string;
   serviceNames: string[];
 } | null> {
-  try {
-    const result = await $`${railwayExe} status --json`;
+  const result = await $({
+    verbose: false,
+    nothrow: true,
+    // Ignoring stdin and stderr to stop error output from Railway CLI
+    stdio: ['ignore', 'pipe', 'ignore'],
+  })`${railwayExe} status --json`;
+  if (result.exitCode !== 0) {
+    return null;
+  } else {
     const json = JSON.parse(result.stdout);
 
     return {
       projectName: json.name,
       serviceNames: json.services.edges.map((edge: { node: { name: string } }) => edge.node.name),
     };
-  } catch (e: unknown) {
-    console.error(e);
-    return null;
   }
 }
