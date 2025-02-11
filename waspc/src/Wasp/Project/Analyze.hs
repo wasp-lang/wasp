@@ -126,7 +126,7 @@ analyzePrismaSchema waspProjectDir = do
     -- NOTE: linking here to migration docs because I think it's the most common reason why schema.prisma file is missing.
     -- After people mostly start using 0.14.0+ they will have schema.prisma file, so this message will be less relevant.
     -- If we see that this message is still relevant, we can change it to be more general.
-    couldntFindPrismaSchemaMessage = "Couldn't find the schema.prisma file in the " ++ fromAbsDir waspProjectDir ++ " directory. \nRead more: https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
+    couldntFindPrismaSchemaMessage = "Couldn't find the schema.prisma file in the " ++ fromAbsDir waspProjectDir ++ " directory. \nRead more: https://wasp.sh/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
 
 runValidation :: (result -> [ValidationError]) -> result -> (Either [CompileError] result, [CompileWarning])
 runValidation getErrorsAndWarnings result =

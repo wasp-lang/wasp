@@ -36,6 +36,6 @@ type GetQuerySpecifier<ActionInput, CachedData> = (item: ActionInput) => QuerySp
 type UpdateQuery<ActionInput, CachedData> = (item: ActionInput, oldData: CachedData | undefined) => CachedData;
 /**
  * A public query specifier used for addressing Wasp queries. See our docs for details:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * https://wasp.sh/docs/language/features#the-useaction-hook.
  */
 type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]];
