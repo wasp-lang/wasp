@@ -10,16 +10,6 @@ const Announcement = () => {
 
   const handleLink = () => {
     history.push('/blog/2025/01/09/wasp-launch-week-8')
-
-    // window.open('https://magic-app-generator.wasp-lang.dev/')
-    //window.open('https://www.producthunt.com/posts/open-saas')
-    //history.push('/blog/2023/06/30/tutorial-jam')
-    //history.push('/#signup')
-
-    //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
-    //window.open('https://twitter.com/WaspLang/status/1647979490180575234')
-    //window.open('https://www.producthunt.com/posts/free-saas-template-gpt-stripe-auth')
-    // window.open("https://hackathon.wasp-lang.dev");
   }
 
   return (
