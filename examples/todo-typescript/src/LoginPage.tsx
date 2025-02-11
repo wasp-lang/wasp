@@ -5,7 +5,7 @@ export function LoginPage() {
   return (
     <main>
       {/** Wasp has built-in auth forms & flows, which you can customize or opt-out of, if you wish :)
-       * https://wasp-lang.dev/docs/guides/auth-ui
+       * https://wasp.sh/docs/guides/auth-ui
        */}
       <LoginForm />
       <br />
