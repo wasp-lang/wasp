@@ -44,7 +44,9 @@ vitePluginsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppVitePluginsDir
 vitePluginsDirInWebAppDir = [reldir|vite|]
 
 getTmplFilePathForVitePlugin :: VitePluginName -> TmplFilePath
-getTmplFilePathForVitePlugin DetectServerImports = C.asTmplFile $ vitePluginsDirInWebAppDir </> [relfile|detectServerImports.ts|]
+getTmplFilePathForVitePlugin pluginName = C.asTmplFile $ vitePluginsDirInWebAppDir </> pluginFilePathInPluginsDir pluginName
+  where
+    pluginFilePathInPluginsDir DetectServerImports = [relfile|detectServerImports.ts|]
 
 genVitePlugin :: VitePlugin -> Generator FileDraft
 genVitePlugin (DetectServerImports, tmplFile) = genDetectServerImportsPlugin tmplFile

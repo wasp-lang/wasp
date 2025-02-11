@@ -66,20 +66,21 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
             </> [relfile|test/vitest/setup.ts|]
       ]
 
-    makeCustomViteConfigJsImport :: Path' (Rel WaspProjectDir) File' -> JsImport
-    makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
-      where
-        importPath = SP.castRel $ C.toViteImportPath relPathToConfigInProjectDir
-        relPathToConfigInProjectDir = relPathFromWebAppRootDirWaspProjectDir </> (fromJust . SP.relFileToPosix $ pathToConfig)
+-- | Creates an import of user defined Vite config file relative to the web-app root directory e.g. import customViteConfig from '../../../vite.config'
+makeCustomViteConfigJsImport :: Path' (Rel WaspProjectDir) File' -> JsImport
+makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
+  where
+    importPath = SP.castRel $ C.toViteImportPath relPathToConfigInProjectDir
+    relPathToConfigInProjectDir = relPathFromWebAppRootDirWaspProjectDir </> (fromJust . SP.relFileToPosix $ pathToConfig)
 
-        relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir WaspProjectDir)
-        relPathFromWebAppRootDirWaspProjectDir =
-          fromJust $
-            SP.parseRelDirP $
-              FP.Extra.reversePosixPath $
-                SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
+    relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir WaspProjectDir)
+    relPathFromWebAppRootDirWaspProjectDir =
+      fromJust $
+        SP.parseRelDirP $
+          FP.Extra.reversePosixPath $
+            SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
-        importName = JsImportModule "customViteConfig"
+    importName = JsImportModule "customViteConfig"
 
 genViteTsconfigJson :: Generator FileDraft
 genViteTsconfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.vite.json|] tmplData
