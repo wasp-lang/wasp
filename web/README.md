@@ -35,20 +35,30 @@ To run this version of code and check that it works correctly, run `npm run serv
 
 ### Deployment
 
-We are deploying to Cloudflare Pages which picks up new changes on the `release`
-branch BUT IT DOES NOT deploy them automatically. We disabled automatic deployment
-because we want to time the docs deployment with the release of the new version of Wasp.
+We deploy the website to Cloudflare Pages. When you want to deploy changes from the `release` branch, you do it like this:
 
-How to deploy:
+1. Make sure you have the `release` branch ready with all the changes you want to deploy.
+2. Check out the `deploy-web` branch:
+   ```
+   git checkout deploy-web
+   ```
+3. Merge the `release` branch into `deploy-web`:
+   ```
+   git merge release
+   ```
+4. Push the `deploy-web` branch to the remote:
+   ```
+   git push
+   ```
+5. Cloudflare Pages will automatically pick up the changes and deploy them.
+6. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
+   ```
+   git checkout release
+   ```
 
-0. Make sure you have the latest changes on the `release` branch.
-1. You will need to log into Cloudflare Dash (the credentials are in 1Password).
-2. Go to "Compute (Workers)" > "Workers & Pages".
-3. Find the "wasp-docs" project and click on it.
-4. Find the latest "Skipped" deployment on the "release" branch.
-5. Click on the three dots on the right and select "Retry deployment".
+The website should be live within a few minutes at https://wasp.sh. 
 
-This will build the website and deploy it to https://wasp.sh!
+You can track the deployment progress on Cloudflare Pages (https://dash.cloudflare.com/). Credentials are in the 1Password vault.
 
 ### Preview docs from the `main` branch
 
