@@ -17,28 +17,17 @@ export function detectServerImports(): Plugin {
         return
       }
 
-      ensureNoServerImports(source, pathToUserCode)
+      if (isServerImport(source)) {
+        throw new Error(
+          `Server code cannot be imported in the client code. Import from "${source}" in "${pathToUserCode}" is not allowed.`
+        )
+      }
     },
   }
 }
 
-type ImportCheckPredicate = (moduleName: string) => boolean
-
-const serverImportChecks: ImportCheckPredicate[] = [
-  (moduleName: string) => moduleName.startsWith('wasp/server'),
-]
-
-function ensureNoServerImports(
-  source: string,
-  relativeImporter: RelativePathToUserCode
-): void {
-  for (const check of serverImportChecks) {
-    if (check(source)) {
-      throw new Error(
-        `Server code cannot be imported in the client code. Import from "${source}" in "${relativeImporter}" is not allowed.`
-      )
-    }
-  }
+function isServerImport(moduleName: string): boolean {
+  return moduleName.startsWith('wasp/server')
 }
 
 type RelativePathToUserCode = string & { _brand: 'relativePathToUserCode' }
