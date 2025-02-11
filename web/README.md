@@ -35,17 +35,24 @@ To run this version of code and check that it works correctly, run `npm run serv
 
 ### Deployment
 
-We are deploying to GitHub pages, and that can easily be done with the following command.
+We are deploying to Cloudflare Pages which picks up new changes on the `release`
+branch BUT IT DOES NOT deploy them automatically. We disabled automatic deployment
+because we want to time the docs deployment with the release of the new version of Wasp.
 
-First, ensure you are on the `release` branch. Next, run:
+How to deploy:
+0. Make sure you have the latest changes on the `release` branch.
+1. You will need to log into Cloudflare Dash (the credentials are in 1Password).
+2. Go to "Compute (Workers)" > "Workers & Pages".
+3. Find the "wasp-docs" project and click on it.
+4. Find the latest "Skipped" deployment on the "release" branch.
+5. Click on the three dots on the right and select "Retry deployment".
 
-```
-$ GIT_USER=<Your GitHub username> USE_SSH=true npm run deploy
-```
+This will build the website and deploy it to https://wasp.sh!
 
-This command will build the website and push it to the `gh-pages` branch,
-which will get it deployed to https://wasp.sh !
+### Preview docs from the `main` branch
 
+We set up automatic deployment of docs from the `main` branch on Cloudflare Pages. This means that every time you push to the `main` branch, the docs will be built and deployed to https://wasp-docs-on-main.pages.dev.
+ 
 ### Multiple documentation versions
 
 We maintain docs for multiple versions of Wasp.
