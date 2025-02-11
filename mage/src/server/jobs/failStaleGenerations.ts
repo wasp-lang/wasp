@@ -1,13 +1,14 @@
 import { type FailStaleAppsJobs } from "wasp/server/jobs";
 import { getNowInUTC } from "../utils.js";
 import { log } from "./utils.js";
+import { errorLoggingMiddleware } from "wasp/server/middleware";
 
 export const failStaleGenerations: FailStaleAppsJobs<
   {},
   {
     success: boolean;
   }
-> = async (_args, context) => {
+> = errorLoggingMiddleware(async (_args, context) => {
   log("Failing stale generations");
   const { Project, Log } = context.entities;
 
@@ -59,4 +60,4 @@ export const failStaleGenerations: FailStaleAppsJobs<
       success: false,
     };
   }
-};
+});
