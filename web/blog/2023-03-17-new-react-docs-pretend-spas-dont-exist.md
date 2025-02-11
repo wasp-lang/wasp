@@ -60,7 +60,7 @@ SEO is largely irrelevant for them since everything is happening behind the auth
 
 Traditionally, React was only a UI library in your stack of choice. You would use CRA (or Vite nowadays) as a bundler/starter for your React project. Then you’d probably add a routing library (e.g., react-router) and maybe a state management library (e.g., Redux, or react-query), and you’d already be set pretty well. You would develop your backend in whatever you choose - Node.js/Express, Rails, or anything else.
 
-There are also new frameworks emerging that focus on this particular use case (e.g., [RedwoodJS](https://redwoodjs.com/) and [Wasp](https://wasp-lang.dev) (disclaimer: this is us!)) whose flagship feature is not SSR, but rather the abstraction of API and CRUD on data models, and getting full-stack functionality from UI to the database, with extra features such as easy authentication and deployment out of the box.
+There are also new frameworks emerging that focus on this particular use case (e.g., [RedwoodJS](https://redwoodjs.com/) and [Wasp](https://wasp.sh) (disclaimer: this is us!)) whose flagship feature is not SSR, but rather the abstraction of API and CRUD on data models, and getting full-stack functionality from UI to the database, with extra features such as easy authentication and deployment out of the box.
 
 With a “go for Next or you are unusual” and “you need SSR” message, React is making a strong signal against other solutions that don’t emphasize SSR as their main feature.
 

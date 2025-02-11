@@ -88,7 +88,7 @@ For example:
 
 Once you have more experience with projects, I would recommend re-reading your beginner book of choice. This time, you can skip the parts you already know and focus on what was confusing before. You will likely have a much easier time grasping those harder concepts.
 
-p.s. If you are looking for a bit of extra motivation, check the blog post my teammate Shayne recently wrote about [his journey with Haskell](https://wasp-lang.dev/blog/2022/08/26/how-and-why-i-got-started-with-haskell). He started in late 2021 and has already made huge progress!
+p.s. If you are looking for a bit of extra motivation, check the blog post my teammate Shayne recently wrote about [his journey with Haskell](https://wasp.sh/blog/2022/08/26/how-and-why-i-got-started-with-haskell). He started in late 2021 and has already made huge progress!
 
 ---
 

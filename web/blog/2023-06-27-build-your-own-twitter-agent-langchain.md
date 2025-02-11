@@ -23,7 +23,7 @@ BTW, If you get stuck during the tutorial, or at any point just want to check ou
 
 ## Before We Begin
 
-[Wasp = }](https://wasp-lang.dev) is the only open-source, completely serverful fullstack React/Node framework with a built in compiler that lets you build your app in a day and deploy with a single CLI command.
+[Wasp = }](https://wasp.sh) is the only open-source, completely serverful fullstack React/Node framework with a built in compiler that lets you build your app in a day and deploy with a single CLI command.
 
 We’re working hard to help you build performant web apps as easily as possibly — including making these tutorials, which are released weekly!
 
@@ -95,7 +95,7 @@ Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 ```bash
 # First, install Wasp by running this in your terminal:
 
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 
 # next, create a new project:
 
@@ -467,7 +467,7 @@ export default () => {
 ```
 
 :::info
-In the `auth` object on the `main.wasp` file, we used the `usernameAndPassword` method which is the simplest form of auth Wasp offers. If you’re interested, [Wasp](https://wasp-lang.dev/docs) does provide abstractions for Google, Github, and Email Verified Authentication, but we will stick with the simplest auth for this tutorial.
+In the `auth` object on the `main.wasp` file, we used the `usernameAndPassword` method which is the simplest form of auth Wasp offers. If you’re interested, [Wasp](https://wasp.sh/docs) does provide abstractions for Google, Github, and Email Verified Authentication, but we will stick with the simplest auth for this tutorial.
 
 :::
 

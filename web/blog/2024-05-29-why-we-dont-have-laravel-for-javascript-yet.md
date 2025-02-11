@@ -93,7 +93,7 @@ And he does have a point here. So far, solutions like [Blitz](https://blitzjs.co
 
 **But these things take time.**
 
-Have a look at the graph above. Laravel and Rails have been around for 13-15 years! The JavaScript frameworks being used in comparison are just getting started, with some of them, like [Wasp](https://wasp-lang.dev) and [Redwood](https://redwoodjs.com/), at similar stages in their development as Laravel and Rails were during their initial years.
+Have a look at the graph above. Laravel and Rails have been around for 13-15 years! The JavaScript frameworks being used in comparison are just getting started, with some of them, like [Wasp](https://wasp.sh) and [Redwood](https://redwoodjs.com/), at similar stages in their development as Laravel and Rails were during their initial years.
 
 As you can see, it takes time for good solutions to reach maturity. And even with some of these frameworks starting to stagnate their great initial growth is evidence that demand for these tools definitely exists! 
 
@@ -109,9 +109,9 @@ But, the JavaScript ecosystem is maturing and stabilizing, we are learning from 
 
 ## Say Hi to Wasp
 
-In his comparison of JavaScript frameworks on the market today, Theo also fails to mention the full-stack framework for React & NodeJS that we’re currently working on, [Wasp](https://wasp-lang.dev).
+In his comparison of JavaScript frameworks on the market today, Theo also fails to mention the full-stack framework for React & NodeJS that we’re currently working on, [Wasp](https://wasp.sh).
 
-We’ve been working hard on [Wasp](https://wasp-lang.dev) to be the *truly* full-stack framework that meets the demands of web developers and fills that void in the JavaScript ecosystem to become the framework they love to use. 
+We’ve been working hard on [Wasp](https://wasp.sh) to be the *truly* full-stack framework that meets the demands of web developers and fills that void in the JavaScript ecosystem to become the framework they love to use. 
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/z7j67hychqw770nrau3f.png)
 
@@ -129,7 +129,7 @@ What Wasp does differently than other full-stack frameworks in the JavaScript wo
 
 In practice, this means that all you have to do is describe your Wasp app at a high level in Wasp’s config file, and then implement everything else in technologies that you’re familiar with such as React, NodeJS, and Prisma. It also means that Wasp has a high modularity potential, meaning we are building it to also support other frontend frameworks in the future, like Vue, Solid or Svelte, and to even support additional back-end languages, like Python, Go or Rust.
 
-If you’re the kind of developer that wishes a Rails or Laravel for JavaScript existed, then you should [give Wasp a try](https://wasp-lang.dev/) (and then [head into our Discord](https://discord.gg/rzdnErX) and let us know what you think)!
+If you’re the kind of developer that wishes a Rails or Laravel for JavaScript existed, then you should [give Wasp a try](https://wasp.sh/) (and then [head into our Discord](https://discord.gg/rzdnErX) and let us know what you think)!
 
 ## Where Are We Headed?
 
