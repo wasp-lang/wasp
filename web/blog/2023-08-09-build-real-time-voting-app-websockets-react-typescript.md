@@ -30,7 +30,7 @@ Why not? Well, serverless services turn on and off depending on if a request is 
 Luckily, we’re going to talk about two great ways you can implement them:
 
 1. **Advanced**: Implementing and configuring it yourself with React, NodeJS, and Socket.IO
-2. **Easy**: By using [Wasp](https://wasp-lang.dev), a full-stack React-NodeJS framework, to configure and integrate Socket.IO into your app for you.
+2. **Easy**: By using [Wasp](https://wasp.sh), a full-stack React-NodeJS framework, to configure and integrate Socket.IO into your app for you.
 
 These methods allow you to build fun stuff, like this instantly updating “voting with friends” app we built here:
 
@@ -521,7 +521,7 @@ If you just want to see finished app’s code, you can check out the [GitHub rep
 1. Install Wasp globally by running the following command in your terminal:
 
 ```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh 
+curl -sSL https://get.wasp.sh/installer.sh | sh 
 ```
 
 If you want to code along, first clone the `start` branch of the example app:

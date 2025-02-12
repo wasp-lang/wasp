@@ -155,7 +155,7 @@ Huge thanks to all our [contributors](https://github.com/wasp-lang/wasp/graphs/c
     source="img/update-feb-23/gh-stars.png"
 />
 
-And if you haven't yet, please [star us on Github](https://wasp-lang.dev/docs)! Yes, we are shameless star beggars, but if you believe in the project and want to support it that's one of the best ways to do it (next to actually building something with Wasp - [go do that too](https://wasp-lang.dev/docs)! :D)
+And if you haven't yet, please [star us on Github](https://wasp.sh/docs)! Yes, we are shameless star beggars, but if you believe in the project and want to support it that's one of the best ways to do it (next to actually building something with Wasp - [go do that too](https://wasp.sh/docs)! :D)
 
 That's a wrap! Thanks for reading and we can't wait for our next launch to get out and see how you like it. As always, [we're on Discord](https://discord.gg/rzdnErX) and appreciate any comments, feedback, and ideas - that's how Wasp came to be!
 

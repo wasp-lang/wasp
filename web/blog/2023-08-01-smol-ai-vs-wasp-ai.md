@@ -17,7 +17,7 @@ AI-assisted coding tools are on the rise. In this article, we take a deep dive i
 
 [Smol AI’s “Smol-Developer”](https://github.com/smol-ai/developer) gained a lot of notoriety very quickly by being one of the first such tools on the scene. It is a simple set of python scripts that allow a user to build prototype apps using natural language in an iterative approach. 
 
-[Wasp’s “GPT Web App Generator”](https://magic-app-generator.wasp-lang.dev/) is more of a newcomer and focuses on building more complex full-stack React + NodeJS web app prototypes through a simple prompt and fancy UI.
+[Wasp’s “GPT Web App Generator”](https://magic-app-generator.wasp.sh/) is more of a newcomer and focuses on building more complex full-stack React + NodeJS web app prototypes through a simple prompt and fancy UI.
 
 When comparing the two, Smol-Developer’s strength is its **versatility**. If you want to spend time tinkering and tweaking, you can do a lot to your own prompting, and even the code, in order to get decent results on a **broad range of apps**. 
 
@@ -42,13 +42,13 @@ Most of these newer solutions tend towards functioning as an AI Agent, going bey
 
 Either way, they’re often being described as “AI Junior Developers”, because they can take a product requirement (i.e. “prompt”) and build a pretty good — but far from perfect — first iteration, saving developers a lot of time.
 
-This article is going to focus on two tools that aim to build somewhat complex working prototypes from a single prompt: [Smol AI](https://github.com/smol-ai/developer) and [Wasp AI](https://magic-app-generator.wasp-lang.dev/). We’ll test them out by running the same prompts through each and seeing what we get.
+This article is going to focus on two tools that aim to build somewhat complex working prototypes from a single prompt: [Smol AI](https://github.com/smol-ai/developer) and [Wasp AI](https://magic-app-generator.wasp.sh/). We’ll test them out by running the same prompts through each and seeing what we get.
 
 By the end of it, you’ll have a pretty good understanding of how they work, their advantages and disadvantages, and what kind of tasks they’re best suited for.
 
 ## Before We Begin
 
-[Wasp = }](https://wasp-lang.dev) is the only open-source, completely serverful fullstack React/Node framework with a built-in compiler and AI-assisted features that lets you build your app super quickly. 
+[Wasp = }](https://wasp.sh) is the only open-source, completely serverful fullstack React/Node framework with a built-in compiler and AI-assisted features that lets you build your app super quickly. 
 
 We’re working hard to help you build performant web apps as easily as possible — including creating content like this, which is released weekly!
 
@@ -117,7 +117,7 @@ One of my personal favorites is AI Jason’s exposé and commentary. He gives a 
 
 ### Wasp’s GPT Web App Generator
 
-In contrast to Smol-Developer, Wasp’s AI tool, [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/), is currently an open-source web app (yes, it’s a web app that makes web apps). Since it’s release on the 12th of July, there have been over 6,500 apps generated with over 300 apps being generated each day!
+In contrast to Smol-Developer, Wasp’s AI tool, [GPT Web App Generator](https://magic-app-generator.wasp.sh/), is currently an open-source web app (yes, it’s a web app that makes web apps). Since it’s release on the 12th of July, there have been over 6,500 apps generated with over 300 apps being generated each day!
 
 <!-- ![Untitled](../static/img/smol-ai-vs-wasp-ai/Untitled%201.png) -->
 <ImgWithCaption 
@@ -125,12 +125,12 @@ In contrast to Smol-Developer, Wasp’s AI tool, [GPT Web App Generator](https:/
   width="550px"
 />
 
-Here’s a quick 1 minute video showcasing how [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/) works:
+Here’s a quick 1 minute video showcasing how [GPT Web App Generator](https://magic-app-generator.wasp.sh/) works:
 
 <!-- [https://www.youtube.com/watch?v=u0MVsPb2MP8](https://www.youtube.com/watch?v=u0MVsPb2MP8) -->
 <iframe width="560" height="315" src="https://www.youtube.com/embed/u0MVsPb2MP8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-So to give a bit of background, [Wasp](https://wasp-lang.dev) is actually a full-stack web app framework built around a compiler and config file. Using this approach, Wasp simplifies the web app creation process by handling boilerplate code for you, taking the core app logic written by the developer and connecting the entire stack together from frontend to backend, and database management. 
+So to give a bit of background, [Wasp](https://wasp.sh) is actually a full-stack web app framework built around a compiler and config file. Using this approach, Wasp simplifies the web app creation process by handling boilerplate code for you, taking the core app logic written by the developer and connecting the entire stack together from frontend to backend, and database management. 
 
 It currently works with React, NodeJS, Tanstack-Query, and Prisma, taking care of features like Auth, Routing, Cron Jobs, Fullstack Typesafety, and Caching. This allows developers to focus more on the fun stuff, like the app’s features, instead of spending time on boring configurations.
 
@@ -169,9 +169,9 @@ By leveraging the powers of Wasp, GPT Web App Generator works by:
 4. generating the code for each part of the app according to the plan
 5. checking each file for expected errors/hallucinations and fixing them
 
-In the end, the user can download the codebase as a zipped file and run it locally. Simpler apps, such as [TodoApp](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c) tend to work straight out of the box, while more complex apps need a bit of finessing to get working.
+In the end, the user can download the codebase as a zipped file and run it locally. Simpler apps, such as [TodoApp](https://magic-app-generator.wasp.sh/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://magic-app-generator.wasp.sh/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c) tend to work straight out of the box, while more complex apps need a bit of finessing to get working.
 
-- Try out the GPT Web App Generator at: [https://magic-app-generator.wasp-lang.dev/](https://magic-app-generator.wasp-lang.dev/) or via the command line via Wasp's [experimental release](https://magic-app-generator.wasp-lang.dev/#:~:text=%5BAdvanced%5D%20Can%20I%20use%20GPT4%20for%20the%20whole%20app%3F)
+- Try out the GPT Web App Generator at: [https://magic-app-generator.wasp.sh/](https://magic-app-generator.wasp.sh/) or via the command line via Wasp's [experimental release](https://magic-app-generator.wasp.sh/#:~:text=%5BAdvanced%5D%20Can%20I%20use%20GPT4%20for%20the%20whole%20app%3F)
 - Wasp AI / Generator GitHub: [https://github.com/wasp-lang/wasp/tree/wasp-ai/waspc/src/Wasp/AI](https://github.com/wasp-lang/wasp/tree/wasp-ai/waspc/src/Wasp/AI)
 
 <details>
@@ -438,7 +438,7 @@ There were still a couple of errors that prevented the app from being fully func
 And with those simple fixes we got a fully functioning, full-stack blog app with authentication,  database, and simple tailwind css styling! The best part was that all this took about ~5 minutes from start to finish. Sweet :)
 
 :::note
-🧑‍💻 The Generator saves all the apps it creates along with a sharable link, so if you want to check out the original generated Blog app code (before fixes) from above, click here: [https://magic-app-generator.wasp-lang.dev/result/a3a76887-952b-4774-a773-42209c4bffa8](https://magic-app-generator.wasp-lang.dev/result/a3a76887-952b-4774-a773-42209c4bffa8)
+🧑‍💻 The Generator saves all the apps it creates along with a sharable link, so if you want to check out the original generated Blog app code (before fixes) from above, click here: [https://magic-app-generator.wasp.sh/result/a3a76887-952b-4774-a773-42209c4bffa8](https://magic-app-generator.wasp.sh/result/a3a76887-952b-4774-a773-42209c4bffa8)
 
 :::
 
@@ -531,10 +531,10 @@ Other big differences lie within:
     2. Wasp AI has some error correction baked into its process, as the structure of a Wasp app is more defined and the range of errors are more predictable.
 2. Price per app generation via OpenAI’s chat completion endpoints 
     1. Smol AI can cost anywhere from **~$0.80 to $10.00** [depending on the complexity of the app](https://www.youtube.com/watch?v=zsxyqz6SYp8).
-    2. Wasp AI costs ~**$0.10 to $0.20** per app, when using the default mix of GPT 4 and GPT 3.5 turbo, but Wasp covers the bill here. If you choose to run [it just with GPT4](https://magic-app-generator.wasp-lang.dev/#:~:text=%5B-,Advanced,-%5D%20Can%20I%20use), then the cost is 10x at **$1.00 to $2.00** per generation and you have to provide your own API key.
+    2. Wasp AI costs ~**$0.10 to $0.20** per app, when using the default mix of GPT 4 and GPT 3.5 turbo, but Wasp covers the bill here. If you choose to run [it just with GPT4](https://magic-app-generator.wasp.sh/#:~:text=%5B-,Advanced,-%5D%20Can%20I%20use), then the cost is 10x at **$1.00 to $2.00** per generation and you have to provide your own API key.
 3. User Interface
     1. Smol Developer works through the command line and has minimal logging and process feedback
-    2. Wasp AI currently uses a clean web app UI with more logging and feedback, as well as through the command line without a UI (you have to download the [experimental Wasp release](https://magic-app-generator.wasp-lang.dev/#:~:text=%5BAdvanced%5D%20Can%20I%20use%20GPT4%20for%20the%20whole%20app%3F) to do so at this time).
+    2. Wasp AI currently uses a clean web app UI with more logging and feedback, as well as through the command line without a UI (you have to download the [experimental Wasp release](https://magic-app-generator.wasp.sh/#:~:text=%5BAdvanced%5D%20Can%20I%20use%20GPT4%20for%20the%20whole%20app%3F) to do so at this time).
 
 Overall, both solutions produce amazing results, allowing solo developers or teams iterate on ideas and generate prototypes faster than before. But they still have a lot of room for improvement.
 
@@ -552,7 +552,7 @@ Obviously, there can be no clear winner here as the answer to question of which 
 
 Are you looking for a tool that can generate a broad range of simple apps? And are you interested in learning more about building AI-assisted coding tools and natural language programming and don’t mind tweaking and tinkering for a while? Well then, [Smol-Developer](https://github.com/smol-ai/developer) is what you’re looking for!
 
-Do you want to generate a working full-stack React/Node app prototype with all the bells and whistles as quickly and easily as possible? Head straight for Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/)!
+Do you want to generate a working full-stack React/Node app prototype with all the bells and whistles as quickly and easily as possible? Head straight for Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp.sh/)!
 
 :::info Help me help you
 🌟 **If you haven’t yet, please** [star us on GitHub](https://www.github.com/wasp-lang/wasp), especially if you found this useful! If you do, it helps support us in creating more content like this. And if you don’t… well, we will deal with it, I guess.
@@ -567,6 +567,6 @@ In general, as Jason “AI Jason” Zhou said:
 
 Jason makes a great point here, that these tools don’t really have the capacity to replace Junior Developers entirely in their current capacity (although they will surely improve in the future), but they do improve the speed and ease with which we can try out novel ideas!
 
-I personally believe that in the near future we will see more domain-specific AI-assisted tools like Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev) because of the performance gains they bring to the end user. Code agents that are focused on a niche can produce better results out of the box due to the embedded knowledge. In the future, I think we can expect a lot of agents that are each tailored towards fulfilling a specific task.
+I personally believe that in the near future we will see more domain-specific AI-assisted tools like Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp.sh) because of the performance gains they bring to the end user. Code agents that are focused on a niche can produce better results out of the box due to the embedded knowledge. In the future, I think we can expect a lot of agents that are each tailored towards fulfilling a specific task.
 
-But don’t just take my word for it. Go ahead try out [Smol-Developer](https://github.com/smol-ai/developer) and the [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev) for yourself and let me know what you think in the comments!
+But don’t just take my word for it. Go ahead try out [Smol-Developer](https://github.com/smol-ai/developer) and the [GPT Web App Generator](https://magic-app-generator.wasp.sh) for yourself and let me know what you think in the comments!

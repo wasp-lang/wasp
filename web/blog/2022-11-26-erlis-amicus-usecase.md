@@ -46,7 +46,7 @@ Soon, the first version of Amicus was live! It was made in a true lean startup f
     caption="Amicus's dashboard, using Material-UI"
 />
 
-Erlis used Material-UI as a UI library since it came with one of the example apps built in Wasp (Beta introduced Tailwind support!). Users could track their clients, active legal matters and there was even integrated billing with Stripe! Amicus also extensively used Wasp’s [Async Jobs](https://wasp-lang.dev/blog/2022/06/15/jobs-feature-announcement) feature to regularly update invoices, send reminder emails and clear out old data from the database.
+Erlis used Material-UI as a UI library since it came with one of the example apps built in Wasp (Beta introduced Tailwind support!). Users could track their clients, active legal matters and there was even integrated billing with Stripe! Amicus also extensively used Wasp’s [Async Jobs](https://wasp.sh/blog/2022/06/15/jobs-feature-announcement) feature to regularly update invoices, send reminder emails and clear out old data from the database.
 
 After a few iterations with the legal team who were Amicus' test user (e.g. adding support for different types of users via roles), they were ready to get onboarded and become paying customers! More than 20 people from a single company are using Amicus daily for their work, making it an amazing source of continuous feedback for further development.
 

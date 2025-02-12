@@ -132,7 +132,7 @@ Due to how unique Wasp is in its approach, getting an IDE to provide all the usu
 
 With Wasp Beta this is now resolved! We resolved this by somewhat changing the structure of the Wasp project and also adding tsconfig.json files that provide IDE with the information needed to correctly analyze the JS/TS source files.
 
-To learn more about Typescript support in Wasp Beta, check [this blog post](https://wasp-lang.dev/blog/2022/11/29/typescript-feature-announcement)!
+To learn more about Typescript support in Wasp Beta, check [this blog post](https://wasp.sh/blog/2022/11/29/typescript-feature-announcement)!
 
 # What does the future hold?
 
