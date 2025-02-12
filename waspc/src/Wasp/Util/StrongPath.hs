@@ -5,7 +5,6 @@ module Wasp.Util.StrongPath
     splitAbsExtension,
     splitRelExtension,
     findAllFilesWithSuffix,
-    getFilename,
   )
 where
 
@@ -15,7 +14,6 @@ import Data.List (isSuffixOf)
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
-import System.FilePath (takeFileName)
 
 stripProperPrefix :: SP.Path' SP.Abs (SP.Dir a) -> SP.Path' SP.Abs (SP.File b) -> Maybe (SP.Path' (SP.Rel a) (SP.File b))
 stripProperPrefix base file =
@@ -40,6 +38,3 @@ splitRelExtension path =
 
 findAllFilesWithSuffix :: String -> [SP.Path p r (SP.File f)] -> [SP.Path p r (SP.File f)]
 findAllFilesWithSuffix extension = filter ((extension `isSuffixOf`) . SP.toFilePath)
-
-getFilename :: SP.Path' (SP.Rel b) (SP.File a) -> String
-getFilename = takeFileName . SP.toFilePath

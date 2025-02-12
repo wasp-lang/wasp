@@ -9,6 +9,7 @@ import StrongPath
     Dir,
     Path',
     castFile,
+    fromRelFile,
     (</>),
   )
 import qualified Wasp.AppSpec as AS
@@ -22,7 +23,7 @@ import Wasp.Project.WaspFile.TypeScript (analyzeWaspTsFile)
 import Wasp.Project.WaspFile.WaspLang (analyzeWaspLangFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.StrongPath (findAllFilesWithSuffix, getFilename)
+import Wasp.Util.StrongPath (findAllFilesWithSuffix)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
 findWaspFile projectDir = do
@@ -34,14 +35,14 @@ findWaspFile projectDir = do
     (_ : _, _ : _) -> Left bothFilesFoundMessage
     ([], waspTsFiles) -> case waspTsFiles of
       [singleWaspTsFile]
-        | getFilename singleWaspTsFile == ".wasp.ts" -> Left (makeInvalidFileNameMessage ".wasp.ts")
+        | fromRelFile singleWaspTsFile == ".wasp.ts" -> Left (makeInvalidFileNameMessage ".wasp.ts")
         | otherwise -> Right . WaspTs $ castFile (projectDir </> singleWaspTsFile)
-      multipleWaspTsFiles -> Left (makeMultipleFilesMessage "*.wasp.ts" (map getFilename multipleWaspTsFiles))
+      multipleWaspTsFiles -> Left (makeMultipleFilesMessage "*.wasp.ts" (map fromRelFile multipleWaspTsFiles))
     (waspLangFiles, []) -> case waspLangFiles of
       [singleWaspLangFile]
-        | getFilename singleWaspLangFile == ".wasp" -> Left (makeInvalidFileNameMessage ".wasp")
+        | fromRelFile singleWaspLangFile == ".wasp" -> Left (makeInvalidFileNameMessage ".wasp")
         | otherwise -> Right . WaspLang $ castFile (projectDir </> singleWaspLangFile)
-      multipleWaspFiles -> Left (makeMultipleFilesMessage "*.wasp" (map getFilename multipleWaspFiles))
+      multipleWaspFiles -> Left (makeMultipleFilesMessage "*.wasp" (map fromRelFile multipleWaspFiles))
   where
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the project directory."
     bothFilesFoundMessage =
