@@ -4,15 +4,12 @@ module Wasp.Project.WaspFile
   )
 where
 
-import Data.List (find, isSuffixOf)
 import StrongPath
   ( Abs,
     Dir,
     Path',
     castFile,
-    fromAbsDir,
     fromRelFile,
-    relfile,
     (</>),
   )
 import qualified Wasp.AppSpec as AS
@@ -26,7 +23,7 @@ import Wasp.Project.WaspFile.TypeScript (analyzeWaspTsFile)
 import Wasp.Project.WaspFile.WaspLang (analyzeWaspLangFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.StrongPath (findAllFilesWithSuffix)
+import Wasp.Util.StrongPath (findAllFilesWithSuffix, getFilename)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
 findWaspFile projectDir = do
@@ -39,22 +36,22 @@ findWaspFile projectDir = do
     ([], waspTsFiles) -> case waspTsFiles of
       [singleWaspTsFile] ->
         if fromRelFile singleWaspTsFile == ".wasp.ts"
-          then Left (invalidFileNameMessage ".wasp.ts")
+          then Left (makeInvalidFileNameMessage ".wasp.ts")
           else Right . WaspTs $ castFile (projectDir </> singleWaspTsFile)
-      multipleWaspTsFiles -> Left multipleFilesFoundMessage
+      multipleWaspTsFiles -> Left (makeMultipleFilesMessage "*.wasp.ts" (map getFilename multipleWaspTsFiles))
     (waspLangFiles, []) -> case waspLangFiles of
       [singleWaspLangFile] ->
         if fromRelFile singleWaspLangFile == ".wasp"
-          then Left (invalidFileNameMessage ".wasp")
+          then Left (makeInvalidFileNameMessage ".wasp")
           else Right . WaspLang $ castFile (projectDir </> singleWaspLangFile)
-      multipleWaspTsFiles -> Left multipleFilesFoundMessage
+      multipleWaspFiles -> Left (makeMultipleFilesMessage "*.wasp" (map getFilename multipleWaspFiles))
   where
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the project directory."
     bothFilesFoundMessage =
       "Found both *.wasp and *.wasp.ts files in the project directory. "
         ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
-    multipleFilesFoundMessage = "Found multiple *.wasp or *.wasp.ts files in the project directory. Please keep only one."
-    invalidFileNameMessage fileExtension = "Your Wasp file can't be called '" ++ fileExtension ++ "'. Please rename it to something like [name]" ++ fileExtension ++ "."
+    makeMultipleFilesMessage suffix files = "Found multiple " ++ suffix ++ " files in the project directory: " ++ show files ++ ". Please keep only one."
+    makeInvalidFileNameMessage suffix = "Your Wasp file can't be called '" ++ suffix ++ "'. Please rename it to something like [name]" ++ suffix ++ "."
 
 analyzeWaspFile ::
   Path' Abs (Dir WaspProjectDir) ->
