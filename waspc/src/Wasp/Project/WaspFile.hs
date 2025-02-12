@@ -9,7 +9,6 @@ import StrongPath
     Dir,
     Path',
     castFile,
-    fromRelFile,
     (</>),
   )
 import qualified Wasp.AppSpec as AS
@@ -34,16 +33,14 @@ findWaspFile projectDir = do
     ([], []) -> Left fileNotFoundMessage
     (_ : _, _ : _) -> Left bothFilesFoundMessage
     ([], waspTsFiles) -> case waspTsFiles of
-      [singleWaspTsFile] ->
-        if fromRelFile singleWaspTsFile == ".wasp.ts"
-          then Left (makeInvalidFileNameMessage ".wasp.ts")
-          else Right . WaspTs $ castFile (projectDir </> singleWaspTsFile)
+      [singleWaspTsFile]
+        | getFilename singleWaspTsFile == ".wasp.ts" -> Left (makeInvalidFileNameMessage ".wasp.ts")
+        | otherwise -> Right . WaspTs $ castFile (projectDir </> singleWaspTsFile)
       multipleWaspTsFiles -> Left (makeMultipleFilesMessage "*.wasp.ts" (map getFilename multipleWaspTsFiles))
     (waspLangFiles, []) -> case waspLangFiles of
-      [singleWaspLangFile] ->
-        if fromRelFile singleWaspLangFile == ".wasp"
-          then Left (makeInvalidFileNameMessage ".wasp")
-          else Right . WaspLang $ castFile (projectDir </> singleWaspLangFile)
+      [singleWaspLangFile]
+        | getFilename singleWaspLangFile == ".wasp" -> Left (makeInvalidFileNameMessage ".wasp")
+        | otherwise -> Right . WaspLang $ castFile (projectDir </> singleWaspLangFile)
       multipleWaspFiles -> Left (makeMultipleFilesMessage "*.wasp" (map getFilename multipleWaspFiles))
   where
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the project directory."
