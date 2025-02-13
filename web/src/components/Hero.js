@@ -1,8 +1,6 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
 
-import './prismCustomization'
-
 import CodeHighlight from './CodeHighlight'
 
 import {
@@ -109,7 +107,7 @@ query getTasks {
   entities: [Task] // Automatic cache invalidation.
 }`
 
-const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`
+  const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`
 
   return (
     <SectionContainer className="pb-5 pt-24">
@@ -165,7 +163,7 @@ const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`
             </span>
           </div>
         </div>
-        <div className="mt-16 lg:col-span-6 lg:mt-0 flex flex-col gap-4">
+        <div className="mt-16 flex flex-col gap-4 lg:col-span-6 lg:mt-0">
           <FileViewer
             fileName="todoApp.wasp"
             fileExplanation="Wasp config file"
