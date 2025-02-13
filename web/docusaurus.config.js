@@ -23,9 +23,6 @@ module.exports = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  stylesheets: [
-    'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
-  ],
   themeConfig: {
     announcementBar: {
       id: 'LW7',
