@@ -7,9 +7,6 @@
 
 import { join as joinPaths } from 'path'
 
-// PRIVATE API
-export const waspProjectDirFromWebAppDir = '{= waspProjectDirFromWebAppDir =}'
-
 // PUBLIC API
 /**
  * Wasp runs the client code in the `web-app` directory which is nested in the
@@ -17,5 +14,6 @@ export const waspProjectDirFromWebAppDir = '{= waspProjectDirFromWebAppDir =}'
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
 export function resolveProjectPath(path: string): string {
+  const waspProjectDirFromWebAppDir = '{= waspProjectDirFromWebAppDir =}'
   return joinPaths(waspProjectDirFromWebAppDir, path)
 }
