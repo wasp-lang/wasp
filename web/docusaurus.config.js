@@ -154,10 +154,6 @@ module.exports = {
     [
       '@docusaurus/preset-classic',
       {
-        gtag: {
-          trackingID: 'GTM-PQ4JFCK',
-          anonymizeIP: true,
-        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           sidebarCollapsible: true,
@@ -230,79 +226,6 @@ module.exports = {
         },
       }
     },
-    // This plugin is always inactive in development and only active in
-    // production because it works on the build output.
-    [
-      '@docusaurus/plugin-client-redirects',
-      {
-        redirects: [
-          {
-            from: '/docs/guides/auth-ui',
-            to: '/docs/auth/ui',
-          },
-          {
-            from: '/docs/deploying',
-            to: '/docs/deployment/intro',
-          },
-          {
-            from: '/docs/advanced/deployment/overview',
-            to: '/docs/deployment/intro',
-          },
-          {
-            from: '/docs/guides/username-password',
-            to: '/docs/auth/username-and-pass',
-          },
-          {
-            from: '/docs/guides/websockets',
-            to: '/docs/advanced/web-sockets',
-          },
-          {
-            from: '/docs/guides/testing',
-            to: '/docs/project/testing',
-          },
-          {
-            from: '/docs/guides/middleware-customization',
-            to: '/docs/advanced/middleware-config',
-          },
-          {
-            from: '/docs/guides/email-auth',
-            to: '/docs/auth/email',
-          },
-          {
-            from: '/docs/guides/crud',
-            to: '/docs/data-model/crud',
-          },
-          {
-            from: '/docs/integrations/google',
-            to: '/docs/auth/social-auth/google',
-          },
-          {
-            from: '/docs/integrations/github',
-            to: '/docs/auth/social-auth/github',
-          },
-          {
-            from: '/docs/integrations/css-frameworks',
-            to: '/docs/project/css-frameworks',
-          },
-          {
-            from: '/docs/tutorials/todo-app',
-            to: '/docs/tutorial/create',
-          },
-          {
-            from: '/docs/migrate-from-0-11-to-0-12',
-            to: '/docs/migration-guides/migrate-from-0-11-to-0-12',
-          },
-          {
-            from: '/docs/migrate-from-0-12-to-0-13',
-            to: '/docs/migration-guides/migrate-from-0-12-to-0-13',
-          },
-          {
-            from: '/docs/migrate-from-0-13-to-0-14',
-            to: '/docs/migration-guides/migrate-from-0-13-to-0-14',
-          },
-        ],
-      },
-    ],
   ],
 }
 
