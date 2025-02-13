@@ -1,6 +1,6 @@
-{{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
+import { waspProjectDirFromWebAppDir } from 'wasp/dev'
 
 const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd()
 
@@ -51,5 +51,5 @@ function parsePathToUserCode(
 // This breaks our e2e tests in the CI because the path is different.
 function getWaspProjectDirAbsPathFromCwd(): string {
   const webAppDirAbsPath = process.cwd()
-  return path.join(webAppDirAbsPath, '{= waspProjectDirFromWebAppDir =}')
+  return path.join(webAppDirAbsPath, waspProjectDirFromWebAppDir)
 }

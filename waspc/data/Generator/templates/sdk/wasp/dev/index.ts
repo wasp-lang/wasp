@@ -1,3 +1,4 @@
+{{={= =}=}}
 /**
  * Code found in this module is not meant to be used in user's server or client
  * code. It is used by the Wasp tooling e.g. in the Tailwind config to resolve
@@ -6,6 +7,10 @@
 
 import { join as joinPaths } from 'path'
 
+
+// PRIVATE API
+export const waspProjectDirFromWebAppDir = '{= waspProjectDirFromWebAppDir =}'
+
 // PUBLIC API
 /**
  * Wasp runs the client code in the `web-app` directory which is nested in the
@@ -13,5 +18,5 @@ import { join as joinPaths } from 'path'
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
 export function resolveProjectPath(path: string): string {
-  return joinPaths('../../../', path)
+  return joinPaths(waspProjectDirFromWebAppDir, path)
 }
