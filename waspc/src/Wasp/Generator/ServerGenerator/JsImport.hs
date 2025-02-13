@@ -57,4 +57,6 @@ extImportToJsImport = GJI.extImportToJsImport serverExtDir
     -- error messages (with user's file names and line numbers). It works great
     -- with Vite (Vite outputs absolute file paths), but less great on the
     -- server (TS outputs relative paths, resulting in ../../src/something).
+    -- NOTE: When changing this, also update WebAppGenerator/JsImport.hs
+    -- TODO: Calculate this dynamically (by using stuff from Project.Common.
     serverExtDir = [reldirP|../../../../src|]
