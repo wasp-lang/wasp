@@ -7,7 +7,6 @@
 
 import { join as joinPaths } from 'path'
 
-
 // PRIVATE API
 export const waspProjectDirFromWebAppDir = '{= waspProjectDirFromWebAppDir =}'
 
