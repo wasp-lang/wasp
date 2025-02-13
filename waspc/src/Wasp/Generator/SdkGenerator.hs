@@ -132,16 +132,6 @@ genSdk spec =
   where
     genFileCopy = return . C.mkTmplFd
 
-genDevIndex :: Generator FileDraft
-genDevIndex =
-  return $
-    C.mkTmplFdWithData
-      [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
-  where
-    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromAppComponentDir
-
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
   return
@@ -372,3 +362,13 @@ genDbClient spec = do
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+
+genDevIndex :: Generator FileDraft
+genDevIndex =
+  return $
+    C.mkTmplFdWithData
+      [relfile|dev/index.ts|]
+      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+  where
+    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
+      waspProjectDirFromAppComponentDir
