@@ -22,6 +22,22 @@ const mockTasks = [
     description: 'test todo 1',
     isDone: true,
     userId: 1,
+    user: {
+      id: 1,
+      isOnAfterSignupHookCalled: true,
+      isOnAfterLoginHookCalled: true,
+      address: '123 Main St',
+      auth: {
+        id: '1',
+        userId: 1,
+        identities: [
+          {
+            providerName: 'email',
+            providerUserId: 'elon@tesla.com',
+          },
+        ],
+      },
+    },
   },
 ]
 

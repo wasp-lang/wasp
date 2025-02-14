@@ -7,7 +7,6 @@ import {
 import { Link, routes } from 'wasp/client/router'
 import { api } from 'wasp/client/api'
 import React, { useEffect, useRef, useState } from 'react'
-import { getName } from '../user'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -26,7 +25,7 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
   }, [])
 
   useSocketListener('chatMessage', (msg) =>
-    setMessages((priorMessages) => [msg, ...priorMessages]),
+    setMessages((priorMessages) => [msg, ...priorMessages])
   )
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -49,11 +48,19 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
     <>
       <h2 className="mt-4 mb-2 font-bold text-xl">User Auth Fields Demo</h2>
       <div>
-        Hello <strong>{getName(user)}</strong>! Your status is{' '}
+        Hello <strong>{user.getFirstProviderUserId()}</strong>! Your status is{' '}
         <strong>
           {user.identities.email?.isEmailVerified ? 'verfied' : 'unverified'}
         </strong>
         .
+      </div>
+      <div>
+        Value of <code>user.isOnAfterSignupHookCalled</code> is{' '}
+        <strong>{user.isOnAfterSignupHookCalled ? 'true' : 'false'}</strong>.
+      </div>
+      <div>
+        Value of <code>user.isOnAfterLoginHookCalled</code> is{' '}
+        <strong>{user.isOnAfterLoginHookCalled ? 'true' : 'false'}</strong>.
       </div>
       <div>
         First provider ID: <strong>{user.getFirstProviderUserId()}</strong>

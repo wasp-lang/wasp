@@ -1,70 +1,37 @@
-import { Request } from 'express'
+import { HttpError } from 'wasp/server'
 import type {
   OnAfterSignupHook,
-  OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
   OnBeforeLoginHook,
   OnAfterLoginHook,
 } from 'wasp/server/auth'
 
-export const onBeforeSignup: OnBeforeSignupHook = async (args) => {
-  const log = createLoggerForHook('onBeforeSignup')
-  const count = await args.prisma.user.count()
-  log('number of users before', count)
-  log('providerId object', args.providerId)
-}
-
-const oAuthQueryStore = new Map<string, Request['query']>()
-
-export const onAfterSignup: OnAfterSignupHook = async (args) => {
-  const log = createLoggerForHook('onAfterSignup')
-  const count = await args.prisma.user.count()
-  log('number of users after', count)
-  log('user object', args.user)
-  log('providerId object', args.providerId)
-
-  // If this is a OAuth signup, we have access token and uniqueRequestId
-  if (args.oauth) {
-    log('accessToken', args.oauth.tokens.accessToken)
-    log('uniqueRequestId', args.oauth.uniqueRequestId)
-    const id = args.oauth.uniqueRequestId
-    const query = oAuthQueryStore.get(id)
-    if (query) {
-      log('saved query params after oAuth redirect', query)
-    }
-    oAuthQueryStore.delete(id)
+export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId }) => {
+  if (providerId.providerUserId === 'notallowed@email.com') {
+    throw new HttpError(403, 'On Before Signup Hook disallows this email.')
   }
 }
 
-export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async (
-  args
-) => {
-  const log = createLoggerForHook('onBeforeOAuthRedirect')
-  log('query params before oAuth redirect', args.req.query)
-
-  // Saving query params for later use in onAfterSignup hook
-  const id = args.oauth.uniqueRequestId
-  oAuthQueryStore.set(id, args.req.query)
-
-  return { url: args.url }
+export const onAfterSignup: OnAfterSignupHook = async ({ prisma, user }) => {
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isOnAfterSignupHookCalled: true,
+    },
+  })
 }
 
-export const onBeforeLogin: OnBeforeLoginHook = async (args) => {
-  const log = createLoggerForHook('onBeforeLogin')
-  log('providerId object', args.providerId)
-}
-
-export const onAfterLogin: OnAfterLoginHook = async (args) => {
-  const log = createLoggerForHook('onAfterLogin')
-  log('providerId object', args.providerId)
-  log('user object', args.user)
-  if (args.oauth && args.oauth.providerName === 'google') {
-    log('accessToken', args.oauth.tokens.accessToken)
+export const onBeforeLogin: OnBeforeLoginHook = async ({ providerId }) => {
+  if (providerId.providerUserId === 'cantlogin@email.com') {
+    throw new HttpError(403, 'On Before Login Hook disallows this email.')
   }
 }
 
-function createLoggerForHook(hookName: string) {
-  return (...args: unknown[]) => {
-    console.log(`[${hookName}]`, ...args)
-  }
+export const onAfterLogin: OnAfterLoginHook = async ({ prisma, user }) => {
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isOnAfterLoginHookCalled: true,
+    },
+  })
 }

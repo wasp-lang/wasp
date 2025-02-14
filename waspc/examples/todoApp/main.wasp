@@ -47,7 +47,6 @@ app todoApp {
     onAuthSucceededRedirectTo: "/profile",
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
-    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks.js",
     onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks.js",
     onAfterLogin: import { onAfterLogin } from "@src/auth/hooks.js",
   },
@@ -123,6 +122,12 @@ route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage {
   authRequired: true,
   component: import Task from "@src/pages/Task"
+}
+
+route CrudRoute { path: "/crud", to: Crud }
+page Crud {
+  component: import { CrudTestPage } from "@src/pages/CrudTest.tsx",
+  authRequired: true
 }
 
 route CatchAllRoute { path: "*", to: CatchAllPage }
@@ -332,4 +337,16 @@ action jsActionWithArgs {
   fn: import { jsActionWithArgs } from "@src/testTypes/operations/jsDefinitions",
   auth: true,
   entities: [Task]
+}
+
+// Crud
+
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      overrideFn: import { getAllFilteredTasks } from "@src/crud"
+    },
+    create: {}
+  }
 }
