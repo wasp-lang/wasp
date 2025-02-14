@@ -29,7 +29,7 @@ import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
 import qualified Path.IO as PathIO
-import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP.Path
 import qualified System.Directory as SD
@@ -66,7 +66,7 @@ listDirectoryDeep absDirPath = do
 -- TODO: write tests.
 
 -- | Lists files and directories at top lvl of the directory.
-listDirectory :: forall d f. Path' Abs (Dir d) -> IO ([Path' (Rel d) (File f)], [Path' (Rel d) Dir'])
+listDirectory :: forall r d f. Path' Abs (Dir r) -> IO ([Path' (Rel r) (File f)], [Path' (Rel r) (Dir d)])
 listDirectory absDirPath = do
   fpRelItemPaths <- SD.listDirectory fpAbsDirPath
   relFilePaths <- filterFiles fpAbsDirPath fpRelItemPaths
@@ -76,12 +76,12 @@ listDirectory absDirPath = do
     fpAbsDirPath :: FilePath
     fpAbsDirPath = toFilePath absDirPath
 
-    filterFiles :: FilePath -> [FilePath] -> IO [Path' (Rel d) (File f)]
+    filterFiles :: FilePath -> [FilePath] -> IO [Path' (Rel r) (File f)]
     filterFiles absDir relItems =
       filterM (SD.doesFileExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelFile
 
-    filterDirs :: FilePath -> [FilePath] -> IO [Path' (Rel d) Dir']
+    filterDirs :: FilePath -> [FilePath] -> IO [Path' (Rel r) (Dir d)]
     filterDirs absDir relItems =
       filterM (SD.doesDirectoryExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelDir
