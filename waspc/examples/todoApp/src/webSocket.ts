@@ -6,15 +6,28 @@ export const webSocketFn: WebSocketDefinition<
   ServerToClientEvents,
   InterServerEvents
 > = (io, context) => {
-  io.on('connection', (socket) => {
+
+  const apiNamespace = io.of('/api');
+  apiNamespace.on('connection', (socket) => {
     const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {
       console.log('message: ', msg)
-      io.emit('chatMessage', { id: uuidv4(), username, text: msg })
+      apiNamespace.emit('chatMessage', { id: uuidv4(), username, text: msg })
     })
   })
+
+  // io.on('connection', (socket) => {
+  //   const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
+  //   console.log('a user connected: ', username)
+
+  //   socket.on('chatMessage', async (msg) => {
+  //     console.log('message: ', msg)
+  //     io.emit('chatMessage', { id: uuidv4(), username, text: msg })
+  //   })
+  // })
+
 }
 
 interface ServerToClientEvents {

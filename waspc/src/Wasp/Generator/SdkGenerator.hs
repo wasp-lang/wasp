@@ -90,7 +90,7 @@ genSdk spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
-      genFileCopy [relfile|api/index.ts|],
+      genApiIndex spec,
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
@@ -244,10 +244,12 @@ genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
   where
     relConfigFilePath = [relfile|server/config.ts|]
+    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
+          "isCookieAuthEnabled" .= maybe False AS.App.Auth.isCookieAuthEnabled maybeAuth
         ]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the
@@ -359,3 +361,11 @@ genDbClient spec = do
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+
+genApiIndex :: AppSpec -> Generator FileDraft
+genApiIndex spec = return $ C.mkTmplFdWithData [relfile|api/index.ts|] tmplData
+  where
+    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
+    tmplData = object
+      [ "isCookieAuthEnabled" .= maybe False AS.App.Auth.isCookieAuthEnabled maybeAuth
+      ]
