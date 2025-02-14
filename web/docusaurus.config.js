@@ -27,7 +27,7 @@ module.exports = {
     announcementBar: {
       id: 'LW7',
       content:
-        '<b>Wasp v0.16 is here!</b> 🐝 <a href="/blog/2025/01/09/wasp-launch-week-8">See what\'s new ⚙️</a>',
+        '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
