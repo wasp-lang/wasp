@@ -1,12 +1,13 @@
 {
-  "name": "hackathonSubmissions",
+  "name": "hackathon-submissions",
   "type": "module",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-feather": "2.0.10",
     "react-router-dom": "^6.26.2",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "wasp": "file:.wasp/out/sdk/wasp",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",
