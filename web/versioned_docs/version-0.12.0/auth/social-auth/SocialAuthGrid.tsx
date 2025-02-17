@@ -9,12 +9,12 @@ export function SocialAuthGrid({
     {
       title: 'Google',
       description: 'Users sign in with their Google account.',
-      linkToDocs: '/docs/auth/social-auth/google' + pagePart,
+      linkToDocs: './google' + pagePart,
     },
     {
       title: 'Github',
       description: 'Users sign in with their Github account.',
-      linkToDocs: '/docs/auth/social-auth/github' + pagePart,
+      linkToDocs: './github' + pagePart,
     },
   ]
   return (

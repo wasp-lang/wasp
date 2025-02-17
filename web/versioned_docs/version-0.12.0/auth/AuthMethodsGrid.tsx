@@ -1,25 +1,33 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
-import './SocialAuthGrid.css'
+import './AuthMethodsGrid.css'
 
-export function SocialAuthGrid({
-  pagePart = '', // e.g. #overrides
-}) {
+export function AuthMethodsGrid() {
   const authMethods = [
     {
+      title: 'Email',
+      description: 'Email verification, password reset, etc.',
+      linkToDocs: './email',
+    },
+    {
+      title: 'Username & Password',
+      description: 'The simplest way to get started',
+      linkToDocs: './username-and-pass',
+    },
+    {
       title: 'Google',
-      description: 'Users sign in with their Google account.',
-      linkToDocs: './google' + pagePart,
+      description: 'Users sign in with their Google account',
+      linkToDocs: './social-auth/google',
     },
     {
       title: 'Github',
-      description: 'Users sign in with their Github account.',
-      linkToDocs: './github' + pagePart,
+      description: 'Users sign in with their Github account',
+      linkToDocs: './social-auth/github',
     },
   ]
   return (
     <>
-      <div className="social-auth-grid">
+      <div className="auth-methods-grid">
         {authMethods.map((authMethod) => (
           <AuthMethodBox
             title={authMethod.title}
@@ -28,8 +36,8 @@ export function SocialAuthGrid({
           />
         ))}
       </div>
-      <p className="social-auth-info">
-        <small>Click on each provider for more details.</small>
+      <p className="auth-methods-info">
+        <small>Click on each auth method for more details.</small>
       </p>
     </>
   )
