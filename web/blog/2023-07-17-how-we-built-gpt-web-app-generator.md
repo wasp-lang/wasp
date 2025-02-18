@@ -14,16 +14,16 @@ import ImgWithCaption from './components/ImgWithCaption'
   source="img/how-we-built-gpt-wasp/generator-logs-yellow.png"
 />
 
-We created [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/), which lets you shortly describe the web app you would like to create, and in a matter of minutes, a full-stack codebase, written in React, Node.js, Prisma, and Wasp, will be generated right in front of you, and available to download and run locally!
+We created [GPT Web App Generator](https://magic-app-generator.wasp.sh/), which lets you shortly describe the web app you would like to create, and in a matter of minutes, a full-stack codebase, written in React, Node.js, Prisma, and Wasp, will be generated right in front of you, and available to download and run locally!
 
-We started this as an experiment, to see how well we could use GPT to generate full-stack web apps in [Wasp](https://wasp-lang.dev/), the open-source JS web app framework that we are developing. Since we launched, we had more than 3000 apps generated in just a couple of days!
+We started this as an experiment, to see how well we could use GPT to generate full-stack web apps in [Wasp](https://wasp.sh/), the open-source JS web app framework that we are developing. Since we launched, we had more than 3000 apps generated in just a couple of days!
 
 <ImgWithCaption
   source="img/gpt-wasp/how-it-works.gif"
   caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀"
 />
 
-Check out [this blog post](https://wasp-lang.dev/blog/2023/07/10/gpt-web-app-generator) to see GPT Web App Generator in action, including a one-minute demo video, few example apps, and learn a bit more about our plans for the future. Or, try it out yourself at https://magic-app-generator.wasp-lang.dev/ !
+Check out [this blog post](https://wasp.sh/blog/2023/07/10/gpt-web-app-generator) to see GPT Web App Generator in action, including a one-minute demo video, few example apps, and learn a bit more about our plans for the future. Or, try it out yourself at https://magic-app-generator.wasp.sh/ !
 
 In this blog post, **we are going to explore the technical side of creating the GPT Web App Generator**: techniques we used, how we engineered our prompts, challenges we encountered, and choices we made! (Note from here on we will just refer to it as the “Generator”, or “code agent” when talking about the backend)
 
@@ -42,14 +42,14 @@ Input into our Generator is the app name, app description (free form text), and 
 
 As an output, Generator spits out the whole JS codebase of a working full-stack web app: frontend, backend, and database. Frontend is React + Tailwind, the backend is NodeJS with Express, and for working with the database we used Prisma. This is all connected together with the Wasp framework.
 
-You can see an example of generated codebase here: [https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f) .
+You can see an example of generated codebase here: [https://magic-app-generator.wasp.sh/result/07ed440a-3155-4969-b3f5-2031fb1f622f](https://magic-app-generator.wasp.sh/result/07ed440a-3155-4969-b3f5-2031fb1f622f) .
 
 <ImgWithCaption
   source="img/how-we-built-gpt-wasp/todo-results.png"
   caption="Result of generating a Todo app"
 />
 
-Generator does its best to produce code that works out of the box → you can download it to your machine and run it. For simpler apps, such as [TodoApp](https://magic-app-generator.wasp-lang.dev/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://magic-app-generator.wasp-lang.dev/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c), it often generates code with no mistakes, and you can run them out of the box.
+Generator does its best to produce code that works out of the box → you can download it to your machine and run it. For simpler apps, such as [TodoApp](https://magic-app-generator.wasp.sh/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://magic-app-generator.wasp.sh/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c), it often generates code with no mistakes, and you can run them out of the box.
 
 <ImgWithCaption
   source="img/gpt-wasp/todo-app.png"

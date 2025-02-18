@@ -79,7 +79,7 @@ app authExample {
 
 ### Step 3 - Get Google credentials and add environment variables
 
-Follow the Google setup guide [here](https://wasp-lang.dev/docs/integrations/google) and add the environment variables to your `.env.server` file.
+Follow the Google setup guide [here](https://wasp.sh/docs/integrations/google) and add the environment variables to your `.env.server` file.
 
 ### Step 4 - Make use of the Google login button in your `Login` page component
 

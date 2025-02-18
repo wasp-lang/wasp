@@ -116,7 +116,7 @@ If you’d like to follow in Kaloyan’s footsteps, this is how to get started w
 Open your terminal and install Wasp:
 
 ``` shell
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 From there you only need to run:
