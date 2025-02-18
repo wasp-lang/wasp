@@ -423,3 +423,43 @@ There are also some namespaced, job executor-specific objects.
   - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#getjobbyidid)
   - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
   - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
+
+### Error Logging Middleware
+
+To avoid server crashes due to unhandled errors in job handlers, Wasp provides a default error logging middleware. This middleware automatically logs errors and prevents jobs from crashing the server.
+
+To use the error logging middleware, wrap your job handler with the `errorLoggingMiddleware` function. Here's an example:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/workers/bar.js"
+import { errorLoggingMiddleware } from 'wasp/server/middleware'
+
+export const foo = errorLoggingMiddleware(async ({ name }, context) => {
+  console.log(`Hello ${name}!`)
+  const tasks = await context.entities.Task.findMany({})
+  return { tasks }
+})
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/workers/bar.ts"
+import { errorLoggingMiddleware } from 'wasp/server/middleware'
+import { type MySpecialJob } from 'wasp/server/jobs'
+import { type Task } from 'wasp/entities'
+
+type Input = { name: string; }
+type Output = { tasks: Task[]; }
+
+export const foo: MySpecialJob<Input, Output> = errorLoggingMiddleware(async ({ name }, context) => {
+  console.log(`Hello ${name}!`)
+  const tasks = await context.entities.Task.findMany({})
+  return { tasks }
+})
+```
+</TabItem>
+</Tabs>
+
+By using the `errorLoggingMiddleware`, you can ensure that any errors in your job handlers are logged and do not cause the server to crash.
