@@ -36,6 +36,17 @@ In summary:
   
 Choose the approach that best fits your project’s needs.
 
+Take this simple example below of validating `MY_ENV_VAR` as defined and as a string.
+### Example: Validating an Environment Variable
+```js title="src/env.js"
+import * as z from 'zod';
+import { defineEnvValidationSchema } from 'wasp/env';
+
+export const envValidationSchema = defineEnvValidationSchema(
+  z.object({
+    MY_ENV_VAR: z.string({ required_error: 'MY_ENV_VAR is required.' }),
+  })
+);
 
 You can read them from the client code like this:
 
