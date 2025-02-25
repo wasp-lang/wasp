@@ -9,7 +9,7 @@ const Feature = ({ title, description, url }) => (
     <div className="lg:mt-5">
       <dt>
         <h4 className="mb-4">
-          <span className="rounded bg-yellow-500/25 px-2 py-1 text-neutral-700 box-decoration-clone leading-[1.73]">
+          <span className="rounded bg-yellow-500/25 box-decoration-clone px-2 py-1 leading-[1.73] text-neutral-700">
             {title}
           </span>
         </h4>
@@ -91,7 +91,7 @@ const HowItWorks = () => {
         <div className="col-span-12 lg:col-span-7 xl:col-span-7 xl:col-start-6">
           <img
             className=""
-            src="img/lp/wasp-compilation-diagram.png"
+            src="img/lp/wasp-compilation-diagram.webp"
             alt="React"
           />
         </div>
