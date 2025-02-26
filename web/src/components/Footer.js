@@ -55,7 +55,7 @@ const company = [
 const Logo = () => (
   <div className="flex flex-shrink-0 items-center">
     <Link to="/">
-      <img src="img/lp/wasp-logo.png" width={35} height={35} alt="Wasp Logo" />
+      <img src="img/lp/wasp-logo.webp" width={35} height={35} alt="Wasp Logo" />
     </Link>
     <span className="ml-3 text-lg font-semibold text-neutral-700">Wasp</span>
   </div>
@@ -115,7 +115,7 @@ const Footer = () => {
               <small className="text-xs text-neutral-500">Backed by</small>
               <img
                 className="ml-2 w-24"
-                src="img/lp/yc-logo-rounded.png"
+                src="img/lp/yc-logo-rounded.webp"
                 alt="YC"
               />
             </span>

@@ -157,7 +157,7 @@ query getTasks {
               <small className="text-xs text-neutral-500">Backed by</small>
               <img
                 className="ml-2 w-24"
-                src="img/lp/yc-logo-rounded.png"
+                src="img/lp/yc-logo-rounded.webp"
                 alt="YC"
               />
             </span>
@@ -213,7 +213,7 @@ query getTasks {
         />
         <img
           className='w-32 md:w-[180px]'
-          src='img/lp/yc-logo.png'
+          src='img/lp/yc-logo.webp'
           alt='YC'
         />
       </div>
