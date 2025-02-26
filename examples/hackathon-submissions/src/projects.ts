@@ -2,14 +2,28 @@ import * as z from 'zod';
 import { Prisma } from '@prisma/client';
 
 import { SubmitProject, GetProjects } from 'wasp/server/operations';
-import { projectCreateSchema } from './schemas/projects';
 import { HttpError } from 'wasp/server';
+import { submitProjectInputSchema } from './schemas/projects';
 
-export const submitProject = (async (data, context) => {
+export const submitProject: SubmitProject<z.infer<typeof submitProjectInputSchema>, void> = async (
+  rawArgs,
+  context,
+) => {
   try {
-    const validatedData = projectCreateSchema.parse(data);
+    const { name, email, github, description, twitter, country, website, image } =
+      submitProjectInputSchema.parse(rawArgs);
+
     await context.entities.Submission.create({
-      data: validatedData,
+      data: {
+        name,
+        email,
+        github,
+        description,
+        twitter,
+        country,
+        website,
+        image,
+      },
     });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -20,7 +34,7 @@ export const submitProject = (async (data, context) => {
       throw new HttpError(500, 'Internal Server Error');
     }
   }
-}) satisfies SubmitProject<z.infer<typeof projectCreateSchema>>;
+};
 
 export const getProjects = (async (_data, context) => {
   return context.entities.Submission.findMany({
@@ -31,4 +45,4 @@ export const getProjects = (async (_data, context) => {
       createdAt: 'desc',
     },
   });
-}) satisfies GetProjects;
+}) satisfies GetProjects<void>;

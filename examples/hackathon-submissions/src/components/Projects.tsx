@@ -34,17 +34,17 @@ const Projects = () => {
                         {project.name}
                       </a>
                     </h3>
-                    <p className="text-sm text-neutral-700">
+                    <div className="text-sm text-neutral-700">
                       {project.description.length > 120
                         ? project.description.substring(0, 142).concat('...')
                         : project.description}
-                    </p>
+                    </div>
                   </div>
                 ))
               ) : (
                 <div className="col-span-3 border border-yellow-500/25 rounded-md bg-yellow-100 bg-opacity-10 shadow-md p-5 text-center  justify-self-center">
-                  <p className="font-semibold">Nothing to see here... yet</p>
-                  <p className="text-sm mt-4">
+                  <div className="font-semibold">Nothing to see here... yet</div>
+                  <div className="text-sm mt-4">
                     Looking for some inspiration? <br />
                     Check out our{' '}
                     <a
@@ -54,8 +54,8 @@ const Projects = () => {
                       {' '}
                       Example Wasp Apps
                     </a>{' '}
-                    <p className="text-sm mt-4">BTW, This is also a Wasp App! 🧙‍♂️</p>
-                  </p>
+                    <div className="text-sm mt-4">BTW, This is also a Wasp App! 🧙‍♂️</div>
+                  </div>
                 </div>
               )}
             </div>

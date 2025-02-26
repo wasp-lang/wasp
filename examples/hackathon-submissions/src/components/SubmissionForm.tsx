@@ -1,6 +1,6 @@
 import { submitProject } from 'wasp/client/operations';
 import React, { ChangeEvent, FormEvent, useState } from 'react';
-import { projectCreateSchema } from '../schemas/projects';
+import { submitProjectInputSchema } from '../schemas/projects';
 
 export type Submission = {
   name: string;
@@ -56,7 +56,7 @@ const SubmissionForm = () => {
     const data = new FormData(target);
 
     try {
-      const validatedData = projectCreateSchema.parse({
+      const validatedData = submitProjectInputSchema.parse({
         name: data.get('name'),
         email: data.get('email'),
         country: data.get('country'),
