@@ -1,12 +1,13 @@
+{{={= =}=}}
 {
   "env": {
     "NODE_ENV": "development"
   },
   "watch": [
     "src/",
-    "../../../src/",
+    "{= relativeUserSrcDirPath =}",
     ".env"
   ],
-  "comment-filip": "We now have to watch ../../../src/ because we're importing client files directly",
+  "comment-filip": "We now have to watch {= relativeUserSrcDirPath =} because we're importing client files directly",
   "ext": "ts,mts,js,mjs,json"
 }

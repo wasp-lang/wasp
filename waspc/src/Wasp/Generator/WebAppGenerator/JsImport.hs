@@ -25,8 +25,5 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport webAppExtDir
   where
-    -- filip: read notes in ServerGenerator/JsImport.hs
-    -- todo(filip): use WaspProjectDirInProjectRootDir (once you add it for
-    -- Prisma stuff) and other stuff from WebAppGenerator/Common to build this
-    -- directory. Do the same for the server
+    -- NOTE: read the  notes in ServerGenerator/JsImport.hs
     webAppExtDir = [reldirP|../../../../src|]
