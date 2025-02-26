@@ -7,21 +7,32 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.Common (prismaVersion)
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
+import Wasp.Generator.SdkGenerator.Common (tailwindCssVersion)
+import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactVersion)
+import qualified Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext as ECC
 
-validatePackageJson :: P.PackageJson -> [ErrorMsg]
-validatePackageJson packageJson =
+validatePackageJson :: ECC.ExternalConfigAnalysisContext -> P.PackageJson -> [ErrorMsg]
+validatePackageJson context packageJson =
   concat
-    [ validate ("wasp", "file:.wasp/out/sdk/wasp") IsListedWithExactVersion,
-      validate ("prisma", show prismaVersion) IsListedAsDevWithExactVersion,
-      -- Installing the wrong version of "react-router-dom" can make users believe that they
-      -- can use features that are not available in the version that Wasp supports.
-      validate ("react-router-dom", show reactRouterVersion) IsListedWithExactVersion,
-      validate ("react", show reactVersion) IsListedWithExactVersion,
-      validate ("react-dom", show reactVersion) IsListedWithExactVersion
-    ]
+    ( [ validate ("wasp", "file:.wasp/out/sdk/wasp") IsListedWithExactVersion,
+        validate ("prisma", show prismaVersion) IsListedAsDevWithExactVersion,
+        -- Installing the wrong version of "react-router-dom" can make users believe that they
+        -- can use features that are not available in the version that Wasp supports.
+        validate ("react-router-dom", show reactRouterVersion) IsListedWithExactVersion,
+        validate ("react", show reactVersion) IsListedWithExactVersion,
+        validate ("react-dom", show reactVersion) IsListedWithExactVersion
+      ]
+        ++ tailwindValidations
+    )
   where
     validate = validateDep packageJson
+
+    tailwindValidations =
+      [ validate ("tailwindcss", show tailwindCssVersion) IsListedWithExactVersion | isTailwindUsed
+      ]
+
+    isTailwindUsed = TCF.isTailwindUsed $ ECC._tailwindConfigFilesRelocators context
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 

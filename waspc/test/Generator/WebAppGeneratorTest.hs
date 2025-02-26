@@ -62,7 +62,7 @@ spec_WebAppGenerator = do
             AS.devEnvVarsServer = [],
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
-            AS.configFiles = [],
+            AS.tailwindConfigFilesRelocators = [],
             AS.devDatabaseUrl = Nothing,
             AS.customViteConfigPath = Nothing
           }
