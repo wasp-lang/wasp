@@ -20,7 +20,12 @@ const {=& globalMiddlewareConfigFn.importAlias =} = (mc: MiddlewareConfig) => mc
 // NOTE: Remember to update the docs of these change.
 const defaultGlobalMiddlewareConfig: MiddlewareConfig = new Map([
   ['helmet', helmet()],
-  ['cors', cors({ origin: config.allowedCORSOrigins })],
+  {=# isCookieAuthEnabled =}
+  ['cors', cors({ origin: config.allowedCORSOrigins, credentials: true })],
+  {=/ isCookieAuthEnabled =}
+  {=^ isCookieAuthEnabled =}
+  ['cors', cors({ origin: config.allowedCORSOrigins})],
+  {=/ isCookieAuthEnabled =}
   ['logger', logger('dev')],
   ['express.json', express.json()],
   ['express.urlencoded', express.urlencoded({ extended: false })],

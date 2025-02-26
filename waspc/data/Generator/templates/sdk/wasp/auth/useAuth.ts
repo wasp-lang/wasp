@@ -21,7 +21,12 @@ function createUserGetter(): Query<void, AuthUser | null> {
   const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
+      {=# isCookieAuthEnabled =}
+      const response = await api.get(getMeRoute.path, { withCredentials: true })
+      {=/ isCookieAuthEnabled =}
+      {=^ isCookieAuthEnabled =}
       const response = await api.get(getMeRoute.path)
+      {=/ isCookieAuthEnabled =}
       const userData = superjsonDeserialize<AuthUserData | null>(response.data)
       return makeAuthUserIfPossible(userData)
     } catch (error) {
