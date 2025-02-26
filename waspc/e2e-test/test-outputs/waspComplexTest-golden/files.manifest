@@ -38,6 +38,7 @@ waspComplexTest/.wasp/out/sdk/wasp/client/crud/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/operationsHelpers.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/crud/tasks.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/env.ts
+waspComplexTest/.wasp/out/sdk/wasp/client/env/schema.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -159,6 +160,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/client/crud/tasks.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/env.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/env.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/env.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/env/schema.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -538,6 +542,7 @@ waspComplexTest/.wasp/out/web-app/tsconfig.json
 waspComplexTest/.wasp/out/web-app/tsconfig.vite.json
 waspComplexTest/.wasp/out/web-app/vite.config.ts
 waspComplexTest/.wasp/out/web-app/vite/detectServerImports.ts
+waspComplexTest/.wasp/out/web-app/vite/validateEnv.ts
 waspComplexTest/.waspignore
 waspComplexTest/.wasproot
 waspComplexTest/main.wasp
