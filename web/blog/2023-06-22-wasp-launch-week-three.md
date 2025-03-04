@@ -140,8 +140,8 @@ To wrap the week up, we'll also start another hackathon, but this time in a bit 
 
 **Read more about it**:
 - [Intro Twitter thread](https://twitter.com/WaspLang/status/1674814873312608257)
-- [Try GPT Web App Generator!](https://magic-app-generator.wasp.sh/)
-- [Join our Tutorial Jam #1 and win prizes!](http://localhost:3002/blog/2023/06/30/tutorial-jam)
+- [Try GPT Web App Generator!](https://usemage.ai/)
+- [Join our Tutorial Jam #1 and win prizes!](/blog/2023/06/30/tutorial-jam)
 
 ## Recap
 
