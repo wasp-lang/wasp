@@ -27,10 +27,13 @@ import qualified Wasp.Project.Db as Db
 genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
   sequence
-    [ genServerEnv spec,
-      genClientEnv spec,
-      genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|]
+    [ genFileCopy [relfile|env/index.ts|],
+      genFileCopy [relfile|env/validation.ts|],
+      -- Server env
+      genServerEnv spec,
+      -- Client env
+      genClientEnvSchema spec,
+      genFileCopy [relfile|client/env.ts|]
     ]
   where
     genFileCopy = return . C.mkTmplFd
@@ -56,10 +59,10 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
-genClientEnv :: AppSpec -> Generator FileDraft
-genClientEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema :: AppSpec -> Generator FileDraft
+genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|client/env.ts|]
+    tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
         [ "defaultServerUrl" .= Server.defaultDevServerUrl,
