@@ -44,13 +44,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-<<<<<<<< HEAD:examples/waspleau/headless-tests/playwright.config.ts
-    command: "wasp-app-runner --app-path=../ --app-name=examples-waspleau",
+    command: "wasp-app-runner --path-to-app=../",
 
-========
-    command:
-      "wasp-app-runner --app-path=../ --app-name=examples-todo-typescript --db-type=sqlite",
->>>>>>>> miho-wasp-app-runner:examples/todo-typescript/headless-tests/playwright.config.ts
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,

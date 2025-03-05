@@ -16,7 +16,7 @@ const Projects = () => {
             <div className="mt-12 gap-6 lg:grid lg:grid-cols-3">
               {status === 'success' && projects.length ? (
                 projects.map((project: any) => (
-                  <div key={project.name} className="group relative">
+                  <div key={project.name} className="group relative project">
                     <div className="relative h-80 w-full overflow-hidden rounded-lg bg-white group-hover:opacity-75 sm:aspect-w-2 sm:aspect-h-1 sm:h-64 lg:aspect-w-1 lg:aspect-h-1">
                       <img
                         src={project.image || betathonLogo}
