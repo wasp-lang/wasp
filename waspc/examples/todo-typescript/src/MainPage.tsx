@@ -50,7 +50,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
       {allTasks && <TasksList tasks={allTasks} />}
       <div className="buttons">
         <button
-          className="logout"
+          className="delete-tasks"
           onClick={() => void deleteTasks(completed ?? [])}
         >
           Delete completed

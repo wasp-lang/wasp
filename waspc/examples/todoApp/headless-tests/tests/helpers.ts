@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 export async function performSignup(
   page: Page,
-  { email, password }: { email: string; password: string },
+  { email, password }: { email: string; password: string }
 ) {
   await page.goto('/signup')
 
@@ -10,6 +10,7 @@ export async function performSignup(
 
   await page.locator("input[type='email']").fill(email)
   await page.locator("input[type='password']").fill(password)
+  await page.locator("input[name='address']").fill('Dummy address')
   await page.locator('button').click()
 }
 
@@ -21,7 +22,7 @@ export async function performLogin(
   }: {
     email: string
     password: string
-  },
+  }
 ) {
   await page.goto('/login')
 
