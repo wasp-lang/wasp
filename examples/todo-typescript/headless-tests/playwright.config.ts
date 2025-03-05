@@ -46,6 +46,7 @@ export default defineConfig({
   webServer: {
     command:
       "wasp-app-runner --app-path=../ --app-name=examples-todo-typescript --db-type=sqlite",
+
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
