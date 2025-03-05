@@ -1,0 +1,25 @@
+name: Publish Wasp App Runner
+on:
+  push:
+    paths:
+      - "wasp-app-runner/**"
+    branches:
+      - release
+
+defaults:
+  run:
+    shell: bash
+    working-directory: wasp-app-runner
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+      - run: npm ci
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
