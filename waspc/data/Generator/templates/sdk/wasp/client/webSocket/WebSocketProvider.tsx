@@ -21,6 +21,9 @@ export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   {
     transports: ['websocket'],
     autoConnect: {= autoConnect =},
+    {=# isCookieAuthEnabled =}
+    withCredentials: true,
+    {=/ isCookieAuthEnabled =}
   }
 )
 
@@ -37,9 +40,17 @@ function refreshAuthToken() {
   }
 }
 
+{=# isCookieAuthEnabled =}
+if (socket.connected) {
+  socket.disconnect()
+  socket.connect()
+}
+{=/ isCookieAuthEnabled =}
+{=^ isCookieAuthEnabled =}
 refreshAuthToken()
 apiEventsEmitter.on('sessionId.set', refreshAuthToken)
 apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
+{=/ isCookieAuthEnabled =}
 
 // PRIVATE API
 export const WebSocketContext: Context<WebSocketContextValue> = createContext<WebSocketContextValue>({

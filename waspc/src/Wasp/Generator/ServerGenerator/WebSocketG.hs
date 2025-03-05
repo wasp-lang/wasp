@@ -18,6 +18,7 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
@@ -45,20 +46,27 @@ genWebSockets spec
   | otherwise = return []
 
 genWebSocketInitialization :: AppSpec -> Generator FileDraft
-genWebSocketInitialization spec =
+genWebSocketInitialization spec = do
+  let maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+      maybeAuth = AS.App.auth $ snd $ getApp spec
+      authEnabled = isAuthEnabled spec
+      cookieAuthEnabled = maybe False AS.Auth.isCookieAuthEnabled maybeAuth
+      isCookieAuthEnabled = authEnabled && cookieAuthEnabled
+      isJwtAuthEnabled    = authEnabled && (not cookieAuthEnabled)
+
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/webSocket/initialization.ts|])
       (C.asServerFile [relfile|src/webSocket/initialization.ts|])
       ( Just $
           object
-            [ "isAuthEnabled" .= isAuthEnabled spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
-              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+            [ "isAuthEnabled"       .= authEnabled
+            , "isCookieAuthEnabled" .= isCookieAuthEnabled
+            , "isJwtAuthEnabled"    .= isJwtAuthEnabled
+            , "userWebSocketFn"     .= mkWebSocketFnImport maybeWebSocket [reldirP|../|]
+            , "allEntities"         .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
             ]
       )
-  where
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
 mkWebSocketFnImport :: Maybe WebSocket -> Path Posix (Rel importLocation) (Dir C.ServerSrcDir) -> Aeson.Value
 mkWebSocketFnImport maybeWebSocket relPathToServerSrcDir = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
