@@ -13,6 +13,10 @@ test.describe('user API', () => {
       email,
       password,
     })
+
+    await expect(page.locator('body')).toContainText(
+      `You've signed up successfully! Check your email for the confirmation link.`
+    )
   })
 
   test('user API works on the client', async ({ page }) => {
@@ -24,10 +28,10 @@ test.describe('user API', () => {
     await page.locator("input[type='password']").fill(password)
     await page.getByRole('button', { name: 'Log in' }).click()
 
-    await page.waitForSelector('text=Profile page')
+    await page.waitForSelector('text=User Auth Fields Demo')
 
     await expect(page.locator('body')).toContainText(
-      `Hello ${email}! Your status is verfied`,
+      `Hello ${email}! Your status is verfied`
     )
 
     await expect(page.locator('a[href="/profile"]')).toContainText(email)
