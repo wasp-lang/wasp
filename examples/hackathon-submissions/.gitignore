@@ -12,3 +12,7 @@ node_modules/
 
 # Local Netlify folder
 .netlify
+
+# Headless tests
+!.env.*.headless
+test-results/

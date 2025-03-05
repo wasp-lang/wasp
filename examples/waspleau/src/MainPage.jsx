@@ -1,37 +1,48 @@
-import React from 'react'
-import './style.css'
-import addWaspSourceHeader from './addWaspSourceHeader'
+import React from "react";
+import "./style.css";
+import addWaspSourceHeader from "./addWaspSourceHeader";
 
-import { useQuery, dashboard as refreshDashboardData } from "wasp/client/operations";
+import {
+  useQuery,
+  dashboard as refreshDashboardData,
+} from "wasp/client/operations";
 
 const MainPage = () => {
-  const { data: dashboardData, isFetching, error } = useQuery(refreshDashboardData, null, { refetchInterval: 60 * 1000 })
+  const {
+    data: dashboardData,
+    isFetching,
+    error,
+  } = useQuery(refreshDashboardData, null, { refetchInterval: 60 * 1000 });
 
   return (
     <div style={{ minWidth: "800px" }}>
-
       <div className="container">
         <div className="dashboard">
           {dashboardData && <DashboardData items={dashboardData} />}
-          {isFetching && 'Fetching...'}
-          {error && 'Error: ' + error}
+          {isFetching && "Fetching..."}
+          {error && "Error: " + error}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const DashboardItem = (props) => (
   <div className="dashboard-item">
     <p className="title">{props.item.name}</p>
     <p className="value">{props.item.value || "-"}</p>
-    <p className="footer">{props.item.updatedAt && ("Updated At: " + (new Date(props.item.updatedAt)).toLocaleString())}</p>
+    <p className="footer">
+      {props.item.updatedAt &&
+        "Updated At: " + new Date(props.item.updatedAt).toLocaleString()}
+    </p>
   </div>
-)
+);
 
 const DashboardData = (props) => {
-  if (!props.items?.length) return 'No dashboard items'
-  return props.items.map((item) => <DashboardItem item={item} key={item.name} />)
-}
+  if (!props.items?.length) return "No dashboard items";
+  return props.items.map((item) => (
+    <DashboardItem item={item} key={item.name} />
+  ));
+};
 
-export default addWaspSourceHeader(MainPage)
+export default addWaspSourceHeader(MainPage);
