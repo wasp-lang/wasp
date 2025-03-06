@@ -62,10 +62,6 @@ jobs:
         # Ubuntu 20.04.
         include:
           - os: ubuntu-20.04
-            node-version: 18
-            ghc: '8.10.7'
-            cabal: '3.6.2.0'
-          - os: ubuntu-20.04
             node-version: 20
             ghc: '8.10.7'
             cabal: '3.6.2.0'
