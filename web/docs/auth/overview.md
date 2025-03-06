@@ -184,7 +184,7 @@ There are two ways to access the `user` object on the client:
 
 #### Using the `user` prop
 
-If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
+The preferred way to fetch user data on authenticated pages is by using the `user` prop. If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -313,7 +313,7 @@ export function Main() {
 </Tabs>
 
 :::tip
-Since the `user` prop is only available in a page's React component: use the `user` prop in the page's React component and the `useAuth` hook in any other React component.
+While the `user` prop is only available in an authenticated page's React component, it is the preferred option because we can be certain that the user exists on that page. On the other hand, `useAuth` can be used when the user might not exist, making it better suited for non-authenticated components.
 :::
 
 ### On the server
