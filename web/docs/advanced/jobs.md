@@ -233,7 +233,7 @@ The Job declaration has the following fields:
   :::note Job executors
   Our jobs need job executors to handle the _scheduling, monitoring, and execution_.
 
-  `PgBoss` is currently our only job executor, and is recommended for low-volume production use cases. It requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](../data-model/backends.md#postgresql).
+  `PgBoss` is currently our only job executor, and is recommended for low-volume production use cases. It requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](../data-model/databases.md#postgresql).
   :::
 
   We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
