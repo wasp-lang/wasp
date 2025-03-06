@@ -65,6 +65,10 @@ jobs:
             node-version: 20
             ghc: '8.10.7'
             cabal: '3.6.2.0'
+          - os: ubuntu-20.04
+            node-version: 22
+            ghc: '8.10.7'
+            cabal: '3.6.2.0'
 
     steps:
       - name: Configure git
