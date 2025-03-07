@@ -66,7 +66,7 @@ genPrismaSchema spec = do
     AS.Db.PostgreSQL -> return "postgresql"
     AS.Db.SQLite ->
       if AS.isBuild spec
-        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
+        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/databases#migrating-from-sqlite-to-postgresql ."
         else return "sqlite"
 
   entities <- getEntitiesForPrismaSchema spec
@@ -258,7 +258,7 @@ generatePrismaClient spec projectRootDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
+        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = not . null $ getEntities spec
