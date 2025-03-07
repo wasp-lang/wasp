@@ -244,6 +244,7 @@ export function HomePage({ user }) {
 
 ```tsx title=src/HomePage.tsx
 import { Navigate } from 'react-router-dom'
+import { AuthUser } from 'wasp/auth'
 
 export function HomePage({ user }: { user: AuthUser }) {
   if (user.isSignupComplete === false) {
