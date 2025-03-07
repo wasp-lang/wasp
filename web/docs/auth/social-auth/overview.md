@@ -216,6 +216,7 @@ export const userSignupFields = defineUserSignupFields({
 #### 3. Showing the Correct State on the Client
 
 You can check the `isSignupComplete` flag on the `user` object.
+If you're on an authenticated page the `user` can be fetched through the [props](../../auth/overview#getting-the-user-in-authenticated-routes), otherwise use the [`useAuth()`](../../auth/overview#getting-the-user-in-non-authenticated-routes) hook instead.
 Depending on the flag's value, you can redirect users to the appropriate signup step.
 
 For example:
