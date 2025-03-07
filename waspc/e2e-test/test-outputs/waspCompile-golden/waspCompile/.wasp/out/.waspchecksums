@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/client/operations/hooks.ts"
         ],
-        "3c326183d9dcb2bcf14b747ffc66b19e4773642d05f3f84d401e3d54b843eeca"
+        "afb77720c5d690911c13a752996b93a8b0f5c8a02568ed59c45c1c401bb2b3fd"
     ],
     [
         [
@@ -191,37 +191,9 @@
     [
         [
             "file",
-            "../out/sdk/wasp/ext-src/Main.css"
-        ],
-        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/MainPage.jsx"
-        ],
-        "bd452ce5b469d3b48e69705daaa07e339d9d0e9d88a99a74c2ace9fa6d6299e7"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/vite-env.d.ts"
-        ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/ext-src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
-    ],
-    [
-        [
-            "file",
             "../out/sdk/wasp/package.json"
         ],
-        "b991fb5ade61a662dea3f21bf09aa30379f30ea76204a369c0800b1413256a64"
+        "4f42d08a2d0a0f0ccfeeca7fecdd99e57b10ecdc8b9b0e374292114c3602f850"
     ],
     [
         [
@@ -277,7 +249,7 @@
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "f3cab17868417ffd4432dc4efecde72ccaaf099a79ddc9194835f3608d123b63"
+        "e6d57c6b51265a96ce78d9357cb16aa6b375bee0814b81ffd0a9ea257f52bd33"
     ],
     [
         [
@@ -359,6 +331,34 @@
     [
         [
             "file",
+            "../out/sdk/wasp/src/Main.css"
+        ],
+        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/MainPage.jsx"
+        ],
+        "3ebb438164084ff90e72f3f081f6165fb8acc0d89076c3a6e225a26d76728a86"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/vite-env.d.ts"
+        ],
+        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/waspLogo.png"
+        ],
+        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
         "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
@@ -410,7 +410,7 @@
             "file",
             "Dockerfile"
         ],
-        "20694e4dd2e7d96d8752ee3d792d4d8b63c46d7a4505c5312923a749146604b7"
+        "7ce6a077005efa9ce351dff7fe4ca77252ebad497f65c93ea905b0723924a528"
     ],
     [
         [
@@ -459,14 +459,14 @@
             "file",
             "server/package.json"
         ],
-        "eaaa1e16e4962f38deb7220a7439a26b920ed7f852890242d084b4cebc63b7c3"
+        "4e00a2e103620cbc4a96f62181d6cb86fe4ec0703ad9d7534e57ff4462ade748"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "c1beb8264f11898364288d73b16f08d1923bac5f70038d9827978deb5b58a2da"
+        "3ebb3ad0b85eb393862b12bcf3b087bc852e768ea4fbcc5d90d4265f85fac7cb"
     ],
     [
         [
@@ -690,20 +690,27 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "0f84a09c31c7cca7d2bed4fac04c3da0ce54b0996ab80b2b54f1a6a53e6fd139"
+        "f5cc3ad419dd02d73079da1ec7fd282e09d9753594a2e08b8c4bb7a8c5b483d7"
     ],
     [
         [
             "file",
-            "web-app/tsconfig.node.json"
+            "web-app/tsconfig.vite.json"
         ],
-        "ed42a259d45429569d3c5182e40e008b4c2bffd9c49a643019e8542035d21b7c"
+        "2eb9abbbd66ed061fae538b0c20f49301a8cb6d66c00d690f7b164078c5892e6"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "64256d93d81f6192f419e836ed4484f0e8c1e28f018bfb3213851608200594ac"
+        "d4b4a5e870d8ec46b22ac1a5b66e5266f7983db43b3c9c1b6faeec80ae984662"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/detectServerImports.ts"
+        ],
+        "9e8e2271fda2f769376b2c310987006c7b2f138e7749cdd608696f6a2982debd"
     ]
 ]

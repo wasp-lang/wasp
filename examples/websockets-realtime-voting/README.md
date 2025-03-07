@@ -2,7 +2,7 @@
 
 This is an example real-time, Websockets app built with Wasp in TypeScript to showcase the ease of use and integration of Websockets in Wasp. It's really NEAT!
 
-It is also a part of a tutorial, [How to build a real-time voting app with WebSockets, React, & Typescript](https://wasp-lang.dev/blog/2023/08/09/build-real-time-voting-app-websockets-react-typescript).
+It is also a part of a tutorial, [How to build a real-time voting app with WebSockets, React, & Typescript](https://wasp.sh/blog/2023/08/09/build-real-time-voting-app-websockets-react-typescript).
 
 [![wasp websockets app](image.png)](https://www.youtube.com/watch?v=Twy-2P0Co6M)
 
@@ -12,19 +12,22 @@ This app also includes Wasp's integrated auth and a voting system (again, neat!)
 
 ## Running the app
 
-*If you get stuck at any point, feel free to join our [Discord server](https://discord.gg/rzdnErX) and ask questions there. We are happy to help!*
+_If you get stuck at any point, feel free to join our [Discord server](https://discord.gg/rzdnErX) and ask questions there. We are happy to help!_
 
 First, clone the this repo:
+
 ```bash
 git clone https://github.com/wasp-lang/wasp.git
 ```
 
 Make sure you've downloaded and installed Wasp
+
 ```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 Then navigate to the project directory
+
 ```bash
 cd examples/websockets-realtime-voting
 ```
@@ -32,8 +35,9 @@ cd examples/websockets-realtime-voting
 ```bash
 wasp db migrate-dev
 ```
-  
+
 start the app! (this also installs all dependencies)
+
 ```bash
 wasp start
 ```
@@ -42,8 +46,8 @@ Check out the `src/server/websocket.ts` and `src/client/pages/MainPage.tsx` to s
 
 ## Need Help?
 
-Read the tutorial: [How to build a real-time voting app with WebSockets, React, & Typescript](https://wasp-lang.dev/blog/2023/08/09/build-real-time-voting-app-websockets-react-typescript).
+Read the tutorial: [How to build a real-time voting app with WebSockets, React, & Typescript](https://wasp.sh/blog/2023/08/09/build-real-time-voting-app-websockets-react-typescript).
 
-Wasp Docs: https://wasp-lang.dev/docs
+Wasp Docs: https://wasp.sh/docs
 
 Feel free to join our [Discord server](https://discord.gg/rzdnErX) and ask questions there. We are happy to help!

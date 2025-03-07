@@ -37,4 +37,4 @@ readTsConfigFile :: Path' Abs (File f) -> IO (Either String T.TsConfig)
 readTsConfigFile tsConfigFile = do
   tsConfigContent <- IOUtil.readFileBytes tsConfigFile
   parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent
-  return $ left ("Failed to parse tsconfig file" ++) parseResult
+  return $ left ("Failed to parse tsconfig file: " ++) parseResult

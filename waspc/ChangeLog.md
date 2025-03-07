@@ -1,6 +1,24 @@
 # Changelog
 
-## 0.16.0
+## 0.16.2
+
+### 🎉 New Features and improvements
+
+- Wasp has got a new https://wasp.sh domain! This migrates the wasp-lang.dev domain mentions to wasp.sh.
+
+## 0.16.1
+
+### 🎉 New Features and improvements
+
+- TypeScript error messages now match the user's directory structure ([#2486](https://github.com/wasp-lang/wasp/pull/2486)).
+- Wasp's WSL guide now includes up to date Docker post-installation steps ([#2452](https://github.com/wasp-lang/wasp/pull/2452)).
+
+### Bug fixes
+
+- Session ID is no longer removed when the user logs out from a different tab ([#2075](https://github.com/wasp-lang/wasp/issues/2075)).
+- Using operations on the server no longer breaks relative extensionless imports ([#2492](https://github.com/wasp-lang/wasp/issues/2492)).
+
+## 1.16.0
 
 ### 🎉 New Features and improvements
 
@@ -37,7 +55,7 @@ app myApp {
 
 Based on feedback from our Discord community, we’ve revamped our deployment docs to make it simpler to deploy your app to production. We focused on explaining key deployment concepts, regardless of the deployment method you choose. We’ve added guides on hosting Wasp apps on your own servers, for example, how to use Coolify and Caprover for self-hosting. The Env Variables section now includes a comprehensive list of all available Wasp env variables and provides clearer instructions on how to set them up in a deployed app.
 
-Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/intro
+Check the updated deployment docs here: https://wasp.sh/docs/deployment/intro
 
 ### ⚠️ Breaking Changes
 
@@ -62,13 +80,11 @@ Check the updated deployment docs here: https://wasp-lang.dev/docs/deployment/in
       "skipLibCheck": true,
       "outDir": ".wasp/out/user"
     },
-    "include": [
-      "src"
-    ]
+    "include": ["src"]
   }
   ```
 
-Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-15-to-0-16
+Read more about breaking changes in the migration guide: https://wasp.sh/docs/migration-guides/migrate-from-0-15-to-0-16
 
 ### 🐞 Bug fixes
 
@@ -80,6 +96,8 @@ Read more about breaking changes in the migration guide: https://wasp-lang.dev/d
 - Documentation improvements and fixes.
 
 Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
+
+- Improved the error message when the user has a top level *.wasp* file.
 
 ## 0.15.2
 
@@ -152,14 +170,14 @@ const mainPage = app.page("MainPage", {
 app.route("RootRoute", { path: "/", to: mainPage });
 ```
 
-To learn more about this feature and how to activate it, check out the [Wasp TS config docs](https://wasp-lang.dev/docs/general/wasp-ts-config).
+To learn more about this feature and how to activate it, check out the [Wasp TS config docs](https://wasp.sh/docs/general/wasp-ts-config).
 
 ### ⚠️ Breaking Changes
 
 There are some breaking changes with React Router 6 which will require you to update your code.
 Also, the new version of Prisma may cause breaking changes depending on how you're using it.
 
-Read more about breaking changes in the migration guide: https://wasp-lang.dev/docs/migration-guides/migrate-from-0-14-to-0-15 .
+Read more about breaking changes in the migration guide: https://wasp.sh/docs/migration-guides/migrate-from-0-14-to-0-15 .
 
 ### 🐞 Bug fixes
 
@@ -232,7 +250,7 @@ Community contributions by @rubyisrust @santolucito @sezercik @LLxD!
 #### New `tsconfig.json` file
 
 Wasp 0.14.0 requires some changes to your `tsconfig.json` file.
-Visit the [migration guide](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#bump-the-version-and-update-tsconfigjson) for details.
+Visit the [migration guide](https://wasp.sh/docs/migrate-from-0-13-to-0-14#bump-the-version-and-update-tsconfigjson) for details.
 
 #### Strict options when building the `wasp` package
 
@@ -289,7 +307,7 @@ We had to make a couple of breaking changes to reach the new simpler Auth API:
    - Before: Relied on `findUserIdentity` to check which user identity exists.
    - After: Directly check `user.identities.<provider>` existence.
 
-These changes improve code readability and lower the complexity of accessing user's auth fields. Follow the [detailed migration steps to update your project to 0.14.0](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14).
+These changes improve code readability and lower the complexity of accessing user's auth fields. Follow the [detailed migration steps to update your project to 0.14.0](https://wasp.sh/docs/migrate-from-0-13-to-0-14).
 
 #### Using the Prisma Schema file
 
@@ -319,11 +337,11 @@ model Task {
 }
 ```
 
-Read more about the migration steps in the [migration guide](https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file).
+Read more about the migration steps in the [migration guide](https://wasp.sh/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file).
 
 ### Note on Auth Helper Functions (`getUsername`, `getEmail` etc.)
 
-These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp-lang.dev/docs/auth/entities#including-the-user-with-other-entities).
+These changes only apply to getting auth fields from the `user` object you receive from Wasp, for example in the `authRequired` enabled pages or `context.user` on the server. If you are fetching the user and auth fields with your own queries, you _can_ keep using most of the helpers. Read more [about using the auth helpers](https://wasp.sh/docs/auth/entities#including-the-user-with-other-entities).
 
 ### 🐞 Bug fixes
 
@@ -378,7 +396,7 @@ Wasp 0.13.0 switches away from using Passport for our OAuth providers in favor o
 
 This however, means that there are breaking changes in the way you define OAuth providers in your Wasp project.
 
-Read the migration guide at https://wasp-lang.dev/docs/migrate-from-0-12-to-0-13 for more details.
+Read the migration guide at https://wasp.sh/docs/migrate-from-0-12-to-0-13 for more details.
 
 ### 🎉 New features
 
@@ -418,7 +436,7 @@ This is a big update, introducing major changes that span the entirety of Wasp, 
 
 ### ⚠️ Breaking changes
 
-If your project is using an older version of Wasp, you will want to check out the detailed migration instructions at https://wasp-lang.dev/docs/migrate-from-0-11-to-0-12 .
+If your project is using an older version of Wasp, you will want to check out the detailed migration instructions at https://wasp.sh/docs/migrate-from-0-11-to-0-12 .
 
 #### New project structure
 
@@ -1566,7 +1584,7 @@ Main differences:
   with IDE support (e.g., jumping to definitions, previewing types, etc.) and you
   shouldn't delete it. The same goes for `react-app-env.d.ts`
 
-The new structure is fully reflected in [our docs](https://wasp-lang.dev/docs/language/overview), but we'll also
+The new structure is fully reflected in [our docs](https://wasp.sh/docs/language/overview), but we'll also
 provide a quick guide for migrating existing projects.
 
 ##### Migrating an existing Wasp project to the new structure
@@ -1696,7 +1714,7 @@ Once Action is actually done, related Queries will be unvalidated as usual and t
 
 This is great for apps where there is a lot of interactivity and you want the UI to update instantly with your changes, even as they are still being saved to the server.
 
-Check out https://wasp-lang.dev/docs/language/features#the-useaction-hook for more details.
+Check out https://wasp.sh/docs/language/features#the-useaction-hook for more details.
 
 ### Bug fixes
 
@@ -1792,7 +1810,7 @@ Mostly it is very similar to what it was before, with some following bigger chan
 - `route` has different syntax.
 - `dependencies` have different syntax.
 
-For exact details about new syntax, check https://wasp-lang.dev/docs/language/syntax .
+For exact details about new syntax, check https://wasp.sh/docs/language/syntax .
 
 ### Various improvements
 

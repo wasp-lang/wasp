@@ -23,4 +23,4 @@ validateNoEntityDeclInWaspFile ast@(P.AST stmts) = case findEntityStmt stmts of
 
     entitiesNoLongerSupportedError :: String
     entitiesNoLongerSupportedError =
-      "Entities can no longer be defined in the .wasp file. You should migrate your entities to the schema.prisma file. Read more: https://wasp-lang.dev/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
+      "Entities can no longer be defined in the .wasp file. You should migrate your entities to the schema.prisma file. Read more: https://wasp.sh/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"

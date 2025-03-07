@@ -122,7 +122,7 @@ Since we introduced all the new features during the launch week, we thought a go
     source="img/beta-launch-review/hackathon-tweet.png"
 />
 
-In the end, it was definitely worth it ([see review and submissions here](https://wasp-lang.dev/blog/2023/01/11/betathon-review)). It was quite lightweight to organize (we even made a [custom web app with Wasp for the hackathon](https://betathon.wasp-lang.dev/) which you can also [use for your hackathon](https://github.com/vincanger/wasp-betathon)) and we got some really nice submissions and community shout-outs.
+In the end, it was definitely worth it ([see review and submissions here](https://wasp.sh/blog/2023/01/11/betathon-review)). It was quite lightweight to organize (we even made a [custom web app with Wasp for the hackathon](https://betathon.wasp.sh/) which you can also [use for your hackathon](https://github.com/vincanger/wasp-betathon)) and we got some really nice submissions and community shout-outs.
 
 ## Announcing a launch date publicly is great for productivity
 

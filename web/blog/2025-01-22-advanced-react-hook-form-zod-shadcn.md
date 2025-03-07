@@ -13,7 +13,7 @@ import WaspIntro from './_wasp-intro.md';
 
 Developers usually say, "Once you've seen one form, you've seen them all," but that's not always true. Forms can range from basic to highly complex, depending on your project's needs.
 
-If you're working on a simple contact form (e.g., email, subject, message), [check out part one](https://wasp-lang.dev/blog/2024/11/20/building-react-forms-with-ease-using-react-hook-form-and-zod). It covers the basics of React forms using React Hook Form, Shadcn UI, and Zod.
+If you're working on a simple contact form (e.g., email, subject, message), [check out part one](https://wasp.sh/blog/2024/11/20/building-react-forms-with-ease-using-react-hook-form-and-zod). It covers the basics of React forms using React Hook Form, Shadcn UI, and Zod.
 
 But what if your forms need advanced behaviors and validations? That's where this guide comes in. Whether you need conditional fields, custom validation logic, or dynamic form generation, this article will help you take your React forms to the next level.
 
@@ -23,7 +23,7 @@ But what if your forms need advanced behaviors and validations? That's where thi
 
 💡 Starting Code: The code we'll use here builds on the final version from part one. You can [find it here on GitHub](https://github.com/martinovicdev/wasp-form-tutorial).
 
-In [part one](https://wasp-lang.dev/blog/2024/11/20/building-react-forms-with-ease-using-react-hook-form-and-zod), we explored the basics of form validation, including:
+In [part one](https://wasp.sh/blog/2024/11/20/building-react-forms-with-ease-using-react-hook-form-and-zod), we explored the basics of form validation, including:
 
 - **Type validation:** Ensuring input types match form fields.
 - **Length validation:** Checking input length.
