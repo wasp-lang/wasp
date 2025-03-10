@@ -1,15 +1,14 @@
 module Wasp.Project.ExternalConfig.TsConfig
-  ( analyzeSrcTsConfigFile,
+  ( readSrcTsConfigFile,
   )
 where
 
 import Control.Arrow (left)
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', Rel, toFilePath)
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Generator.ExternalConfig.TsConfig (validateSrcTsConfig)
 import Wasp.Project.Common
   ( SrcTsConfigFile,
     WaspProjectDir,
@@ -18,22 +17,18 @@ import Wasp.Project.Common
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
-analyzeSrcTsConfigFile ::
+readSrcTsConfigFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Either [String] T.TsConfig)
-analyzeSrcTsConfigFile waspDir srcTsConfigFile = runExceptT $ do
+readSrcTsConfigFile waspDir srcTsConfigPath = runExceptT $ do
   tsConfigFileContents <- ExceptT findTsConfigOrError
-  srcTsConfigContents <- ExceptT $ left (: []) <$> readTsConfigFile tsConfigFileContents
-  case validateSrcTsConfig srcTsConfigContents of
-    [] -> return srcTsConfigContents
-    errors -> throwError errors
+  ExceptT $ left (: []) <$> readTsConfigFile tsConfigFileContents
   where
-    findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findFileInWaspProjectDir waspDir srcTsConfigFile
+    findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findFileInWaspProjectDir waspDir srcTsConfigPath
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
 
--- TODO: Reduce polymorphism, should only work with TsConfig files
-readTsConfigFile :: Path' Abs (File f) -> IO (Either String T.TsConfig)
+readTsConfigFile :: Path' Abs (File SrcTsConfigFile) -> IO (Either String T.TsConfig)
 readTsConfigFile tsConfigFile = do
   tsConfigContent <- IOUtil.readFileBytes tsConfigFile
   parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent

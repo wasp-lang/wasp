@@ -9,20 +9,24 @@ import Control.Arrow (ArrowChoice (left))
 import StrongPath
   ( Abs,
     Dir,
+    File,
     File',
     Path',
+    Rel,
     fromAbsDir,
   )
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.ConfigFile as CF
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
-import qualified Wasp.Generator.ConfigFile as G.CF
+import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
+    SrcTsConfigFile,
     WaspFilePath (..),
     WaspProjectDir,
     findFileInWaspProjectDir,
@@ -33,6 +37,7 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import Wasp.Project.ExternalConfig (readExternalConfigs)
 import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
@@ -49,8 +54,10 @@ analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-analyzeWaspProject waspDir options = do
+analyzeWaspProject waspDir compileOptions = do
   waspFilePathOrError <- left (: []) <$> findWaspFile waspDir
+  tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
+
   case waspFilePathOrError of
     Left err -> return (Left err, [])
     Right waspFilePath ->
@@ -60,51 +67,60 @@ analyzeWaspProject waspDir options = do
         (Right prismaSchemaAst, _) ->
           analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
             Left errors -> return (Left errors, [])
-            Right declarations ->
-              EC.analyzeExternalConfigs waspDir (getSrcTsConfigInWaspProjectDir waspFilePath) >>= \case
+            Right declarations -> do
+              let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+              readExternalConfigs waspDir srcTsConfigPath >>= \case
                 Left errors -> return (Left errors, [])
-                Right externalConfigs -> constructAppSpec waspDir options externalConfigs prismaSchemaAst declarations
+                Right externalConfigs ->
+                  constructAppSpec
+                    waspDir
+                    compileOptions
+                    tailwindConfigFilesRelocators
+                    prismaSchemaAst
+                    declarations
+                    srcTsConfigPath
+                    externalConfigs
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  EC.ExternalConfigs ->
+  [CF.ConfigFileRelocator] ->
   Psl.Schema.Schema ->
   [AS.Decl] ->
+  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
+  EC.ExternalConfigs ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir options externalConfigs parsedPrismaSchema decls = do
+constructAppSpec waspDir compileOptions tailwindConfigFilesRelocators parsedPrismaSchema decls srcTsConfigPath externalConfigs = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
 
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
-  configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
-  let packageJsonContent = EC._packageJson externalConfigs
-      srcTsConfigPath = EC._srcTsConfigPath externalConfigs
-
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
             AS.prismaSchema = parsedPrismaSchema,
-            AS.packageJson = packageJsonContent,
             AS.waspProjectDir = waspDir,
             AS.externalCodeFiles = externalCodeFiles,
             AS.externalPublicFiles = externalPublicFiles,
             AS.migrationsDir = maybeMigrationsDir,
             AS.devEnvVarsServer = serverEnvVars,
             AS.devEnvVarsClient = clientEnvVars,
-            AS.isBuild = CompileOptions.isBuild options,
+            AS.isBuild = CompileOptions.isBuild compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
-            AS.configFiles = configFiles,
             AS.devDatabaseUrl = devDbUrl,
             AS.customViteConfigPath = customViteConfigPath,
-            AS.srcTsConfigPath = srcTsConfigPath
+            AS.packageJson = EC._packageJson externalConfigs,
+            AS.srcTsConfigPath = srcTsConfigPath,
+            AS.srcTsConfig = EC._srcTsConfig externalConfigs,
+            AS.tailwindConfigFilesRelocators = tailwindConfigFilesRelocators,
+            AS.isTailwindUsed = TCF.isTailwindUsed tailwindConfigFilesRelocators
           }
 
   return $ runValidation ASV.validateAppSpec appSpec

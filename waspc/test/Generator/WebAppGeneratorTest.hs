@@ -1,6 +1,7 @@
 module Generator.WebAppGeneratorTest where
 
 import qualified Data.Map as M
+import Data.Maybe (fromJust)
 import Fixtures
 import qualified StrongPath as SP
 import System.FilePath ((</>))
@@ -62,7 +63,8 @@ spec_WebAppGenerator = do
             AS.devEnvVarsServer = [],
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
-            AS.configFiles = [],
+            AS.tailwindConfigFilesRelocators = [],
+            AS.srcTsConfigPath = fromJust $ SP.parseRelFile "tsconfig.json",
             AS.devDatabaseUrl = Nothing,
             AS.customViteConfigPath = Nothing
           }
