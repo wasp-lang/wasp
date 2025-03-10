@@ -61,7 +61,7 @@ That's it 🎉 You have successfully created and served a new full-stack web app
 ### Requirements
 
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
-A version of Node.js must be >= 18.
+A version of Node.js must be >= 20.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
