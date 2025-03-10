@@ -215,7 +215,8 @@ export const userSignupFields = defineUserSignupFields({
 
 #### 3. Showing the Correct State on the Client
 
-You can query the user's `isSignupComplete` flag on the client with the [`useAuth()`](../../auth/overview) hook.
+You can check the `isSignupComplete` flag on the `user` object.
+If you're on an authenticated page the `user` can be fetched through the [props](../../auth/overview#getting-the-user-in-authenticated-routes), otherwise use the [`useAuth()`](../../auth/overview#getting-the-user-in-non-authenticated-routes) hook instead.
 Depending on the flag's value, you can redirect users to the appropriate signup step.
 
 For example:
@@ -227,12 +228,9 @@ For example:
 <TabItem value="js" label="JavaScript">
 
 ```jsx title=src/HomePage.jsx
-import { useAuth } from 'wasp/client/auth'
 import { Navigate } from 'react-router-dom'
 
-export function HomePage() {
-  const { data: user } = useAuth()
-
+export function HomePage({ user }) {
   if (user.isSignupComplete === false) {
     return <Navigate to="/edit-user-details" />
   }
@@ -245,12 +243,10 @@ export function HomePage() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title=src/HomePage.tsx
-import { useAuth } from 'wasp/client/auth'
 import { Navigate } from 'react-router-dom'
+import { AuthUser } from 'wasp/auth'
 
-export function HomePage() {
-  const { data: user } = useAuth()
-
+export function HomePage({ user }: { user: AuthUser }) {
   if (user.isSignupComplete === false) {
     return <Navigate to="/edit-user-details" />
   }

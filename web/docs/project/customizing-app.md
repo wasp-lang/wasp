@@ -122,7 +122,7 @@ The rest of the fields are covered in dedicated sections of the docs:
 
 - `db: dict`
 
-  Database configuration. Read more in the [database configuration section](../data-model/backends) of the docs.
+  Database configuration. Read more in the [database configuration section](../data-model/databases) of the docs.
 
 - `emailSender: dict`
 
