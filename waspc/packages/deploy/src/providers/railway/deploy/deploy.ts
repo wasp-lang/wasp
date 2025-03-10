@@ -62,7 +62,7 @@ async function deployServer({ options, serverName }: DeploymentInfo<DeployOption
 
   const serverArtefactsDir = getServerArtefactsDir(options.waspProjectDir);
 
-  await $`${options.railwayExe} up ${serverArtefactsDir} --service "${serverName}" --no-gitignore --detach`;
+  await $`${options.railwayExe} up ${serverArtefactsDir} --service "${serverName}" --no-gitignore --detach --path-as-root`;
 
   waspSays('Server has been deployed!');
 }
@@ -84,7 +84,7 @@ async function deployClient({ options, serverName, clientName }: DeploymentInfo<
   await $`REACT_APP_API_URL=${serverUrl} npm run build`;
 
   const webAppArtefactsDir = getWebAppArtefactsDir(options.waspProjectDir);
-  await $`${options.railwayExe} up ${webAppArtefactsDir} --service "${clientName}" --no-gitignore --detach`;
+  await $`${options.railwayExe} up ${webAppArtefactsDir} --service "${clientName}" --no-gitignore --detach --path-as-root`;
 
   const clientUrl = await getServiceUrl(options.railwayExe, clientName, clientAppPort);
 
