@@ -47,6 +47,7 @@ import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.PackageJson (PackageJson)
+import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
@@ -85,11 +86,13 @@ data AppSpec = AppSpec
     userDockerfileContents :: Maybe Text,
     -- | A list of paths to Tailwind specific config files and where to copy them.
     tailwindConfigFilesRelocators :: [ConfigFileRelocator],
+    isTailwindUsed :: Bool,
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
     customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
-    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
+    srcTsConfig :: TsConfig
   }
 
 -- TODO: Make this return "Named" declarations?

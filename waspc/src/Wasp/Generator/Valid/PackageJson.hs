@@ -1,19 +1,19 @@
-module Wasp.Generator.ExternalConfig.PackageJson
+module Wasp.Generator.Valid.PackageJson
   ( validatePackageJson,
   )
 where
 
 import qualified Data.Map as M
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.PackageJson as P
-import Wasp.Generator.Common (prismaVersion)
-import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
-import Wasp.Generator.SdkGenerator.Common (tailwindCssVersion)
-import qualified Wasp.Generator.TailwindConfigFile as TCF
-import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactVersion)
-import qualified Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext as ECC
+import Wasp.Generator.DepVersions (prismaVersion)
+import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
+import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactVersion)
 
-validatePackageJson :: ECC.ExternalConfigAnalysisContext -> P.PackageJson -> [ErrorMsg]
-validatePackageJson context packageJson =
+validatePackageJson :: AppSpec -> [GeneratorError]
+validatePackageJson spec =
   concat
     ( [ validate ("wasp", "file:.wasp/out/sdk/wasp") IsListedWithExactVersion,
         validate ("prisma", show prismaVersion) IsListedAsDevWithExactVersion,
@@ -26,17 +26,17 @@ validatePackageJson context packageJson =
         ++ tailwindValidations
     )
   where
-    validate = validateDep packageJson
+    validate = validateDep $ AS.packageJson spec
 
     tailwindValidations =
       [ validate ("tailwindcss", show tailwindCssVersion) IsListedWithExactVersion | isTailwindUsed
       ]
 
-    isTailwindUsed = TCF.isTailwindUsed $ ECC._tailwindConfigFilesRelocators context
+    isTailwindUsed = AS.isTailwindUsed spec
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 
-validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> PackageValidationType -> [String]
+validateDep :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> PackageValidationType -> [GeneratorError]
 validateDep packageJson (packageName, expectedPackageVersion) = \case
   IsListedWithExactVersion -> checkDeps [P.dependencies packageJson] [requiredPackageMessage "dependencies"]
   IsListedAsDevWithExactVersion -> checkDeps [P.devDependencies packageJson] [requiredPackageMessage "devDependencies"]
@@ -49,19 +49,21 @@ validateDep packageJson (packageName, expectedPackageVersion) = \case
           else [incorrectVersionMessage]
       _notListed -> errorMessagesIfPackageNotListed
 
-    incorrectVersionMessage :: String
+    incorrectVersionMessage :: GeneratorError
     incorrectVersionMessage =
-      unwords
-        ["Wasp requires package", show packageName, "to be version", show expectedPackageVersion, "in package.json."]
+      GenericGeneratorError $
+        unwords
+          ["Wasp requires package", show packageName, "to be version", show expectedPackageVersion, "in package.json."]
 
-    requiredPackageMessage :: String -> String
+    requiredPackageMessage :: String -> GeneratorError
     requiredPackageMessage packageJsonLocation =
-      unwords
-        [ "Wasp requires package",
-          show packageName,
-          "with version",
-          show expectedPackageVersion,
-          "in",
-          show packageJsonLocation,
-          "in package.json."
-        ]
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package",
+            show packageName,
+            "with version",
+            show expectedPackageVersion,
+            "in",
+            show packageJsonLocation,
+            "in package.json."
+          ]

@@ -6,9 +6,6 @@ module Wasp.Generator.Common
     WebAppRootDir,
     AppComponentRootDir,
     DbRootDir,
-    prismaVersion,
-    superjsonVersion,
-    typescriptVersion,
     makeJsonWithEntityData,
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
@@ -25,7 +22,6 @@ import qualified StrongPath as SP
 import StrongPath.Types (Path')
 import System.FilePath (splitExtension)
 import Wasp.Generator.Templates (TemplatesDir)
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst)
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
@@ -53,17 +49,6 @@ instance AppComponentRootDir WebAppRootDir
 data DbRootDir
 
 instance AppComponentRootDir DbRootDir
-
-prismaVersion :: SV.Version
--- NOTE: If changing prisma version here, also change it in waspc/packages/prisma/package.json.
---       Then, make sure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
-prismaVersion = SV.Version 5 19 1
-
-superjsonVersion :: SV.ComparatorSet
-superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
-
-typescriptVersion :: SV.ComparatorSet
-typescriptVersion = SV.backwardsCompatibleWith $ SV.Version 5 1 0
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =

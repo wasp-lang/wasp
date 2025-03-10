@@ -35,8 +35,7 @@ isTailwindUsed configFileRelocators =
     doesConfigFileExist file =
       isJust $ find ((==) file . CF._pathInWaspProjectDir) configFileRelocators
 
--- Establishes the mapping of what config files to copy and where from/to.
--- NOTE: In the future, we could allow devs to configure what files we look for and where we copy them.
+-- Establishes the mapping of which Tailwind configs to copy and where from/to.
 tailwindConfigRelocationMap :: ConfigFileRelocationMap
 tailwindConfigRelocationMap =
   fromList

@@ -278,6 +278,7 @@ library
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
+    Wasp.Generator.DepVersions
     Wasp.Generator.TailwindConfigFile
     Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
@@ -288,9 +289,6 @@ library
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
-    Wasp.Generator.ExternalConfig.Common
-    Wasp.Generator.ExternalConfig.PackageJson
-    Wasp.Generator.ExternalConfig.TsConfig
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -317,6 +315,7 @@ library
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
+    Wasp.Generator.SdkGenerator.DepVersions
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.Server.AuthG
@@ -347,11 +346,15 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.Valid
+    Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.TsConfig
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
@@ -381,7 +384,6 @@ library
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
-    Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext
     Wasp.Project.ExternalConfig.PackageJson
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles

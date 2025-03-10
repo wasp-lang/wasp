@@ -26,6 +26,7 @@ import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
+import Wasp.Generator.Valid (validateAppSpec)
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -41,15 +42,18 @@ import Wasp.Util ((<++>))
 --     from user's machine. Maybe we just overwrite and we are good?
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir sendMessage = do
-  let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
+  case validateAppSpec spec of
+    [] -> do
+      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
 
-  case generatorResult of
-    Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
-    Right fileDrafts -> do
-      synchronizeFileDraftsWithDisk dstDir fileDrafts
-      writeDotWaspInfo dstDir
-      (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
-      return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
+      case generatorResult of
+        Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
+        Right fileDrafts -> do
+          synchronizeFileDraftsWithDisk dstDir fileDrafts
+          writeDotWaspInfo dstDir
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
+          return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
+    appSpecValidationErrors -> return ([], appSpecValidationErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =

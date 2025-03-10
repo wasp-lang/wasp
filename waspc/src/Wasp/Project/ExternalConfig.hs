@@ -1,11 +1,11 @@
 module Wasp.Project.ExternalConfig
-  ( analyzeExternalConfigs,
+  ( readExternalConfigs,
     ExternalConfigs (..),
   )
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
-import StrongPath (File, Path', Rel)
+import StrongPath (Abs, Dir, File, Path', Rel)
 import qualified Wasp.ExternalConfig.PackageJson as P
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common
@@ -13,27 +13,25 @@ import Wasp.Project.Common
     SrcTsConfigFile,
     WaspProjectDir,
   )
-import qualified Wasp.Project.ExternalConfig.ExternalConfigAnalysisContext as ECC
-import Wasp.Project.ExternalConfig.PackageJson (analyzePackageJsonFile)
-import Wasp.Project.ExternalConfig.TsConfig (analyzeSrcTsConfigFile)
+import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
+import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile)
 
 data ExternalConfigs = ExternalConfigs
   { _packageJson :: P.PackageJson,
-    _tsConfig :: T.TsConfig,
-    _srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+    _srcTsConfig :: T.TsConfig
   }
   deriving (Show)
 
-analyzeExternalConfigs ::
-  ECC.ExternalConfigAnalysisContext ->
+readExternalConfigs ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Either [CompileError] ExternalConfigs)
-analyzeExternalConfigs context = runExceptT $ do
-  packageJsonContent <- ExceptT $ analyzePackageJsonFile context
-  tsConfigContent <- ExceptT $ analyzeSrcTsConfigFile context
+readExternalConfigs waspDir srcTsConfigPath = runExceptT $ do
+  packageJsonContent <- ExceptT $ readPackageJsonFile waspDir
+  srcTsConfigContent <- ExceptT $ readSrcTsConfigFile waspDir srcTsConfigPath
 
   return $
     ExternalConfigs
       { _packageJson = packageJsonContent,
-        _tsConfig = tsConfigContent,
-        _srcTsConfigPath = ECC._srcTsConfigPath context
+        _srcTsConfig = srcTsConfigContent
       }
