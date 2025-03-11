@@ -18,7 +18,7 @@
 - Session ID is no longer removed when the user logs out from a different tab ([#2075](https://github.com/wasp-lang/wasp/issues/2075)).
 - Using operations on the server no longer breaks relative extensionless imports ([#2492](https://github.com/wasp-lang/wasp/issues/2492)).
 
-## 1.16.0
+## 0.16.0
 
 ### 🎉 New Features and improvements
 
