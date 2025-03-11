@@ -25,7 +25,7 @@ import Wasp.Util (indent)
 --   - /waspc/.nvmrc
 --   - /web/docs/introduction/getting-started.md -> "Requirements" section.
 oldestWaspSupportedNodeVersion :: SV.Version
-oldestWaspSupportedNodeVersion = SV.Version 20 18 0
+oldestWaspSupportedNodeVersion = SV.Version 20 0 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
