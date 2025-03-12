@@ -2,6 +2,10 @@
 
 ## 0.16.3
 
+### 🎉 New Features and improvements
+
+- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
+
 ### Bug fixes
 
 - CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
