@@ -21,7 +21,7 @@ Although authentication is one of the most common web app features, there are so
 
 First, I will demonstrate how you can implement it within your Next.js application through a step-by-step guide you can follow. It will require a fair amount of code and configuration, but the process itself is quite straightforward.
 
-Secondly, we’ll see how to achieve the same with [Wasp](https://wasp-lang.dev/) in just a few lines of code. Wasp is a batteries-included, full-stack framework for React & Node.js that uses Lucia under the hood to implement authentication. It runs fully on your infrastructure and is 100% open-source and free.
+Secondly, we’ll see how to achieve the same with [Wasp](https://wasp.sh/) in just a few lines of code. Wasp is a batteries-included, full-stack framework for React & Node.js that uses Lucia under the hood to implement authentication. It runs fully on your infrastructure and is 100% open-source and free.
 
 ![auth with Wasp](/img/lua-auth/comparison.png)
 
@@ -399,7 +399,7 @@ As seen in the video, Wasp is a framework for building apps with the benefits of
 ### Step 1: Create a Wasp Project
 
 ```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 wasp new my-wasp-app
 cd my-wasp-app
 ```
@@ -519,7 +519,7 @@ page MainPage {
 ```
 
 If you’d like to check this example in more depth, feel free to check this repo here: [wasp/examples/todo-typescript at release · wasp-lang/wasp (github.com)](https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript).
-Other great place to check is their documentation, which can be found [here](https://wasp-lang.dev/docs/auth/overview). It covers most of what I said here, and even more (e.g. the awesome new [hooks](https://wasp-lang.dev/docs/auth/auth-hooks) that came with Wasp v0.14)
+Other great place to check is their documentation, which can be found [here](https://wasp.sh/docs/auth/overview). It covers most of what I said here, and even more (e.g. the awesome new [hooks](https://wasp.sh/docs/auth/auth-hooks) that came with Wasp v0.14)
 
 ![https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
@@ -536,7 +536,7 @@ Way easier, isn’t it? Let’s review the steps we took to get here:
 
 If you need more control and customization over the authentication flow, Wasp provides Auth hooks that allow you to tailor the experience to your app's specific needs. These hooks enable you to execute custom code during various stages of the authentication process, ensuring that you can implement any required custom behavior.
 
-For more detailed information on using Auth hooks with Wasp, visit the [Wasp documentation](https://wasp-lang.dev/docs/auth/auth-hooks).
+For more detailed information on using Auth hooks with Wasp, visit the [Wasp documentation](https://wasp.sh/docs/auth/auth-hooks).
 
 ### Bonus Section: Adding Email/Password Login with Wasp and Customizing Auth
 
@@ -544,7 +544,7 @@ Now let’s imagine we want to add email and password authentication — with al
 
 With Wasp, all we have to do is add a few lines to your main.wasp file, so, simply updating your Wasp configuration to include email/password authentication makes it work straight out of the box!
 
-![https://wasp-lang.dev/img/auth-ui/auth-demo-compiler.gif](https://wasp-lang.dev/img/auth-ui/auth-demo-compiler.gif)
+![https://wasp.sh/img/auth-ui/auth-demo-compiler.gif](https://wasp.sh/img/auth-ui/auth-demo-compiler.gif)
 
 Wasp will handle the rest, also updating UI components and ensuring a smooth and secure authentication flow.
 
@@ -594,7 +594,7 @@ The whole point here is the difference in time and developer experience in order
 
 ![https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
-Are you interested in more content like this? Sign up for [our newsletter](https://wasp-lang.dev/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
+Are you interested in more content like this? Sign up for [our newsletter](https://wasp.sh/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
 
 ### Conclusion
 

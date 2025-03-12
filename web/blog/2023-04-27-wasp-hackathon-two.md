@@ -23,13 +23,13 @@ import ImgWithCaption from './components/ImgWithCaption'
 So Launch Week #2 has officially come to an end, and as the tradition goes, the end of the launch week means the beginning of a hackathon! 
 
 We've launched a ton of new features for you to build your Hackathon project with, including:
-- <a href="https://wasp-lang.dev/blog/2023/04/12/auth-ui">full-stack auth</a>, 
+- <a href="https://wasp.sh/blog/2023/04/12/auth-ui">full-stack auth</a>, 
 - support for sending emails, 
 - the ability to add custom API routes, 
 - full-stack type safety,
-- <a href="https://wasp-lang.dev/blog/2023/04/11/wasp-launch-week-two#thursday-apr-13---deploy-your-app-to-flyio-with-a-single-cli-command">one-line deployment to Fly.io</a>...
+- <a href="https://wasp.sh/blog/2023/04/11/wasp-launch-week-two#thursday-apr-13---deploy-your-app-to-flyio-with-a-single-cli-command">one-line deployment to Fly.io</a>...
 
-You can read all it in this <a href="https://wasp-lang.dev/blog/2023/04/11/wasp-launch-week-two"> blog post</a>, or watch a <a href="https://www.youtube.com/shorts/YDqh7dSW8ZQ">1-minute video</a> showing how it all works in practice 🎬!
+You can read all it in this <a href="https://wasp.sh/blog/2023/04/11/wasp-launch-week-two"> blog post</a>, or watch a <a href="https://www.youtube.com/shorts/YDqh7dSW8ZQ">1-minute video</a> showing how it all works in practice 🎬!
 
 <ImgWithCaption
     width="30%"
@@ -54,7 +54,7 @@ The only rule is to use Wasp, and you can build whatever you want (but both you 
 The applications are open, and the hackathon starts on April 28th and ends May 7th. You can apply (solo or with a team) here:
 
 <div style={{ textAlign: "center"}}>
-  <a href="https://hackathon.wasp-lang.dev"><span style={{ fontSize: "26px"}}> 🏆 Join the Wasp Hackathon 2.0! 🏆</span></a>
+  <a href="https://hackathon.wasp.sh"><span style={{ fontSize: "26px"}}> 🏆 Join the Wasp Hackathon 2.0! 🏆</span></a>
 </div>
 <br/>
 
@@ -62,4 +62,4 @@ Good luck and Happy Hacking 🐝🚀!
 <br/>
 <hr/>
 
-*Want to stay in the loop? → [Join our newsletter!](https://wasp-lang.dev/#signup)*
+*Want to stay in the loop? → [Join our newsletter!](https://wasp.sh/#signup)*

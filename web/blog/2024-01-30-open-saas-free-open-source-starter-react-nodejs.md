@@ -109,7 +109,7 @@ On top of that, Open SaaS comes preconfigured with some examples on how to custo
 
 [![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4mm6s1c3txxgm49e2k7w.png)](https://www.producthunt.com/posts/open-saas)
 
-By leveraging [Wasp’s Jobs feature](https://wasp-lang.dev/docs/advanced/jobs), Open SaaS pulls data from Plausible’s or Google’s Site Analytics (your choice!) and Stripe’s Data APIs every hour and saves them to our database. This data is then shown on our Admin Dashboard (go to [OpenSaaS.sh](https://OpenSaaS.sh) to see it in action). The nice part is, to get access to this data for your own app, all you have to do is follow our guide on getting your analytics API keys, insert the provided script, and you’re good to go!
+By leveraging [Wasp’s Jobs feature](https://wasp.sh/docs/advanced/jobs), Open SaaS pulls data from Plausible’s or Google’s Site Analytics (your choice!) and Stripe’s Data APIs every hour and saves them to our database. This data is then shown on our Admin Dashboard (go to [OpenSaaS.sh](https://OpenSaaS.sh) to see it in action). The nice part is, to get access to this data for your own app, all you have to do is follow our guide on getting your analytics API keys, insert the provided script, and you’re good to go!
 
 Again, Wasp makes this whole process really easy. With the function for querying the APIs and getting the data we need already defined for you, Open SaaS then uses a Wasp Job within the `main.wasp` config file:
 
