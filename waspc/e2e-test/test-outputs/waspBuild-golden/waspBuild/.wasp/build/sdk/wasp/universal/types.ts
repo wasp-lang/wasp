@@ -49,3 +49,12 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
 ) => any
   ? [FirstParam, ...Rest]
   : Parameters<T>;
+
+// PRIVATE API (Vite config)
+export type Result<Data> = {
+  type: 'error',
+  message: string,
+} | {
+  type: 'success',
+  data: Data,
+}

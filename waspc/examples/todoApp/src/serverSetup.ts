@@ -35,7 +35,7 @@ export const setup: ServerSetupFn = async ({ app }) => {
     await submittedJob.pgBoss.details()
   )
 
-  console.log('Env var MY_ENV_VAR:', env.MY_ENV_VAR)
+  console.log('Env var TEST_ENV_VAR:', env.TEST_ENV_VAR)
 }
 
 function addCustomRoute(app: Application) {
