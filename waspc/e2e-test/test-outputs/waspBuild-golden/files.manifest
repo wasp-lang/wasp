@@ -170,6 +170,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/server/utils.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.jsx.map
+waspBuild/.wasp/build/sdk/wasp/dist/universal/ansiColors.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/universal/ansiColors.js
+waspBuild/.wasp/build/sdk/wasp/dist/universal/ansiColors.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js.map
@@ -210,6 +213,7 @@ waspBuild/.wasp/build/sdk/wasp/src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/src/vite-env.d.ts
 waspBuild/.wasp/build/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/build/sdk/wasp/tsconfig.json
+waspBuild/.wasp/build/sdk/wasp/universal/ansiColors.ts
 waspBuild/.wasp/build/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/build/sdk/wasp/universal/types.ts
 waspBuild/.wasp/build/sdk/wasp/universal/url.ts
@@ -424,6 +428,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/server/utils.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.jsx.map
+waspBuild/.wasp/out/sdk/wasp/dist/universal/ansiColors.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/universal/ansiColors.js
+waspBuild/.wasp/out/sdk/wasp/dist/universal/ansiColors.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -464,6 +471,7 @@ waspBuild/.wasp/out/sdk/wasp/src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/src/vite-env.d.ts
 waspBuild/.wasp/out/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/out/sdk/wasp/tsconfig.json
+waspBuild/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspBuild/.wasp/out/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/out/sdk/wasp/universal/types.ts
 waspBuild/.wasp/out/sdk/wasp/universal/url.ts

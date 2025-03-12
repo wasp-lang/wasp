@@ -193,14 +193,14 @@
             "file",
             "../out/sdk/wasp/env/validation.ts"
         ],
-        "a144c78554d0340ad40aa2591c32001636e80b028eb3ef80d1ad2f4480840d22"
+        "9409f08c14c994c86cf65c6e36aa38dac877078350e9bfc5a5837671c402aa46"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "3d70642f938bb064626cfbca85888f724694f93f5d0ed64405d68c323fbc09b6"
+        "e5e92bf210910fe642bb0521b35b5fe262f3c5ddd7196d727946ca9ad346e7ce"
     ],
     [
         [
@@ -373,6 +373,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/universal/ansiColors.ts"
+        ],
+        "0ea1eede5458d41a01401baf108c70032df86162a58e11c4f278496fe75a0529"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/universal/predicates.ts"
         ],
         "baa4148fdf4995cfc154a81bc494e9e8077635d4db50958d5b59837d1b8ed691"
@@ -382,7 +389,7 @@
             "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
-        "a5c7a0300bf161b17e2cd8af4a7b51616b8c2dc7d469cd19fe2e8489ac572180"
+        "b2b5ee883e5d6320499b182fb7782d241b1990a77fc8046848a0d05ae3c6312a"
     ],
     [
         [
@@ -711,6 +718,6 @@
             "file",
             "web-app/vite/validateEnv.ts"
         ],
-        "d54f5ebbae903b905a082f956899dcea884a6d2da12d6c234cca2cd850f51b37"
+        "2048ab4b56ee93d770ed21e495e7be858739260e46c486e4e699252284d69396"
     ]
 ]
