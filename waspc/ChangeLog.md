@@ -4,7 +4,7 @@
 
 ### 🎉 New Features and improvements
 
-- A custom `theme-color` can now be defined by the app ([#2546](https://github.com/wasp-lang/wasp/pull/2546)).
+- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546)).
 
 ## 0.16.2
 
