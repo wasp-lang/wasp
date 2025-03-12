@@ -4,7 +4,11 @@
 
 ### 🎉 New Features and improvements
 
-- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546)).
+- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
+
+### Bug fixes
+
+- CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
 
 ## 0.16.2
 
@@ -24,7 +28,7 @@
 - Session ID is no longer removed when the user logs out from a different tab ([#2075](https://github.com/wasp-lang/wasp/issues/2075)).
 - Using operations on the server no longer breaks relative extensionless imports ([#2492](https://github.com/wasp-lang/wasp/issues/2492)).
 
-## 1.16.0
+## 0.16.0
 
 ### 🎉 New Features and improvements
 
