@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import type { Result } from '../universal/types'
 
 const redColor = '\x1b[31m'
 
@@ -13,31 +14,22 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
       console.error(`${redColor}${result.message}`)
       throw new Error('Error parsing environment variables')
     case 'success':
-      return result.env
+      return result.data
     default:
       result satisfies never;
   }
-}
-
-// PRIVATE API (Vite config)
-export type EnvValidationResult<Env> = {
-  type: 'error',
-  message: string,
-} | {
-  type: 'success',
-  env: Env,
 }
 
 // PRIVATE API (SDK, Vite config)
 export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
   env: unknown,
   schema: Schema
-): EnvValidationResult<z.infer<Schema>> {
+): Result<z.infer<Schema>> {
   try {
     const validatedEnv = schema.parse(env)
     return {
       type: 'success',
-      env: validatedEnv,
+      data: validatedEnv,
     }
   } catch (e) {
     if (e instanceof z.ZodError) {

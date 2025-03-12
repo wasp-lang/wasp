@@ -8,7 +8,7 @@ export function ensureEnvSchema(data, schema) {
             console.error(`${redColor}${result.message}`);
             throw new Error('Error parsing environment variables');
         case 'success':
-            return result.env;
+            return result.data;
         default:
             result;
     }
@@ -19,7 +19,7 @@ export function getValidatedEnvOrError(env, schema) {
         const validatedEnv = schema.parse(env);
         return {
             type: 'success',
-            env: validatedEnv,
+            data: validatedEnv,
         };
     }
     catch (e) {
