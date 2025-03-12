@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.3
+
+### 🎉 New Features and improvements
+
+- A custom `theme-color` can now be defined by the app ([#2546](https://github.com/wasp-lang/wasp/pull/2546)).
+
 ## 0.16.2
 
 ### 🎉 New Features and improvements
