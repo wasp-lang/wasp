@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.3
+
+### Bug fixes
+
+- CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
+
 ## 0.16.2
 
 ### 🎉 New Features and improvements
